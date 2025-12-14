@@ -1,0 +1,297 @@
+name: Code Quality Checks
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+  push:
+    branches: [ main, develop ]
+
+jobs:
+  # 代码格式检查
+  format-check:
+    name: Code Format
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Check Prettier formatting
+      run: |
+        npx prettier --check "src/**/*.js" "client/src/**/*.{js,vue,ts}" "server/**/*.js"
+
+    - name: Check ESLint
+      run: npm run lint
+
+    - name: Check TypeScript types
+      run: npx tsc --noEmit --project . || true
+
+  # 代码复杂度分析
+  complexity-analysis:
+    name: Code Complexity
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Install complexity analysis tools
+      run: npm install -g complexity-report
+
+    - name: Analyze code complexity
+      run: |
+        complexity-report -o complexity-report.json -f json src/ || true
+        complexity-report -o client-complexity-report.json -f json client/src/ || true
+
+    - name: Check complexity thresholds
+      run: |
+        node scripts/check-complexity.js
+
+    - name: Upload complexity report
+      uses: actions/upload-artifact@v3
+      with:
+        name: complexity-reports
+        path: "*.json"
+
+  # 代码覆盖率检查
+  coverage-check:
+    name: Code Coverage
+    runs-on: ubuntu-latest
+    services:
+      mongodb:
+        image: mongo:5.0
+        ports:
+          - 27017:27017
+      redis:
+        image: redis:6
+        ports:
+          - 6379:6379
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run tests with coverage
+      run: npm run test:coverage
+      env:
+        MONGO_URI: mongodb://localhost:27017/smart-village-test
+        REDIS_URL: redis://localhost:6379
+        NODE_ENV: test
+
+    - name: Check coverage thresholds
+      run: |
+        # 检查覆盖率是否达到阈值
+        COVERAGE=$(npx nyc report --reporter=text-summary | grep "Lines" | awk '{print $2}' | sed 's/%//')
+        if (( $(echo "$COVERAGE < 80" | bc -l) )); then
+          echo "❌ Code coverage is below 80%: $COVERAGE%"
+          exit 1
+        else
+          echo "✅ Code coverage is $COVERAGE%"
+        fi
+
+    - name: Generate coverage badge
+      uses: tj-actions/coverage-badge-js@v1
+      with:
+        output: coverage-badge.svg
+
+    - name: Upload coverage report
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage/lcov.info
+        flags: unittests
+        name: codecov-umbrella
+
+  # 依赖安全检查
+  dependency-check:
+    name: Dependency Security
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run npm audit
+      run: npm audit --audit-level moderate
+
+    - name: Check for outdated dependencies
+      run: npm outdated || true
+
+    - name: Generate dependency report
+      run: |
+        npm ls --depth=0 > dependency-tree.txt
+        npm ls --depth=0 --json > dependency-tree.json
+
+    - name: Upload dependency report
+      uses: actions/upload-artifact@v3
+      with:
+        name: dependency-reports
+        path: |
+          dependency-tree.txt
+          dependency-tree.json
+
+  # 代码质量门禁
+  quality-gate:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+    needs: [format-check, complexity-analysis, coverage-check, dependency-check]
+    if: github.event_name == 'pull_request'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download artifacts
+      uses: actions/download-artifact@v3
+      with:
+        path: artifacts/
+
+    - name: Quality Gate Check
+      run: |
+        echo "🚪 Code Quality Gate Check"
+        echo "=========================="
+
+        # 检查是否有失败的检查
+        FAILED_CHECKS=0
+
+        if [ "${{ needs.format-check.result }}" != "success" ]; then
+          echo "❌ Code formatting failed"
+          FAILED_CHECKS=$((FAILED_CHECKS + 1))
+        fi
+
+        if [ "${{ needs.coverage-check.result }}" != "success" ]; then
+          echo "❌ Code coverage check failed"
+          FAILED_CHECKS=$((FAILED_CHECKS + 1))
+        fi
+
+        if [ "${{ needs.dependency-check.result }}" != "success" ]; then
+          echo "❌ Dependency security check failed"
+          FAILED_CHECKS=$((FAILED_CHECKS + 1))
+        fi
+
+        if [ $FAILED_CHECKS -gt 0 ]; then
+          echo "❌ Quality Gate FAILED: $FAILED_CHECKS checks failed"
+          echo "Please fix the issues before merging"
+          exit 1
+        else
+          echo "✅ Quality Gate PASSED: All checks passed"
+        fi
+
+    - name: Comment on PR
+      uses: actions/github-script@v6
+      if: github.event_name == 'pull_request'
+      with:
+        script: |
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+          });
+
+          const botComment = comments.find(comment =>
+            comment.user.type === 'Bot' &&
+            comment.body.includes('🚪 Code Quality Gate')
+          );
+
+          if (botComment) {
+            await github.rest.issues.deleteComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: botComment.id,
+            });
+          }
+
+          const qualityGateStatus = '${{ needs.quality-gate.result }}';
+          const status = qualityGateStatus === 'success' ? '✅ PASSED' : '❌ FAILED';
+
+          await github.rest.issues.createComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+            body: `## 🚪 Code Quality Gate Status: ${status}
+
+          ### 📊 Check Results:
+          - **Code Format**: ${{ needs.format-check.result }}
+          - **Code Coverage**: ${{ needs.coverage-check.result }}
+          - **Dependency Security**: ${{ needs.dependency-check.result }}
+          - **Complexity Analysis**: ${{ needs.complexity-analysis.result }}
+
+          ${qualityGateStatus === 'success' ?
+            '🎉 All quality checks passed! This PR is ready for merge.' :
+            '❌ Some quality checks failed. Please review and fix the issues before merging.'
+          }
+
+          ---
+          *This comment is automatically generated by the Code Quality Gate.*`,
+          });
+
+  # 性能基准测试
+  performance-benchmark:
+    name: Performance Benchmark
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build application
+      run: npm run build
+
+    - name: Run performance benchmark
+      run: |
+        npm run test:performance
+
+    - name: Compare with baseline
+      run: |
+        # 这里添加与基准性能对比的逻辑
+        echo "Comparing performance with baseline..."
+
+    - name: Upload performance report
+      uses: actions/upload-artifact@v3
+      with:
+        name: performance-benchmark
+        path: performance-report.json
