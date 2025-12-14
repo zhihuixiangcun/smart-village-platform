@@ -1,0 +1,17 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 🚀 智慧村庄平台问答
+    url: https://github.com/zhihuixiangcun/smart-village-platform/discussions
+    about: 如有技术问题或使用疑问，请在讨论区提问
+  - name: 📖 项目文档
+    url: https://docs.smart-village.com
+    about: 查看详细的项目文档和使用指南
+  - name: 🔧 技术支持
+    url: mailto:support@smart-village.com
+    about: 获取专业技术支持和咨询服务
+  - name: 🛡️ 安全漏洞报告
+    url: mailto:18886990223@163.com
+    about: 如发现安全漏洞，请通过邮件联系安全团队
+  - name: 🤝 商务合作
+    url: mailto:business@smart-village.com
+    about: 商务合作和定制开发服务
