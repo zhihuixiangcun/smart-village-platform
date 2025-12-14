@@ -1,0 +1,518 @@
+name: Smart Village Platform CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  release:
+    types: [ published ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  NODE_VERSION: '18.x'
+  MONGO_VERSION: '5.0'
+  REDIS_VERSION: '6.2'
+
+jobs:
+  # ===== TESTING STAGE =====
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x, 20.x]
+
+    services:
+      mongodb:
+        image: mongo:5.0
+        ports:
+          - 27017:27017
+        env:
+          MONGO_INITDB_ROOT_USERNAME: admin
+          MONGO_INITDB_ROOT_PASSWORD: password
+        options: >-
+          --health-cmd mongosh
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:6.2-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: |
+        npm ci
+        cd client && npm ci
+
+    - name: Lint code
+      run: |
+        npm run lint
+        cd client && npm run lint
+
+    - name: Type check
+      run: |
+        npm run type-check || true
+        cd client && npm run type-check
+
+    - name: Run unit tests
+      env:
+        NODE_ENV: test
+        MONGO_URI: mongodb://admin:password@localhost:27017/smart-village-test?authSource=admin
+        REDIS_URL: redis://localhost:6379/1
+        JWT_SECRET: test-secret-key-for-ci-pipeline
+      run: |
+        npm run test:unit -- --coverage
+        npm run test:integration
+
+    - name: Build frontend
+      run: |
+        cd client
+        npm run build
+
+    - name: Upload test coverage
+      uses: codecov/codecov-action@v3
+      if: matrix.node-version == '18.x'
+      with:
+        file: ./coverage/lcov.info
+        flags: unittests
+        name: codecov-umbrella
+
+  # ===== SECURITY SCANNING =====
+  security:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run security audit
+      run: |
+        npm audit --audit-level moderate
+        cd client && npm audit --audit-level moderate
+
+    - name: Run SAST with CodeQL
+      uses: github/codeql-action/init@v2
+      with:
+        languages: javascript
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  # ===== BUILD STAGE =====
+  build:
+    runs-on: ubuntu-latest
+    needs: [test, security]
+    if: github.event_name != 'pull_request'
+
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+      image-digest: ${{ steps.build.outputs.digest }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=sha,prefix={{branch}}-
+
+    # Build API Server
+    - name: Build and push API server image
+      id: build-api
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./docker/Dockerfile.api
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}-api
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          NODE_ENV=production
+          BUILD_DATE=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+          VCS_REF=${{ github.sha }}
+
+    # Build Village Server
+    - name: Build and push Village server image
+      id: build-village
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./docker/Dockerfile.village
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}-village
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    # Build Client
+    - name: Build and push Client image
+      id: build-client
+      uses: docker/build-push-action@v5
+      with:
+        context: ./client
+        file: ./client/Dockerfile
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}-client
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Generate SBOM
+      uses: anchore/sbom-action@v0
+      with:
+        image: ${{ steps.meta.outputs.tags }}-api
+
+  # ===== DEPLOY TO STAGING =====
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/develop'
+    environment:
+      name: staging
+      url: https://staging.smartvillage.com
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.28.0'
+
+    - name: Configure kubectl
+      run: |
+        echo "${{ secrets.KUBE_CONFIG_STAGING }}" | base64 -d > kubeconfig
+        export KUBECONFIG=kubeconfig
+
+    - name: Deploy to staging
+      run: |
+        export KUBECONFIG=kubeconfig
+
+        # Update image tags in manifests
+        sed -i "s|IMAGE_TAG|${{ needs.build.outputs.image-tag }}-api|g" k8s/staging/api-deployment.yaml
+        sed -i "s|IMAGE_TAG|${{ needs.build.outputs.image-tag }}-village|g" k8s/staging/village-deployment.yaml
+        sed -i "s|IMAGE_TAG|${{ needs.build.outputs.image-tag }}-client|g" k8s/staging/client-deployment.yaml
+
+        # Apply configurations
+        kubectl apply -f k8s/staging/namespace.yaml
+        kubectl apply -f k8s/staging/configmap.yaml
+        kubectl apply -f k8s/staging/secrets.yaml
+        kubectl apply -f k8s/staging/
+
+        # Wait for rollout
+        kubectl rollout status deployment/api-server -n smart-village-staging --timeout=300s
+        kubectl rollout status deployment/village-server -n smart-village-staging --timeout=300s
+        kubectl rollout status deployment/client-server -n smart-village-staging --timeout=300s
+
+    - name: Run integration tests
+      run: |
+        export KUBECONFIG=kubeconfig
+        STAGING_URL=$(kubectl get service client-service -n smart-village-staging -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+
+        # Wait for service to be ready
+        timeout 300 bash -c 'until curl -f http://$STAGING_URL/health; do sleep 5; done'
+
+        # Run API tests against staging
+        npm run test:e2e -- --baseUrl=http://$STAGING_URL
+
+    - name: Notify deployment status
+      uses: 8398a7/action-slack@v3
+      if: always()
+      with:
+        status: ${{ job.status }}
+        channel: '#deployments'
+        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        fields: repo,message,commit,author,action,eventName,ref,workflow
+
+  # ===== DEPLOY TO PRODUCTION =====
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'release'
+    environment:
+      name: production
+      url: https://smartvillage.com
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.28.0'
+
+    - name: Configure kubectl
+      run: |
+        echo "${{ secrets.KUBE_CONFIG_PROD }}" | base64 -d > kubeconfig
+        export KUBECONFIG=kubeconfig
+
+    - name: Blue-Green Deployment
+      run: |
+        export KUBECONFIG=kubeconfig
+
+        # Determine current active environment
+        CURRENT_ENV=$(kubectl get service smart-village-active -n smart-village-prod -o jsonpath='{.spec.selector.environment}')
+        NEW_ENV=$( [ "$CURRENT_ENV" = "blue" ] && echo "green" || echo "blue" )
+
+        echo "Current environment: $CURRENT_ENV"
+        echo "Deploying to: $NEW_ENV"
+
+        # Update image tags for new environment
+        sed -i "s|IMAGE_TAG|${{ needs.build.outputs.image-tag }}-api|g" k8s/production/api-deployment-$NEW_ENV.yaml
+        sed -i "s|IMAGE_TAG|${{ needs.build.outputs.image-tag }}-village|g" k8s/production/village-deployment-$NEW_ENV.yaml
+        sed -i "s|IMAGE_TAG|${{ needs.build.outputs.image-tag }}-client|g" k8s/production/client-deployment-$NEW_ENV.yaml
+
+        # Deploy to new environment
+        kubectl apply -f k8s/production/namespace.yaml
+        kubectl apply -f k8s/production/configmap-$NEW_ENV.yaml
+        kubectl apply -f k8s/production/secrets-$NEW_ENV.yaml
+        kubectl apply -f k8s/production/*-deployment-$NEW_ENV.yaml
+        kubectl apply -f k8s/production/*-service-$NEW_ENV.yaml
+
+        # Wait for new deployment to be ready
+        kubectl rollout status deployment/api-server-$NEW_ENV -n smart-village-prod --timeout=600s
+        kubectl rollout status deployment/village-server-$NEW_ENV -n smart-village-prod --timeout=600s
+        kubectl rollout status deployment/client-server-$NEW_ENV -n smart-village-prod --timeout=600s
+
+    - name: Health check new environment
+      run: |
+        export KUBECONFIG=kubeconfig
+        NEW_ENV=$( [ "$(kubectl get service smart-village-active -n smart-village-prod -o jsonpath='{.spec.selector.environment}')" = "blue" ] && echo "green" || echo "blue" )
+
+        # Get service endpoint for new environment
+        NEW_URL=$(kubectl get service client-service-$NEW_ENV -n smart-village-prod -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+
+        # Comprehensive health checks
+        echo "Running health checks on $NEW_URL..."
+
+        # Basic health check
+        curl -f http://$NEW_URL/health || exit 1
+
+        # API health check
+        curl -f http://$NEW_URL/api/health || exit 1
+
+        # Database connectivity check
+        curl -f http://$NEW_URL/api/monitoring/health || exit 1
+
+        # Load test (light)
+        npx autocannon -c 10 -d 30 http://$NEW_URL/health
+
+    - name: Switch traffic to new environment
+      run: |
+        export KUBECONFIG=kubeconfig
+        NEW_ENV=$( [ "$(kubectl get service smart-village-active -n smart-village-prod -o jsonpath='{.spec.selector.environment}')" = "blue" ] && echo "green" || echo "blue" )
+
+        echo "Switching traffic to $NEW_ENV environment"
+
+        # Update active service to point to new environment
+        kubectl patch service smart-village-active -n smart-village-prod -p '{"spec":{"selector":{"environment":"'$NEW_ENV'"}}}'
+
+        # Wait for traffic switch
+        sleep 30
+
+        # Verify traffic switch
+        curl -f https://smartvillage.com/health || exit 1
+
+    - name: Cleanup old environment
+      run: |
+        export KUBECONFIG=kubeconfig
+        OLD_ENV=$( [ "$(kubectl get service smart-village-active -n smart-village-prod -o jsonpath='{.spec.selector.environment}')" = "blue" ] && echo "green" || echo "blue" )
+
+        echo "Cleaning up $OLD_ENV environment after successful deployment"
+
+        # Scale down old environment (keep for quick rollback)
+        kubectl scale deployment api-server-$OLD_ENV --replicas=1 -n smart-village-prod
+        kubectl scale deployment village-server-$OLD_ENV --replicas=1 -n smart-village-prod
+        kubectl scale deployment client-server-$OLD_ENV --replicas=1 -n smart-village-prod
+
+    - name: Create deployment record
+      run: |
+        # Record deployment details
+        curl -X POST "${{ secrets.DEPLOYMENT_WEBHOOK }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "environment": "production",
+            "version": "${{ github.event.release.tag_name }}",
+            "image_digest": "${{ needs.build.outputs.image-digest }}",
+            "deployed_by": "${{ github.actor }}",
+            "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'",
+            "status": "success"
+          }'
+
+    - name: Post-deployment monitoring alert
+      uses: 8398a7/action-slack@v3
+      with:
+        status: custom
+        custom_payload: |
+          {
+            "text": "🚀 Production deployment successful!",
+            "attachments": [
+              {
+                "color": "good",
+                "fields": [
+                  {
+                    "title": "Version",
+                    "value": "${{ github.event.release.tag_name }}",
+                    "short": true
+                  },
+                  {
+                    "title": "Environment",
+                    "value": "Production",
+                    "short": true
+                  },
+                  {
+                    "title": "Deployed by",
+                    "value": "${{ github.actor }}",
+                    "short": true
+                  }
+                ]
+              }
+            ]
+          }
+        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+
+  # ===== ROLLBACK JOB =====
+  rollback:
+    runs-on: ubuntu-latest
+    if: failure() && github.event_name == 'release'
+    needs: [deploy-production]
+    environment:
+      name: production
+      url: https://smartvillage.com
+
+    steps:
+    - name: Setup kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.28.0'
+
+    - name: Configure kubectl
+      run: |
+        echo "${{ secrets.KUBE_CONFIG_PROD }}" | base64 -d > kubeconfig
+        export KUBECONFIG=kubeconfig
+
+    - name: Rollback deployment
+      run: |
+        export KUBECONFIG=kubeconfig
+
+        # Get current environment
+        CURRENT_ENV=$(kubectl get service smart-village-active -n smart-village-prod -o jsonpath='{.spec.selector.environment}')
+        OLD_ENV=$( [ "$CURRENT_ENV" = "blue" ] && echo "green" || echo "blue" )
+
+        echo "Rolling back from $CURRENT_ENV to $OLD_ENV"
+
+        # Scale up old environment
+        kubectl scale deployment api-server-$OLD_ENV --replicas=3 -n smart-village-prod
+        kubectl scale deployment village-server-$OLD_ENV --replicas=2 -n smart-village-prod
+        kubectl scale deployment client-server-$OLD_ENV --replicas=2 -n smart-village-prod
+
+        # Wait for old environment to be ready
+        kubectl rollout status deployment/api-server-$OLD_ENV -n smart-village-prod --timeout=300s
+
+        # Switch traffic back
+        kubectl patch service smart-village-active -n smart-village-prod -p '{"spec":{"selector":{"environment":"'$OLD_ENV'"}}}'
+
+        # Scale down failed environment
+        kubectl scale deployment api-server-$CURRENT_ENV --replicas=0 -n smart-village-prod
+        kubectl scale deployment village-server-$CURRENT_ENV --replicas=0 -n smart-village-prod
+        kubectl scale deployment client-server-$CURRENT_ENV --replicas=0 -n smart-village-prod
+
+    - name: Verify rollback
+      run: |
+        sleep 30
+        curl -f https://smartvillage.com/health || exit 1
+        echo "Rollback completed successfully"
+
+    - name: Notify rollback
+      uses: 8398a7/action-slack@v3
+      with:
+        status: custom
+        custom_payload: |
+          {
+            "text": "⚠️ Production rollback completed",
+            "attachments": [
+              {
+                "color": "warning",
+                "fields": [
+                  {
+                    "title": "Version",
+                    "value": "${{ github.event.release.tag_name }}",
+                    "short": true
+                  },
+                  {
+                    "title": "Status",
+                    "value": "Rollback completed",
+                    "short": true
+                  }
+                ]
+              }
+            ]
+          }
+        webhook_url: ${{ secrets.SLACK_WEBHOOK }}

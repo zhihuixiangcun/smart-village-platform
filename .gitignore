@@ -1,0 +1,228 @@
+# 智慧乡村平台 - Git忽略文件配置
+
+# =================================
+# 环境配置文件
+# =================================
+.env
+.env.local
+.env.development
+.env.staging
+.env.production
+.env.test
+config/production.json
+config/staging.json
+
+# =================================
+# 依赖目录
+# =================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# =================================
+# 日志文件
+# =================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# =================================
+# 构建输出
+# =================================
+dist/
+build/
+.next/
+.nuxt/
+.cache/
+.temp/
+.tmp/
+coverage/
+*.lcov
+.nyc_output/
+
+# =================================
+# 运行时数据
+# =================================
+pids/
+*.pid
+*.seed
+*.pid.lock
+.lock-wscript
+
+# =================================
+# 编辑器和IDE配置
+# =================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# =================================
+# 操作系统生成文件
+# =================================
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# =================================
+# 数据库文件
+# =================================
+*.db
+*.sqlite
+*.sqlite3
+data.db
+uploads/
+backups/
+
+# =================================
+# 临时文件
+# =================================
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+*.orig
+*.rej
+
+# =================================
+# 证书和密钥
+# =================================
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+*.pfx
+ssl/
+certs/
+
+# =================================
+# Docker相关
+# =================================
+.dockerignore
+docker-compose.override.yml
+
+# =================================
+# 监控和性能文件
+# =================================
+*.prof
+*.heap
+*.cpuprofile
+
+# =================================
+# 团队配置和临时文件
+# =================================
+team-config-share/
+claude-cli/
+claude-cursor-trae通用智能体提示词合集/
+.cursor/
+.codebuddy/
+.codebuddycn/
+.icube-remote-ssh/
+.lingma/
+.pm2/
+.qoder/
+.qwen/
+.trae/
+.trae-cn/
+.vscode/
+
+# =================================
+# 测试文件和脚本
+# =================================
+test-*.js
+validate-*.js
+debug-*.js
+run-*.js
+simple-*.js
+*.bat
+*.ps1
+test-results/
+junit.xml
+testem.log
+
+# =================================
+# 微服务特定
+# =================================
+smart-village-miniprogram/miniprogram_npm/
+smart-village-mobile/android/app/build/
+smart-village-mobile/ios/build/
+expo-shared-assets/
+
+# =================================
+# 缓存目录
+# =================================
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+.bin/
+
+# =================================
+# 应用数据
+# =================================
+uploads/
+public/uploads/
+storage/
+app/storage/
+
+# =================================
+# 会话和cookie存储
+# =================================
+sessions/
+cookies/
+sessions.sqlite
+
+# =================================
+# 生产环境特定
+# =================================
+.current-version
+.last-deploy
+rollback-*
+deploy-*
+
+# =================================
+# API文档临时文件
+# =================================
+apidoc/
+swagger-ui/
+api-docs/
+
+# =================================
+# 大型二进制文件
+# =================================
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+*.msi
+*.msm
+*.msp
+mongodb-installer.msi

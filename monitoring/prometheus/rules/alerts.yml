@@ -1,0 +1,77 @@
+# 智慧乡村平台 Prometheus 告警规则配置
+
+groups:
+  # API 服务器告警规则
+  - name: api-server-alerts
+    rules:
+    # API 服务器宕机告警
+    - alert: APIServerDown
+      expr: up{job="smart-village-api"} == 0
+      for: 1m
+      labels:
+        severity: critical
+        service: api-server
+      annotations:
+        summary: "API服务器宕机"
+        description: "API服务器 {{ $labels.instance }} 已宕机超过1分钟"
+
+    # API 响应时间过长告警
+    - alert: APIHighResponseTime
+      expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="smart-village-api"}[5m])) > 2
+      for: 5m
+      labels:
+        severity: warning
+        service: api-server
+      annotations:
+        summary: "API响应时间过长"
+        description: "API服务器 {{ $labels.instance }} 95%分位响应时间 {{ $value }}秒，超过2秒阈值"
+
+    # API 错误率过高告警
+    - alert: APIHighErrorRate
+      expr: rate(http_requests_total{job="smart-village-api",status=~"5.."}[5m]) / rate(http_requests_total{job="smart-village-api"}[5m]) > 0.05
+      for: 3m
+      labels:
+        severity: warning
+        service: api-server
+      annotations:
+        summary: "API错误率过高"
+        description: "API服务器 {{ $labels.instance }} 错误率 {{ printf \"%.2f\" $value }}%，超过5%阈值"
+
+  # 数据库告警规则
+  - name: database-alerts
+    rules:
+    # MongoDB 连接失败告警
+    - alert: MongoDBDown
+      expr: up{job="mongodb"} == 0
+      for: 2m
+      labels:
+        severity: critical
+        service: mongodb
+      annotations:
+        summary: "MongoDB数据库宕机"
+        description: "MongoDB数据库 {{ $labels.instance }} 已宕机超过2分钟"
+
+    # Redis 连接失败告警
+    - alert: RedisDown
+      expr: up{job="redis"} == 0
+      for: 1m
+      labels:
+        severity: critical
+        service: redis
+      annotations:
+        summary: "Redis缓存服务宕机"
+        description: "Redis服务器 {{ $labels.instance }} 已宕机超过1分钟"
+
+  # 业务指标告警规则
+  - name: business-alerts
+    rules:
+    # 紧急广播发送告警
+    - alert: EmergencyBroadcastSent
+      expr: increase(emergency_broadcast_total[1m]) > 0
+      for: 0m
+      labels:
+        severity: info
+        service: business
+      annotations:
+        summary: "紧急广播已发送"
+        description: "村庄 {{ $labels.village_id }} 发送了紧急广播：{{ $labels.broadcast_type }}"

@@ -1,0 +1,371 @@
+// 移动端触控优化样式
+@import './variables.scss';
+
+// 最小触控区域规范（苹果推荐44px，安卓推荐48px）
+$min-touch-size: 44px;
+$mobile-padding: 16px;
+$mobile-margin: 12px;
+
+// 移动端断点
+$mobile-breakpoint: 768px;
+$tablet-breakpoint: 1024px;
+
+// 移动端通用样式
+@mixin mobile-friendly-button {
+  min-height: $min-touch-size;
+  min-width: $min-touch-size;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 16px;
+  line-height: 1.4;
+
+  @media (max-width: $mobile-breakpoint) {
+    font-size: 14px;
+    padding: 10px 14px;
+  }
+}
+
+@mixin mobile-friendly-input {
+  font-size: 16px; // 防止iOS缩放
+  min-height: 44px;
+  padding: 12px 16px;
+  border-radius: 8px;
+
+  &:focus {
+    outline: none;
+    border-color: #409eff;
+    box-shadow: 0 0 0 3px rgba(64, 158, 255, 0.2);
+  }
+}
+
+@mixin swipe-action-container {
+  position: relative;
+  overflow: hidden;
+
+  .swipe-content {
+    transition: transform 0.3s ease;
+    background: white;
+    position: relative;
+    z-index: 2;
+  }
+
+  .swipe-actions {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    background: #f56c6c;
+    z-index: 1;
+
+    .action-btn {
+      color: white;
+      border: none;
+      background: transparent;
+      padding: 0 20px;
+      height: 100%;
+      min-width: 80px;
+      font-size: 14px;
+    }
+  }
+}
+
+// 卡片左滑操作
+.mobile-swipe-card {
+  @include swipe-action-container;
+
+  &.swiping {
+    .swipe-content {
+      transition: none;
+    }
+  }
+}
+
+// 移动端表格优化
+.mobile-table {
+  @media (max-width: $mobile-breakpoint) {
+    .el-table {
+      font-size: 14px;
+
+      .el-table__header {
+        th {
+          padding: 8px 4px;
+          font-size: 12px;
+        }
+      }
+
+      .el-table__body {
+        td {
+          padding: 12px 4px;
+        }
+      }
+
+      // 隐藏不重要的列
+      .hide-on-mobile {
+        display: none;
+      }
+    }
+
+    // 表格行点击区域扩大
+    .el-table__row {
+      cursor: pointer;
+
+      &:hover {
+        background-color: #f5f7fa;
+      }
+
+      &:active {
+        background-color: #e6f7ff;
+      }
+    }
+  }
+}
+
+// 移动端对话框优化
+.mobile-dialog {
+  @media (max-width: $mobile-breakpoint) {
+    .el-dialog {
+      width: 95% !important;
+      margin: 5vh auto;
+      border-radius: 12px;
+
+      .el-dialog__header {
+        padding: 20px 20px 10px;
+
+        .el-dialog__title {
+          font-size: 18px;
+          font-weight: 600;
+        }
+      }
+
+      .el-dialog__body {
+        padding: 10px 20px 20px;
+        max-height: 70vh;
+        overflow-y: auto;
+      }
+
+      .el-dialog__footer {
+        padding: 10px 20px 20px;
+
+        .el-button {
+          @include mobile-friendly-button;
+          margin-left: 0;
+          margin-right: 12px;
+
+          &:last-child {
+            margin-right: 0;
+          }
+        }
+      }
+    }
+  }
+}
+
+// 移动端表单优化
+.mobile-form {
+  @media (max-width: $mobile-breakpoint) {
+    .el-form-item {
+      margin-bottom: 20px;
+
+      .el-form-item__label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #606266;
+        line-height: 1.4;
+        padding-bottom: 8px;
+      }
+
+      .el-form-item__content {
+        .el-input {
+          .el-input__inner {
+            @include mobile-friendly-input;
+          }
+        }
+
+        .el-select {
+          width: 100%;
+
+          .el-input__inner {
+            @include mobile-friendly-input;
+          }
+        }
+
+        .el-date-editor {
+          width: 100%;
+
+          .el-input__inner {
+            @include mobile-friendly-input;
+          }
+        }
+
+        .el-button {
+          @include mobile-friendly-button;
+          width: 100%;
+          margin-bottom: 8px;
+
+          &:last-child {
+            margin-bottom: 0;
+          }
+        }
+      }
+    }
+  }
+}
+
+// 移动端统计卡片优化
+.mobile-stats {
+  @media (max-width: $mobile-breakpoint) {
+    .stat-card {
+      margin-bottom: $mobile-margin;
+      padding: $mobile-padding;
+      border-radius: 12px;
+
+      .stat-content {
+        .stat-value {
+          font-size: 24px;
+        }
+
+        .stat-label {
+          font-size: 12px;
+        }
+      }
+
+      .stat-icon {
+        width: 48px;
+        height: 48px;
+      }
+    }
+  }
+}
+
+// 移动端导航优化
+.mobile-navigation {
+  @media (max-width: $mobile-breakpoint) {
+    .page-header {
+      padding: 16px;
+
+      .header-content {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+
+        .page-title {
+          font-size: 20px;
+        }
+
+        .page-subtitle {
+          font-size: 12px;
+        }
+
+        .header-right {
+          width: 100%;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 8px;
+
+          .el-button {
+            @include mobile-friendly-button;
+            flex: 1;
+            min-width: 120px;
+          }
+        }
+      }
+    }
+  }
+}
+
+// 手势操作反馈
+@mixin touch-feedback {
+  &:active {
+    transform: scale(0.98);
+    opacity: 0.8;
+  }
+}
+
+.touchable {
+  @include touch-feedback;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+// 滚动优化
+.mobile-scroll-container {
+  @media (max-width: $mobile-breakpoint) {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+}
+
+// 固定底部操作栏
+.mobile-fixed-actions {
+  @media (max-width: $mobile-breakpoint) {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    padding: 12px 16px;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+    border-top: 1px solid #ebeef5;
+    z-index: 1000;
+
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+
+      .el-button {
+        @include mobile-friendly-button;
+        flex: 1;
+      }
+    }
+  }
+}
+
+// 触觉反馈（需要JavaScript配合）
+.haptic-feedback {
+  transition: transform 0.1s ease;
+
+  &.feedback-light {
+    animation: haptic-light 0.1s ease;
+  }
+
+  &.feedback-medium {
+    animation: haptic-medium 0.15s ease;
+  }
+
+  &.feedback-heavy {
+    animation: haptic-heavy 0.2s ease;
+  }
+}
+
+@keyframes haptic-light {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(0.99); }
+}
+
+@keyframes haptic-medium {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(0.97); }
+}
+
+@keyframes haptic-heavy {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(0.95); }
+}
+
+// 暗色模式适配
+@media (prefers-color-scheme: dark) {
+  .mobile-swipe-card {
+    .swipe-content {
+      background: #2d2d2d;
+      color: #ffffff;
+    }
+  }
+
+  .mobile-fixed-actions {
+    background: #1a1a1a;
+    border-top-color: #404040;
+  }
+}

@@ -1,0 +1,632 @@
+/* 移动端响应式设计基础样式 */
+@import './variables.css';
+
+/* 断点定义 */
+:root {
+  --mobile-small: 320px;
+  --mobile-medium: 375px;
+  --mobile-large: 414px;
+  --tablet: 768px;
+  --desktop: 1024px;
+  --desktop-large: 1440px;
+}
+
+/* 移动端基础重置 */
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 移动端触摸优化 */
+button,
+.el-button,
+.clickable {
+  -webkit-appearance: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+  min-height: 44px; /* iOS推荐的最小触摸区域 */
+  min-width: 44px;
+}
+
+/* 输入框移动端优化 */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+textarea,
+.el-input__inner {
+  font-size: 16px; /* 防止iOS放大 */
+  -webkit-appearance: none;
+  border-radius: 4px;
+}
+
+/* 移动端容器 */
+.mobile-container {
+  width: 100%;
+  max-width: 100vw;
+  padding: 0 16px;
+  margin: 0 auto;
+}
+
+/* 移动端卡片 */
+.mobile-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #f0f0f0;
+}
+
+/* 移动端表单 */
+.mobile-form {
+  padding: 16px;
+}
+
+.mobile-form .el-form-item {
+  margin-bottom: 20px;
+}
+
+.mobile-form .el-form-item__label {
+  padding-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+  font-size: 14px;
+}
+
+.mobile-form .el-input,
+.mobile-form .el-textarea,
+.mobile-form .el-select {
+  width: 100%;
+}
+
+.mobile-form .el-input__inner,
+.mobile-form .el-textarea__inner {
+  border-radius: 8px;
+  border: 1px solid #dcdfe6;
+  padding: 12px 16px;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.mobile-form .el-input__inner:focus,
+.mobile-form .el-textarea__inner:focus {
+  border-color: #409eff;
+  outline: none;
+}
+
+/* 移动端按钮 */
+.mobile-btn {
+  width: 100%;
+  height: 48px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.mobile-btn-primary {
+  background: linear-gradient(135deg, #409eff 0%, #66b3ff 100%);
+  color: white;
+}
+
+.mobile-btn-primary:active {
+  background: linear-gradient(135deg, #3a90e8 0%, #5aa3f0 100%);
+  transform: translateY(1px);
+}
+
+.mobile-btn-secondary {
+  background: #f7f8fa;
+  color: #606266;
+  border: 1px solid #dcdfe6;
+}
+
+.mobile-btn-secondary:active {
+  background: #ecf5ff;
+  border-color: #409eff;
+}
+
+/* 移动端导航 */
+.mobile-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: white;
+  border-top: 1px solid #ebeef5;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  z-index: 1000;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.mobile-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  color: #909399;
+  font-size: 12px;
+  min-width: 60px;
+}
+
+.mobile-nav-item.active {
+  color: #409eff;
+  background: rgba(64, 158, 255, 0.1);
+}
+
+.mobile-nav-item:active {
+  transform: scale(0.95);
+}
+
+.mobile-nav-icon {
+  font-size: 20px;
+  margin-bottom: 2px;
+}
+
+/* 移动端头部 */
+.mobile-header {
+  position: sticky;
+  top: 0;
+  height: 44px;
+  background: white;
+  border-bottom: 1px solid #ebeef5;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  z-index: 999;
+  padding-top: env(safe-area-inset-top);
+}
+
+.mobile-header-title {
+  flex: 1;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 600;
+  color: #303133;
+}
+
+.mobile-header-back {
+  font-size: 18px;
+  color: #409eff;
+  cursor: pointer;
+  padding: 8px;
+  margin-left: -8px;
+}
+
+.mobile-header-action {
+  font-size: 14px;
+  color: #409eff;
+  cursor: pointer;
+  padding: 8px;
+  margin-right: -8px;
+}
+
+/* 移动端列表 */
+.mobile-list {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.mobile-list-item {
+  background: white;
+  border-bottom: 1px solid #f5f5f5;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.mobile-list-item:active {
+  background: #f8f9fa;
+}
+
+.mobile-list-item:last-child {
+  border-bottom: none;
+}
+
+.mobile-list-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #409eff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.mobile-list-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.mobile-list-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #303133;
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobile-list-subtitle {
+  font-size: 14px;
+  color: #909399;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobile-list-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.mobile-list-time {
+  font-size: 12px;
+  color: #c0c4cc;
+}
+
+.mobile-list-badge {
+  background: #f56c6c;
+  color: white;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 16px;
+  text-align: center;
+}
+
+/* 移动端搜索 */
+.mobile-search {
+  padding: 12px 16px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #ebeef5;
+}
+
+.mobile-search-input {
+  width: 100%;
+  height: 36px;
+  background: white;
+  border: 1px solid #dcdfe6;
+  border-radius: 18px;
+  padding: 0 16px;
+  font-size: 14px;
+  outline: none;
+}
+
+.mobile-search-input:focus {
+  border-color: #409eff;
+}
+
+/* 移动端标签 */
+.mobile-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.mobile-tag {
+  background: #f0f2f5;
+  color: #606266;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mobile-tag.active {
+  background: #409eff;
+  color: white;
+}
+
+.mobile-tag:active {
+  transform: scale(0.95);
+}
+
+/* 移动端状态 */
+.mobile-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.mobile-status-success {
+  background: #e8f5e8;
+  color: #52c41a;
+}
+
+.mobile-status-warning {
+  background: #fff7e6;
+  color: #fa8c16;
+}
+
+.mobile-status-error {
+  background: #fff2f0;
+  color: #ff4d4f;
+}
+
+.mobile-status-info {
+  background: #e6f7ff;
+  color: #1890ff;
+}
+
+/* 移动端加载 */
+.mobile-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: #909399;
+  font-size: 14px;
+}
+
+.mobile-loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #409eff;
+  border-radius: 50%;
+  animation: mobile-spin 1s linear infinite;
+  margin-right: 8px;
+}
+
+@keyframes mobile-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 移动端空状态 */
+.mobile-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.mobile-empty-icon {
+  font-size: 64px;
+  color: #dcdfe6;
+  margin-bottom: 16px;
+}
+
+.mobile-empty-text {
+  font-size: 16px;
+  color: #909399;
+  margin-bottom: 8px;
+}
+
+.mobile-empty-desc {
+  font-size: 14px;
+  color: #c0c4cc;
+  line-height: 1.5;
+}
+
+/* 移动端弹窗优化 */
+.mobile-dialog .el-dialog {
+  width: 90% !important;
+  margin: 5vh auto !important;
+  border-radius: 12px;
+}
+
+.mobile-dialog .el-dialog__header {
+  padding: 20px 20px 10px;
+  text-align: center;
+}
+
+.mobile-dialog .el-dialog__title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.mobile-dialog .el-dialog__body {
+  padding: 10px 20px 20px;
+}
+
+.mobile-dialog .el-dialog__footer {
+  padding: 0 20px 20px;
+  text-align: center;
+}
+
+/* 移动端表格优化 */
+.mobile-table {
+  display: none;
+}
+
+.mobile-table-card {
+  background: white;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  padding: 16px;
+  border: 1px solid #f0f0f0;
+}
+
+.mobile-table-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.mobile-table-row:last-child {
+  margin-bottom: 0;
+}
+
+.mobile-table-label {
+  color: #606266;
+  flex-shrink: 0;
+  margin-right: 12px;
+}
+
+.mobile-table-value {
+  color: #303133;
+  text-align: right;
+  word-break: break-all;
+}
+
+/* 媒体查询 */
+@media (max-width: 768px) {
+  /* 隐藏桌面端元素 */
+  .desktop-only {
+    display: none !important;
+  }
+
+  /* 显示移动端元素 */
+  .mobile-only {
+    display: block !important;
+  }
+
+  /* 表格在移动端使用卡片样式 */
+  .el-table {
+    display: none;
+  }
+
+  .mobile-table {
+    display: block;
+  }
+
+  /* 分页器移动端优化 */
+  .el-pagination {
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .el-pagination .el-pager li {
+    min-width: 32px;
+    height: 32px;
+    line-height: 32px;
+    margin: 0 2px;
+  }
+
+  /* 表单移动端优化 */
+  .el-form--label-top .el-form-item__label {
+    padding-bottom: 8px;
+  }
+
+  /* 按钮组移动端优化 */
+  .el-button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .el-button-group .el-button {
+    margin: 0;
+  }
+
+  /* 消息提示移动端优化 */
+  .el-message {
+    min-width: 300px;
+    top: 20px !important;
+  }
+
+  /* 上传组件移动端优化 */
+  .el-upload--drag {
+    width: 100%;
+    height: 120px;
+  }
+
+  /* 选择器下拉面板优化 */
+  .el-select-dropdown {
+    max-height: 60vh;
+  }
+}
+
+@media (max-width: 414px) {
+  .mobile-container {
+    padding: 0 12px;
+  }
+
+  .mobile-card {
+    padding: 12px;
+    margin-bottom: 8px;
+  }
+
+  .mobile-form {
+    padding: 12px;
+  }
+
+  .mobile-header {
+    padding: 0 12px;
+  }
+
+  .mobile-search {
+    padding: 8px 12px;
+  }
+}
+
+/* 安全区域适配 */
+@supports (padding: max(0px)) {
+  .mobile-nav {
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+
+  .mobile-header {
+    padding-top: max(0px, env(safe-area-inset-top));
+  }
+
+  .mobile-main-content {
+    padding-bottom: max(80px, calc(60px + env(safe-area-inset-bottom)));
+  }
+}
+
+/* 横屏适配 */
+@media (orientation: landscape) and (max-height: 500px) {
+  .mobile-nav {
+    height: 50px;
+  }
+
+  .mobile-nav-item {
+    font-size: 11px;
+  }
+
+  .mobile-nav-icon {
+    font-size: 16px;
+  }
+}

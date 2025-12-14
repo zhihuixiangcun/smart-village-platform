@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智慧乡村平台 - 生产环境监控仪表板</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-shadow {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        .pulse-dot {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+        }
+        .status-online { color: #10b981; }
+        .status-warning { color: #f59e0b; }
+        .status-offline { color: #ef4444; }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        .alert-enter {
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .metric-card {
+            transition: all 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <nav class="gradient-bg text-white p-4 shadow-lg">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <i class="ri-dashboard-3-line text-2xl"></i>
+                <h1 class="text-xl font-bold">智慧乡村平台监控中心</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-2">
+                    <span class="pulse-dot w-3 h-3 bg-green-400 rounded-full"></span>
+                    <span id="connection-status" class="text-sm">实时连接中</span>
+                </div>
+                <div class="text-sm">
+                    <span id="current-time">--:--:--</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <div class="max-w-7xl mx-auto p-6">
+        <!-- 系统状态概览 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- CPU使用率 -->
+            <div class="metric-card bg-white rounded-xl p-6 card-shadow">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-gray-500 text-sm">CPU使用率</p>
+                        <p class="text-2xl font-bold text-gray-800" id="cpu-value">--%</p>
+                    </div>
+                    <div class="p-3 bg-blue-100 rounded-lg">
+                        <i class="ri-cpu-line text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div id="cpu-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- 内存使用率 -->
+            <div class="metric-card bg-white rounded-xl p-6 card-shadow">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-gray-500 text-sm">内存使用率</p>
+                        <p class="text-2xl font-bold text-gray-800" id="memory-value">--%</p>
+                    </div>
+                    <div class="p-3 bg-green-100 rounded-lg">
+                        <i class="ri-memory-card-line text-green-600 text-xl"></i>
+                    </div>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div id="memory-bar" class="bg-green-600 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- 活跃连接数 -->
+            <div class="metric-card bg-white rounded-xl p-6 card-shadow">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-gray-500 text-sm">WebSocket连接</p>
+                        <p class="text-2xl font-bold text-gray-800" id="connections-value">--</p>
+                    </div>
+                    <div class="p-3 bg-purple-100 rounded-lg">
+                        <i class="ri-links-line text-purple-600 text-xl"></i>
+                    </div>
+                </div>
+                <div class="flex items-center text-sm text-gray-600">
+                    <i class="ri-time-line mr-1"></i>
+                    <span id="last-update">实时更新</span>
+                </div>
+            </div>
+
+            <!-- 系统运行时间 -->
+            <div class="metric-card bg-white rounded-xl p-6 card-shadow">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-gray-500 text-sm">系统运行时间</p>
+                        <p class="text-2xl font-bold text-gray-800" id="uptime-value">--</p>
+                    </div>
+                    <div class="p-3 bg-orange-100 rounded-lg">
+                        <i class="ri-timer-line text-orange-600 text-xl"></i>
+                    </div>
+                </div>
+                <div class="flex items-center text-sm text-gray-600">
+                    <i class="ri-server-line mr-1"></i>
+                    <span id="system-status">运行正常</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 图表和详细信息区域 -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <!-- 实时性能图表 -->
+            <div class="lg:col-span-2 bg-white rounded-xl p-6 card-shadow">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">实时性能监控</h3>
+                    <div class="flex space-x-2">
+                        <button onclick="changeTimeRange('1h')" class="time-range-btn px-3 py-1 text-sm rounded-lg bg-blue-100 text-blue-600">1小时</button>
+                        <button onclick="changeTimeRange('6h')" class="time-range-btn px-3 py-1 text-sm rounded-lg text-gray-600 hover:bg-gray-100">6小时</button>
+                        <button onclick="changeTimeRange('24h')" class="time-range-btn px-3 py-1 text-sm rounded-lg text-gray-600 hover:bg-gray-100">24小时</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="performance-chart"></canvas>
+                </div>
+            </div>
+
+            <!-- 服务状态 -->
+            <div class="bg-white rounded-xl p-6 card-shadow">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">服务状态</h3>
+                <div class="space-y-4">
+                    <!-- 数据库状态 -->
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-3">
+                            <i id="db-status-icon" class="ri-database-2-line text-xl"></i>
+                            <div>
+                                <p class="font-medium text-gray-800">MongoDB</p>
+                                <p class="text-sm text-gray-500">主数据库</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span id="db-status-text" class="text-sm font-medium">检查中...</span>
+                            <div id="db-status-dot" class="w-2 h-2 rounded-full bg-gray-400"></div>
+                        </div>
+                    </div>
+
+                    <!-- Redis状态 -->
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-3">
+                            <i id="redis-status-icon" class="ri-hard-drive-2-line text-xl"></i>
+                            <div>
+                                <p class="font-medium text-gray-800">Redis</p>
+                                <p class="text-sm text-gray-500">缓存服务</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span id="redis-status-text" class="text-sm font-medium">检查中...</span>
+                            <div id="redis-status-dot" class="w-2 h-2 rounded-full bg-gray-400"></div>
+                        </div>
+                    </div>
+
+                    <!-- API网关状态 -->
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-3">
+                            <i id="gateway-status-icon" class="ri-router-line text-xl"></i>
+                            <div>
+                                <p class="font-medium text-gray-800">API网关</p>
+                                <p class="text-sm text-gray-500">端口 8080</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span id="gateway-status-text" class="text-sm font-medium">检查中...</span>
+                            <div id="gateway-status-dot" class="w-2 h-2 rounded-full bg-gray-400"></div>
+                        </div>
+                    </div>
+
+                    <!-- 前端应用状态 -->
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-3">
+                            <i id="frontend-status-icon" class="ri-computer-line text-xl"></i>
+                            <div>
+                                <p class="font-medium text-gray-800">前端应用</p>
+                                <p class="text-sm text-gray-500">Vue.js应用</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span id="frontend-status-text" class="text-sm font-medium">检查中...</span>
+                            <div id="frontend-status-dot" class="w-2 h-2 rounded-full bg-gray-400"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 告警信息和日志 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- 实时告警 -->
+            <div class="bg-white rounded-xl p-6 card-shadow">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">实时告警</h3>
+                    <button onclick="clearAlerts()" class="text-sm text-gray-600 hover:text-gray-800">
+                        <i class="ri-delete-bin-line mr-1"></i>清除
+                    </button>
+                </div>
+                <div id="alerts-container" class="space-y-3 max-h-96 overflow-y-auto">
+                    <!-- 告警项目将动态添加到这里 -->
+                    <div class="text-center text-gray-500 py-8">
+                        <i class="ri-checkbox-circle-line text-4xl text-green-500 mb-2"></i>
+                        <p>暂无告警信息</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 系统日志 -->
+            <div class="bg-white rounded-xl p-6 card-shadow">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">系统日志</h3>
+                    <div class="flex space-x-2">
+                        <button onclick="filterLogs('all')" class="log-filter-btn px-3 py-1 text-sm rounded-lg bg-blue-100 text-blue-600">全部</button>
+                        <button onclick="filterLogs('error')" class="log-filter-btn px-3 py-1 text-sm rounded-lg text-gray-600 hover:bg-gray-100">错误</button>
+                        <button onclick="filterLogs('warning')" class="log-filter-btn px-3 py-1 text-sm rounded-lg text-gray-600 hover:bg-gray-100">警告</button>
+                    </div>
+                </div>
+                <div id="logs-container" class="space-y-2 max-h-96 overflow-y-auto font-mono text-sm">
+                    <!-- 日志项目将动态添加到这里 -->
+                    <div class="text-center text-gray-500 py-8">
+                        <i class="ri-file-text-line text-4xl text-gray-400 mb-2"></i>
+                        <p>加载日志中...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let ws = null;
+        let performanceChart = null;
+        let systemMetrics = {
+            cpu: [],
+            memory: [],
+            timestamps: []
+        };
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeWebSocket();
+            initializePerformanceChart();
+            startSystemPolling();
+            updateCurrentTime();
+            setInterval(updateCurrentTime, 1000);
+        });
+
+        // WebSocket连接
+        function initializeWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}`;
+
+            try {
+                ws = new WebSocket(wsUrl);
+
+                ws.onopen = function() {
+                    console.log('WebSocket连接成功');
+                    updateConnectionStatus('connected');
+                };
+
+                ws.onmessage = function(event) {
+                    const data = JSON.parse(event.data);
+                    handleWebSocketMessage(data);
+                };
+
+                ws.onclose = function() {
+                    console.log('WebSocket连接断开');
+                    updateConnectionStatus('disconnected');
+                    // 尝试重连
+                    setTimeout(initializeWebSocket, 5000);
+                };
+
+                ws.onerror = function(error) {
+                    console.error('WebSocket错误:', error);
+                    updateConnectionStatus('error');
+                };
+            } catch (error) {
+                console.error('WebSocket初始化失败:', error);
+                updateConnectionStatus('error');
+            }
+        }
+
+        // 处理WebSocket消息
+        function handleWebSocketMessage(data) {
+            switch (data.type) {
+                case 'system_metrics':
+                    updateSystemMetrics(data.data);
+                    break;
+                case 'alert':
+                    addAlert(data.data);
+                    break;
+                case 'metrics_response':
+                    updateSystemMetrics(data.data.system);
+                    break;
+                case 'alerts_response':
+                    data.data.forEach(alert => addAlert(alert));
+                    break;
+            }
+        }
+
+        // 更新系统指标
+        function updateSystemMetrics(metrics) {
+            // 更新CPU使用率
+            const cpuValue = metrics.cpu || 0;
+            document.getElementById('cpu-value').textContent = cpuValue.toFixed(1) + '%';
+            const cpuBar = document.getElementById('cpu-bar');
+            cpuBar.style.width = cpuValue + '%';
+            cpuBar.className = cpuValue > 80 ? 'bg-red-600 h-2 rounded-full transition-all duration-500' :
+                               cpuValue > 60 ? 'bg-yellow-600 h-2 rounded-full transition-all duration-500' :
+                               'bg-blue-600 h-2 rounded-full transition-all duration-500';
+
+            // 更新内存使用率
+            const memoryValue = metrics.memory || 0;
+            document.getElementById('memory-value').textContent = memoryValue.toFixed(1) + '%';
+            const memoryBar = document.getElementById('memory-bar');
+            memoryBar.style.width = memoryValue + '%';
+            memoryBar.className = memoryValue > 85 ? 'bg-red-600 h-2 rounded-full transition-all duration-500' :
+                                  memoryValue > 70 ? 'bg-yellow-600 h-2 rounded-full transition-all duration-500' :
+                                  'bg-green-600 h-2 rounded-full transition-all duration-500';
+
+            // 更新其他指标
+            document.getElementById('connections-value').textContent = metrics.websocket?.activeConnections || 0;
+
+            if (metrics.uptime) {
+                const uptime = formatUptime(metrics.uptime);
+                document.getElementById('uptime-value').textContent = uptime;
+            }
+
+            // 更新图表数据
+            updatePerformanceChart(cpuValue, memoryValue);
+        }
+
+        // 初始化性能图表
+        function initializePerformanceChart() {
+            const ctx = document.getElementById('performance-chart').getContext('2d');
+            performanceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'CPU使用率 (%)',
+                        data: [],
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: '内存使用率 (%)',
+                        data: [],
+                        borderColor: 'rgb(34, 197, 94)',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        },
+                        x: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: '时间'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    }
+                }
+            });
+        }
+
+        // 更新性能图表
+        function updatePerformanceChart(cpu, memory) {
+            const now = new Date();
+            const timeLabel = now.toLocaleTimeString('zh-CN');
+
+            // 保持最多20个数据点
+            if (performanceChart.data.labels.length >= 20) {
+                performanceChart.data.labels.shift();
+                performanceChart.data.datasets[0].data.shift();
+                performanceChart.data.datasets[1].data.shift();
+            }
+
+            performanceChart.data.labels.push(timeLabel);
+            performanceChart.data.datasets[0].data.push(cpu);
+            performanceChart.data.datasets[1].data.push(memory);
+
+            performanceChart.update('none'); // 无动画更新
+        }
+
+        // 添加告警
+        function addAlert(alert) {
+            const container = document.getElementById('alerts-container');
+
+            // 清除"暂无告警"提示
+            if (container.querySelector('.text-center')) {
+                container.innerHTML = '';
+            }
+
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert-enter flex items-start space-x-3 p-4 rounded-lg border-l-4 ${
+                alert.level === 'critical' ? 'bg-red-50 border-red-500' :
+                alert.level === 'warning' ? 'bg-yellow-50 border-yellow-500' :
+                'bg-blue-50 border-blue-500'
+            }`;
+
+            alertDiv.innerHTML = `
+                <div class="flex-shrink-0">
+                    <i class="${
+                        alert.level === 'critical' ? 'ri-error-warning-line text-red-500' :
+                        alert.level === 'warning' ? 'ri-alert-line text-yellow-500' :
+                        'ri-information-line text-blue-500'
+                    } text-xl"></i>
+                </div>
+                <div class="flex-1">
+                    <div class="flex items-center justify-between">
+                        <p class="font-medium text-gray-800">${alert.message}</p>
+                        <span class="text-xs text-gray-500">${new Date(alert.timestamp).toLocaleTimeString('zh-CN')}</span>
+                    </div>
+                    ${alert.value ? `<p class="text-sm text-gray-600 mt-1">当前值: ${alert.value}${alert.threshold ? ` | 阈值: ${alert.threshold}` : ''}</p>` : ''}
+                </div>
+            `;
+
+            container.insertBefore(alertDiv, container.firstChild);
+
+            // 限制显示最多10条告警
+            while (container.children.length > 10) {
+                container.removeChild(container.lastChild);
+            }
+        }
+
+        // 清除告警
+        function clearAlerts() {
+            const container = document.getElementById('alerts-container');
+            container.innerHTML = `
+                <div class="text-center text-gray-500 py-8">
+                    <i class="ri-checkbox-circle-line text-4xl text-green-500 mb-2"></i>
+                    <p>暂无告警信息</p>
+                </div>
+            `;
+        }
+
+        // 更新连接状态
+        function updateConnectionStatus(status) {
+            const statusElement = document.getElementById('connection-status');
+            const dotElement = document.querySelector('.pulse-dot');
+
+            switch (status) {
+                case 'connected':
+                    statusElement.textContent = '实时连接中';
+                    dotElement.className = 'pulse-dot w-3 h-3 bg-green-400 rounded-full';
+                    break;
+                case 'disconnected':
+                    statusElement.textContent = '连接断开';
+                    dotElement.className = 'w-3 h-3 bg-red-400 rounded-full';
+                    break;
+                case 'error':
+                    statusElement.textContent = '连接错误';
+                    dotElement.className = 'w-3 h-3 bg-yellow-400 rounded-full';
+                    break;
+            }
+        }
+
+        // 格式化运行时间
+        function formatUptime(seconds) {
+            const days = Math.floor(seconds / 86400);
+            const hours = Math.floor((seconds % 86400) / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+
+            if (days > 0) {
+                return `${days}天 ${hours}小时`;
+            } else if (hours > 0) {
+                return `${hours}小时 ${minutes}分钟`;
+            } else {
+                return `${minutes}分钟`;
+            }
+        }
+
+        // 更新当前时间
+        function updateCurrentTime() {
+            const now = new Date();
+            document.getElementById('current-time').textContent = now.toLocaleTimeString('zh-CN');
+        }
+
+        // 启动系统状态轮询
+        function startSystemPolling() {
+            // 立即获取一次数据
+            fetchSystemStatus();
+
+            // 每30秒轮询一次
+            setInterval(fetchSystemStatus, 30000);
+        }
+
+        // 获取系统状态
+        async function fetchSystemStatus() {
+            try {
+                const response = await fetch('/health');
+                const data = await response.json();
+
+                if (data.services) {
+                    updateServiceStatus('db', data.services.database);
+                    updateServiceStatus('redis', data.services.redis);
+                    // 可以根据实际情况更新其他服务状态
+                }
+            } catch (error) {
+                console.error('获取系统状态失败:', error);
+            }
+        }
+
+        // 更新服务状态
+        function updateServiceStatus(service, status) {
+            const statusText = document.getElementById(`${service}-status-text`);
+            const statusDot = document.getElementById(`${service}-status-dot`);
+            const statusIcon = document.getElementById(`${service}-status-icon`);
+
+            if (status === 'connected') {
+                statusText.textContent = '正常';
+                statusText.className = 'text-sm font-medium text-green-600';
+                statusDot.className = 'w-2 h-2 rounded-full bg-green-500';
+                statusIcon.className = statusIcon.className.replace(/text-\w+-600/, 'text-green-600');
+            } else {
+                statusText.textContent = '异常';
+                statusText.className = 'text-sm font-medium text-red-600';
+                statusDot.className = 'w-2 h-2 rounded-full bg-red-500';
+                statusIcon.className = statusIcon.className.replace(/text-\w+-600/, 'text-red-600');
+            }
+        }
+
+        // 时间范围切换
+        function changeTimeRange(range) {
+            // 更新按钮样式
+            document.querySelectorAll('.time-range-btn').forEach(btn => {
+                btn.className = 'time-range-btn px-3 py-1 text-sm rounded-lg text-gray-600 hover:bg-gray-100';
+            });
+            event.target.className = 'time-range-btn px-3 py-1 text-sm rounded-lg bg-blue-100 text-blue-600';
+
+            // TODO: 根据时间范围重新获取数据
+            console.log('切换时间范围:', range);
+        }
+
+        // 日志过滤
+        function filterLogs(level) {
+            // 更新按钮样式
+            document.querySelectorAll('.log-filter-btn').forEach(btn => {
+                btn.className = 'log-filter-btn px-3 py-1 text-sm rounded-lg text-gray-600 hover:bg-gray-100';
+            });
+            event.target.className = 'log-filter-btn px-3 py-1 text-sm rounded-lg bg-blue-100 text-blue-600';
+
+            // TODO: 根据级别过滤日志
+            console.log('过滤日志级别:', level);
+        }
+    </script>
+</body>
+</html>
