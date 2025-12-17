@@ -33,7 +33,8 @@ export default defineConfig({
     }
   },
   server: {
-    port: 3000,
+    port: 3006,
+    host: '0.0.0.0',
     proxy: {
       // 主API服务器代理 (监控、稳定性、通知等)
       '/api/monitoring': {

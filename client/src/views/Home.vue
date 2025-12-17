@@ -63,7 +63,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, markRaw } from 'vue'
 import { User, House, DocumentCopy, Bell } from '@element-plus/icons-vue'
 
 const activeIndex = ref('1')
@@ -73,28 +73,28 @@ const features = ref([
     id: 1,
     title: '村民管理',
     description: '全面管理村民信息，实现数字化档案管理',
-    icon: User,
+    icon: markRaw(User),
     color: '#409EFF'
   },
   {
     id: 2,
     title: '村务治理',
     description: '透明公开的村务管理，推进民主决策',
-    icon: House,
+    icon: markRaw(House),
     color: '#67C23A'
   },
   {
     id: 3,
     title: '信息公示',
     description: '及时发布通知公告，保证信息传达',
-    icon: Bell,
+    icon: markRaw(Bell),
     color: '#E6A23C'
   },
   {
     id: 4,
     title: '生活服务',
     description: '丰富的便民服务，提高生活品质',
-    icon: DocumentCopy,
+    icon: markRaw(DocumentCopy),
     color: '#F56C6C'
   }
 ])

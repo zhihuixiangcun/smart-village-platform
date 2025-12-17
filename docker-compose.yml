@@ -1,0 +1,255 @@
+# Docker Compose for development environment
+version: '3.8'
+
+# Define reusable configurations
+x-common-variables: &common-variables
+  NODE_ENV: development
+  TZ: Asia/Shanghai
+
+x-logging: &default-logging
+  driver: "json-file"
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  # ===== DATABASE SERVICES =====
+  mongodb:
+    image: mongo:5.0
+    container_name: smart-village-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-secure_password_123}
+      MONGO_INITDB_DATABASE: smart-village
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+      - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - smart-village-network
+    logging: *default-logging
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis:
+    image: redis:6.2-alpine
+    container_name: smart-village-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis_password_123}
+    volumes:
+      - redis_data:/data
+    networks:
+      - smart-village-network
+    logging: *default-logging
+    healthcheck:
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD:-redis_password_123}", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ===== APPLICATION SERVICES =====
+  api-server:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+      args:
+        NODE_ENV: development
+    container_name: smart-village-api
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+      - "3002:3002"  # WebSocket monitoring port
+    environment:
+      <<: *common-variables
+      MONGO_URI: mongodb://admin:${MONGO_ROOT_PASSWORD:-secure_password_123}@mongodb:27017/smart-village?authSource=admin
+      REDIS_URL: redis://redis:6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-redis_password_123}
+      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-for-development}
+      PORT: 3001
+      MONITORING_WEBSOCKET_PORT: 3002
+
+      # External service configurations (development)
+      SMS_PROVIDER: mock
+      OCR_PROVIDER: mock
+      TTS_PROVIDER: mock
+      FACE_PROVIDER: mock
+
+      # Logging
+      LOG_LEVEL: debug
+      LOG_FILE_PATH: /app/logs
+    volumes:
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+      - ./data:/app/data
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - smart-village-network
+    logging: *default-logging
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  village-server:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.village
+      args:
+        NODE_ENV: development
+    container_name: smart-village-server
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      <<: *common-variables
+      MONGO_URI: mongodb://admin:${MONGO_ROOT_PASSWORD:-secure_password_123}@mongodb:27017/smart-village?authSource=admin
+      PORT: 5000
+      CLIENT_URL: http://client:8080
+
+      # External services (development)
+      SMS_PROVIDER: mock
+      OCR_PROVIDER: mock
+      TTS_PROVIDER: mock
+
+      # Logging
+      LOG_LEVEL: debug
+      LOG_FILE_PATH: /app/logs
+    volumes:
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - smart-village-network
+    logging: *default-logging
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:3001
+        VITE_VILLAGE_API_URL: http://localhost:5000
+        VITE_WS_URL: ws://localhost:5000
+    container_name: smart-village-client
+    restart: unless-stopped
+    ports:
+      - "3000:8080"
+    depends_on:
+      - api-server
+      - village-server
+    networks:
+      - smart-village-network
+    logging: *default-logging
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ===== MONITORING SERVICES =====
+  prometheus:
+    image: prom/prometheus:v2.40.0
+    container_name: smart-village-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - smart-village-network
+    logging: *default-logging
+
+  grafana:
+    image: grafana/grafana:9.3.0
+    container_name: smart-village-grafana
+    restart: unless-stopped
+    ports:
+      - "3003:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin123}
+      GF_USERS_ALLOW_SIGN_UP: false
+      GF_INSTALL_PLUGINS: grafana-piechart-panel
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    depends_on:
+      - prometheus
+    networks:
+      - smart-village-network
+    logging: *default-logging
+
+  # ===== REVERSE PROXY =====
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: smart-village-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx-dev.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - nginx_logs:/var/log/nginx
+    depends_on:
+      - api-server
+      - village-server
+      - client
+    networks:
+      - smart-village-network
+    logging: *default-logging
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+# ===== VOLUMES =====
+volumes:
+  mongodb_data:
+    driver: local
+  mongodb_config:
+    driver: local
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  nginx_logs:
+    driver: local
+
+# ===== NETWORKS =====
+networks:
+  smart-village-network:
+    driver: bridge
+    name: smart-village-dev

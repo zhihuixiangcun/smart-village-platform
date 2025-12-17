@@ -141,7 +141,7 @@ class EncryptionService {
     try {
       const key = crypto.randomBytes(algorithm.keyLength);
       return {
-        key: key,
+        key,
         algorithm: algorithm.name,
         keyId: this.generateKeyId()
       };
@@ -176,9 +176,9 @@ class EncryptionService {
         return {
           algorithm: algo.name,
           iv: iv.toString('hex'),
-          encrypted: encrypted,
+          encrypted,
           tag: tag.toString('hex'),
-          keyId: keyId
+          keyId
         };
       } else if (algo.name.includes('CBC')) {
         // CBC模式
@@ -189,8 +189,8 @@ class EncryptionService {
         return {
           algorithm: algo.name,
           iv: iv.toString('hex'),
-          encrypted: encrypted,
-          keyId: keyId
+          encrypted,
+          keyId
         };
       } else {
         // 其他模式
@@ -199,8 +199,8 @@ class EncryptionService {
 
         return {
           algorithm: algo.name,
-          encrypted: encrypted,
-          keyId: keyId
+          encrypted,
+          keyId
         };
       }
     } catch (error) {
@@ -216,7 +216,7 @@ class EncryptionService {
     try {
       const keyInfo = this.keyStore.get(encryptedData.keyId || keyId || 'default_aes');
       if (!keyInfo) {
-        throw new Error(`解密密钥不存在`);
+        throw new Error('解密密钥不存在');
       }
 
       const algo = this.algorithms.symmetric[encryptedData.algorithm] || this.defaultConfig.symmetric;
@@ -281,7 +281,7 @@ class EncryptionService {
         return {
           algorithm: 'SM2',
           encrypted: encrypted.toString('base64'),
-          keyId: keyId
+          keyId
         };
       } else {
         // RSA加密
@@ -290,8 +290,8 @@ class EncryptionService {
 
         return {
           algorithm: keyInfo.algorithm,
-          encrypted: encrypted,
-          keyId: keyId
+          encrypted,
+          keyId
         };
       }
     } catch (error) {
@@ -307,7 +307,7 @@ class EncryptionService {
     try {
       const keyInfo = this.keyStore.get(encryptedData.keyId || keyId || 'default_rsa');
       if (!keyInfo || !keyInfo.privateKey) {
-        throw new Error(`私钥不存在`);
+        throw new Error('私钥不存在');
       }
 
       if (encryptedData.algorithm === 'SM2') {
@@ -410,8 +410,8 @@ class EncryptionService {
         return {
           algorithm: 'SM2',
           signature: signature.toString('base64'),
-          hash: hash,
-          keyId: keyId
+          hash,
+          keyId
         };
       } else {
         // RSA签名
@@ -420,9 +420,9 @@ class EncryptionService {
 
         return {
           algorithm: keyInfo.algorithm,
-          signature: signature,
-          hash: hash,
-          keyId: keyId
+          signature,
+          hash,
+          keyId
         };
       }
     } catch (error) {
@@ -438,7 +438,7 @@ class EncryptionService {
     try {
       const keyInfo = this.keyStore.get(signatureData.keyId || keyId || 'default_rsa');
       if (!keyInfo || !keyInfo.publicKey) {
-        throw new Error(`公钥不存在`);
+        throw new Error('公钥不存在');
       }
 
       // 验证哈希
@@ -477,7 +477,7 @@ class EncryptionService {
       const classificationInfo = this.dataClassification[classification.toUpperCase()];
 
       if (!classificationInfo || !classificationInfo.encryption) {
-        return { encrypted: false, data: data };
+        return { encrypted: false, data };
       }
 
       const encrypted = await this.symmetricEncrypt(JSON.stringify(data));
@@ -485,7 +485,7 @@ class EncryptionService {
       return {
         encrypted: true,
         data: encrypted,
-        classification: classification,
+        classification,
         algorithm: encrypted.algorithm,
         encryptedAt: new Date()
       };
@@ -583,7 +583,7 @@ class EncryptionService {
         success: true,
         originalPath: filePath,
         encryptedPath: outputPath,
-        keyId: keyId,
+        keyId,
         algorithm: encrypted.algorithm
       };
     } catch (error) {
@@ -634,9 +634,9 @@ class EncryptionService {
 
       return {
         success: true,
-        keyId: keyId,
+        keyId,
         newKeyId: newKey.keyId,
-        oldKeyId: oldKeyId,
+        oldKeyId,
         rotationDate: new Date(),
         migratedDataCount: 0 // 实际项目中需要统计迁移的数据量
       };
@@ -652,41 +652,41 @@ class EncryptionService {
   async manageKey(operation, keyId = null, keyData = null) {
     try {
       switch (operation) {
-        case 'list':
-          return {
-            success: true,
-            keys: Array.from(this.keyStore.keys()).map(id => ({
-              id,
-              type: this.keyStore.get(id).algorithm ? 'asymmetric' : 'symmetric',
-              createdAt: new Date()
-            }))
-          };
+      case 'list':
+        return {
+          success: true,
+          keys: Array.from(this.keyStore.keys()).map(id => ({
+            id,
+            type: this.keyStore.get(id).algorithm ? 'asymmetric' : 'symmetric',
+            createdAt: new Date()
+          }))
+        };
 
-        case 'get':
-          const keyInfo = this.keyStore.get(keyId);
-          if (!keyInfo) {
-            throw new Error(`密钥不存在: ${keyId}`);
-          }
-          return {
-            success: true,
-            keyId,
-            algorithm: keyInfo.algorithm,
-            keyId: keyInfo.keyId
-          };
+      case 'get':
+        const keyInfo = this.keyStore.get(keyId);
+        if (!keyInfo) {
+          throw new Error(`密钥不存在: ${keyId}`);
+        }
+        return {
+          success: true,
+          keyId,
+          algorithm: keyInfo.algorithm,
+          keyId: keyInfo.keyId
+        };
 
-        case 'delete':
-          if (!this.keyStore.has(keyId)) {
-            throw new Error(`密钥不存在: ${keyId}`);
-          }
-          this.keyStore.delete(keyId);
-          return {
-            success: true,
-            keyId,
-            deletedAt: new Date()
-          };
+      case 'delete':
+        if (!this.keyStore.has(keyId)) {
+          throw new Error(`密钥不存在: ${keyId}`);
+        }
+        this.keyStore.delete(keyId);
+        return {
+          success: true,
+          keyId,
+          deletedAt: new Date()
+        };
 
-        default:
-          throw new Error(`不支持的操作: ${operation}`);
+      default:
+        throw new Error(`不支持的操作: ${operation}`);
       }
     } catch (error) {
       console.error('密钥管理失败:', error);
@@ -756,9 +756,9 @@ class EncryptionService {
 
         results.push({
           algorithm: name,
-          dataSize: dataSize,
-          iterations: iterations,
-          totalTime: totalTime,
+          dataSize,
+          iterations,
+          totalTime,
           avgTime: totalTime / iterations,
           throughput: (dataSize * iterations * 8) / (totalTime / 1000) // bps
         });

@@ -136,7 +136,7 @@ class MLPSComplianceService {
   async assessDomain(domain, controls, protectionLevel) {
     const domainResults = [];
     let totalScore = 0;
-    let totalControls = Object.keys(controls).length;
+    const totalControls = Object.keys(controls).length;
     let passedControls = 0;
 
     for (const [controlId, requirement] of Object.entries(controls)) {

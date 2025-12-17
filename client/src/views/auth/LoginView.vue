@@ -1,287 +1,282 @@
 <template>
-  <div class="login-container">
-    <div class="login-card">
-      <div class="login-header">
-        <div class="logo">🏘️</div>
-        <h1>智慧村庄管理系统</h1>
-        <p>请输入您的账号信息登录</p>
-      </div>
-
-      <form @submit.prevent="handleLogin" class="login-form">
-        <div class="form-group">
-          <label for="username">用户名</label>
-          <input
-            id="username"
-            v-model="loginForm.username"
-            type="text"
-            placeholder="请输入用户名"
-            required
-          />
+  <div class="auth-view">
+    <div class="auth-container">
+      <el-card class="auth-card" shadow="always">
+        <div class="auth-header">
+          <h1>用户登录</h1>
+          <p>智慧村庄综合服务平台</p>
         </div>
+        <div class="auth-content">
+          <el-form
+            ref="loginFormRef"
+            :model="loginForm"
+            :rules="loginRules"
+            @submit.prevent="handleLogin"
+          >
+            <el-form-item prop="username">
+              <el-input
+                v-model="loginForm.username"
+                placeholder="请输入用户名"
+                size="large"
+                prefix-icon="User"
+                clearable
+              />
+            </el-form-item>
+            <el-form-item prop="password">
+              <el-input
+                v-model="loginForm.password"
+                type="password"
+                placeholder="请输入密码"
+                size="large"
+                prefix-icon="Lock"
+                show-password
+                @keyup.enter="handleLogin"
+              />
+            </el-form-item>
+            <el-form-item>
+              <el-checkbox v-model="loginForm.remember">记住密码</el-checkbox>
+            </el-form-item>
+            <el-form-item>
+              <el-button
+                type="primary"
+                size="large"
+                style="width: 100%"
+                :loading="loading"
+                @click="handleLogin"
+              >
+                登录
+              </el-button>
+            </el-form-item>
+          </el-form>
 
-        <div class="form-group">
-          <label for="password">密码</label>
-          <input
-            id="password"
-            v-model="loginForm.password"
-            type="password"
-            placeholder="请输入密码"
-            required
-          />
+          <!-- 快速登录 -->
+          <div class="quick-login">
+            <el-divider>快速登录</el-divider>
+            <div class="quick-accounts">
+              <el-button
+                type="success"
+                size="small"
+                @click="quickLogin('admin')"
+              >
+                管理员登录
+              </el-button>
+              <el-button
+                type="warning"
+                size="small"
+                @click="quickLogin('villager')"
+              >
+                村民登录
+              </el-button>
+            </div>
+          </div>
         </div>
-
-        <div class="form-group">
-          <label class="checkbox-label">
-            <input v-model="loginForm.remember" type="checkbox" />
-            <span>记住我</span>
-          </label>
-        </div>
-
-        <button type="submit" class="login-btn" :disabled="loading">
-          {{ loading ? '登录中...' : '登录' }}
-        </button>
-
-        <div class="login-options">
-          <a href="#" class="forgot-password">忘记密码？</a>
-          <span class="divider">|</span>
-          <a href="#" class="register-link">注册新账户</a>
-        </div>
-      </form>
-
-      <div class="user-types">
-        <h3>用户类型：</h3>
-        <div class="type-buttons">
-          <button @click="setUserType('resident')" :class="{ active: userType === 'resident' }">
-            👨‍👩‍👧‍👦 村民
-          </button>
-          <button @click="setUserType('committee')" :class="{ active: userType === 'committee' }">
-            🏛️ 村委会
-          </button>
-          <button @click="setUserType('admin')" :class="{ active: userType === 'admin' }">
-            ⚙️ 管理员
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="system-info">
-      <p>✅ 系统运行正常</p>
-      <p>🔒 数据安全保护</p>
-      <p>🌐 多语言支持</p>
+      </el-card>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
+import { ElMessage } from 'element-plus'
+import { useUserStore } from '@/stores/userStore'
 
 const router = useRouter()
-const loading = ref(false)
-const userType = ref('resident')
+const route = useRoute()
+const userStore = useUserStore()
 
+// 表单引用
+const loginFormRef = ref()
+
+// 登录表单数据
 const loginForm = reactive({
   username: '',
   password: '',
   remember: false
 })
 
-const setUserType = (type) => {
-  userType.value = type
+// 表单验证规则
+const loginRules = {
+  username: [
+    { required: true, message: '请输入用户名', trigger: 'blur' }
+  ],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
+  ]
 }
 
+// 加载状态
+const loading = ref(false)
+
+// 处理登录
 const handleLogin = async () => {
-  loading.value = true
-  
+  if (!loginFormRef.value) return
+
   try {
-    // 模拟登录请求
+    // 表单验证
+    await loginFormRef.value.validate()
+
+    loading.value = true
+
+    // 模拟登录API调用
     await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    console.log('登录信息:', {
-      ...loginForm,
-      userType: userType.value
-    })
-    
-    // 登录成功后跳转到仪表板
-    router.push('/')
+
+    // 预定义的账号验证
+    const accounts = {
+      'admin': { password: 'admin123', name: '系统管理员', role: 'admin' },
+      'test_villager': { password: '123456', name: '测试村民', role: 'villager' },
+      '凤凰村_01': { password: '123456', name: '凤凰村民', role: 'villager' },
+      '绿水村_01': { password: '123456', name: '绿水村民', role: 'villager' }
+    }
+
+    const account = accounts[loginForm.username]
+
+    if (!account || account.password !== loginForm.password) {
+      ElMessage.error('用户名或密码错误')
+      return
+    }
+
+    // 设置用户信息
+    const userInfo = {
+      id: loginForm.username,
+      username: loginForm.username,
+      name: account.name,
+      role: account.role,
+      avatar: '',
+      email: `${loginForm.username}@smartvillage.com`
+    }
+
+    // 保存token和用户信息
+    userStore.setToken('demo-token-' + Date.now())
+    userStore.setUserInfo(userInfo)
+    userStore.setPermissions(['*']) // 临时给予所有权限
+    userStore.setRoles([account.role])
+
+    ElMessage.success(`欢迎回来，${account.name}！`)
+
+    // 跳转到目标页面
+    const redirect = route.query.redirect || '/dashboard'
+    router.push(redirect)
+
   } catch (error) {
     console.error('登录失败:', error)
-    alert('登录失败，请检查用户名和密码')
+    ElMessage.error('登录失败，请重试')
   } finally {
     loading.value = false
   }
 }
+
+// 快速登录
+const quickLogin = (type) => {
+  const quickAccounts = {
+    'admin': { username: 'admin', password: 'admin123' },
+    'villager': { username: 'test_villager', password: '123456' }
+  }
+
+  const account = quickAccounts[type]
+  if (account) {
+    loginForm.username = account.username
+    loginForm.password = account.password
+    loginForm.remember = true
+
+    // 自动登录
+    setTimeout(() => {
+      handleLogin()
+    }, 500)
+  }
+}
 </script>
 
-<style scoped>
-.login-container {
+<style lang="scss" scoped>
+.auth-view {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 20px;
 }
 
-.login-card {
-  background: white;
-  border-radius: 12px;
-  padding: 40px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+.auth-container {
   width: 100%;
   max-width: 400px;
 }
 
-.login-header {
+.auth-card {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.auth-header {
   text-align: center;
   margin-bottom: 30px;
+  padding: 20px 0 0;
+
+  h1 {
+    color: #303133;
+    margin-bottom: 10px;
+    font-size: 28px;
+    font-weight: 600;
+  }
+
+  p {
+    color: #909399;
+    margin: 0;
+    font-size: 14px;
+  }
 }
 
-.logo {
-  font-size: 4em;
-  margin-bottom: 10px;
+.auth-content {
+  padding: 0 30px 30px;
 }
 
-.login-header h1 {
-  color: #333;
-  margin: 0 0 10px 0;
-  font-size: 1.8em;
+.quick-login {
+  margin-top: 20px;
+
+  .quick-accounts {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+  }
 }
 
-.login-header p {
-  color: #666;
-  margin: 0;
+// 响应式设计
+@media (max-width: 480px) {
+  .auth-view {
+    padding: 10px;
+  }
+
+  .auth-container {
+    max-width: 100%;
+  }
+
+  .auth-content {
+    padding: 0 20px 20px;
+  }
+
+  .quick-accounts {
+    flex-direction: column;
+
+    .el-button {
+      width: 100%;
+    }
+  }
 }
 
-.login-form {
-  margin-bottom: 30px;
-}
-
-.form-group {
+// 表单样式调整
+:deep(.el-form-item) {
   margin-bottom: 20px;
 }
 
-.form-group label {
-  display: block;
-  margin-bottom: 8px;
-  color: #333;
+:deep(.el-input__wrapper) {
+  border-radius: 8px;
+  box-shadow: 0 0 0 1px rgba(64, 158, 255, 0.1);
+}
+
+:deep(.el-button) {
+  border-radius: 8px;
   font-weight: 500;
-}
-
-.form-group input[type="text"],
-.form-group input[type="password"] {
-  width: 100%;
-  padding: 12px;
-  border: 2px solid #e1e5e9;
-  border-radius: 6px;
-  font-size: 14px;
-  transition: border-color 0.3s ease;
-}
-
-.form-group input:focus {
-  outline: none;
-  border-color: #667eea;
-}
-
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-}
-
-.checkbox-label input {
-  margin-right: 8px;
-}
-
-.login-btn {
-  width: 100%;
-  background: #4CAF50;
-  color: white;
-  border: none;
-  padding: 14px;
-  border-radius: 6px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.3s ease;
-  margin-bottom: 20px;
-}
-
-.login-btn:hover:not(:disabled) {
-  background: #45a049;
-}
-
-.login-btn:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-}
-
-.login-options {
-  text-align: center;
-  color: #666;
-}
-
-.login-options a {
-  color: #667eea;
-  text-decoration: none;
-}
-
-.login-options a:hover {
-  text-decoration: underline;
-}
-
-.divider {
-  margin: 0 10px;
-}
-
-.user-types {
-  border-top: 1px solid #eee;
-  padding-top: 20px;
-}
-
-.user-types h3 {
-  text-align: center;
-  color: #333;
-  margin: 0 0 15px 0;
-  font-size: 14px;
-}
-
-.type-buttons {
-  display: flex;
-  gap: 10px;
-}
-
-.type-buttons button {
-  flex: 1;
-  padding: 10px 8px;
-  border: 2px solid #e1e5e9;
-  background: white;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 12px;
-  transition: all 0.3s ease;
-}
-
-.type-buttons button:hover {
-  border-color: #667eea;
-}
-
-.type-buttons button.active {
-  background: #667eea;
-  color: white;
-  border-color: #667eea;
-}
-
-.system-info {
-  margin-top: 30px;
-  text-align: center;
-  color: white;
-  opacity: 0.9;
-}
-
-.system-info p {
-  margin: 5px 0;
-  font-size: 14px;
 }
 </style>

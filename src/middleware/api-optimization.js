@@ -159,7 +159,7 @@ class CacheManager {
     }
   }
 
-  async clear(pattern = this.keyPrefix + '*') {
+  async clear(pattern = `${this.keyPrefix  }*`) {
     if (!this.enabled || !redisClient.isOpen) return false;
 
     try {
@@ -440,7 +440,7 @@ function createApiOptimizationMiddleware(options = {}) {
         success: false,
         error: {
           code: errorCode,
-          message: message,
+          message,
           correlationId,
           timestamp: new Date().toISOString()
         }
@@ -494,7 +494,7 @@ function createApiOptimizationMiddleware(options = {}) {
       }
 
       const statusCode = health.status === 'healthy' ? 200 :
-                        health.status === 'degraded' ? 200 : 503;
+        health.status === 'degraded' ? 200 : 503;
 
       res.status(statusCode).json(health);
     },
@@ -506,9 +506,9 @@ function createApiOptimizationMiddleware(options = {}) {
         const success = await cacheManager.clear(pattern);
 
         res.json({
-          success: success,
+          success,
           message: success ? '缓存清理成功' : '缓存清理失败',
-          pattern: pattern
+          pattern
         });
       } catch (error) {
         logger.error('缓存清理失败:', error);

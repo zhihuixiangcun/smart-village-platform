@@ -233,7 +233,7 @@
                   使用服务器版本
                 </el-button>
                 <el-button
-                  @click="showMergeDialog(conflict)"
+                  @click="showMergeDialogHandler(conflict)"
                   type="warning"
                 >
                   手动合并
@@ -442,7 +442,7 @@ const clearAllData = async () => {
   }
 }
 
-const showMergeDialog = (conflict) => {
+const showMergeDialogHandler = (conflict) => {
   mergingConflict.value = conflict
   mergedDataJson.value = JSON.stringify(conflict.localData.data, null, 2)
   showMergeDialog.value = true

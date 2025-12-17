@@ -151,7 +151,7 @@
       </template>
 
       <template #politicalStatus="{ row }">
-        <el-tag :type="row.politicalStatus === '党员' ? 'danger' : ''" size="small">
+        <el-tag :type="row.politicalStatus === '党员' ? 'danger' : 'info'" size="small">
           {{ row.politicalStatus }}
         </el-tag>
       </template>

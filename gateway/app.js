@@ -60,6 +60,10 @@ const SERVICES = {
   monitoring: {
     url: process.env.MONITORING_SERVICE_URL || 'http://localhost:3099',
     timeout: 5000
+  },
+  realtime: {
+    url: process.env.REALTIME_SERVICE_URL || 'http://localhost:3001',
+    timeout: 5000
   }
 };
 
@@ -187,13 +191,15 @@ app.get('/health', async (req, res) => {
     const serviceHealth = await Promise.allSettled([
       fetch(`${SERVICES.auth.url}/health`),
       fetch(`${SERVICES.village.url}/health`),
-      fetch(`${SERVICES.monitoring.url}/health`)
+      fetch(`${SERVICES.monitoring.url}/health`),
+      fetch(`${SERVICES.realtime.url}/health`)
     ]);
 
     const services = {
       auth: serviceHealth[0].status === 'fulfilled' ? 'healthy' : 'unhealthy',
       village: serviceHealth[1].status === 'fulfilled' ? 'healthy' : 'unhealthy',
-      monitoring: serviceHealth[2].status === 'fulfilled' ? 'healthy' : 'unhealthy'
+      monitoring: serviceHealth[2].status === 'fulfilled' ? 'healthy' : 'unhealthy',
+      realtime: serviceHealth[3].status === 'fulfilled' ? 'healthy' : 'unhealthy'
     };
 
     const overallHealth = Object.values(services).every(status => status === 'healthy')
@@ -230,7 +236,10 @@ app.get('/api/v1/info', (req, res) => {
       endpoints: {
         auth: '/api/v1/auth/*',
         village: '/api/v1/village/*',
-        monitoring: '/api/v1/monitoring/*'
+        monitoring: '/api/v1/monitoring/*',
+        realtime: '/api/v1/realtime/*',
+        dataIntegration: '/api/v1/data-integration/*',
+        massiveData: '/api/v1/massive-data/*'
       },
       documentation: '/api/v1/docs'
     }
@@ -279,6 +288,81 @@ app.use('/api/v1/village', authenticateToken, createProxyMiddleware({
   }
 }));
 
+// 实时计算服务代理 (需要认证)
+app.use('/api/v1/realtime', authenticateToken, createProxyMiddleware({
+  target: SERVICES.realtime.url,
+  changeOrigin: true,
+  timeout: SERVICES.realtime.timeout,
+  pathRewrite: {
+    '^/api/v1/realtime': '/api/v1/realtime'
+  },
+  onProxyReq: (proxyReq, req, res) => {
+    // 转发用户信息到实时服务
+    proxyReq.setHeader('X-User-Id', req.user.id);
+    proxyReq.setHeader('X-User-Role', req.user.role);
+    proxyReq.setHeader('X-Village-Id', req.user.villageId || '');
+    proxyReq.setHeader('X-Request-ID', req.id);
+  },
+  onError: (err, req, res) => {
+    logger.error('实时计算服务代理错误:', err);
+    res.status(503).json({
+      success: false,
+      error: '实时计算服务暂时不可用',
+      code: 'SERVICE_UNAVAILABLE'
+    });
+  }
+}));
+
+// 数据整合服务代理 (需要认证)
+app.use('/api/v1/data-integration', authenticateToken, createProxyMiddleware({
+  target: SERVICES.realtime.url,
+  changeOrigin: true,
+  timeout: SERVICES.realtime.timeout,
+  pathRewrite: {
+    '^/api/v1/data-integration': '/api/v1/data-integration'
+  },
+  onProxyReq: (proxyReq, req, res) => {
+    // 转发用户信息
+    proxyReq.setHeader('X-User-Id', req.user.id);
+    proxyReq.setHeader('X-User-Role', req.user.role);
+    proxyReq.setHeader('X-Village-Id', req.user.villageId || '');
+    proxyReq.setHeader('X-Request-ID', req.id);
+  },
+  onError: (err, req, res) => {
+    logger.error('数据整合服务代理错误:', err);
+    res.status(503).json({
+      success: false,
+      error: '数据整合服务暂时不可用',
+      code: 'SERVICE_UNAVAILABLE'
+    });
+  }
+}));
+
+// 海量数据处理服务代理 (需要认证)
+app.use('/api/v1/massive-data', authenticateToken, createProxyMiddleware({
+  target: SERVICES.realtime.url,
+  changeOrigin: true,
+  timeout: SERVICES.realtime.timeout,
+  pathRewrite: {
+    '^/api/v1/massive-data': '/api/v1/massive-data'
+  },
+  onProxyReq: (proxyReq, req, res) => {
+    // 转发用户信息
+    proxyReq.setHeader('X-User-Id', req.user.id);
+    proxyReq.setHeader('X-User-Role', req.user.role);
+    proxyReq.setHeader('X-Village-Id', req.user.villageId || '');
+    proxyReq.setHeader('X-Request-ID', req.id);
+  },
+  onError: (err, req, res) => {
+    logger.error('海量数据处理服务代理错误:', err);
+    res.status(503).json({
+      success: false,
+      error: '海量数据处理服务暂时不可用',
+      code: 'SERVICE_UNAVAILABLE'
+    });
+  }
+}));
+
 // 监控服务代理 (需要管理员权限)
 app.use('/api/v1/monitoring',
   authenticateToken,
@@ -316,7 +400,10 @@ app.use('*', (req, res) => {
       '/api/v1/info',
       '/api/v1/auth/*',
       '/api/v1/village/*',
-      '/api/v1/monitoring/*'
+      '/api/v1/monitoring/*',
+      '/api/v1/realtime/*',
+      '/api/v1/data-integration/*',
+      '/api/v1/massive-data/*'
     ]
   });
 });

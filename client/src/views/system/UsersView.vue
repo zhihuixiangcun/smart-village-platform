@@ -1,411 +1,777 @@
 <template>
-  <div class="users-view">
+  <div class="committee-management">
     <div class="page-header">
       <div class="header-left">
-        <h1 class="page-title">用户管理</h1>
-        <p class="page-description">管理系统用户账户和权限</p>
+        <h1 class="page-title">村委管理</h1>
+        <p class="page-description">管理村委会成员信息、职务分配和权限控制</p>
       </div>
-      <div class="header-actions">
-        <el-button type="primary" @click="showAddDialog = true">
-          <el-icon><Plus /></el-icon>
-          添加用户
-        </el-button>
+      <div class="header-right">
+        <el-button type="primary" @click="showAddDialog" icon="Plus">添加成员</el-button>
+        <el-button @click="exportData" icon="Download">导出名单</el-button>
+        <el-button @click="showDutyDialog" icon="Calendar">值班管理</el-button>
       </div>
     </div>
 
-    <!-- 搜索过滤器 -->
-    <el-card class="filter-card">
+    <!-- 搜索和筛选 -->
+    <div class="search-section">
+      <el-card>
+        <el-row :gutter="16">
+          <el-col :span="6">
+            <el-input
+              v-model="searchQuery.name"
+              placeholder="搜索姓名"
+              clearable
+              @clear="handleSearch"
+              @keyup.enter="handleSearch"
+            >
+              <template #prefix>
+                <el-icon><Search /></el-icon>
+              </template>
+            </el-input>
+          </el-col>
+          <el-col :span="4">
+            <el-select v-model="searchQuery.position" placeholder="职务筛选" clearable>
+              <el-option label="全部" value="" />
+              <el-option label="村支书" value="村支书" />
+              <el-option label="村主任" value="村主任" />
+              <el-option label="会计" value="会计" />
+              <el-option label="妇女主任" value="妇女主任" />
+              <el-option label="治保主任" value="治保主任" />
+              <el-option label="民兵连长" value="民兵连长" />
+            </el-select>
+          </el-col>
+          <el-col :span="4">
+            <el-select v-model="searchQuery.status" placeholder="状态筛选" clearable>
+              <el-option label="全部" value="" />
+              <el-option label="在职" value="active" />
+              <el-option label="休假" value="vacation" />
+              <el-option label="调离" value="transferred" />
+            </el-select>
+          </el-col>
+          <el-col :span="4">
+            <el-button type="primary" @click="handleSearch" icon="Search">搜索</el-button>
+          </el-col>
+        </el-row>
+      </el-card>
+    </div>
+
+    <!-- 村委会成员列表 -->
+    <div class="members-section">
+      <el-card>
+        <template #header>
+          <div class="card-header">
+            <span class="card-title">村委会成员名单</span>
+            <el-tag type="info">共 {{ filteredMembers.length }} 人</el-tag>
+          </div>
+        </template>
+
+        <el-table :data="paginatedMembers" stripe style="width: 100%">
+          <el-table-column prop="name" label="姓名" width="100">
+            <template #default="scope">
+              <div class="member-info">
+                <el-avatar :size="40" :src="scope.row.avatar">
+                  {{ scope.row.name.charAt(0) }}
+                </el-avatar>
+                <div class="member-details">
+                  <div class="member-name">{{ scope.row.name }}</div>
+                  <el-tag size="small" :type="getStatusType(scope.row.status)">
+                    {{ getStatusText(scope.row.status) }}
+                  </el-tag>
+                </div>
+              </div>
+            </template>
+          </el-table-column>
+
+          <el-table-column prop="position" label="职务" width="120">
+            <template #default="scope">
+              <el-tag :type="getPositionType(scope.row.position)">
+                {{ scope.row.position }}
+              </el-tag>
+            </template>
+          </el-table-column>
+
+          <el-table-column prop="phone" label="联系电话" width="140">
+            <template #default="scope">
+              <span>{{ maskPhone(scope.row.phone) }}</span>
+            </template>
+          </el-table-column>
+
+          <el-table-column prop="email" label="邮箱" width="180">
+            <template #default="scope">
+              <span v-if="scope.row.email">{{ scope.row.email }}</span>
+              <span v-else class="text-gray">-</span>
+            </template>
+          </el-table-column>
+
+          <el-table-column prop="joinDate" label="任职时间" width="120">
+            <template #default="scope">
+              <span>{{ formatDate(scope.row.joinDate) }}</span>
+            </template>
+          </el-table-column>
+
+          <el-table-column prop="partyMember" label="政治面貌" width="100">
+            <template #default="scope">
+              <el-tag v-if="scope.row.partyMember" type="danger" size="small">党员</el-tag>
+              <el-tag v-else type="info" size="small">群众</el-tag>
+            </template>
+          </el-table-column>
+
+          <el-table-column label="操作" width="200" fixed="right">
+            <template #default="scope">
+              <el-button link type="primary" @click="viewMember(scope.row)">详情</el-button>
+              <el-button link type="warning" @click="editMember(scope.row)">编辑</el-button>
+              <el-button
+                v-if="scope.row.status === 'active'"
+                link
+                type="danger"
+                @click="handleTransfer(scope.row)"
+              >
+                调离
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+
+        <div class="pagination-container">
+          <el-pagination
+            v-model:current-page="currentPage"
+            v-model:page-size="pageSize"
+            :page-sizes="[10, 20, 50, 100]"
+            :total="filteredMembers.length"
+            layout="total, sizes, prev, pager, next, jumper"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+          />
+        </div>
+      </el-card>
+    </div>
+
+    <!-- 统计信息 -->
+    <div class="stats-section">
       <el-row :gutter="20">
         <el-col :span="6">
-          <el-input
-            v-model="searchForm.keyword"
-            placeholder="搜索用户名、姓名..."
-            clearable
-            @input="handleSearch"
-          >
-            <template #prefix>
-              <el-icon><Search /></el-icon>
-            </template>
-          </el-input>
-        </el-col>
-        <el-col :span="4">
-          <el-select v-model="searchForm.role" placeholder="角色" clearable @change="handleSearch">
-            <el-option label="管理员" value="admin" />
-            <el-option label="村委" value="village_committee" />
-            <el-option label="普通用户" value="user" />
-          </el-select>
-        </el-col>
-        <el-col :span="4">
-          <el-select v-model="searchForm.status" placeholder="状态" clearable @change="handleSearch">
-            <el-option label="启用" value="active" />
-            <el-option label="禁用" value="disabled" />
-          </el-select>
+          <el-card class="stat-card">
+            <div class="stat-content">
+              <div class="stat-icon">👥</div>
+              <div class="stat-info">
+                <div class="stat-value">{{ stats.total }}</div>
+                <div class="stat-label">总人数</div>
+              </div>
+            </div>
+          </el-card>
         </el-col>
         <el-col :span="6">
-          <el-button type="primary" @click="handleSearch">搜索</el-button>
-          <el-button @click="resetSearch">重置</el-button>
+          <el-card class="stat-card">
+            <div class="stat-content">
+              <div class="stat-icon">✅</div>
+              <div class="stat-info">
+                <div class="stat-value">{{ stats.active }}</div>
+                <div class="stat-label">在职</div>
+              </div>
+            </div>
+          </el-card>
+        </el-col>
+        <el-col :span="6">
+          <el-card class="stat-card">
+            <div class="stat-content">
+              <div class="stat-icon">🏛️</div>
+              <div class="stat-info">
+                <div class="stat-value">{{ stats.partyMembers }}</div>
+                <div class="stat-label">党员</div>
+              </div>
+            </div>
+          </el-card>
+        </el-col>
+        <el-col :span="6">
+          <el-card class="stat-card">
+            <div class="stat-content">
+              <div class="stat-icon">📞</div>
+              <div class="stat-info">
+                <div class="stat-value">{{ stats.onDuty }}</div>
+                <div class="stat-label">今日值班</div>
+              </div>
+            </div>
+          </el-card>
         </el-col>
       </el-row>
-    </el-card>
+    </div>
 
-    <!-- 用户列表 -->
-    <el-card class="table-card">
-      <el-table
-        :data="users"
-        v-loading="loading"
-        style="width: 100%"
-        @selection-change="handleSelectionChange"
-      >
-        <el-table-column type="selection" width="55" />
-        <el-table-column prop="username" label="用户名" min-width="120" />
-        <el-table-column prop="name" label="姓名" min-width="100" />
-        <el-table-column prop="role" label="角色" min-width="120">
-          <template #default="{ row }">
-            <el-tag :type="getRoleType(row.role)">
-              {{ getRoleLabel(row.role) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="email" label="邮箱" min-width="180" />
-        <el-table-column prop="phone" label="手机号" min-width="120" />
-        <el-table-column prop="village" label="所属村庄" min-width="120" />
-        <el-table-column prop="status" label="状态" min-width="80">
-          <template #default="{ row }">
-            <el-switch
-              v-model="row.status"
-              active-value="active"
-              inactive-value="disabled"
-              @change="handleStatusChange(row)"
-            />
-          </template>
-        </el-table-column>
-        <el-table-column prop="lastLogin" label="最后登录" min-width="160">
-          <template #default="{ row }">
-            {{ formatDate(row.lastLogin) }}
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="200" fixed="right">
-          <template #default="{ row }">
-            <el-button size="small" @click="handleEdit(row)">编辑</el-button>
-            <el-button size="small" @click="handleResetPassword(row)">重置密码</el-button>
-            <el-button size="small" type="danger" @click="handleDelete(row)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-
-      <!-- 分页 -->
-      <div class="pagination-wrapper">
-        <el-pagination
-          v-model:current-page="pagination.page"
-          v-model:page-size="pagination.size"
-          :total="pagination.total"
-          :page-sizes="[10, 20, 50, 100]"
-          layout="total, sizes, prev, pager, next, jumper"
-          @size-change="handleSizeChange"
-          @current-change="handlePageChange"
-        />
-      </div>
-    </el-card>
-
-    <!-- 添加/编辑用户对话框 -->
+    <!-- 添加/编辑成员对话框 -->
     <el-dialog
-      v-model="showAddDialog"
-      :title="editingUser ? '编辑用户' : '添加用户'"
+      v-model="memberDialogVisible"
+      :title="dialogMode === 'add' ? '添加成员' : '编辑成员'"
       width="600px"
-      @close="resetForm"
     >
-      <el-form :model="userForm" :rules="userRules" ref="userFormRef" label-width="80px">
-        <el-form-item label="用户名" prop="username">
-          <el-input v-model="userForm.username" :disabled="editingUser" />
+      <el-form :model="memberForm" :rules="memberRules" ref="memberFormRef" label-width="100px">
+        <el-row :gutter="16">
+          <el-col :span="12">
+            <el-form-item label="姓名" prop="name">
+              <el-input v-model="memberForm.name" placeholder="请输入姓名" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="性别" prop="gender">
+              <el-select v-model="memberForm.gender" placeholder="请选择性别">
+                <el-option label="男" value="男" />
+                <el-option label="女" value="女" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row :gutter="16">
+          <el-col :span="12">
+            <el-form-item label="职务" prop="position">
+              <el-select v-model="memberForm.position" placeholder="请选择职务">
+                <el-option label="村支书" value="村支书" />
+                <el-option label="村主任" value="村主任" />
+                <el-option label="会计" value="会计" />
+                <el-option label="妇女主任" value="妇女主任" />
+                <el-option label="治保主任" value="治保主任" />
+                <el-option label="民兵连长" value="民兵连长" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="状态" prop="status">
+              <el-select v-model="memberForm.status" placeholder="请选择状态">
+                <el-option label="在职" value="active" />
+                <el-option label="休假" value="vacation" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-form-item label="身份证号" prop="idCard">
+          <el-input v-model="memberForm.idCard" placeholder="请输入身份证号" />
         </el-form-item>
-        <el-form-item label="姓名" prop="name">
-          <el-input v-model="userForm.name" />
+
+        <el-form-item label="联系电话" prop="phone">
+          <el-input v-model="memberForm.phone" placeholder="请输入联系电话" />
         </el-form-item>
-        <el-form-item label="邮箱" prop="email">
-          <el-input v-model="userForm.email" />
+
+        <el-form-item label="邮箱">
+          <el-input v-model="memberForm.email" placeholder="请输入邮箱（可选）" />
         </el-form-item>
-        <el-form-item label="手机号" prop="phone">
-          <el-input v-model="userForm.phone" />
-        </el-form-item>
-        <el-form-item label="角色" prop="role">
-          <el-select v-model="userForm.role" style="width: 100%">
-            <el-option label="管理员" value="admin" />
-            <el-option label="村委" value="village_committee" />
-            <el-option label="普通用户" value="user" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="所属村庄" prop="village">
-          <el-input v-model="userForm.village" />
-        </el-form-item>
-        <el-form-item v-if="!editingUser" label="密码" prop="password">
-          <el-input v-model="userForm.password" type="password" show-password />
+
+        <el-row :gutter="16">
+          <el-col :span="12">
+            <el-form-item label="政治面貌">
+              <el-radio-group v-model="memberForm.partyMember">
+                <el-radio :label="true">党员</el-radio>
+                <el-radio :label="false">群众</el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="任职时间">
+              <el-date-picker
+                v-model="memberForm.joinDate"
+                type="date"
+                placeholder="选择任职时间"
+                style="width: 100%"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-form-item label="家庭住址">
+          <el-input
+            v-model="memberForm.address"
+            type="textarea"
+            :rows="2"
+            placeholder="请输入详细住址"
+          />
         </el-form-item>
       </el-form>
 
       <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="showAddDialog = false">取消</el-button>
-          <el-button type="primary" @click="handleSubmit" :loading="submitting">
-            {{ editingUser ? '更新' : '添加' }}
-          </el-button>
-        </span>
+        <el-button @click="memberDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="saveMember" :loading="saving">保存</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 值班管理对话框 -->
+    <el-dialog v-model="dutyDialogVisible" title="值班表管理" width="800px">
+      <el-table :data="dutySchedule" stripe>
+        <el-table-column prop="date" label="日期" width="120" />
+        <el-table-column prop="time" label="时间段" width="100" />
+        <el-table-column prop="person" label="值班人员" width="100" />
+        <el-table-column prop="phone" label="联系电话" width="140" />
+        <el-table-column prop="status" label="状态" width="100">
+          <template #default="scope">
+            <el-tag :type="scope.row.status === '已安排' ? 'success' : 'warning'">
+              {{ scope.row.status }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作">
+          <template #default="scope">
+            <el-button link type="primary" @click="editDuty(scope.row)">编辑</el-button>
+            <el-button link type="danger" @click="deleteDuty(scope.row)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <template #footer>
+        <el-button @click="dutyDialogVisible = false">关闭</el-button>
+        <el-button type="primary" @click="addDuty">添加值班</el-button>
       </template>
     </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus, Search } from '@element-plus/icons-vue'
 
 // 响应式数据
-const loading = ref(false)
-const submitting = ref(false)
-const showAddDialog = ref(false)
-const editingUser = ref(null)
-
-const users = ref([
-  {
-    id: 1,
-    username: 'admin',
-    name: '系统管理员',
-    email: 'admin@village.com',
-    phone: '13800138000',
-    role: 'admin',
-    village: '全局',
-    status: 'active',
-    lastLogin: new Date()
-  },
-  {
-    id: 2,
-    username: 'village01',
-    name: '张村长',
-    email: 'zhang@village.com',
-    phone: '13800138001',
-    role: 'village_committee',
-    village: '示例村',
-    status: 'active',
-    lastLogin: new Date(Date.now() - 24 * 60 * 60 * 1000)
-  }
-])
-
-const searchForm = reactive({
-  keyword: '',
-  role: '',
+const searchQuery = reactive({
+  name: '',
+  position: '',
   status: ''
 })
 
-const pagination = reactive({
-  page: 1,
-  size: 20,
-  total: 0
-})
+const currentPage = ref(1)
+const pageSize = ref(20)
+const memberDialogVisible = ref(false)
+const dutyDialogVisible = ref(false)
+const dialogMode = ref('add')
+const saving = ref(false)
+const memberFormRef = ref()
 
-const userForm = reactive({
-  username: '',
+// 成员表单
+const memberForm = reactive({
   name: '',
-  email: '',
+  gender: '',
+  position: '',
+  status: 'active',
+  idCard: '',
   phone: '',
-  role: '',
-  village: '',
-  password: ''
+  email: '',
+  partyMember: false,
+  joinDate: '',
+  address: ''
 })
 
-const userRules = {
-  username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+// 表单验证规则
+const memberRules = {
   name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
-  email: [
-    { required: true, message: '请输入邮箱', trigger: 'blur' },
-    { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' }
-  ],
-  role: [{ required: true, message: '请选择角色', trigger: 'change' }],
-  password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
+  gender: [{ required: true, message: '请选择性别', trigger: 'change' }],
+  position: [{ required: true, message: '请选择职务', trigger: 'change' }],
+  status: [{ required: true, message: '请选择状态', trigger: 'change' }],
+  idCard: [{ required: true, message: '请输入身份证号', trigger: 'blur' }],
+  phone: [{ required: true, message: '请输入联系电话', trigger: 'blur' }]
 }
 
-const userFormRef = ref()
-
-// 工具函数
-const getRoleType = (role) => {
-  const types = {
-    admin: 'danger',
-    village_committee: 'warning',
-    user: 'info'
+// 模拟数据
+const committeeMembers = ref([
+  {
+    id: 1,
+    name: '张大明',
+    gender: '男',
+    position: '村支书',
+    phone: '13800138001',
+    email: 'zhangdaming@village.gov',
+    status: 'active',
+    partyMember: true,
+    joinDate: '2020-03-15',
+    idCard: '110101198001011234',
+    address: '智慧村1号楼',
+    avatar: ''
+  },
+  {
+    id: 2,
+    name: '李红梅',
+    gender: '女',
+    position: '村主任',
+    phone: '13800138002',
+    email: 'lihongmei@village.gov',
+    status: 'active',
+    partyMember: true,
+    joinDate: '2020-03-15',
+    idCard: '110101198502022345',
+    address: '智慧村2号楼',
+    avatar: ''
+  },
+  {
+    id: 3,
+    name: '王小强',
+    gender: '男',
+    position: '会计',
+    phone: '13800138003',
+    email: 'wangxiaoqiang@village.gov',
+    status: 'active',
+    partyMember: false,
+    joinDate: '2021-06-10',
+    idCard: '110101199003033456',
+    address: '智慧村3号楼',
+    avatar: ''
+  },
+  {
+    id: 4,
+    name: '刘美丽',
+    gender: '女',
+    position: '妇女主任',
+    phone: '13800138004',
+    email: '',
+    status: 'vacation',
+    partyMember: true,
+    joinDate: '2021-09-20',
+    idCard: '110101198504044567',
+    address: '智慧村4号楼',
+    avatar: ''
+  },
+  {
+    id: 5,
+    name: '赵刚',
+    gender: '男',
+    position: '治保主任',
+    phone: '13800138005',
+    email: 'zhaogang@village.gov',
+    status: 'active',
+    partyMember: true,
+    joinDate: '2022-01-10',
+    idCard: '110101198805055678',
+    address: '智慧村5号楼',
+    avatar: ''
   }
-  return types[role] || 'info'
+])
+
+const dutySchedule = ref([
+  {
+    id: 1,
+    date: '2024-12-15',
+    time: '上午',
+    person: '张大明',
+    phone: '13800138001',
+    status: '已安排'
+  },
+  {
+    id: 2,
+    date: '2024-12-15',
+    time: '下午',
+    person: '李红梅',
+    phone: '13800138002',
+    status: '已安排'
+  },
+  {
+    id: 3,
+    date: '2024-12-16',
+    time: '上午',
+    person: '王小强',
+    phone: '13800138003',
+    status: '待安排'
+  }
+])
+
+// 计算属性
+const filteredMembers = computed(() => {
+  return committeeMembers.value.filter(member => {
+    const matchName = !searchQuery.name || member.name.includes(searchQuery.name)
+    const matchPosition = !searchQuery.position || member.position === searchQuery.position
+    const matchStatus = !searchQuery.status || member.status === searchQuery.status
+    return matchName && matchPosition && matchStatus
+  })
+})
+
+const paginatedMembers = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value
+  const end = start + pageSize.value
+  return filteredMembers.value.slice(start, end)
+})
+
+const stats = computed(() => {
+  const total = committeeMembers.value.length
+  const active = committeeMembers.value.filter(m => m.status === 'active').length
+  const partyMembers = committeeMembers.value.filter(m => m.partyMember).length
+  const onDuty = dutySchedule.value.filter(d => d.status === '已安排').length
+
+  return { total, active, partyMembers, onDuty }
+})
+
+// 方法
+const getStatusType = (status) => {
+  const typeMap = {
+    'active': 'success',
+    'vacation': 'warning',
+    'transferred': 'danger'
+  }
+  return typeMap[status] || 'info'
 }
 
-const getRoleLabel = (role) => {
-  const labels = {
-    admin: '管理员',
-    village_committee: '村委',
-    user: '普通用户'
+const getStatusText = (status) => {
+  const textMap = {
+    'active': '在职',
+    'vacation': '休假',
+    'transferred': '调离'
   }
-  return labels[role] || role
+  return textMap[status] || '未知'
+}
+
+const getPositionType = (position) => {
+  const typeMap = {
+    '村支书': 'danger',
+    '村主任': 'primary',
+    '会计': 'warning',
+    '妇女主任': 'success',
+    '治保主任': 'info',
+    '民兵连长': 'warning'
+  }
+  return typeMap[position] || 'info'
+}
+
+const maskPhone = (phone) => {
+  if (!phone || phone.length < 7) return phone
+  return phone.substring(0, 3) + '****' + phone.substring(phone.length - 4)
 }
 
 const formatDate = (date) => {
   if (!date) return '-'
-  return new Date(date).toLocaleString('zh-CN')
+  return new Date(date).toLocaleDateString('zh-CN')
 }
 
-// 事件处理
 const handleSearch = () => {
-  console.log('搜索用户:', searchForm)
-  // TODO: 实现搜索逻辑
-}
-
-const resetSearch = () => {
-  Object.assign(searchForm, {
-    keyword: '',
-    role: '',
-    status: ''
-  })
-  handleSearch()
-}
-
-const handleSelectionChange = (selection) => {
-  console.log('选择变更:', selection)
-}
-
-const handleStatusChange = async (user) => {
-  try {
-    console.log('状态变更:', user)
-    ElMessage.success(`用户 ${user.name} 状态已更新`)
-  } catch (error) {
-    ElMessage.error('状态更新失败')
-  }
-}
-
-const handleEdit = (user) => {
-  editingUser.value = user
-  Object.assign(userForm, {
-    username: user.username,
-    name: user.name,
-    email: user.email,
-    phone: user.phone,
-    role: user.role,
-    village: user.village
-  })
-  showAddDialog.value = true
-}
-
-const handleResetPassword = async (user) => {
-  try {
-    await ElMessageBox.confirm(
-      `确定要重置用户 ${user.name} 的密码吗？`,
-      '重置密码',
-      { type: 'warning' }
-    )
-    console.log('重置密码:', user)
-    ElMessage.success('密码重置成功')
-  } catch {
-    // 用户取消
-  }
-}
-
-const handleDelete = async (user) => {
-  try {
-    await ElMessageBox.confirm(
-      `确定要删除用户 ${user.name} 吗？此操作不可恢复。`,
-      '删除用户',
-      { type: 'warning' }
-    )
-    console.log('删除用户:', user)
-    ElMessage.success('用户删除成功')
-  } catch {
-    // 用户取消
-  }
-}
-
-const handleSubmit = async () => {
-  try {
-    await userFormRef.value.validate()
-    submitting.value = true
-
-    console.log('提交用户数据:', userForm)
-
-    setTimeout(() => {
-      submitting.value = false
-      showAddDialog.value = false
-      ElMessage.success(editingUser.value ? '用户更新成功' : '用户添加成功')
-      resetForm()
-    }, 1000)
-  } catch (error) {
-    console.error('表单验证失败:', error)
-  }
-}
-
-const resetForm = () => {
-  editingUser.value = null
-  Object.assign(userForm, {
-    username: '',
-    name: '',
-    email: '',
-    phone: '',
-    role: '',
-    village: '',
-    password: ''
-  })
-  userFormRef.value?.resetFields()
+  currentPage.value = 1
 }
 
 const handleSizeChange = (size) => {
-  pagination.size = size
-  loadUsers()
+  pageSize.value = size
+  currentPage.value = 1
 }
 
-const handlePageChange = (page) => {
-  pagination.page = page
-  loadUsers()
+const handleCurrentChange = (page) => {
+  currentPage.value = page
 }
 
-const loadUsers = () => {
-  loading.value = true
-  // TODO: 从API加载用户数据
-  setTimeout(() => {
-    pagination.total = users.value.length
-    loading.value = false
-  }, 500)
+const showAddDialog = () => {
+  dialogMode.value = 'add'
+  resetForm()
+  memberDialogVisible.value = true
+}
+
+const resetForm = () => {
+  Object.assign(memberForm, {
+    name: '',
+    gender: '',
+    position: '',
+    status: 'active',
+    idCard: '',
+    phone: '',
+    email: '',
+    partyMember: false,
+    joinDate: '',
+    address: ''
+  })
+}
+
+const viewMember = (member) => {
+  ElMessage.info(`查看 ${member.name} 的详细信息`)
+}
+
+const editMember = (member) => {
+  dialogMode.value = 'edit'
+  Object.assign(memberForm, member)
+  memberDialogVisible.value = true
+}
+
+const saveMember = async () => {
+  if (!memberFormRef.value) return
+
+  try {
+    await memberFormRef.value.validate()
+    saving.value = true
+
+    // 模拟API调用
+    await new Promise(resolve => setTimeout(resolve, 1000))
+
+    if (dialogMode.value === 'add') {
+      const newMember = {
+        ...memberForm,
+        id: Date.now(),
+        avatar: ''
+      }
+      committeeMembers.value.push(newMember)
+      ElMessage.success('添加成员成功')
+    } else {
+      const index = committeeMembers.value.findIndex(m => m.id === memberForm.id)
+      if (index !== -1) {
+        Object.assign(committeeMembers.value[index], memberForm)
+        ElMessage.success('更新成员信息成功')
+      }
+    }
+
+    memberDialogVisible.value = false
+  } catch (error) {
+    ElMessage.error('保存失败：' + (error.message || '未知错误'))
+  } finally {
+    saving.value = false
+  }
+}
+
+const handleTransfer = async (member) => {
+  try {
+    await ElMessageBox.confirm(
+      `确定要将 ${member.name} 调离现任职务吗？`,
+      '确认调离',
+      { type: 'warning' }
+    )
+
+    const index = committeeMembers.value.findIndex(m => m.id === member.id)
+    if (index !== -1) {
+      committeeMembers.value[index].status = 'transferred'
+      ElMessage.success('已标记为调离状态')
+    }
+  } catch {
+    // 用户取消
+  }
+}
+
+const exportData = () => {
+  ElMessage.info('导出功能开发中...')
+}
+
+const showDutyDialog = () => {
+  dutyDialogVisible.value = true
+}
+
+const addDuty = () => {
+  ElMessage.info('添加值班功能开发中...')
+}
+
+const editDuty = (duty) => {
+  ElMessage.info('编辑值班功能开发中...')
+}
+
+const deleteDuty = async (duty) => {
+  try {
+    await ElMessageBox.confirm(
+      `确定要删除 ${duty.date} ${duty.time} 的值班安排吗？`,
+      '确认删除',
+      { type: 'warning' }
+    )
+
+    const index = dutySchedule.value.findIndex(d => d.id === duty.id)
+    if (index !== -1) {
+      dutySchedule.value.splice(index, 1)
+      ElMessage.success('删除值班安排成功')
+    }
+  } catch {
+    // 用户取消
+  }
 }
 
 onMounted(() => {
-  loadUsers()
+  console.log('村委管理模块加载完成')
 })
 </script>
 
 <style lang="scss" scoped>
-.users-view {
+.committee-management {
   padding: 20px;
+  background-color: #f5f7fa;
+  min-height: 100vh;
 }
 
 .page-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+
+  .header-left {
+    .page-title {
+      margin: 0 0 8px 0;
+      font-size: 24px;
+      font-weight: 600;
+      color: #303133;
+    }
+
+    .page-description {
+      margin: 0;
+      color: #606266;
+      font-size: 14px;
+    }
+  }
+
+  .header-right {
+    display: flex;
+    gap: 12px;
+  }
+}
+
+.search-section {
   margin-bottom: 20px;
 }
 
-.page-title {
-  font-size: 24px;
-  font-weight: bold;
-  margin: 0 0 8px 0;
-}
-
-.page-description {
-  color: #666;
-  margin: 0;
-}
-
-.filter-card {
+.members-section {
   margin-bottom: 20px;
-}
 
-.table-card {
-  .pagination-wrapper {
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .card-title {
+      font-weight: 600;
+      color: #303133;
+    }
+  }
+
+  .member-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .member-details {
+      .member-name {
+        font-weight: 500;
+        color: #303133;
+        margin-bottom: 4px;
+      }
+    }
+  }
+
+  .pagination-container {
+    margin-top: 20px;
     display: flex;
     justify-content: center;
-    margin-top: 20px;
   }
+}
+
+.stats-section {
+  .stat-card {
+    .stat-content {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+
+      .stat-icon {
+        font-size: 2em;
+      }
+
+      .stat-info {
+        .stat-value {
+          font-size: 1.8em;
+          font-weight: bold;
+          color: #303133;
+          line-height: 1;
+        }
+
+        .stat-label {
+          color: #606266;
+          margin-top: 4px;
+        }
+      }
+    }
+  }
+}
+
+.text-gray {
+  color: #909399;
 }
 </style>

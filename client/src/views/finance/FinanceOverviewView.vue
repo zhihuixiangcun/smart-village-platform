@@ -1,970 +1,1155 @@
 <template>
-  <div class="finance-overview">
-    <!-- 离线管理器 -->
-    <offline-manager />
-
-    <!-- PWA管理器 -->
-    <pwa-manager ref="pwaManager" />
-
-    <!-- 面包屑导航 -->
-    <breadcrumb />
-
-    <!-- 页面头部 -->
+  <div class="finance-management">
     <div class="page-header">
-      <div class="header-content">
-        <div class="header-left">
-          <h1 class="page-title">
-            <el-icon><Money /></el-icon>
-            财务概览
-          </h1>
-          <p class="page-subtitle">资金状况 • 收支分析 • 预算执行 • 透明公开</p>
-        </div>
-        <div class="header-right">
-          <el-button @click="refreshData" icon="Refresh" type="primary">
-            刷新数据
-          </el-button>
-          <el-button @click="exportFinanceReport" icon="Download" type="success">
-            导出报表
-          </el-button>
-          <el-button @click="showFinanceSettings" icon="Setting">
-            财务设置
-          </el-button>
-        </div>
+      <div class="header-left">
+        <h1 class="page-title">财务管理</h1>
+        <p class="page-description">预算控制、收支管理、财务透明、审批流程</p>
+      </div>
+      <div class="header-right">
+        <el-button type="primary" @click="showTransactionDialog" icon="Plus">录入收支</el-button>
+        <el-button @click="showBudgetDialog" icon="Money">预算管理</el-button>
+        <el-button @click="exportReport" icon="Download">导出报表</el-button>
       </div>
     </div>
 
-    <!-- 财务统计卡片 -->
-    <div class="finance-stats">
+    <!-- 财务概览卡片 -->
+    <div class="overview-section">
       <el-row :gutter="20">
         <el-col :span="6">
-          <div class="stat-card balance">
-            <div class="stat-icon">
-              <el-icon size="40"><Wallet /></el-icon>
-            </div>
-            <div class="stat-content">
-              <div class="stat-value">¥{{ formatMoney(financeStats.currentBalance) }}</div>
-              <div class="stat-label">当前余额</div>
-              <div class="stat-trend" :class="balanceTrend.class">
-                <el-icon><component :is="balanceTrend.icon" /></el-icon>
-                {{ balanceTrend.text }}
+          <el-card class="overview-card income">
+            <div class="card-content">
+              <div class="card-icon">💰</div>
+              <div class="card-info">
+                <div class="card-value">¥{{ formatAmount(overview.totalIncome) }}</div>
+                <div class="card-label">总收入</div>
+                <div class="card-trend">
+                  <el-icon class="trend-icon up"><CaretTop /></el-icon>
+                  <span>+12.5%</span>
+                </div>
               </div>
             </div>
-          </div>
+          </el-card>
         </el-col>
+
         <el-col :span="6">
-          <div class="stat-card income">
-            <div class="stat-icon">
-              <el-icon size="40"><TrendCharts /></el-icon>
-            </div>
-            <div class="stat-content">
-              <div class="stat-value">¥{{ formatMoney(financeStats.monthlyIncome) }}</div>
-              <div class="stat-label">本月收入</div>
-              <div class="stat-trend income-trend">
-                <el-icon><CaretTop /></el-icon>
-                +{{ financeStats.incomeGrowth }}%
+          <el-card class="overview-card expense">
+            <div class="card-content">
+              <div class="card-icon">💸</div>
+              <div class="card-info">
+                <div class="card-value">¥{{ formatAmount(overview.totalExpense) }}</div>
+                <div class="card-label">总支出</div>
+                <div class="card-trend">
+                  <el-icon class="trend-icon down"><CaretBottom /></el-icon>
+                  <span>-8.3%</span>
+                </div>
               </div>
             </div>
-          </div>
+          </el-card>
         </el-col>
+
         <el-col :span="6">
-          <div class="stat-card expense">
-            <div class="stat-icon">
-              <el-icon size="40"><ShoppingCart /></el-icon>
-            </div>
-            <div class="stat-content">
-              <div class="stat-value">¥{{ formatMoney(financeStats.monthlyExpense) }}</div>
-              <div class="stat-label">本月支出</div>
-              <div class="stat-trend expense-trend">
-                <el-icon><CaretBottom /></el-icon>
-                {{ financeStats.expenseChange }}%
+          <el-card class="overview-card balance">
+            <div class="card-content">
+              <div class="card-icon">🏦</div>
+              <div class="card-info">
+                <div class="card-value">¥{{ formatAmount(overview.balance) }}</div>
+                <div class="card-label">当前余额</div>
+                <div class="card-trend">
+                  <el-icon class="trend-icon up"><CaretTop /></el-icon>
+                  <span>+15.8%</span>
+                </div>
               </div>
             </div>
-          </div>
+          </el-card>
         </el-col>
+
         <el-col :span="6">
-          <div class="stat-card budget">
-            <div class="stat-icon">
-              <el-icon size="40"><PieChart /></el-icon>
-            </div>
-            <div class="stat-content">
-              <div class="stat-value">{{ financeStats.budgetUsage }}%</div>
-              <div class="stat-label">预算执行率</div>
-              <div class="stat-trend">
-                <el-progress :percentage="financeStats.budgetUsage" :show-text="false" />
+          <el-card class="overview-card budget">
+            <div class="card-content">
+              <div class="card-icon">📊</div>
+              <div class="card-info">
+                <div class="card-value">{{ overview.budgetUsage }}%</div>
+                <div class="card-label">预算执行率</div>
+                <div class="card-progress">
+                  <el-progress
+                    :percentage="overview.budgetUsage"
+                    :stroke-width="6"
+                    :show-text="false"
+                    :color="getProgressColor(overview.budgetUsage)"
+                  />
+                </div>
               </div>
             </div>
-          </div>
+          </el-card>
         </el-col>
       </el-row>
     </div>
 
-    <!-- 主要内容区域 -->
-    <el-row :gutter="20">
-      <!-- 左侧内容 -->
-      <el-col :span="16">
-        <!-- 收支趋势图表 -->
-        <el-card shadow="never" class="chart-card">
-          <template #header>
-            <div class="card-header">
-              <span>收支趋势分析</span>
-              <div class="header-actions">
-                <el-radio-group v-model="trendPeriod" size="small">
-                  <el-radio-button label="7days">7天</el-radio-button>
-                  <el-radio-button label="30days">30天</el-radio-button>
-                  <el-radio-button label="3months">3个月</el-radio-button>
-                  <el-radio-button label="1year">1年</el-radio-button>
-                </el-radio-group>
-              </div>
-            </div>
-          </template>
-          <div ref="trendChartRef" class="chart-container"></div>
-        </el-card>
+    <!-- 功能选项卡 -->
+    <el-tabs v-model="activeTab" @tab-change="handleTabChange" class="finance-tabs">
+      <el-tab-pane label="收支明细" name="transactions">
+        <div class="tab-content">
+          <!-- 搜索筛选 -->
+          <el-card class="search-card">
+            <el-row :gutter="16">
+              <el-col :span="6">
+                <el-input
+                  v-model="searchQuery.transaction"
+                  placeholder="搜索交易说明"
+                  clearable
+                  @keyup.enter="searchTransactions"
+                >
+                  <template #prefix>
+                    <el-icon><Search /></el-icon>
+                  </template>
+                </el-input>
+              </el-col>
+              <el-col :span="4">
+                <el-select v-model="filterQuery.type" placeholder="收支类型" clearable>
+                  <el-option label="全部" value="" />
+                  <el-option label="收入" value="income" />
+                  <el-option label="支出" value="expense" />
+                </el-select>
+              </el-col>
+              <el-col :span="4">
+                <el-select v-model="filterQuery.category" placeholder="收支分类" clearable>
+                  <el-option label="全部" value="" />
+                  <el-option label="政府补助" value="government" />
+                  <el-option label="集体收入" value="collective" />
+                  <el-option label="基础设施" value="infrastructure" />
+                  <el-option label="公共服务" value="public_service" />
+                  <el-option label="行政支出" value="administrative" />
+                </el-select>
+              </el-col>
+              <el-col :span="4">
+                <el-date-picker
+                  v-model="filterQuery.dateRange"
+                  type="daterange"
+                  range-separator="至"
+                  start-placeholder="开始日期"
+                  end-placeholder="结束日期"
+                  format="YYYY-MM-DD"
+                  value-format="YYYY-MM-DD"
+                />
+              </el-col>
+              <el-col :span="3">
+                <el-button type="primary" @click="searchTransactions" icon="Search">搜索</el-button>
+              </el-col>
+            </el-row>
+          </el-card>
 
-        <!-- 支出分类分析 -->
-        <el-card shadow="never" class="chart-card">
-          <template #header>
-            <span>支出分类分析</span>
-          </template>
-          <div ref="expenseCategoryChartRef" class="chart-container"></div>
-        </el-card>
-      </el-col>
-
-      <!-- 右侧内容 -->
-      <el-col :span="8">
-        <!-- 待审批事项 -->
-        <el-card shadow="never" class="pending-card">
-          <template #header>
-            <div class="card-header">
-              <span>待审批事项</span>
-              <el-badge :value="pendingApprovals.length" type="danger">
-                <el-button @click="viewAllApprovals" type="text" size="small">
-                  查看全部
-                </el-button>
-              </el-badge>
-            </div>
-          </template>
-          <div class="pending-list">
-            <div
-              v-for="item in pendingApprovals.slice(0, 5)"
-              :key="item.id"
-              class="pending-item"
-              @click="viewApprovalDetail(item)"
-            >
-              <div class="pending-info">
-                <div class="pending-title">{{ item.title }}</div>
-                <div class="pending-meta">
-                  <span class="amount">¥{{ formatMoney(item.amount) }}</span>
-                  <span class="date">{{ formatDate(item.submitTime) }}</span>
+          <!-- 交易列表 -->
+          <el-card class="list-card">
+            <template #header>
+              <div class="card-header">
+                <span class="card-title">收支明细</span>
+                <div class="header-actions">
+                  <el-button size="small" @click="showBatchApproval" :disabled="!selectedTransactions.length">
+                    批量审批
+                  </el-button>
+                  <el-button size="small" @click="batchDelete" :disabled="!selectedTransactions.length">
+                    批量删除
+                  </el-button>
                 </div>
               </div>
-              <div class="pending-status">
-                <el-tag :type="getApprovalStatusType(item.status)" size="small">
-                  {{ getApprovalStatusText(item.status) }}
-                </el-tag>
-              </div>
-            </div>
-            <div v-if="pendingApprovals.length === 0" class="empty-state">
-              <el-empty description="暂无待审批事项" :image-size="80" />
-            </div>
-          </div>
-        </el-card>
+            </template>
 
-        <!-- 近期交易记录 -->
-        <el-card shadow="never" class="transaction-card">
-          <template #header>
-            <div class="card-header">
-              <span>近期交易</span>
-              <el-button @click="viewAllTransactions" type="text" size="small">
-                查看全部
-              </el-button>
-            </div>
-          </template>
-          <div class="transaction-list">
-            <div
-              v-for="transaction in recentTransactions.slice(0, 8)"
-              :key="transaction.id"
-              class="transaction-item"
+            <el-table
+              :data="paginatedTransactions"
+              stripe
+              @selection-change="handleSelectionChange"
+              style="width: 100%"
             >
-              <div class="transaction-icon">
-                <el-icon :class="transaction.type === 'income' ? 'income-icon' : 'expense-icon'">
-                  <component :is="transaction.type === 'income' ? 'Plus' : 'Minus'" />
-                </el-icon>
-              </div>
-              <div class="transaction-info">
-                <div class="transaction-title">{{ transaction.description }}</div>
-                <div class="transaction-date">{{ formatDate(transaction.date) }}</div>
-              </div>
-              <div class="transaction-amount" :class="transaction.type">
-                {{ transaction.type === 'income' ? '+' : '-' }}¥{{ formatMoney(transaction.amount) }}
-              </div>
-            </div>
-            <div v-if="recentTransactions.length === 0" class="empty-state">
-              <el-empty description="暂无交易记录" :image-size="60" />
-            </div>
-          </div>
-        </el-card>
+              <el-table-column type="selection" width="55" />
+              <el-table-column prop="date" label="日期" width="120" sortable>
+                <template #default="scope">
+                  {{ formatDate(scope.row.date) }}
+                </template>
+              </el-table-column>
 
-        <!-- 预算执行情况 -->
-        <el-card shadow="never" class="budget-card">
-          <template #header>
-            <span>预算执行情况</span>
-          </template>
-          <div class="budget-progress">
-            <div
-              v-for="budget in budgetItems"
-              :key="budget.category"
-              class="budget-item"
-            >
-              <div class="budget-header">
-                <span class="budget-category">{{ budget.category }}</span>
-                <span class="budget-ratio">{{ budget.used }}/{{ budget.total }}</span>
-              </div>
-              <el-progress
-                :percentage="(budget.used / budget.total) * 100"
-                :status="getBudgetStatus(budget.used / budget.total)"
-                :stroke-width="8"
+              <el-table-column prop="type" label="类型" width="80">
+                <template #default="scope">
+                  <el-tag :type="scope.row.type === 'income' ? 'success' : 'danger'" size="small">
+                    {{ scope.row.type === 'income' ? '收入' : '支出' }}
+                  </el-tag>
+                </template>
+              </el-table-column>
+
+              <el-table-column prop="category" label="分类" width="120">
+                <template #default="scope">
+                  <span>{{ getCategoryText(scope.row.category) }}</span>
+                </template>
+              </el-table-column>
+
+              <el-table-column prop="description" label="说明" min-width="200" />
+
+              <el-table-column prop="amount" label="金额" width="120" sortable>
+                <template #default="scope">
+                  <span :class="scope.row.type === 'income' ? 'income-amount' : 'expense-amount'">
+                    {{ scope.row.type === 'income' ? '+' : '-' }}¥{{ formatAmount(scope.row.amount) }}
+                  </span>
+                </template>
+              </el-table-column>
+
+              <el-table-column prop="balance" label="余额" width="120">
+                <template #default="scope">
+                  ¥{{ formatAmount(scope.row.balance) }}
+                </template>
+              </el-table-column>
+
+              <el-table-column prop="status" label="状态" width="100">
+                <template #default="scope">
+                  <el-tag :type="getStatusColor(scope.row.status)">
+                    {{ getStatusText(scope.row.status) }}
+                  </el-tag>
+                </template>
+              </el-table-column>
+
+              <el-table-column prop="operator" label="经办人" width="100" />
+
+              <el-table-column label="操作" width="150" fixed="right">
+                <template #default="scope">
+                  <el-button link type="primary" @click="viewTransaction(scope.row)">详情</el-button>
+                  <el-button link type="warning" @click="editTransaction(scope.row)">编辑</el-button>
+                  <el-button
+                    v-if="scope.row.status === 'pending'"
+                    link
+                    type="success"
+                    @click="approveTransaction(scope.row)"
+                  >
+                    审批
+                  </el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+
+            <div class="pagination-container">
+              <el-pagination
+                v-model:current-page="currentPage.transactions"
+                v-model:page-size="pageSize"
+                :page-sizes="[10, 20, 50, 100]"
+                :total="filteredTransactions.length"
+                layout="total, sizes, prev, pager, next, jumper"
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
               />
             </div>
-          </div>
-        </el-card>
-      </el-col>
-    </el-row>
+          </el-card>
+        </div>
+      </el-tab-pane>
 
-    <!-- 审批详情对话框 -->
-    <el-dialog
-      v-model="approvalDetailVisible"
-      :title="currentApproval?.title"
-      width="600px"
-    >
-      <div v-if="currentApproval" class="approval-detail">
-        <el-descriptions :column="2" border>
-          <el-descriptions-item label="申请金额">
-            ¥{{ formatMoney(currentApproval.amount) }}
-          </el-descriptions-item>
-          <el-descriptions-item label="申请人">
-            {{ currentApproval.applicant }}
-          </el-descriptions-item>
-          <el-descriptions-item label="申请时间">
-            {{ formatDateTime(currentApproval.submitTime) }}
-          </el-descriptions-item>
-          <el-descriptions-item label="当前状态">
-            <el-tag :type="getApprovalStatusType(currentApproval.status)">
-              {{ getApprovalStatusText(currentApproval.status) }}
-            </el-tag>
-          </el-descriptions-item>
-          <el-descriptions-item label="申请说明" :span="2">
-            {{ currentApproval.description }}
-          </el-descriptions-item>
-        </el-descriptions>
-      </div>
+      <el-tab-pane label="预算管理" name="budget">
+        <div class="tab-content">
+          <el-card class="budget-card">
+            <template #header>
+              <div class="card-header">
+                <span class="card-title">年度预算执行情况</span>
+                <el-button type="primary" @click="showBudgetDialog">编辑预算</el-button>
+              </div>
+            </template>
+
+            <div class="budget-list">
+              <div
+                v-for="budget in budgets"
+                :key="budget.id"
+                class="budget-item"
+              >
+                <div class="budget-header">
+                  <h4>{{ budget.name }}</h4>
+                  <div class="budget-actions">
+                    <el-button link type="primary" @click="viewBudgetDetail(budget)">详情</el-button>
+                    <el-button link type="warning" @click="editBudgetItem(budget)">编辑</el-button>
+                  </div>
+                </div>
+
+                <div class="budget-progress">
+                  <div class="progress-info">
+                    <span>预算：¥{{ formatAmount(budget.budget) }}</span>
+                    <span>已使用：¥{{ formatAmount(budget.used) }}</span>
+                    <span>剩余：¥{{ formatAmount(budget.remaining) }}</span>
+                  </div>
+                  <el-progress
+                    :percentage="budget.usage"
+                    :stroke-width="8"
+                    :color="getBudgetProgressColor(budget.usage)"
+                  >
+                    <template #default="{ percentage }">
+                      <span class="percentage-text">{{ percentage }}%</span>
+                    </template>
+                  </el-progress>
+                </div>
+
+                <div class="budget-details">
+                  <el-descriptions :column="3" size="small">
+                    <el-descriptions-item label="预算周期">{{ budget.period }}</el-descriptions-item>
+                    <el-descriptions-item label="负责人">{{ budget.manager }}</el-descriptions-item>
+                    <el-descriptions-item label="状态">
+                      <el-tag :type="budget.usage > 90 ? 'danger' : budget.usage > 70 ? 'warning' : 'success'">
+                        {{ budget.usage > 90 ? '超支预警' : budget.usage > 70 ? '注意控制' : '正常' }}
+                      </el-tag>
+                    </el-descriptions-item>
+                  </el-descriptions>
+                </div>
+              </div>
+            </div>
+          </el-card>
+        </div>
+      </el-tab-pane>
+
+      <el-tab-pane label="财务报表" name="reports">
+        <div class="tab-content">
+          <el-row :gutter="20">
+            <el-col :span="12">
+              <el-card class="chart-card">
+                <template #header>
+                  <span class="card-title">收支趋势图</span>
+                </template>
+                <div class="chart-container">
+                  <div class="chart-placeholder">
+                    <el-icon class="chart-icon"><TrendCharts /></el-icon>
+                    <p>收支趋势图表</p>
+                  </div>
+                </div>
+              </el-card>
+            </el-col>
+
+            <el-col :span="12">
+              <el-card class="chart-card">
+                <template #header>
+                  <span class="card-title">支出分类统计</span>
+                </template>
+                <div class="chart-container">
+                  <div class="chart-placeholder">
+                    <el-icon class="chart-icon"><PieChart /></el-icon>
+                    <p>支出分类饼图</p>
+                  </div>
+                </div>
+              </el-card>
+            </el-col>
+          </el-row>
+
+          <el-card class="report-card">
+            <template #header>
+              <div class="card-header">
+                <span class="card-title">财务报表</span>
+                <div class="header-actions">
+                  <el-button size="small" @click="generateMonthlyReport">月度报表</el-button>
+                  <el-button size="small" @click="generateYearlyReport">年度报表</el-button>
+                  <el-button size="small" type="primary" @click="exportReport">导出报表</el-button>
+                </div>
+              </div>
+            </template>
+
+            <el-table :data="reports" stripe style="width: 100%">
+              <el-table-column prop="name" label="报表名称" min-width="200" />
+              <el-table-column prop="type" label="报表类型" width="120" />
+              <el-table-column prop="period" label="报表周期" width="120" />
+              <el-table-column prop="createTime" label="生成时间" width="160">
+                <template #default="scope">
+                  {{ formatDateTime(scope.row.createTime) }}
+                </template>
+              </el-table-column>
+              <el-table-column prop="size" label="文件大小" width="100" />
+              <el-table-column label="操作" width="150" fixed="right">
+                <template #default="scope">
+                  <el-button link type="primary" @click="viewReport(scope.row)">查看</el-button>
+                  <el-button link type="success" @click="downloadReport(scope.row)">下载</el-button>
+                  <el-button link type="danger" @click="deleteReport(scope.row)">删除</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-card>
+        </div>
+      </el-tab-pane>
+    </el-tabs>
+
+    <!-- 收支录入对话框 -->
+    <el-dialog v-model="transactionDialogVisible" title="录入收支" width="600px">
+      <el-form :model="transactionForm" :rules="transactionRules" ref="transactionFormRef" label-width="100px">
+        <el-row :gutter="16">
+          <el-col :span="12">
+            <el-form-item label="收支类型" prop="type">
+              <el-radio-group v-model="transactionForm.type">
+                <el-radio label="income">收入</el-radio>
+                <el-radio label="expense">支出</el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="收支分类" prop="category">
+              <el-select v-model="transactionForm.category" placeholder="请选择分类">
+                <el-option
+                  v-for="category in getCategoriesByType(transactionForm.type)"
+                  :key="category.value"
+                  :label="category.label"
+                  :value="category.value"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-form-item label="交易日期" prop="date">
+          <el-date-picker
+            v-model="transactionForm.date"
+            type="date"
+            placeholder="选择日期"
+            style="width: 100%"
+          />
+        </el-form-item>
+
+        <el-form-item label="交易金额" prop="amount">
+          <el-input-number
+            v-model="transactionForm.amount"
+            :precision="2"
+            :min="0"
+            :step="100"
+            placeholder="请输入金额"
+            style="width: 100%"
+          />
+        </el-form-item>
+
+        <el-form-item label="交易说明" prop="description">
+          <el-input
+            v-model="transactionForm.description"
+            type="textarea"
+            :rows="3"
+            placeholder="请输入交易说明"
+          />
+        </el-form-item>
+
+        <el-form-item label="付款方式">
+          <el-select v-model="transactionForm.paymentMethod" placeholder="请选择付款方式">
+            <el-option label="现金" value="cash" />
+            <el-option label="银行转账" value="bank" />
+            <el-option label="微信支付" value="wechat" />
+            <el-option label="支付宝" value="alipay" />
+            <el-option label="其他" value="other" />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="相关凭证">
+          <el-upload
+            class="upload-demo"
+            action="#"
+            multiple
+            :auto-upload="false"
+            :file-list="transactionForm.attachments"
+            @change="handleFileChange"
+          >
+            <el-button icon="Upload">上传凭证</el-button>
+            <template #tip>
+              <div class="el-upload__tip">
+                支持jpg/png/pdf文件，单个文件不超过10MB
+              </div>
+            </template>
+          </el-upload>
+        </el-form-item>
+      </el-form>
+
       <template #footer>
-        <el-button @click="approvalDetailVisible = false">关闭</el-button>
-        <el-button type="primary" @click="handleApproval">
-          去审批
-        </el-button>
+        <el-button @click="transactionDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="saveTransaction" :loading="saving">保存</el-button>
       </template>
     </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, nextTick } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
-import {
-  Money, Wallet, TrendCharts, ShoppingCart, PieChart,
-  CaretTop, CaretBottom, Plus, Minus, Refresh, Download, Setting
-} from '@element-plus/icons-vue'
-import * as echarts from 'echarts'
-
-// 导入组件
-import Breadcrumb from '@/components/common/Breadcrumb.vue'
-import OfflineManager from '@/components/common/OfflineManager.vue'
-import PWAManager from '@/components/common/PWAManager.vue'
-
-// 导入API和离线功能
-import { financeAPI } from '@/api/finance'
-import { useOfflineStorage } from '@/composables/useOfflineStorage'
-
-const router = useRouter()
-
-// 离线存储初始化
-const {
-  isOnline,
-  saveToOfflineStorage,
-  getFromOfflineStorage
-} = useOfflineStorage({
-  keyPrefix: 'finance',
-  autoSync: true,
-  syncInterval: 30000
-})
+import { ref, reactive, computed, onMounted } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 // 响应式数据
-const loading = ref(false)
-const trendPeriod = ref('30days')
-const approvalDetailVisible = ref(false)
-const currentApproval = ref(null)
+const activeTab = ref('transactions')
+const transactionDialogVisible = ref(false)
+const budgetDialogVisible = ref(false)
+const saving = ref(false)
+const transactionFormRef = ref()
+const selectedTransactions = ref([])
 
-// 图表引用
-const trendChartRef = ref()
-const expenseCategoryChartRef = ref()
-const pwaManager = ref()
-
-// 财务统计数据
-const financeStats = reactive({
-  currentBalance: 1250000,
-  monthlyIncome: 180000,
-  monthlyExpense: 145000,
-  incomeGrowth: 8.5,
-  expenseChange: -2.3,
-  budgetUsage: 72
+// 搜索和筛选
+const searchQuery = reactive({
+  transaction: ''
 })
 
-// 待审批事项
-const pendingApprovals = ref([
+const filterQuery = reactive({
+  type: '',
+  category: '',
+  dateRange: []
+})
+
+// 分页
+const currentPage = reactive({
+  transactions: 1,
+  reports: 1
+})
+const pageSize = ref(20)
+
+// 收支表单
+const transactionForm = reactive({
+  type: 'income',
+  category: '',
+  date: '',
+  amount: 0,
+  description: '',
+  paymentMethod: 'bank',
+  attachments: []
+})
+
+// 表单验证规则
+const transactionRules = {
+  type: [{ required: true, message: '请选择收支类型', trigger: 'change' }],
+  category: [{ required: true, message: '请选择收支分类', trigger: 'change' }],
+  date: [{ required: true, message: '请选择交易日期', trigger: 'change' }],
+  amount: [{ required: true, message: '请输入交易金额', trigger: 'blur' }],
+  description: [{ required: true, message: '请输入交易说明', trigger: 'blur' }]
+}
+
+// 模拟数据
+const overview = ref({
+  totalIncome: 2850000,
+  totalExpense: 1680000,
+  balance: 1170000,
+  budgetUsage: 73.5
+})
+
+const transactions = ref([
   {
     id: 1,
-    title: '村道维修费用申请',
-    amount: 25000,
-    applicant: '张建设',
-    submitTime: new Date(Date.now() - 2 * 60 * 60 * 1000),
-    status: 'pending',
-    description: '主村道出现多处坑洼，需要进行维修处理'
+    date: '2024-12-15',
+    type: 'income',
+    category: 'government',
+    description: '乡村振兴项目补助资金',
+    amount: 500000,
+    balance: 1170000,
+    status: 'approved',
+    operator: '张大明',
+    attachments: ['补助通知.pdf']
   },
   {
     id: 2,
-    title: '文化活动经费申请',
-    amount: 8000,
-    applicant: '李文化',
-    submitTime: new Date(Date.now() - 5 * 60 * 60 * 1000),
-    status: 'reviewing',
-    description: '春节文艺演出活动经费申请'
+    date: '2024-12-14',
+    type: 'expense',
+    category: 'infrastructure',
+    description: '村道路硬化工程款',
+    amount: 280000,
+    balance: 670000,
+    status: 'approved',
+    operator: '李红梅',
+    attachments: ['工程合同.pdf', '验收报告.pdf']
   },
   {
     id: 3,
-    title: '办公用品采购',
-    amount: 3500,
-    applicant: '王会计',
-    submitTime: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+    date: '2024-12-13',
+    type: 'expense',
+    category: 'public_service',
+    description: '文化礼堂设备采购',
+    amount: 85000,
+    balance: 585000,
     status: 'pending',
-    description: '村委会办公用品和耗材采购'
+    operator: '王小强',
+    attachments: []
   }
 ])
 
-// 近期交易记录
-const recentTransactions = ref([
+const budgets = ref([
   {
     id: 1,
-    type: 'income',
-    description: '土地流转收入',
-    amount: 50000,
-    date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000)
+    name: '基础设施建设',
+    budget: 2000000,
+    used: 1450000,
+    remaining: 550000,
+    usage: 72.5,
+    period: '2024年度',
+    manager: '张大明'
   },
   {
     id: 2,
-    type: 'expense',
-    description: '路灯维护费',
-    amount: 1200,
-    date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000)
+    name: '公共服务支出',
+    budget: 800000,
+    used: 520000,
+    remaining: 280000,
+    usage: 65.0,
+    period: '2024年度',
+    manager: '李红梅'
   },
   {
     id: 3,
-    type: 'income',
-    description: '政府补贴资金',
-    amount: 30000,
-    date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
-  },
-  {
-    id: 4,
-    type: 'expense',
-    description: '办公用品采购',
-    amount: 850,
-    date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
-  },
-  {
-    id: 5,
-    type: 'expense',
-    description: '清洁用品购买',
-    amount: 420,
-    date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
+    name: '行政办公经费',
+    budget: 300000,
+    used: 298000,
+    remaining: 2000,
+    usage: 99.3,
+    period: '2024年度',
+    manager: '王小强'
   }
 ])
 
-// 预算项目
-const budgetItems = ref([
-  { category: '基础设施', used: 45000, total: 80000 },
-  { category: '日常运营', used: 12000, total: 20000 },
-  { category: '文化活动', used: 6000, total: 15000 },
-  { category: '应急储备', used: 5000, total: 25000 }
+const reports = ref([
+  {
+    id: 1,
+    name: '2024年12月财务月报',
+    type: '月度报表',
+    period: '2024年12月',
+    createTime: '2024-12-15T10:30:00',
+    size: '2.5MB'
+  },
+  {
+    id: 2,
+    name: '2024年度财务年报',
+    type: '年度报表',
+    period: '2024年',
+    createTime: '2024-11-30T16:45:00',
+    size: '8.7MB'
+  },
+  {
+    id: 3,
+    name: '第三季度财务分析报告',
+    type: '季度报表',
+    period: '2024年Q3',
+    createTime: '2024-10-05T09:20:00',
+    size: '3.2MB'
+  }
 ])
 
 // 计算属性
-const balanceTrend = computed(() => {
-  const change = financeStats.monthlyIncome - financeStats.monthlyExpense
-  if (change > 0) {
-    return {
-      class: 'trend-positive',
-      icon: 'CaretTop',
-      text: `较上月+¥${formatMoney(Math.abs(change))}`
-    }
-  } else if (change < 0) {
-    return {
-      class: 'trend-negative',
-      icon: 'CaretBottom',
-      text: `较上月-¥${formatMoney(Math.abs(change))}`
-    }
-  } else {
-    return {
-      class: 'trend-neutral',
-      icon: 'Minus',
-      text: '较上月持平'
-    }
-  }
+const filteredTransactions = computed(() => {
+  return transactions.value.filter(item => {
+    const matchSearch = !searchQuery.transaction ||
+      item.description.includes(searchQuery.transaction)
+    const matchType = !filterQuery.type || item.type === filterQuery.type
+    const matchCategory = !filterQuery.category || item.category === filterQuery.category
+    const matchDate = !filterQuery.dateRange.length ||
+      (new Date(item.date) >= new Date(filterQuery.dateRange[0]) &&
+       new Date(item.date) <= new Date(filterQuery.dateRange[1]))
+    return matchSearch && matchType && matchCategory && matchDate
+  })
+})
+
+const paginatedTransactions = computed(() => {
+  const start = (currentPage.transactions - 1) * pageSize.value
+  const end = start + pageSize.value
+  return filteredTransactions.value.slice(start, end)
 })
 
 // 方法
-const refreshData = async () => {
-  loading.value = true
-  try {
-    // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    ElMessage.success('数据已刷新')
-  } catch (error) {
-    ElMessage.error('刷新失败')
-  } finally {
-    loading.value = false
-  }
+const handleTabChange = (tabName) => {
+  console.log('切换到标签页:', tabName)
 }
 
-const exportFinanceReport = () => {
-  ElMessage.success('报表导出功能开发中...')
-}
-
-const showFinanceSettings = () => {
-  ElMessage.info('财务设置功能开发中...')
-}
-
-const viewAllApprovals = () => {
-  router.push('/finance/approval')
-}
-
-const viewAllTransactions = () => {
-  router.push('/finance/expenses')
-}
-
-const viewApprovalDetail = (approval) => {
-  currentApproval.value = approval
-  approvalDetailVisible.value = true
-}
-
-const handleApproval = () => {
-  router.push(`/finance/approval/${currentApproval.value.id}`)
-}
-
-const formatMoney = (amount) => {
+const formatAmount = (amount) => {
   return new Intl.NumberFormat('zh-CN').format(amount)
 }
 
 const formatDate = (date) => {
-  return new Intl.DateTimeFormat('zh-CN', {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  }).format(new Date(date))
+  if (!date) return '-'
+  return new Date(date).toLocaleDateString('zh-CN')
 }
 
-const formatDateTime = (date) => {
-  return new Intl.DateTimeFormat('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  }).format(new Date(date))
+const formatDateTime = (dateTime) => {
+  if (!dateTime) return '-'
+  return new Date(dateTime).toLocaleString('zh-CN')
 }
 
-const getApprovalStatusType = (status) => {
-  const typeMap = {
-    pending: 'warning',
-    reviewing: 'info',
-    approved: 'success',
-    rejected: 'danger'
+const getProgressColor = (percentage) => {
+  if (percentage > 90) return '#f56c6c'
+  if (percentage > 70) return '#e6a23c'
+  return '#67c23a'
+}
+
+const getBudgetProgressColor = (percentage) => {
+  if (percentage > 95) return '#f56c6c'
+  if (percentage > 80) return '#e6a23c'
+  return '#409eff'
+}
+
+const getCategoryText = (category) => {
+  const categoryMap = {
+    'government': '政府补助',
+    'collective': '集体收入',
+    'infrastructure': '基础设施',
+    'public_service': '公共服务',
+    'administrative': '行政支出',
+    'welfare': '福利支出',
+    'agriculture': '农业支出'
   }
-  return typeMap[status] || 'info'
+  return categoryMap[category] || category
 }
 
-const getApprovalStatusText = (status) => {
+const getStatusColor = (status) => {
+  const colorMap = {
+    'approved': 'success',
+    'pending': 'warning',
+    'rejected': 'danger'
+  }
+  return colorMap[status] || 'info'
+}
+
+const getStatusText = (status) => {
   const textMap = {
-    pending: '待审批',
-    reviewing: '审批中',
-    approved: '已通过',
-    rejected: '已拒绝'
+    'approved': '已审批',
+    'pending': '待审批',
+    'rejected': '已拒绝'
   }
-  return textMap[status] || '未知'
+  return textMap[status] || status
 }
 
-const getBudgetStatus = (ratio) => {
-  if (ratio > 0.9) return 'exception'
-  if (ratio > 0.7) return 'warning'
-  return 'success'
-}
-
-// 初始化图表
-const initTrendChart = () => {
-  const chart = echarts.init(trendChartRef.value)
-
-  const option = {
-    tooltip: {
-      trigger: 'axis',
-      formatter: function(params) {
-        let result = params[0].axisValueLabel + '<br/>'
-        params.forEach(param => {
-          result += `${param.seriesName}: ¥${formatMoney(param.value)}<br/>`
-        })
-        return result
-      }
-    },
-    legend: {
-      data: ['收入', '支出']
-    },
-    grid: {
-      left: '3%',
-      right: '4%',
-      bottom: '3%',
-      containLabel: true
-    },
-    xAxis: {
-      type: 'category',
-      data: ['1月', '2月', '3月', '4月', '5月', '6月']
-    },
-    yAxis: {
-      type: 'value',
-      axisLabel: {
-        formatter: '¥{value}'
-      }
-    },
-    series: [
-      {
-        name: '收入',
-        type: 'line',
-        smooth: true,
-        data: [120000, 135000, 150000, 165000, 175000, 180000],
-        itemStyle: { color: '#67c23a' },
-        areaStyle: { opacity: 0.1 }
-      },
-      {
-        name: '支出',
-        type: 'line',
-        smooth: true,
-        data: [95000, 105000, 120000, 135000, 148000, 145000],
-        itemStyle: { color: '#f56c6c' },
-        areaStyle: { opacity: 0.1 }
-      }
+const getCategoriesByType = (type) => {
+  if (type === 'income') {
+    return [
+      { label: '政府补助', value: 'government' },
+      { label: '集体收入', value: 'collective' },
+      { label: '捐赠收入', value: 'donation' },
+      { label: '其他收入', value: 'other_income' }
+    ]
+  } else {
+    return [
+      { label: '基础设施', value: 'infrastructure' },
+      { label: '公共服务', value: 'public_service' },
+      { label: '行政支出', value: 'administrative' },
+      { label: '福利支出', value: 'welfare' },
+      { label: '农业支出', value: 'agriculture' }
     ]
   }
+}
 
-  chart.setOption(option)
+const searchTransactions = () => {
+  currentPage.transactions = 1
+}
 
-  // 响应式调整
-  window.addEventListener('resize', () => {
-    chart.resize()
+const handleSelectionChange = (selection) => {
+  selectedTransactions.value = selection
+}
+
+const handleSizeChange = (size) => {
+  pageSize.value = size
+  currentPage.transactions = 1
+}
+
+const handleCurrentChange = (page) => {
+  currentPage.transactions = page
+}
+
+const showTransactionDialog = () => {
+  resetTransactionForm()
+  transactionDialogVisible.value = true
+}
+
+const resetTransactionForm = () => {
+  Object.assign(transactionForm, {
+    type: 'income',
+    category: '',
+    date: new Date().toISOString().split('T')[0],
+    amount: 0,
+    description: '',
+    paymentMethod: 'bank',
+    attachments: []
   })
 }
 
-const initExpenseCategoryChart = () => {
-  const chart = echarts.init(expenseCategoryChartRef.value)
-
-  const option = {
-    tooltip: {
-      trigger: 'item',
-      formatter: '{a} <br/>{b}: ¥{c} ({d}%)'
-    },
-    legend: {
-      orient: 'vertical',
-      left: 'left'
-    },
-    series: [
-      {
-        name: '支出分类',
-        type: 'pie',
-        radius: '50%',
-        data: [
-          { value: 45000, name: '基础设施' },
-          { value: 25000, name: '日常运营' },
-          { value: 15000, name: '文化活动' },
-          { value: 35000, name: '人员工资' },
-          { value: 25000, name: '其他支出' }
-        ],
-        emphasis: {
-          itemStyle: {
-            shadowBlur: 10,
-            shadowOffsetX: 0,
-            shadowColor: 'rgba(0, 0, 0, 0.5)'
-          }
-        }
-      }
-    ]
-  }
-
-  chart.setOption(option)
-
-  // 响应式调整
-  window.addEventListener('resize', () => {
-    chart.resize()
-  })
+const handleFileChange = (file, fileList) => {
+  transactionForm.attachments = fileList
 }
 
-// 生命周期
-onMounted(async () => {
-  await nextTick()
-  initTrendChart()
-  initExpenseCategoryChart()
+const saveTransaction = async () => {
+  if (!transactionFormRef.value) return
+
+  try {
+    await transactionFormRef.value.validate()
+    saving.value = true
+
+    // 模拟API调用
+    await new Promise(resolve => setTimeout(resolve, 1000))
+
+    const newTransaction = {
+      ...transactionForm,
+      id: Date.now(),
+      balance: overview.value.balance + (transactionForm.type === 'income' ? transactionForm.amount : -transactionForm.amount),
+      status: 'pending',
+      operator: '当前用户'
+    }
+
+    transactions.value.unshift(newTransaction)
+
+    // 更新概览数据
+    if (transactionForm.type === 'income') {
+      overview.value.totalIncome += transactionForm.amount
+    } else {
+      overview.value.totalExpense += transactionForm.amount
+    }
+    overview.value.balance = newTransaction.balance
+
+    ElMessage.success('收支记录保存成功')
+    transactionDialogVisible.value = false
+  } catch (error) {
+    ElMessage.error('保存失败：' + (error.message || '未知错误'))
+  } finally {
+    saving.value = false
+  }
+}
+
+const viewTransaction = (transaction) => {
+  ElMessage.info(`查看收支记录：${transaction.description}`)
+}
+
+const editTransaction = (transaction) => {
+  Object.assign(transactionForm, transaction)
+  transactionDialogVisible.value = true
+}
+
+const approveTransaction = async (transaction) => {
+  try {
+    await ElMessageBox.confirm(
+      `确定要审批通过"${transaction.description}"吗？`,
+      '确认审批',
+      { type: 'warning' }
+    )
+
+    transaction.status = 'approved'
+    ElMessage.success('审批通过')
+  } catch {
+    // 用户取消
+  }
+}
+
+const showBatchApproval = async () => {
+  try {
+    await ElMessageBox.confirm(
+      `确定要批量审批选中的 ${selectedTransactions.value.length} 条记录吗？`,
+      '确认批量审批',
+      { type: 'warning' }
+    )
+
+    selectedTransactions.value.forEach(item => {
+      if (item.status === 'pending') {
+        item.status = 'approved'
+      }
+    })
+
+    ElMessage.success(`已批量审批 ${selectedTransactions.value.length} 条记录`)
+    selectedTransactions.value = []
+  } catch {
+    // 用户取消
+  }
+}
+
+const batchDelete = async () => {
+  try {
+    await ElMessageBox.confirm(
+      `确定要删除选中的 ${selectedTransactions.value.length} 条记录吗？`,
+      '确认删除',
+      { type: 'warning' }
+    )
+
+    selectedTransactions.value.forEach(item => {
+      const index = transactions.value.findIndex(t => t.id === item.id)
+      if (index !== -1) {
+        transactions.value.splice(index, 1)
+      }
+    })
+
+    ElMessage.success(`已删除 ${selectedTransactions.value.length} 条记录`)
+    selectedTransactions.value = []
+  } catch {
+    // 用户取消
+  }
+}
+
+const showBudgetDialog = () => {
+  budgetDialogVisible.value = true
+  ElMessage.info('预算管理功能开发中...')
+}
+
+const viewBudgetDetail = (budget) => {
+  ElMessage.info(`查看预算详情：${budget.name}`)
+}
+
+const editBudgetItem = (budget) => {
+  ElMessage.info(`编辑预算：${budget.name}`)
+}
+
+const generateMonthlyReport = () => {
+  ElMessage.info('生成月度报表...')
+}
+
+const generateYearlyReport = () => {
+  ElMessage.info('生成年度报表...')
+}
+
+const exportReport = () => {
+  ElMessage.info('导出报表功能开发中...')
+}
+
+const viewReport = (report) => {
+  ElMessage.info(`查看报表：${report.name}`)
+}
+
+const downloadReport = (report) => {
+  ElMessage.info(`下载报表：${report.name}`)
+}
+
+const deleteReport = async (report) => {
+  try {
+    await ElMessageBox.confirm(
+      `确定要删除报表"${report.name}"吗？`,
+      '确认删除',
+      { type: 'warning' }
+    )
+
+    const index = reports.value.findIndex(r => r.id === report.id)
+    if (index !== -1) {
+      reports.value.splice(index, 1)
+      ElMessage.success('报表删除成功')
+    }
+  } catch {
+    // 用户取消
+  }
+}
+
+onMounted(() => {
+  console.log('财务管理模块加载完成')
 })
 </script>
 
 <style lang="scss" scoped>
-.finance-overview {
+.finance-management {
   padding: 20px;
   background-color: #f5f7fa;
   min-height: 100vh;
+}
 
-  .page-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 12px;
-    padding: 30px;
-    margin-bottom: 20px;
-    color: white;
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
 
-    .header-content {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+  .header-left {
+    .page-title {
+      margin: 0 0 8px 0;
+      font-size: 24px;
+      font-weight: 600;
+      color: #303133;
+    }
 
-      .header-left {
-        .page-title {
-          font-size: 28px;
-          font-weight: bold;
-          margin: 0 0 8px 0;
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        }
-
-        .page-subtitle {
-          font-size: 14px;
-          opacity: 0.9;
-          margin: 0;
-        }
-      }
-
-      .header-right {
-        display: flex;
-        gap: 12px;
-      }
+    .page-description {
+      margin: 0;
+      color: #606266;
+      font-size: 14px;
     }
   }
 
-  .finance-stats {
-    margin-bottom: 20px;
+  .header-right {
+    display: flex;
+    gap: 12px;
+  }
+}
 
-    .stat-card {
-      background: white;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+.overview-section {
+  margin-bottom: 20px;
+
+  .overview-card {
+    .card-content {
       display: flex;
       align-items: center;
-      gap: 20px;
-      transition: all 0.3s ease;
+      gap: 16px;
 
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      .card-icon {
+        font-size: 2.5em;
       }
 
-      &.balance {
-        border-left: 4px solid #409eff;
-      }
-
-      &.income {
-        border-left: 4px solid #67c23a;
-      }
-
-      &.expense {
-        border-left: 4px solid #f56c6c;
-      }
-
-      &.budget {
-        border-left: 4px solid #e6a23c;
-      }
-
-      .stat-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(64, 158, 255, 0.1);
-        color: #409eff;
-      }
-
-      .stat-content {
+      .card-info {
         flex: 1;
 
-        .stat-value {
-          font-size: 28px;
+        .card-value {
+          font-size: 1.8em;
           font-weight: bold;
           color: #303133;
-          margin-bottom: 4px;
+          line-height: 1.2;
         }
 
-        .stat-label {
+        .card-label {
           color: #606266;
-          font-size: 14px;
-          margin-bottom: 8px;
+          margin: 4px 0;
         }
 
-        .stat-trend {
-          font-size: 12px;
+        .card-trend {
           display: flex;
           align-items: center;
           gap: 4px;
+          font-size: 14px;
 
-          &.trend-positive {
-            color: #67c23a;
-          }
-
-          &.trend-negative {
-            color: #f56c6c;
-          }
-
-          &.trend-neutral {
-            color: #909399;
-          }
-
-          &.income-trend {
-            color: #67c23a;
-          }
-
-          &.expense-trend {
-            color: #f56c6c;
-          }
-        }
-      }
-    }
-  }
-
-  .chart-card {
-    margin-bottom: 20px;
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .chart-container {
-      height: 350px;
-    }
-  }
-
-  .pending-card {
-    margin-bottom: 20px;
-
-    .pending-list {
-      .pending-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 12px 0;
-        border-bottom: 1px solid #ebeef5;
-        cursor: pointer;
-        transition: background-color 0.3s;
-
-        &:hover {
-          background-color: #f5f7fa;
-        }
-
-        &:last-child {
-          border-bottom: none;
-        }
-
-        .pending-info {
-          flex: 1;
-
-          .pending-title {
-            font-weight: 500;
-            color: #303133;
-            margin-bottom: 4px;
-          }
-
-          .pending-meta {
-            display: flex;
-            gap: 12px;
-            font-size: 12px;
-            color: #909399;
-
-            .amount {
-              color: #e6a23c;
-              font-weight: 500;
+          .trend-icon {
+            &.up {
+              color: #67c23a;
+            }
+            &.down {
+              color: #f56c6c;
             }
           }
         }
 
-        .pending-status {
-          flex-shrink: 0;
+        .card-progress {
+          margin-top: 8px;
         }
       }
     }
-  }
 
-  .transaction-card {
-    margin-bottom: 20px;
-
-    .transaction-list {
-      .transaction-item {
-        display: flex;
-        align-items: center;
-        padding: 8px 0;
-        border-bottom: 1px solid #f0f0f0;
-
-        &:last-child {
-          border-bottom: none;
-        }
-
-        .transaction-icon {
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin-right: 12px;
-
-          .income-icon {
-            background: rgba(103, 194, 58, 0.1);
-            color: #67c23a;
-          }
-
-          .expense-icon {
-            background: rgba(245, 108, 108, 0.1);
-            color: #f56c6c;
-          }
-        }
-
-        .transaction-info {
-          flex: 1;
-
-          .transaction-title {
-            font-size: 14px;
-            color: #303133;
-            margin-bottom: 2px;
-          }
-
-          .transaction-date {
-            font-size: 12px;
-            color: #909399;
-          }
-        }
-
-        .transaction-amount {
-          font-weight: 500;
-          font-size: 14px;
-
-          &.income {
-            color: #67c23a;
-          }
-
-          &.expense {
-            color: #f56c6c;
-          }
-        }
-      }
+    &.income .card-icon {
+      color: #67c23a;
     }
-  }
 
-  .budget-card {
-    .budget-progress {
-      .budget-item {
-        margin-bottom: 16px;
-
-        &:last-child {
-          margin-bottom: 0;
-        }
-
-        .budget-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 8px;
-
-          .budget-category {
-            font-size: 14px;
-            color: #303133;
-          }
-
-          .budget-ratio {
-            font-size: 12px;
-            color: #909399;
-          }
-        }
-      }
+    &.expense .card-icon {
+      color: #f56c6c;
     }
-  }
 
-  .empty-state {
-    text-align: center;
-    padding: 20px 0;
-  }
+    &.balance .card-icon {
+      color: #409eff;
+    }
 
-  .approval-detail {
-    .el-descriptions {
-      margin-top: 20px;
+    &.budget .card-icon {
+      color: #e6a23c;
     }
   }
 }
 
-// 响应式设计
-@media (max-width: 768px) {
-  .finance-overview {
-    padding: 10px;
+.finance-tabs {
+  :deep(.el-tabs__content) {
+    padding: 0;
+  }
 
-    .page-header {
-      .header-content {
-        flex-direction: column;
-        gap: 20px;
-        text-align: center;
+  .tab-content {
+    .search-card {
+      margin-bottom: 20px;
+    }
 
-        .header-right {
-          flex-wrap: wrap;
-          justify-content: center;
+    .list-card {
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .card-title {
+          font-weight: 600;
+          color: #303133;
         }
+
+        .header-actions {
+          display: flex;
+          gap: 8px;
+        }
+      }
+
+      .income-amount {
+        color: #67c23a;
+        font-weight: 500;
+      }
+
+      .expense-amount {
+        color: #f56c6c;
+        font-weight: 500;
+      }
+
+      .pagination-container {
+        margin-top: 20px;
+        display: flex;
+        justify-content: center;
       }
     }
 
-    .finance-stats {
-      .el-col {
-        margin-bottom: 20px;
-      }
+    .budget-card {
+      .budget-list {
+        .budget-item {
+          border: 1px solid #ebeef5;
+          border-radius: 8px;
+          padding: 20px;
+          margin-bottom: 16px;
 
-      .stat-card {
-        .stat-icon {
-          width: 50px;
-          height: 50px;
-        }
+          .budget-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
 
-        .stat-content {
-          .stat-value {
-            font-size: 24px;
+            h4 {
+              margin: 0;
+              color: #303133;
+            }
+
+            .budget-actions {
+              display: flex;
+              gap: 8px;
+            }
+          }
+
+          .budget-progress {
+            margin-bottom: 16px;
+
+            .progress-info {
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 8px;
+              font-size: 14px;
+              color: #606266;
+            }
+
+            .percentage-text {
+              font-size: 12px;
+              color: #409eff;
+            }
+          }
+
+          .budget-details {
+            border-top: 1px solid #f0f0f0;
+            padding-top: 16px;
           }
         }
       }
     }
 
-    .chart-container {
-      height: 250px;
+    .chart-card {
+      margin-bottom: 20px;
+
+      .chart-container {
+        height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fafafa;
+        border-radius: 8px;
+
+        .chart-placeholder {
+          text-align: center;
+          color: #909399;
+
+          .chart-icon {
+            font-size: 3em;
+            margin-bottom: 12px;
+          }
+        }
+      }
+    }
+
+    .report-card {
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .card-title {
+          font-weight: 600;
+          color: #303133;
+        }
+
+        .header-actions {
+          display: flex;
+          gap: 8px;
+        }
+      }
     }
   }
 }

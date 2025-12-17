@@ -2,51 +2,99 @@
   <div class="dashboard">
     <div class="welcome-header">
       <h1>🏘️ 欢迎使用智慧村庄管理系统</h1>
-      <p>为村民和村委提供数字化服务的综合平台</p>
+      <p>{{ isAdmin ? '管理员控制台 - 全功能管理平台' : '村民服务门户 - 便民服务平台' }}</p>
     </div>
 
     <div class="feature-grid">
-      <div class="feature-card">
-        <div class="card-icon">👥</div>
-        <h3>村民管理</h3>
-        <p>数字档案、隐私保护、人脸识别</p>
-        <button class="card-btn">进入系统</button>
-      </div>
+      <!-- 管理员专有功能 -->
+      <template v-if="isAdmin">
+        <div class="feature-card" @click="router.push('/residents')">
+          <div class="card-icon">👥</div>
+          <h3>村民管理</h3>
+          <p>数字档案、隐私保护、人脸识别</p>
+          <button class="card-btn">管理村民</button>
+        </div>
 
-      <div class="feature-card">
-        <div class="card-icon">🏛️</div>
-        <h3>村委管理</h3>
-        <p>人员管理、权限控制、值班调度</p>
-        <button class="card-btn">进入系统</button>
-      </div>
+        <div class="feature-card" @click="router.push('/system/users')">
+          <div class="card-icon">🏛️</div>
+          <h3>村委管理</h3>
+          <p>人员管理、权限控制、值班调度</p>
+          <button class="card-btn">管理人员</button>
+        </div>
 
-      <div class="feature-card">
-        <div class="card-icon">📢</div>
-        <h3>村务协同</h3>
-        <p>公告发布、投票系统、会议管理</p>
-        <button class="card-btn">进入系统</button>
-      </div>
+        <div class="feature-card" @click="router.push('/affairs')">
+          <div class="card-icon">📢</div>
+          <h3>村务协同</h3>
+          <p>公告发布、投票系统、会议管理</p>
+          <button class="card-btn">村务管理</button>
+        </div>
 
-      <div class="feature-card">
-        <div class="card-icon">💰</div>
-        <h3>财务管理</h3>
-        <p>预算控制、审批流程、财务透明</p>
-        <button class="card-btn">进入系统</button>
-      </div>
+        <div class="feature-card" @click="router.push('/finance')">
+          <div class="card-icon">💰</div>
+          <h3>财务管理</h3>
+          <p>预算控制、审批流程、财务透明</p>
+          <button class="card-btn">财务管理</button>
+        </div>
 
-      <div class="feature-card">
-        <div class="card-icon">📊</div>
-        <h3>实时监控</h3>
-        <p>系统性能、运营指标、健康状态</p>
-        <button class="card-btn">查看监控</button>
-      </div>
+        <div class="feature-card" @click="openMonitoring">
+          <div class="card-icon">📊</div>
+          <h3>实时监控</h3>
+          <p>系统性能、运营指标、健康状态</p>
+          <button class="card-btn">查看监控</button>
+        </div>
 
-      <div class="feature-card">
-        <div class="card-icon">🔔</div>
-        <h3>通知系统</h3>
-        <p>多渠道通知、模板管理、批量发送</p>
-        <button class="card-btn">管理通知</button>
-      </div>
+        <div class="feature-card" @click="router.push('/system/notifications')">
+          <div class="card-icon">🔔</div>
+          <h3>通知系统</h3>
+          <p>多渠道通知、模板管理、批量发送</p>
+          <button class="card-btn">管理通知</button>
+        </div>
+      </template>
+
+      <!-- 村民功能 -->
+      <template v-else>
+        <div class="feature-card" @click="router.push('/profile')">
+          <div class="card-icon">👤</div>
+          <h3>个人中心</h3>
+          <p>个人信息、档案管理、账户设置</p>
+          <button class="card-btn">个人中心</button>
+        </div>
+
+        <div class="feature-card" @click="router.push('/village-affairs')">
+          <div class="card-icon">📢</div>
+          <h3>村务公开</h3>
+          <p>公告通知、村务信息、意见反馈</p>
+          <button class="card-btn">查看公告</button>
+        </div>
+
+        <div class="feature-card" @click="router.push('/services')">
+          <div class="card-icon">🏠</div>
+          <h3>生活服务</h3>
+          <p>便民服务、在线办事、生活指南</p>
+          <button class="card-btn">生活服务</button>
+        </div>
+
+        <div class="feature-card" @click="router.push('/finance/overview')">
+          <div class="card-icon">💰</div>
+          <h3>财务公开</h3>
+          <p>村财务公示、资金使用透明化</p>
+          <button class="card-btn">查看财务</button>
+        </div>
+
+        <div class="feature-card" @click="router.push('/proposals')">
+          <div class="card-icon">💡</div>
+          <h3>建议提案</h3>
+          <p>提出建议、参与村务决策</p>
+          <button class="card-btn">提交建议</button>
+        </div>
+
+        <div class="feature-card" @click="router.push('/profile')">
+          <div class="card-icon">🔔</div>
+          <h3>消息通知</h3>
+          <p>接收村务通知、重要消息提醒</p>
+          <button class="card-btn">查看消息</button>
+        </div>
+      </template>
     </div>
 
     <div class="stats-section">
@@ -67,13 +115,25 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/userStore'
 
+const router = useRouter()
+const userStore = useUserStore()
 const onlineUsers = ref(12)
 const dailyVisits = ref(156)
 
+// 根据用户角色显示不同的功能卡片
+const userRole = computed(() => userStore.userInfo?.role || 'villager')
+const isAdmin = computed(() => userRole.value === 'admin')
+
+const openMonitoring = () => {
+  window.open('http://localhost:3001/monitoring', '_blank')
+}
+
 onMounted(() => {
-  console.log('智慧村庄仪表板加载完成')
+  console.log('智慧村庄仪表板加载完成，用户角色:', userRole.value)
 })
 </script>
 
@@ -117,12 +177,14 @@ onMounted(() => {
   padding: 25px;
   text-align: center;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 .feature-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+  background: #f8f9fa;
 }
 
 .card-icon {

@@ -1,277 +1,56 @@
 <template>
-  <div class="resident-add-view">
-    <el-page-header @back="goBack" title="添加村民">
-      <template #content>
-        <span>新增村民档案信息</span>
-      </template>
-    </el-page-header>
-
-    <div class="content">
-      <el-card>
-        <el-form
-          ref="formRef"
-          :model="form"
-          :rules="rules"
-          label-width="120px"
-          class="resident-form"
-        >
-          <el-row :gutter="20">
-            <!-- 基本信息 -->
-            <el-col :span="12">
-              <h3>基本信息</h3>
-              <el-form-item label="姓名" prop="name">
-                <el-input v-model="form.name" placeholder="请输入姓名" />
-              </el-form-item>
-
-              <el-form-item label="性别" prop="gender">
-                <el-radio-group v-model="form.gender">
-                  <el-radio label="男">男</el-radio>
-                  <el-radio label="女">女</el-radio>
-                </el-radio-group>
-              </el-form-item>
-
-              <el-form-item label="出生日期" prop="birthday">
-                <el-date-picker
-                  v-model="form.birthday"
-                  type="date"
-                  placeholder="请选择出生日期"
-                  value-format="YYYY-MM-DD"
-                  style="width: 100%"
-                />
-              </el-form-item>
-
-              <el-form-item label="身份证号" prop="idCard">
-                <el-input v-model="form.idCard" placeholder="请输入身份证号" />
-              </el-form-item>
-
-              <el-form-item label="手机号" prop="phone">
-                <el-input v-model="form.phone" placeholder="请输入手机号" />
-              </el-form-item>
-            </el-col>
-
-            <!-- 户籍信息 -->
-            <el-col :span="12">
-              <h3>户籍信息</h3>
-              <el-form-item label="户籍地址" prop="address">
-                <el-input v-model="form.address" placeholder="请输入户籍地址" />
-              </el-form-item>
-
-              <el-form-item label="现居住地" prop="currentAddress">
-                <el-input v-model="form.currentAddress" placeholder="请输入现居住地" />
-              </el-form-item>
-
-              <el-form-item label="户籍类型" prop="householdType">
-                <el-select v-model="form.householdType" placeholder="请选择户籍类型">
-                  <el-option label="普通户" value="普通户" />
-                  <el-option label="低保户" value="低保户" />
-                  <el-option label="五保户" value="五保户" />
-                  <el-option label="贫困户" value="贫困户" />
-                  <el-option label="独居老人" value="独居老人" />
-                </el-select>
-              </el-form-item>
-
-              <el-form-item label="政治面貌" prop="politicalStatus">
-                <el-select v-model="form.politicalStatus" placeholder="请选择政治面貌">
-                  <el-option label="群众" value="群众" />
-                  <el-option label="党员" value="党员" />
-                  <el-option label="团员" value="团员" />
-                  <el-option label="民主党派" value="民主党派" />
-                </el-select>
-              </el-form-item>
-
-              <el-form-item label="健康状态" prop="healthStatus">
-                <el-select v-model="form.healthStatus" placeholder="请选择健康状态">
-                  <el-option label="良好" value="良好" />
-                  <el-option label="一般" value="一般" />
-                  <el-option label="较差" value="较差" />
-                  <el-option label="残疾" value="残疾" />
-                </el-select>
-              </el-form-item>
-            </el-col>
-          </el-row>
-
-          <!-- 其他信息 -->
-          <el-row>
-            <el-col :span="24">
-              <h3>其他信息</h3>
-              <el-form-item label="备注" prop="remarks">
-                <el-input
-                  v-model="form.remarks"
-                  type="textarea"
-                  :rows="3"
-                  placeholder="请输入备注信息"
-                />
-              </el-form-item>
-            </el-col>
-          </el-row>
-
-          <el-form-item>
-            <el-button type="primary" :loading="saving" @click="saveResident">
-              保存
-            </el-button>
-            <el-button @click="resetForm">重置</el-button>
-            <el-button @click="goBack">取消</el-button>
-          </el-form-item>
-        </el-form>
-      </el-card>
-    </div>
+  <div class="resident-view">
+    <el-container>
+      <el-header class="page-header">
+        <div class="header-content">
+          <h1 class="page-title">添加村民</h1>
+          <el-button @click="$router.go(-1)">返回</el-button>
+        </div>
+      </el-header>
+      <el-main class="page-main">
+        <el-card>
+          <el-empty description="功能开发中" />
+        </el-card>
+      </el-main>
+    </el-container>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
-import { useResidentStore } from '@/stores/residentStore'
+import { ref } from 'vue'
 
-const router = useRouter()
-const residentStore = useResidentStore()
-const formRef = ref(null)
-const saving = ref(false)
-
-const form = reactive({
-  name: '',
-  gender: '',
-  birthday: '',
-  idCard: '',
-  phone: '',
-  address: '',
-  currentAddress: '',
-  householdType: '',
-  politicalStatus: '',
-  healthStatus: '',
-  remarks: ''
-})
-
-// 身份证号验证
-const validateIdCard = (rule, value, callback) => {
-  if (!value) {
-    callback(new Error('请输入身份证号'))
-    return
-  }
-
-  const idCardRegex = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/
-  if (!idCardRegex.test(value)) {
-    callback(new Error('请输入正确的身份证号'))
-    return
-  }
-
-  callback()
-}
-
-// 手机号验证
-const validatePhone = (rule, value, callback) => {
-  if (!value) {
-    callback(new Error('请输入手机号'))
-    return
-  }
-
-  const phoneRegex = /^1[3-9]\d{9}$/
-  if (!phoneRegex.test(value)) {
-    callback(new Error('请输入正确的手机号'))
-    return
-  }
-
-  callback()
-}
-
-const rules = reactive({
-  name: [
-    { required: true, message: '请输入姓名', trigger: 'blur' },
-    { min: 2, max: 10, message: '姓名长度在 2 到 10 个字符', trigger: 'blur' }
-  ],
-  gender: [
-    { required: true, message: '请选择性别', trigger: 'change' }
-  ],
-  birthday: [
-    { required: true, message: '请选择出生日期', trigger: 'change' }
-  ],
-  idCard: [
-    { validator: validateIdCard, trigger: 'blur' }
-  ],
-  phone: [
-    { validator: validatePhone, trigger: 'blur' }
-  ],
-  address: [
-    { required: true, message: '请输入户籍地址', trigger: 'blur' }
-  ],
-  householdType: [
-    { required: true, message: '请选择户籍类型', trigger: 'change' }
-  ]
-})
-
-// 计算年龄
-const calculateAge = (birthday) => {
-  if (!birthday) return 0
-  const today = new Date()
-  const birthDate = new Date(birthday)
-  let age = today.getFullYear() - birthDate.getFullYear()
-  const monthDiff = today.getMonth() - birthDate.getMonth()
-
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-    age--
-  }
-
-  return age
-}
-
-const saveResident = async () => {
-  try {
-    await formRef.value.validate()
-    saving.value = true
-
-    // 计算年龄
-    const age = calculateAge(form.birthday)
-
-    const residentData = {
-      ...form,
-      age,
-      // 如果现居住地为空，使用户籍地址
-      currentAddress: form.currentAddress || form.address
-    }
-
-    await residentStore.createResident(residentData)
-
-    ElMessage.success('村民信息保存成功')
-    router.push('/residents')
-
-  } catch (error) {
-    console.error('保存村民信息失败:', error)
-    ElMessage.error('保存失败，请重试')
-  } finally {
-    saving.value = false
-  }
-}
-
-const resetForm = () => {
-  formRef.value.resetFields()
-  Object.keys(form).forEach(key => {
-    form[key] = ''
-  })
-}
-
-const goBack = () => {
-  router.go(-1)
-}
+const title = ref('添加村民')
 </script>
 
-<style scoped>
-.resident-add-view {
-  padding: 20px;
+<style lang="scss" scoped>
+.resident-view {
+  min-height: 100vh;
+  background-color: #f5f5f5;
 }
 
-.content {
-  margin-top: 20px;
+.page-header {
+  background-color: #fff;
+  border-bottom: 1px solid #e4e7ed;
+  padding: 0 24px;
+  height: 60px;
+  display: flex;
+  align-items: center;
 }
 
-.resident-form {
-  padding: 20px;
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
 }
 
-.resident-form h3 {
-  margin: 0 0 20px 0;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #e4e7ed;
+.page-title {
+  margin: 0;
+  font-size: 18px;
   color: #303133;
+}
+
+.page-main {
+  padding: 24px;
 }
 </style>

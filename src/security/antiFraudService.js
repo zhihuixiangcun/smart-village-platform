@@ -220,7 +220,7 @@ class AntiFraudService {
   async detectPhoneFraud(phoneNumber, callContent = null) {
     try {
       const analysis = {
-        phoneNumber: phoneNumber,
+        phoneNumber,
         timestamp: new Date(),
         riskScore: 0,
         riskLevel: 'LOW',
@@ -292,9 +292,9 @@ class AntiFraudService {
   async detectSMSFraud(smsContent, senderNumber = null, links = []) {
     try {
       const analysis = {
-        smsContent: smsContent,
-        senderNumber: senderNumber,
-        links: links,
+        smsContent,
+        senderNumber,
+        links,
         timestamp: new Date(),
         riskScore: 0,
         riskLevel: 'LOW',
@@ -355,8 +355,8 @@ class AntiFraudService {
   async detectPhishingWebsite(url, content = null) {
     try {
       const analysis = {
-        url: url,
-        content: content,
+        url,
+        content,
         timestamp: new Date(),
         riskScore: 0,
         riskLevel: 'LOW',
@@ -435,27 +435,27 @@ class AntiFraudService {
 
       // 根据事件类型进行检测
       switch (event.type) {
-        case 'phone':
-          monitoring.analysis = await this.detectPhoneFraud(
-            event.phoneNumber,
-            event.content
-          );
-          break;
-        case 'sms':
-          monitoring.analysis = await this.detectSMSFraud(
-            event.content,
-            event.senderNumber,
-            event.links
-          );
-          break;
-        case 'website':
-          monitoring.analysis = await this.detectPhishingWebsite(
-            event.url,
-            event.content
-          );
-          break;
-        default:
-          throw new Error(`不支持的事件类型: ${event.type}`);
+      case 'phone':
+        monitoring.analysis = await this.detectPhoneFraud(
+          event.phoneNumber,
+          event.content
+        );
+        break;
+      case 'sms':
+        monitoring.analysis = await this.detectSMSFraud(
+          event.content,
+          event.senderNumber,
+          event.links
+        );
+        break;
+      case 'website':
+        monitoring.analysis = await this.detectPhishingWebsite(
+          event.url,
+          event.content
+        );
+        break;
+      default:
+        throw new Error(`不支持的事件类型: ${event.type}`);
       }
 
       // 生成告警
@@ -530,9 +530,9 @@ class AntiFraudService {
 
       // 模拟趋势数据
       const trends = {
-        timeRange: timeRange,
-        startDate: startDate,
-        endDate: endDate,
+        timeRange,
+        startDate,
+        endDate,
         statistics: {
           totalReports: Math.floor(Math.random() * 100) + 50,
           phoneFraud: Math.floor(Math.random() * 60) + 20,
@@ -947,7 +947,7 @@ class AntiFraudService {
 
     analysis.features = {
       contentLength: content.length,
-      hasForm: hasForm,
+      hasForm,
       keywordCount: foundKeywords.length
     };
 
@@ -995,23 +995,23 @@ class AntiFraudService {
     const recommendations = [];
 
     switch (analysis.riskLevel) {
-      case 'CRITICAL':
-        recommendations.push('立即挂断电话，不要提供任何信息');
-        recommendations.push('拨打110报警');
-        recommendations.push('向运营商举报诈骗号码');
-        break;
-      case 'HIGH':
-        recommendations.push('保持警惕，不要轻易相信对方的话');
-        recommendations.push('核实对方身份，主动联系官方机构');
-        recommendations.push('不要透露个人信息和银行账户');
-        break;
-      case 'MEDIUM':
-        recommendations.push('谨慎对待，多方核实信息真实性');
-        recommendations.push('注意保护个人信息');
-        break;
-      case 'LOW':
-        recommendations.push('保持基本防范意识');
-        break;
+    case 'CRITICAL':
+      recommendations.push('立即挂断电话，不要提供任何信息');
+      recommendations.push('拨打110报警');
+      recommendations.push('向运营商举报诈骗号码');
+      break;
+    case 'HIGH':
+      recommendations.push('保持警惕，不要轻易相信对方的话');
+      recommendations.push('核实对方身份，主动联系官方机构');
+      recommendations.push('不要透露个人信息和银行账户');
+      break;
+    case 'MEDIUM':
+      recommendations.push('谨慎对待，多方核实信息真实性');
+      recommendations.push('注意保护个人信息');
+      break;
+    case 'LOW':
+      recommendations.push('保持基本防范意识');
+      break;
     }
 
     return recommendations;
@@ -1069,18 +1069,18 @@ class AntiFraudService {
     const actions = [];
 
     switch (analysis.riskLevel) {
-      case 'CRITICAL':
-        actions.push('block_number', 'notify_user', 'log_incident', 'notify_authorities');
-        break;
-      case 'HIGH':
-        actions.push('warn_user', 'log_incident', 'monitor_activity');
-        break;
-      case 'MEDIUM':
-        actions.push('monitor_activity', 'log_activity');
-        break;
-      case 'LOW':
-        actions.push('log_activity');
-        break;
+    case 'CRITICAL':
+      actions.push('block_number', 'notify_user', 'log_incident', 'notify_authorities');
+      break;
+    case 'HIGH':
+      actions.push('warn_user', 'log_incident', 'monitor_activity');
+      break;
+    case 'MEDIUM':
+      actions.push('monitor_activity', 'log_activity');
+      break;
+    case 'LOW':
+      actions.push('log_activity');
+      break;
     }
 
     return actions;

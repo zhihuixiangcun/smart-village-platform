@@ -1,104 +1,84 @@
 <template>
-  <div class="error-page">
-    <el-result
-      icon="error"
-      title="500"
-      sub-title="服务器内部错误，请稍后重试"
-    >
-      <template #extra>
-        <el-button type="primary" @click="refresh">刷新页面</el-button>
-        <el-button @click="goHome">回到首页</el-button>
-      </template>
-    </el-result>
-
-    <div class="error-info">
-      <h3>可能的原因：</h3>
-      <ul>
-        <li>服务器遇到了意外错误</li>
-        <li>数据库连接异常</li>
-        <li>服务器配置问题</li>
-        <li>服务器临时维护</li>
-      </ul>
-
-      <h3>解决方案：</h3>
-      <ul>
-        <li>刷新页面重试</li>
-        <li>稍后再访问</li>
-        <li>清除浏览器缓存</li>
-        <li>联系技术支持</li>
-      </ul>
-
-      <div class="contact-info">
-        <h3>技术支持：</h3>
-        <p>如果问题持续存在，请联系我们：</p>
-        <p>邮箱：support@smart-village.com</p>
-        <p>电话：400-123-4567</p>
+  <div class="error-view">
+    <div class="error-container">
+      <div class="error-content">
+        <h1 class="error-code">{{ errorCode }}</h1>
+        <h2 class="error-title">服务器错误</h2>
+        <p class="error-description">{{ description }}</p>
+        <div class="error-actions">
+          <el-button type="primary" @click="goHome">返回首页</el-button>
+          <el-button @click="goBack">返回上一页</el-button>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+const title = ref('服务器错误')
 
-const refresh = () => {
-  window.location.reload()
-}
+const errorCode = computed(() => {
+  if (title.value.includes('403')) return '403'
+  if (title.value.includes('404')) return '404'
+  if (title.value.includes('500')) return '500'
+  return 'Error'
+})
+
+const description = computed(() => {
+  if (title.value.includes('403')) return '抱歉，您没有权限访问此页面'
+  if (title.value.includes('404')) return '抱歉，您访问的页面不存在'
+  if (title.value.includes('500')) return '抱歉，服务器出现了错误'
+  return '系统出现了未知错误'
+})
 
 const goHome = () => {
   router.push('/')
 }
+
+const goBack = () => {
+  router.go(-1)
+}
 </script>
 
-<style scoped>
-.error-page {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+<style lang="scss" scoped>
+.error-view {
   min-height: 100vh;
-  padding: 20px;
-  background: #f5f7fa;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.error-info {
-  max-width: 600px;
-  margin-top: 40px;
-  padding: 30px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+.error-container {
+  text-align: center;
+  color: white;
 }
 
-.error-info h3 {
-  color: #303133;
-  margin: 20px 0 10px 0;
-  font-size: 16px;
+.error-code {
+  font-size: 120px;
+  font-weight: bold;
+  margin: 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.error-info ul {
-  margin: 0 0 20px 0;
-  padding-left: 20px;
+.error-title {
+  font-size: 32px;
+  margin: 20px 0 10px;
 }
 
-.error-info li {
-  color: #606266;
-  line-height: 1.6;
-  margin-bottom: 5px;
+.error-description {
+  font-size: 18px;
+  margin: 0 0 40px;
+  opacity: 0.9;
 }
 
-.contact-info {
-  margin-top: 30px;
-  padding: 20px;
-  background: #f8f9fa;
-  border-radius: 6px;
-  border-left: 4px solid #409eff;
-}
-
-.contact-info p {
-  margin: 5px 0;
-  color: #606266;
+.error-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
 }
 </style>

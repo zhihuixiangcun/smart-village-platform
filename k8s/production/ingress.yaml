@@ -1,0 +1,153 @@
+# Ingress with SSL Termination and Load Balancing
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: smart-village-ingress
+  namespace: smart-village-prod
+  labels:
+    app: smart-village
+    environment: production
+  annotations:
+    # Ingress controller specific annotations
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    
+    # SSL configuration
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-protocols: "TLSv1.2 TLSv1.3"
+    nginx.ingress.kubernetes.io/ssl-ciphers: "ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512"
+    
+    # Security headers
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      add_header X-Frame-Options "DENY" always;
+      add_header X-Content-Type-Options "nosniff" always;
+      add_header X-XSS-Protection "1; mode=block" always;
+      add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+      add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' ws: wss:;" always;
+    
+    # Rate limiting
+    nginx.ingress.kubernetes.io/rate-limit: "10"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+    
+    # CORS configuration
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://smartvillage.com"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"
+    
+    # Load balancing
+    nginx.ingress.kubernetes.io/upstream-hash-by: "$remote_addr"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    
+    # WebSocket support
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    
+spec:
+  tls:
+  - hosts:
+    - smartvillage.com
+    - www.smartvillage.com
+    - api.smartvillage.com
+    secretName: smartvillage-tls
+  
+  rules:
+  # Main domain - Client application
+  - host: smartvillage.com
+    http:
+      paths:
+      # API routes
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: api-server-active
+            port:
+              number: 3001
+      
+      # Village API routes
+      - path: /village-api
+        pathType: Prefix
+        backend:
+          service:
+            name: village-server-active
+            port:
+              number: 5000
+      
+      # WebSocket for Socket.IO
+      - path: /socket.io
+        pathType: Prefix
+        backend:
+          service:
+            name: village-server-active
+            port:
+              number: 5000
+      
+      # Static files and client app (default)
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: client-active
+            port:
+              number: 8080
+  
+  # WWW redirect
+  - host: www.smartvillage.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: client-active
+            port:
+              number: 8080
+  
+  # API subdomain
+  - host: api.smartvillage.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: api-server-active
+            port:
+              number: 3001
+
+---
+# ClusterIssuer for Let's Encrypt SSL certificates
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+  namespace: smart-village-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: admin@smartvillage.com
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    solvers:
+    - http01:
+        ingress:
+          class: nginx
+
+---
+# Certificate resource for automatic SSL certificate management
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: smartvillage-tls
+  namespace: smart-village-prod
+spec:
+  secretName: smartvillage-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+  - smartvillage.com
+  - www.smartvillage.com
+  - api.smartvillage.com

@@ -8,6 +8,7 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import App from './App.vue'
 import router from './router'
 import permissionDirectives from './directives/permission'
+import { useUserStore } from './stores/userStore'
 import './style/tailwind.css'
 import './style/main.scss'
 
@@ -27,5 +28,9 @@ app.use(router)
 app.use(ElementPlus, {
   locale: zhCn,
 })
+
+// 初始化用户状态
+const userStore = useUserStore()
+userStore.initUserState()
 
 app.mount('#app')

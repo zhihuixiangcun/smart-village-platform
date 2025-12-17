@@ -57,7 +57,7 @@ let statusCheckInterval = null
 // 检查主API服务状态
 const checkMainApiStatus = async () => {
   try {
-    const response = await fetch('/health')
+    const response = await fetch('http://localhost:3001/health')
     mainApiStatus.value.connected = response.ok
   } catch (error) {
     mainApiStatus.value.connected = false
@@ -67,7 +67,7 @@ const checkMainApiStatus = async () => {
 // 检查村务API服务状态
 const checkVillageApiStatus = async () => {
   try {
-    const response = await fetch('/api/health')
+    const response = await fetch('http://localhost:5000/health')
     villageApiStatus.value.connected = response.ok
   } catch (error) {
     villageApiStatus.value.connected = false

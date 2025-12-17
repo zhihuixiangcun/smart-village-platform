@@ -76,8 +76,8 @@ class PrivacyProtectionService {
       EMAIL: {
         pattern: /([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/,
         replacement: (match, p1, p2) => {
-          const username = p1.substring(0, 2) + '***';
-          return username + '@' + p2;
+          const username = `${p1.substring(0, 2)  }***`;
+          return `${username  }@${  p2}`;
         },
         description: '邮箱用户名部分脱敏'
       },
@@ -162,8 +162,8 @@ class PrivacyProtectionService {
         data: maskedData,
         metadata: {
           originalDataType: dataType,
-          maskingLevel: maskingLevel,
-          appliedRules: appliedRules,
+          maskingLevel,
+          appliedRules,
           maskedAt: new Date()
         }
       };
@@ -472,7 +472,7 @@ class PrivacyProtectionService {
       const assessment = {
         assessmentId: this.generateId(),
         timestamp: new Date(),
-        dataProcess: dataProcess,
+        dataProcess,
         impactLevel: 'LOW',
         risks: [],
         recommendations: [],
@@ -566,33 +566,33 @@ class PrivacyProtectionService {
     let maskedValue = value.toString();
 
     switch (maskingLevel) {
-      case 'none':
-        return maskedValue;
-      case 'light':
-        // 轻度脱敏，保留更多信息
-        if (rule.pattern && typeof rule.replacement === 'function') {
-          maskedValue = rule.replacement.exec(maskedValue) || maskedValue;
-        } else if (rule.replacement) {
-          maskedValue = maskedValue.replace(rule.pattern, rule.replacement);
-        }
-        break;
-      case 'standard':
-        // 标准脱敏
-        if (rule.pattern && typeof rule.replacement === 'function') {
-          maskedValue = rule.replacement.exec(maskedValue) || maskedValue;
-        } else if (rule.replacement) {
-          maskedValue = maskedValue.replace(rule.pattern, rule.replacement);
-        }
-        break;
-      case 'strict':
-        // 严格脱敏，大部分内容替换为*
-        maskedValue = maskedValue.substring(0, 1) + '*'.repeat(maskedValue.length - 2) +
+    case 'none':
+      return maskedValue;
+    case 'light':
+      // 轻度脱敏，保留更多信息
+      if (rule.pattern && typeof rule.replacement === 'function') {
+        maskedValue = rule.replacement.exec(maskedValue) || maskedValue;
+      } else if (rule.replacement) {
+        maskedValue = maskedValue.replace(rule.pattern, rule.replacement);
+      }
+      break;
+    case 'standard':
+      // 标准脱敏
+      if (rule.pattern && typeof rule.replacement === 'function') {
+        maskedValue = rule.replacement.exec(maskedValue) || maskedValue;
+      } else if (rule.replacement) {
+        maskedValue = maskedValue.replace(rule.pattern, rule.replacement);
+      }
+      break;
+    case 'strict':
+      // 严格脱敏，大部分内容替换为*
+      maskedValue = maskedValue.substring(0, 1) + '*'.repeat(maskedValue.length - 2) +
                        maskedValue.substring(maskedValue.length - 1);
-        break;
-      case 'complete':
-        // 完全脱敏，所有内容替换为*
-        maskedValue = '*'.repeat(maskedValue.length);
-        break;
+      break;
+    case 'complete':
+      // 完全脱敏，所有内容替换为*
+      maskedValue = '*'.repeat(maskedValue.length);
+      break;
     }
 
     return maskedValue;
@@ -689,44 +689,44 @@ class PrivacyProtectionService {
     const mappingKey = this.generateId();
 
     switch (field) {
-      case 'name':
-      case '姓名':
-        return {
-          value: '用户' + mappingKey.substring(0, 8),
-          mapping: { original: value, type: 'hash' },
-          type: 'pseudonym'
-        };
-      case 'phone':
-      case '电话':
-        return {
-          value: '138****' + mappingKey.substring(0, 4),
-          mapping: { original: value, type: 'masked' },
-          type: 'masked'
-        };
-      case 'email':
-      case '邮箱':
-        const [username, domain] = value.split('@');
-        return {
-          value: 'user' + mappingKey.substring(0, 8) + '@' + domain,
-          mapping: { original: value, type: 'pseudonym' },
-          type: 'pseudonym'
-        };
-      case 'address':
-      case '地址':
-        return {
-          value: '地址' + mappingKey.substring(0, 8),
-          mapping: { original: value, type: 'token' },
-          type: 'token'
-        };
-      default:
-        return {
-          value: crypto.createHash('sha256')
-            .update(value.toString() + mappingKey)
-            .digest('hex')
-            .substring(0, 16),
-          mapping: { original: value, type: 'hash' },
-          type: 'hash'
-        };
+    case 'name':
+    case '姓名':
+      return {
+        value: `用户${  mappingKey.substring(0, 8)}`,
+        mapping: { original: value, type: 'hash' },
+        type: 'pseudonym'
+      };
+    case 'phone':
+    case '电话':
+      return {
+        value: `138****${  mappingKey.substring(0, 4)}`,
+        mapping: { original: value, type: 'masked' },
+        type: 'masked'
+      };
+    case 'email':
+    case '邮箱':
+      const [username, domain] = value.split('@');
+      return {
+        value: `user${  mappingKey.substring(0, 8)  }@${  domain}`,
+        mapping: { original: value, type: 'pseudonym' },
+        type: 'pseudonym'
+      };
+    case 'address':
+    case '地址':
+      return {
+        value: `地址${  mappingKey.substring(0, 8)}`,
+        mapping: { original: value, type: 'token' },
+        type: 'token'
+      };
+    default:
+      return {
+        value: crypto.createHash('sha256')
+          .update(value.toString() + mappingKey)
+          .digest('hex')
+          .substring(0, 16),
+        mapping: { original: value, type: 'hash' },
+        type: 'hash'
+      };
     }
   }
 

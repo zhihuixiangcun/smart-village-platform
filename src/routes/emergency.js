@@ -51,7 +51,7 @@ router.post('/one-click-call', validateEmergency, validateLocation, upload.array
       villageId: req.body.villageId,
       media: req.files ? req.files.map(file => ({
         type: file.mimetype.startsWith('image/') ? 'image' :
-              file.mimetype.startsWith('video/') ? 'video' : 'audio',
+          file.mimetype.startsWith('video/') ? 'video' : 'audio',
         url: `/uploads/emergency/${file.filename}`,
         name: file.originalname,
         size: file.size,
@@ -186,7 +186,7 @@ router.get('/events', authenticate, async (req, res) => {
     const pagination = {
       page: parseInt(page),
       limit: parseInt(limit),
-      sortBy: sortBy
+      sortBy
     };
 
     const result = await emergencyService.getActiveEmergencies(filters, pagination);
@@ -277,8 +277,8 @@ router.put('/events/:id/status', authenticate, authorize(['village_admin', 'depa
         userName: req.user.profile.displayName,
         avatar: req.user.profile.avatar
       },
-      description: description,
-      resolution: resolution
+      description,
+      resolution
     };
 
     const result = await emergencyService.updateEmergencyStatus(
@@ -330,9 +330,9 @@ router.post('/events/:id/updates', authenticate, upload.array('attachments', 5),
         userName: req.user.profile.displayName,
         avatar: req.user.profile.avatar
       },
-      attachments: attachments,
+      attachments,
       progress: progress ? parseInt(progress) : undefined,
-      notes: notes
+      notes
     };
 
     const result = await emergencyService.addEmergencyUpdate(
@@ -419,7 +419,7 @@ router.get('/resources', authenticate, async (req, res) => {
     res.json({
       success: true,
       data: {
-        resources: resources,
+        resources,
         pagination: {
           page: parseInt(page),
           limit: parseInt(limit),
@@ -466,7 +466,7 @@ router.post('/resources', authenticate, authorize(['village_admin', 'department_
       success: true,
       message: '应急资源创建成功',
       data: {
-        resource: resource
+        resource
       }
     });
 
@@ -530,7 +530,7 @@ router.get('/contacts', authenticate, async (req, res) => {
     res.json({
       success: true,
       data: {
-        contacts: contacts
+        contacts
       }
     });
 
@@ -565,7 +565,7 @@ router.post('/contacts', authenticate, authorize(['village_admin', 'department_h
       success: true,
       message: '应急联系人创建成功',
       data: {
-        contact: contact
+        contact
       }
     });
 
@@ -608,7 +608,7 @@ router.get('/nearby-events', authenticate, async (req, res) => {
     res.json({
       success: true,
       data: {
-        events: events,
+        events,
         searchCenter: {
           latitude: parseFloat(latitude),
           longitude: parseFloat(longitude),
@@ -681,8 +681,8 @@ router.get('/instructions/:type', async (req, res) => {
     res.json({
       success: true,
       data: {
-        type: type,
-        instructions: instructions,
+        type,
+        instructions,
         safetyGuidelines: guidelines
       }
     });

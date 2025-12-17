@@ -366,7 +366,7 @@ async function getUserPermissions(user) {
   try {
     const { VillageAdminAuth, PermissionTemplate } = require('../models/Permission');
 
-    let permissions = [];
+    const permissions = [];
 
     // 获取村级管理员权限
     if (user.role === 'village_admin' && user.villageId) {

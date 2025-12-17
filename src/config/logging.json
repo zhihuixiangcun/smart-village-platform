@@ -1,0 +1,8 @@
+{
+  "level": "info",
+  "format": "combined",
+  "filename": "logs/app.log",
+  "datePattern": "YYYY-MM-DD",
+  "maxSize": "20m",
+  "maxFiles": "14d"
+}

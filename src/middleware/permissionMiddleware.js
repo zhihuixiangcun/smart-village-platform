@@ -94,7 +94,7 @@ async function logOperation(req, res, duration, responseData) {
       },
       result: {
         status: resultStatus,
-        errorMessage: errorMessage,
+        errorMessage,
         errorCode: parsedResponse?.errorCode || null,
         affectedRecords: getAffectedRecords(req, parsedResponse)
       },
@@ -113,7 +113,7 @@ async function logOperation(req, res, duration, responseData) {
         sessionId: req.sessionID
       },
       timestamp: new Date(),
-      duration: duration,
+      duration,
       risk: {
         level: assessRiskLevel(req, user),
         score: calculateRiskScore(req, user),
@@ -159,7 +159,7 @@ const requireVillageAdminAuth = (villageIdParam = 'villageId') => {
 
       // 查找村级管理员认证记录
       const authRecord = await VillageAdminAuth.findOne({
-        villageId: villageId,
+        villageId,
         status: 'active'
       }).populate('currentAdmin.userId', 'name username email phone');
 
@@ -425,36 +425,36 @@ function maskFieldValue(fieldName, value, user, options) {
 
   if (field.includes('idcard') || field.includes('idnumber')) {
     // 身份证脱敏
-    return value.length > 8 ? value.substring(0, 6) + '********' + value.substring(value.length - 4) : '********';
+    return value.length > 8 ? `${value.substring(0, 6)  }********${  value.substring(value.length - 4)}` : '********';
   }
 
   if (field.includes('phone')) {
     // 手机号脱敏
-    return value.length === 11 ? value.substring(0, 3) + '****' + value.substring(7) : '********';
+    return value.length === 11 ? `${value.substring(0, 3)  }****${  value.substring(7)}` : '********';
   }
 
   if (field.includes('email')) {
     // 邮箱脱敏
     const [local, domain] = value.split('@');
     if (local && domain) {
-      const maskedLocal = local.length > 2 ? local.substring(0, 2) + '***' : '***';
-      return maskedLocal + '@' + domain;
+      const maskedLocal = local.length > 2 ? `${local.substring(0, 2)  }***` : '***';
+      return `${maskedLocal  }@${  domain}`;
     }
     return '***@***.***';
   }
 
   if (field.includes('bank')) {
     // 银行卡脱敏
-    return value.length > 8 ? '**** **** **** ' + value.substring(value.length - 4) : '****';
+    return value.length > 8 ? `**** **** **** ${  value.substring(value.length - 4)}` : '****';
   }
 
   if (field.includes('address')) {
     // 地址脱敏 - 只显示省份和城市
-    return value.length > 6 ? value.substring(0, 6) + '***' : '***';
+    return value.length > 6 ? `${value.substring(0, 6)  }***` : '***';
   }
 
   // 默认脱敏
-  return value.length > 4 ? value.substring(0, 2) + '***' + value.substring(value.length - 2) : '***';
+  return value.length > 4 ? `${value.substring(0, 2)  }***${  value.substring(value.length - 2)}` : '***';
 }
 
 /**
@@ -473,14 +473,14 @@ async function checkScopePermission(req, user, resource, action, requiredScope) 
 
   // 检查数据所有权
   switch (requiredScope) {
-    case 'own':
-      return checkOwnership(req, user);
-    case 'village':
-      return checkVillageAccess(req, user);
-    case 'all':
-      return user.role === 'super_admin' || user.role === 'department_head';
-    default:
-      return false;
+  case 'own':
+    return checkOwnership(req, user);
+  case 'village':
+    return checkVillageAccess(req, user);
+  case 'all':
+    return user.role === 'super_admin' || user.role === 'department_head';
+  default:
+    return false;
   }
 }
 
@@ -533,9 +533,9 @@ function getDataChangeInfo(req, responseData) {
 
 function getAccessReason(req) {
   switch (req.path) {
-    case '/api/auth/login': return '用户登录';
-    case '/api/users/profile': return '查看个人信息';
-    default: return '系统操作';
+  case '/api/auth/login': return '用户登录';
+  case '/api/users/profile': return '查看个人信息';
+  default: return '系统操作';
   }
 }
 

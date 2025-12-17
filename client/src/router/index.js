@@ -15,17 +15,6 @@ const router = createRouter({
       }
     },
 
-    // 仪表板路由
-    {
-      path: '/dashboard',
-      name: 'dashboard',
-      component: () => import('@/views/Dashboard.vue'),
-      meta: {
-        requiresAuth: false, // 暂时设为false便于测试
-        title: '智慧乡村仪表板'
-      }
-    },
-
     // 认证相关路由
     {
       path: '/login',
@@ -302,6 +291,23 @@ const router = createRouter({
       ]
     },
 
+    // 村务公开（村民视角）
+    {
+      path: '/village-affairs',
+      name: 'village-affairs',
+      component: () => import('@/views/village/VillageAffairsView.vue'),
+      meta: {
+        requiresAuth: true,
+        title: '村务公开',
+        icon: 'View',
+        permissions: ['village:read'],
+        breadcrumb: [
+          { title: '首页', path: '/dashboard' },
+          { title: '村务公开', path: '/village-affairs' }
+        ]
+      }
+    },
+
     // 生活服务模块
     {
       path: '/services',
@@ -364,6 +370,292 @@ const router = createRouter({
       }
     },
 
+    // 新增组件模块 - 基于我们开发的API组件
+    {
+      path: '/components',
+      name: 'components',
+      redirect: '/components/users',
+      meta: {
+        requiresAuth: true,
+        title: '组件管理',
+        icon: 'Grid',
+        permissions: ['component:read']
+      },
+      children: [
+        {
+          path: 'users',
+          name: 'component-users',
+          component: () => import('@/components/user/UserManagement.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '用户管理',
+            permissions: ['user:read'],
+            breadcrumb: [
+              { title: '首页', path: '/dashboard' },
+              { title: '组件管理', path: '/components' },
+              { title: '用户管理', path: '/components/users' }
+            ]
+          }
+        },
+        {
+          path: 'announcements',
+          name: 'component-announcements',
+          component: () => import('@/components/village/VillageAnnouncement.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '村务公告',
+            permissions: ['village:announcement'],
+            breadcrumb: [
+              { title: '首页', path: '/dashboard' },
+              { title: '组件管理', path: '/components' },
+              { title: '村务公告', path: '/components/announcements' }
+            ]
+          }
+        },
+        {
+          path: 'transactions',
+          name: 'component-transactions',
+          component: () => import('@/components/finance/TransactionList.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '财务管理',
+            permissions: ['finance:read'],
+            breadcrumb: [
+              { title: '首页', path: '/dashboard' },
+              { title: '组件管理', path: '/components' },
+              { title: '财务管理', path: '/components/transactions' }
+            ]
+          }
+        },
+        {
+          path: 'emergency',
+          name: 'component-emergency',
+          component: () => import('@/components/emergency/EmergencyManagement.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '应急管理',
+            permissions: ['emergency:read'],
+            breadcrumb: [
+              { title: '首页', path: '/dashboard' },
+              { title: '组件管理', path: '/components' },
+              { title: '应急管理', path: '/components/emergency' }
+            ]
+          }
+        },
+        {
+          path: 'analytics',
+          name: 'component-analytics',
+          component: () => import('@/components/analytics/Dashboard.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '数据分析',
+            permissions: ['analytics:read'],
+            breadcrumb: [
+              { title: '首页', path: '/dashboard' },
+              { title: '组件管理', path: '/components' },
+              { title: '数据分析', path: '/components/analytics' }
+            ]
+          }
+        },
+        {
+          path: 'products',
+          name: 'component-products',
+          component: () => import('@/components/ecommerce/ProductManagement.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '商品管理',
+            permissions: ['product:read'],
+            breadcrumb: [
+              { title: '首页', path: '/dashboard' },
+              { title: '组件管理', path: '/components' },
+              { title: '商品管理', path: '/components/products' }
+            ]
+          }
+        }
+      ]
+    },
+
+    // 项目管理模块
+    {
+      path: '/projects',
+      name: 'projects',
+      redirect: '/projects/list',
+      meta: {
+        requiresAuth: true,
+        title: '项目管理',
+        icon: 'OfficeBuilding',
+        permissions: ['project:read']
+      },
+      children: [
+        {
+          path: 'list',
+          name: 'projects-list',
+          component: () => import('@/views/projects/ProjectsListView.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '项目列表',
+            permissions: ['project:read'],
+            breadcrumb: [
+              { title: '首页', path: '/dashboard' },
+              { title: '项目管理', path: '/projects' },
+              { title: '项目列表', path: '/projects/list' }
+            ]
+          }
+        },
+        {
+          path: ':id',
+          name: 'project-detail',
+          component: () => import('@/views/projects/ProjectDetailView.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '项目详情',
+            permissions: ['project:read'],
+            breadcrumb: [
+              { title: '首页', path: '/dashboard' },
+              { title: '项目管理', path: '/projects' },
+              { title: '项目列表', path: '/projects/list' },
+              { title: '项目详情', path: '' }
+            ]
+          }
+        },
+        {
+          path: 'add',
+          name: 'project-add',
+          component: () => import('@/views/projects/ProjectAddView.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '新建项目',
+            permissions: ['project:write'],
+            breadcrumb: [
+              { title: '首页', path: '/dashboard' },
+              { title: '项目管理', path: '/projects' },
+              { title: '新建项目', path: '/projects/add' }
+            ]
+          }
+        }
+      ]
+    },
+
+    // 农产品管理模块
+    {
+      path: '/agriculture',
+      name: 'agriculture',
+      redirect: '/agriculture/products',
+      meta: {
+        requiresAuth: true,
+        title: '农产品管理',
+        icon: 'Apple',
+        permissions: ['agriculture:read']
+      },
+      children: [
+        {
+          path: 'products',
+          name: 'agriculture-products',
+          component: () => import('@/views/agriculture/ProductsListView.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '农产品列表',
+            permissions: ['agriculture:read'],
+            breadcrumb: [
+              { title: '首页', path: '/dashboard' },
+              { title: '农产品管理', path: '/agriculture' },
+              { title: '农产品列表', path: '/agriculture/products' }
+            ]
+          }
+        },
+        {
+          path: 'orders',
+          name: 'agriculture-orders',
+          component: () => import('@/views/agriculture/OrdersListView.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '订单管理',
+            permissions: ['agriculture:order'],
+            breadcrumb: [
+              { title: '首页', path: '/dashboard' },
+              { title: '农产品管理', path: '/agriculture' },
+              { title: '订单管理', path: '/agriculture/orders' }
+            ]
+          }
+        },
+        {
+          path: 'farmers',
+          name: 'agriculture-farmers',
+          component: () => import('@/views/agriculture/FarmersListView.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '农户管理',
+            permissions: ['agriculture:farmer'],
+            breadcrumb: [
+              { title: '首页', path: '/dashboard' },
+              { title: '农产品管理', path: '/agriculture' },
+              { title: '农户管理', path: '/agriculture/farmers' }
+            ]
+          }
+        }
+      ]
+    },
+
+    // 应急管理模块
+    {
+      path: '/emergency',
+      name: 'emergency',
+      redirect: '/emergency/events',
+      meta: {
+        requiresAuth: true,
+        title: '应急管理',
+        icon: 'WarningFilled',
+        permissions: ['emergency:read']
+      },
+      children: [
+        {
+          path: 'events',
+          name: 'emergency-events',
+          component: () => import('@/views/emergency/EventsListView.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '应急事件',
+            permissions: ['emergency:read'],
+            breadcrumb: [
+              { title: '首页', path: '/dashboard' },
+              { title: '应急管理', path: '/emergency' },
+              { title: '应急事件', path: '/emergency/events' }
+            ]
+          }
+        },
+        {
+          path: 'report',
+          name: 'emergency-report',
+          component: () => import('@/views/emergency/ReportView.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '事件上报',
+            permissions: ['emergency:report'],
+            breadcrumb: [
+              { title: '首页', path: '/dashboard' },
+              { title: '应急管理', path: '/emergency' },
+              { title: '事件上报', path: '/emergency/report' }
+            ]
+          }
+        },
+        {
+          path: 'contacts',
+          name: 'emergency-contacts',
+          component: () => import('@/views/emergency/ContactsView.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '应急联系人',
+            permissions: ['emergency:contact'],
+            breadcrumb: [
+              { title: '首页', path: '/dashboard' },
+              { title: '应急管理', path: '/emergency' },
+              { title: '应急联系人', path: '/emergency/contacts' }
+            ]
+          }
+        }
+      ]
+    },
+
     // 系统管理模块
     {
       path: '/system',
@@ -418,6 +710,21 @@ const router = createRouter({
               { title: '首页', path: '/dashboard' },
               { title: '系统管理', path: '/system' },
               { title: '操作日志', path: '/system/logs' }
+            ]
+          }
+        },
+        {
+          path: 'notifications',
+          name: 'system-notifications',
+          component: () => import('@/views/system/NotificationsView.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '通知管理',
+            permissions: ['system:notification'],
+            breadcrumb: [
+              { title: '首页', path: '/dashboard' },
+              { title: '系统管理', path: '/system' },
+              { title: '通知管理', path: '/system/notifications' }
             ]
           }
         }
@@ -523,38 +830,30 @@ router.beforeEach(async (to, from, next) => {
   // 检查是否需要认证
   if (to.meta.requiresAuth) {
     try {
-      // 如果用户未登录，尝试恢复会话
+      // 检查用户是否已登录
       if (!userStore.isLoggedIn) {
-        const restored = await userStore.restoreUserSession()
-        if (!restored) {
-          ElMessage.warning('请先登录')
-          next({
-            name: 'login',
-            query: { redirect: to.fullPath }
-          })
-          return
-        }
+        console.log('路由守卫: 用户未登录，重定向到登录页')
+        next({
+          name: 'login',
+          query: { redirect: to.fullPath }
+        })
+        return
       }
 
-      // 检查权限
+      // 检查是否有权限访问（如果需要）
       if (to.meta.permissions && to.meta.permissions.length > 0) {
         const hasPermission = userStore.hasAnyPermission(to.meta.permissions)
         if (!hasPermission) {
-          ElMessage.error('没有访问权限')
-          next({ name: 'forbidden' })
+          console.log('路由守卫: 用户权限不足')
+          ElMessage.error('您没有权限访问此页面')
+          next({ name: 'dashboard' })
           return
         }
       }
 
-      // 记录页面访问
-      userStore.recordPageVisit({
-        path: to.path,
-        name: to.name,
-        title: to.meta.title,
-        timestamp: new Date()
-      })
-
+      console.log('路由守卫: 允许访问', to.path)
       next()
+      return
     } catch (error) {
       console.error('路由守卫错误:', error)
       ElMessage.error('身份验证失败，请重新登录')

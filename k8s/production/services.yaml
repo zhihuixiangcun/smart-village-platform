@@ -1,0 +1,246 @@
+# Services for Blue-Green Deployment Strategy
+
+# API Server Services
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-server-blue
+  namespace: smart-village-prod
+  labels:
+    app: api-server
+    environment: blue
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3001
+    targetPort: 3001
+    protocol: TCP
+    name: http
+  - port: 3002
+    targetPort: 3002
+    protocol: TCP
+    name: websocket
+  selector:
+    app: api-server
+    environment: blue
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-server-green
+  namespace: smart-village-prod
+  labels:
+    app: api-server
+    environment: green
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3001
+    targetPort: 3001
+    protocol: TCP
+    name: http
+  - port: 3002
+    targetPort: 3002
+    protocol: TCP
+    name: websocket
+  selector:
+    app: api-server
+    environment: green
+
+---
+# Active API Server Service (switches between blue/green)
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-server-active
+  namespace: smart-village-prod
+  labels:
+    app: api-server
+    role: active
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3001
+    targetPort: 3001
+    protocol: TCP
+    name: http
+  - port: 3002
+    targetPort: 3002
+    protocol: TCP
+    name: websocket
+  selector:
+    app: api-server
+    environment: blue  # Initially points to blue
+
+# Village Server Services
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: village-server-blue
+  namespace: smart-village-prod
+  labels:
+    app: village-server
+    environment: blue
+spec:
+  type: ClusterIP
+  ports:
+  - port: 5000
+    targetPort: 5000
+    protocol: TCP
+    name: http
+  selector:
+    app: village-server
+    environment: blue
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: village-server-green
+  namespace: smart-village-prod
+  labels:
+    app: village-server
+    environment: green
+spec:
+  type: ClusterIP
+  ports:
+  - port: 5000
+    targetPort: 5000
+    protocol: TCP
+    name: http
+  selector:
+    app: village-server
+    environment: green
+
+---
+# Active Village Server Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: village-server-active
+  namespace: smart-village-prod
+  labels:
+    app: village-server
+    role: active
+spec:
+  type: ClusterIP
+  ports:
+  - port: 5000
+    targetPort: 5000
+    protocol: TCP
+    name: http
+  selector:
+    app: village-server
+    environment: blue  # Initially points to blue
+
+# Client Services
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: client-blue
+  namespace: smart-village-prod
+  labels:
+    app: client
+    environment: blue
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: client
+    environment: blue
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: client-green
+  namespace: smart-village-prod
+  labels:
+    app: client
+    environment: green
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: client
+    environment: green
+
+---
+# Active Client Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: client-active
+  namespace: smart-village-prod
+  labels:
+    app: client
+    role: active
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: client
+    environment: blue  # Initially points to blue
+
+---
+# LoadBalancer Service for External Access
+apiVersion: v1
+kind: Service
+metadata:
+  name: smart-village-lb
+  namespace: smart-village-prod
+  labels:
+    app: smart-village
+    role: loadbalancer
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "tcp"
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  - port: 443
+    targetPort: 8080
+    protocol: TCP
+    name: https
+  selector:
+    app: client
+    environment: blue
+
+---
+# Headless Service for StatefulSet (if needed for databases)
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-headless
+  namespace: smart-village-prod
+  labels:
+    app: mongodb
+spec:
+  clusterIP: None
+  ports:
+  - port: 27017
+    targetPort: 27017
+    name: mongodb
+  selector:
+    app: mongodb

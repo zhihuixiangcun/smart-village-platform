@@ -1,0 +1,15 @@
+{
+  "enabled": true,
+  "interval": 30000,
+  "metrics": {
+    "cpu": true,
+    "memory": true,
+    "requests": true,
+    "responseTime": true
+  },
+  "alerts": {
+    "cpuThreshold": 80,
+    "memoryThreshold": 85,
+    "responseTimeThreshold": 2000
+  }
+}

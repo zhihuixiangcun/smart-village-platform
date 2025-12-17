@@ -1,0 +1,80 @@
+# ConfigMap for API Server Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-server-config
+  namespace: smart-village-prod
+  labels:
+    app: api-server
+    environment: production
+data:
+  NODE_ENV: "production"
+  PORT: "3001"
+  MONITORING_WEBSOCKET_PORT: "3002"
+  LOG_LEVEL: "info"
+  LOG_FILE_PATH: "/app/logs"
+  
+  # Database configuration
+  MONGO_URI: "mongodb://mongodb:27017/smart-village"
+  REDIS_URL: "redis://redis:6379"
+  
+  # Feature flags
+  MONITORING_ENABLED: "true"
+  I18N_ENABLED: "true"
+  I18N_DEFAULT_LANGUAGE: "zh-CN"
+  I18N_SUPPORTED_LANGUAGES: "zh-CN,pcc,pcc-qn"
+  
+  # External service providers
+  SMS_PROVIDER: "aliyun"
+  OCR_PROVIDER: "baidu"
+  TTS_PROVIDER: "tencent"
+  FACE_PROVIDER: "aliyun"
+  
+  # Performance settings
+  RATE_LIMIT_WINDOW_MS: "900000"
+  RATE_LIMIT_MAX_REQUESTS: "100"
+  CACHE_TTL: "3600"
+  SESSION_TIMEOUT: "1800"
+
+---
+# ConfigMap for Village Server Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: village-server-config
+  namespace: smart-village-prod
+  labels:
+    app: village-server
+    environment: production
+data:
+  NODE_ENV: "production"
+  PORT: "5000"
+  LOG_LEVEL: "info"
+  LOG_FILE_PATH: "/app/logs"
+  
+  # Database configuration
+  MONGO_URI: "mongodb://mongodb:27017/smart-village"
+  
+  # Client configuration
+  CLIENT_URL: "https://smartvillage.com"
+  
+  # External services
+  SMS_PROVIDER: "aliyun"
+  OCR_PROVIDER: "baidu"
+  TTS_PROVIDER: "tencent"
+
+---
+# ConfigMap for Client Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: client-config
+  namespace: smart-village-prod
+  labels:
+    app: client
+    environment: production
+data:
+  # API endpoints
+  VITE_API_URL: "https://smartvillage.com/api"
+  VITE_VILLAGE_API_URL: "https://smartvillage.com/village-api"
+  VITE_WS_URL: "wss://smartvillage.com/socket.io"

@@ -168,7 +168,7 @@ router.get('/discussions/:id', authenticate, async (req, res) => {
     res.json({
       success: true,
       data: {
-        discussion: discussion
+        discussion
       }
     });
 
@@ -421,7 +421,7 @@ router.get('/tasks', authenticate, async (req, res) => {
     const pagination = {
       page: parseInt(page),
       limit: parseInt(limit),
-      sortBy: sortBy
+      sortBy
     };
 
     const result = await collaborationService.getTasks(
@@ -538,7 +538,7 @@ router.get('/tasks/:id', authenticate, async (req, res) => {
     res.json({
       success: true,
       data: {
-        task: task
+        task
       }
     });
 
@@ -568,7 +568,7 @@ router.put('/tasks/:id/status', authenticate, async (req, res) => {
         userName: req.user.profile.displayName,
         avatar: req.user.profile.avatar
       },
-      completion: completion
+      completion
     };
 
     const result = await collaborationService.updateTaskStatus(
@@ -746,7 +746,7 @@ router.get('/statistics', authenticate, async (req, res) => {
         inProgressTasks: 0,
         overdueTasks: 0
       },
-      tasksByType: tasksByType,
+      tasksByType,
       completionRate: taskStats[0] ?
         Math.round((taskStats[0].completedTasks / taskStats[0].totalTasks) * 100) : 0
     };
@@ -754,7 +754,7 @@ router.get('/statistics', authenticate, async (req, res) => {
     res.json({
       success: true,
       data: {
-        statistics: statistics,
+        statistics,
         generatedAt: new Date()
       }
     });

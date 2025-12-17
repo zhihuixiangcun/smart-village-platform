@@ -45,7 +45,7 @@ router.post('/', authenticate, authorize(['village_admin', 'department_head']), 
       success: true,
       message: '户一码创建成功',
       data: {
-        household: household,
+        household,
         codeId: household.codeId
       }
     });
@@ -227,7 +227,7 @@ router.put('/:codeId', authenticate, validateHousehold, async (req, res) => {
       'update_info',
       req.user._id,
       req.user.profile.displayName,
-      `更新户一码信息`,
+      '更新户一码信息',
       oldData,
       updates
     );
@@ -244,7 +244,7 @@ router.put('/:codeId', authenticate, validateHousehold, async (req, res) => {
       success: true,
       message: '户一码更新成功',
       data: {
-        household: household
+        household
       }
     });
 
@@ -321,7 +321,7 @@ router.post('/:codeId/members', authenticate, async (req, res) => {
       success: true,
       message: '家庭成员添加成功',
       data: {
-        household: household
+        household
       }
     });
 
@@ -603,8 +603,8 @@ router.get('/search/related-families', authenticate, async (req, res) => {
     res.json({
       success: true,
       data: {
-        recommendations: recommendations,
-        householdId: householdId
+        recommendations,
+        householdId
       }
     });
 
@@ -696,7 +696,7 @@ router.get('/statistics/qrcode', authenticate, async (req, res) => {
     res.json({
       success: true,
       data: {
-        statistics: statistics,
+        statistics,
         generatedAt: new Date()
       }
     });
