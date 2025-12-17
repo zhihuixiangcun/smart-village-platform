@@ -2,11 +2,13 @@
 
 > 新一代数字化乡村治理解决方案，基于微服务架构的现代化村庄管理平台
 
-[![CI/CD](https://github.com/zhihuixiangcun/smart-village-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/zhihuixiangcun/smart-village-platform/actions)
+[![CI/CD](https://github.com/zhihuixiangcun/smart-village-platform/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/zhihuixiangcun/smart-village-platform/actions)
+[![Code Quality](https://github.com/zhihuixiangcun/smart-village-platform/actions/workflows/code-quality.yml/badge.svg)](https://github.com/zhihuixiangcun/smart-village-platform/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
 [![Vue.js Version](https://img.shields.io/badge/vue-3.0+-4FC08D.svg)](https://vuejs.org/)
-[![Production Ready](https://github.com/zhihuixiangcun/smart-village-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/zhihuixiangcun/smart-village-platform)
+[![Production Ready](https://img.shields.io/badge/production-ready-brightgreen.svg)](https://github.com/zhihuixiangcun/smart-village-platform)
+[![Security](https://img.shields.io/badge/security-passing-brightgreen.svg)](https://github.com/zhihuixiangcun/smart-village-platform/security)
 
 ## 📋 项目概述
 
@@ -243,9 +245,18 @@ npm run format:fix  # 代码格式化
 项目集成了完整的CI/CD流水线：
 - **自动化测试** - 单元测试、集成测试、E2E测试
 - **代码质量检查** - ESLint、Prettier、覆盖率要求80%+
-- **安全扫描** - npm audit、Snyk漏洞检测
+- **安全扫描** - npm audit、Snyk漏洞检测、CodeQL分析
 - **自动部署** - 测试环境/生产环境自动部署
 - **依赖更新** - 每周自动检查和更新依赖
+
+### 🔄 GitHub Repository 管理
+- **分支策略**:
+  - `main` - 生产分支，受保护，仅允许PR合并
+  - `develop` - 开发分支，功能测试和集成
+  - `feature/*` - 功能分支，新功能开发
+- **代码审查**: 所有代码变更需要至少1人审查通过
+- **自动化检查**: CI/CD流水线必须通过才能合并
+- **发布管理**: 基于Git标签进行版本发布
 
 ## 📊 项目统计
 
