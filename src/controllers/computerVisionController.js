@@ -30,14 +30,14 @@ const storage = multer.diskStorage({
     cb(null, dir);
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const uniqueSuffix = `${Date.now()  }-${  Math.round(Math.random() * 1E9)}`;
     const ext = path.extname(file.originalname);
     cb(null, uniqueSuffix + ext);
   }
 });
 
 const upload = multer({
-  storage: storage,
+  storage,
   limits: {
     fileSize: 10 * 1024 * 1024 // 10MB
   },
@@ -73,10 +73,10 @@ exports.faceRecognition = async (req, res) => {
 
     // 调用人脸识别服务
     const result = await computerVisionService.recognizeFace(imageBuffer, {
-      userId: userId,
-      livenessCheck: livenessCheck,
-      qualityCheck: qualityCheck,
-      provider: provider
+      userId,
+      livenessCheck,
+      qualityCheck,
+      provider
     });
 
     // 清理临时文件
@@ -141,9 +141,9 @@ exports.faceRegistration = async (req, res) => {
 
     // 生成人脸特征数据
     const faceData = {
-      userId: userId,
-      name: name,
-      description: description,
+      userId,
+      name,
+      description,
       faceToken: recognitionResult.faceToken,
       features: recognitionResult.features,
       imageHash: crypto.createHash('md5').update(imageBuffer).digest('hex'),
@@ -242,9 +242,9 @@ exports.faceComparison = async (req, res) => {
     res.json({
       success: true,
       data: {
-        similarity: similarity,
-        isMatch: isMatch,
-        threshold: threshold,
+        similarity,
+        isMatch,
+        threshold,
         face1: {
           faceToken: result1.faceToken,
           quality: result1.quality
@@ -293,9 +293,9 @@ exports.documentOCR = async (req, res) => {
 
     // 调用OCR识别服务
     const result = await computerVisionService.recognizeDocument(imageBuffer, documentType, {
-      provider: provider,
-      extractFields: extractFields,
-      validateFormat: validateFormat
+      provider,
+      extractFields,
+      validateFormat
     });
 
     // 清理临时文件
@@ -346,7 +346,7 @@ exports.batchDocumentOCR = async (req, res) => {
       try {
         const imageBuffer = await fs.readFile(file.path);
         const result = await computerVisionService.recognizeDocument(imageBuffer, documentType, {
-          provider: provider,
+          provider,
           extractFields: true,
           validateFormat: true
         });
@@ -383,7 +383,7 @@ exports.batchDocumentOCR = async (req, res) => {
         total: files.length,
         success: results.filter(r => r.success).length,
         failed: results.filter(r => !r.success).length,
-        results: results
+        results
       }
     });
 
@@ -425,10 +425,10 @@ exports.pestDiseaseRecognition = async (req, res) => {
 
     // 调用病虫害识别服务
     const result = await computerVisionService.recognizePestDisease(imageBuffer, {
-      cropType: cropType,
-      provider: provider,
-      confidenceThreshold: confidenceThreshold,
-      includeTreatment: includeTreatment
+      cropType,
+      provider,
+      confidenceThreshold,
+      includeTreatment
     });
 
     // 清理临时文件
@@ -476,9 +476,9 @@ exports.constructionMonitoring = async (req, res) => {
 
     // 调用工程进度监控服务
     const result = await computerVisionService.monitorConstructionProgress(imageBuffer, projectId, {
-      compareWithBaseline: compareWithBaseline,
-      detectAnomalies: detectAnomalies,
-      generateReport: generateReport
+      compareWithBaseline,
+      detectAnomalies,
+      generateReport
     });
 
     // 清理临时文件
@@ -535,8 +535,8 @@ exports.uploadBaselineImage = async (req, res) => {
 
     // 记录基准图片信息到数据库（需要实际实现）
     const baselineInfo = {
-      projectId: projectId,
-      phaseName: phaseName,
+      projectId,
+      phaseName,
       imagePath: baselineImagePath,
       uploadTime: new Date(),
       imageHash: crypto.createHash('md5').update(imageBuffer).digest('hex')
@@ -552,8 +552,8 @@ exports.uploadBaselineImage = async (req, res) => {
       success: true,
       message: '基准图片上传成功',
       data: {
-        projectId: projectId,
-        phaseName: phaseName,
+        projectId,
+        phaseName,
         uploadTime: baselineInfo.uploadTime,
         imagePath: baselineImagePath
       }
@@ -594,7 +594,7 @@ exports.getConstructionHistory = async (req, res) => {
 
     // 从数据库获取历史分析记录（需要实际实现）
     const historyData = {
-      projectId: projectId,
+      projectId,
       analyses: [
         // 模拟数据
         {
@@ -720,7 +720,7 @@ async function calculateUsedStorage() {
       }
     }
 
-    return (totalSize / (1024 * 1024 * 1024)).toFixed(2) + 'GB'; // 转换为GB
+    return `${(totalSize / (1024 * 1024 * 1024)).toFixed(2)  }GB`; // 转换为GB
   } catch (error) {
     console.error('计算存储空间失败:', error);
     return '未知';

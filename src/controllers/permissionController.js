@@ -82,7 +82,7 @@ async function createVillageAdminAuth(req, res) {
         fileName: req.file.originalname,
         fileUrl: `/uploads/${fileName}`,
         uploadDate: new Date(),
-        fileHash: fileHash,
+        fileHash,
         ocrVerified: false,
         ocrResult: {}
       };
@@ -504,7 +504,7 @@ async function changeAdminPermissions(req, res) {
         phone: req.body.targetPhone || '',
         email: req.body.targetEmail || '',
         role: req.body.targetRole || 'backup_admin',
-        permissions: permissions,
+        permissions,
         activatedAt: new Date(),
         expiresAt: req.body.expiresAt || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 默认30天
       });
@@ -541,16 +541,16 @@ function maskAuthData(authRecord, user) {
   if (!['super_admin', 'village_admin', 'department_head'].includes(user.role)) {
     // 脱敏身份证号
     if (masked.currentAdmin?.idCard) {
-      masked.currentAdmin.idCard = masked.currentAdmin.idCard.substring(0, 6) +
-        '********' +
-        masked.currentAdmin.idCard.substring(masked.currentAdmin.idCard.length - 4);
+      masked.currentAdmin.idCard = `${masked.currentAdmin.idCard.substring(0, 6) 
+      }********${ 
+        masked.currentAdmin.idCard.substring(masked.currentAdmin.idCard.length - 4)}`;
     }
 
     // 脱敏手机号
     if (masked.currentAdmin?.userPhone) {
-      masked.currentAdmin.userPhone = masked.currentAdmin.userPhone.substring(0, 3) +
-        '****' +
-        masked.currentAdmin.userPhone.substring(7);
+      masked.currentAdmin.userPhone = `${masked.currentAdmin.userPhone.substring(0, 3) 
+      }****${ 
+        masked.currentAdmin.userPhone.substring(7)}`;
     }
 
     // 移除敏感的安全设置
@@ -563,7 +563,7 @@ function maskAuthData(authRecord, user) {
     if (masked.backupAdmins) {
       masked.backupAdmins = masked.backupAdmins.map(ba => ({
         ...ba,
-        phone: ba.phone ? ba.phone.substring(0, 3) + '****' + ba.phone.substring(7) : '',
+        phone: ba.phone ? `${ba.phone.substring(0, 3)  }****${  ba.phone.substring(7)}` : '',
         email: ba.email ? ba.email.replace(/(.{2}).*(@.*)/, '$1***$2') : ''
       }));
     }

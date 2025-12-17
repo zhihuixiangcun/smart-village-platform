@@ -442,7 +442,7 @@ class PredictiveAnalysisService {
 
       predictions.push({
         date: format(addDays(new Date(), i + 1), 'yyyy-MM-dd'),
-        utilization: utilization,
+        utilization,
         prediction: utilization,
         confidence: 0.75 + Math.random() * 0.2
       });

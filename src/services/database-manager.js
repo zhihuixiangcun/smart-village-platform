@@ -185,7 +185,7 @@ class DatabaseMonitor {
       collection: query.model.collection.name,
       operation: query.op,
       filter: query.getFilter(),
-      duration: duration,
+      duration,
       timestamp: new Date().toISOString(),
       explain: null
     };
@@ -211,21 +211,21 @@ class DatabaseMonitor {
     this.metrics.operations.queries++;
 
     switch (operation) {
-      case 'insert':
-      case 'insertOne':
-      case 'insertMany':
-        this.metrics.operations.inserts++;
-        break;
-      case 'update':
-      case 'updateOne':
-      case 'updateMany':
-        this.metrics.operations.updates++;
-        break;
-      case 'delete':
-      case 'deleteOne':
-      case 'deleteMany':
-        this.metrics.operations.deletes++;
-        break;
+    case 'insert':
+    case 'insertOne':
+    case 'insertMany':
+      this.metrics.operations.inserts++;
+      break;
+    case 'update':
+    case 'updateOne':
+    case 'updateMany':
+      this.metrics.operations.updates++;
+      break;
+    case 'delete':
+    case 'deleteOne':
+    case 'deleteMany':
+      this.metrics.operations.deletes++;
+      break;
     }
 
     if (isError) {
@@ -317,7 +317,7 @@ class DatabaseMonitor {
         type: 'connection_pool',
         severity: 'warning',
         message: '连接池使用率过高，建议增加连接池大小',
-        recommendation: '将 maxPoolSize 增加到 ' + Math.ceil(metrics.connections.total * 1.5)
+        recommendation: `将 maxPoolSize 增加到 ${  Math.ceil(metrics.connections.total * 1.5)}`
       });
     }
 
@@ -547,7 +547,7 @@ class DatabaseBackup {
     const cipher = crypto.createCipher('aes-256-cbc', this.encryptionKey);
     const encrypted = Buffer.concat([cipher.update(inputFile), cipher.final()]);
 
-    const encryptedFilePath = filePath + '.enc';
+    const encryptedFilePath = `${filePath  }.enc`;
     await fs.writeFile(encryptedFilePath, encrypted);
 
     // 删除未加密的文件
@@ -760,15 +760,15 @@ class DatabaseManager {
 
       for (const suggestion of suggestions) {
         switch (suggestion.type) {
-          case 'slow_queries':
-            optimizations.push(await this.optimizeSlowQueries(suggestion));
-            break;
-          case 'connection_pool':
-            optimizations.push(this.optimizeConnectionPool(suggestion));
-            break;
-          case 'performance':
-            optimizations.push(await this.optimizePerformance(suggestion));
-            break;
+        case 'slow_queries':
+          optimizations.push(await this.optimizeSlowQueries(suggestion));
+          break;
+        case 'connection_pool':
+          optimizations.push(this.optimizeConnectionPool(suggestion));
+          break;
+        case 'performance':
+          optimizations.push(await this.optimizePerformance(suggestion));
+          break;
         }
       }
 

@@ -420,20 +420,20 @@ class BehaviorAnalyticsService {
       let predictionData = {};
 
       switch (predictionType) {
-        case 'engagement':
-          predictionData = await this.predictEngagement(villageId);
-          break;
-        case 'churn':
-          predictionData = await this.predictChurn(villageId);
-          break;
-        case 'feature_adoption':
-          predictionData = await this.predictFeatureAdoption(villageId);
-          break;
-        case 'service_demand':
-          predictionData = await this.predictServiceDemand(villageId);
-          break;
-        default:
-          predictionData = await this.predictEngagement(villageId);
+      case 'engagement':
+        predictionData = await this.predictEngagement(villageId);
+        break;
+      case 'churn':
+        predictionData = await this.predictChurn(villageId);
+        break;
+      case 'feature_adoption':
+        predictionData = await this.predictFeatureAdoption(villageId);
+        break;
+      case 'service_demand':
+        predictionData = await this.predictServiceDemand(villageId);
+        break;
+      default:
+        predictionData = await this.predictEngagement(villageId);
       }
 
       return {
@@ -471,7 +471,7 @@ class BehaviorAnalyticsService {
 
       predictions.push({
         date: format(futureDate, 'yyyy-MM-dd'),
-        predictedEngagement: predictedEngagement,
+        predictedEngagement,
         confidence: 0.8 + Math.random() * 0.15,
         factors: ['历史参与度', '季节性因素', '节假日影响']
       });

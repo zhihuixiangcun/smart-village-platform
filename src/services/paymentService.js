@@ -90,7 +90,7 @@ class PaymentService {
         spbill_create_ip: '127.0.0.1',
         notify_url: this.config.wechat.notifyUrl,
         trade_type: type === 'h5' ? 'MWEB' : 'NATIVE',
-        openid: openid,
+        openid,
         attach: JSON.stringify({
           userId,
           villageId,
@@ -414,7 +414,7 @@ class PaymentService {
    * 创建微信退款
    */
   async createWechatRefund(orderId, amount, reason) {
-    const refundId = 'RF' + orderId + Date.now();
+    const refundId = `RF${  orderId  }${Date.now()}`;
     const params = {
       appid: this.config.wechat.appId,
       mch_id: this.config.wechat.mchId,
@@ -455,7 +455,7 @@ class PaymentService {
    * 创建支付宝退款
    */
   async createAlipayRefund(orderId, amount, reason) {
-    const refundId = 'RF' + orderId + Date.now();
+    const refundId = `RF${  orderId  }${Date.now()}`;
     const params = {
       app_id: this.config.alipay.appId,
       method: 'alipay.trade.refund',
@@ -798,7 +798,7 @@ class PaymentService {
    */
   parseXmlToMap(xmlData) {
     const result = {};
-    let matches = xmlData.match(/<(\w+)><!\[CDATA\[(.*?)\]\]><\/\1>/g);
+    const matches = xmlData.match(/<(\w+)><!\[CDATA\[(.*?)\]\]><\/\1>/g);
 
     if (matches) {
       matches.forEach(match => {

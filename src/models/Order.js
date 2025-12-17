@@ -399,21 +399,21 @@ orderSchema.methods.updateStatus = function(status, operator, notes = '', attach
 
   // 更新时间戳
   switch (status) {
-    case 'paid':
-      this.paidAt = new Date();
-      break;
-    case 'shipped':
-      this.shippedAt = new Date();
-      break;
-    case 'delivered':
-      this.deliveredAt = new Date();
-      break;
-    case 'completed':
-      this.completedAt = new Date();
-      break;
-    case 'cancelled':
-      this.cancelledAt = new Date();
-      break;
+  case 'paid':
+    this.paidAt = new Date();
+    break;
+  case 'shipped':
+    this.shippedAt = new Date();
+    break;
+  case 'delivered':
+    this.deliveredAt = new Date();
+    break;
+  case 'completed':
+    this.completedAt = new Date();
+    break;
+  case 'cancelled':
+    this.cancelledAt = new Date();
+    break;
   }
 
   return this.save();

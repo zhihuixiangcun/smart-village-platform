@@ -74,9 +74,9 @@ class VillageFinanceService {
       // 创建权限记录
       const financeAccess = new VillageFinanceAccess({
         villager: {
-          userId: userId,
+          userId,
           userName: user.profile.displayName,
-          villageId: villageId
+          villageId
         },
         accessPermissions: permissions,
         grantedBy: {
@@ -476,17 +476,17 @@ class VillageFinanceService {
       // 生成报告
       let reportData;
       switch (reportType) {
-        case 'summary':
-          reportData = await this.generateSummaryReport(villageId, financeAccess, filters);
-          break;
-        case 'transaction':
-          reportData = await this.generateTransactionReport(villageId, financeAccess, filters);
-          break;
-        case 'budget':
-          reportData = await this.generateBudgetReport(villageId, financeAccess, filters);
-          break;
-        default:
-          throw new Error(`不支持的报告类型: ${reportType}`);
+      case 'summary':
+        reportData = await this.generateSummaryReport(villageId, financeAccess, filters);
+        break;
+      case 'transaction':
+        reportData = await this.generateTransactionReport(villageId, financeAccess, filters);
+        break;
+      case 'budget':
+        reportData = await this.generateBudgetReport(villageId, financeAccess, filters);
+        break;
+      default:
+        throw new Error(`不支持的报告类型: ${reportType}`);
       }
 
       // 生成报告文件
@@ -822,7 +822,7 @@ class VillageFinanceService {
 
     // 限制详细信息
     if (publicAccess.restrictions.includes('details_limited')) {
-      masked.transactionInfo.description = masked.transactionInfo.description?.substring(0, 50) + '...';
+      masked.transactionInfo.description = `${masked.transactionInfo.description?.substring(0, 50)  }...`;
     }
 
     return masked;
@@ -885,7 +885,7 @@ class VillageFinanceService {
           userRole: operationInfo.operator?.role || 'system'
         },
         target: {
-          userId: userId,
+          userId,
           userName: operationInfo.targetUserName || '村民',
           targetResource: 'finance_access'
         },
@@ -925,7 +925,7 @@ class VillageFinanceService {
           description: `村民财务问题${operation}`
         },
         actor: {
-          userId: userId,
+          userId,
           userName: questionInfo.userName || '村民',
           userRole: 'villager'
         },
@@ -960,7 +960,7 @@ class VillageFinanceService {
         questionId,
         villageId,
         category: questionData.category,
-        questionText: questionData.questionText.substring(0, 50) + '...'
+        questionText: `${questionData.questionText.substring(0, 50)  }...`
       });
 
     } catch (error) {

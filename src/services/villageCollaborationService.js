@@ -77,7 +77,7 @@ class VillageCollaborationService {
 
       return {
         success: true,
-        discussion: discussion,
+        discussion,
         message: '讨论创建成功'
       };
 
@@ -237,7 +237,7 @@ class VillageCollaborationService {
 
       return {
         success: true,
-        task: task,
+        task,
         message: '任务创建成功'
       };
 
@@ -324,9 +324,9 @@ class VillageCollaborationService {
 
       return {
         success: true,
-        task: task,
-        oldStatus: oldStatus,
-        newStatus: newStatus,
+        task,
+        oldStatus,
+        newStatus,
         message: '任务状态更新成功'
       };
 
@@ -403,7 +403,7 @@ class VillageCollaborationService {
       return {
         success: true,
         update: task.updates[task.updates.length - 1],
-        task: task,
+        task,
         message: '任务更新添加成功'
       };
 
@@ -432,17 +432,17 @@ class VillageCollaborationService {
       let sort = { createdAt: -1 };
       if (filters.sortBy) {
         switch (filters.sortBy) {
-          case 'popular':
-            sort = { 'statistics.viewCount': -1, 'statistics.replyCount': -1 };
-            break;
-          case 'recent':
-            sort = { 'metadata.lastRepliedAt': -1 };
-            break;
-          case 'pinned':
-            sort = { 'metadata.pinned': -1, createdAt: -1 };
-            break;
-          default:
-            sort = { createdAt: -1 };
+        case 'popular':
+          sort = { 'statistics.viewCount': -1, 'statistics.replyCount': -1 };
+          break;
+        case 'recent':
+          sort = { 'metadata.lastRepliedAt': -1 };
+          break;
+        case 'pinned':
+          sort = { 'metadata.pinned': -1, createdAt: -1 };
+          break;
+        default:
+          sort = { createdAt: -1 };
         }
       }
 
@@ -474,11 +474,11 @@ class VillageCollaborationService {
 
       return {
         success: true,
-        discussions: discussions,
+        discussions,
         pagination: {
-          page: page,
-          limit: limit,
-          total: total,
+          page,
+          limit,
+          total,
           totalPages: Math.ceil(total / limit)
         }
       };
@@ -508,17 +508,17 @@ class VillageCollaborationService {
       let sort = { createdAt: -1 };
       if (filters.sortBy) {
         switch (filters.sortBy) {
-          case 'priority':
-            sort = { priority: -1, 'schedule.endDate': 1 };
-            break;
-          case 'deadline':
-            sort = { 'schedule.endDate': 1 };
-            break;
-          case 'progress':
-            sort = { progress: -1 };
-            break;
-          default:
-            sort = { createdAt: -1 };
+        case 'priority':
+          sort = { priority: -1, 'schedule.endDate': 1 };
+          break;
+        case 'deadline':
+          sort = { 'schedule.endDate': 1 };
+          break;
+        case 'progress':
+          sort = { progress: -1 };
+          break;
+        default:
+          sort = { createdAt: -1 };
         }
       }
 
@@ -550,11 +550,11 @@ class VillageCollaborationService {
 
       return {
         success: true,
-        tasks: tasks,
+        tasks,
         pagination: {
-          page: page,
-          limit: limit,
-          total: total,
+          page,
+          limit,
+          total,
           totalPages: Math.ceil(total / limit)
         }
       };
@@ -629,7 +629,7 @@ class VillageCollaborationService {
       return {
         success: true,
         tasks: myTasks,
-        statistics: statistics
+        statistics
       };
 
     } catch (error) {
@@ -760,8 +760,8 @@ class VillageCollaborationService {
         data: {
           taskId: task._id,
           taskTitle: task.title,
-          oldStatus: oldStatus,
-          newStatus: newStatus,
+          oldStatus,
+          newStatus,
           updater: updater.userName
         }
       };
@@ -899,10 +899,10 @@ class VillageCollaborationService {
   logCollaborationAction(action, targetId, userId, details) {
     const logEntry = {
       timestamp: new Date(),
-      action: action,
-      targetId: targetId,
-      userId: userId,
-      details: details,
+      action,
+      targetId,
+      userId,
+      details,
       module: 'village_collaboration'
     };
 

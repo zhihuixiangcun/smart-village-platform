@@ -146,14 +146,14 @@ exports.planRoute = async (req, res) => {
     let result;
 
     switch (type) {
-      case 'driving':
-        result = await mapService.planDrivingRoute(origin, destination, waypoints, strategy);
-        break;
-      default:
-        return res.status(400).json({
-          success: false,
-          message: '不支持的路线规划类型'
-        });
+    case 'driving':
+      result = await mapService.planDrivingRoute(origin, destination, waypoints, strategy);
+      break;
+    default:
+      return res.status(400).json({
+        success: false,
+        message: '不支持的路线规划类型'
+      });
     }
 
     res.json({
@@ -524,7 +524,7 @@ exports.getResidentLocation = async (req, res) => {
       });
     }
 
-    let locationData = {
+    const locationData = {
       residentId: resident._id,
       name: resident.name,
       address: resident.address

@@ -174,7 +174,7 @@ class SystemMonitor {
       let totalTick = 0;
 
       cpus.forEach(cpu => {
-        for (let type in cpu.times) {
+        for (const type in cpu.times) {
           totalTick += cpu.times[type];
         }
         totalIdle += cpu.times.idle;
@@ -467,23 +467,23 @@ wss.on('connection', (ws, req) => {
       const data = JSON.parse(message);
 
       switch (data.type) {
-        case 'get_metrics':
-          ws.send(JSON.stringify({
-            type: 'metrics_response',
-            data: monitor.getMetrics()
-          }));
-          break;
+      case 'get_metrics':
+        ws.send(JSON.stringify({
+          type: 'metrics_response',
+          data: monitor.getMetrics()
+        }));
+        break;
 
-        case 'get_alerts':
-          const alerts = await monitor.getRecentAlerts(data.data?.seconds || 3600);
-          ws.send(JSON.stringify({
-            type: 'alerts_response',
-            data: alerts
-          }));
-          break;
+      case 'get_alerts':
+        const alerts = await monitor.getRecentAlerts(data.data?.seconds || 3600);
+        ws.send(JSON.stringify({
+          type: 'alerts_response',
+          data: alerts
+        }));
+        break;
 
-        default:
-          logger.warn('未知WebSocket消息类型:', data.type);
+      default:
+        logger.warn('未知WebSocket消息类型:', data.type);
       }
     } catch (error) {
       logger.error('处理WebSocket消息失败:', error);
@@ -517,7 +517,7 @@ app.get('/health', (req, res) => {
     services: {
       redis: redisClient.isOpen ? 'connected' : 'disconnected',
       database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
-      websocket: wss.clients.size + ' active connections'
+      websocket: `${wss.clients.size  } active connections`
     }
   };
 
@@ -605,7 +605,7 @@ const startMonitoringService = async () => {
 
     // 启动HTTP服务器
     server.listen(MONITORING_PORT, () => {
-      logger.info(`🚀 生产环境监控服务启动成功`);
+      logger.info('🚀 生产环境监控服务启动成功');
       logger.info(`🌐 监控服务地址: http://localhost:${MONITORING_PORT}`);
       logger.info(`📊 仪表板地址: http://localhost:${MONITORING_PORT}/monitoring`);
       logger.info(`📈 Prometheus指标: http://localhost:${MONITORING_PORT}/metrics`);
@@ -677,8 +677,8 @@ process.on('unhandledRejection', (reason, promise) => {
     type: 'promise_rejection',
     level: 'critical',
     message: '系统未处理的Promise拒绝',
-    reason: reason,
-    promise: promise,
+    reason,
+    promise,
     timestamp: Date.now()
   });
 });

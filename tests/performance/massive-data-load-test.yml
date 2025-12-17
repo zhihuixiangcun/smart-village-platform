@@ -1,0 +1,180 @@
+config:
+  target: 'http://localhost:3001'
+  phases:
+    # 预热阶段
+    - duration: 30
+      arrivalRate: 5
+      name: "Warm up"
+
+    # 正常负载测试
+    - duration: 120
+      arrivalRate: 20
+      name: "Normal load"
+
+    # 高负载测试
+    - duration: 120
+      arrivalRate: 50
+      name: "High load"
+
+    # 峰值负载测试
+    - duration: 60
+      arrivalRate: 100
+      name: "Peak load"
+
+    # 稳定阶段
+    - duration: 60
+      arrivalRate: 10
+      name: "Cool down"
+
+  processor: "./test-processor.js"
+  variables:
+    testVillageId: "65a1b2c3d4e5f6789012345"  # 测试村庄ID
+    authHeaders:
+      Authorization: "Bearer {{ authToken }}"
+
+scenarios:
+  # 基础分页查询测试
+  - name: "Pagination Performance Test"
+    weight: 30
+    flow:
+      - log: "开始分页查询测试"
+      - get:
+          url: "/api/v1/massive-data/residents"
+          headers:
+            "{{ authHeaders }}"
+          qs:
+            villageId: "{{ testVillageId }}"
+            pageSize: 50
+          capture:
+            - json: "$.data.length"
+              as: "resultCount"
+          expect:
+            - statusCode: 200
+            - hasProperty: "data"
+            - hasProperty: "pagination"
+      - log: "分页查询完成，返回 {{ resultCount }} 条记录"
+
+  # 大量数据分页测试
+  - name: "Large Dataset Pagination"
+    weight: 20
+    flow:
+      - get:
+          url: "/api/v1/massive-data/residents"
+          headers:
+            "{{ authHeaders }}"
+          qs:
+            villageId: "{{ testVillageId }}"
+            pageSize: 1000
+          capture:
+            - json: "$.data.length"
+              as: "largeResultCount"
+          expect:
+            - statusCode: 200
+            - hasProperty: "pagination.hasNextPage"
+      - log: "大数据集分页完成，返回 {{ largeResultCount }} 条记录"
+
+  # 复杂条件查询测试
+  - name: "Complex Query Performance"
+    weight: 15
+    flow:
+      - get:
+          url: "/api/v1/massive-data/residents"
+          headers:
+            "{{ authHeaders }}"
+          qs:
+            villageId: "{{ testVillageId }}"
+            gender: "male"
+            ageRange: "25,45"
+            search: "张"
+            pageSize: 100
+          capture:
+            - json: "$.data.length"
+              as: "filteredCount"
+          expect:
+            - statusCode: 200
+      - log: "复杂条件查询完成，返回 {{ filteredCount }} 条记录"
+
+  # 统计分析性能测试
+  - name: "Analytics Performance Test"
+    weight: 15
+    flow:
+      - get:
+          url: "/api/v1/massive-data/analytics/{{ testVillageId }}"
+          headers:
+            "{{ authHeaders }}"
+          capture:
+            - json: "$.data.basicStats.totalResidents"
+              as: "totalResidents"
+          expect:
+            - statusCode: 200
+            - hasProperty: "data.basicStats"
+            - hasProperty: "data.genderStats"
+      - log: "统计分析完成，总村民数: {{ totalResidents }}"
+
+  # 财务分析性能测试
+  - name: "Financial Analytics Test"
+    weight: 10
+    flow:
+      - get:
+          url: "/api/v1/massive-data/financial-analytics/{{ testVillageId }}"
+          headers:
+            "{{ authHeaders }}"
+          qs:
+            startDate: "2023-01-01"
+            endDate: "2024-01-01"
+          expect:
+            - statusCode: 200
+            - hasProperty: "data.monthlyTrends"
+      - log: "财务分析完成"
+
+  # 实时数据流测试
+  - name: "Real-time Data Stream Test"
+    weight: 5
+    flow:
+      - get:
+          url: "/api/v1/massive-data/realtime/{{ testVillageId }}"
+          headers:
+            "{{ authHeaders }}"
+          expect:
+            - statusCode: 200
+            - hasProperty: "data"
+      - log: "实时数据流获取完成"
+
+  # 地理空间分析测试
+  - name: "Geospatial Analytics Test"
+    weight: 5
+    flow:
+      - get:
+          url: "/api/v1/massive-data/geospatial/{{ testVillageId }}"
+          headers:
+            "{{ authHeaders }}"
+          qs:
+            southwest_lat: "39.900"
+            southwest_lng: "116.400"
+            northeast_lat: "39.920"
+            northeast_lng: "116.420"
+          expect:
+            - statusCode: 200
+            - hasProperty: "data.densityData"
+      - log: "地理空间分析完成"
+
+  # 批处理任务测试
+  - name: "Batch Processing Test"
+    weight: 3
+    flow:
+      - post:
+          url: "/api/v1/massive-data/batch-process"
+          headers:
+            "{{ authHeaders }}"
+            Content-Type: "application/json"
+          json:
+            taskType: "generate_qr_code"
+            villageId: "{{ testVillageId }}"
+            filters:
+              age: { $lt: 30 }
+            options:
+              batchSize: 1000
+          expect:
+            - statusCode: 200
+            - hasProperty: "taskId"
+      - log: "批处理任务已启动"

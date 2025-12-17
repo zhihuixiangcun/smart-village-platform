@@ -39,7 +39,7 @@ exports.getSecurityDashboard = async (req, res) => {
 
     const dashboard = {
       timestamp: new Date(),
-      userId: userId,
+      userId,
       overallSecurityScore: 0,
       modules: {
         compliance: complianceAssessment.success ? {
@@ -386,27 +386,27 @@ exports.detectFraud = async (req, res) => {
 
     let result;
     switch (eventType) {
-      case 'phone':
-        result = await antiFraudService.detectPhoneFraud(
-          data.phoneNumber,
-          data.content
-        );
-        break;
-      case 'sms':
-        result = await antiFraudService.detectSMSFraud(
-          data.content,
-          data.senderNumber,
-          data.links
-        );
-        break;
-      case 'website':
-        result = await antiFraudService.detectPhishingWebsite(
-          data.url,
-          data.content
-        );
-        break;
-      default:
-        throw new Error(`不支持的事件类型: ${eventType}`);
+    case 'phone':
+      result = await antiFraudService.detectPhoneFraud(
+        data.phoneNumber,
+        data.content
+      );
+      break;
+    case 'sms':
+      result = await antiFraudService.detectSMSFraud(
+        data.content,
+        data.senderNumber,
+        data.links
+      );
+      break;
+    case 'website':
+      result = await antiFraudService.detectPhishingWebsite(
+        data.url,
+        data.content
+      );
+      break;
+    default:
+      throw new Error(`不支持的事件类型: ${eventType}`);
     }
 
     // 记录诈骗检测日志
@@ -537,54 +537,54 @@ exports.managePrivacy = async (req, res) => {
     let result;
 
     switch (operation) {
-      case 'consent':
-        result = await privacyProtectionService.manageUserConsent(
-          userId || currentUserId,
-          consentData
-        );
-        break;
-      case 'checkConsent':
-        result = await privacyProtectionService.checkUserConsent(
-          userId || currentUserId,
-          consentData.consentType,
-          consentData.scope
-        );
-        break;
-      case 'revokeConsent':
-        result = await privacyProtectionService.revokeUserConsent(
-          userId || currentUserId,
-          consentData.consentId
-        );
-        break;
-      case 'maskData':
-        result = await privacyProtectionService.maskData(
-          consentData,
-          dataType,
-          maskingLevel
-        );
-        break;
-      case 'anonymizeData':
-        result = await privacyProtectionService.anonymizeData(
-          consentData,
-          maskingLevel
-        );
-        break;
-      case 'batchMaskData':
-        result = await privacyProtectionService.batchMaskData(
-          consentData.records,
-          dataType,
-          maskingLevel
-        );
-        break;
-      case 'checkAccess':
-        result = await privacyProtectionService.checkDataAccess(
-          userId || currentUserId,
-          dataType,
-          consentData.operation
-        );
-        break;
-      default:
-        throw new Error(`不支持的操作: ${operation}`);
+    case 'consent':
+      result = await privacyProtectionService.manageUserConsent(
+        userId || currentUserId,
+        consentData
+      );
+      break;
+    case 'checkConsent':
+      result = await privacyProtectionService.checkUserConsent(
+        userId || currentUserId,
+        consentData.consentType,
+        consentData.scope
+      );
+      break;
+    case 'revokeConsent':
+      result = await privacyProtectionService.revokeUserConsent(
+        userId || currentUserId,
+        consentData.consentId
+      );
+      break;
+    case 'maskData':
+      result = await privacyProtectionService.maskData(
+        consentData,
+        dataType,
+        maskingLevel
+      );
+      break;
+    case 'anonymizeData':
+      result = await privacyProtectionService.anonymizeData(
+        consentData,
+        maskingLevel
+      );
+      break;
+    case 'batchMaskData':
+      result = await privacyProtectionService.batchMaskData(
+        consentData.records,
+        dataType,
+        maskingLevel
+      );
+      break;
+    case 'checkAccess':
+      result = await privacyProtectionService.checkDataAccess(
+        userId || currentUserId,
+        dataType,
+        consentData.operation
+      );
+      break;
+    default:
+      throw new Error(`不支持的操作: ${operation}`);
     }
 
     // 记录隐私操作日志
@@ -593,7 +593,7 @@ exports.managePrivacy = async (req, res) => {
         userId: currentUserId,
         eventType: 'privacyManagement',
         dataType: dataType || 'GENERAL',
-        operation: operation,
+        operation,
         result: result.success ? 'success' : 'failed',
         metadata: {
           targetUserId: userId
@@ -691,55 +691,55 @@ exports.generateSecurityReport = async (req, res) => {
 
     // 生成综合报告
     switch (reportType) {
-      case 'comprehensive':
-        reportData = {
-          reportId: generateId(),
-          reportType: 'comprehensive_security_report',
-          generatedAt: new Date(),
-          generatedBy: req.user?.id || 'system',
-          protectionLevel: complianceReport.data?.protectionLevel || 'L2',
-          overallScore: complianceReport.data?.overallScore || 0,
-          sections: {
-            compliance: complianceReport.success ? complianceReport.data : null,
-            encryption: encryptionReport.success ? {
-              status: 'healthy',
-              algorithms: encryptionReport.data.testResults,
-              performance: encryptionReport.data.testResults.reduce((sum, item) => sum + item.avgTime, 0) / encryptionReport.data.testResults.length
-            } : { status: 'error' },
-            fraudPrevention: fraudReport.success ? {
-              status: 'active',
-              statistics: fraudReport.data.statistics,
-              trends: fraudReport.data.trends
-            } : { status: 'error' },
-            privacy: privacyReport.success ? {
-              status: 'active',
-              totalConsents: Object.keys(privacyProtectionService.userConsents).length,
-              recentAudits: privacyReport.length
-            } : { status: 'error' }
-          },
-          executiveSummary: generateExecutiveSummary(reportData),
-          recommendations: generateSecurityRecommendations(reportData)
-        };
-        break;
+    case 'comprehensive':
+      reportData = {
+        reportId: generateId(),
+        reportType: 'comprehensive_security_report',
+        generatedAt: new Date(),
+        generatedBy: req.user?.id || 'system',
+        protectionLevel: complianceReport.data?.protectionLevel || 'L2',
+        overallScore: complianceReport.data?.overallScore || 0,
+        sections: {
+          compliance: complianceReport.success ? complianceReport.data : null,
+          encryption: encryptionReport.success ? {
+            status: 'healthy',
+            algorithms: encryptionReport.data.testResults,
+            performance: encryptionReport.data.testResults.reduce((sum, item) => sum + item.avgTime, 0) / encryptionReport.data.testResults.length
+          } : { status: 'error' },
+          fraudPrevention: fraudReport.success ? {
+            status: 'active',
+            statistics: fraudReport.data.statistics,
+            trends: fraudReport.data.trends
+          } : { status: 'error' },
+          privacy: privacyReport.success ? {
+            status: 'active',
+            totalConsents: Object.keys(privacyProtectionService.userConsents).length,
+            recentAudits: privacyReport.length
+          } : { status: 'error' }
+        },
+        executiveSummary: generateExecutiveSummary(reportData),
+        recommendations: generateSecurityRecommendations(reportData)
+      };
+      break;
 
-      case 'compliance':
-        reportData = complianceReport;
-        break;
+    case 'compliance':
+      reportData = complianceReport;
+      break;
 
-      case 'encryption':
-        reportData = encryptionReport;
-        break;
+    case 'encryption':
+      reportData = encryptionReport;
+      break;
 
-      case 'fraud':
-        reportData = fraudReport;
-        break;
+    case 'fraud':
+      reportData = fraudReport;
+      break;
 
-      case 'privacy':
-        reportData = privacyReport;
-        break;
+    case 'privacy':
+      reportData = privacyReport;
+      break;
 
-      default:
-        throw new Error(`不支持的报告类型: ${reportType}`);
+    default:
+      throw new Error(`不支持的报告类型: ${reportType}`);
     }
 
     // 根据格式返回
@@ -840,22 +840,22 @@ exports.updateSecurityConfig = async (req, res) => {
 
     // 应用配置
     switch (module) {
-      case 'encryption':
-        // 更新加密配置
-        Object.assign(encryptionService.defaultConfig, config);
-        break;
-      case 'compliance':
-        // 更新合规配置
-        mlpsComplianceService.currentProtectionLevel = config.protectionLevel;
-        break;
-      case 'fraudDetection':
-        // 更新防诈骗配置
-        Object.assign(antiFraudService.riskThresholds, config.riskThresholds);
-        break;
-      case 'privacy':
-        // 更新隐私配置
-        Object.assign(privacyProtectionService.sensitivityLevels, config.dataClassification);
-        break;
+    case 'encryption':
+      // 更新加密配置
+      Object.assign(encryptionService.defaultConfig, config);
+      break;
+    case 'compliance':
+      // 更新合规配置
+      mlpsComplianceService.currentProtectionLevel = config.protectionLevel;
+      break;
+    case 'fraudDetection':
+      // 更新防诈骗配置
+      Object.assign(antiFraudService.riskThresholds, config.riskThresholds);
+      break;
+    case 'privacy':
+      // 更新隐私配置
+      Object.assign(privacyProtectionService.sensitivityLevels, config.dataClassification);
+      break;
     }
 
     // 记录配置更新日志
@@ -909,20 +909,20 @@ exports.securityIncidentResponse = async (req, res) => {
     // 根据事件类型执行响应
     let response;
     switch (incidentType) {
-      case 'dataBreach':
-        response = await handleDataBreach(incident);
-        break;
-      case 'securityBreach':
-        response = await handleSecurityBreach(incident);
-        break;
-      case 'fraudDetected':
-        response = await handleFraudDetected(incident);
-        break;
-      case 'complianceViolation':
-        response = await handleComplianceViolation(incident);
-        break;
-      default:
-        response = { action: 'logged', message: '事件已记录' };
+    case 'dataBreach':
+      response = await handleDataBreach(incident);
+      break;
+    case 'securityBreach':
+      response = await handleSecurityBreach(incident);
+      break;
+    case 'fraudDetected':
+      response = await handleFraudDetected(incident);
+      break;
+    case 'complianceViolation':
+      response = await handleComplianceViolation(incident);
+      break;
+    default:
+      response = { action: 'logged', message: '事件已记录' };
     }
 
     incident.status = response.action === 'resolved' ? 'resolved' : 'processing';
@@ -1188,7 +1188,7 @@ async function generatePDFReport(reportData, res) {
   // 这里应该使用PDF生成库，如puppeteer或jsPDF
   // 简化实现，返回JSON格式
   res.setHeader('Content-Type', 'application/json');
-  res.setHeader('Content-Disposition', `attachment; filename="security_report.json"`);
+  res.setHeader('Content-Disposition', 'attachment; filename="security_report.json"');
 
   return new Promise((resolve, reject) => {
     const stream = createWriteStream(reportPath);
@@ -1208,7 +1208,7 @@ async function generateExcelReport(reportData, res) {
   // 这里应该使用Excel生成库，如exceljs
   // 简化实现，返回JSON格式
   res.setHeader('Content-Type', 'application/json');
-  res.setHeader('Content-Disposition', `attachment; filename="security_report.json"`);
+  res.setHeader('Content-Disposition', 'attachment; filename="security_report.json"');
 
   return new Promise((resolve, reject) => {
     const fs = require('fs').promises;

@@ -467,12 +467,12 @@ exports.sendVillageNotification = async (req, res) => {
           results.push = await cloudCommunicationService.sendPushByJiguang(pushTokens, {
             alert: `${village.name}村务通知: ${title}`,
             android: {
-              title: title,
+              title,
               alert: content,
               priority: 1
             },
             ios: {
-              title: title,
+              title,
               body: content,
               badge: 1,
               sound: 'default'

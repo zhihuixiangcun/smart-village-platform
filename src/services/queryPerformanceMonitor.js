@@ -235,7 +235,7 @@ class QueryPerformanceMonitor extends EventEmitter {
    */
   analyzeQueryPattern(queryData) {
     const pattern = this.extractPattern(queryData);
-    const key = pattern.collection + ':' + pattern.operation;
+    const key = `${pattern.collection  }:${  pattern.operation}`;
 
     if (!this.queryPatterns.has(key)) {
       this.queryPatterns.set(key, {
@@ -301,7 +301,7 @@ class QueryPerformanceMonitor extends EventEmitter {
           if (key.startsWith('$')) {
             fields.push(prefix + key);
           } else {
-            extractFields(obj[key], prefix + key + '.');
+            extractFields(obj[key], `${prefix + key  }.`);
           }
         } else {
           fields.push(prefix + key);
@@ -650,11 +650,11 @@ class QueryPerformanceMonitor extends EventEmitter {
     const value = parseInt(range.slice(0, -1));
 
     switch (unit) {
-      case 's': return value * 1000;
-      case 'm': return value * 60 * 1000;
-      case 'h': return value * 60 * 60 * 1000;
-      case 'd': return value * 24 * 60 * 60 * 1000;
-      default: return 60 * 60 * 1000; // 默认1小时
+    case 's': return value * 1000;
+    case 'm': return value * 60 * 1000;
+    case 'h': return value * 60 * 60 * 1000;
+    case 'd': return value * 24 * 60 * 60 * 1000;
+    default: return 60 * 60 * 1000; // 默认1小时
     }
   }
 

@@ -53,39 +53,39 @@ exports.createOrder = async (req, res) => {
 
     // 根据支付类型创建订单
     switch (type) {
-      case 'wechat':
-        paymentResult = await paymentService.createWechatOrder({
-          orderId,
-          amount,
-          description,
-          userId,
-          villageId,
-          type: paymentMethod === 'h5' ? 'h5' : 'native',
-          openid,
-          businessType,
-          businessId
-        });
-        break;
+    case 'wechat':
+      paymentResult = await paymentService.createWechatOrder({
+        orderId,
+        amount,
+        description,
+        userId,
+        villageId,
+        type: paymentMethod === 'h5' ? 'h5' : 'native',
+        openid,
+        businessType,
+        businessId
+      });
+      break;
 
-      case 'alipay':
-        paymentResult = await paymentService.createAlipayOrder({
-          orderId,
-          amount,
-          description,
-          userId,
-          villageId,
-          businessType,
-          businessId,
-          returnUrl,
-          type: paymentMethod
-        });
-        break;
+    case 'alipay':
+      paymentResult = await paymentService.createAlipayOrder({
+        orderId,
+        amount,
+        description,
+        userId,
+        villageId,
+        businessType,
+        businessId,
+        returnUrl,
+        type: paymentMethod
+      });
+      break;
 
-      default:
-        return res.status(400).json({
-          success: false,
-          message: '不支持的支付类型'
-        });
+    default:
+      return res.status(400).json({
+        success: false,
+        message: '不支持的支付类型'
+      });
     }
 
     res.json({

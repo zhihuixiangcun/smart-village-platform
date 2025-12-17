@@ -200,20 +200,20 @@ exports.getRealTimeData = async (req, res) => {
         let data;
 
         switch (category) {
-          case 'population':
-            data = await dataAnalyticsService.getPopulationAnalytics(null, 'day');
-            break;
-          case 'financial':
-            data = await dataAnalyticsService.getFinancialAnalytics(null, 'day');
-            break;
-          case 'governance':
-            data = await dataAnalyticsService.getGovernanceAnalytics(null, 'day');
-            break;
-          case 'emergency':
-            data = await dataAnalyticsService.getEmergencyAnalytics(null, 'day');
-            break;
-          default:
-            data = await dataAnalyticsService.getDashboardData(null, { timeRange: 'day' });
+        case 'population':
+          data = await dataAnalyticsService.getPopulationAnalytics(null, 'day');
+          break;
+        case 'financial':
+          data = await dataAnalyticsService.getFinancialAnalytics(null, 'day');
+          break;
+        case 'governance':
+          data = await dataAnalyticsService.getGovernanceAnalytics(null, 'day');
+          break;
+        case 'emergency':
+          data = await dataAnalyticsService.getEmergencyAnalytics(null, 'day');
+          break;
+        default:
+          data = await dataAnalyticsService.getDashboardData(null, { timeRange: 'day' });
         }
 
         res.write(`data: ${JSON.stringify(data)}\n\n`);
@@ -297,21 +297,21 @@ exports.customReportQuery = async (req, res) => {
         if (timeRange) {
           const startDate = new Date();
           switch (timeRange) {
-            case 'day':
-              startDate.setDate(startDate.getDate() - 1);
-              break;
-            case 'week':
-              startDate.setDate(startDate.getDate() - 7);
-              break;
-            case 'month':
-              startDate.setMonth(startDate.getMonth() - 1);
-              break;
-            case 'quarter':
-              startDate.setMonth(startDate.getMonth() - 3);
-              break;
-            case 'year':
-              startDate.setFullYear(startDate.getFullYear() - 1);
-              break;
+          case 'day':
+            startDate.setDate(startDate.getDate() - 1);
+            break;
+          case 'week':
+            startDate.setDate(startDate.getDate() - 7);
+            break;
+          case 'month':
+            startDate.setMonth(startDate.getMonth() - 1);
+            break;
+          case 'quarter':
+            startDate.setMonth(startDate.getMonth() - 3);
+            break;
+          case 'year':
+            startDate.setFullYear(startDate.getFullYear() - 1);
+            break;
           }
 
           finalPipeline.push({

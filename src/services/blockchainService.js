@@ -43,17 +43,17 @@ class BlockchainService {
 
       let result;
       switch (config.blockchainType) {
-        case 'ethereum':
-          result = await this.uploadToEthereum(data, config);
-          break;
-        case 'hyperledger':
-          result = await this.uploadToHyperledger(data, config);
-          break;
-        case 'custom':
-          result = await this.uploadToCustomBlockchain(data, config);
-          break;
-        default:
-          throw new Error(`不支持的区块链类型: ${config.blockchainType}`);
+      case 'ethereum':
+        result = await this.uploadToEthereum(data, config);
+        break;
+      case 'hyperledger':
+        result = await this.uploadToHyperledger(data, config);
+        break;
+      case 'custom':
+        result = await this.uploadToCustomBlockchain(data, config);
+        break;
+      default:
+        throw new Error(`不支持的区块链类型: ${config.blockchainType}`);
       }
 
       return {
@@ -154,7 +154,7 @@ class BlockchainService {
       const dataHash = this.generateDataHash(data);
 
       const requestData = {
-        data: data,
+        data,
         hash: dataHash,
         metadata: config.metadata || {},
         timestamp: new Date().toISOString()
@@ -193,17 +193,17 @@ class BlockchainService {
       let blockchainData;
 
       switch (blockchainType) {
-        case 'ethereum':
-          blockchainData = await this.verifyEthereumTransaction(transactionHash);
-          break;
-        case 'hyperledger':
-          blockchainData = await this.verifyHyperledgerTransaction(transactionHash);
-          break;
-        case 'custom':
-          blockchainData = await this.verifyCustomTransaction(transactionHash);
-          break;
-        default:
-          throw new Error(`不支持的区块链类型: ${blockchainType}`);
+      case 'ethereum':
+        blockchainData = await this.verifyEthereumTransaction(transactionHash);
+        break;
+      case 'hyperledger':
+        blockchainData = await this.verifyHyperledgerTransaction(transactionHash);
+        break;
+      case 'custom':
+        blockchainData = await this.verifyCustomTransaction(transactionHash);
+        break;
+      default:
+        throw new Error(`不支持的区块链类型: ${blockchainType}`);
       }
 
       const isValid = blockchainData.storedHash === originalHash;

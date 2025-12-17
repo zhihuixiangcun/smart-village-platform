@@ -1,0 +1,162 @@
+<!-- 智慧村庄小程序首页 -->
+<view class="container {{largeMode ? 'large-mode' : ''}}">
+
+  <!-- 网络状态提示 -->
+  <view class="network-status {{hasNetwork ? 'online' : 'offline'}}" wx:if="{{!hasNetwork}}">
+    <text class="network-icon">📡</text>
+    <text class="network-text">网络连接已断开，部分功能可能无法使用</text>
+  </view>
+
+  <!-- 顶部用户信息 -->
+  <view class="header">
+    <view class="user-info" wx:if="{{userInfo}}">
+      <view class="avatar">
+        <image src="{{userInfo.avatar || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+      </view>
+      <view class="user-details">
+        <text class="username">{{userInfo.name}}</text>
+        <text class="user-role">{{userInfo.villageName || '智慧村庄'}}</text>
+      </view>
+      <view class="header-actions">
+        <button class="icon-btn" bindtap="onDialectChange">
+          <text class="icon">🗣️</text>
+        </button>
+        <button class="icon-btn" bindtap="onToggleLargeMode">
+          <text class="icon">{{largeMode ? '🔍' : '👁️'}}</text>
+        </button>
+      </view>
+    </view>
+    <view class="login-prompt" wx:else>
+      <text>登录享受更多便民服务</text>
+      <button class="login-btn" bindtap="showLoginModal">立即登录</button>
+    </view>
+  </view>
+
+  <!-- 村庄信息卡片 -->
+  <view class="village-card card" wx:if="{{villageInfo}}">
+    <view class="card-header">
+      <text class="card-title">🏘️ {{villageInfo.name}}</text>
+      <text class="card-subtitle">{{villageInfo.code}}</text>
+    </view>
+    <view class="card-content">
+      <view class="village-stats">
+        <view class="stat-item">
+          <text class="stat-number">{{villageInfo.householdCount || 0}}</text>
+          <text class="stat-label">户</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-number">{{villageInfo.populationCount || 0}}</text>
+          <text class="stat-label">人</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-number">{{villageInfo.serviceCount || 0}}</text>
+          <text class="stat-label">项服务</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 快捷操作 -->
+  <view class="quick-actions">
+    <view class="section-title">
+      <text>快捷操作</text>
+      <text class="network-indicator {{networkStatus}}">{{networkStatus === 'online' ? '在线' : '离线'}}</text>
+    </view>
+    <view class="action-grid">
+      <view class="action-item"
+            wx:for="{{quickActions}}"
+            wx:key="name"
+            bindtap="onQuickActionTap"
+            data-action="{{item}}">
+        <view class="action-icon" style="background-color: {{item.color}}20; color: {{item.color}}">
+          <text class="icon-{{item.icon}}"></text>
+        </view>
+        <text class="action-name">{{item.name}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 重要公告 -->
+  <view class="announcements-section">
+    <view class="section-header">
+      <text class="section-title">重要公告</text>
+      <text class="view-more" bindtap="onViewMoreAnnouncements">查看更多 →</text>
+    </view>
+    <view class="announcements-list" wx:if="{{announcements.length > 0}}">
+      <view class="announcement-item card"
+            wx:for="{{announcements}}"
+            wx:key="id"
+            bindtap="onAnnouncementTap"
+            data-announcement="{{item}}">
+        <view class="announcement-content">
+          <view class="announcement-header">
+            <text class="announcement-title">{{item.title}}</text>
+            <view class="announcement-actions">
+              <button class="voice-btn"
+                      bindtap="onVoiceAnnouncement"
+                      data-announcement="{{item}}"
+                      catchtap="onVoiceAnnouncement">
+                🔊
+              </button>
+            </view>
+          </view>
+          <text class="announcement-desc">{{item.content}}</text>
+          <view class="announcement-meta">
+            <text class="announcement-time">{{item.publishTime}}</text>
+            <view class="announcement-tag {{item.priority}}">
+              <text>{{item.priority === 'urgent' ? '紧急' : item.priority === 'important' ? '重要' : '一般'}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="empty-state" wx:else>
+      <text class="empty-icon">📢</text>
+      <text class="empty-text">暂无公告</text>
+    </view>
+  </view>
+
+  <!-- 便民服务 -->
+  <view class="services-section">
+    <view class="section-header">
+      <text class="section-title">便民服务</text>
+      <text class="view-more" bindtap="onViewMoreServices">查看更多 →</text>
+    </view>
+    <view class="services-grid" wx:if="{{services.length > 0}}">
+      <view class="service-item"
+            wx:for="{{services}}"
+            wx:key="id"
+            bindtap="onServiceTap"
+            data-service="{{item}}">
+        <view class="service-icon">
+          <image src="{{item.icon || '/images/service-default.png'}}" mode="aspectFit"></image>
+        </view>
+        <text class="service-name">{{item.name}}</text>
+        <text class="service-desc">{{item.description}}</text>
+      </view>
+    </view>
+    <view class="empty-state" wx:else>
+      <text class="empty-icon">🛠️</text>
+      <text class="empty-text">暂无服务</text>
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 刷新状态 -->
+  <view class="refreshing-container" wx:if="{{refreshing}}">
+    <text class="refreshing-text">正在刷新...</text>
+  </view>
+
+</view>
+
+<!-- 悬浮按钮 -->
+<view class="floating-actions">
+  <button class="floating-btn" bindtap="onNetworkSettings">
+    ⚙️
+  </button>
+</view>

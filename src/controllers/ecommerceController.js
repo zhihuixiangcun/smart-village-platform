@@ -347,7 +347,7 @@ exports.getOrders = async (req, res) => {
 
     const filters = {
       buyerId: buyerId || (req.user.role === 'user' ? req.user.id : undefined),
-      sellerId: sellerId,
+      sellerId,
       status,
       type,
       startDate,

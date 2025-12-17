@@ -203,7 +203,7 @@ class AIChatService {
         ...context,
         queryId,
         timestamp: new Date(),
-        query: query
+        query
       };
 
       // 意图识别
@@ -212,37 +212,37 @@ class AIChatService {
 
       // 实体提取
       const entities = await this.nlpModel.entityExtraction(query);
-      console.log(`🔍 提取实体:`, entities);
+      console.log('🔍 提取实体:', entities);
 
       // 根据意图处理查询
       let response;
       switch (intent) {
-        case '种植咨询':
-          response = await this.handlePlantingQuery(query, entities, fullContext);
-          break;
-        case '病虫害防治':
-          response = await this.handlePestDiseaseQuery(query, entities, fullContext);
-          break;
-        case '施肥建议':
-          response = await this.handleFertilizerQuery(query, entities, fullContext);
-          break;
-        case '灌溉管理':
-          response = await this.handleIrrigationQuery(query, entities, fullContext);
-          break;
-        case '收获存储':
-          response = await this.handleHarvestQuery(query, entities, fullContext);
-          break;
-        case '政策咨询':
-          response = await this.handlePolicyQuery(query, entities, fullContext);
-          break;
-        case '市场价格':
-          response = await this.handleMarketQuery(query, entities, fullContext);
-          break;
-        case '天气预报':
-          response = await this.handleWeatherQuery(query, entities, fullContext);
-          break;
-        default:
-          response = await this.handleGeneralQuery(query, entities, fullContext);
+      case '种植咨询':
+        response = await this.handlePlantingQuery(query, entities, fullContext);
+        break;
+      case '病虫害防治':
+        response = await this.handlePestDiseaseQuery(query, entities, fullContext);
+        break;
+      case '施肥建议':
+        response = await this.handleFertilizerQuery(query, entities, fullContext);
+        break;
+      case '灌溉管理':
+        response = await this.handleIrrigationQuery(query, entities, fullContext);
+        break;
+      case '收获存储':
+        response = await this.handleHarvestQuery(query, entities, fullContext);
+        break;
+      case '政策咨询':
+        response = await this.handlePolicyQuery(query, entities, fullContext);
+        break;
+      case '市场价格':
+        response = await this.handleMarketQuery(query, entities, fullContext);
+        break;
+      case '天气预报':
+        response = await this.handleWeatherQuery(query, entities, fullContext);
+        break;
+      default:
+        response = await this.handleGeneralQuery(query, entities, fullContext);
       }
 
       // 缓存上下文
@@ -250,10 +250,10 @@ class AIChatService {
 
       return {
         success: true,
-        queryId: queryId,
-        intent: intent,
-        entities: entities,
-        response: response,
+        queryId,
+        intent,
+        entities,
+        response,
         timestamp: new Date()
       };
 
@@ -721,7 +721,7 @@ class AIChatService {
         response.content = bestMatch.answer.mainAnswer;
 
         if (bestMatch.answer.detailedExplanation) {
-          response.content += '\n\n' + bestMatch.answer.detailedExplanation;
+          response.content += `\n\n${  bestMatch.answer.detailedExplanation}`;
         }
 
         response.relatedInfo = qaMatches.slice(1, 3).map(qa => ({
@@ -797,9 +797,9 @@ class PolicyCalculator {
     const { crop, area, region } = params;
 
     const calculation = {
-      crop: crop,
-      area: area,
-      region: region,
+      crop,
+      area,
+      region,
       subsidies: [],
       totalAmount: 0,
       explanation: ''
@@ -825,7 +825,7 @@ class PolicyCalculator {
             calculation.subsidies.push({
               policyTitle: policy.title,
               benefitType: benefit.type,
-              amount: amount,
+              amount,
               unit: benefit.amount.unit,
               calculation: benefit.amount.calculation
             });
@@ -905,7 +905,7 @@ class AIFormAssistant {
     }
 
     const filledForm = {
-      formType: formType,
+      formType,
       fields: [],
       completeness: 0
     };
@@ -939,16 +939,16 @@ class AIFormAssistant {
 
   validateField(field) {
     switch (field.type) {
-      case 'text':
-        return field.value.length > 0;
-      case 'number':
-        return !isNaN(parseFloat(field.value));
-      case 'select':
-        return field.value !== '';
-      case 'date':
-        return !isNaN(Date.parse(field.value));
-      default:
-        return field.value.length > 0;
+    case 'text':
+      return field.value.length > 0;
+    case 'number':
+      return !isNaN(parseFloat(field.value));
+    case 'select':
+      return field.value !== '';
+    case 'date':
+      return !isNaN(Date.parse(field.value));
+    default:
+      return field.value.length > 0;
     }
   }
 

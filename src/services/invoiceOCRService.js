@@ -82,20 +82,20 @@ class InvoiceOCRService {
       // 执行OCR识别
       let ocrResult;
       switch (engine) {
-        case 'baidu':
-          ocrResult = await this.recognizeWithBaidu(imagePath, options);
-          break;
-        case 'tencent':
-          ocrResult = await this.recognizeWithTencent(imagePath, options);
-          break;
-        case 'alibaba':
-          ocrResult = await this.recognizeWithAlibaba(imagePath, options);
-          break;
-        case 'tesseract':
-          ocrResult = await this.recognizeWithTesseract(imagePath, options);
-          break;
-        default:
-          throw new Error(`OCR引擎 ${engine} 尚未实现`);
+      case 'baidu':
+        ocrResult = await this.recognizeWithBaidu(imagePath, options);
+        break;
+      case 'tencent':
+        ocrResult = await this.recognizeWithTencent(imagePath, options);
+        break;
+      case 'alibaba':
+        ocrResult = await this.recognizeWithAlibaba(imagePath, options);
+        break;
+      case 'tesseract':
+        ocrResult = await this.recognizeWithTesseract(imagePath, options);
+        break;
+      default:
+        throw new Error(`OCR引擎 ${engine} 尚未实现`);
       }
 
       const processingTime = Date.now() - startTime;
@@ -113,7 +113,7 @@ class InvoiceOCRService {
           confidence,
           extractedText: ocrResult.fullText || '',
           extractedFields: ocrResult.fields || [],
-          engine: engine,
+          engine,
           processingTime
         },
         imageInfo: {

@@ -529,23 +529,23 @@ class DataAnalyticsService {
     let data;
 
     switch (reportType) {
-      case 'population':
-        data = await this.getPopulationAnalytics(villageId, filters.timeRange);
-        break;
-      case 'financial':
-        data = await this.getFinancialAnalytics(villageId, filters.timeRange);
-        break;
-      case 'governance':
-        data = await this.getGovernanceAnalytics(villageId, filters.timeRange);
-        break;
-      case 'emergency':
-        data = await this.getEmergencyAnalytics(villageId, filters.timeRange);
-        break;
-      case 'dashboard':
-        data = await this.getDashboardData(villageId, filters);
-        break;
-      default:
-        throw new Error('不支持的报表类型');
+    case 'population':
+      data = await this.getPopulationAnalytics(villageId, filters.timeRange);
+      break;
+    case 'financial':
+      data = await this.getFinancialAnalytics(villageId, filters.timeRange);
+      break;
+    case 'governance':
+      data = await this.getGovernanceAnalytics(villageId, filters.timeRange);
+      break;
+    case 'emergency':
+      data = await this.getEmergencyAnalytics(villageId, filters.timeRange);
+      break;
+    case 'dashboard':
+      data = await this.getDashboardData(villageId, filters);
+      break;
+    default:
+      throw new Error('不支持的报表类型');
     }
 
     if (format === 'csv') {

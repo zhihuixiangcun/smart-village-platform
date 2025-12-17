@@ -406,35 +406,35 @@ class WebApplicationFirewall {
 
     // 根据模式决定
     switch (this.config.mode) {
-      case 'monitoring':
-        // 监控模式：只记录，不阻止
-        decision.action = 'allow';
-        if (analysis.riskScore > 0) {
-          decision.reason = '风险评分较高（监控模式）';
-        }
-        break;
+    case 'monitoring':
+      // 监控模式：只记录，不阻止
+      decision.action = 'allow';
+      if (analysis.riskScore > 0) {
+        decision.reason = '风险评分较高（监控模式）';
+      }
+      break;
 
-      case 'blocking':
-        // 阻止模式：根据风险评分决定
-        if (analysis.riskScore >= 30) {
-          decision.action = 'block';
-          decision.reason = '风险评分过高';
-          decision.blockedBy.push('risk_threshold');
-        } else if (analysis.riskScore >= 20) {
-          decision.action = 'challenge';
-          decision.reason = '需要验证';
-          decision.blockedBy.push('challenge_required');
-        }
-        break;
+    case 'blocking':
+      // 阻止模式：根据风险评分决定
+      if (analysis.riskScore >= 30) {
+        decision.action = 'block';
+        decision.reason = '风险评分过高';
+        decision.blockedBy.push('risk_threshold');
+      } else if (analysis.riskScore >= 20) {
+        decision.action = 'challenge';
+        decision.reason = '需要验证';
+        decision.blockedBy.push('challenge_required');
+      }
+      break;
 
-      case 'learning':
-        // 学习模式：记录所有异常，但只阻止严重威胁
-        if (analysis.riskScore >= 40) {
-          decision.action = 'block';
-          decision.reason = '严重威胁（学习模式）';
-          decision.blockedBy.push('critical_threat');
-        }
-        break;
+    case 'learning':
+      // 学习模式：记录所有异常，但只阻止严重威胁
+      if (analysis.riskScore >= 40) {
+        decision.action = 'block';
+        decision.reason = '严重威胁（学习模式）';
+        decision.blockedBy.push('critical_threat');
+      }
+      break;
     }
 
     return decision;
@@ -481,7 +481,7 @@ class WebApplicationFirewall {
 
     // 内容安全策略
     res.setHeader('Content-Security-Policy',
-      "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'");
+      'default-src \'self\'; script-src \'self\' \'unsafe-inline\'; style-src \'self\' \'unsafe-inline\'');
 
     // 引用者策略
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
@@ -545,7 +545,7 @@ class WebApplicationFirewall {
    */
   triggerAlert(event) {
     // 这里应该集成告警系统
-    console.log(`[WAF ALERT] High severity event detected:`, {
+    console.log('[WAF ALERT] High severity event detected:', {
       ip: event.ip,
       url: event.url,
       score: event.riskScore,
@@ -758,7 +758,7 @@ class WebApplicationFirewall {
     const ipCounts = {};
 
     events.filter(e => e.decision === 'block')
-          .forEach(event => {
+      .forEach(event => {
         ipCounts[event.ip] = (ipCounts[event.ip] || 0) + 1;
       });
 
@@ -835,11 +835,11 @@ class WebApplicationFirewall {
     const value = parseInt(range.slice(0, -1));
 
     switch (unit) {
-      case 'h': return value * 60 * 60 * 1000;
-      case 'd': return value * 24 * 60 * 60 * 1000;
-      case 'w': return value * 7 * 24 * 60 * 60 * 1000;
-      case 'm': return value * 30 * 24 * 60 * 60 * 1000;
-      default: return 24 * 60 * 60 * 1000; // 默认24小时
+    case 'h': return value * 60 * 60 * 1000;
+    case 'd': return value * 24 * 60 * 60 * 1000;
+    case 'w': return value * 7 * 24 * 60 * 60 * 1000;
+    case 'm': return value * 30 * 24 * 60 * 60 * 1000;
+    default: return 24 * 60 * 60 * 1000; // 默认24小时
     }
   }
 
@@ -1055,18 +1055,18 @@ class RuleEngine {
    */
   getContent(analysis, target) {
     switch (target) {
-      case 'query':
-        return new URLSearchParams(analysis.url).toString();
-      case 'body':
-        return analysis.body ? JSON.stringify(analysis.body) : '';
-      case 'headers':
-        return JSON.stringify(analysis.headers);
-      case 'url':
-        return analysis.url;
-      case 'userAgent':
-        return analysis.userAgent;
-      default:
-        return '';
+    case 'query':
+      return new URLSearchParams(analysis.url).toString();
+    case 'body':
+      return analysis.body ? JSON.stringify(analysis.body) : '';
+    case 'headers':
+      return JSON.stringify(analysis.headers);
+    case 'url':
+      return analysis.url;
+    case 'userAgent':
+      return analysis.userAgent;
+    default:
+      return '';
     }
   }
 

@@ -114,7 +114,7 @@ class EfficiencyEvaluationService {
     return {
       metric: 'responsiveness',
       name: '响应时效性',
-      score: score,
+      score,
       grade: this.getScoreGrade(score),
       details: responseTimeData,
       trend: Math.random() > 0.5 ? 'improving' : 'stable',
@@ -146,7 +146,7 @@ class EfficiencyEvaluationService {
     return {
       metric: 'processing',
       name: '处理效率',
-      score: score,
+      score,
       grade: this.getScoreGrade(score),
       details: processingData,
       trend: Math.random() > 0.5 ? 'improving' : 'stable',
@@ -178,7 +178,7 @@ class EfficiencyEvaluationService {
     return {
       metric: 'quality',
       name: '服务质量',
-      score: score,
+      score,
       grade: this.getScoreGrade(score),
       details: qualityData,
       trend: Math.random() > 0.5 ? 'improving' : 'stable',
@@ -219,7 +219,7 @@ class EfficiencyEvaluationService {
     return {
       metric: 'satisfaction',
       name: '用户满意度',
-      score: score,
+      score,
       grade: this.getScoreGrade(score),
       details: satisfactionData,
       trend: Math.random() > 0.5 ? 'improving' : 'stable',
@@ -246,7 +246,7 @@ class EfficiencyEvaluationService {
     return {
       metric: 'throughput',
       name: '处理吞吐量',
-      score: score,
+      score,
       grade: this.getScoreGrade(score),
       details: throughputData,
       trend: throughputData.throughputTrend,
@@ -283,7 +283,7 @@ class EfficiencyEvaluationService {
     return {
       metric: 'cost',
       name: '成本效益',
-      score: score,
+      score,
       grade: this.getScoreGrade(score),
       details: costData,
       trend: Math.random() > 0.5 ? 'improving' : 'stable',
@@ -315,7 +315,7 @@ class EfficiencyEvaluationService {
     return {
       metric: 'compliance',
       name: '流程合规性',
-      score: score,
+      score,
       grade: this.getScoreGrade(score),
       details: complianceData,
       trend: Math.random() > 0.5 ? 'improving' : 'stable',
@@ -342,7 +342,7 @@ class EfficiencyEvaluationService {
     return {
       metric: 'innovation',
       name: '创新性',
-      score: score,
+      score,
       grade: this.getScoreGrade(score),
       details: innovationData,
       trend: Math.random() > 0.5 ? 'improving' : 'stable',
@@ -664,7 +664,7 @@ class EfficiencyEvaluationService {
     for (const [metric, evaluation] of Object.entries(evaluations)) {
       if (evaluation.score < evaluation.target) {
         areas.push({
-          metric: metric,
+          metric,
           name: evaluation.name,
           currentScore: evaluation.score,
           targetScore: evaluation.target,

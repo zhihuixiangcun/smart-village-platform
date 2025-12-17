@@ -289,17 +289,17 @@ class EcommerceService {
       let paymentResult;
 
       switch (paymentMethod) {
-        case 'wechat':
-          paymentResult = await this.processWechatPayment(order, paymentData);
-          break;
-        case 'alipay':
-          paymentResult = await this.processAlipayPayment(order, paymentData);
-          break;
-        case 'cash':
-          paymentResult = await this.processCashPayment(order, paymentData);
-          break;
-        default:
-          throw new Error('不支持的支付方式');
+      case 'wechat':
+        paymentResult = await this.processWechatPayment(order, paymentData);
+        break;
+      case 'alipay':
+        paymentResult = await this.processAlipayPayment(order, paymentData);
+        break;
+      case 'cash':
+        paymentResult = await this.processCashPayment(order, paymentData);
+        break;
+      default:
+        throw new Error('不支持的支付方式');
       }
 
       // 更新订单支付状态
@@ -715,14 +715,14 @@ class EcommerceService {
       const products = [];
 
       switch (platform) {
-        case 'taobao':
-          products.push(...await this.syncTaobaoProducts(category));
-          break;
-        case 'jd':
-          products.push(...await this.syncJDProducts(category));
-          break;
-        default:
-          throw new Error('不支持的平台');
+      case 'taobao':
+        products.push(...await this.syncTaobaoProducts(category));
+        break;
+      case 'jd':
+        products.push(...await this.syncJDProducts(category));
+        break;
+      default:
+        throw new Error('不支持的平台');
       }
 
       return {
@@ -860,7 +860,7 @@ class EcommerceService {
    */
   generateAlipaySign(params) {
     const keys = Object.keys(params).sort();
-    let string = keys.map(key => `${key}=${params[key]}`).join('&');
+    const string = keys.map(key => `${key}=${params[key]}`).join('&');
     return crypto.createSign('RSA-SHA256')
       .update(string)
       .sign(this.config.payment.alipay.privateKey, 'base64');
@@ -872,7 +872,7 @@ class EcommerceService {
   generateTaobaoSign(params) {
     const secret = this.config.platforms.taobao.appSecret;
     const keys = Object.keys(params).sort();
-    let string = secret + keys.map(key => `${key}${params[key]}`).join('') + secret;
+    const string = secret + keys.map(key => `${key}${params[key]}`).join('') + secret;
     return crypto.createHash('md5').update(string).digest('hex').toUpperCase();
   }
 
@@ -882,7 +882,7 @@ class EcommerceService {
   generateJDSign(params) {
     const secret = this.config.platforms.jd.appSecret;
     const keys = Object.keys(params).sort();
-    let string = keys.map(key => `${key}${params[key]}`).join('') + secret;
+    const string = keys.map(key => `${key}${params[key]}`).join('') + secret;
     return crypto.createHash('md5').update(string).digest('hex').toUpperCase();
   }
 

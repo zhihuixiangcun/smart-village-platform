@@ -612,13 +612,13 @@ VillageDiscussionSchema.statics.getHotDiscussions = function(villageId, limit = 
     status: 'active',
     createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } // 最近7天
   })
-  .sort({
-    'statistics.viewCount': -1,
-    'statistics.replyCount': -1,
-    'statistics.likeCount': -1
-  })
-  .limit(limit)
-  .populate('initiator.userId', 'userName avatar');
+    .sort({
+      'statistics.viewCount': -1,
+      'statistics.replyCount': -1,
+      'statistics.likeCount': -1
+    })
+    .limit(limit)
+    .populate('initiator.userId', 'userName avatar');
 };
 
 // 静态方法 - 获取待处理任务

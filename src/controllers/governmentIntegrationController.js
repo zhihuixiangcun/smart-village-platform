@@ -389,7 +389,7 @@ exports.getSyncHistory = async (req, res) => {
       success: true,
       data: {
         history,
-        total: total,
+        total,
         limit: parseInt(limit),
         offset: parseInt(offset)
       },

@@ -499,27 +499,27 @@ residentSchema.statics.findSpecialGroups = function(villageId, groupType) {
   const query = { villageId, status: 'active' };
 
   switch (groupType) {
-    case 'elderly':
-      query.birthDate = { $lte: new Date(`${new Date().getFullYear() - 60}-01-01`) };
-      break;
-    case 'disabled':
-      query['health.disabilities.0'] = { $exists: true };
-      break;
-    case 'poverty':
-      query['poverty.isPovertyHousehold'] = true;
-      break;
-    case 'party_member':
-      query['villageParticipation.partyMember'] = true;
-      break;
-    case 'migrant_worker':
-      query['migrantWork.isMigrantWorker'] = true;
-      break;
-    case 'left_behind_children':
-      query.birthDate = { $gte: new Date(`${new Date().getFullYear() - 18}-01-01`) };
-      query['migrantWork.isMigrantWorker'] = true;
-      break;
-    default:
-      query['specialIdentities.type'] = groupType;
+  case 'elderly':
+    query.birthDate = { $lte: new Date(`${new Date().getFullYear() - 60}-01-01`) };
+    break;
+  case 'disabled':
+    query['health.disabilities.0'] = { $exists: true };
+    break;
+  case 'poverty':
+    query['poverty.isPovertyHousehold'] = true;
+    break;
+  case 'party_member':
+    query['villageParticipation.partyMember'] = true;
+    break;
+  case 'migrant_worker':
+    query['migrantWork.isMigrantWorker'] = true;
+    break;
+  case 'left_behind_children':
+    query.birthDate = { $gte: new Date(`${new Date().getFullYear() - 18}-01-01`) };
+    query['migrantWork.isMigrantWorker'] = true;
+    break;
+  default:
+    query['specialIdentities.type'] = groupType;
   }
 
   return this.find(query).sort({ name: 1 });
@@ -592,7 +592,7 @@ residentSchema.statics.searchResidents = function(villageId, keyword, options = 
       { name: { $regex: keyword, $options: 'i' } },
       { idCard: { $regex: keyword, $options: 'i' } },
       { phone: { $regex: keyword, $options: 'i' } },
-      { address.detailAddress: { $regex: keyword, $options: 'i' } }
+      { 'address.detailAddress': { $regex: keyword, $options: 'i' } }
     ]
   };
 

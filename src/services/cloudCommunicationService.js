@@ -259,7 +259,7 @@ class CloudCommunicationService {
         }
       };
 
-      const auth = 'Basic ' + Buffer.from(appKey + ':' + masterSecret).toString('base64');
+      const auth = `Basic ${  Buffer.from(`${appKey  }:${  masterSecret}`).toString('base64')}`;
 
       const response = await axios.post('https://api.jpush.cn/v3/push', payload, {
         headers: {
@@ -301,20 +301,20 @@ class CloudCommunicationService {
       let result;
 
       switch (type) {
-        case 'sms':
-          result = await this.sendSMSMessage(provider, recipients, template, content);
-          break;
-        case 'voice':
-          result = await this.sendVoiceMessage(provider, recipients, template, content);
-          break;
-        case 'email':
-          result = await this.sendEmailMessage(recipients, content);
-          break;
-        case 'push':
-          result = await this.pushNotification(provider, recipients, content);
-          break;
-        default:
-          throw new Error(`不支持的消息类型: ${type}`);
+      case 'sms':
+        result = await this.sendSMSMessage(provider, recipients, template, content);
+        break;
+      case 'voice':
+        result = await this.sendVoiceMessage(provider, recipients, template, content);
+        break;
+      case 'email':
+        result = await this.sendEmailMessage(recipients, content);
+        break;
+      case 'push':
+        result = await this.pushNotification(provider, recipients, content);
+        break;
+      default:
+        throw new Error(`不支持的消息类型: ${type}`);
       }
 
       // 记录发送日志
@@ -333,14 +333,14 @@ class CloudCommunicationService {
    */
   async sendSMSMessage(provider, recipients, template, content) {
     switch (provider) {
-      case 'aliyun':
-        return await this.sendSMSByAliyun(recipients, template.code, template.params);
-      case 'tencent':
-        return await this.sendSMSByTencent(recipients, template.id, template.params);
-      case 'huawei':
-        return await this.sendSMSByHuawei(recipients, template);
-      default:
-        throw new Error(`不支持的短信服务商: ${provider}`);
+    case 'aliyun':
+      return await this.sendSMSByAliyun(recipients, template.code, template.params);
+    case 'tencent':
+      return await this.sendSMSByTencent(recipients, template.id, template.params);
+    case 'huawei':
+      return await this.sendSMSByHuawei(recipients, template);
+    default:
+      throw new Error(`不支持的短信服务商: ${provider}`);
     }
   }
 
@@ -349,10 +349,10 @@ class CloudCommunicationService {
    */
   async sendVoiceMessage(provider, recipients, template, content) {
     switch (provider) {
-      case 'aliyun':
-        return await this.sendVoiceByAliyun(recipients, template.code, template.params);
-      default:
-        throw new Error(`不支持的语音服务商: ${provider}`);
+    case 'aliyun':
+      return await this.sendVoiceByAliyun(recipients, template.code, template.params);
+    default:
+      throw new Error(`不支持的语音服务商: ${provider}`);
     }
   }
 
@@ -374,12 +374,12 @@ class CloudCommunicationService {
    */
   async pushNotification(provider, recipients, content) {
     switch (provider) {
-      case 'jiguang':
-        return await this.sendPushByJiguang(recipients, content);
-      case 'xiaomi':
-        return await this.sendPushByXiaomi(recipients, content);
-      default:
-        throw new Error(`不支持的推送服务商: ${provider}`);
+    case 'jiguang':
+      return await this.sendPushByJiguang(recipients, content);
+    case 'xiaomi':
+      return await this.sendPushByXiaomi(recipients, content);
+    default:
+      throw new Error(`不支持的推送服务商: ${provider}`);
     }
   }
 
@@ -575,13 +575,13 @@ class CloudCommunicationService {
    */
   generateAliyunSignature(params, secret) {
     const sortedKeys = Object.keys(params).sort();
-    let canonicalizedResource = '/';
+    const canonicalizedResource = '/';
 
-    let canonicalizedQueryString = sortedKeys
+    const canonicalizedQueryString = sortedKeys
       .map(key => `${this.percentEncode(key)}=${this.percentEncode(params[key])}`)
       .join('&');
 
-    let stringToSign = [
+    const stringToSign = [
       'POST',
       'application/x-www-form-urlencoded',
       canonicalizedQueryString

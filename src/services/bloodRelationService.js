@@ -284,7 +284,7 @@ class BloodRelationService {
     return {
       valid: confidence > 0.3,
       relationship: mainRelationship,
-      confidence: confidence,
+      confidence,
       path: bloodPath,
       pathLength: bloodPath.length,
       details: `通过${bloodPath.length}个关系节点建立血缘关系，总权重: ${totalWeight.toFixed(2)}`

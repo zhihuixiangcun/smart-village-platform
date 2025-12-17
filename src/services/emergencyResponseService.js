@@ -160,12 +160,12 @@ class EmergencyResponseService {
 
       return {
         success: true,
-        location: location,
+        location,
         availableResources: resources,
         availablePersonnel: personnel,
         emergencyContacts: contacts,
-        dispatchPlan: dispatchPlan,
-        rescueRoutes: rescueRoutes,
+        dispatchPlan,
+        rescueRoutes,
         estimatedResponseTime: this.calculateEstimatedResponseTime(dispatchPlan)
       };
 
@@ -207,17 +207,17 @@ class EmergencyResponseService {
       const now = new Date();
 
       switch (newStatus) {
-        case ResponseStatus.DISPATCHED:
-          event.time.firstResponse = now;
-          break;
-        case ResponseStatus.RESOLVED:
-          event.time.resolved = now;
-          event.resolution = {
-            ...event.resolution,
-            ...updateData.resolution,
-            summary: updateData.summary || '应急事件已解决'
-          };
-          break;
+      case ResponseStatus.DISPATCHED:
+        event.time.firstResponse = now;
+        break;
+      case ResponseStatus.RESOLVED:
+        event.time.resolved = now;
+        event.resolution = {
+          ...event.resolution,
+          ...updateData.resolution,
+          summary: updateData.summary || '应急事件已解决'
+        };
+        break;
       }
 
       // 5. 添加工作流步骤
@@ -255,9 +255,9 @@ class EmergencyResponseService {
 
       return {
         success: true,
-        event: event,
-        oldStatus: oldStatus,
-        newStatus: newStatus,
+        event,
+        oldStatus,
+        newStatus,
         message: '状态更新成功'
       };
 
@@ -332,7 +332,7 @@ class EmergencyResponseService {
       return {
         success: true,
         update: event.workflow[event.workflow.length - 1],
-        event: event,
+        event,
         message: '更新添加成功'
       };
 
@@ -381,11 +381,11 @@ class EmergencyResponseService {
 
       return {
         success: true,
-        events: events,
+        events,
         pagination: {
-          page: page,
-          limit: limit,
-          total: total,
+          page,
+          limit,
+          total,
           totalPages: Math.ceil(total / limit)
         }
       };
@@ -405,7 +405,7 @@ class EmergencyResponseService {
   async getEmergencyStatistics(villageId, filters = {}) {
     try {
       const matchConditions = {
-        villageId: villageId,
+        villageId,
         ...filters
       };
 
@@ -450,7 +450,7 @@ class EmergencyResponseService {
 
       // 资源统计
       const resourceStats = await EmergencyResource.aggregate([
-        { $match: { villageId: villageId } },
+        { $match: { villageId } },
         {
           $group: {
             _id: '$type',
@@ -507,7 +507,7 @@ class EmergencyResponseService {
 
       return {
         success: true,
-        statistics: statistics,
+        statistics,
         generatedAt: new Date()
       };
 
@@ -545,10 +545,10 @@ class EmergencyResponseService {
       await event.save();
 
       return {
-        dispatchedTeams: dispatchedTeams,
-        allocatedResources: allocatedResources,
+        dispatchedTeams,
+        allocatedResources,
         estimatedArrival: this.calculateEstimatedArrival(dispatchedTeams),
-        responsePlan: responsePlan
+        responsePlan
       };
 
     } catch (error) {
@@ -640,7 +640,7 @@ class EmergencyResponseService {
    * @returns {Promise<Object>} 精确位置
    */
   async getEmergencyLocation(locationData) {
-    let location = locationData;
+    const location = locationData;
 
     // 如果只有坐标，通过逆地理编码获取地址
     if (locationData.coordinates && !locationData.address) {
@@ -909,10 +909,10 @@ class EmergencyResponseService {
   logEmergencyAction(action, targetId, userId, details) {
     const logEntry = {
       timestamp: new Date(),
-      action: action,
-      targetId: targetId,
-      userId: userId,
-      details: details,
+      action,
+      targetId,
+      userId,
+      details,
       module: 'emergency_response'
     };
 

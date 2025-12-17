@@ -435,7 +435,7 @@ class MonitoringSystem extends EventEmitter {
                   $dateTrunc: {
                     date: '$timestamp',
                     unit: interval.endsWith('m') ? 'minute' :
-                          interval.endsWith('h') ? 'hour' : 'second',
+                      interval.endsWith('h') ? 'hour' : 'second',
                     binSize: parseInt(interval)
                   }
                 }
@@ -559,7 +559,7 @@ class MonitoringSystem extends EventEmitter {
       const startTime = new Date(now.getTime() - Math.max(...rule.conditions.map(c => c.duration || 300)) * 1000);
 
       let isTriggered = false;
-      let evaluationResults = [];
+      const evaluationResults = [];
 
       for (const condition of rule.conditions) {
         const metrics = await this.MonitoringMetric.find({
@@ -627,38 +627,38 @@ class MonitoringSystem extends EventEmitter {
     let actualValue;
 
     switch (condition.operator) {
-      case 'gt':
-        actualValue = Math.max(...recentMetrics.map(m => m.value));
-        triggered = actualValue > condition.threshold;
-        break;
-      case 'lt':
-        actualValue = Math.min(...recentMetrics.map(m => m.value));
-        triggered = actualValue < condition.threshold;
-        break;
-      case 'gte':
-        actualValue = Math.max(...recentMetrics.map(m => m.value));
-        triggered = actualValue >= condition.threshold;
-        break;
-      case 'lte':
-        actualValue = Math.min(...recentMetrics.map(m => m.value));
-        triggered = actualValue <= condition.threshold;
-        break;
-      case 'eq':
-        actualValue = recentMetrics[recentMetrics.length - 1].value;
-        triggered = actualValue === condition.threshold;
-        break;
-      case 'ne':
-        actualValue = recentMetrics[recentMetrics.length - 1].value;
-        triggered = actualValue !== condition.threshold;
-        break;
-      case 'avg':
-        actualValue = recentMetrics.reduce((sum, m) => sum + m.value, 0) / recentMetrics.length;
-        triggered = condition.operator === 'gt' ? actualValue > condition.threshold :
-                   condition.operator === 'lt' ? actualValue < condition.threshold :
-                   actualValue === condition.threshold;
-        break;
-      default:
-        return { triggered: false, reason: 'Unknown operator' };
+    case 'gt':
+      actualValue = Math.max(...recentMetrics.map(m => m.value));
+      triggered = actualValue > condition.threshold;
+      break;
+    case 'lt':
+      actualValue = Math.min(...recentMetrics.map(m => m.value));
+      triggered = actualValue < condition.threshold;
+      break;
+    case 'gte':
+      actualValue = Math.max(...recentMetrics.map(m => m.value));
+      triggered = actualValue >= condition.threshold;
+      break;
+    case 'lte':
+      actualValue = Math.min(...recentMetrics.map(m => m.value));
+      triggered = actualValue <= condition.threshold;
+      break;
+    case 'eq':
+      actualValue = recentMetrics[recentMetrics.length - 1].value;
+      triggered = actualValue === condition.threshold;
+      break;
+    case 'ne':
+      actualValue = recentMetrics[recentMetrics.length - 1].value;
+      triggered = actualValue !== condition.threshold;
+      break;
+    case 'avg':
+      actualValue = recentMetrics.reduce((sum, m) => sum + m.value, 0) / recentMetrics.length;
+      triggered = condition.operator === 'gt' ? actualValue > condition.threshold :
+        condition.operator === 'lt' ? actualValue < condition.threshold :
+          actualValue === condition.threshold;
+      break;
+    default:
+      return { triggered: false, reason: 'Unknown operator' };
     }
 
     return {
@@ -797,23 +797,23 @@ class MonitoringSystem extends EventEmitter {
 
     try {
       switch (type) {
-        case 'email':
-          await this.sendEmailNotification(config, alertEvent);
-          break;
-        case 'sms':
-          await this.sendSmsNotification(config, alertEvent);
-          break;
-        case 'webhook':
-          await this.sendWebhookNotification(config, alertEvent);
-          break;
-        case 'slack':
-          await this.sendSlackNotification(config, alertEvent);
-          break;
-        case 'dingtalk':
-          await this.sendDingtalkNotification(config, alertEvent);
-          break;
-        default:
-          throw new Error(`Unknown notification type: ${type}`);
+      case 'email':
+        await this.sendEmailNotification(config, alertEvent);
+        break;
+      case 'sms':
+        await this.sendSmsNotification(config, alertEvent);
+        break;
+      case 'webhook':
+        await this.sendWebhookNotification(config, alertEvent);
+        break;
+      case 'slack':
+        await this.sendSlackNotification(config, alertEvent);
+        break;
+      case 'dingtalk':
+        await this.sendDingtalkNotification(config, alertEvent);
+        break;
+      default:
+        throw new Error(`Unknown notification type: ${type}`);
       }
 
       notificationRecord.success = true;
@@ -1423,18 +1423,18 @@ class MonitoringSystem extends EventEmitter {
       const fieldPath = filter.field.startsWith('labels.') ? filter.field : `labels.${filter.field}`;
 
       switch (filter.operator) {
-        case 'eq':
-          query[fieldPath] = filter.value;
-          break;
-        case 'ne':
-          query[fieldPath] = { $ne: filter.value };
-          break;
-        case 'in':
-          query[fieldPath] = { $in: filter.value };
-          break;
-        case 'regex':
-          query[fieldPath] = { $regex: filter.value, $options: 'i' };
-          break;
+      case 'eq':
+        query[fieldPath] = filter.value;
+        break;
+      case 'ne':
+        query[fieldPath] = { $ne: filter.value };
+        break;
+      case 'in':
+        query[fieldPath] = { $in: filter.value };
+        break;
+      case 'regex':
+        query[fieldPath] = { $regex: filter.value, $options: 'i' };
+        break;
       }
     }
 
@@ -1474,8 +1474,8 @@ class MonitoringSystem extends EventEmitter {
         {
           $group: {
             _id: {
-              date: { $dateToString: { format: "%Y-%m-%d", date: "$startsAt" } },
-              severity: "$severity"
+              date: { $dateToString: { format: '%Y-%m-%d', date: '$startsAt' } },
+              severity: '$severity'
             },
             count: { $sum: 1 }
           }

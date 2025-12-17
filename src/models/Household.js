@@ -354,7 +354,7 @@ HouseholdSchema.methods.generateQRCode = function() {
 
   const qrData = {
     codeId: this.codeId,
-    accessToken: accessToken,
+    accessToken,
     expiryDate: expiryDate.toISOString(),
     version: '1.0',
     generatedAt: new Date().toISOString()
@@ -362,8 +362,8 @@ HouseholdSchema.methods.generateQRCode = function() {
 
   this.qrCode = {
     codeData: JSON.stringify(qrData),
-    accessToken: accessToken,
-    expiryDate: expiryDate,
+    accessToken,
+    expiryDate,
     version: '1.0',
     lastGenerated: new Date(),
     usageCount: 0
@@ -538,13 +538,13 @@ HouseholdSchema.methods.sanitizeData = function(userRole, viewerIdCard = null) {
 // 辅助方法 - 身份证脱敏
 HouseholdSchema.methods.maskIdCard = function(idCard) {
   if (!idCard || idCard.length !== 18) return idCard;
-  return idCard.substring(0, 6) + '********' + idCard.substring(14);
+  return `${idCard.substring(0, 6)  }********${  idCard.substring(14)}`;
 };
 
 // 辅助方法 - 手机号脱敏
 HouseholdSchema.methods.maskPhone = function(phone) {
   if (!phone || phone.length !== 11) return phone;
-  return phone.substring(0, 3) + '****' + phone.substring(7);
+  return `${phone.substring(0, 3)  }****${  phone.substring(7)}`;
 };
 
 // 静态方法 - 生成户码序号

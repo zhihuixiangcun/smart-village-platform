@@ -623,23 +623,23 @@ farmProductSupplySchema.statics.searchSupplies = function(keyword, options = {})
 
   let sort = {};
   switch (sortBy) {
-    case 'relevance':
-      sort = { score: { $meta: 'textScore' } };
-      break;
-    case 'price_asc':
-      sort = { 'price.minPrice': 1 };
-      break;
-    case 'price_desc':
-      sort = { 'price.minPrice': -1 };
-      break;
-    case 'rating':
-      sort = { 'stats.averageRating': -1 };
-      break;
-    case 'views':
-      sort = { 'stats.totalViews': -1 };
-      break;
-    default:
-      sort = { createdAt: -1 };
+  case 'relevance':
+    sort = { score: { $meta: 'textScore' } };
+    break;
+  case 'price_asc':
+    sort = { 'price.minPrice': 1 };
+    break;
+  case 'price_desc':
+    sort = { 'price.minPrice': -1 };
+    break;
+  case 'rating':
+    sort = { 'stats.averageRating': -1 };
+    break;
+  case 'views':
+    sort = { 'stats.totalViews': -1 };
+    break;
+  default:
+    sort = { createdAt: -1 };
   }
 
   return this.find(query, { score: { $meta: 'textScore' } })

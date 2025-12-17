@@ -162,17 +162,17 @@ class ComputerVisionService {
       let result;
 
       switch (provider) {
-        case 'baidu':
-          result = await this.baiduFaceRecognition(imageBuffer, { livenessCheck });
-          break;
-        case 'tencent':
-          result = await this.tencentFaceRecognition(imageBuffer, { livenessCheck });
-          break;
-        case 'alibaba':
-          result = await this.alibabaFaceRecognition(imageBuffer, { livenessCheck });
-          break;
-        default:
-          throw new Error(`不支持的识别服务商: ${provider}`);
+      case 'baidu':
+        result = await this.baiduFaceRecognition(imageBuffer, { livenessCheck });
+        break;
+      case 'tencent':
+        result = await this.tencentFaceRecognition(imageBuffer, { livenessCheck });
+        break;
+      case 'alibaba':
+        result = await this.alibabaFaceRecognition(imageBuffer, { livenessCheck });
+        break;
+      default:
+        throw new Error(`不支持的识别服务商: ${provider}`);
       }
 
       // 如果提供了userId，进行人脸比对
@@ -185,9 +185,9 @@ class ComputerVisionService {
       // 记录识别日志
       await this.logFaceRecognition({
         success: result.success,
-        provider: provider,
+        provider,
         hasLiveness: livenessCheck,
-        userId: userId,
+        userId,
         timestamp: new Date()
       });
 
@@ -284,17 +284,17 @@ class ComputerVisionService {
       let result;
 
       switch (provider) {
-        case 'baidu':
-          result = await this.baiduDocumentOCR(imageBuffer, documentType);
-          break;
-        case 'tencent':
-          result = await this.tencentDocumentOCR(imageBuffer, documentType);
-          break;
-        case 'alibaba':
-          result = await this.alibabaDocumentOCR(imageBuffer, documentType);
-          break;
-        default:
-          throw new Error(`不支持的OCR服务商: ${provider}`);
+      case 'baidu':
+        result = await this.baiduDocumentOCR(imageBuffer, documentType);
+        break;
+      case 'tencent':
+        result = await this.tencentDocumentOCR(imageBuffer, documentType);
+        break;
+      case 'alibaba':
+        result = await this.alibabaDocumentOCR(imageBuffer, documentType);
+        break;
+      default:
+        throw new Error(`不支持的OCR服务商: ${provider}`);
       }
 
       // 字段提取和验证
@@ -309,8 +309,8 @@ class ComputerVisionService {
       // 记录OCR日志
       await this.logDocumentOCR({
         success: result.success,
-        documentType: documentType,
-        provider: provider,
+        documentType,
+        provider,
         fieldCount: result.extractedFields ? Object.keys(result.extractedFields).length : 0,
         timestamp: new Date()
       });
@@ -340,17 +340,17 @@ class ComputerVisionService {
       let endpoint;
 
       switch (documentType) {
-        case 'idcard':
-          endpoint = 'https://aip.baidubce.com/rest/2.0/ocr/v1/idcard';
-          break;
-        case 'driver_license':
-          endpoint = 'https://aip.baidubce.com/rest/2.0/ocr/v1/driving_license';
-          break;
-        case 'vehicle_license':
-          endpoint = 'https://aip.baidubce.com/rest/2.0/ocr/v1/vehicle_license';
-          break;
-        default:
-          endpoint = 'https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic';
+      case 'idcard':
+        endpoint = 'https://aip.baidubce.com/rest/2.0/ocr/v1/idcard';
+        break;
+      case 'driver_license':
+        endpoint = 'https://aip.baidubce.com/rest/2.0/ocr/v1/driving_license';
+        break;
+      case 'vehicle_license':
+        endpoint = 'https://aip.baidubce.com/rest/2.0/ocr/v1/vehicle_license';
+        break;
+      default:
+        endpoint = 'https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic';
       }
 
       const response = await axios.post(endpoint, formData, {
@@ -368,7 +368,7 @@ class ComputerVisionService {
         return {
           success: true,
           provider: 'baidu',
-          documentType: documentType,
+          documentType,
           text: data.words_result.map(item => item.words).join('\n'),
           words: data.words_result,
           confidence: data.words_result_num > 0 ? 0.95 : 0
@@ -432,8 +432,8 @@ class ComputerVisionService {
       // 记录识别日志
       await this.logPestDiseaseRecognition({
         success: result.success,
-        cropType: cropType,
-        provider: provider,
+        cropType,
+        provider,
         detectionCount: result.detections ? result.detections.length : 0,
         timestamp: new Date()
       });
@@ -491,7 +491,7 @@ class ComputerVisionService {
       return {
         success: true,
         provider: 'local',
-        cropType: cropType,
+        cropType,
         detections: mockDetections,
         processingTime: 1.2,
         modelVersion: '1.0.0'
@@ -547,9 +547,9 @@ class ComputerVisionService {
 
       // 记录监控日志
       await this.logConstructionMonitoring({
-        projectId: projectId,
+        projectId,
         success: true,
-        provider: provider,
+        provider,
         progress: analysisResult.overallProgress,
         anomalies: analysisResult.anomalies ? analysisResult.anomalies.length : 0,
         timestamp: new Date()
@@ -730,18 +730,18 @@ class ComputerVisionService {
       const fields = {};
 
       switch (documentType) {
-        case 'idcard':
-          fields.name = this.extractField(text, ['姓名', '名字']);
-          fields.idNumber = this.extractField(text, ['身份证号', '证件号码']);
-          fields.address = this.extractField(text, ['地址', '住址']);
-          fields.birthDate = this.extractField(text, ['出生', '生日']);
-          break;
-        case 'driver_license':
-          fields.licenseNumber = this.extractField(text, ['证号', '号码']);
-          fields.name = this.extractField(text, ['姓名', '名字']);
-          fields.vehicleClass = this.extractField(text, ['准驾车型', '车型']);
-          fields.validityPeriod = this.extractField(text, ['有效期', '期限']);
-          break;
+      case 'idcard':
+        fields.name = this.extractField(text, ['姓名', '名字']);
+        fields.idNumber = this.extractField(text, ['身份证号', '证件号码']);
+        fields.address = this.extractField(text, ['地址', '住址']);
+        fields.birthDate = this.extractField(text, ['出生', '生日']);
+        break;
+      case 'driver_license':
+        fields.licenseNumber = this.extractField(text, ['证号', '号码']);
+        fields.name = this.extractField(text, ['姓名', '名字']);
+        fields.vehicleClass = this.extractField(text, ['准驾车型', '车型']);
+        fields.validityPeriod = this.extractField(text, ['有效期', '期限']);
+        break;
       }
 
       return fields;

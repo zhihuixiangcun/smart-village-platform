@@ -107,9 +107,9 @@ class PermissionService {
 
       return {
         success: true,
-        user: user,
+        user,
         permissions: await this.getUserPermissions(user),
-        authRecord: authRecord,
+        authRecord,
         sessionTimeout: authRecord.securitySettings.sessionTimeout
       };
 
@@ -146,7 +146,7 @@ class PermissionService {
       if (documentData) {
         ocrResult = await this.validateAppointmentDocument(documentData);
         if (!ocrResult.verified) {
-          throw new Error('证件验证失败：' + ocrResult.reason);
+          throw new Error(`证件验证失败：${  ocrResult.reason}`);
         }
       }
 
@@ -158,7 +158,7 @@ class PermissionService {
           appointmentDocument: {
             ...documentData,
             ocrVerified: true,
-            ocrResult: ocrResult
+            ocrResult
           }
         },
         operatorId
@@ -199,7 +199,7 @@ class PermissionService {
 
       return {
         success: true,
-        authRecord: authRecord,
+        authRecord,
         message: '认证申请已提交，请等待上级审核'
       };
 
@@ -326,13 +326,13 @@ class PermissionService {
 
       logger.info('村级管理员认证审核完成', {
         authId,
-        decision: decision,
+        decision,
         reviewerId
       });
 
       return {
         success: true,
-        authRecord: authRecord,
+        authRecord,
         message: `认证${statusUpdate === 'approved' ? '激活' : '拒绝'}成功`
       };
 
@@ -531,36 +531,36 @@ class PermissionService {
 
     // 根据角色添加规则
     switch (role) {
-      case PermissionLevels.VILLAGER:
-        rules.push(
-          { field: 'idCard', apply: (value) => this.maskIdCard(value) },
-          { field: 'phone', apply: (value) => this.maskPhone(value) },
-          { field: 'bankAccount', apply: (value) => this.maskBankAccount(value) }
-        );
-        break;
+    case PermissionLevels.VILLAGER:
+      rules.push(
+        { field: 'idCard', apply: (value) => this.maskIdCard(value) },
+        { field: 'phone', apply: (value) => this.maskPhone(value) },
+        { field: 'bankAccount', apply: (value) => this.maskBankAccount(value) }
+      );
+      break;
 
-      case PermissionLevels.STAFF:
-        rules.push(
-          { field: 'idCard', apply: (value) => this.maskIdCard(value) },
-          { field: 'phone', apply: (value) => this.maskPhone(value) }
-        );
-        break;
+    case PermissionLevels.STAFF:
+      rules.push(
+        { field: 'idCard', apply: (value) => this.maskIdCard(value) },
+        { field: 'phone', apply: (value) => this.maskPhone(value) }
+      );
+      break;
 
-      case PermissionLevels.VILLAGER:
-        rules.push(
-          { field: 'idCard', apply: (value) => this.maskIdCard(value) },
-          { field: 'phone', apply: (value) => this.maskPhone(value) }
-        );
-        break;
+    case PermissionLevels.VILLAGER:
+      rules.push(
+        { field: 'idCard', apply: (value) => this.maskIdCard(value) },
+        { field: 'phone', apply: (value) => this.maskPhone(value) }
+      );
+      break;
 
-      case PermissionLevels.GUEST:
-        rules.push(
-          { field: 'idCard', apply: (value) => this.maskIdCard(value) },
-          { field: 'phone', apply: (value) => this.maskPhone(value) },
-          { field: 'email', apply: (value) => this.maskEmail(value) },
-          { field: 'address', apply: (value) => this.maskAddress(value) }
-        );
-        break;
+    case PermissionLevels.GUEST:
+      rules.push(
+        { field: 'idCard', apply: (value) => this.maskIdCard(value) },
+        { field: 'phone', apply: (value) => this.maskPhone(value) },
+        { field: 'email', apply: (value) => this.maskEmail(value) },
+        { field: 'address', apply: (value) => this.maskAddress(value) }
+      );
+      break;
     }
 
     // 根据上下文添加规则
@@ -580,7 +580,7 @@ class PermissionService {
    */
   maskIdCard(idCard) {
     if (!idCard || idCard.length !== 18) return idCard;
-    return idCard.substring(0, 6) + '********' + idCard.substring(14);
+    return `${idCard.substring(0, 6)  }********${  idCard.substring(14)}`;
   }
 
   /**
@@ -590,7 +590,7 @@ class PermissionService {
    */
   maskPhone(phone) {
     if (!phone || phone.length !== 11) return phone;
-    return phone.substring(0, 3) + '****' + phone.substring(7);
+    return `${phone.substring(0, 3)  }****${  phone.substring(7)}`;
   }
 
   /**
@@ -600,7 +600,7 @@ class PermissionService {
    */
   maskBankAccount(account) {
     if (!account || account.length < 10) return account;
-    return account.substring(0, 4) + '****' + account.substring(account.length - 4);
+    return `${account.substring(0, 4)  }****${  account.substring(account.length - 4)}`;
   }
 
   /**
@@ -611,7 +611,7 @@ class PermissionService {
   maskEmail(email) {
     if (!email || !email.includes('@')) return email;
     const [username, domain] = email.split('@');
-    const maskedUsername = username.substring(0, 2) + '***';
+    const maskedUsername = `${username.substring(0, 2)  }***`;
     return `${maskedUsername}@${domain}`;
   }
 
@@ -622,7 +622,7 @@ class PermissionService {
    */
   maskAddress(address) {
     if (!address || address.length < 10) return address;
-    return address.substring(0, 6) + '***' + address.substring(address.length - 6);
+    return `${address.substring(0, 6)  }***${  address.substring(address.length - 6)}`;
   }
 
   /**

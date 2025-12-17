@@ -922,20 +922,20 @@ VillageFinanceAccessSchema.methods.hasAccess = function(accessType, dataInfo = {
 
   // 检查具体权限
   switch (accessType) {
-    case 'view_summary':
-      return this.accessPermissions.basicAccess.canViewSummary;
+  case 'view_summary':
+    return this.accessPermissions.basicAccess.canViewSummary;
 
-    case 'view_details':
-      return this.accessPermissions.detailedAccess.canViewTransactionDetails;
+  case 'view_details':
+    return this.accessPermissions.detailedAccess.canViewTransactionDetails;
 
-    case 'download_report':
-      return this.accessPermissions.detailedAccess.canDownloadReports;
+  case 'download_report':
+    return this.accessPermissions.detailedAccess.canDownloadReports;
 
-    case 'ask_question':
-      return this.accessPermissions.specialAccess.canAskQuestions;
+  case 'ask_question':
+    return this.accessPermissions.specialAccess.canAskQuestions;
 
-    default:
-      return false;
+  default:
+    return false;
   }
 };
 

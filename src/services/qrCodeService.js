@@ -69,7 +69,7 @@ class QRCodeService {
         // 更新二维码信息
         household.qrCode = {
           codeData: JSON.stringify(this.createQRCodeData(household, accessToken)),
-          accessToken: accessToken,
+          accessToken,
           expiryDate: this.calculateExpiryDate(options.validityDays || 365),
           version: options.version || '1.0',
           lastGenerated: new Date(),
@@ -91,7 +91,7 @@ class QRCodeService {
       return {
         householdId: household._id,
         codeId: household.codeId,
-        qrCodeImage: qrCodeImage,
+        qrCodeImage,
         qrCodeData: household.qrCode.codeData,
         expiryDate: household.qrCode.expiryDate,
         usageCount: household.qrCode.usageCount,
@@ -230,7 +230,7 @@ class QRCodeService {
   createQRCodeData(household, accessToken) {
     return {
       codeId: household.codeId,
-      accessToken: accessToken,
+      accessToken,
       expiryDate: household.qrCode.expiryDate.toISOString(),
       version: household.qrCode.version,
       generatedAt: new Date().toISOString(),
@@ -316,7 +316,7 @@ class QRCodeService {
         return { valid: false, reason: '令牌已过期' };
       }
 
-      return { valid: true, payload: payload };
+      return { valid: true, payload };
 
     } catch (error) {
       return { valid: false, reason: '令牌解析失败' };
@@ -459,64 +459,64 @@ class QRCodeService {
 
     // 根据权限级别进一步过滤
     switch (permissionLevel) {
-      case this.permissionLevels.PUBLIC:
-        // 公开信息
-        return {
-          codeId: data.codeId,
-          householder: {
-            name: data.householder.name
-          },
-          address: {
-            province: data.address.province,
-            city: data.address.city,
-            county: data.address.county,
-            township: data.address.township,
-            village: data.address.village
-          },
-          specialTags: data.specialTags,
-          demographics: data.demographics,
-          totalMembers: data.totalFamilyMembers
-        };
+    case this.permissionLevels.PUBLIC:
+      // 公开信息
+      return {
+        codeId: data.codeId,
+        householder: {
+          name: data.householder.name
+        },
+        address: {
+          province: data.address.province,
+          city: data.address.city,
+          county: data.address.county,
+          township: data.address.township,
+          village: data.address.village
+        },
+        specialTags: data.specialTags,
+        demographics: data.demographics,
+        totalMembers: data.totalFamilyMembers
+      };
 
-      case this.permissionLevels.NEIGHBOR:
-        // 邻居信息
-        return {
-          ...this.filterDataByPermission(household, this.permissionLevels.PUBLIC),
-          address: {
-            ...data.address,
-            group: data.address.group
-          },
-          specialTags: data.specialTags
-        };
+    case this.permissionLevels.NEIGHBOR:
+      // 邻居信息
+      return {
+        ...this.filterDataByPermission(household, this.permissionLevels.PUBLIC),
+        address: {
+          ...data.address,
+          group: data.address.group
+        },
+        specialTags: data.specialTags
+      };
 
-      case this.permissionLevels.RELATIVE:
-        // 亲属信息
-        return {
-          codeId: data.codeId,
-          householder: {
-            name: data.householder.name,
-            phone: data.householder.phone ? this.maskPhone(data.householder.phone) : null
-          },
-          members: data.members.map(member => ({
-            name: member.name,
-            relationship: member.relationship,
-            phone: member.phone ? this.maskPhone(member.phone) : null
-          })),
-          address: data.address,
-          specialTags: data.specialTags,
-          demographics: data.demographics
-        };
+    case this.permissionLevels.RELATIVE:
+      // 亲属信息
+      return {
+        codeId: data.codeId,
+        householder: {
+          name: data.householder.name,
+          phone: data.householder.phone ? this.maskPhone(data.householder.phone) : null
+        },
+        members: data.members.map(member => ({
+          name: member.name,
+          relationship: member.relationship,
+          phone: member.phone ? this.maskPhone(member.phone) : null
+        })),
+        address: data.address,
+        specialTags: data.specialTags,
+        demographics: data.demographics
+      };
 
-      case this.permissionLevels.FAMILY:
-        // 家庭成员信息
-        return data;
+    case this.permissionLevels.FAMILY:
+      // 家庭成员信息
+      return data;
 
-      case this.permissionLevels.ADMIN:
-        // 管理员信息
-        return household.toObject();
+    case this.permissionLevels.ADMIN:
+      // 管理员信息
+      return household.toObject();
 
-      default:
-        return this.filterDataByPermission(household, this.permissionLevels.PUBLIC);
+    default:
+      return this.filterDataByPermission(household, this.permissionLevels.PUBLIC);
     }
   }
 
@@ -527,7 +527,7 @@ class QRCodeService {
    */
   maskPhone(phone) {
     if (!phone || phone.length !== 11) return phone;
-    return phone.substring(0, 3) + '****' + phone.substring(7);
+    return `${phone.substring(0, 3)  }****${  phone.substring(7)}`;
   }
 
   /**
@@ -586,7 +586,7 @@ class QRCodeService {
         action: 'qr_code_access',
         timestamp: new Date(),
         requesterId: options.requesterId,
-        permissionLevel: permissionLevel,
+        permissionLevel,
         ipAddress: options.ipAddress,
         userAgent: options.userAgent,
         details: {
@@ -618,13 +618,13 @@ class QRCodeService {
         try {
           const result = await this.generateHouseholdQRCode(householdId, options);
           results.push({
-            householdId: householdId,
+            householdId,
             success: true,
-            result: result
+            result
           });
         } catch (error) {
           results.push({
-            householdId: householdId,
+            householdId,
             success: false,
             error: error.message
           });
@@ -640,7 +640,7 @@ class QRCodeService {
         total: householdIds.length,
         success: successCount,
         failure: failureCount,
-        results: results
+        results
       };
 
     } catch (error) {
@@ -658,7 +658,7 @@ class QRCodeService {
   async getQRCodeStatistics(villageId, filters = {}) {
     try {
       const matchConditions = {
-        villageId: villageId,
+        villageId,
         status: 'active'
       };
 

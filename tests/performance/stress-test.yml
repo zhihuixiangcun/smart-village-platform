@@ -1,0 +1,97 @@
+config:
+  target: '{{ $processEnvironment.API_URL || "http://localhost:3001" }}'
+  phases:
+    - duration: 30
+      arrivalRate: 10
+      name: "Initial warmup"
+    - duration: 60
+      arrivalRate: 50
+      name: "Ramp up"
+    - duration: 120
+      arrivalRate: 100
+      name: "Load test"
+    - duration: 60
+      arrivalRate: 300
+      name: "Stress test"
+    - duration: 60
+      arrivalRate: 500
+      name: "Peak stress"
+    - duration: 60
+      arrivalRate: 1000
+      name: "Breaking point"
+    - duration: 120
+      arrivalRate: 10
+      name: "Recovery"
+  processor: "./test-processor.js"
+  defaults:
+    headers:
+      Content-Type: "application/json"
+
+scenarios:
+  - name: "Critical Path - Authentication"
+    weight: 30
+    flow:
+      - post:
+          url: "/api/v1/auth/login"
+          json:
+            username: "testuser{{ $randomInt(1, 1000) }}"
+            password: "testpass"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+          expect:
+            - statusCode: 200
+        - think: 0.5
+
+  - name: "Critical Path - Village Data"
+    weight: 25
+    flow:
+      - get:
+          url: "/api/v1/villages"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+        - think: 0.3
+
+  - name: "Critical Path - Announcements"
+    weight: 20
+    flow:
+      - get:
+          url: "/api/v1/announcements"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          qs:
+            page: "{{ $randomInt(1, 10) }}"
+            limit: 20
+          expect:
+            - statusCode: 200
+        - think: 0.2
+
+  - name: "Write Operations - Create Data"
+    weight: 15
+    flow:
+      - post:
+          url: "/api/v1/announcements"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            title: "Stress Test {{ $randomString() }}"
+            content: "Content from stress test {{ $randomString() }}"
+            type: "emergency"
+          expect:
+            - statusCode: 201
+      - think: 0.1
+
+  - name: "Search Operations"
+    weight: 10
+    flow:
+      - get:
+          url: "/api/v1/residents/search"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          qs:
+            q: "{{ ['张', '李', '王', '刘', '陈'][$randomInt(0, 4)] }}"
+            page: 1
+          expect:
+            - statusCode: 200

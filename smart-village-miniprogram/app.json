@@ -1,0 +1,77 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/services/services",
+    "pages/scan/scan",
+    "pages/voice/voice",
+    "pages/announcements/announcements",
+    "pages/profile/profile",
+    "pages/offline/offline"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#4CAF50",
+    "navigationBarTitleText": "智慧村庄",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f8f8f8"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#4CAF50",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "images/home.png",
+        "selectedIconPath": "images/home-active.png"
+      },
+      {
+        "pagePath": "pages/services/services",
+        "text": "服务",
+        "iconPath": "images/services.png",
+        "selectedIconPath": "images/services-active.png"
+      },
+      {
+        "pagePath": "pages/scan/scan",
+        "text": "扫码",
+        "iconPath": "images/scan.png",
+        "selectedIconPath": "images/scan-active.png"
+      },
+      {
+        "pagePath": "pages/voice/voice",
+        "text": "语音",
+        "iconPath": "images/voice.png",
+        "selectedIconPath": "images/voice-active.png"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的",
+        "iconPath": "images/profile.png",
+        "selectedIconPath": "images/profile-active.png"
+      }
+    ]
+  },
+  "networkTimeout": {
+    "request": 15000,
+    "downloadFile": 15000,
+    "uploadFile": 15000,
+    "connectSocket": 15000
+  },
+  "debug": false,
+  "navigateToMiniProgramAppIdList": [],
+  "permission": {
+    "scope.userLocation": {
+      "desc": "您的位置信息将用于村庄服务定位"
+    },
+    "scope.record": {
+      "desc": "您的录音信息将用于语音交互功能"
+    },
+    "scope.camera": {
+      "desc": "您的摄像头将用于扫码功能"
+    }
+  },
+  "requiredBackgroundModes": ["audio"],
+  "sitemapLocation": "sitemap.json"
+}

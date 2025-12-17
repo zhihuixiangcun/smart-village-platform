@@ -533,7 +533,7 @@ class GovernmentIntegrationService {
       const Household = require('../models/Household');
 
       const households = await Household.find({
-        villageId: villageId,
+        villageId,
         isActive: true
       }).lean();
 
@@ -674,7 +674,7 @@ class GovernmentIntegrationService {
       const Resident = require('../models/Resident');
 
       return await Resident.find({
-        villageId: villageId,
+        villageId,
         isActive: true
       }).select('id name idCard villageId').lean();
 
@@ -701,20 +701,20 @@ class GovernmentIntegrationService {
 
     // 根据报表类型进行特定验证
     switch (reportType) {
-      case 'population':
-        if (typeof reportData.totalPopulation !== 'number') {
-          errors.push('总人口数必须为数字');
-        }
-        if (reportData.malePopulation + reportData.femalePopulation !== reportData.totalPopulation) {
-          errors.push('男性人口与女性人口之和必须等于总人口');
-        }
-        break;
+    case 'population':
+      if (typeof reportData.totalPopulation !== 'number') {
+        errors.push('总人口数必须为数字');
+      }
+      if (reportData.malePopulation + reportData.femalePopulation !== reportData.totalPopulation) {
+        errors.push('男性人口与女性人口之和必须等于总人口');
+      }
+      break;
 
-      case 'economic':
-        if (typeof reportData.perCapitaIncome !== 'number') {
-          errors.push('人均收入必须为数字');
-        }
-        break;
+    case 'economic':
+      if (typeof reportData.perCapitaIncome !== 'number') {
+        errors.push('人均收入必须为数字');
+      }
+      break;
     }
 
     return {

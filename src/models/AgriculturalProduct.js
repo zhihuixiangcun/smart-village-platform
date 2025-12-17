@@ -330,16 +330,16 @@ agriculturalProductSchema.virtual('discountedPrice').get(function() {
 // 实例方法
 agriculturalProductSchema.methods.updateInventory = function(quantity, operation = 'set') {
   switch (operation) {
-    case 'add':
-      this.inventory.quantity += quantity;
-      break;
-    case 'subtract':
-      this.inventory.quantity = Math.max(0, this.inventory.quantity - quantity);
-      break;
-    case 'set':
-    default:
-      this.inventory.quantity = Math.max(0, quantity);
-      break;
+  case 'add':
+    this.inventory.quantity += quantity;
+    break;
+  case 'subtract':
+    this.inventory.quantity = Math.max(0, this.inventory.quantity - quantity);
+    break;
+  case 'set':
+  default:
+    this.inventory.quantity = Math.max(0, quantity);
+    break;
   }
 
   // 更新可用库存
@@ -493,23 +493,23 @@ agriculturalProductSchema.statics.searchProducts = function(keyword, options = {
 
   let sort = {};
   switch (sortBy) {
-    case 'relevance':
-      sort = { score: { $meta: 'textScore' } };
-      break;
-    case 'price_asc':
-      sort = { 'pricing.retailPrice': 1 };
-      break;
-    case 'price_desc':
-      sort = { 'pricing.retailPrice': -1 };
-      break;
-    case 'sales':
-      sort = { 'sales.totalSold': -1 };
-      break;
-    case 'rating':
-      sort = { 'sales.averageRating': -1 };
-      break;
-    default:
-      sort = { createdAt: -1 };
+  case 'relevance':
+    sort = { score: { $meta: 'textScore' } };
+    break;
+  case 'price_asc':
+    sort = { 'pricing.retailPrice': 1 };
+    break;
+  case 'price_desc':
+    sort = { 'pricing.retailPrice': -1 };
+    break;
+  case 'sales':
+    sort = { 'sales.totalSold': -1 };
+    break;
+  case 'rating':
+    sort = { 'sales.averageRating': -1 };
+    break;
+  default:
+    sort = { createdAt: -1 };
   }
 
   return this.find(query, { score: { $meta: 'textScore' } })

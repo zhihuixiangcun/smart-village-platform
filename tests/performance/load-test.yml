@@ -1,12 +1,134 @@
 config:
-  target: 'http://localhost:3001'
+  target: '{{ $processEnvironment.API_URL || "http://localhost:3001" }}'
   phases:
     - duration: 60
       arrivalRate: 10
+      name: "Warm up"
+    - duration: 120
+      arrivalRate: 50
+      name: "Ramp up load"
+    - duration: 300
+      arrivalRate: 100
+      name: "Sustained load"
+    - duration: 60
+      arrivalRate: 200
+      name: "Peak load"
+    - duration: 60
+      arrivalRate: 10
+      name: "Cool down"
+  processor: "./test-processor.js"
+  variables:
+    authToken:
+      - "test-token-1"
+      - "test-token-2"
+      - "test-token-3"
+
 scenarios:
-  - flow:
-    - get:
-        url: "/api/v1/health"
-    - get:
-        url: "/api/v1/dashboard"
-    - think: 1
+  - name: "API Health Check"
+    weight: 10
+    flow:
+      - get:
+          url: "/health"
+          expect:
+            - statusCode: 200
+            - contentType: application/json
+
+  - name: "User Authentication"
+    weight: 20
+    flow:
+      - post:
+          url: "/api/v1/auth/login"
+          json:
+            username: "testuser"
+            password: "testpass"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+          expect:
+            - statusCode: 200
+
+  - name: "Get Village List"
+    weight: 30
+    flow:
+      - get:
+          url: "/api/v1/villages"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+
+  - name: "Get Announcements"
+    weight: 25
+    flow:
+      - get:
+          url: "/api/v1/announcements"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          qs:
+            page: 1
+            limit: 10
+          expect:
+            - statusCode: 200
+
+  - name: "Create Announcement"
+    weight: 5
+    flow:
+      - post:
+          url: "/api/v1/announcements"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            title: "Test Announcement {{ $randomString() }}"
+            content: "This is a test announcement"
+            type: "general"
+          expect:
+            - statusCode: 201
+
+  - name: "Get User Profile"
+    weight: 10
+    flow:
+      - get:
+          url: "/api/v1/users/profile"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+
+  - name: "Search Residents"
+    weight: 15
+    flow:
+      - get:
+          url: "/api/v1/residents/search"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          qs:
+            q: "张"
+            page: 1
+          expect:
+            - statusCode: 200
+
+  - name: "Upload File"
+    weight: 5
+    flow:
+      - post:
+          url: "/api/v1/upload"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          formData:
+            file: "@tests/fixtures/test-file.jpg"
+            type: "avatar"
+          expect:
+            - statusCode: 200
+
+  - name: "WebSocket Connection Test"
+    weight: 5
+    engine: ws
+    flow:
+      - connect:
+          target: "/ws"
+          qs:
+            token: "{{ authToken }}"
+      - send: '{"type":"ping"}'
+      - think: 1
+      - send: '{"type":"subscribe","channel":"village-updates"}'
+      - think: 5

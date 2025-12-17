@@ -325,7 +325,7 @@ class MultiLevelCache {
   }
 
   _setToL1(key, value, priority = 'normal', ttl = null) {
-    let options = { priority };
+    const options = { priority };
     if (ttl) {
       options.ttl = ttl;
     }

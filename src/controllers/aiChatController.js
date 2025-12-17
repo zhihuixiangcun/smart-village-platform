@@ -19,13 +19,13 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const uniqueSuffix = `${Date.now()  }-${  Math.round(Math.random() * 1E9)}`;
     cb(null, uniqueSuffix + path.extname(file.originalname));
   }
 });
 
 const upload = multer({
-  storage: storage,
+  storage,
   limits: {
     fileSize: 10 * 1024 * 1024 // 10MB
   },
@@ -120,7 +120,7 @@ exports.voiceChat = async (req, res) => {
       ...context,
       userId: userId || req.user?.id || 'anonymous',
       sessionId: sessionId || 'default',
-      audioPath: audioPath,
+      audioPath,
       audioDuration: req.body.duration || 0,
       timestamp: new Date()
     };
@@ -139,7 +139,7 @@ exports.voiceChat = async (req, res) => {
       success: true,
       data: {
         ...result,
-        recognizedText: recognizedText
+        recognizedText
       }
     });
 
@@ -170,20 +170,20 @@ exports.calculatePolicy = async (req, res) => {
     let result;
 
     switch (type) {
-      case 'subsidy':
-        result = await calculateSubsidy(params);
-        break;
-      case 'insurance':
-        result = await calculateInsurance(params);
-        break;
-      case 'loan':
-        result = await calculateLoan(params);
-        break;
-      default:
-        return res.status(400).json({
-          success: false,
-          message: '不支持的计算类型'
-        });
+    case 'subsidy':
+      result = await calculateSubsidy(params);
+      break;
+    case 'insurance':
+      result = await calculateInsurance(params);
+      break;
+    case 'loan':
+      result = await calculateLoan(params);
+      break;
+    default:
+      return res.status(400).json({
+        success: false,
+        message: '不支持的计算类型'
+      });
     }
 
     res.json({
@@ -253,7 +253,7 @@ exports.getConversationHistory = async (req, res) => {
     res.json({
       success: true,
       data: {
-        history: history,
+        history,
         count: history.length
       }
     });
@@ -301,7 +301,7 @@ exports.searchAgriculture = async (req, res) => {
 
     // 分类筛选
     if (category) {
-      searchConditions.$and.push({ category: category });
+      searchConditions.$and.push({ category });
     }
 
     // 作物筛选
@@ -326,17 +326,17 @@ exports.searchAgriculture = async (req, res) => {
     // 排序条件
     let sortCondition = {};
     switch (sort) {
-      case 'usefulness':
-        sortCondition = { 'usefulness.rating': -1 };
-        break;
-      case 'recent':
-        sortCondition = { lastUpdated: -1 };
-        break;
-      case 'confidence':
-        sortCondition = { confidence: -1 };
-        break;
-      default:
-        sortCondition = { relevance: { $meta: 'textScore' } };
+    case 'usefulness':
+      sortCondition = { 'usefulness.rating': -1 };
+      break;
+    case 'recent':
+      sortCondition = { lastUpdated: -1 };
+      break;
+    case 'confidence':
+      sortCondition = { confidence: -1 };
+      break;
+    default:
+      sortCondition = { relevance: { $meta: 'textScore' } };
     }
 
     // 执行搜索
@@ -352,11 +352,11 @@ exports.searchAgriculture = async (req, res) => {
     res.json({
       success: true,
       data: {
-        results: results,
+        results,
         pagination: {
           current: parseInt(page),
           pageSize: parseInt(limit),
-          total: total,
+          total,
           pages: Math.ceil(total / limit)
         }
       }
@@ -543,7 +543,7 @@ async function calculateSubsidy(params) {
           if (amount > 0) {
             subsidies.push({
               policy: policy.title,
-              amount: amount,
+              amount,
               unit: benefit.amount.unit || '元',
               conditions: policy.eligibility
             });
@@ -634,7 +634,7 @@ async function logUserQuery(req, message, result) {
     const logData = {
       userId: req.user?.id || 'anonymous',
       sessionId: req.body.sessionId || 'default',
-      message: message,
+      message,
       intent: result.intent,
       entities: result.entities,
       success: result.success,

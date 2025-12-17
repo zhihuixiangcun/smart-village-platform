@@ -78,7 +78,7 @@ class MapService {
 
       const params = {
         key: this.config.gaode.key,
-        address: address
+        address
       };
 
       if (city) {
@@ -161,7 +161,7 @@ class MapService {
       const params = {
         key: this.config.gaode.key,
         keywords: keyword,
-        city: city,
+        city,
         citylimit: city === '全国' ? false : true,
         page_size: pageSize,
         page_num: page - 1,
@@ -225,7 +225,7 @@ class MapService {
         key: this.config.gaode.key,
         origin: Array.isArray(origin) ? origin.join(',') : origin,
         destination: Array.isArray(destination) ? destination.join(',') : destination,
-        strategy: strategy, // 路线策略 0-躲避拥堵
+        strategy, // 路线策略 0-躲避拥堵
         extensions: 'all'
       };
 
@@ -288,7 +288,7 @@ class MapService {
           ? origins.map(origin => origin.join(',')).join('|')
           : origins.join('|'),
         destination: Array.isArray(destination) ? destination.join(',') : destination,
-        type: type // 1:驾车距离 3:步行距离
+        type // 1:驾车距离 3:步行距离
       };
 
       const response = await axios.get(
@@ -339,8 +339,8 @@ class MapService {
 
       const params = {
         key: this.config.gaode.key,
-        city: city,
-        extensions: extensions // all:预报天气信息, base:实况天气信息
+        city,
+        extensions // all:预报天气信息, base:实况天气信息
       };
 
       const response = await axios.get(
@@ -403,7 +403,7 @@ class MapService {
 
       const params = {
         ak: this.config.baidu.ak,
-        address: address,
+        address,
         output: 'json'
       };
 
@@ -447,7 +447,7 @@ class MapService {
   generateBaiduSN(params) {
     // 按照key排序
     const sortedKeys = Object.keys(params).sort();
-    let query = [];
+    const query = [];
     sortedKeys.forEach(key => {
       if (key !== 'sn') {
         query.push(`${key}=${encodeURIComponent(params[key])}`);
@@ -455,7 +455,7 @@ class MapService {
     });
 
     const queryString = query.join('&');
-    const url = '/geocoder/v2/?' + queryString;
+    const url = `/geocoder/v2/?${  queryString}`;
 
     return crypto.createHash('md5')
       .update(encodeURIComponent(url) + this.config.baidu.sk)
@@ -474,7 +474,7 @@ class MapService {
       const params = {
         key: this.config.gaode.key,
         keywords: adcode,
-        subdistrict: subdistrict,
+        subdistrict,
         extensions: 'all'
       };
 
@@ -561,7 +561,7 @@ class MapService {
       }
 
       // 如果村庄有坐标信息，获取详细的地图数据
-      let mapInfo = {
+      const mapInfo = {
         villageId: village._id,
         name: village.name,
         address: village.address
@@ -671,7 +671,7 @@ class MapService {
                   );
                   return {
                     ...poi,
-                    distance: distance
+                    distance
                   };
                 })
                 .filter(poi => poi.distance <= 10000) // 10公里内
