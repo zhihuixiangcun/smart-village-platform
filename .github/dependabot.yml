@@ -1,0 +1,83 @@
+version: 2
+updates:
+  # —ß9ÓUnpmùV
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "zhihuixiangcun/backend-team"
+    assignees:
+      - "zhihuixiangcun/admins"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "backend"
+    allow:
+      - dependency-type: "production"
+      - dependency-type: "development"
+
+  # —ßMÔnpmùV
+  - package-ecosystem: "npm"
+    directory: "/client"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "zhihuixiangcun/frontend-team"
+    assignees:
+      - "zhihuixiangcun/admins"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "frontend"
+    allow:
+      - dependency-type: "production"
+      - dependency-type: "development"
+
+  # —ßGitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "zhihuixiangcun/devops-team"
+    assignees:
+      - "zhihuixiangcun/admins"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "ci/cd"
+
+  # —ßDocker˙@\œ
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+      day: "1"
+      time: "10:00"
+    open-pull-requests-limit: 2
+    reviewers:
+      - "zhihuixiangcun/devops-team"
+    assignees:
+      - "zhihuixiangcun/admins"
+    commit-message:
+      prefix: "docker"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "docker"

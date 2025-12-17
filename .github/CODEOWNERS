@@ -1,0 +1,85 @@
+# GitHub代码所有者配置文件
+# 智慧村庄综合服务平台
+
+# 全局代码所有者 - 管理员团队
+* @zhihuixiangcun/admins
+
+# 特定目录所有者
+/client/ @zhihuixiangcun/frontend-team
+/server/ @zhihuixiangcun/backend-team
+/src/ @zhihuixiangcun/backend-team
+/gateway/ @zhihuixiangcun/backend-team
+/security/ @zhihuixiangcun/security-team
+
+# 文档所有者
+docs/ @zhihuixiangcun/docs-team
+README.md @zhihuixiangcun/docs-team
+CHANGELOG.md @zhihuixiangcun/docs-team
+
+# 开发运维相关
+.github/ @zhihuixiangcun/devops-team
+deployment/ @zhihuixiangcun/devops-team
+docker/ @zhihuixiangcun/devops-team
+k8s/ @zhihuixiangcun/devops-team
+monitoring/ @zhihuixiangcun/devops-team
+
+# 测试相关
+tests/ @zhihuixiangcun/qa-team
+jest*.js @zhihuixiangcun/qa-team
+
+# 紧急变更批准人 - 关键配置文件
+*.yml @zhihuixiangcun/admins
+*.yaml @zhihuixiangcun/admins
+Dockerfile* @zhihuixiangcun/devops-team
+docker-compose* @zhihuixiangcun/devops-team
+
+# 包管理文件
+package*.json @zhihuixiangcun/backend-team
+client/package*.json @zhihuixiangcun/frontend-team
+
+# 安全相关文件
+*.key @zhihuixiangcun/security-team
+*.pem @zhihuixiangcun/security-team
+*.env* @zhihuixiangcun/security-team
+src/security/ @zhihuixiangcun/security-team
+security/ @zhihuixiangcun/security-team
+
+# 数据库相关
+src/models/ @zhihuixiangcun/backend-team
+server/models/ @zhihuixiangcun/backend-team
+migrations/ @zhihuixiangcun/backend-team
+
+# API路由
+src/routes/ @zhihuixiangcun/backend-team
+server/routes/ @zhihuixiangcun/backend-team
+
+# 前端组件
+client/src/components/ @zhihuixiangcun/frontend-team
+client/src/views/ @zhihuixiangcun/frontend-team
+client/src/stores/ @zhihuixiangcun/frontend-team
+client/src/router/ @zhihuixiangcun/frontend-team
+
+# 中间件和工具
+src/middleware/ @zhihuixiangcun/backend-team
+src/utils/ @zhihuixiangcun/backend-team
+src/services/ @zhihuixiangcun/backend-team
+
+# 配置文件
+src/config/ @zhihuixiangcun/devops-team
+*.config.js @zhihuixiangcun/devops-team
+tsconfig.json @zhihuixiangcun/frontend-team
+
+# 默认所有者 - 如果没有特定匹配
+*.js @zhihuixiangcun/backend-team
+*.vue @zhihuixiangcun/frontend-team
+*.ts @zhihuixiangcun/frontend-team
+*.css @zhihuixiangcun/frontend-team
+*.scss @zhihuixiangcun/frontend-team
+
+# 忽略文件 - 不需要代码所有者
+.gitignore
+node_modules/
+dist/
+build/
+coverage/
+*.log
