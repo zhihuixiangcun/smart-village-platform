@@ -769,6 +769,19 @@ const router = createRouter({
               { title: '连接测试', path: '/test/connection' }
             ]
           }
+        },
+        {
+          path: 'mobile-adaptation',
+          name: 'test-mobile-adaptation',
+          component: () => import('@/views/demo/MobileAdaptationDemo.vue'),
+          meta: {
+            requiresAuth: false,
+            title: '移动端适配演示',
+            breadcrumb: [
+              { title: '系统测试', path: '/test' },
+              { title: '移动端适配演示', path: '/test/mobile-adaptation' }
+            ]
+          }
         }
       ]
     },

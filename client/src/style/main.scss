@@ -1,3 +1,6 @@
+// 导入移动端适配样式
+@import './mobile-adaptation.css';
+
 // 全局样式
 * {
   margin: 0;
@@ -12,11 +15,22 @@ html, body {
   font-size: 14px;
   color: #333;
   background-color: #f5f7fa;
+
+  // 移动端优化
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
 }
 
 #app {
   width: 100%;
   min-height: 100vh;
+
+  // 移动端适配
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 // 通用类

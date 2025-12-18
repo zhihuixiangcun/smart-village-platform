@@ -201,6 +201,172 @@ class InvoiceOCRService {
     try {
       const config = this.ocrEngines.tencent;
 
+      // 读取图片并编码为Base64
+      const imageBuffer = fs.readFileSync(imagePath);
+      const imageBase64 = imageBuffer.toString('base64');
+
+      // 构建腾讯云API请求
+      const timestamp = Math.floor(Date.now() / 1000);
+      const nonce = Math.random().toString(36).substr(2, 16);
+
+      // 计算签名
+      const payload = {
+        Action: 'VatInvoiceOCR',
+        Version: '2018-11-19',
+        Region: config.region,
+        ImageBase64: imageBase64,
+        Timestamp: timestamp,
+        Nonce: nonce,
+        SecretId: config.secretId
+      };
+
+      const signature = this.calculateTencentSignature(payload, config.secretKey);
+      payload.Signature = signature;
+
+      // 发送请求
+      const response = await axios.post(config.apiUrl, payload, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
+        }
+      });
+
+      return this.parseTencentOCRResult(response.data);
+
+    } catch (error) {
+      console.error('腾讯OCR识别失败:', error);
+      throw new Error(`腾讯OCR识别失败: ${error.message}`);
+    }
+  }
+
+  /**
+   * 计算腾讯云API签名
+   * @param {Object} payload - 请求参数
+   * @param {String} secretKey - 密钥
+   * @returns {String} 签名
+   */
+  calculateTencentSignature(payload, secretKey) {
+    const crypto = require('crypto');
+
+    // 按字典序排序参数
+    const sortedKeys = Object.keys(payload).sort();
+    const queryString = sortedKeys.map(key => `${key}=${payload[key]}`).join('&');
+
+    // 生成签名
+    const signStr = `POSTocr.tencentcloudapi.com/?${queryString}`;
+    return crypto.createHmac('sha1', secretKey).update(signStr).digest('base64');
+  }
+
+  /**
+   * 解析腾讯OCR结果
+   * @param {Object} result - OCR结果
+   * @returns {Object} 解析后的结果
+   */
+  parseTencentOCRResult(result) {
+    if (!result.Response || result.Response.Error) {
+      throw new Error(result.Response?.Error?.Message || '腾讯OCR识别失败');
+    }
+
+    const data = result.Response;
+
+    return {
+      success: true,
+      fullText: this.extractFullTextFromTencent(data),
+      fields: this.extractFieldsFromTencent(data),
+      confidence: this.calculateTencentConfidence(data)
+    };
+  }
+
+  /**
+   * 从腾讯OCR结果提取完整文本
+   * @param {Object} data - 腾讯OCR数据
+   * @returns {String} 完整文本
+   */
+  extractFullTextFromTencent(data) {
+    if (!data.VatInvoiceInfos || data.VatInvoiceInfos.length === 0) {
+      return '';
+    }
+
+    const invoice = data.VatInvoiceInfos[0];
+    let fullText = '';
+
+    // 组合各个字段的文本
+    if (invoice.InvoiceNum) fullText += `发票号码: ${invoice.InvoiceNum} `;
+    if (invoice.InvoiceCode) fullText += `发票代码: ${invoice.InvoiceCode} `;
+    if (invoice.InvoiceDate) fullText += `开票日期: ${invoice.InvoiceDate} `;
+    if (invoice.SellerName) fullText += `销售方: ${invoice.SellerName} `;
+    if (invoice.PurchaserName) fullText += `购买方: ${invoice.PurchaserName} `;
+    if (invoice.TotalAmount) fullText += `价税合计: ${invoice.TotalAmount} `;
+
+    return fullText.trim();
+  }
+
+  /**
+   * 从腾讯OCR结果提取字段
+   * @param {Object} data - 腾讯OCR数据
+   * @returns {Array} 字段数组
+   */
+  extractFieldsFromTencent(data) {
+    if (!data.VatInvoiceInfos || data.VatInvoiceInfos.length === 0) {
+      return [];
+    }
+
+    const invoice = data.VatInvoiceInfos[0];
+    const fields = [];
+
+    // 提取各字段并添加位置信息
+    const fieldMappings = {
+      'InvoiceNum': '发票号码',
+      'InvoiceCode': '发票代码',
+      'InvoiceDate': '开票日期',
+      'SellerName': '销售方名称',
+      'SellerTaxNum': '销售方税号',
+      'PurchaserName': '购买方名称',
+      'PurchaserTaxNum': '购买方税号',
+      'TotalAmount': '价税合计',
+      'TaxAmount': '税额',
+      'AmountWithoutTax': '不含税金额'
+    };
+
+    Object.keys(fieldMappings).forEach(key => {
+      if (invoice[key]) {
+        fields.push({
+          fieldName: fieldMappings[key],
+          fieldValue: invoice[key],
+          confidence: 0.95, // 腾讯OCR一般不提供单字段置信度
+          boundingBox: {
+            x: 0,
+            y: 0,
+            width: 100,
+            height: 20
+          }
+        });
+      }
+    });
+
+    return fields;
+  }
+
+  /**
+   * 计算腾讯OCR置信度
+   * @param {Object} data - 腾讯OCR数据
+   * @returns {Number} 置信度
+   */
+  calculateTencentConfidence(data) {
+    // 腾讯OCR不提供具体置信度，基于字段完整性计算
+    if (!data.VatInvoiceInfos || data.VatInvoiceInfos.length === 0) {
+      return 0;
+    }
+
+    const invoice = data.VatInvoiceInfos[0];
+    const requiredFields = ['InvoiceNum', 'InvoiceCode', 'SellerName', 'TotalAmount'];
+    const presentFields = requiredFields.filter(field => invoice[field]).length;
+
+    return (presentFields / requiredFields.length) * 100;
+  }
+  async recognizeWithTencent(imagePath, options = {}) {
+    try {
+      const config = this.ocrEngines.tencent;
+
       // 读取图片
       const imageBuffer = fs.readFileSync(imagePath);
       const imageBase64 = imageBuffer.toString('base64');
@@ -786,6 +952,359 @@ class InvoiceOCRService {
 
     } catch (error) {
       throw new Error(`税务局API调用失败: ${error.message}`);
+    }
+  }
+
+  /**
+   * 智能票据分类
+   * @param {String} imagePath - 图片路径
+   * @returns {Promise<Object>} 分类结果
+   */
+  async classifyInvoice(imagePath) {
+    try {
+      const result = await this.recognizeInvoice(imagePath, { engine: 'baidu' });
+
+      if (!result.success) {
+        return {
+          success: false,
+          classification: 'unknown',
+          confidence: 0
+        };
+      }
+
+      const invoiceData = result.extractedData;
+      let classification = 'other';
+      let confidence = 0;
+
+      // 根据发票特征进行分类
+      if (invoiceData.sellerName) {
+        const sellerName = invoiceData.sellerName.toLowerCase();
+
+        // 增值税专用发票
+        if (sellerName.includes('有限公司') || sellerName.includes('企业')) {
+          classification = 'vat_special';
+          confidence = 0.9;
+        }
+        // 增值税普通发票
+        else if (invoiceData.invoiceCode && invoiceData.invoiceCode.length === 12) {
+          classification = 'vat_common';
+          confidence = 0.8;
+        }
+        // 电子发票
+        else if (sellerName.includes('电子发票') || result.ocrResult?.extractedText?.includes('电子发票')) {
+          classification = 'electronic';
+          confidence = 0.85;
+        }
+        // 机动车发票
+        else if (sellerName.includes('汽车') || sellerName.includes('车辆')) {
+          classification = 'vehicle';
+          confidence = 0.9;
+        }
+        // 货运运输发票
+        else if (sellerName.includes('运输') || sellerName.includes('物流')) {
+          classification = 'freight';
+          confidence = 0.85;
+        }
+      }
+
+      return {
+        success: true,
+        classification,
+        confidence,
+        details: invoiceData
+      };
+
+    } catch (error) {
+      console.error('票据分类失败:', error);
+      return {
+        success: false,
+        classification: 'unknown',
+        confidence: 0,
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * 票据真伪检测
+   * @param {String} invoiceId - 票据ID
+   * @returns {Promise<Object>} 检测结果
+   */
+  async detectInvoiceFraud(invoiceId) {
+    try {
+      const invoice = await InvoiceOCR.findById(invoiceId);
+      if (!invoice) {
+        throw new Error('票据不存在');
+      }
+
+      const fraudDetection = {
+        overallRisk: 'low',
+        riskScore: 0,
+        riskFactors: [],
+        recommendations: []
+      };
+
+      // 检查1: 发票号码格式
+      const invoiceNumber = invoice.invoiceInfo.invoiceNumber;
+      if (!this.validationRules.invoiceNumber.pattern.test(invoiceNumber)) {
+        fraudDetection.riskFactors.push('发票号码格式异常');
+        fraudDetection.riskScore += 20;
+      }
+
+      // 检查2: 发票日期合理性
+      const invoiceDate = new Date(invoice.invoiceInfo.invoiceDate);
+      const now = new Date();
+      if (invoiceDate > now) {
+        fraudDetection.riskFactors.push('发票日期异常（未来日期）');
+        fraudDetection.riskScore += 30;
+      }
+      if (now - invoiceDate > 365 * 24 * 60 * 60 * 1000) { // 超过一年
+        fraudDetection.riskFactors.push('发票日期过久（超过一年）');
+        fraudDetection.riskScore += 15;
+      }
+
+      // 检查3: 金额合理性
+      const amount = invoice.invoiceInfo.totalAmount;
+      if (amount > this.validationRules.amount.max) {
+        fraudDetection.riskFactors.push('发票金额异常（超过最大限额）');
+        fraudDetection.riskScore += 25;
+      }
+
+      // 检查4: OCR识别置信度
+      if (invoice.ocrResult.confidence < 60) {
+        fraudDetection.riskFactors.push('OCR识别置信度过低');
+        fraudDetection.riskScore += 20;
+      }
+
+      // 检查5: 重复票据
+      if (invoice.verification.duplicateCheck.isDuplicate) {
+        fraudDetection.riskFactors.push('检测到重复票据');
+        fraudDetection.riskScore += 40;
+      }
+
+      // 检查6: 卖方信息异常
+      if (!invoice.invoiceInfo.sellerName || invoice.invoiceInfo.sellerName.length < 2) {
+        fraudDetection.riskFactors.push('卖方信息异常');
+        fraudDetection.riskScore += 15;
+      }
+
+      // 综合风险评估
+      if (fraudDetection.riskScore >= 70) {
+        fraudDetection.overallRisk = 'high';
+        fraudDetection.recommendations.push('建议人工审核');
+        fraudDetection.recommendations.push('联系开票方确认');
+      } else if (fraudDetection.riskScore >= 40) {
+        fraudDetection.overallRisk = 'medium';
+        fraudDetection.recommendations.push('建议补充验证材料');
+      } else {
+        fraudDetection.recommendations.push('票据基本可信');
+      }
+
+      // 保存检测结果
+      invoice.verification.fraudDetection = {
+        riskScore: fraudDetection.riskScore,
+        overallRisk: fraudDetection.overallRisk,
+        riskFactors: fraudDetection.riskFactors,
+        detectedAt: new Date()
+      };
+
+      await invoice.save();
+
+      return {
+        success: true,
+        fraudDetection
+      };
+
+    } catch (error) {
+      console.error('票据真伪检测失败:', error);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * 票据数据修复和建议
+   * @param {String} invoiceId - 票据ID
+   * @returns {Promise<Object>} 修复建议
+   */
+  async suggestInvoiceDataRepair(invoiceId) {
+    try {
+      const invoice = await InvoiceOCR.findById(invoiceId);
+      if (!invoice) {
+        throw new Error('票据不存在');
+      }
+
+      const suggestions = [];
+      const invoiceData = invoice.invoiceInfo;
+
+      // 检查并建议修复的字段
+      if (!invoiceData.invoiceNumber) {
+        suggestions.push({
+          field: 'invoiceNumber',
+          issue: '缺少发票号码',
+          suggestion: '请确认发票号码并手动输入',
+          priority: 'high'
+        });
+      }
+
+      if (!invoiceData.invoiceCode) {
+        suggestions.push({
+          field: 'invoiceCode',
+          issue: '缺少发票代码',
+          suggestion: '请确认发票代码并手动输入',
+          priority: 'high'
+        });
+      }
+
+      if (!invoiceData.invoiceDate) {
+        suggestions.push({
+          field: 'invoiceDate',
+          issue: '缺少开票日期',
+          suggestion: '请确认开票日期并手动输入',
+          priority: 'medium'
+        });
+      } else if (invoiceData.invoiceDate.length !== 10) {
+        suggestions.push({
+          field: 'invoiceDate',
+          issue: '日期格式不正确',
+          suggestion: '请使用YYYY-MM-DD格式',
+          currentValue: invoiceData.invoiceDate,
+          priority: 'medium'
+        });
+      }
+
+      if (!invoiceData.totalAmount || invoiceData.totalAmount === 0) {
+        suggestions.push({
+          field: 'totalAmount',
+          issue: '金额识别失败或为零',
+          suggestion: '请手动输入发票金额',
+          priority: 'high'
+        });
+      }
+
+      if (invoiceData.totalAmount && invoiceData.amountWithoutTax && invoiceData.taxAmount) {
+        const calculatedTotal = parseFloat(invoiceData.amountWithoutTax) + parseFloat(invoiceData.taxAmount);
+        if (Math.abs(calculatedTotal - parseFloat(invoiceData.totalAmount)) > 0.01) {
+          suggestions.push({
+            field: 'amount_calculation',
+            issue: '金额计算不一致',
+            suggestion: `不含税金额(${invoiceData.amountWithoutTax}) + 税额(${invoiceData.taxAmount}) ≠ 价税合计(${invoiceData.totalAmount})`,
+            priority: 'medium'
+          });
+        }
+      }
+
+      // OCR识别质量建议
+      if (invoice.ocrResult.confidence < 70) {
+        suggestions.push({
+          field: 'ocr_quality',
+          issue: 'OCR识别置信度较低',
+          suggestion: '建议重新拍照或使用更清晰的图片',
+          currentValue: invoice.ocrResult.confidence,
+          priority: 'low'
+        });
+      }
+
+      return {
+        success: true,
+        suggestions,
+        confidence: invoice.ocrResult.confidence,
+        needsManualReview: suggestions.some(s => s.priority === 'high')
+      };
+
+    } catch (error) {
+      console.error('生成修复建议失败:', error);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * 获取OCR服务统计信息
+   * @param {Object} filters - 过滤条件
+   * @returns {Promise<Object>} 统计信息
+   */
+  async getOCRStatistics(filters = {}) {
+    try {
+      const {
+        startDate,
+        endDate,
+        engine,
+        status
+      } = filters;
+
+      // 构建查询条件
+      const query = {};
+      if (startDate || endDate) {
+        query.createdAt = {};
+        if (startDate) query.createdAt.$gte = new Date(startDate);
+        if (endDate) query.createdAt.$lte = new Date(endDate);
+      }
+      if (engine) {
+        query['ocrResult.engine'] = engine;
+      }
+      if (status) {
+        query['verification.taxAuthorityVerified'] = status === 'verified';
+      }
+
+      const totalInvoices = await InvoiceOCR.countDocuments(query);
+      const verifiedInvoices = await InvoiceOCR.countDocuments({
+        ...query,
+        'verification.taxAuthorityVerified': true
+      });
+      const duplicateInvoices = await InvoiceOCR.countDocuments({
+        ...query,
+        'verification.duplicateCheck.isDuplicate': true
+      });
+
+      // 获取各引擎使用统计
+      const engineStats = await InvoiceOCR.aggregate([
+        { $match: query },
+        { $group: { _id: '$ocrResult.engine', count: { $sum: 1 } } }
+      ]);
+
+      // 获取平均置信度
+      const avgConfidence = await InvoiceOCR.aggregate([
+        { $match: query },
+        { $group: { _id: null, avgConfidence: { $avg: '$ocrResult.confidence' } } }
+      ]);
+
+      // 获取处理时间统计
+      const processingTimeStats = await InvoiceOCR.aggregate([
+        { $match: query },
+        { $group: {
+          _id: null,
+          avgTime: { $avg: '$ocrResult.processingTime' },
+          minTime: { $min: '$ocrResult.processingTime' },
+          maxTime: { $max: '$ocrResult.processingTime' }
+        }}
+      ]);
+
+      return {
+        totalInvoices,
+        verifiedInvoices,
+        duplicateInvoices,
+        verificationRate: totalInvoices > 0 ? Math.round((verifiedInvoices / totalInvoices) * 100) : 0,
+        duplicateRate: totalInvoices > 0 ? Math.round((duplicateInvoices / totalInvoices) * 100) : 0,
+        engineUsage: engineStats.reduce((acc, stat) => {
+          acc[stat._id] = stat.count;
+          return acc;
+        }, {}),
+        averageConfidence: avgConfidence[0]?.avgConfidence || 0,
+        processingTime: processingTimeStats[0] || {
+          avgTime: 0,
+          minTime: 0,
+          maxTime: 0
+        }
+      };
+
+    } catch (error) {
+      console.error('获取OCR统计信息失败:', error);
+      throw error;
     }
   }
 }

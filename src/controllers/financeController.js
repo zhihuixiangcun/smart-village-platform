@@ -14,6 +14,7 @@ const {
 const blockchainService = require('../services/blockchainService');
 const invoiceOCRService = require('../services/invoiceOCRService');
 const villageFinanceService = require('../services/villageFinanceService');
+const ApprovalWorkflowService = require('../services/approvalWorkflowService');
 const multer = require('multer');
 const path = require('path');
 
@@ -103,57 +104,38 @@ async function createTransaction(req, res) {
 async function submitTransactionForApproval(req, res) {
   try {
     const { transactionId } = req.params;
-    const { attachments } = req.body;
+    const { attachments, workflowType } = req.body;
 
-    const transaction = await FinancialTransaction.findById(transactionId);
-    if (!transaction) {
-      return res.status(404).json({
-        success: false,
-        error: 'TRANSACTION_NOT_FOUND',
-        message: '财务交易不存在'
-      });
-    }
-
-    if (transaction.status !== 'draft') {
-      return res.status(400).json({
-        success: false,
-        error: 'INVALID_STATUS',
-        message: '只能提交草稿状态的交易'
-      });
-    }
-
-    // 更新状态为待审批
-    transaction.status = 'pending';
-    transaction.approval.submittedBy = {
-      userId: req.user._id,
-      userName: req.user.profile.displayName,
-      submitDate: new Date()
-    };
+    const approvalWorkflowService = new ApprovalWorkflowService();
 
     // 处理附件
     if (attachments && attachments.length > 0) {
-      transaction.attachments = attachments.map(attachment => ({
-        ...attachment,
-        uploadedBy: {
-          userId: req.user._id,
-          userName: req.user.profile.displayName
-        }
-      }));
+      await FinancialTransaction.findByIdAndUpdate(transactionId, {
+        attachments: attachments.map(attachment => ({
+          ...attachment,
+          uploadedBy: {
+            userId: req.user._id,
+            userName: req.user.profile.displayName
+          }
+        }))
+      });
     }
 
-    await transaction.save();
-
-    // 发送审批通知
-    await sendApprovalNotification(transaction);
+    // 启动审批工作流
+    const workflowResult = await approvalWorkflowService.startWorkflow(
+      transactionId,
+      workflowType || 'expense',
+      {
+        userId: req.user._id,
+        userName: req.user.profile.displayName,
+        role: req.user.role
+      }
+    );
 
     res.json({
       success: true,
       message: '交易已提交审批',
-      data: {
-        transactionId: transaction._id,
-        status: transaction.status,
-        submittedAt: transaction.approval.submittedBy.submitDate
-      }
+      data: workflowResult
     });
 
   } catch (error) {
@@ -161,7 +143,8 @@ async function submitTransactionForApproval(req, res) {
     res.status(500).json({
       success: false,
       error: 'SUBMISSION_FAILED',
-      message: '提交审批失败'
+      message: '提交审批失败',
+      details: error.message
     });
   }
 }
@@ -172,58 +155,20 @@ async function reviewTransaction(req, res) {
     const { transactionId } = req.params;
     const { decision, comments } = req.body;
 
-    const transaction = await FinancialTransaction.findById(transactionId);
-    if (!transaction) {
-      return res.status(404).json({
-        success: false,
-        error: 'TRANSACTION_NOT_FOUND',
-        message: '财务交易不存在'
-      });
-    }
+    const approvalWorkflowService = new ApprovalWorkflowService();
 
-    if (transaction.status !== 'pending') {
-      return res.status(400).json({
-        success: false,
-        error: 'INVALID_STATUS',
-        message: '只能审批待审批状态的交易'
-      });
-    }
-
-    // 添加审批记录
-    transaction.approval.reviewedBy.push({
-      userId: req.user._id,
-      userName: req.user.profile.displayName,
-      role: req.user.role,
+    // 处理审批决策
+    const result = await approvalWorkflowService.processApprovalDecision(
+      transactionId,
+      req.user._id,
       decision,
-      comments,
-      reviewDate: new Date()
-    });
-
-    // 更新状态
-    if (decision === 'approved') {
-      transaction.status = 'approved';
-      transaction.approval.finalApprover = {
-        userId: req.user._id,
-        userName: req.user.profile.displayName,
-        approvalDate: new Date()
-      };
-    } else if (decision === 'rejected') {
-      transaction.status = 'rejected';
-    } else if (decision === 'returned') {
-      transaction.status = 'draft';
-    }
-
-    await transaction.save();
+      comments
+    );
 
     res.json({
       success: true,
-      message: `交易${decision === 'approved' ? '已批准' : decision === 'rejected' ? '已拒绝' : '已退回'}`,
-      data: {
-        transactionId: transaction._id,
-        status: transaction.status,
-        decision,
-        reviewedAt: new Date()
-      }
+      message: result.message,
+      data: result
     });
 
   } catch (error) {
@@ -231,7 +176,8 @@ async function reviewTransaction(req, res) {
     res.status(500).json({
       success: false,
       error: 'REVIEW_FAILED',
-      message: '审批交易失败'
+      message: '审批交易失败',
+      details: error.message
     });
   }
 }
@@ -1046,6 +992,136 @@ async function uploadImageToCloud(file) {
   return `https://cloud-storage.example.com/invoices/${Date.now()}_${file.originalname}`;
 }
 
+// 获取待办审批任务
+async function getPendingTasks(req, res) {
+  try {
+    const {
+      transactionType,
+      status = 'pending',
+      priority,
+      dateRange,
+      page = 1,
+      limit = 20
+    } = req.query;
+
+    const approvalWorkflowService = new ApprovalWorkflowService();
+
+    const filters = {};
+    if (transactionType) filters.transactionType = transactionType;
+    if (dateRange) filters.dateRange = JSON.parse(dateRange);
+    if (priority) filters.priority = priority;
+
+    const tasks = await approvalWorkflowService.getPendingTasks(req.user._id, filters);
+
+    // 分页处理
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + parseInt(limit);
+    const paginatedTasks = tasks.slice(startIndex, endIndex);
+
+    res.json({
+      success: true,
+      data: paginatedTasks,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total: tasks.length,
+        totalPages: Math.ceil(tasks.length / limit)
+      }
+    });
+
+  } catch (error) {
+    console.error('获取待办任务失败:', error);
+    res.status(500).json({
+      success: false,
+      error: 'FETCH_FAILED',
+      message: '获取待办任务失败',
+      details: error.message
+    });
+  }
+}
+
+// 获取审批工作流状态
+async function getWorkflowStatus(req, res) {
+  try {
+    const { transactionId } = req.params;
+
+    const transaction = await FinancialTransaction.findById(transactionId)
+      .populate('createdBy.userId', 'profile.displayName')
+      .populate('approval.reviewedBy.approver.userId', 'profile.displayName');
+
+    if (!transaction) {
+      return res.status(404).json({
+        success: false,
+        error: 'TRANSACTION_NOT_FOUND',
+        message: '财务交易不存在'
+      });
+    }
+
+    // 检查访问权限
+    if (transaction.createdBy.userId._id.toString() !== req.user._id &&
+        !['village_admin', 'finance_officer', 'department_head'].includes(req.user.role)) {
+      return res.status(403).json({
+        success: false,
+        error: 'ACCESS_DENIED',
+        message: '无权查看该交易的审批状态'
+      });
+    }
+
+    // 获取工作流信息
+    const workflowConfig = transaction.approval.workflowConfig || {};
+    const currentStageId = transaction.approval.currentStage;
+    const currentStage = workflowConfig.stages?.find(s => s.id === currentStageId);
+
+    // 计算审批进度
+    let totalStages = workflowConfig.stages?.length || 0;
+    let completedStages = 0;
+
+    if (workflowConfig.stages) {
+      workflowConfig.stages.forEach((stage, index) => {
+        const stageReviews = transaction.approval.reviewedBy.filter(r => r.stage === stage.id);
+        const approvalThreshold = { meetsRequirement: false };
+
+        if (stageReviews.length > 0) {
+          // 这里可以复用审批工作流服务的逻辑
+          const approvedReviews = stageReviews.filter(r => r.decision === 'approved');
+          if (approvedReviews.length >= stage.minApprovers) {
+            completedStages = index + 1;
+          }
+        }
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        transactionId: transaction._id,
+        transactionNumber: transaction.transactionInfo.transactionNumber,
+        status: transaction.status,
+        currentStage: currentStageId,
+        currentStageName: currentStage?.name,
+        progress: {
+          completedStages,
+          totalStages,
+          percentage: totalStages > 0 ? Math.round((completedStages / totalStages) * 100) : 0
+        },
+        workflowStages: workflowConfig.stages || [],
+        approvalHistory: transaction.approval.reviewedBy,
+        submitDate: transaction.approval.submittedBy?.submitDate,
+        lastUpdated: transaction.updatedAt
+      }
+    });
+
+  } catch (error) {
+    console.error('获取工作流状态失败:', error);
+    res.status(500).json({
+      success: false,
+      error: 'FETCH_FAILED',
+      message: '获取工作流状态失败',
+      details: error.message
+    });
+  }
+}
+
 async function sendApprovalNotification(transaction) {
   // 这里需要实现通知逻辑
   console.log('发送审批通知:', transaction.transactionInfo.transactionNumber);
@@ -1062,6 +1138,8 @@ module.exports = {
   submitTransactionForApproval,
   reviewTransaction,
   getTransactions,
+  getPendingTasks,
+  getWorkflowStatus,
 
   // 区块链存证管理
   uploadToBlockchain: [upload.single('file'), uploadToBlockchain],

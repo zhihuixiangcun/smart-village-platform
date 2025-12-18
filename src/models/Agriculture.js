@@ -310,7 +310,7 @@ const AgriTechKnowledgeSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // 农业问答对Schema
-const AgriQA Schema = new mongoose.Schema({
+const AgriQASchema = new mongoose.Schema({
   question: {
     type: String,
     required: true,

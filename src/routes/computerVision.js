@@ -200,4 +200,112 @@ router.get('/stats', auth.required, async (req, res) => {
   }
 });
 
+// 票据OCR识别相关路由
+router.post('/invoice/recognize',
+  auth.required,
+  rateLimit.create({
+    windowMs: 1 * 60 * 1000, // 1分钟
+    max: 20, // 最多20次识别请求
+    message: {
+      success: false,
+      message: '票据识别请求过于频繁，请稍后再试'
+    }
+  }),
+  computerVisionController.upload.single('invoice'),
+  computerVisionController.invoiceOCR
+);
+
+router.post('/invoice/batch-recognize',
+  auth.required,
+  rateLimit.create({
+    windowMs: 3 * 60 * 1000, // 3分钟
+    max: 3, // 最多3次批量请求
+    message: {
+      success: false,
+      message: '批量票据识别请求过于频繁，请稍后再试'
+    }
+  }),
+  computerVisionController.upload.array('invoices', 10),
+  computerVisionController.batchInvoiceOCR
+);
+
+router.post('/invoice/classify',
+  auth.required,
+  rateLimit.create({
+    windowMs: 1 * 60 * 1000, // 1分钟
+    max: 15, // 最多15次分类请求
+    message: {
+      success: false,
+      message: '票据分类请求过于频繁，请稍后再试'
+    }
+  }),
+  computerVisionController.upload.single('invoice'),
+  computerVisionController.invoiceClassification
+);
+
+router.post('/invoice/verify',
+  auth.required,
+  rateLimit.create({
+    windowMs: 1 * 60 * 1000, // 1分钟
+    max: 10, // 最多10次验证请求
+    message: {
+      success: false,
+      message: '票据验证请求过于频繁，请稍后再试'
+    }
+  }),
+  computerVisionController.invoiceVerification
+);
+
+router.post('/invoice/fraud-detect',
+  auth.required,
+  rateLimit.create({
+    windowMs: 1 * 60 * 1000, // 1分钟
+    max: 10, // 最多10次检测请求
+    message: {
+      success: false,
+      message: '票据真伪检测请求过于频繁，请稍后再试'
+    }
+  }),
+  computerVisionController.invoiceFraudDetection
+);
+
+router.get('/invoice/repair-suggestions/:invoiceId',
+  auth.required,
+  rateLimit.create({
+    windowMs: 1 * 60 * 1000, // 1分钟
+    max: 30, // 最多30次查询请求
+    message: {
+      success: false,
+      message: '修复建议查询请求过于频繁，请稍后再试'
+    }
+  }),
+  computerVisionController.invoiceRepairSuggestions
+);
+
+router.get('/invoice/statistics',
+  auth.required,
+  rateLimit.create({
+    windowMs: 1 * 60 * 1000, // 1分钟
+    max: 20, // 最多20次统计请求
+    message: {
+      success: false,
+      message: '统计信息查询请求过于频繁，请稍后再试'
+    }
+  }),
+  computerVisionController.OCRStatistics
+);
+
+router.get('/invoice/history',
+  auth.required,
+  rateLimit.create({
+    windowMs: 1 * 60 * 1000, // 1分钟
+    max: 15, // 最多15次查询请求
+    message: {
+      success: false,
+      message: '历史记录查询请求过于频繁，请稍后再试'
+    }
+  }),
+  computerVisionController.getInvoiceHistory
+);
+
 module.exports = router;

@@ -30,6 +30,10 @@ const {
   reviewBudget,
   getBudgets,
 
+  // 审批工作流管理
+  getPendingTasks,
+  getWorkflowStatus,
+
   // 村民财务查询权限管理
   grantFinanceAccess,
   getFinanceSummary,
@@ -92,6 +96,26 @@ router.get('/transactions',
   requirePermission('finance', 'read'),
   dataMasking({ isOwner: false }),
   getTransactions
+);
+
+// 获取待办审批任务
+router.get('/tasks/pending',
+  auditLogger({
+    resource: 'approval_task',
+    action: 'LIST_PENDING_TASKS'
+  }, { sensitiveLevel: 'internal' }),
+  requirePermission('finance', 'approve'),
+  getPendingTasks
+);
+
+// 获取审批工作流状态
+router.get('/transactions/:transactionId/workflow',
+  auditLogger({
+    resource: 'workflow',
+    action: 'VIEW_WORKFLOW_STATUS'
+  }, { sensitiveLevel: 'internal' }),
+  requirePermission('finance', 'read'),
+  getWorkflowStatus
 );
 
 /**

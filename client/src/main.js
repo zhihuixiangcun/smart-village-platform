@@ -8,7 +8,7 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import App from './App.vue'
 import router from './router'
 import permissionDirectives from './directives/permission'
-import { useUserStore } from './stores/userStore'
+import mobileAdaptationPlugin from './plugins/mobileAdaptation'
 import './style/tailwind.css'
 import './style/main.scss'
 
@@ -23,14 +23,13 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 // 注册权限指令
 app.use(permissionDirectives)
 
+// 注册移动端适配插件
+app.use(mobileAdaptationPlugin)
+
 app.use(pinia)
 app.use(router)
 app.use(ElementPlus, {
   locale: zhCn,
 })
-
-// 初始化用户状态
-const userStore = useUserStore()
-userStore.initUserState()
 
 app.mount('#app')

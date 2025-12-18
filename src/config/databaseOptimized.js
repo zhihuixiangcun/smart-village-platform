@@ -335,8 +335,8 @@ class OptimizedDatabase extends EventEmitter {
         });
 
         throw error;
-      }.bind(this));
-    }.bind(this);
+      });
+    };
 
     return query;
   }

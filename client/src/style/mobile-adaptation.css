@@ -1,0 +1,605 @@
+/**
+ * 移动端适配样式
+ * 包含响应式设计、触摸交互、安全区域等移动端优化样式
+ */
+
+/* 移动端基础样式重置 */
+.mobile {
+  /* 触摸优化 */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
+  /* 防止页面缩放 */
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+
+  /* 滚动优化 */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+
+  /* 防止高亮 */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+
+/* 触摸设备样式 */
+.touch-enabled {
+  /* 触摸交互元素样式 */
+  .clickable,
+  .touchable {
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+
+    &:hover {
+      opacity: 0.8;
+    }
+
+    &:active {
+      opacity: 0.6;
+      transform: scale(0.98);
+    }
+  }
+
+  /* 按钮优化 */
+  .el-button {
+    min-height: 44px;
+    padding: 12px 20px;
+    font-size: 16px;
+    touch-action: manipulation;
+
+    &.el-button--small {
+      min-height: 40px;
+      padding: 10px 16px;
+      font-size: 14px;
+    }
+
+    &.el-button--large {
+      min-height: 48px;
+      padding: 14px 24px;
+      font-size: 18px;
+    }
+  }
+
+  /* 输入框优化 */
+  .el-input,
+  .el-select,
+  .el-date-picker {
+    .el-input__inner {
+      min-height: 44px;
+      font-size: 16px; /* 防止iOS缩放 */
+      padding: 12px 15px;
+    }
+  }
+
+  /* 表单项间距 */
+  .el-form-item {
+    margin-bottom: 20px;
+
+    .el-form-item__label {
+      font-size: 16px;
+      line-height: 44px;
+    }
+  }
+}
+
+/* 设备类型样式 */
+.mobile {
+  /* 移动端布局 */
+  .container {
+    padding: 0 16px;
+    max-width: 100%;
+  }
+
+  .el-card {
+    margin: 8px 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  .el-table {
+    font-size: 14px;
+
+    .el-table__cell {
+      padding: 8px 4px;
+    }
+  }
+
+  .el-pagination {
+    text-align: center;
+    justify-content: center;
+
+    .el-pagination__total,
+    .el-pagination__jump {
+      display: none;
+    }
+  }
+}
+
+.tablet {
+  /* 平板端布局 */
+  .container {
+    padding: 0 24px;
+    max-width: 1024px;
+    margin: 0 auto;
+  }
+
+  .el-card {
+    margin: 12px 0;
+  }
+}
+
+.desktop {
+  /* 桌面端布局 */
+  .container {
+    padding: 0 32px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .el-card {
+    margin: 16px 0;
+  }
+}
+
+/* 屏幕尺寸适配 */
+.small-screen {
+  /* 小屏幕 (< 480px) */
+  font-size: 14px;
+
+  .el-dialog {
+    width: 95% !important;
+    margin: 5vh auto !important;
+
+    .el-dialog__header {
+      padding: 16px 16px;
+      font-size: 16px;
+    }
+
+    .el-dialog__body {
+      padding: 16px;
+      font-size: 14px;
+    }
+
+    .el-dialog__footer {
+      padding: 16px;
+    }
+  }
+
+  .el-drawer {
+    width: 85% !important;
+  }
+
+  .el-menu--horizontal {
+    .el-menu-item {
+      padding: 0 12px;
+      font-size: 14px;
+    }
+  }
+
+  .el-breadcrumb {
+    font-size: 12px;
+  }
+
+  .el-page-header {
+    .el-page-header__title {
+      font-size: 16px;
+    }
+
+    .el-page-header__content {
+      font-size: 18px;
+    }
+  }
+}
+
+.medium-screen {
+  /* 中等屏幕 (481px - 1023px) */
+  font-size: 15px;
+
+  .el-dialog {
+    width: 80% !important;
+    max-width: 600px !important;
+  }
+
+  .el-drawer {
+    width: 60% !important;
+    max-width: 400px !important;
+  }
+}
+
+.large-screen {
+  /* 大屏幕 (> 1024px) */
+  font-size: 16px;
+
+  .el-dialog {
+    min-width: 500px;
+  }
+
+  .el-drawer {
+    width: 40% !important;
+    max-width: 600px !important;
+  }
+}
+
+/* 方向适配 */
+.landscape-layout {
+  /* 横屏布局 */
+  .el-header,
+  .el-footer {
+    height: 50px !important;
+    line-height: 50px;
+  }
+
+  .el-aside {
+    width: 200px !important;
+  }
+
+  .el-main {
+    padding: 16px;
+  }
+
+  /* 横屏表格优化 */
+  .el-table {
+    .el-table__cell {
+      padding: 8px 8px;
+    }
+  }
+
+  /* 横屏表单优化 */
+  .el-form {
+    .el-form-item {
+      &.el-form-item--label-top {
+        .el-form-item__label {
+          line-height: 32px;
+        }
+      }
+    }
+  }
+}
+
+.portrait-layout {
+  /* 竖屏布局 */
+  .el-header,
+  .el-footer {
+    height: 60px !important;
+    line-height: 60px;
+  }
+
+  .el-aside {
+    width: 250px !important;
+  }
+
+  .el-main {
+    padding: 20px;
+  }
+}
+
+/* 紧凑布局 */
+.compact-layout {
+  /* 小屏幕紧凑布局 */
+  .el-card {
+    .el-card__header {
+      padding: 12px 16px;
+      font-size: 14px;
+    }
+
+    .el-card__body {
+      padding: 16px;
+    }
+  }
+
+  .el-descriptions {
+    .el-descriptions__header {
+      margin-bottom: 16px;
+    }
+
+    .el-descriptions__body {
+      .el-descriptions__table {
+        .el-descriptions__cell {
+          padding: 8px 12px;
+        }
+      }
+    }
+  }
+
+  .el-step {
+    .el-step__title {
+      font-size: 14px;
+    }
+
+    .el-step__description {
+      font-size: 12px;
+    }
+  }
+}
+
+/* 触摸布局 */
+.touch-layout {
+  /* 触摸设备布局优化 */
+  .el-tabs {
+    .el-tabs__header {
+      .el-tabs__nav-wrap {
+        .el-tabs__nav-scroll {
+          .el-tabs__nav {
+            .el-tabs__item {
+              padding: 0 16px;
+              font-size: 14px;
+              height: 44px;
+              line-height: 44px;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .el-menu {
+    .el-menu-item {
+      height: 44px;
+      line-height: 44px;
+      font-size: 14px;
+    }
+
+    .el-submenu {
+      .el-submenu__title {
+        height: 44px;
+        line-height: 44px;
+        font-size: 14px;
+      }
+    }
+  }
+
+  .el-tree {
+    .el-tree-node {
+      .el-tree-node__content {
+        height: 36px;
+        font-size: 14px;
+      }
+    }
+  }
+}
+
+/* 安全区域支持 */
+.safe-area-support {
+  /* 适配刘海屏等特殊屏幕 */
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.safe-area-left {
+  padding-left: env(safe-area-inset-left);
+}
+
+.safe-area-right {
+  padding-right: env(safe-area-inset-right);
+}
+
+/* 响应式断点 */
+@media screen and (max-width: 320px) {
+  /* 超小屏幕 */
+  .el-button {
+    min-height: 40px;
+    font-size: 14px;
+  }
+
+  .el-dialog {
+    width: 98% !important;
+  }
+}
+
+@media screen and (min-width: 321px) and (max-width: 480px) {
+  /* 小屏幕 */
+  .container {
+    padding: 0 12px;
+  }
+}
+
+@media screen and (min-width: 481px) and (max-width: 768px) {
+  /* 中等屏幕 */
+  .el-card {
+    margin: 12px 0;
+  }
+}
+
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  /* 大屏幕 */
+  .container {
+    padding: 0 24px;
+  }
+}
+
+@media screen and (min-width: 1025px) {
+  /* 超大屏幕 */
+  .container {
+    padding: 0 32px;
+  }
+}
+
+/* 横屏适配 */
+@media screen and (orientation: landscape) and (max-height: 500px) {
+  .el-dialog {
+    margin: 10px auto !important;
+    max-height: 90vh;
+
+    .el-dialog__body {
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+  }
+
+  .el-drawer {
+    .el-drawer__body {
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+  }
+}
+
+/* 高分辨率屏幕适配 */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  /* Retina屏幕 */
+  .el-icon {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* 暗色模式移动端适配 */
+.dark.mobile {
+  .el-card {
+    background-color: var(--el-bg-color-dark);
+    border-color: var(--el-border-color-dark);
+  }
+
+  .el-dialog {
+    background-color: var(--el-bg-color-dark);
+    border-color: var(--el-border-color-dark);
+  }
+
+  .el-button {
+    &.el-button--default {
+      background-color: var(--el-bg-color-dark);
+      border-color: var(--el-border-color-dark);
+      color: var(--el-text-color-primary);
+    }
+  }
+}
+
+/* 打印样式 */
+@media print {
+  .mobile,
+  .tablet,
+  .desktop {
+    .el-header,
+    .el-footer,
+    .el-aside {
+      display: none !important;
+    }
+
+    .el-main {
+      padding: 0;
+      margin: 0;
+    }
+
+    .el-card {
+      box-shadow: none;
+      border: 1px solid #ddd;
+      margin-bottom: 16px;
+    }
+  }
+}
+
+/* 可访问性增强 */
+@media (prefers-reduced-motion: reduce) {
+  .mobile,
+  .tablet,
+  .desktop {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* 触觉反馈类 */
+.haptic-feedback {
+  position: relative;
+  overflow: hidden;
+}
+
+.haptic-feedback::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s, height 0.3s;
+}
+
+.haptic-feedback.active::before {
+  width: 200px;
+  height: 200px;
+}
+
+/* 焦点管理 */
+.focus-visible {
+  outline: 2px solid var(--el-color-primary);
+  outline-offset: 2px;
+}
+
+/* 键盘导航支持 */
+.keyboard-navigation {
+  .focusable {
+    &:focus {
+      outline: 2px solid var(--el-color-primary);
+      outline-offset: 2px;
+    }
+  }
+}
+
+/* 手势指示器 */
+.swipe-indicator {
+  position: absolute;
+  background: var(--el-color-primary);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.swipe-indicator.show {
+  opacity: 0.6;
+}
+
+.swipe-indicator.horizontal {
+  width: 40px;
+  height: 2px;
+}
+
+.swipe-indicator.vertical {
+  width: 2px;
+  height: 40px;
+}
+
+/* 长按效果 */
+.long-press {
+  position: relative;
+}
+
+.long-press::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.long-press.pressing::after {
+  opacity: 1;
+}
