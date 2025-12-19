@@ -21,6 +21,8 @@ const realtimeRoutes = require('./routes/realtimeRoutes');
 const dataIntegrationRoutes = require('./routes/dataIntegrationRoutes');
 const massiveDataRoutes = require('./routes/massiveDataRoutes');
 const apiV1Routes = require('./routes/apiV1');
+const enhancedPermissionRoutes = require('./routes/enhancedPermission');
+const userFeedbackRoutes = require('./routes/userFeedback');
 
 // 导入API文档生成器
 const { apiDocGenerator } = require('./utils/apiDocumentation');
@@ -276,6 +278,8 @@ app.use('/api/v1/realtime', realtimeRoutes);
 app.use('/api/v1/data-integration', dataIntegrationRoutes);
 app.use('/api/v1/massive-data', massiveDataRoutes);
 app.use('/api/v1', apiV1Routes);
+app.use('/api/v1/enhanced-permissions', enhancedPermissionRoutes);
+app.use('/api/v1/feedback', userFeedbackRoutes);
 
 // 实时计算状态API
 app.get('/api/v1/realtime/status', (req, res) => {

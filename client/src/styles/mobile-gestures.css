@@ -1,0 +1,418 @@
+/* 移动端手势样式 */
+
+/* 波纹效果 */
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  transform: scale(0);
+  animation: ripple-animation 0.6s ease-out;
+  pointer-events: none;
+}
+
+@keyframes ripple-animation {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* 长按效果 */
+.long-press-active {
+  opacity: 0.7;
+  transform: scale(0.95);
+  transition: all 0.2s ease;
+}
+
+/* 滑动删除 */
+.swipe-delete-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.swipe-delete-btn {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  background: #f56c6c;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.swipe-delete-btn:active {
+  background: #f08080;
+}
+
+/* 拖拽效果 */
+.draggable {
+  cursor: move;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.draggable.dragging {
+  opacity: 0.8;
+  cursor: grabbing;
+  z-index: 9999;
+}
+
+.drag-placeholder {
+  background: #f0f0f0;
+  border: 2px dashed #409eff;
+  opacity: 0.5;
+}
+
+/* 拖拽排序 */
+.drag-sort-container {
+  position: relative;
+}
+
+.drag-sort-item {
+  cursor: move;
+  transition: transform 0.3s ease;
+}
+
+.drag-sort-item.dragging {
+  opacity: 0.5;
+  transform: rotate(2deg);
+}
+
+/* 虚拟滚动容器 */
+.virtual-scroll-container {
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+.virtual-scroll-item {
+  position: absolute;
+  width: 100%;
+  left: 0;
+}
+
+/* 触摸反馈 */
+.touch-feedback {
+  transition: background-color 0.2s ease;
+}
+
+.touch-feedback:active {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* 可滑动卡片 */
+.swipe-card {
+  position: relative;
+  overflow: hidden;
+  touch-action: pan-y;
+}
+
+.swipe-card-content {
+  transition: transform 0.3s ease;
+}
+
+.swipe-card-actions {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+}
+
+.swipe-card-actions button {
+  height: 100%;
+  border: none;
+  color: white;
+  padding: 0 20px;
+}
+
+.swipe-card-actions .primary {
+  background: #409eff;
+}
+
+.swipe-card-actions .success {
+  background: #67c23a;
+}
+
+.swipe-card-actions .warning {
+  background: #e6a23c;
+}
+
+.swipe-card-actions .danger {
+  background: #f56c6c;
+}
+
+/* 上拉刷新 */
+.pull-refresh {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  color: #999;
+}
+
+.pull-refresh-icon {
+  margin-right: 8px;
+  transition: transform 0.3s ease;
+}
+
+.pull-refresh.refreshing .pull-refresh-icon {
+  animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 加载更多 */
+.load-more {
+  padding: 20px;
+  text-align: center;
+  color: #999;
+}
+
+/* 手势提示 */
+.gesture-hint {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 20px;
+  font-size: 14px;
+  z-index: 9999;
+  pointer-events: none;
+  animation: fadeInOut 2s ease;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  80% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+}
+
+/* 滑动指示器 */
+.swipe-indicator {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}
+
+.swipe-indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transition: all 0.3s ease;
+}
+
+.swipe-indicator-dot.active {
+  width: 20px;
+  border-radius: 4px;
+  background: white;
+}
+
+/* 橡皮筋效果 */
+.rubber-band {
+  overflow: hidden;
+  position: relative;
+}
+
+.rubber-band-content {
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.rubber-band.stretching .rubber-band-content {
+  transition: none;
+}
+
+/* 双击缩放 */
+.double-tap-zoom {
+  touch-action: manipulation;
+  user-select: none;
+}
+
+.double-tap-zoom.zoomed {
+  cursor: zoom-out;
+}
+
+/* 平滑滚动 */
+.smooth-scroll {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 触摸优化按钮 */
+.touch-button {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 8px 16px;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* 触摸优化输入框 */
+.touch-input {
+  font-size: 16px;
+  padding: 12px 16px;
+  min-height: 44px;
+  touch-action: manipulation;
+}
+
+/* 触摸优化开关 */
+.touch-switch {
+  min-width: 51px;
+  min-height: 31px;
+  touch-action: manipulation;
+}
+
+/* 触摸优化滑块 */
+.touch-slider {
+  height: 44px;
+  touch-action: manipulation;
+}
+
+.touch-slider .el-slider__runway {
+  margin: 20px 0;
+}
+
+.touch-slider .el-slider__button {
+  width: 24px;
+  height: 24px;
+  touch-action: manipulation;
+}
+
+/* 触摸优化选择器 */
+.touch-select {
+  min-height: 44px;
+  touch-action: manipulation;
+}
+
+.touch-select .el-input__inner {
+  height: 44px;
+  line-height: 44px;
+}
+
+/* 触摸优化日期选择器 */
+.touch-date-picker {
+  touch-action: manipulation;
+}
+
+.touch-date-picker .el-input__inner {
+  height: 44px;
+  line-height: 44px;
+}
+
+/* 防抖动 */
+.no-bounce {
+  overscroll-behavior: contain;
+}
+
+/* 禁用双击缩放 */
+.no-double-tap-zoom {
+  touch-action: manipulation;
+  user-select: none;
+}
+
+/* 自定义滚动条 */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 2px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* 响应式触摸目标 */
+@media (hover: none) and (pointer: coarse) {
+  .touch-target {
+    min-height: 48px;
+    min-width: 48px;
+  }
+}
+
+/* 安全区域适配 */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-left {
+  padding-left: env(safe-area-inset-left);
+}
+
+.safe-area-right {
+  padding-right: env(safe-area-inset-right);
+}
+
+/* 横屏适配 */
+@media (orientation: landscape) {
+  .landscape-compact {
+    padding: 8px;
+  }
+
+  .landscape-hide {
+    display: none !important;
+  }
+}
+
+/* 暗色主题适配 */
+@media (prefers-color-scheme: dark) {
+  .gesture-hint {
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+  }
+
+  .swipe-indicator-dot {
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  .swipe-indicator-dot.active {
+    background: #333;
+  }
+}

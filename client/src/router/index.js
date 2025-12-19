@@ -699,6 +699,21 @@ const router = createRouter({
           }
         },
         {
+          path: 'permissions',
+          name: 'system-permissions',
+          component: () => import('@/views/system/EnhancedPermissionManagement.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '权限管理',
+            permissions: ['system:permission'],
+            breadcrumb: [
+              { title: '首页', path: '/dashboard' },
+              { title: '系统管理', path: '/system' },
+              { title: '权限管理', path: '/system/permissions' }
+            ]
+          }
+        },
+        {
           path: 'logs',
           name: 'system-logs',
           component: () => import('@/views/system/LogsView.vue'),

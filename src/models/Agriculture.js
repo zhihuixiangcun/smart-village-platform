@@ -569,7 +569,7 @@ const AgricultureClimateSchema = new mongoose.Schema({
     }],
     impacts: [String],
     adaptationStrategies: [String]
-  }],
+  },
   lastUpdated: {
     type: Date,
     default: Date.now
