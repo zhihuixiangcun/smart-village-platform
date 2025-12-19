@@ -1,0 +1,2535 @@
+openapi: 3.0.3
+info:
+  title: 智慧乡村综合服务平台 API
+  description: |
+    智慧乡村综合服务平台RESTful API文档
+
+    ## 平台概述
+    本平台是集村务管理、村民服务、应急响应、数据分析于一体的综合性乡村振兴数字平台。
+
+    ## 核心功能
+    - 村委管理：人员管理、值班调度、任务协同
+    - 村民管理：档案数字化、在线办事、积分制
+    - 村务治理：财务管理、项目管理、信息公示
+    - 智能服务：语音交互、人脸识别、离线同步
+    - 地理信息：村情地图、应急路径规划
+    - AI助手：智能填表、OCR识别、语音合成
+
+    ## 架构说明
+    - 双服务器架构：主API服务(3001端口) + 村庄服务(5000端口)
+    - 支持WebSocket实时通信
+    - 多语言支持(含方言识别)
+    - 完整的权限管理和安全防护
+
+  version: 1.0.0
+  contact:
+    name: 智慧乡村平台开发团队
+    email: dev@smartvillage.com
+    url: https://smartvillage.com/support
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3001/api/v1
+    description: 主API服务器 - 开发环境
+  - url: http://localhost:5000/api/v1
+    description: 村庄服务服务器 - 开发环境
+  - url: https://api.smartvillage.com/api/v1
+    description: 主API服务器 - 生产环境
+  - url: https://village-api.smartvillage.com/api/v1
+    description: 村庄服务服务器 - 生产环境
+
+security:
+  - BearerAuth: []
+  - ApiKeyAuth: []
+  - VillageAuth: []
+
+tags:
+  - name: Authentication
+    description: 认证授权管理
+  - name: Users
+    description: 用户管理
+  - name: Village
+    description: 村务管理
+  - name: Residents
+    description: 村民管理
+  - name: Finance
+    description: 财务管理
+  - name: Emergency
+    description: 应急管理
+  - name: Voice
+    description: 语音交互服务
+  - name: FaceRecognition
+    description: 人脸识别服务
+  - name: OfflineSync
+    description: 离线同步服务
+  - name: AIServices
+    description: AI智能服务
+  - name: DutySchedule
+    description: 智能值班表
+  - name: VillageMap
+    description: 村情地图
+  - name: Analytics
+    description: 数据分析
+  - name: Ecommerce
+    description: 电子商务
+  - name: Payments
+    description: 支付服务
+  - name: Permissions
+    description: 权限管理
+  - name: Monitoring
+    description: 系统监控
+  - name: Notifications
+    description: 通知服务
+
+paths:
+  # 认证相关接口
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: 用户登录
+      description: 支持账号密码、人脸识别、扫码等多种登录方式
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            examples:
+              password:
+                summary: 密码登录
+                value:
+                  type: "password"
+                  username: "user@example.com"
+                  password: "password123"
+              face:
+                summary: 人脸登录
+                value:
+                  type: "face"
+                  faceImage: "data:image/jpeg;base64,..."
+                  liveData: "face_liveness_data"
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+      security: []
+
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: 用户注册
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: 注册成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+      security: []
+
+  /auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: 刷新访问令牌
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        '200':
+          description: 令牌刷新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefreshResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security: []
+
+  # 用户管理接口
+  /users:
+    get:
+      tags:
+        - Users
+      summary: 获取用户列表
+      description: 支持分页、搜索、筛选
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/SearchParam'
+        - $ref: '#/components/parameters/RoleParam'
+        - $ref: '#/components/parameters/VillageIdParam'
+      responses:
+        '200':
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserListResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    post:
+      tags:
+        - Users
+      summary: 创建用户
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreateRequest'
+      responses:
+        '201':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /users/{id}:
+    get:
+      tags:
+        - Users
+      summary: 获取用户详情
+      parameters:
+        - $ref: '#/components/parameters/UserIdParam'
+      responses:
+        '200':
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags:
+        - Users
+      summary: 更新用户信息
+      parameters:
+        - $ref: '#/components/parameters/UserIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+      responses:
+        '200':
+          description: 更新成功
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags:
+        - Users
+      summary: 删除用户
+      parameters:
+        - $ref: '#/components/parameters/UserIdParam'
+      responses:
+        '200':
+          description: 删除成功
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  # 村务管理接口
+  /village/announcements:
+    get:
+      tags:
+        - Village
+      summary: 获取公告列表
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [policy, notice, meeting, emergency]
+          description: 公告类别
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, published, archived]
+          description: 公告状态
+      responses:
+        '200':
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnnouncementListResponse'
+
+    post:
+      tags:
+        - Village
+      summary: 创建公告
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnnouncementCreateRequest'
+      responses:
+        '201':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnnouncementResponse'
+
+  # 村民管理接口
+  /residents:
+    get:
+      tags:
+        - Residents
+      summary: 获取村民列表
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/SearchParam'
+        - name: householdType
+          in: query
+          schema:
+            type: string
+            enum: [normal, low_income, one_child, elderly]
+          description: 家庭类型
+        - name: healthStatus
+          in: query
+          schema:
+            type: string
+            enum: [healthy, chronic_disease, disability]
+          description: 健康状态
+      responses:
+        '200':
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResidentListResponse'
+
+    post:
+      tags:
+        - Residents
+      summary: 创建村民档案
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResidentCreateRequest'
+      responses:
+        '201':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResidentResponse'
+
+  /residents/{id}/qrcode:
+    get:
+      tags:
+        - Residents
+      summary: 获取村民二维码
+      description: 生成村民专属二维码，用于信息查询和更新
+      parameters:
+        - $ref: '#/components/parameters/ResidentIdParam'
+      responses:
+        '200':
+          description: 生成成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  qrCodeUrl:
+                    type: string
+                    format: uri
+                  qrCodeData:
+                    type: string
+                  expiresAt:
+                    type: string
+                    format: date-time
+
+  # 语音交互接口
+  /voice/speech-to-text:
+    post:
+      tags:
+        - Voice
+      summary: 语音转文字
+      description: 支持22种方言识别
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                audio:
+                  type: string
+                  format: binary
+                  description: 音频文件
+                dialect:
+                  type: string
+                  enum: [mandarin, cantonese, hokkien, hakka, shanghainese, sichuanese, shandong, henan, hunan, hubei, jiangxi, guangdong, fujian, zhejiang, jiangsu, anhui, hebei, shanxi, liaoning, jilin, heilongjiang, yunnan]
+                  description: 方言类型
+                  default: mandarin
+      responses:
+        '200':
+          description: 转换成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpeechToTextResponse'
+
+  /voice/text-to-speech:
+    post:
+      tags:
+        - Voice
+      summary: 文字转语音
+      description: 支持方言语音合成
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  description: 要转换的文字
+                dialect:
+                  type: string
+                  enum: [mandarin, cantonese, hokkien, hakka, shanghainese, sichuanese]
+                  description: 方言类型
+                  default: mandarin
+                voiceStyle:
+                  type: string
+                  enum: [male, female, child, elderly]
+                  description: 声音风格
+                  default: female
+      responses:
+        '200':
+          description: 合成成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  audioUrl:
+                    type: string
+                    format: uri
+                  duration:
+                    type: number
+                    description: 音频时长(秒)
+
+  /voice/dialect-detect:
+    post:
+      tags:
+        - Voice
+      summary: 方言自动识别
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                audio:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: 识别成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detectedDialect:
+                    type: string
+                  confidence:
+                    type: number
+                    minimum: 0
+                    maximum: 1
+
+  # 人脸识别接口
+  /face/register:
+    post:
+      tags:
+        - FaceRecognition
+      summary: 人脸注册
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                faceImages:
+                  type: array
+                  items:
+                    type: string
+                    format: base64
+                  minItems: 3
+                  maxItems: 5
+                  description: 需要3-5张人脸照片
+                liveData:
+                  type: object
+                  description: 活体检测数据
+      responses:
+        '201':
+          description: 注册成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  faceId:
+                    type: string
+                  confidence:
+                    type: number
+
+  /face/verify:
+    post:
+      tags:
+        - FaceRecognition
+      summary: 人脸验证
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                faceImage:
+                  type: string
+                  format: base64
+                userId:
+                  type: string
+                liveData:
+                  type: object
+      responses:
+        '200':
+          description: 验证成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  verified:
+                    type: boolean
+                  confidence:
+                    type: number
+                  matchThreshold:
+                    type: number
+
+  /face/liveness:
+    post:
+      tags:
+        - FaceRecognition
+      summary: 活体检测
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                video:
+                  type: string
+                  format: binary
+                  description: 短视频文件
+                challenge:
+                  type: string
+                  description: 挑战动作(如眨眼、张嘴)
+      responses:
+        '200':
+          description: 检测成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isLive:
+                    type: boolean
+                  confidence:
+                    type: number
+
+  /face/search:
+    post:
+      tags:
+        - FaceRecognition
+      summary: 人脸搜索
+      description: 根据人脸图片搜索村民信息
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                faceImage:
+                  type: string
+                  format: base64
+                maxResults:
+                  type: integer
+                  default: 10
+      responses:
+        '200':
+          description: 搜索成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  matches:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FaceMatchResult'
+
+  # 离线同步接口
+  /offline/sync/packet:
+    get:
+      tags:
+        - OfflineSync
+      summary: 获取离线数据包
+      parameters:
+        - name: villageId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: lastSyncTime
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: 上次同步时间
+      responses:
+        '200':
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  packetId:
+                    type: string
+                  compressedData:
+                    type: string
+                    format: base64
+                  checksum:
+                    type: string
+                  dataSize:
+                    type: number
+
+  /offline/sync/upload:
+    post:
+      tags:
+        - OfflineSync
+      summary: 上传离线数据
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                deviceId:
+                  type: string
+                data:
+                  type: object
+                  description: 离线期间产生的数据
+                checksum:
+                  type: string
+      responses:
+        '200':
+          description: 上传成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncResponse'
+
+  /offline/status:
+    get:
+      tags:
+        - OfflineSync
+      summary: 获取离线状态
+      responses:
+        '200':
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isOffline:
+                    type: boolean
+                  lastSyncTime:
+                    type: string
+                    format: date-time
+                  pendingChanges:
+                    type: integer
+
+  # AI智能服务接口
+  /ai/ocr/invoice:
+    post:
+      tags:
+        - AIServices
+      summary: 发票OCR识别
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: 发票图片
+      responses:
+        '200':
+          description: 识别成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceOCRResponse'
+
+  /ai/form/auto-fill:
+    post:
+      tags:
+        - AIServices
+      summary: 智能填表
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                formType:
+                  type: string
+                  enum: [census, subsidy_application, project_report]
+                  description: 表单类型
+                voiceInput:
+                  type: string
+                  description: 语音输入内容
+                imageData:
+                  type: array
+                  items:
+                    type: string
+                    format: base64
+                  description: 相关图片(如身份证、户口本)
+      responses:
+        '200':
+          description: 填表成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutoFillResponse'
+
+  /ai/policy-calculator:
+    post:
+      tags:
+        - AIServices
+      summary: 政策补贴计算器
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicyCalculatorRequest'
+      responses:
+        '200':
+          description: 计算成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyCalculatorResponse'
+
+  # 智能值班表接口
+  /duty/schedule:
+    get:
+      tags:
+        - DutySchedule
+      summary: 获取值班表
+      parameters:
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+          description: 开始日期
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+          description: 结束日期
+        - name: department
+          in: query
+          schema:
+            type: string
+          description: 部门筛选
+      responses:
+        '200':
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  schedules:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DutySchedule'
+
+    post:
+      tags:
+        - DutySchedule
+      summary: 生成值班表
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                startDate:
+                  type: string
+                  format: date
+                endDate:
+                  type: string
+                  format: date
+                staffIds:
+                  type: array
+                  items:
+                    type: string
+                  description: 参与值班的员工ID
+                rules:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/DutyRule'
+                  description: 排班规则
+      responses:
+        '201':
+          description: 生成成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scheduleId:
+                    type: string
+                  conflicts:
+                    type: array
+                    items:
+                      type: string
+
+  /duty/emergency-call:
+    post:
+      tags:
+        - DutySchedule
+      summary: 紧急呼叫值班人员
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                emergencyType:
+                  type: string
+                  enum: [fire, flood, medical, security, accident]
+                location:
+                  $ref: '#/components/schemas/Location'
+                description:
+                  type: string
+                urgency:
+                  type: string
+                  enum: [low, medium, high, critical]
+      responses:
+        '200':
+          description: 呼叫成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  callId:
+                    type: string
+                  onDutyStaff:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OnDutyStaff'
+                  responseTime:
+                    type: number
+                    description: 预计响应时间(分钟)
+
+  # 村情地图接口
+  /map/village-info:
+    get:
+      tags:
+        - VillageMap
+      summary: 获取村情地图信息
+      parameters:
+        - name: villageId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: layers
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [boundaries, buildings, roads, utilities, emergency, population]
+          style: form
+          explode: false
+          description: 地图图层
+      responses:
+        '200':
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VillageMapResponse'
+
+  /map/resident-location:
+    get:
+      tags:
+        - VillageMap
+      summary: 获取村民位置(隐私脱敏)
+      parameters:
+        - $ref: '#/components/parameters/VillageIdParam'
+        - name: emergency
+          in: query
+          schema:
+            type: boolean
+            description: 是否为紧急情况(紧急情况下显示精确位置)
+      responses:
+        '200':
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  residentLocations:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ResidentLocation'
+
+  /map/emergency-route:
+    post:
+      tags:
+        - VillageMap
+      summary: 应急路径规划
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                emergencyType:
+                  type: string
+                  enum: [fire, medical, evacuation, rescue]
+                startPoint:
+                  $ref: '#/components/schemas/Location'
+                endPoint:
+                  $ref: '#/components/schemas/Location'
+                constraints:
+                  type: array
+                  items:
+                    type: string
+                  description: 路径约束(如避开某区域)
+      responses:
+        '200':
+          description: 规划成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmergencyRouteResponse'
+
+  /map/rescue-equipment:
+    get:
+      tags:
+        - VillageMap
+      summary: 获取救援设备位置
+      parameters:
+        - name: equipmentType
+          in: query
+          schema:
+            type: string
+            enum: [fire_extinguisher, first_aid, water_pump, generator, lifeboat]
+        - $ref: '#/components/parameters/VillageIdParam'
+      responses:
+        '200':
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  equipment:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RescueEquipment'
+
+  # 财务管理接口
+  /finance/transactions:
+    get:
+      tags:
+        - Finance
+      summary: 获取交易记录
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [income, expense, transfer]
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Transaction'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+    post:
+      tags:
+        - Finance
+      summary: 创建交易记录
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionCreateRequest'
+      responses:
+        '201':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+
+  # 应急管理接口
+  /emergency/reports:
+    get:
+      tags:
+        - Emergency
+      summary: 获取应急报告
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, processing, resolved, closed]
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [natural_disaster, accident, health, security]
+      responses:
+        '200':
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reports:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/EmergencyReport'
+
+    post:
+      tags:
+        - Emergency
+      summary: 创建应急报告
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmergencyReportCreateRequest'
+      responses:
+        '201':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmergencyReport'
+
+  /emergency/broadcast:
+    post:
+      tags:
+        - Emergency
+      summary: 广播应急警报
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  description: 警报内容
+                severity:
+                  type: string
+                  enum: [info, warning, critical]
+                  description: 严重级别
+                targetArea:
+                  type: string
+                  description: 目标区域
+                channels:
+                  type: array
+                  items:
+                    type: string
+                    enum: [sms, call, app_push, broadcast, wechat]
+                  description: 通知渠道
+      responses:
+        '200':
+          description: 广播成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  broadcastId:
+                    type: string
+                  reachedCount:
+                    type: integer
+                  successRate:
+                    type: number
+
+  # 监控接口
+  /monitoring/status:
+    get:
+      tags:
+        - Monitoring
+      summary: 系统监控状态
+      responses:
+        '200':
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MonitoringStatus'
+
+  /monitoring/realtime:
+    get:
+      tags:
+        - Monitoring
+      summary: 实时监控数据 (SSE)
+      description: Server-Sent Events 实时数据流
+      responses:
+        '200':
+          description: 实时数据流
+          content:
+            text/event-stream:
+              schema:
+                type: string
+
+  # 通知接口
+  /notifications/send:
+    post:
+      tags:
+        - Notifications
+      summary: 发送通知
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationSendRequest'
+      responses:
+        '200':
+          description: 发送成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notificationId:
+                    type: string
+                  status:
+                    type: string
+                    enum: [sent, pending, failed]
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT访问令牌
+
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API密钥认证
+
+    VillageAuth:
+      type: apiKey
+      in: header
+      name: X-Village-Id
+      description: 村庄ID认证
+
+  parameters:
+    PageParam:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      description: 页码
+
+    LimitParam:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+      description: 每页数量
+
+    SearchParam:
+      name: search
+      in: query
+      schema:
+        type: string
+      description: 搜索关键词
+
+    RoleParam:
+      name: role
+      in: query
+      schema:
+        type: string
+        enum: [village_admin, staff, resident, guest]
+      description: 用户角色
+
+    VillageIdParam:
+      name: villageId
+      in: path
+      required: true
+      schema:
+        type: string
+      description: 村庄ID
+
+    UserIdParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: 用户ID
+
+    ResidentIdParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+      description: 村民ID
+
+  schemas:
+    # 通用响应格式
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+        message:
+          type: string
+        code:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - success
+        - timestamp
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+
+    # 认证相关
+    LoginRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [password, face, qr_code, sms]
+        username:
+          type: string
+        password:
+          type: string
+        faceImage:
+          type: string
+          format: base64
+        liveData:
+          type: object
+        deviceId:
+          type: string
+
+    RegisterRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        phone:
+          type: string
+        villageId:
+          type: string
+        personalInfo:
+          type: object
+          properties:
+            name:
+              type: string
+            idCard:
+              type: string
+            address:
+              type: string
+        faceImages:
+          type: array
+          items:
+            type: string
+            format: base64
+
+    AuthResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                user:
+                  $ref: '#/components/schemas/User'
+                accessToken:
+                  type: string
+                refreshToken:
+                  type: string
+                expiresAt:
+                  type: string
+                  format: date-time
+
+    TokenRefreshResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                accessToken:
+                  type: string
+                expiresAt:
+                  type: string
+                  format: date-time
+
+    # 用户相关
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        role:
+          type: string
+        villageId:
+          type: string
+        profile:
+          type: object
+          properties:
+            name:
+              type: string
+            avatar:
+              type: string
+            address:
+              type: string
+        status:
+          type: string
+          enum: [active, inactive, suspended]
+        lastLoginAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    UserCreateRequest:
+      type: object
+      required:
+        - username
+        - email
+        - role
+        - villageId
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        role:
+          type: string
+        villageId:
+          type: string
+        profile:
+          type: object
+        permissions:
+          type: array
+          items:
+            type: string
+
+    UserUpdateRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        phone:
+          type: string
+        profile:
+          type: object
+        status:
+          type: string
+        permissions:
+          type: array
+          items:
+            type: string
+
+    UserResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/User'
+
+    UserListResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                users:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/User'
+                pagination:
+                  $ref: '#/components/schemas/Pagination'
+
+    # 公告相关
+    Announcement:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        content:
+          type: string
+        category:
+          type: string
+          enum: [policy, notice, meeting, emergency]
+        status:
+          type: string
+          enum: [draft, published, archived]
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+        authorId:
+          type: string
+        attachments:
+          type: array
+          items:
+            type: string
+        publishedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    AnnouncementCreateRequest:
+      type: object
+      required:
+        - title
+        - content
+        - category
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        category:
+          type: string
+        priority:
+          type: string
+          default: medium
+        attachments:
+          type: array
+          items:
+            type: string
+        publishAt:
+          type: string
+          format: date-time
+
+    AnnouncementResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/Announcement'
+
+    AnnouncementListResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                announcements:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Announcement'
+                pagination:
+                  $ref: '#/components/schemas/Pagination'
+
+    # 村民相关
+    Resident:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        idCard:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+        householdId:
+          type: string
+        householdType:
+          type: string
+          enum: [normal, low_income, one_child, elderly]
+        healthStatus:
+          type: string
+          enum: [healthy, chronic_disease, disability]
+        familyRelations:
+          type: array
+          items:
+            $ref: '#/components/schemas/FamilyRelation'
+        qrCode:
+          type: string
+        villageId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    FamilyRelation:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [spouse, parent, child, sibling]
+        residentId:
+          type: string
+        residentName:
+          type: string
+
+    ResidentCreateRequest:
+      type: object
+      required:
+        - name
+        - idCard
+        - villageId
+      properties:
+        name:
+          type: string
+        idCard:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+        householdId:
+          type: string
+        householdType:
+          type: string
+        healthStatus:
+          type: string
+        familyInfo:
+          type: object
+
+    ResidentResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/Resident'
+
+    ResidentListResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                residents:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Resident'
+                pagination:
+                  $ref: '#/components/schemas/Pagination'
+
+    # 语音相关
+    SpeechToTextResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                text:
+                  type: string
+                confidence:
+                  type: number
+                  minimum: 0
+                  maximum: 1
+                detectedDialect:
+                  type: string
+                duration:
+                  type: number
+                  description: 音频时长(秒)
+
+    # 人脸识别相关
+    FaceMatchResult:
+      type: object
+      properties:
+        residentId:
+          type: string
+        name:
+          type: string
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+        faceImage:
+          type: string
+        matchThreshold:
+          type: number
+
+    # 离线同步相关
+    SyncResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                syncId:
+                  type: string
+                processedCount:
+                  type: integer
+                conflicts:
+                  type: array
+                  items:
+                    type: object
+                nextSyncTime:
+                  type: string
+                  format: date-time
+
+    # OCR识别相关
+    InvoiceOCRResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                invoiceNumber:
+                  type: string
+                date:
+                  type: string
+                  format: date
+                amount:
+                  type: number
+                vendor:
+                  type: string
+                category:
+                  type: string
+                taxAmount:
+                  type: number
+                confidence:
+                  type: number
+                extractedFields:
+                  type: object
+
+    # AI智能填表相关
+    AutoFillResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                formId:
+                  type: string
+                fields:
+                  type: object
+                  description: 自动填充的字段值
+                confidence:
+                  type: object
+                  description: 各字段的置信度
+                needsReview:
+                  type: array
+                  items:
+                    type: string
+                  description: 需要人工审核的字段
+
+    # 政策计算器相关
+    PolicyCalculatorRequest:
+      type: object
+      properties:
+        householdSize:
+          type: integer
+        landArea:
+          type: number
+        incomeLevel:
+          type: string
+          enum: [low, middle, high]
+        specialGroups:
+          type: array
+          items:
+            type: string
+            enum: [elderly, disabled, veteran, one_child, low_income]
+        cropTypes:
+          type: array
+          items:
+            type: string
+
+    PolicyCalculatorResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                eligibleSubsidies:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      amount:
+                        type: number
+                      description:
+                        type: string
+                      requirements:
+                        type: array
+                        items:
+                          type: string
+                totalAmount:
+                  type: number
+                calculationDetails:
+                  type: object
+
+    # 值班表相关
+    DutySchedule:
+      type: object
+      properties:
+        id:
+          type: string
+        date:
+          type: string
+          format: date
+        shift:
+          type: string
+          enum: [morning, afternoon, evening, night]
+        staffId:
+          type: string
+        staffName:
+          type: string
+        position:
+          type: string
+        contact:
+          type: string
+        status:
+          type: string
+          enum: [scheduled, on_duty, completed, absent]
+        notes:
+          type: string
+
+    DutyRule:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [max_shifts, rest_days, skill_required, position_required]
+        value:
+          type: string
+        priority:
+          type: integer
+          minimum: 1
+          maximum: 10
+
+    OnDutyStaff:
+      type: object
+      properties:
+        staffId:
+          type: string
+        name:
+          type: string
+        position:
+          type: string
+        contact:
+          type: string
+        location:
+          $ref: '#/components/schemas/Location'
+        eta:
+          type: number
+          description: 预计到达时间(分钟)
+
+    # 地图相关
+    Location:
+      type: object
+      properties:
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        address:
+          type: string
+        description:
+          type: string
+
+    VillageMapResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                boundaries:
+                  type: array
+                  items:
+                    type: array
+                    items:
+                      type: number
+                      minItems: 2
+                      maxItems: 2
+                buildings:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Building'
+                roads:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Road'
+                utilities:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Utility'
+
+    Building:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [residential, commercial, public, emergency]
+        name:
+          type: string
+        location:
+          $ref: '#/components/schemas/Location'
+        capacity:
+          type: integer
+        floors:
+          type: integer
+        yearBuilt:
+          type: integer
+        status:
+          type: string
+
+    Road:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+        width:
+          type: number
+        coordinates:
+          type: array
+          items:
+            type: array
+            items:
+              type: number
+        status:
+          type: string
+
+    Utility:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [water, electricity, gas, internet, sewage]
+        location:
+          $ref: '#/components/schemas/Location'
+        status:
+          type: string
+        lastMaintenance:
+          type: string
+          format: date
+
+    ResidentLocation:
+      type: object
+      properties:
+        residentId:
+          type: string
+        name:
+          type: string
+        location:
+          oneOf:
+            - $ref: '#/components/schemas/Location'
+            - type: string
+              description: 脱敏位置信息
+        isHome:
+          type: boolean
+        lastUpdate:
+          type: string
+          format: date-time
+
+    EmergencyRouteResponse:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                route:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Location'
+                distance:
+                  type: number
+                estimatedTime:
+                  type: number
+                obstacles:
+                  type: array
+                  items:
+                    type: string
+                alternativeRoutes:
+                  type: array
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Location'
+
+    RescueEquipment:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        name:
+          type: string
+        location:
+          $ref: '#/components/schemas/Location'
+        status:
+          type: string
+          enum: [available, in_use, maintenance, unavailable]
+        lastChecked:
+          type: string
+          format: date-time
+        responsiblePerson:
+          type: string
+        contact:
+          type: string
+
+    # 财务相关
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [income, expense, transfer]
+        category:
+          type: string
+        amount:
+          type: number
+        description:
+          type: string
+        date:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [draft, pending, approved, rejected]
+        attachments:
+          type: array
+          items:
+            type: string
+        createdBy:
+          type: string
+        approvedBy:
+          type: string
+        approvedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    TransactionCreateRequest:
+      type: object
+      required:
+        - type
+        - category
+        - amount
+        - description
+      properties:
+        type:
+          type: string
+        category:
+          type: string
+        amount:
+          type: number
+          minimum: 0
+        description:
+          type: string
+        date:
+          type: string
+          format: date
+        attachments:
+          type: array
+          items:
+            type: string
+        notes:
+          type: string
+
+    # 应急管理相关
+    EmergencyReport:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        location:
+          $ref: '#/components/schemas/Location'
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+        status:
+          type: string
+          enum: [pending, processing, resolved, closed]
+        reporterId:
+          type: string
+        assignedTo:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+        videos:
+          type: array
+          items:
+            type: string
+        responseTime:
+          type: number
+        resolvedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    EmergencyReportCreateRequest:
+      type: object
+      required:
+        - type
+        - title
+        - description
+        - location
+        - severity
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        location:
+          $ref: '#/components/schemas/Location'
+        severity:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+        videos:
+          type: array
+          items:
+            type: string
+        contact:
+          type: string
+        additionalInfo:
+          type: object
+
+    # 通知相关
+    NotificationSendRequest:
+      type: object
+      required:
+        - recipients
+        - message
+      properties:
+        recipients:
+          type: array
+          items:
+            type: string
+          description: 接收者ID列表
+        message:
+          type: string
+        type:
+          type: string
+          enum: [system, announcement, emergency, reminder]
+        channels:
+          type: array
+          items:
+            type: string
+            enum: [sms, email, app_push, wechat, call]
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+        scheduledAt:
+          type: string
+          format: date-time
+        metadata:
+          type: object
+
+    # 监控相关
+    MonitoringStatus:
+      allOf:
+        - $ref: '#/components/schemas/ApiResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                uptime:
+                  type: number
+                cpuUsage:
+                  type: number
+                memoryUsage:
+                  type: number
+                activeConnections:
+                  type: integer
+                apiResponseTime:
+                  type: number
+                errorRate:
+                  type: number
+                databaseStatus:
+                  type: string
+                services:
+                  type: object
+                  additionalProperties:
+                    type: string
+                    enum: [healthy, unhealthy, degraded]
+
+  responses:
+    BadRequest:
+      description: 请求参数错误
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ApiResponse'
+              - type: object
+                properties:
+                  success:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                  code:
+                    type: string
+
+    Unauthorized:
+      description: 未授权访问
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ApiResponse'
+              - type: object
+                properties:
+                  success:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    const: "未授权访问"
+                  code:
+                    type: string
+                    const: "UNAUTHORIZED"
+
+    Forbidden:
+      description: 禁止访问
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ApiResponse'
+              - type: object
+                properties:
+                  success:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    const: "禁止访问"
+                  code:
+                    type: string
+                    const: "FORBIDDEN"
+
+    NotFound:
+      description: 资源不存在
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ApiResponse'
+              - type: object
+                properties:
+                  success:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    const: "资源不存在"
+                  code:
+                    type: string
+                    const: "NOT_FOUND"
+
+    TooManyRequests:
+      description: 请求过于频繁
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ApiResponse'
+              - type: object
+                properties:
+                  success:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    const: "请求过于频繁"
+                  code:
+                    type: string
+                    const: "TOO_MANY_REQUESTS"
+                  retryAfter:
+                    type: integer
+                    description: 建议重试等待时间(秒)
+
+    InternalServerError:
+      description: 服务器内部错误
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ApiResponse'
+              - type: object
+                properties:
+                  success:
+                    type: boolean
+                    const: false
+                  error:
+                    type: string
+                    const: "服务器内部错误"
+                  code:
+                    type: string
+                    const: "INTERNAL_SERVER_ERROR"
+
+# API文档标签分组
+x-tag-groups:
+  - name: 核心功能
+    tags:
+      - Authentication
+      - Users
+      - Village
+      - Residents
+  - name: 智能服务
+    tags:
+      - Voice
+      - FaceRecognition
+      - AIServices
+  - name: 业务管理
+    tags:
+      - Finance
+      - Emergency
+      - DutySchedule
+      - VillageMap
+  - name: 系统功能
+    tags:
+      - OfflineSync
+      - Analytics
+      - Monitoring
+      - Notifications
+
+# 扩展定义
+x-apisguru-categories:
+  - enterprise
+  - government
+
+x-logo:
+  url: https://smartvillage.com/logo.png
+  backgroundColor: #FFFFFF
+  altText: 智慧乡村平台LOGO
+
+x-origin:
+  - format: openapi
+    url: https://api.smartvillage.com/openapi.json
+    version: 3.0.3
+
+# 全局安全设置
+security:
+  - BearerAuth: []
+  - {}
+    # 允许匿名访问的接口
+
+# 全局参数
+parameters:
+  X-Request-ID:
+    name: X-Request-ID
+    in: header
+    description: 请求唯一标识符
+    schema:
+      type: string
+      format: uuid
+    example: "550e8400-e29b-41d4-a716-446655440000"
+
+  X-Village-Id:
+    name: X-Village-Id
+    in: header
+    description: 村庄ID
+    required: false
+    schema:
+      type: string
+    example: "village_001"
+
+  Accept-Language:
+    name: Accept-Language
+    in: header
+    description: 语言偏好
+    schema:
+      type: string
+      enum: [zh-CN, pcc, pcc-qn, en-US]
+      default: zh-CN
+    example: "zh-CN"
+
+# 服务器信息扩展
+x-server-urls:
+  - url: ws://localhost:3001
+    description: WebSocket连接 - 实时数据
+  - url: ws://localhost:5000
+    description: WebSocket连接 - Socket.IO服务
+
+# 限流规则
+x-rate-limits:
+  default:
+    requests: 1000
+    window: 15m
+    strategy: sliding_window
+  auth:
+    requests: 10
+    window: 1m
+    strategy: fixed_window
+  file-upload:
+    requests: 50
+    window: 1h
+    strategy: token_bucket
+
+# 数据处理说明
+x-data-handling:
+  file-uploads:
+    max-size: 50MB
+    supported-formats:
+      - jpg
+      - jpeg
+      - png
+      - gif
+      - pdf
+      - doc
+      - docx
+      - xls
+      - xlsx
+    storage: cloud_storage
+    encryption: AES-256
+
+  sensitive-data:
+    encryption: AES-256
+    hashing: SHA-256
+    pii-protection: true
+    audit-log: true
+
+# API版本管理
+x-versioning:
+  strategy: uri
+  current: v1
+  supported: [v1]
+  deprecated: []
+
+# 文档配置
+x-documentation:
+  contact:
+    name: API支持
+    email: api-support@smartvillage.com
+    url: https://support.smartvillage.com
+  license:
+    name: MIT License
+    url: https://opensource.org/licenses/MIT
+  terms-of-service: https://smartvillage.com/terms

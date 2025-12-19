@@ -1,0 +1,62 @@
+# 智慧乡村语音服务依赖包
+
+# Web框架
+Flask==2.3.3
+Flask-CORS==4.0.0
+Werkzeug==2.3.7
+
+# 音频处理
+librosa==0.10.1
+soundfile==0.12.1
+noisereduce==3.0.0
+scipy==1.11.3
+
+# 机器学习
+scikit-learn==1.3.0
+numpy==1.24.3
+joblib==1.3.2
+
+# 中文文本处理
+jieba==0.42.1
+
+# HTTP请求
+aiohttp==3.8.6
+requests==2.31.0
+
+# 数据处理
+pandas==2.0.3
+
+# 缓存
+redis==5.0.0
+
+# 图像处理（如果需要）
+Pillow==10.0.1
+
+# 配置管理
+python-dotenv==1.0.0
+
+# 日志和监控
+structlog==23.1.0
+
+# 开发和测试
+pytest==7.4.2
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+
+# 代码质量
+black==23.7.0
+flake8==6.0.0
+mypy==1.5.1
+
+# 备选语音引擎
+# Whisper (OpenAI)
+# openai-whisper==20230918
+
+# Azure认知服务
+# azure-cognitiveservices-speech==1.30.0
+
+# 百度AI SDK
+# baidu-aip==4.16.10
+
+# 性能监控
+# prometheus-client==0.17.1

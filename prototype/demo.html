@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智慧乡村平台 - UI/UX 设计演示</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* 演示页面特定样式 */
+        .demo-header {
+            background-color: #1a237e;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .demo-header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .demo-header p {
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .demo-features {
+            padding: 40px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .feature-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #1a237e;
+        }
+
+        .feature-description {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .demo-controls {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .demo-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .demo-btn.primary {
+            background: #2E7D32;
+            color: white;
+        }
+
+        .demo-btn.secondary {
+            background: white;
+            color: #2E7D32;
+            border: 2px solid #2E7D32;
+        }
+
+        .demo-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .demo-device-frame {
+            max-width: 400px;
+            margin: 40px auto;
+            background: #333;
+            border-radius: 40px;
+            padding: 10px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .demo-device-screen {
+            background: white;
+            border-radius: 30px;
+            overflow: hidden;
+            height: 800px;
+        }
+
+        .demo-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            max-width: 800px;
+            margin: 40px auto;
+        }
+
+        .demo-stat {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .demo-stat-number {
+            font-size: 36px;
+            font-weight: 700;
+            color: #2E7D32;
+            margin-bottom: 10px;
+        }
+
+        .demo-stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <!-- 演示头部 -->
+    <header class="demo-header">
+        <h1>智慧乡村综合服务平台</h1>
+        <p>专为农村用户设计的数字化服务平台，支持语音交互、适老化设计和离线使用</p>
+        <div class="demo-controls">
+            <button class="demo-btn primary" onclick="openPrototype()">
+                <i class="fas fa-mobile-alt"></i> 打开原型
+            </button>
+            <button class="demo-btn secondary" onclick="toggleLargeText()">
+                <i class="fas fa-text-height"></i> 大字模式
+            </button>
+            <button class="demo-btn secondary" onclick="toggleHighContrast()">
+                <i class="fas fa-adjust"></i> 高对比度
+            </button>
+            <button class="demo-btn secondary" onclick="testVoice()">
+                <i class="fas fa-microphone"></i> 测试语音
+            </button>
+        </div>
+    </header>
+
+    <!-- 统计数据 -->
+    <div class="demo-stats">
+        <div class="demo-stat">
+            <div class="demo-stat-number">22+</div>
+            <div class="demo-stat-label">支持方言</div>
+        </div>
+        <div class="demo-stat">
+            <div class="demo-stat-number">60+</div>
+            <div class="demo-stat-label">适老化特性</div>
+        </div>
+        <div class="demo-stat">
+            <div class="demo-stat-number">100%</div>
+            <div class="demo-stat-label">离线可用</div>
+        </div>
+        <div class="demo-stat">
+            <div class="demo-stat-number">4.8</div>
+            <div class="demo-stat-label">用户评分</div>
+        </div>
+    </div>
+
+    <!-- 核心特性 -->
+    <section class="demo-features">
+        <h2 style="text-align: center; font-size: 32px; margin-bottom: 10px;">核心设计特性</h2>
+        <p style="text-align: center; color: #666; max-width: 600px; margin: 0 auto 40px;">
+            基于农村用户实际需求，打造简单易用的数字化服务平台
+        </p>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-microphone-alt"></i>
+                </div>
+                <h3 class="feature-title">语音优先交互</h3>
+                <p class="feature-description">
+                    支持22种方言识别，大图标语音按钮，语音播报反馈，让不擅长打字的用户也能轻松使用。
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-universal-access"></i>
+                </div>
+                <h3 class="feature-title">适老化设计</h3>
+                <p class="feature-description">
+                    大字模式、高对比度、简化操作流程，专门为老年用户优化，降低数字鸿沟。
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-wifi"></i>
+                </div>
+                <h3 class="feature-title">离线可用</h3>
+                <p class="feature-description">
+                    基础功能支持离线使用，数据自动同步，解决农村网络不稳定问题。
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3 class="feature-title">一户一码管理</h3>
+                <p class="feature-description">
+                    每户生成专属二维码，方便信息查询和管理，支持家庭关系智能绑定。
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-bullhorn"></i>
+                </div>
+                <h3 class="feature-title">村务公开透明</h3>
+                <p class="feature-description">
+                    财务收支公示、政策公告发布、会议通知一键发送，确保村务透明化管理。
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-phone-alt"></i>
+                </div>
+                <h3 class="feature-title">应急求助系统</h3>
+                <p class="feature-description">
+                    一键紧急求助，实时位置分享，快速联系救援，保障村民生命安全。
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 设备演示框架 -->
+    <div class="demo-device-frame">
+        <div class="demo-device-screen">
+            <iframe src="index.html" style="width: 100%; height: 100%; border: none; border-radius: 30px;"></iframe>
+        </div>
+    </div>
+
+    <!-- 设计原则 -->
+    <section class="demo-features">
+        <h2 style="text-align: center; font-size: 32px; margin-bottom: 40px;">设计原则</h2>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon" style="background: linear-gradient(135deg, #4CAF50, #2E7D32);">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <h3 class="feature-title">简单易用</h3>
+                <p class="feature-description">
+                    极简设计理念，减少认知负担，让所有年龄段用户都能快速上手。
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon" style="background: linear-gradient(135deg, #FF9800, #F57C00);">
+                    <i class="fas fa-hand-pointer"></i>
+                </div>
+                <h3 class="feature-title">容错友好</h3>
+                <p class="feature-description">
+                    允许用户犯错，提供清晰的错误提示和恢复路径，降低使用焦虑。
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon" style="background: linear-gradient(135deg, #2196F3, #1976D2);">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <h3 class="feature-title">快速响应</h3>
+                <p class="feature-description">
+                    优化性能，减少等待时间，提供即时反馈，提升使用体验。
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon" style="background: linear-gradient(135deg, #9C27B0, #7B1FA2);">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3 class="feature-title">安全可信</h3>
+                <p class="feature-description">
+                    数据加密传输，权限分级管理，操作日志可追溯，保护用户隐私。
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 用户测试反馈 -->
+    <section style="background: #f8f9fa; padding: 60px 20px;">
+        <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+            <h2 style="font-size: 32px; margin-bottom: 40px;">用户测试反馈</h2>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px;">
+                <div style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+                    <div style="width: 60px; height: 60px; background: #e8f5e9; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-user" style="color: #4CAF50; font-size: 24px;"></i>
+                    </div>
+                    <p style="font-style: italic; color: #666; margin-bottom: 20px;">
+                        "这个平台太方便了，语音功能让我不用学打字也能办事。"
+                    </p>
+                    <p style="font-weight: 600; color: #333;">张大爷 | 68岁 | 村民</p>
+                </div>
+
+                <div style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+                    <div style="width: 60px; height: 60px; background: #e3f2fd; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-user-tie" style="color: #2196F3; font-size: 24px;"></i>
+                    </div>
+                    <p style="font-style: italic; color: #666; margin-bottom: 20px;">
+                        "村务管理效率提升了很多，一键群发通知省时省力。"
+                    </p>
+                    <p style="font-weight: 600; color: #333;">李书记 | 45岁 | 村干部</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer style="background: #1a237e; color: white; padding: 40px 20px; text-align: center;">
+        <p style="margin-bottom: 20px;">智慧乡村综合服务平台 UI/UX 设计方案</p>
+        <p style="opacity: 0.7; font-size: 14px;">© 2025 智慧乡村项目. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // 打开新窗口查看原型
+        function openPrototype() {
+            window.open('index.html', '_blank', 'width=375,height=812');
+        }
+
+        // 切换大字模式
+        function toggleLargeText() {
+            document.body.classList.toggle('large-text-mode');
+            const isLarge = document.body.classList.contains('large-text-mode');
+            alert(isLarge ? '已开启大字模式' : '已关闭大字模式');
+        }
+
+        // 切换高对比度
+        function toggleHighContrast() {
+            document.body.classList.toggle('high-contrast');
+            const isHighContrast = document.body.classList.contains('high-contrast');
+            alert(isHighContrast ? '已开启高对比度模式' : '已关闭高对比度模式');
+        }
+
+        // 测试语音功能
+        function testVoice() {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance('这是语音功能测试，您正在体验智慧乡村平台的语音播报功能。');
+                utterance.lang = 'zh-CN';
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert('您的浏览器不支持语音功能');
+            }
+        }
+
+        // 添加动画效果
+        window.addEventListener('scroll', function() {
+            const cards = document.querySelectorAll('.feature-card, .demo-stat');
+            cards.forEach(card => {
+                const rect = card.getBoundingClientRect();
+                if (rect.top < window.innerHeight && rect.bottom > 0) {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }
+            });
+        });
+
+        // 初始化动画
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.feature-card, .demo-stat');
+            cards.forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.6s, transform 0.6s';
+            });
+        });
+    </script>
+</body>
+</html>
