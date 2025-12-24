@@ -1,31 +1,100 @@
 /**
  * 财务透明化管理控制器
  * 处理区块链存证、智能票据OCR识别、村民财务查询权限、预算审批流程等
+ *
+ * 注意: 此模块依赖 Finance 模型和相关服务
+ * 如需启用财务功能，请确保以下文件存在并正确配置:
+ * - src/models/Finance.js (已存在)
+ * - src/services/blockchainService.js (待实现)
+ * - src/services/invoiceOCRService.js (待实现)
+ * - src/services/villageFinanceService.js (待实现)
  */
 
-const {
-  FinancialTransaction,
-  BlockchainRecord,
-  InvoiceOCR,
-  BudgetApproval,
-  VillageFinanceAccess
-} = require('../models/Finance');
-
-const blockchainService = require('../services/blockchainService');
-const invoiceOCRService = require('../services/invoiceOCRService');
-const villageFinanceService = require('../services/villageFinanceService');
-const ApprovalWorkflowService = require('../services/approvalWorkflowService');
+const fs = require('fs');
+const crypto = require('crypto');
 const multer = require('multer');
 const path = require('path');
+const logger = require('../utils/logger');
 
-// 文件上传配置
-const storage = multer.memoryStorage();
+// 尝试加载依赖模块
+let FinancialTransaction, BlockchainRecord, InvoiceOCR, BudgetApproval, VillageFinanceAccess;
+let blockchainService, invoiceOCRService, villageFinanceService;
+let financeModuleEnabled = false;
+
+try {
+  const financeModels = require('../models/Finance');
+  FinancialTransaction = financeModels.FinancialTransaction;
+  BlockchainRecord = financeModels.BlockchainRecord;
+  InvoiceOCR = financeModels.InvoiceOCR;
+  BudgetApproval = financeModels.BudgetApproval;
+  VillageFinanceAccess = financeModels.VillageFinanceAccess;
+
+  // 尝试加载服务模块
+  blockchainService = require('../services/blockchainService');
+  invoiceOCRService = require('../services/invoiceOCRService');
+  villageFinanceService = require('../services/villageFinanceService');
+
+  financeModuleEnabled = true;
+  logger.info('财务管理模块已启用');
+} catch (error) {
+  logger.warn('财务管理模块未完全启用，部分服务缺失:', error.message);
+  financeModuleEnabled = false;
+}
+
+// 确保上传目录存在
+const uploadDir = path.join(__dirname, '../uploads/finance');
+try {
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+} catch (error) {
+  logger.error('创建上传目录失败:', error);
+}
+
+// 安全的文件名生成函数
+function generateSafeFileName(originalName, userId) {
+  const ext = path.extname(originalName);
+  const timestamp = Date.now();
+  const randomStr = crypto.randomBytes(8).toString('hex');
+  // 只保留文件扩展名中的安全字符
+  const safeExt = ext.replace(/[^a-zA-Z0-9.]/g, '');
+  return `${userId}_${timestamp}_${randomStr}${safeExt}`;
+}
+
+// 验证文件路径安全性 - 防止路径遍历攻击
+function isPathSafe(fileName) {
+  const normalized = path.normalize(fileName);
+  return !normalized.includes('..') &&
+         !path.isAbsolute(normalized) &&
+         !normalized.startsWith('/') &&
+         !normalized.startsWith('\\') &&
+         !normalized.includes(':\\') &&  // Windows 绝对路径
+         !fileName.includes('\0');  // 空字节注入
+}
+
+// 文件上传配置 - 使用磁盘存储更安全
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const userId = req.user?._id?.toString() || 'anonymous';
+    const safeFileName = generateSafeFileName(file.originalname, userId);
+    cb(null, safeFileName);
+  }
+});
+
 const upload = multer({
   storage,
   limits: {
     fileSize: 10 * 1024 * 1024 // 10MB
   },
   fileFilter: (req, file, cb) => {
+    // 验证文件名安全性 - 防止路径遍历
+    if (!isPathSafe(file.originalname)) {
+      return cb(new Error('文件名包含非法字符'));
+    }
+
     const allowedTypes = /jpeg|jpg|png|pdf/;
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
     const mimetype = allowedTypes.test(file.mimetype);
@@ -39,11 +108,33 @@ const upload = multer({
 });
 
 /**
+ * 通用响应函数 - 模块未启用时返回
+ */
+function moduleNotEnabledResponse(res, action = '此操作') {
+  return res.status(503).json({
+    success: false,
+    error: 'SERVICE_NOT_AVAILABLE',
+    message: `财务管理功能暂不可用，${action}无法执行`,
+    details: '财务管理模块需要完整的服务配置，请联系管理员启用相关服务',
+    requiredServices: [
+      'src/models/Finance.js',
+      'src/services/blockchainService.js',
+      'src/services/invoiceOCRService.js',
+      'src/services/villageFinanceService.js'
+    ]
+  });
+}
+
+/**
  * 财务交易管理
  */
 
 // 创建财务交易
 async function createTransaction(req, res) {
+  if (!financeModuleEnabled || !FinancialTransaction) {
+    return moduleNotEnabledResponse(res, '创建财务交易');
+  }
+
   try {
     const {
       transactionType,
@@ -73,7 +164,7 @@ async function createTransaction(req, res) {
       parties: parties || {},
       createdBy: {
         userId: req.user._id,
-        userName: req.user.profile.displayName,
+        userName: req.user.profile?.displayName || req.user.username,
         department: req.user.department
       },
       relatedBudget: relatedBudget || {},
@@ -90,7 +181,7 @@ async function createTransaction(req, res) {
     });
 
   } catch (error) {
-    console.error('创建财务交易失败:', error);
+    logger.error('创建财务交易失败:', error);
     res.status(500).json({
       success: false,
       error: 'CREATION_FAILED',
@@ -102,88 +193,155 @@ async function createTransaction(req, res) {
 
 // 提交交易审批
 async function submitTransactionForApproval(req, res) {
+  if (!financeModuleEnabled || !FinancialTransaction) {
+    return moduleNotEnabledResponse(res, '提交交易审批');
+  }
+
   try {
     const { transactionId } = req.params;
-    const { attachments, workflowType } = req.body;
+    const { attachments } = req.body;
 
-    const approvalWorkflowService = new ApprovalWorkflowService();
-
-    // 处理附件
-    if (attachments && attachments.length > 0) {
-      await FinancialTransaction.findByIdAndUpdate(transactionId, {
-        attachments: attachments.map(attachment => ({
-          ...attachment,
-          uploadedBy: {
-            userId: req.user._id,
-            userName: req.user.profile.displayName
-          }
-        }))
+    const transaction = await FinancialTransaction.findById(transactionId);
+    if (!transaction) {
+      return res.status(404).json({
+        success: false,
+        error: 'TRANSACTION_NOT_FOUND',
+        message: '财务交易不存在'
       });
     }
 
-    // 启动审批工作流
-    const workflowResult = await approvalWorkflowService.startWorkflow(
-      transactionId,
-      workflowType || 'expense',
-      {
-        userId: req.user._id,
-        userName: req.user.profile.displayName,
-        role: req.user.role
-      }
-    );
+    if (transaction.status !== 'draft') {
+      return res.status(400).json({
+        success: false,
+        error: 'INVALID_STATUS',
+        message: '只能提交草稿状态的交易'
+      });
+    }
+
+    // 更新状态为待审批
+    transaction.status = 'pending';
+    transaction.approval.submittedBy = {
+      userId: req.user._id,
+      userName: req.user.profile?.displayName || req.user.username,
+      submitDate: new Date()
+    };
+
+    // 处理附件
+    if (attachments && attachments.length > 0) {
+      transaction.attachments = attachments.map(attachment => ({
+        ...attachment,
+        uploadedBy: {
+          userId: req.user._id,
+          userName: req.user.profile?.displayName || req.user.username
+        }
+      }));
+    }
+
+    await transaction.save();
+
+    // 发送审批通知
+    await sendApprovalNotification(transaction);
 
     res.json({
       success: true,
       message: '交易已提交审批',
-      data: workflowResult
+      data: {
+        transactionId: transaction._id,
+        status: transaction.status,
+        submittedAt: transaction.approval.submittedBy.submitDate
+      }
     });
 
   } catch (error) {
-    console.error('提交交易审批失败:', error);
+    logger.error('提交交易审批失败:', error);
     res.status(500).json({
       success: false,
       error: 'SUBMISSION_FAILED',
-      message: '提交审批失败',
-      details: error.message
+      message: '提交审批失败'
     });
   }
 }
 
 // 审批交易
 async function reviewTransaction(req, res) {
+  if (!financeModuleEnabled || !FinancialTransaction) {
+    return moduleNotEnabledResponse(res, '审批交易');
+  }
+
   try {
     const { transactionId } = req.params;
     const { decision, comments } = req.body;
 
-    const approvalWorkflowService = new ApprovalWorkflowService();
+    const transaction = await FinancialTransaction.findById(transactionId);
+    if (!transaction) {
+      return res.status(404).json({
+        success: false,
+        error: 'TRANSACTION_NOT_FOUND',
+        message: '财务交易不存在'
+      });
+    }
 
-    // 处理审批决策
-    const result = await approvalWorkflowService.processApprovalDecision(
-      transactionId,
-      req.user._id,
+    if (transaction.status !== 'pending') {
+      return res.status(400).json({
+        success: false,
+        error: 'INVALID_STATUS',
+        message: '只能审批待审批状态的交易'
+      });
+    }
+
+    // 添加审批记录
+    transaction.approval.reviewedBy.push({
+      userId: req.user._id,
+      userName: req.user.profile?.displayName || req.user.username,
+      role: req.user.role,
       decision,
-      comments
-    );
+      comments,
+      reviewDate: new Date()
+    });
+
+    // 更新状态
+    if (decision === 'approved') {
+      transaction.status = 'approved';
+      transaction.approval.finalApprover = {
+        userId: req.user._id,
+        userName: req.user.profile?.displayName || req.user.username,
+        approvalDate: new Date()
+      };
+    } else if (decision === 'rejected') {
+      transaction.status = 'rejected';
+    } else if (decision === 'returned') {
+      transaction.status = 'draft';
+    }
+
+    await transaction.save();
 
     res.json({
       success: true,
-      message: result.message,
-      data: result
+      message: `交易${decision === 'approved' ? '已批准' : decision === 'rejected' ? '已拒绝' : '已退回'}`,
+      data: {
+        transactionId: transaction._id,
+        status: transaction.status,
+        decision,
+        reviewedAt: new Date()
+      }
     });
 
   } catch (error) {
-    console.error('审批交易失败:', error);
+    logger.error('审批交易失败:', error);
     res.status(500).json({
       success: false,
       error: 'REVIEW_FAILED',
-      message: '审批交易失败',
-      details: error.message
+      message: '审批交易失败'
     });
   }
 }
 
 // 获取交易列表
 async function getTransactions(req, res) {
+  if (!financeModuleEnabled || !FinancialTransaction) {
+    return moduleNotEnabledResponse(res, '获取交易列表');
+  }
+
   try {
     const {
       page = 1,
@@ -241,7 +399,7 @@ async function getTransactions(req, res) {
     });
 
   } catch (error) {
-    console.error('获取交易列表失败:', error);
+    logger.error('获取交易列表失败:', error);
     res.status(500).json({
       success: false,
       error: 'FETCH_FAILED',
@@ -256,6 +414,10 @@ async function getTransactions(req, res) {
 
 // 上链数据
 async function uploadToBlockchain(req, res) {
+  if (!financeModuleEnabled || !blockchainService) {
+    return moduleNotEnabledResponse(res, '区块链上链');
+  }
+
   try {
     const { transactionId, blockchainType = 'ethereum' } = req.body;
 
@@ -328,7 +490,7 @@ async function uploadToBlockchain(req, res) {
     });
 
   } catch (error) {
-    console.error('区块链上链失败:', error);
+    logger.error('区块链上链失败:', error);
     res.status(500).json({
       success: false,
       error: 'BLOCKCHAIN_UPLOAD_FAILED',
@@ -339,6 +501,10 @@ async function uploadToBlockchain(req, res) {
 
 // 验证区块链数据
 async function verifyBlockchainData(req, res) {
+  if (!financeModuleEnabled || !blockchainService) {
+    return moduleNotEnabledResponse(res, '验证区块链数据');
+  }
+
   try {
     const { transactionHash, blockchainType } = req.body;
 
@@ -371,7 +537,7 @@ async function verifyBlockchainData(req, res) {
     });
 
   } catch (error) {
-    console.error('验证区块链数据失败:', error);
+    logger.error('验证区块链数据失败:', error);
     res.status(500).json({
       success: false,
       error: 'VERIFICATION_FAILED',
@@ -382,6 +548,10 @@ async function verifyBlockchainData(req, res) {
 
 // 获取区块链统计
 async function getBlockchainStats(req, res) {
+  if (!financeModuleEnabled || !blockchainService) {
+    return moduleNotEnabledResponse(res, '获取区块链统计');
+  }
+
   try {
     const { blockchainType, dateRange } = req.query;
 
@@ -397,7 +567,7 @@ async function getBlockchainStats(req, res) {
     });
 
   } catch (error) {
-    console.error('获取区块链统计失败:', error);
+    logger.error('获取区块链统计失败:', error);
     res.status(500).json({
       success: false,
       error: 'STATS_FETCH_FAILED',
@@ -412,6 +582,10 @@ async function getBlockchainStats(req, res) {
 
 // 识别票据
 async function recognizeInvoice(req, res) {
+  if (!financeModuleEnabled || !invoiceOCRService) {
+    return moduleNotEnabledResponse(res, 'OCR票据识别');
+  }
+
   try {
     if (!req.file) {
       return res.status(400).json({
@@ -423,23 +597,16 @@ async function recognizeInvoice(req, res) {
 
     const { engine = 'baidu', uploadToCloud = true } = req.body;
 
-    // 保存临时文件
-    const tempPath = path.join(__dirname, '../temp', `invoice_${Date.now()}_${req.file.originalname}`);
-    require('fs').writeFileSync(tempPath, req.file.buffer);
-
     // OCR识别
-    const result = await invoiceOCRService.recognizeInvoice(tempPath, {
+    const result = await invoiceOCRService.recognizeInvoice(req.file.path, {
       engine,
-      imageUrl: uploadToCloud ? await uploadImageToCloud(req.file) : null
+      imageUrl: uploadToCloud ? req.file.location : null
     });
-
-    // 清理临时文件
-    require('fs').unlinkSync(tempPath);
 
     res.json(result);
 
   } catch (error) {
-    console.error('票据识别失败:', error);
+    logger.error('票据识别失败:', error);
     res.status(500).json({
       success: false,
       error: 'OCR_FAILED',
@@ -450,6 +617,10 @@ async function recognizeInvoice(req, res) {
 
 // 批量识别票据
 async function batchRecognizeInvoices(req, res) {
+  if (!financeModuleEnabled || !invoiceOCRService) {
+    return moduleNotEnabledResponse(res, '批量OCR识别');
+  }
+
   try {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({
@@ -461,12 +632,7 @@ async function batchRecognizeInvoices(req, res) {
 
     const { engine = 'baidu', batchSize = 5 } = req.body;
 
-    const imagePaths = [];
-    for (const file of req.files) {
-      const tempPath = path.join(__dirname, '../temp', `invoice_${Date.now()}_${file.originalname}`);
-      require('fs').writeFileSync(tempPath, file.buffer);
-      imagePaths.push(tempPath);
-    }
+    const imagePaths = req.files.map(file => file.path);
 
     // 批量识别
     const result = await invoiceOCRService.batchRecognizeInvoices(imagePaths, {
@@ -474,19 +640,10 @@ async function batchRecognizeInvoices(req, res) {
       batchSize
     });
 
-    // 清理临时文件
-    imagePaths.forEach(filePath => {
-      try {
-        require('fs').unlinkSync(filePath);
-      } catch (error) {
-        console.error('清理临时文件失败:', error);
-      }
-    });
-
     res.json(result);
 
   } catch (error) {
-    console.error('批量识别票据失败:', error);
+    logger.error('批量识别票据失败:', error);
     res.status(500).json({
       success: false,
       error: 'BATCH_OCR_FAILED',
@@ -497,6 +654,10 @@ async function batchRecognizeInvoices(req, res) {
 
 // 税务局验证票据
 async function verifyInvoiceWithTaxAuthority(req, res) {
+  if (!financeModuleEnabled || !invoiceOCRService) {
+    return moduleNotEnabledResponse(res, '税务局验证');
+  }
+
   try {
     const { invoiceId } = req.params;
 
@@ -505,7 +666,7 @@ async function verifyInvoiceWithTaxAuthority(req, res) {
     res.json(result);
 
   } catch (error) {
-    console.error('税务局验证失败:', error);
+    logger.error('税务局验证失败:', error);
     res.status(500).json({
       success: false,
       error: 'TAX_VERIFICATION_FAILED',
@@ -516,6 +677,10 @@ async function verifyInvoiceWithTaxAuthority(req, res) {
 
 // 获取OCR记录
 async function getOCRRecords(req, res) {
+  if (!financeModuleEnabled || !InvoiceOCR) {
+    return moduleNotEnabledResponse(res, '获取OCR记录');
+  }
+
   try {
     const {
       page = 1,
@@ -560,7 +725,7 @@ async function getOCRRecords(req, res) {
     });
 
   } catch (error) {
-    console.error('获取OCR记录失败:', error);
+    logger.error('获取OCR记录失败:', error);
     res.status(500).json({
       success: false,
       error: 'FETCH_FAILED',
@@ -575,6 +740,10 @@ async function getOCRRecords(req, res) {
 
 // 创建预算
 async function createBudget(req, res) {
+  if (!financeModuleEnabled || !BudgetApproval) {
+    return moduleNotEnabledResponse(res, '创建预算');
+  }
+
   try {
     const {
       budgetYear,
@@ -609,7 +778,7 @@ async function createBudget(req, res) {
       },
       createdBy: {
         userId: req.user._id,
-        userName: req.user.profile.displayName,
+        userName: req.user.profile?.displayName || req.user.username,
         department: req.user.department
       }
     });
@@ -623,7 +792,7 @@ async function createBudget(req, res) {
     });
 
   } catch (error) {
-    console.error('创建预算失败:', error);
+    logger.error('创建预算失败:', error);
     res.status(500).json({
       success: false,
       error: 'CREATION_FAILED',
@@ -634,6 +803,10 @@ async function createBudget(req, res) {
 
 // 提交预算审批
 async function submitBudgetForApproval(req, res) {
+  if (!financeModuleEnabled || !BudgetApproval) {
+    return moduleNotEnabledResponse(res, '提交预算审批');
+  }
+
   try {
     const { budgetId } = req.params;
 
@@ -673,7 +846,7 @@ async function submitBudgetForApproval(req, res) {
     });
 
   } catch (error) {
-    console.error('提交预算审批失败:', error);
+    logger.error('提交预算审批失败:', error);
     res.status(500).json({
       success: false,
       error: 'SUBMISSION_FAILED',
@@ -684,6 +857,10 @@ async function submitBudgetForApproval(req, res) {
 
 // 审批预算
 async function reviewBudget(req, res) {
+  if (!financeModuleEnabled || !BudgetApproval) {
+    return moduleNotEnabledResponse(res, '审批预算');
+  }
+
   try {
     const { budgetId } = req.params;
     const { decision, comments, attachments } = req.body;
@@ -711,7 +888,7 @@ async function reviewBudget(req, res) {
       stage: currentStage,
       approver: {
         userId: req.user._id,
-        userName: req.user.profile.displayName,
+        userName: req.user.profile?.displayName || req.user.username,
         role: req.user.role,
         department: req.user.department
       },
@@ -754,7 +931,7 @@ async function reviewBudget(req, res) {
     });
 
   } catch (error) {
-    console.error('审批预算失败:', error);
+    logger.error('审批预算失败:', error);
     res.status(500).json({
       success: false,
       error: 'REVIEW_FAILED',
@@ -765,6 +942,10 @@ async function reviewBudget(req, res) {
 
 // 获取预算列表
 async function getBudgets(req, res) {
+  if (!financeModuleEnabled || !BudgetApproval) {
+    return moduleNotEnabledResponse(res, '获取预算列表');
+  }
+
   try {
     const {
       page = 1,
@@ -804,7 +985,7 @@ async function getBudgets(req, res) {
     });
 
   } catch (error) {
-    console.error('获取预算列表失败:', error);
+    logger.error('获取预算列表失败:', error);
     res.status(500).json({
       success: false,
       error: 'FETCH_FAILED',
@@ -819,6 +1000,10 @@ async function getBudgets(req, res) {
 
 // 授予财务查询权限
 async function grantFinanceAccess(req, res) {
+  if (!financeModuleEnabled || !villageFinanceService) {
+    return moduleNotEnabledResponse(res, '授予财务查询权限');
+  }
+
   try {
     const { userId, villageId, customPermissions, grantInfo } = req.body;
 
@@ -828,7 +1013,7 @@ async function grantFinanceAccess(req, res) {
       customPermissions || {},
       {
         granterId: req.user._id,
-        granterName: req.user.profile.displayName,
+        granterName: req.user.profile?.displayName || req.user.username,
         granterRole: req.user.role,
         ...grantInfo
       }
@@ -837,7 +1022,7 @@ async function grantFinanceAccess(req, res) {
     res.status(201).json(result);
 
   } catch (error) {
-    console.error('授予财务查询权限失败:', error);
+    logger.error('授予财务查询权限失败:', error);
     res.status(500).json({
       success: false,
       error: 'GRANT_FAILED',
@@ -848,6 +1033,10 @@ async function grantFinanceAccess(req, res) {
 
 // 获取财务摘要
 async function getFinanceSummary(req, res) {
+  if (!financeModuleEnabled || !villageFinanceService) {
+    return moduleNotEnabledResponse(res, '获取财务摘要');
+  }
+
   try {
     const { userId, villageId } = req.query;
     const filters = req.query.filters ? JSON.parse(req.query.filters) : {};
@@ -864,7 +1053,7 @@ async function getFinanceSummary(req, res) {
     });
 
   } catch (error) {
-    console.error('获取财务摘要失败:', error);
+    logger.error('获取财务摘要失败:', error);
     res.status(500).json({
       success: false,
       error: 'FETCH_FAILED',
@@ -875,6 +1064,10 @@ async function getFinanceSummary(req, res) {
 
 // 获取交易详情
 async function getTransactionDetails(req, res) {
+  if (!financeModuleEnabled || !villageFinanceService) {
+    return moduleNotEnabledResponse(res, '获取交易详情');
+  }
+
   try {
     const { userId, villageId } = req.query;
     const pagination = {
@@ -896,7 +1089,7 @@ async function getTransactionDetails(req, res) {
     });
 
   } catch (error) {
-    console.error('获取交易详情失败:', error);
+    logger.error('获取交易详情失败:', error);
     res.status(500).json({
       success: false,
       error: 'FETCH_FAILED',
@@ -907,6 +1100,10 @@ async function getTransactionDetails(req, res) {
 
 // 提交财务问题
 async function submitFinanceQuestion(req, res) {
+  if (!financeModuleEnabled || !villageFinanceService) {
+    return moduleNotEnabledResponse(res, '提交财务问题');
+  }
+
   try {
     const { userId, villageId, questionData } = req.body;
 
@@ -919,7 +1116,7 @@ async function submitFinanceQuestion(req, res) {
     res.status(201).json(result);
 
   } catch (error) {
-    console.error('提交财务问题失败:', error);
+    logger.error('提交财务问题失败:', error);
     res.status(500).json({
       success: false,
       error: 'SUBMIT_FAILED',
@@ -930,6 +1127,10 @@ async function submitFinanceQuestion(req, res) {
 
 // 下载财务报告
 async function downloadFinanceReport(req, res) {
+  if (!financeModuleEnabled || !villageFinanceService) {
+    return moduleNotEnabledResponse(res, '下载财务报告');
+  }
+
   try {
     const { userId, villageId, reportType } = req.query;
     const filters = req.query.filters ? JSON.parse(req.query.filters) : {};
@@ -947,7 +1148,7 @@ async function downloadFinanceReport(req, res) {
     });
 
   } catch (error) {
-    console.error('下载财务报告失败:', error);
+    logger.error('下载财务报告失败:', error);
     res.status(500).json({
       success: false,
       error: 'DOWNLOAD_FAILED',
@@ -958,6 +1159,10 @@ async function downloadFinanceReport(req, res) {
 
 // 获取财务访问统计
 async function getFinanceAccessStats(req, res) {
+  if (!financeModuleEnabled || !villageFinanceService) {
+    return moduleNotEnabledResponse(res, '获取财务访问统计');
+  }
+
   try {
     const { villageId } = req.query;
     const filters = req.query.filters ? JSON.parse(req.query.filters) : {};
@@ -973,7 +1178,7 @@ async function getFinanceAccessStats(req, res) {
     });
 
   } catch (error) {
-    console.error('获取财务访问统计失败:', error);
+    logger.error('获取财务访问统计失败:', error);
     res.status(500).json({
       success: false,
       error: 'STATS_FETCH_FAILED',
@@ -992,144 +1197,14 @@ async function uploadImageToCloud(file) {
   return `https://cloud-storage.example.com/invoices/${Date.now()}_${file.originalname}`;
 }
 
-// 获取待办审批任务
-async function getPendingTasks(req, res) {
-  try {
-    const {
-      transactionType,
-      status = 'pending',
-      priority,
-      dateRange,
-      page = 1,
-      limit = 20
-    } = req.query;
-
-    const approvalWorkflowService = new ApprovalWorkflowService();
-
-    const filters = {};
-    if (transactionType) filters.transactionType = transactionType;
-    if (dateRange) filters.dateRange = JSON.parse(dateRange);
-    if (priority) filters.priority = priority;
-
-    const tasks = await approvalWorkflowService.getPendingTasks(req.user._id, filters);
-
-    // 分页处理
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + parseInt(limit);
-    const paginatedTasks = tasks.slice(startIndex, endIndex);
-
-    res.json({
-      success: true,
-      data: paginatedTasks,
-      pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total: tasks.length,
-        totalPages: Math.ceil(tasks.length / limit)
-      }
-    });
-
-  } catch (error) {
-    console.error('获取待办任务失败:', error);
-    res.status(500).json({
-      success: false,
-      error: 'FETCH_FAILED',
-      message: '获取待办任务失败',
-      details: error.message
-    });
-  }
-}
-
-// 获取审批工作流状态
-async function getWorkflowStatus(req, res) {
-  try {
-    const { transactionId } = req.params;
-
-    const transaction = await FinancialTransaction.findById(transactionId)
-      .populate('createdBy.userId', 'profile.displayName')
-      .populate('approval.reviewedBy.approver.userId', 'profile.displayName');
-
-    if (!transaction) {
-      return res.status(404).json({
-        success: false,
-        error: 'TRANSACTION_NOT_FOUND',
-        message: '财务交易不存在'
-      });
-    }
-
-    // 检查访问权限
-    if (transaction.createdBy.userId._id.toString() !== req.user._id &&
-        !['village_admin', 'finance_officer', 'department_head'].includes(req.user.role)) {
-      return res.status(403).json({
-        success: false,
-        error: 'ACCESS_DENIED',
-        message: '无权查看该交易的审批状态'
-      });
-    }
-
-    // 获取工作流信息
-    const workflowConfig = transaction.approval.workflowConfig || {};
-    const currentStageId = transaction.approval.currentStage;
-    const currentStage = workflowConfig.stages?.find(s => s.id === currentStageId);
-
-    // 计算审批进度
-    let totalStages = workflowConfig.stages?.length || 0;
-    let completedStages = 0;
-
-    if (workflowConfig.stages) {
-      workflowConfig.stages.forEach((stage, index) => {
-        const stageReviews = transaction.approval.reviewedBy.filter(r => r.stage === stage.id);
-        const approvalThreshold = { meetsRequirement: false };
-
-        if (stageReviews.length > 0) {
-          // 这里可以复用审批工作流服务的逻辑
-          const approvedReviews = stageReviews.filter(r => r.decision === 'approved');
-          if (approvedReviews.length >= stage.minApprovers) {
-            completedStages = index + 1;
-          }
-        }
-      });
-    }
-
-    res.json({
-      success: true,
-      data: {
-        transactionId: transaction._id,
-        transactionNumber: transaction.transactionInfo.transactionNumber,
-        status: transaction.status,
-        currentStage: currentStageId,
-        currentStageName: currentStage?.name,
-        progress: {
-          completedStages,
-          totalStages,
-          percentage: totalStages > 0 ? Math.round((completedStages / totalStages) * 100) : 0
-        },
-        workflowStages: workflowConfig.stages || [],
-        approvalHistory: transaction.approval.reviewedBy,
-        submitDate: transaction.approval.submittedBy?.submitDate,
-        lastUpdated: transaction.updatedAt
-      }
-    });
-
-  } catch (error) {
-    console.error('获取工作流状态失败:', error);
-    res.status(500).json({
-      success: false,
-      error: 'FETCH_FAILED',
-      message: '获取工作流状态失败',
-      details: error.message
-    });
-  }
-}
-
 async function sendApprovalNotification(transaction) {
   // 这里需要实现通知逻辑
-  console.log('发送审批通知:', transaction.transactionInfo.transactionNumber);
+  logger.info('发送审批通知:', transaction.transactionInfo.transactionNumber);
 }
 
 async function sendBudgetApprovalNotification(budget) {
   // 这里需要实现通知逻辑
-  console.log('发送预算审批通知:', budget.budgetInfo.budgetName);
+  logger.info('发送预算审批通知:', budget.budgetInfo.budgetName);
 }
 
 module.exports = {
@@ -1138,11 +1213,9 @@ module.exports = {
   submitTransactionForApproval,
   reviewTransaction,
   getTransactions,
-  getPendingTasks,
-  getWorkflowStatus,
 
   // 区块链存证管理
-  uploadToBlockchain: [upload.single('file'), uploadToBlockchain],
+  uploadToBlockchain,
   verifyBlockchainData,
   getBlockchainStats,
 
