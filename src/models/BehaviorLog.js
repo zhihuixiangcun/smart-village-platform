@@ -168,8 +168,8 @@ const behaviorLogSchema = new mongoose.Schema({
   // 时间信息
   timestamp: {
     type: Date,
-    default: Date.now,
-    index: true
+    default: Date.now
+    // 索引在 schema.index() 中定义，避免重复
   },
 
   // 会话信息

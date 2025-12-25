@@ -135,11 +135,11 @@ const paymentRecordSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.Mixed
   },
 
-  // 时间戳
+  // 时间戳（使用timestamps选项自动管理）
   createdAt: {
     type: Date,
-    default: Date.now,
-    index: true
+    default: Date.now
+    // 索引在 schema.index() 中定义
   },
 
   updatedAt: {
@@ -162,19 +162,19 @@ paymentRecordSchema.virtual('amountYuan').get(function() {
 });
 
 paymentRecordSchema.virtual('isPaid').get(function() {
-  return ['success', 'refunded'].includes(this.status);
+  return ['success', 'refunded'].indexOf(this.status) >= 0;
 });
 
 paymentRecordSchema.virtual('isPending').get(function() {
-  return ['pending', 'processing'].includes(this.status);
+  return ['pending', 'processing'].indexOf(this.status) >= 0;
 });
 
 paymentRecordSchema.virtual('isFailed').get(function() {
-  return ['failed', 'cancelled'].includes(this.status));
+  return ['failed', 'cancelled'].indexOf(this.status) >= 0;
 });
 
 paymentRecordSchema.virtual('isRefunded').get(function() {
-  return this.status === 'refunded' && this.refundInfo?.refundStatus === 'success';
+  return this.status === 'refunded' && this.refundInfo && this.refundInfo.refundStatus === 'success';
 });
 
 // 实例方法

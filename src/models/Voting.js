@@ -436,9 +436,9 @@ VotingItemSchema.index({ createdAt: -1 });
 VotingItemSchema.index({ 'permissions.type': 1 });
 
 // 投票记录索引
-VotingRecordSchema.index({ votingId: 1, voter.userId: 1 });
+VotingRecordSchema.index({ votingId: 1, 'voter.userId': 1 });
 VotingRecordSchema.index({ votingId: 1, votedAt: -1 });
-VotingRecordSchema.index({ voter.userId: 1, votedAt: -1 });
+VotingRecordSchema.index({ 'voter.userId': 1, votedAt: -1 });
 VotingRecordSchema.index({ status: 1 });
 
 // 虚拟字段

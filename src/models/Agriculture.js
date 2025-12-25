@@ -48,24 +48,24 @@ const CropVarietySchema = new mongoose.Schema({
       min: Number,
       max: Number,
       optimal: Number,
-      unit: '°C'
+      unit: { type: String, default: '°C' }
     },
     rainfall: {
       min: Number,
       max: Number,
       optimal: Number,
-      unit: 'mm'
+      unit: { type: String, default: 'mm' }
     },
     humidity: {
       min: Number,
       max: Number,
       optimal: Number,
-      unit: '%'
+      unit: { type: String, default: '%' }
     },
     sunlight: {
       min: Number,
       max: Number,
-      unit: 'hours/day'
+      unit: { type: String, default: 'hours/day' }
     }
   },
   soilRequirements: [{
@@ -77,7 +77,7 @@ const CropVarietySchema = new mongoose.Schema({
     organicMatter: {
       min: Number,
       max: Number,
-      unit: '%'
+      unit: { type: String, default: '%' }
     },
     fertility: String
   }],
@@ -201,12 +201,12 @@ const PestDiseaseSchema = new mongoose.Schema({
     yieldLoss: {
       min: Number,
       max: Number,
-      unit: '%'
+      unit: { type: String, default: '%' }
     },
     economicLoss: {
       min: Number,
       max: Number,
-      unit: '元/亩'
+      unit: { type: String, default: '元/亩' }
     }
   },
   monitoring: {
@@ -274,7 +274,7 @@ const AgriTechKnowledgeSchema = new mongoose.Schema({
     yieldIncrease: {
       min: Number,
       max: Number,
-      unit: '%'
+      unit: { type: String, default: '%' }
     },
     returnOnInvestment: Number
   },
@@ -503,21 +503,21 @@ const AgricultureClimateSchema = new mongoose.Schema({
       average: Number,
       min: Number,
       max: Number,
-      unit: '°C'
+      unit: { type: String, default: '°C' }
     },
     rainfall: {
       total: Number,
       monthly: [Number],
-      unit: 'mm'
+      unit: { type: String, default: 'mm' }
     },
     humidity: {
       average: Number,
-      unit: '%'
+      unit: { type: String, default: '%' }
     },
     sunshine: {
       annualHours: Number,
       monthlyHours: [Number],
-      unit: 'hours'
+      unit: { type: String, default: 'hours' }
     },
     frostDays: Number,
     growingSeason: {
@@ -597,7 +597,7 @@ module.exports = {
   CropVariety: mongoose.model('CropVariety', CropVarietySchema),
   PestDisease: mongoose.model('PestDisease', PestDiseaseSchema),
   AgriTechKnowledge: mongoose.model('AgriTechKnowledge', AgriTechKnowledgeSchema),
-  AgriQA: mongoose.model('AgriQA', AgriQA Schema),
+  AgriQA: mongoose.model('AgriQA', AgriQASchema),
   AgriculturePolicy: mongoose.model('AgriculturePolicy', AgriculturePolicySchema),
   AgricultureClimate: mongoose.model('AgricultureClimate', AgricultureClimateSchema)
 };
