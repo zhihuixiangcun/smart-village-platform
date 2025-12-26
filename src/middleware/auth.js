@@ -551,6 +551,7 @@ const authMiddleware = new AuthMiddleware();
 module.exports = authMiddleware.authenticate;
 
 // 导出其他中间件
+module.exports.authenticateToken = authMiddleware.authenticate;  // 别名
 module.exports.requirePermissions = authMiddleware.requirePermissions;
 module.exports.requireRoles = authMiddleware.requireRoles;
 module.exports.requireProxyPermission = authMiddleware.requireProxyPermission;
