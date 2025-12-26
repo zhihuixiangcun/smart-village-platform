@@ -5,7 +5,7 @@
 
 const request = require('supertest');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 const VillageManagementApp = require('../../examples/errorHandlingIntegration');
 const crypto = require('crypto');
@@ -738,7 +738,7 @@ describe('智能村庄平台 - 安全测试套件', () => {
         // 错误响应不应该泄露敏感信息
         const responseText = JSON.stringify(response.body);
         expect(responseText).not.toMatch(/mongodb|mysql|password|secret|key/i);
-        expect(responseText).not.toMatch(/\\/[a-z]:/i); // Windows路径
+        expect(responseText).not.toMatch(/[a-z]:\\[a-z]/i); // Windows路径
         expect(responseText).not.toMatch(/\/[a-z]+\/[a-z]+/i); // Unix路径
       }
     });

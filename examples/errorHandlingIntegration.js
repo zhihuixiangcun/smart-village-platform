@@ -4,7 +4,7 @@
  */
 
 const express = require('express');
-const ErrorHandlingMiddleware = require('./src/middleware/errorHandlingMiddleware');
+const ErrorHandlingMiddleware = require('../src/middleware/errorHandlingMiddleware');
 const mongoose = require('mongoose');
 
 // 示例：在主应用中集成错误处理系统
