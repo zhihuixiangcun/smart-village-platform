@@ -201,7 +201,7 @@ router.get('/statistics/batch',
       });
 
     } catch (error) {
-      console.error('批量统计失败:', error);
+      logger.error('批量统计失败:', error);
       res.status(500).json({
         success: false,
         error: error.message
@@ -313,7 +313,7 @@ router.post('/analytics',
       });
 
     } catch (error) {
-      console.error('投票分析失败:', error);
+      logger.error('投票分析失败:', error);
       res.status(500).json({
         success: false,
         error: error.message
@@ -377,7 +377,7 @@ router.post('/:votingId/notify',
       });
 
     } catch (error) {
-      console.error('发送投票通知失败:', error);
+      logger.error('发送投票通知失败:', error);
       res.status(500).json({
         success: false,
         error: error.message
@@ -409,6 +409,7 @@ router.post('/:votingId/check-permission',
       }
 
       const votingService = require('../services/votingService');
+const logger = require('../utils/logger');
       const canVote = await votingService.canUserVote(votingId, user);
       const canView = votingService.canViewVoting(voting, user);
 
@@ -422,7 +423,7 @@ router.post('/:votingId/check-permission',
       });
 
     } catch (error) {
-      console.error('检查投票权限失败:', error);
+      logger.error('检查投票权限失败:', error);
       res.status(500).json({
         success: false,
         error: error.message

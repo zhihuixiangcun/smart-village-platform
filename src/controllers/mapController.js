@@ -35,7 +35,7 @@ exports.geocodeAddress = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('地址解析失败:', error);
+    logger.error('地址解析失败:', error);
     res.status(500).json({
       success: false,
       message: '地址解析失败',
@@ -70,7 +70,7 @@ exports.reverseGeocode = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('逆地址解析失败:', error);
+    logger.error('逆地址解析失败:', error);
     res.status(500).json({
       success: false,
       message: '逆地址解析失败',
@@ -114,7 +114,7 @@ exports.searchPoi = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('POI搜索失败:', error);
+    logger.error('POI搜索失败:', error);
     res.status(500).json({
       success: false,
       message: 'POI搜索失败',
@@ -163,7 +163,7 @@ exports.planRoute = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('路线规划失败:', error);
+    logger.error('路线规划失败:', error);
     res.status(500).json({
       success: false,
       message: '路线规划失败',
@@ -199,7 +199,7 @@ exports.calculateDistance = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('距离计算失败:', error);
+    logger.error('距离计算失败:', error);
     res.status(500).json({
       success: false,
       message: '距离计算失败',
@@ -231,7 +231,7 @@ exports.getWeather = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('天气查询失败:', error);
+    logger.error('天气查询失败:', error);
     res.status(500).json({
       success: false,
       message: '天气查询失败',
@@ -257,7 +257,7 @@ exports.locateByIP = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('IP定位失败:', error);
+    logger.error('IP定位失败:', error);
     res.status(500).json({
       success: false,
       message: 'IP定位失败',
@@ -292,7 +292,7 @@ exports.getDistrictBoundary = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('行政区边界获取失败:', error);
+    logger.error('行政区边界获取失败:', error);
     res.status(500).json({
       success: false,
       message: '行政区边界获取失败',
@@ -324,7 +324,7 @@ exports.getVillageMapInfo = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取村庄地图信息失败:', error);
+    logger.error('获取村庄地图信息失败:', error);
     res.status(500).json({
       success: false,
       message: '获取村庄地图信息失败',
@@ -358,7 +358,7 @@ exports.getVillageServiceFacilities = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取村庄服务设施失败:', error);
+    logger.error('获取村庄服务设施失败:', error);
     res.status(500).json({
       success: false,
       message: '获取村庄服务设施失败',
@@ -431,7 +431,7 @@ exports.batchGeocode = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('批量地址解析失败:', error);
+    logger.error('批量地址解析失败:', error);
     res.status(500).json({
       success: false,
       message: '批量地址解析失败',
@@ -453,7 +453,7 @@ exports.clearCache = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('清理地图缓存失败:', error);
+    logger.error('清理地图缓存失败:', error);
     res.status(500).json({
       success: false,
       message: '清理地图缓存失败',
@@ -499,7 +499,7 @@ exports.getServiceStatus = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取地图服务状态失败:', error);
+    logger.error('获取地图服务状态失败:', error);
     res.status(500).json({
       success: false,
       message: '获取地图服务状态失败',
@@ -543,7 +543,7 @@ exports.getResidentLocation = async (req, res) => {
           lastUpdate: resident.locationUpdatedAt || new Date()
         };
       } catch (error) {
-        console.warn('逆地址解析失败:', error.message);
+        logger.warn('逆地址解析失败:', error.message);
         locationData.location = {
           coordinates: [longitude, latitude],
           lastUpdate: resident.locationUpdatedAt || new Date()
@@ -568,7 +568,7 @@ exports.getResidentLocation = async (req, res) => {
           }
         }
       } catch (error) {
-        console.warn('获取村庄地图信息失败:', error.message);
+        logger.warn('获取村庄地图信息失败:', error.message);
       }
     }
 
@@ -579,7 +579,7 @@ exports.getResidentLocation = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取村民位置失败:', error);
+    logger.error('获取村民位置失败:', error);
     res.status(500).json({
       success: false,
       message: '获取村民位置失败',
@@ -604,6 +604,7 @@ exports.updateResidentLocation = async (req, res) => {
     }
 
     const Resident = require('../models/Resident');
+const logger = require('../utils/logger');
     const resident = await Resident.findById(residentId);
 
     if (!resident) {
@@ -633,7 +634,7 @@ exports.updateResidentLocation = async (req, res) => {
         );
         locationUpdate.address = reverseGeocode.address;
       } catch (error) {
-        console.warn('逆地址解析失败，使用原始地址:', error.message);
+        logger.warn('逆地址解析失败，使用原始地址:', error.message);
       }
     }
 
@@ -650,7 +651,7 @@ exports.updateResidentLocation = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('更新村民位置失败:', error);
+    logger.error('更新村民位置失败:', error);
     res.status(500).json({
       success: false,
       message: '更新村民位置失败',

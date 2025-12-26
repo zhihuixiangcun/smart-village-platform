@@ -4,6 +4,7 @@
  */
 
 const mongoose = require('mongoose');
+const logger = require('../utils/logger');
 
 const behaviorLogSchema = new mongoose.Schema({
   // 基础信息
@@ -242,7 +243,7 @@ behaviorLogSchema.statics.logBehavior = async function(behaviorData) {
 
     return await behavior.save();
   } catch (error) {
-    console.error('记录行为日志失败:', error);
+    logger.error('记录行为日志失败:', error);
     throw error;
   }
 };

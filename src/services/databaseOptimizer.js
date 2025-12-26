@@ -4,6 +4,7 @@
  */
 
 const mongoose = require('mongoose');
+const logger = require('../utils/logger');
 const { performance } = require('perf_hooks');
 
 class DatabaseOptimizer {
@@ -290,7 +291,7 @@ class DatabaseOptimizer {
           }
         }
       } catch (error) {
-        console.error(`优化查询失败: ${error.message}`);
+        logger.error(`优化查询失败: ${error.message}`);
       }
     }
 

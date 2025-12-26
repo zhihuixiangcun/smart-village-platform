@@ -101,8 +101,7 @@ class WebApplicationFirewall {
    * 初始化WAF
    */
   initialize() {
-    console.log('初始化Web应用防火墙...');
-
+    logger.debug('初始化Web应用防火墙...');
     // 加载IP黑名单
     this.loadIPBlacklist();
 
@@ -111,7 +110,7 @@ class WebApplicationFirewall {
       this.cleanup();
     }, 60 * 1000); // 每分钟清理一次
 
-    console.log('WAF初始化完成');
+    logger.debug('WAF初始化完成');
   }
 
   /**
@@ -143,7 +142,7 @@ class WebApplicationFirewall {
         }
 
       } catch (error) {
-        console.error('WAF处理错误:', error);
+        logger.error('WAF处理错误:', error);
         next(); // 出错时允许请求通过，避免影响业务
       }
     };
@@ -545,7 +544,7 @@ class WebApplicationFirewall {
    */
   triggerAlert(event) {
     // 这里应该集成告警系统
-    console.log('[WAF ALERT] High severity event detected:', {
+    logger.debug('[WAF ALERT] High severity event detected:', {
       ip: event.ip,
       url: event.url,
       score: event.riskScore,
@@ -591,6 +590,7 @@ class WebApplicationFirewall {
   getGeoLocation(ip) {
     // 简化实现，实际应该使用GeoIP数据库
     const geoip = require('geoip-lite');
+const logger = require('../utils/logger');
     return geoip.lookup(ip) || { country: 'Unknown' };
   }
 
@@ -654,7 +654,7 @@ class WebApplicationFirewall {
    */
   loadIPBlacklist() {
     // 这里可以从文件或数据库加载黑名单
-    console.log(`已加载 ${this.config.ipLists.blacklist.length} 个黑名单IP`);
+    logger.debug(`已加载 ${this.config.ipLists.blacklist.length} 个黑名单IP`);
   }
 
   /**
@@ -848,7 +848,7 @@ class WebApplicationFirewall {
    */
   updateConfig(newConfig) {
     Object.assign(this.config, newConfig);
-    console.log('WAF配置已更新');
+    logger.debug('WAF配置已更新');
   }
 }
 

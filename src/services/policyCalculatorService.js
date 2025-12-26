@@ -678,7 +678,7 @@ class PolicyCalculatorService {
 
       return adjustment;
     } catch (error) {
-      console.error('AI模型调用失败:', error);
+      logger.error('AI模型调用失败:', error);
       return {
         applied: false,
         error: error.message
@@ -740,7 +740,7 @@ class PolicyCalculatorService {
    */
   async sendSMSNotification(phone, content) {
     // 集成短信服务提供商API
-    console.log(`发送短信到 ${phone}: ${content}`);
+    logger.debug(`发送短信到 ${phone}: ${content}`);
     return true;
   }
 
@@ -749,7 +749,7 @@ class PolicyCalculatorService {
    */
   async sendEmailNotification(email, content) {
     // 集成邮件服务
-    console.log(`发送邮件到 ${email}: ${content}`);
+    logger.debug(`发送邮件到 ${email}: ${content}`);
     return true;
   }
 
@@ -758,7 +758,7 @@ class PolicyCalculatorService {
    */
   async sendWeChatNotification(openId, content) {
     // 集成微信公众号API
-    console.log(`发送微信通知到 ${openId}: ${content}`);
+    logger.debug(`发送微信通知到 ${openId}: ${content}`);
     return true;
   }
 
@@ -877,6 +877,7 @@ class PolicyCalculatorService {
       // 这里应该调用真实的政府API
       // 示例实现（需要根据实际政府API文档调整）
       const axios = require('axios');
+const logger = require('../utils/logger');
       const response = await axios.get(apiUrl, {
         params: {
           region: options.region,
@@ -892,7 +893,7 @@ class PolicyCalculatorService {
       return response.data.policies || [];
     } catch (error) {
       // 如果API调用失败，返回模拟数据用于演示
-      console.warn('政府API调用失败，使用模拟数据:', error.message);
+      logger.warn('政府API调用失败，使用模拟数据:', error.message);
       return this.getMockGovernmentPolicies(options.region);
     }
   }
@@ -1110,7 +1111,7 @@ class PolicyCalculatorService {
   async logSyncHistory(syncResult) {
     // 这里可以实现同步历史记录功能
     // 例如保存到数据库的同步日志表中
-    console.log('[政府政策同步]', {
+    logger.debug('[政府政策同步]', {
       timestamp: syncResult.timestamp,
       summary: syncResult.summary,
       details: syncResult.details.length,

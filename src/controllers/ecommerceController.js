@@ -69,7 +69,7 @@ exports.createAgriculturalProduct = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('创建农资产品失败:', error);
+    logger.error('创建农资产品失败:', error);
     res.status(500).json({
       success: false,
       message: '创建农资产品失败',
@@ -120,7 +120,7 @@ exports.getAgriculturalProducts = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取农资产品列表失败:', error);
+    logger.error('获取农资产品列表失败:', error);
     res.status(500).json({
       success: false,
       message: '获取农资产品列表失败',
@@ -185,7 +185,7 @@ exports.createOrder = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('创建订单失败:', error);
+    logger.error('创建订单失败:', error);
     res.status(500).json({
       success: false,
       message: '创建订单失败',
@@ -225,7 +225,7 @@ exports.processPayment = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('处理支付失败:', error);
+    logger.error('处理支付失败:', error);
     res.status(500).json({
       success: false,
       message: '处理支付失败',
@@ -277,7 +277,7 @@ exports.shipOrder = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('订单发货失败:', error);
+    logger.error('订单发货失败:', error);
     res.status(500).json({
       success: false,
       message: '订单发货失败',
@@ -318,7 +318,7 @@ exports.completeOrder = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('完成订单失败:', error);
+    logger.error('完成订单失败:', error);
     res.status(500).json({
       success: false,
       message: '完成订单失败',
@@ -367,7 +367,7 @@ exports.getOrders = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取订单列表失败:', error);
+    logger.error('获取订单列表失败:', error);
     res.status(500).json({
       success: false,
       message: '获取订单列表失败',
@@ -465,7 +465,7 @@ exports.createFarmProductSupply = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('创建农产品供应信息失败:', error);
+    logger.error('创建农产品供应信息失败:', error);
     res.status(500).json({
       success: false,
       message: '创建农产品供应信息失败',
@@ -518,7 +518,7 @@ exports.getFarmProductSupplies = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取农产品供应列表失败:', error);
+    logger.error('获取农产品供应列表失败:', error);
     res.status(500).json({
       success: false,
       message: '获取农产品供应列表失败',
@@ -550,7 +550,7 @@ exports.syncPlatformProducts = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('同步平台商品失败:', error);
+    logger.error('同步平台商品失败:', error);
     res.status(500).json({
       success: false,
       message: '同步平台商品失败',
@@ -602,7 +602,7 @@ exports.getProductDetail = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取产品详情失败:', error);
+    logger.error('获取产品详情失败:', error);
     res.status(500).json({
       success: false,
       message: '获取产品详情失败',
@@ -665,7 +665,7 @@ exports.updateProduct = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('更新产品失败:', error);
+    logger.error('更新产品失败:', error);
     res.status(500).json({
       success: false,
       message: '更新产品失败',
@@ -726,7 +726,7 @@ exports.deleteProduct = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('删除产品失败:', error);
+    logger.error('删除产品失败:', error);
     res.status(500).json({
       success: false,
       message: '删除产品失败',
@@ -763,7 +763,7 @@ exports.getShoppingCart = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取购物车失败:', error);
+    logger.error('获取购物车失败:', error);
     res.status(500).json({
       success: false,
       message: '获取购物车失败',
@@ -820,7 +820,7 @@ exports.updateShoppingCart = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('更新购物车失败:', error);
+    logger.error('更新购物车失败:', error);
     res.status(500).json({
       success: false,
       message: '更新购物车失败',
@@ -835,6 +835,7 @@ exports.updateShoppingCart = async (req, res) => {
 exports.clearShoppingCart = async (req, res) => {
   try {
     const ShoppingCart = require('../models/ShoppingCart');
+const logger = require('../utils/logger');
 
     await ShoppingCart.findOneAndUpdate(
       { userId: req.user.id },
@@ -852,7 +853,7 @@ exports.clearShoppingCart = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('清空购物车失败:', error);
+    logger.error('清空购物车失败:', error);
     res.status(500).json({
       success: false,
       message: '清空购物车失败',
@@ -875,7 +876,7 @@ exports.getServiceStatus = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取服务状态失败:', error);
+    logger.error('获取服务状态失败:', error);
     res.status(500).json({
       success: false,
       message: '获取服务状态失败',

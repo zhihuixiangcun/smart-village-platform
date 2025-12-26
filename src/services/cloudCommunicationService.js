@@ -111,7 +111,7 @@ class CloudCommunicationService {
         throw new Error(`阿里云短信发送失败: ${response.data.Message}`);
       }
     } catch (error) {
-      console.error('阿里云短信发送失败:', error);
+      logger.error('阿里云短信发送失败:', error);
       throw error;
     }
   }
@@ -144,7 +144,7 @@ class CloudCommunicationService {
         throw new Error(`腾讯云短信发送失败: ${JSON.stringify(response.data)}`);
       }
     } catch (error) {
-      console.error('腾讯云短信发送失败:', error);
+      logger.error('腾讯云短信发送失败:', error);
       throw error;
     }
   }
@@ -188,7 +188,7 @@ class CloudCommunicationService {
         throw new Error(`阿里云语音通知发送失败: ${response.data.Message}`);
       }
     } catch (error) {
-      console.error('阿里云语音通知发送失败:', error);
+      logger.error('阿里云语音通知发送失败:', error);
       throw error;
     }
   }
@@ -231,7 +231,7 @@ class CloudCommunicationService {
         response: info.response
       };
     } catch (error) {
-      console.error('邮件发送失败:', error);
+      logger.error('邮件发送失败:', error);
       throw error;
     }
   }
@@ -274,7 +274,7 @@ class CloudCommunicationService {
         sendno: response.data.sendno
       };
     } catch (error) {
-      console.error('极光推送失败:', error);
+      logger.error('极光推送失败:', error);
       throw error;
     }
   }
@@ -565,7 +565,7 @@ class CloudCommunicationService {
         results
       };
     } catch (error) {
-      console.error('应急广播发送失败:', error);
+      logger.error('应急广播发送失败:', error);
       throw error;
     }
   }
@@ -756,7 +756,7 @@ class CloudCommunicationService {
           await this.sendMessage(message.config);
         }
       } catch (error) {
-        console.error('消息队列处理失败:', error);
+        logger.error('消息队列处理失败:', error);
       } finally {
         this.isProcessingQueue = false;
       }
@@ -790,7 +790,7 @@ class CloudCommunicationService {
         createdAt: new Date()
       }).save();
     } catch (error) {
-      console.error('消息日志记录失败:', error);
+      logger.error('消息日志记录失败:', error);
     }
   }
 
@@ -811,7 +811,7 @@ class CloudCommunicationService {
         createdAt: new Date()
       }).save();
     } catch (logError) {
-      console.error('消息错误日志记录失败:', logError);
+      logger.error('消息错误日志记录失败:', logError);
     }
   }
 
@@ -821,6 +821,7 @@ class CloudCommunicationService {
   async logEmergencyBroadcast(villageId, message, channels, results) {
     try {
       const EmergencyBroadcast = require('../models/EmergencyBroadcast');
+const logger = require('../utils/logger');
       await new EmergencyBroadcast({
         villageId,
         message,
@@ -829,7 +830,7 @@ class CloudCommunicationService {
         createdAt: new Date()
       }).save();
     } catch (error) {
-      console.error('应急广播日志记录失败:', error);
+      logger.error('应急广播日志记录失败:', error);
     }
   }
 

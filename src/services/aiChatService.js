@@ -7,6 +7,7 @@ const { AgriQA, CropVariety, PestDisease, AgriTechKnowledge, AgriculturePolicy }
 const { spawn } = require('child_process');
 const fs = require('fs').promises;
 const path = require('path');
+const logger = require('../utils/logger');
 
 class AIChatService {
   constructor() {
@@ -25,8 +26,7 @@ class AIChatService {
    */
   async initializeServices() {
     try {
-      console.log('🤖 初始化AI智能问答服务...');
-
+      logger.debug('🤖 初始化AI智能问答服务...');
       // 加载知识图谱
       await this.loadKnowledgeGraph();
 
@@ -36,9 +36,9 @@ class AIChatService {
       // 加载政策数据
       await this.loadPolicyData();
 
-      console.log('✅ AI智能问答服务初始化完成');
+      logger.debug('✅ AI智能问答服务初始化完成');
     } catch (error) {
-      console.error('❌ AI智能问答服务初始化失败:', error);
+      logger.error('❌ AI智能问答服务初始化失败:', error);
     }
   }
 
@@ -71,9 +71,9 @@ class AIChatService {
         this.knowledgeGraph.set(`tech_${tech._id}`, tech);
       });
 
-      console.log(`📚 知识图谱加载完成: ${this.knowledgeGraph.size} 条记录`);
+      logger.debug(`📚 知识图谱加载完成: ${this.knowledgeGraph.size} 条记录`);
     } catch (error) {
-      console.error('加载知识图谱失败:', error);
+      logger.error('加载知识图谱失败:', error);
       throw error;
     }
   }
@@ -164,9 +164,9 @@ class AIChatService {
         }
       };
 
-      console.log('🧠 NLP模型初始化完成');
+      logger.debug('🧠 NLP模型初始化完成');
     } catch (error) {
-      console.error('NLP模型初始化失败:', error);
+      logger.error('NLP模型初始化失败:', error);
       throw error;
     }
   }
@@ -181,9 +181,9 @@ class AIChatService {
       }).lean();
 
       this.policyCalculator.loadPolicies(policies);
-      console.log(`📋 政策数据加载完成: ${policies.length} 条有效政策`);
+      logger.debug(`📋 政策数据加载完成: ${policies.length} 条有效政策`);
     } catch (error) {
-      console.error('加载政策数据失败:', error);
+      logger.error('加载政策数据失败:', error);
       throw error;
     }
   }
@@ -193,8 +193,7 @@ class AIChatService {
    */
   async processQuery(query, context = {}) {
     try {
-      console.log(`🤖 处理查询: ${query}`);
-
+      logger.debug(`🤖 处理查询: ${query}`);
       // 生成查询ID
       const queryId = this.generateQueryId();
 
@@ -208,12 +207,10 @@ class AIChatService {
 
       // 意图识别
       const intent = await this.nlpModel.intentClassification(query);
-      console.log(`📝 识别意图: ${intent}`);
-
+      logger.debug(`📝 识别意图: ${intent}`);
       // 实体提取
       const entities = await this.nlpModel.entityExtraction(query);
-      console.log('🔍 提取实体:', entities);
-
+      logger.debug('🔍 提取实体:', entities);
       // 根据意图处理查询
       let response;
       switch (intent) {
@@ -258,7 +255,7 @@ class AIChatService {
       };
 
     } catch (error) {
-      console.error('处理查询失败:', error);
+      logger.error('处理查询失败:', error);
       return {
         success: false,
         error: error.message,

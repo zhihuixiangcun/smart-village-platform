@@ -6,6 +6,7 @@
 const Household = require('../models/Household');
 const QRCode = require('qrcode');
 const crypto = require('crypto');
+const logger = require('../utils/logger');
 
 class HouseholdQRService {
   /**
@@ -42,7 +43,7 @@ class HouseholdQRService {
         household.qrCode.imageUrl = qrImageUrl;
         await household.save();
       } catch (err) {
-        console.error('生成二维码图片失败:', err);
+        logger.error('生成二维码图片失败:', err);
       }
     }
 
@@ -513,11 +514,11 @@ class HouseholdQRService {
    */
   async logScan(householdId, scannerInfo) {
     // 可以集成到日志系统
-    console.log(`[HouseholdQR] Scan logged:`, {
+    logger.debug(`[HouseholdQR] Scan logged:`, {
       householdId,
       scannerId: scannerInfo.userId,
       scannerName: scannerInfo.userName,
-      scanTime: new Date()
+      scanTime: new Date();
     });
   }
 

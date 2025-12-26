@@ -5,6 +5,7 @@
 
 const paymentService = require('../services/paymentService');
 const PaymentRecord = require('../models/PaymentRecord');
+const logger = require('../utils/logger');
 
 /**
  * 创建支付订单
@@ -95,7 +96,7 @@ exports.createOrder = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('创建支付订单失败:', error);
+    logger.error('创建支付订单失败:', error);
     res.status(500).json({
       success: false,
       message: '创建支付订单失败',
@@ -127,7 +128,7 @@ exports.queryPaymentStatus = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('查询支付状态失败:', error);
+    logger.error('查询支付状态失败:', error);
     res.status(500).json({
       success: false,
       message: '查询支付状态失败',
@@ -192,7 +193,7 @@ exports.refundPayment = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('申请退款失败:', error);
+    logger.error('申请退款失败:', error);
     res.status(500).json({
       success: false,
       message: '申请退款失败',
@@ -238,8 +239,7 @@ exports.handlePaymentCallback = async (req, res) => {
     // 可以在这里发送通知或更新其他业务逻辑
 
   } catch (error) {
-    console.error('处理支付回调失败:', error);
-
+    logger.error('处理支付回调失败:', error);
     // 微信支付需要返回XML格式响应
     if (type === 'wechat') {
       res.set('Content-Type', 'application/xml');
@@ -283,7 +283,7 @@ exports.getPaymentRecord = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取支付记录失败:', error);
+    logger.error('获取支付记录失败:', error);
     res.status(500).json({
       success: false,
       message: '获取支付记录失败',
@@ -341,7 +341,7 @@ exports.getUserPayments = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取用户支付记录失败:', error);
+    logger.error('获取用户支付记录失败:', error);
     res.status(500).json({
       success: false,
       message: '获取支付记录失败',
@@ -399,7 +399,7 @@ exports.getVillagePayments = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取村庄支付记录失败:', error);
+    logger.error('获取村庄支付记录失败:', error);
     res.status(500).json({
       success: false,
       message: '获取支付记录失败',
@@ -424,7 +424,7 @@ exports.getPaymentStats = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取支付统计失败:', error);
+    logger.error('获取支付统计失败:', error);
     res.status(500).json({
       success: false,
       message: '获取支付统计失败',
@@ -449,7 +449,7 @@ exports.getDailyPaymentStats = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取每日支付统计失败:', error);
+    logger.error('获取每日支付统计失败:', error);
     res.status(500).json({
       success: false,
       message: '获取每日支付统计失败',
@@ -474,7 +474,7 @@ exports.getBusinessTypeStats = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取业务类型统计失败:', error);
+    logger.error('获取业务类型统计失败:', error);
     res.status(500).json({
       success: false,
       message: '获取业务类型统计失败',
@@ -497,7 +497,7 @@ exports.getPendingPayments = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取待处理支付订单失败:', error);
+    logger.error('获取待处理支付订单失败:', error);
     res.status(500).json({
       success: false,
       message: '获取待处理支付订单失败',
@@ -522,7 +522,7 @@ exports.getFailedPayments = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取失败支付记录失败:', error);
+    logger.error('获取失败支付记录失败:', error);
     res.status(500).json({
       success: false,
       message: '获取失败支付记录失败',
@@ -547,7 +547,7 @@ exports.getRefundedPayments = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取退款记录失败:', error);
+    logger.error('获取退款记录失败:', error);
     res.status(500).json({
       success: false,
       message: '获取退款记录失败',
@@ -599,7 +599,7 @@ exports.retryPaymentQuery = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('重试支付查询失败:', error);
+    logger.error('重试支付查询失败:', error);
     res.status(500).json({
       success: false,
       message: '重试支付查询失败',
@@ -638,7 +638,7 @@ exports.getPaymentConfig = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取支付配置失败:', error);
+    logger.error('获取支付配置失败:', error);
     res.status(500).json({
       success: false,
       message: '获取支付配置失败',

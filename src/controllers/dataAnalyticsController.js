@@ -8,6 +8,7 @@ const { Parser } = require('json2csv');
 const ExcelJS = require('exceljs');
 const path = require('path');
 const fs = require('fs').promises;
+const logger = require('../utils/logger');
 
 /**
  * 获取仪表板数据
@@ -29,7 +30,7 @@ exports.getDashboard = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取仪表板数据失败:', error);
+    logger.error('获取仪表板数据失败:', error);
     res.status(500).json({
       success: false,
       message: '获取仪表板数据失败',
@@ -50,7 +51,7 @@ exports.getPopulationAnalytics = async (req, res) => {
     res.json(result);
 
   } catch (error) {
-    console.error('获取人口分析数据失败:', error);
+    logger.error('获取人口分析数据失败:', error);
     res.status(500).json({
       success: false,
       message: '获取人口分析数据失败',
@@ -71,7 +72,7 @@ exports.getFinancialAnalytics = async (req, res) => {
     res.json(result);
 
   } catch (error) {
-    console.error('获取财务分析数据失败:', error);
+    logger.error('获取财务分析数据失败:', error);
     res.status(500).json({
       success: false,
       message: '获取财务分析数据失败',
@@ -92,7 +93,7 @@ exports.getGovernanceAnalytics = async (req, res) => {
     res.json(result);
 
   } catch (error) {
-    console.error('获取村务治理分析数据失败:', error);
+    logger.error('获取村务治理分析数据失败:', error);
     res.status(500).json({
       success: false,
       message: '获取村务治理分析数据失败',
@@ -113,7 +114,7 @@ exports.getEmergencyAnalytics = async (req, res) => {
     res.json(result);
 
   } catch (error) {
-    console.error('获取应急管理分析数据失败:', error);
+    logger.error('获取应急管理分析数据失败:', error);
     res.status(500).json({
       success: false,
       message: '获取应急管理分析数据失败',
@@ -156,7 +157,7 @@ exports.exportReport = async (req, res) => {
 
       res.download(filePath, filename, (err) => {
         if (err) {
-          console.error('文件下载失败:', err);
+          logger.error('文件下载失败:', err);
         }
         // 清理临时文件
         fs.unlink(filePath).catch(() => {});
@@ -169,7 +170,7 @@ exports.exportReport = async (req, res) => {
     }
 
   } catch (error) {
-    console.error('导出报表失败:', error);
+    logger.error('导出报表失败:', error);
     res.status(500).json({
       success: false,
       message: '导出报表失败',
@@ -219,7 +220,7 @@ exports.getRealTimeData = async (req, res) => {
         res.write(`data: ${JSON.stringify(data)}\n\n`);
 
       } catch (error) {
-        console.error('发送实时数据失败:', error);
+        logger.error('发送实时数据失败:', error);
         res.write(`data: ${JSON.stringify({ success: false, error: error.message })}\n\n`);
       }
     };
@@ -236,7 +237,7 @@ exports.getRealTimeData = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('实时数据流初始化失败:', error);
+    logger.error('实时数据流初始化失败:', error);
     res.status(500).json({
       success: false,
       message: '实时数据流初始化失败',
@@ -255,7 +256,7 @@ exports.getSystemMetrics = async (req, res) => {
     res.json(result);
 
   } catch (error) {
-    console.error('获取系统性能指标失败:', error);
+    logger.error('获取系统性能指标失败:', error);
     res.status(500).json({
       success: false,
       message: '获取系统性能指标失败',
@@ -341,7 +342,7 @@ exports.customReportQuery = async (req, res) => {
         };
 
       } catch (collectionError) {
-        console.error(`查询集合 ${collectionName} 失败:`, collectionError);
+        logger.error(`查询集合 ${collectionName} 失败:`, collectionError);
         results[collectionName] = {
           success: false,
           error: collectionError.message
@@ -361,7 +362,7 @@ exports.customReportQuery = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('自定义报表查询失败:', error);
+    logger.error('自定义报表查询失败:', error);
     res.status(500).json({
       success: false,
       message: '自定义报表查询失败',
@@ -429,7 +430,7 @@ exports.clearCache = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('清理缓存失败:', error);
+    logger.error('清理缓存失败:', error);
     res.status(500).json({
       success: false,
       message: '清理缓存失败',
@@ -480,7 +481,7 @@ exports.getReportTemplates = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取报表模板失败:', error);
+    logger.error('获取报表模板失败:', error);
     res.status(500).json({
       success: false,
       message: '获取报表模板失败',

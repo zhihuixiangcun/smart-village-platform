@@ -75,14 +75,14 @@ class MultiLevelCache {
     try {
       this.l2Cache = new Redis(this.l2Options);
       this.l2Cache.on('connect', () => {
-        console.log('Redis连接成功');
+        logger.debug('Redis连接成功');
       });
       this.l2Cache.on('error', (error) => {
-        console.error('Redis连接错误:', error);
+        logger.error('Redis连接错误:', error);
         this.stats.l2.errors++;
       });
     } catch (error) {
-      console.error('Redis初始化失败:', error);
+      logger.error('Redis初始化失败:', error);
       this.l2Cache = null;
     }
 
@@ -110,7 +110,7 @@ class MultiLevelCache {
         }
       }
     } catch (error) {
-      console.error('缓存预热失败:', error);
+      logger.error('缓存预热失败:', error);
     }
   }
 
@@ -198,7 +198,7 @@ class MultiLevelCache {
 
       return result;
     } catch (error) {
-      console.error(`缓存获取失败 [${type}:${key}]:`, error);
+      logger.error(`缓存获取失败 [${type}:${key}]:`, error);
       return null;
     }
   }
@@ -233,7 +233,7 @@ class MultiLevelCache {
 
       return true;
     } catch (error) {
-      console.error(`缓存设置失败 [${type}:${key}]:`, error);
+      logger.error(`缓存设置失败 [${type}:${key}]:`, error);
       return false;
     }
   }
@@ -256,7 +256,7 @@ class MultiLevelCache {
 
       return true;
     } catch (error) {
-      console.error(`缓存删除失败 [${type}:${key}]:`, error);
+      logger.error(`缓存删除失败 [${type}:${key}]:`, error);
       return false;
     }
   }
@@ -286,7 +286,7 @@ class MultiLevelCache {
 
       return true;
     } catch (error) {
-      console.error(`批量删除缓存失败 [${pattern}]:`, error);
+      logger.error(`批量删除缓存失败 [${pattern}]:`, error);
       return false;
     }
   }
@@ -312,7 +312,7 @@ class MultiLevelCache {
 
       return true;
     } catch (error) {
-      console.error('清空缓存失败:', error);
+      logger.error('清空缓存失败:', error);
       return false;
     }
   }
@@ -394,7 +394,7 @@ class MultiLevelCache {
 
       return value;
     } catch (error) {
-      console.error('L3缓存获取失败:', error);
+      logger.error('L3缓存获取失败:', error);
       return null;
     }
   }
@@ -433,7 +433,7 @@ class MultiLevelCache {
       this.stats.l3.sets++;
       return true;
     } catch (error) {
-      console.error('L3缓存设置失败:', error);
+      logger.error('L3缓存设置失败:', error);
       return false;
     }
   }
@@ -450,7 +450,7 @@ class MultiLevelCache {
       await CacheEntry.deleteOne({ key });
       return true;
     } catch (error) {
-      console.error('L3缓存删除失败:', error);
+      logger.error('L3缓存删除失败:', error);
       return false;
     }
   }
@@ -467,7 +467,7 @@ class MultiLevelCache {
       await CacheEntry.deleteMany({ key: { $regex: pattern } });
       return true;
     } catch (error) {
-      console.error('L3批量删除失败:', error);
+      logger.error('L3批量删除失败:', error);
       return false;
     }
   }
@@ -484,7 +484,7 @@ class MultiLevelCache {
       await CacheEntry.deleteMany({});
       return true;
     } catch (error) {
-      console.error('清空L3缓存失败:', error);
+      logger.error('清空L3缓存失败:', error);
       return false;
     }
   }
@@ -605,6 +605,7 @@ class MultiLevelCache {
     // 检查L3缓存
     try {
       const mongoose = require('mongoose');
+const logger = require('../utils/logger');
       if (mongoose.connection.readyState === 1) {
         health.components.l3 = {
           status: 'healthy',
@@ -653,9 +654,9 @@ class MultiLevelCache {
       if (this.l2Cache) {
         await this.l2Cache.quit();
       }
-      console.log('缓存系统已优雅关闭');
+      logger.debug('缓存系统已优雅关闭');
     } catch (error) {
-      console.error('缓存系统关闭失败:', error);
+      logger.error('缓存系统关闭失败:', error);
     }
   }
 }

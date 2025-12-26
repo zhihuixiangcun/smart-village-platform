@@ -10,6 +10,7 @@ const crypto = require('crypto');
 const { validationResult } = require('express-validator');
 const fs = require('fs').promises;
 const path = require('path');
+const logger = require('../utils/logger');
 
 class HouseholdCodeController {
   /**
@@ -110,7 +111,7 @@ class HouseholdCodeController {
       });
 
     } catch (error) {
-      console.error('创建户码失败:', error);
+      logger.error('创建户码失败:', error);
       res.status(500).json({
         success: false,
         message: '服务器内部错误',
@@ -150,7 +151,7 @@ class HouseholdCodeController {
       });
 
     } catch (error) {
-      console.error('获取户码信息失败:', error);
+      logger.error('获取户码信息失败:', error);
       res.status(500).json({
         success: false,
         message: '服务器内部错误',
@@ -221,7 +222,7 @@ class HouseholdCodeController {
       });
 
     } catch (error) {
-      console.error('验证户码失败:', error);
+      logger.error('验证户码失败:', error);
       res.status(500).json({
         success: false,
         message: '服务器内部错误',
@@ -322,7 +323,7 @@ class HouseholdCodeController {
       });
 
     } catch (error) {
-      console.error('添加家庭成员失败:', error);
+      logger.error('添加家庭成员失败:', error);
       res.status(500).json({
         success: false,
         message: '服务器内部错误',
@@ -388,7 +389,7 @@ class HouseholdCodeController {
       });
 
     } catch (error) {
-      console.error('移除家庭成员失败:', error);
+      logger.error('移除家庭成员失败:', error);
       res.status(500).json({
         success: false,
         message: '服务器内部错误',
@@ -429,7 +430,7 @@ class HouseholdCodeController {
       });
 
     } catch (error) {
-      console.error('验证血缘关系失败:', error);
+      logger.error('验证血缘关系失败:', error);
       res.status(500).json({
         success: false,
         message: '服务器内部错误',
@@ -453,7 +454,7 @@ class HouseholdCodeController {
       });
 
     } catch (error) {
-      console.error('构建血缘关系图谱失败:', error);
+      logger.error('构建血缘关系图谱失败:', error);
       res.status(500).json({
         success: false,
         message: '服务器内部错误',
@@ -523,7 +524,7 @@ class HouseholdCodeController {
       });
 
     } catch (error) {
-      console.error('更新户信息失败:', error);
+      logger.error('更新户信息失败:', error);
       res.status(500).json({
         success: false,
         message: '服务器内部错误',
@@ -579,7 +580,7 @@ class HouseholdCodeController {
       });
 
     } catch (error) {
-      console.error('重新生成二维码失败:', error);
+      logger.error('重新生成二维码失败:', error);
       res.status(500).json({
         success: false,
         message: '服务器内部错误',
@@ -657,7 +658,7 @@ class HouseholdCodeController {
       return `/uploads/qr-codes/${fileName}`;
 
     } catch (error) {
-      console.error('生成二维码图片失败:', error);
+      logger.error('生成二维码图片失败:', error);
       throw error;
     }
   }

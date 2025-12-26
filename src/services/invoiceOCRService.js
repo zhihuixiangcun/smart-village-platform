@@ -142,7 +142,7 @@ class InvoiceOCRService {
       };
 
     } catch (error) {
-      console.error('票据识别失败:', error);
+      logger.error('票据识别失败:', error);
       return {
         success: false,
         error: error.message,
@@ -186,7 +186,7 @@ class InvoiceOCRService {
       return this.parseBaiduOCRResult(response.data);
 
     } catch (error) {
-      console.error('百度OCR识别失败:', error);
+      logger.error('百度OCR识别失败:', error);
       throw new Error(`百度OCR识别失败: ${error.message}`);
     }
   }
@@ -233,7 +233,7 @@ class InvoiceOCRService {
       return this.parseTencentOCRResult(response.data);
 
     } catch (error) {
-      console.error('腾讯OCR识别失败:', error);
+      logger.error('腾讯OCR识别失败:', error);
       throw new Error(`腾讯OCR识别失败: ${error.message}`);
     }
   }
@@ -391,7 +391,7 @@ class InvoiceOCRService {
       return this.parseTencentOCRResult(response.data);
 
     } catch (error) {
-      console.error('腾讯OCR识别失败:', error);
+      logger.error('腾讯OCR识别失败:', error);
       throw new Error(`腾讯OCR识别失败: ${error.message}`);
     }
   }
@@ -429,7 +429,7 @@ class InvoiceOCRService {
       return this.parseAlibabaOCRResult(response.data);
 
     } catch (error) {
-      console.error('阿里云OCR识别失败:', error);
+      logger.error('阿里云OCR识别失败:', error);
       throw new Error(`阿里云OCR识别失败: ${error.message}`);
     }
   }
@@ -444,6 +444,7 @@ class InvoiceOCRService {
     try {
       const { exec } = require('child_process');
       const path = require('path');
+const logger = require('../utils/logger');
 
       const outputPath = path.join(
         path.dirname(imagePath),
@@ -477,7 +478,7 @@ class InvoiceOCRService {
       });
 
     } catch (error) {
-      console.error('Tesseract识别失败:', error);
+      logger.error('Tesseract识别失败:', error);
       throw error;
     }
   }
@@ -646,7 +647,7 @@ class InvoiceOCRService {
       };
 
     } catch (error) {
-      console.error('税务局验证失败:', error);
+      logger.error('税务局验证失败:', error);
       return {
         success: false,
         error: error.message
@@ -694,7 +695,7 @@ class InvoiceOCRService {
       };
 
     } catch (error) {
-      console.error('批量识别失败:', error);
+      logger.error('批量识别失败:', error);
       throw error;
     }
   }
@@ -1015,7 +1016,7 @@ class InvoiceOCRService {
       };
 
     } catch (error) {
-      console.error('票据分类失败:', error);
+      logger.error('票据分类失败:', error);
       return {
         success: false,
         classification: 'unknown',
@@ -1116,7 +1117,7 @@ class InvoiceOCRService {
       };
 
     } catch (error) {
-      console.error('票据真伪检测失败:', error);
+      logger.error('票据真伪检测失败:', error);
       return {
         success: false,
         error: error.message
@@ -1215,7 +1216,7 @@ class InvoiceOCRService {
       };
 
     } catch (error) {
-      console.error('生成修复建议失败:', error);
+      logger.error('生成修复建议失败:', error);
       return {
         success: false,
         error: error.message
@@ -1303,7 +1304,7 @@ class InvoiceOCRService {
       };
 
     } catch (error) {
-      console.error('获取OCR统计信息失败:', error);
+      logger.error('获取OCR统计信息失败:', error);
       throw error;
     }
   }

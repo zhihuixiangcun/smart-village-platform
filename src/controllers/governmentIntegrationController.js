@@ -21,7 +21,7 @@ exports.getConnectionStatus = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取连接状态失败:', error);
+    logger.error('获取连接状态失败:', error);
     res.status(500).json({
       success: false,
       message: '获取连接状态失败',
@@ -77,7 +77,7 @@ exports.syncHouseholdData = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('同步户籍数据失败:', error);
+    logger.error('同步户籍数据失败:', error);
     res.status(500).json({
       success: false,
       message: '同步户籍数据失败',
@@ -133,7 +133,7 @@ exports.syncSocialSecurityData = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('同步社保数据失败:', error);
+    logger.error('同步社保数据失败:', error);
     res.status(500).json({
       success: false,
       message: '同步社保数据失败',
@@ -174,7 +174,7 @@ exports.uploadStatisticsReport = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('上传统计报表失败:', error);
+    logger.error('上传统计报表失败:', error);
     res.status(500).json({
       success: false,
       message: '上传统计报表失败',
@@ -217,7 +217,7 @@ exports.queryGovernmentServices = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('查询便民服务失败:', error);
+    logger.error('查询便民服务失败:', error);
     res.status(500).json({
       success: false,
       message: '查询便民服务失败',
@@ -265,7 +265,7 @@ exports.applyForGovernmentService = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('申请便民服务失败:', error);
+    logger.error('申请便民服务失败:', error);
     res.status(500).json({
       success: false,
       message: '申请便民服务失败',
@@ -288,7 +288,7 @@ exports.getSyncStatus = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取同步状态失败:', error);
+    logger.error('获取同步状态失败:', error);
     res.status(500).json({
       success: false,
       message: '获取同步状态失败',
@@ -310,7 +310,7 @@ exports.startAutoSync = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('启动自动同步失败:', error);
+    logger.error('启动自动同步失败:', error);
     res.status(500).json({
       success: false,
       message: '启动自动同步失败',
@@ -332,7 +332,7 @@ exports.stopAutoSync = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('停止自动同步失败:', error);
+    logger.error('停止自动同步失败:', error);
     res.status(500).json({
       success: false,
       message: '停止自动同步失败',
@@ -397,7 +397,7 @@ exports.getSyncHistory = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取同步历史失败:', error);
+    logger.error('获取同步历史失败:', error);
     res.status(500).json({
       success: false,
       message: '获取同步历史失败',
@@ -435,8 +435,7 @@ exports.batchSyncAllVillages = async (req, res) => {
 
     for (const village of villages) {
       try {
-        console.log(`开始同步村庄: ${village.name}`);
-
+        logger.debug(`开始同步村庄: ${village.name}`);
         let result;
         if (syncType === 'household') {
           result = await governmentIntegrationService.syncHouseholdData(
@@ -477,8 +476,7 @@ exports.batchSyncAllVillages = async (req, res) => {
         await new Promise(resolve => setTimeout(resolve, 2000));
 
       } catch (error) {
-        console.error(`村庄 ${village.name} 同步失败:`, error.message);
-
+        logger.error(`村庄 ${village.name} 同步失败:`, error.message);
         results.push({
           villageId: village._id,
           villageName: village.name,
@@ -514,7 +512,7 @@ exports.batchSyncAllVillages = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('批量同步失败:', error);
+    logger.error('批量同步失败:', error);
     res.status(500).json({
       success: false,
       message: '批量同步失败',
@@ -594,7 +592,7 @@ exports.getAvailableServiceTypes = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取服务类型失败:', error);
+    logger.error('获取服务类型失败:', error);
     res.status(500).json({
       success: false,
       message: '获取服务类型失败',
@@ -646,7 +644,7 @@ exports.getMyApplications = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取申请记录失败:', error);
+    logger.error('获取申请记录失败:', error);
     res.status(500).json({
       success: false,
       message: '获取申请记录失败',
@@ -671,6 +669,7 @@ exports.cancelApplication = async (req, res) => {
     }
 
     const ApplicationHistory = require('../models/ApplicationHistory');
+const logger = require('../utils/logger');
 
     // 查找申请记录
     const application = await ApplicationHistory.findOne({
@@ -712,7 +711,7 @@ exports.cancelApplication = async (req, res) => {
       });
 
     } catch (error) {
-      console.error('取消政务申请失败:', error);
+      logger.error('取消政务申请失败:', error);
       res.status(500).json({
         success: false,
         message: '取消申请失败',
@@ -721,7 +720,7 @@ exports.cancelApplication = async (req, res) => {
     }
 
   } catch (error) {
-    console.error('取消申请失败:', error);
+    logger.error('取消申请失败:', error);
     res.status(500).json({
       success: false,
       message: '取消申请失败',

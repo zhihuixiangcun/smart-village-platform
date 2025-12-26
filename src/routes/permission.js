@@ -4,6 +4,7 @@
  */
 
 const express = require('express');
+const logger = require('../utils/logger');
 const router = express.Router();
 
 const {
@@ -158,7 +159,7 @@ router.post('/verify',
         }
       });
     } catch (error) {
-      console.error('权限验证失败:', error);
+      logger.error('权限验证失败:', error);
       res.status(500).json({
         success: false,
         error: 'VERIFICATION_FAILED',
@@ -184,7 +185,7 @@ router.get('/user-permissions',
         data: userPermissions
       });
     } catch (error) {
-      console.error('获取用户权限失败:', error);
+      logger.error('获取用户权限失败:', error);
       res.status(500).json({
         success: false,
         error: 'FETCH_PERMISSIONS_FAILED',
@@ -213,7 +214,7 @@ router.get('/templates/system',
         data: systemTemplates
       });
     } catch (error) {
-      console.error('获取系统权限模板失败:', error);
+      logger.error('获取系统权限模板失败:', error);
       res.status(500).json({
         success: false,
         error: 'FETCH_TEMPLATES_FAILED',
@@ -246,7 +247,7 @@ router.get('/levels',
         }
       });
     } catch (error) {
-      console.error('获取权限级别失败:', error);
+      logger.error('获取权限级别失败:', error);
       res.status(500).json({
         success: false,
         error: 'FETCH_LEVELS_FAILED',
@@ -273,7 +274,7 @@ router.get('/stats/usage',
         data: stats
       });
     } catch (error) {
-      console.error('获取权限使用统计失败:', error);
+      logger.error('获取权限使用统计失败:', error);
       res.status(500).json({
         success: false,
         error: 'FETCH_STATS_FAILED',
@@ -302,7 +303,7 @@ router.get('/health',
         data: health
       });
     } catch (error) {
-      console.error('权限系统健康检查失败:', error);
+      logger.error('权限系统健康检查失败:', error);
       res.status(500).json({
         success: false,
         error: 'HEALTH_CHECK_FAILED',
@@ -354,7 +355,7 @@ async function verifyUserPermission(user, resource, action, scope = 'own') {
 
     return false;
   } catch (error) {
-    console.error('验证用户权限失败:', error);
+    logger.error('验证用户权限失败:', error);
     return false;
   }
 }
@@ -395,7 +396,7 @@ async function getUserPermissions(user) {
       villageId: user.villageId
     };
   } catch (error) {
-    console.error('获取用户权限失败:', error);
+    logger.error('获取用户权限失败:', error);
     throw error;
   }
 }

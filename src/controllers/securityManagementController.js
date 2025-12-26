@@ -104,7 +104,7 @@ exports.getSecurityDashboard = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取安全仪表板失败:', error);
+    logger.error('获取安全仪表板失败:', error);
     res.status(500).json({
       success: false,
       message: '获取安全仪表板失败',
@@ -125,7 +125,7 @@ exports.complianceAssessment = async (req, res) => {
     res.json(result);
 
   } catch (error) {
-    console.error('等保合规评估失败:', error);
+    logger.error('等保合规评估失败:', error);
     res.status(500).json({
       success: false,
       message: '等保合规评估失败',
@@ -154,7 +154,7 @@ exports.generateRemediationPlan = async (req, res) => {
     res.json(result);
 
   } catch (error) {
-    console.error('生成整改计划失败:', error);
+    logger.error('生成整改计划失败:', error);
     res.status(500).json({
       success: false,
       message: '生成整改计划失败',
@@ -173,7 +173,7 @@ exports.continuousComplianceMonitoring = async (req, res) => {
     res.json(result);
 
   } catch (error) {
-    console.error('持续合规监控失败:', error);
+    logger.error('持续合规监控失败:', error);
     res.status(500).json({
       success: false,
       message: '持续合规监控失败',
@@ -238,7 +238,7 @@ exports.encryptData = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('数据加密失败:', error);
+    logger.error('数据加密失败:', error);
     res.status(500).json({
       success: false,
       message: '数据加密失败',
@@ -293,7 +293,7 @@ exports.decryptData = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('数据解密失败:', error);
+    logger.error('数据解密失败:', error);
     res.status(500).json({
       success: false,
       message: '数据解密失败',
@@ -347,7 +347,7 @@ exports.batchEncryptData = async (req, res) => {
     res.json(result);
 
   } catch (error) {
-    console.error('批量数据加密失败:', error);
+    logger.error('批量数据加密失败:', error);
     res.status(500).json({
       success: false,
       message: '批量数据加密失败',
@@ -368,7 +368,7 @@ exports.manageKeys = async (req, res) => {
     res.json(result);
 
   } catch (error) {
-    console.error('密钥管理失败:', error);
+    logger.error('密钥管理失败:', error);
     res.status(500).json({
       success: false,
       message: '密钥管理失败',
@@ -427,7 +427,7 @@ exports.detectFraud = async (req, res) => {
     res.json(result);
 
   } catch (error) {
-    console.error('诈骗检测失败:', error);
+    logger.error('诈骗检测失败:', error);
     res.status(500).json({
       success: false,
       message: '诈骗检测失败',
@@ -454,7 +454,7 @@ exports.realTimeFraudMonitoring = async (req, res) => {
     res.json(result);
 
   } catch (error) {
-    console.error('实时诈骗监控失败:', error);
+    logger.error('实时诈骗监控失败:', error);
     res.status(500).json({
       success: false,
       message: '实时诈骗监控失败',
@@ -496,7 +496,7 @@ exports.reportFraud = async (req, res) => {
     res.json(result);
 
   } catch (error) {
-    console.error('诈骗举报失败:', error);
+    logger.error('诈骗举报失败:', error);
     res.status(500).json({
       success: false,
       message: '诈骗举报失败',
@@ -517,7 +517,7 @@ exports.fraudTrendAnalysis = async (req, res) => {
     res.json(result);
 
   } catch (error) {
-    console.error('诈骗趋势分析失败:', error);
+    logger.error('诈骗趋势分析失败:', error);
     res.status(500).json({
       success: false,
       message: '诈骗趋势分析失败',
@@ -604,7 +604,7 @@ exports.managePrivacy = async (req, res) => {
     res.json(result);
 
   } catch (error) {
-    console.error('隐私保护管理失败:', error);
+    logger.error('隐私保护管理失败:', error);
     res.status(500).json({
       success: false,
       message: '隐私保护管理失败',
@@ -625,7 +625,7 @@ exports.privacyImpactAssessment = async (req, res) => {
     res.json(result);
 
   } catch (error) {
-    console.error('隐私影响评估失败:', error);
+    logger.error('隐私影响评估失败:', error);
     res.status(500).json({
       success: false,
       message: '隐私影响评估失败',
@@ -658,7 +658,7 @@ exports.getAuditLogs = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取审计日志失败:', error);
+    logger.error('获取审计日志失败:', error);
     res.status(500).json({
       success: false,
       message: '获取审计日志失败',
@@ -755,7 +755,7 @@ exports.generateSecurityReport = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('生成安全报告失败:', error);
+    logger.error('生成安全报告失败:', error);
     res.status(500).json({
       success: false,
       message: '生成安全报告失败',
@@ -812,7 +812,7 @@ exports.getSecurityConfig = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取安全配置失败:', error);
+    logger.error('获取安全配置失败:', error);
     res.status(500).json({
       success: false,
       message: '获取安全配置失败',
@@ -879,7 +879,7 @@ exports.updateSecurityConfig = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('更新安全配置失败:', error);
+    logger.error('更新安全配置失败:', error);
     res.status(500).json({
       success: false,
       message: '更新安全配置失败',
@@ -936,7 +936,7 @@ exports.securityIncidentResponse = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('安全事件响应失败:', error);
+    logger.error('安全事件响应失败:', error);
     res.status(500).json({
       success: false,
       message: '安全事件响应失败',
@@ -1212,6 +1212,7 @@ async function generateExcelReport(reportData, res) {
 
   return new Promise((resolve, reject) => {
     const fs = require('fs').promises;
+const logger = require('../utils/logger');
     fs.writeFile(reportPath, JSON.stringify(reportData, null, 2));
     resolve();
   });

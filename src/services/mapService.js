@@ -105,7 +105,7 @@ class MapService {
         throw new Error(response.data.info || '地址解析失败');
       }
     } catch (error) {
-      console.error('高德地址解析失败:', error);
+      logger.error('高德地址解析失败:', error);
       throw error;
     }
   }
@@ -144,7 +144,7 @@ class MapService {
         throw new Error(response.data.info || '逆地址解析失败');
       }
     } catch (error) {
-      console.error('高德逆地址解析失败:', error);
+      logger.error('高德逆地址解析失败:', error);
       throw error;
     }
   }
@@ -207,7 +207,7 @@ class MapService {
         throw new Error(response.data.info || 'POI搜索失败');
       }
     } catch (error) {
-      console.error('高德POI搜索失败:', error);
+      logger.error('高德POI搜索失败:', error);
       throw error;
     }
   }
@@ -268,7 +268,7 @@ class MapService {
         throw new Error(response.data.info || '路线规划失败');
       }
     } catch (error) {
-      console.error('高德路线规划失败:', error);
+      logger.error('高德路线规划失败:', error);
       throw error;
     }
   }
@@ -317,7 +317,7 @@ class MapService {
         throw new Error(response.data.info || '距离计算失败');
       }
     } catch (error) {
-      console.error('高德距离计算失败:', error);
+      logger.error('高德距离计算失败:', error);
       throw error;
     }
   }
@@ -387,7 +387,7 @@ class MapService {
         throw new Error(response.data.info || '天气查询失败');
       }
     } catch (error) {
-      console.error('高德天气查询失败:', error);
+      logger.error('高德天气查询失败:', error);
       throw error;
     }
   }
@@ -436,7 +436,7 @@ class MapService {
         throw new Error(response.data.message || '百度地址解析失败');
       }
     } catch (error) {
-      console.error('百度地址解析失败:', error);
+      logger.error('百度地址解析失败:', error);
       throw error;
     }
   }
@@ -501,7 +501,7 @@ class MapService {
         throw new Error(response.data.info || '行政区边界获取失败');
       }
     } catch (error) {
-      console.error('行政区边界获取失败:', error);
+      logger.error('行政区边界获取失败:', error);
       throw error;
     }
   }
@@ -543,7 +543,7 @@ class MapService {
         throw new Error(response.data.info || 'IP定位失败');
       }
     } catch (error) {
-      console.error('IP定位失败:', error);
+      logger.error('IP定位失败:', error);
       throw error;
     }
   }
@@ -554,6 +554,7 @@ class MapService {
   async getVillageMapInfo(villageId) {
     try {
       const Village = require('../models/Village');
+const logger = require('../utils/logger');
       const village = await Village.findById(villageId);
 
       if (!village) {
@@ -611,7 +612,7 @@ class MapService {
 
       return mapInfo;
     } catch (error) {
-      console.error('获取村庄地图信息失败:', error);
+      logger.error('获取村庄地图信息失败:', error);
       throw error;
     }
   }
@@ -680,7 +681,7 @@ class MapService {
 
               facilities[type].push(...nearbyPois);
             } catch (error) {
-              console.warn(`搜索${type}设施失败:`, error.message);
+              logger.warn(`搜索${type}设施失败:`, error.message);
             }
           }
 
@@ -696,7 +697,7 @@ class MapService {
         facilities
       };
     } catch (error) {
-      console.error('获取村庄服务设施失败:', error);
+      logger.error('获取村庄服务设施失败:', error);
       throw error;
     }
   }

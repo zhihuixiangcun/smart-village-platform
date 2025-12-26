@@ -8,6 +8,7 @@ const router = express.Router();
 const realtimeEngine = require('../services/realtimeEngine');
 const streamProcessor = require('../services/streamProcessor');
 const auth = require('../middleware/auth');
+const logger = require('../utils/logger');
 
 /**
  * 获取实时系统状态
@@ -24,7 +25,7 @@ router.get('/status', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取实时系统状态失败:', error);
+    logger.error('获取实时系统状态失败:', error);
     res.status(500).json({
       success: false,
       message: '获取实时系统状态失败',
@@ -83,7 +84,7 @@ router.get('/metrics', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取实时指标失败:', error);
+    logger.error('获取实时指标失败:', error);
     res.status(500).json({
       success: false,
       message: '获取实时指标失败',
@@ -135,7 +136,7 @@ router.get('/metrics/:metricName', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取指标详情失败:', error);
+    logger.error('获取指标详情失败:', error);
     res.status(500).json({
       success: false,
       message: '获取指标详情失败',
@@ -173,7 +174,7 @@ router.post('/data', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('添加实时数据失败:', error);
+    logger.error('添加实时数据失败:', error);
     res.status(500).json({
       success: false,
       message: '添加实时数据失败',
@@ -237,7 +238,7 @@ router.post('/data/batch', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('批量添加实时数据失败:', error);
+    logger.error('批量添加实时数据失败:', error);
     res.status(500).json({
       success: false,
       message: '批量添加实时数据失败',
@@ -270,7 +271,7 @@ router.post('/metrics', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('注册指标失败:', error);
+    logger.error('注册指标失败:', error);
     res.status(500).json({
       success: false,
       message: '注册指标失败',
@@ -303,7 +304,7 @@ router.post('/thresholds', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('设置阈值失败:', error);
+    logger.error('设置阈值失败:', error);
     res.status(500).json({
       success: false,
       message: '设置阈值失败',
@@ -336,7 +337,7 @@ router.post('/alerts', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('注册警报规则失败:', error);
+    logger.error('注册警报规则失败:', error);
     res.status(500).json({
       success: false,
       message: '注册警报规则失败',
@@ -372,7 +373,7 @@ router.post('/streams', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('创建数据流失败:', error);
+    logger.error('创建数据流失败:', error);
     res.status(500).json({
       success: false,
       message: '创建数据流失败',
@@ -415,7 +416,7 @@ router.post('/streams/:streamId/data', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('添加数据到流失败:', error);
+    logger.error('添加数据到流失败:', error);
     res.status(500).json({
       success: false,
       message: '添加数据到流失败',
@@ -445,7 +446,7 @@ router.get('/streams/:streamId/stats', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取数据流统计失败:', error);
+    logger.error('获取数据流统计失败:', error);
     res.status(500).json({
       success: false,
       message: '获取数据流统计失败',
@@ -501,7 +502,7 @@ router.get('/analysis/:villageId', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('实时分析失败:', error);
+    logger.error('实时分析失败:', error);
     res.status(500).json({
       success: false,
       message: '实时分析失败',
@@ -547,7 +548,7 @@ router.get('/dashboard/:villageId', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取仪表板数据失败:', error);
+    logger.error('获取仪表板数据失败:', error);
     res.status(500).json({
       success: false,
       message: '获取仪表板数据失败',
@@ -609,7 +610,7 @@ router.get('/subscribe/:eventType', (req, res) => {
     res.write(`data: ${JSON.stringify({ type: 'connected', message: '订阅成功' })}\n\n`);
 
   } catch (error) {
-    console.error('订阅失败:', error);
+    logger.error('订阅失败:', error);
     res.status(500).json({
       success: false,
       message: '订阅失败',

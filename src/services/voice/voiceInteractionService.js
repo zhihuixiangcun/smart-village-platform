@@ -3,6 +3,8 @@
  * 支持方言识别、语音合成、语音命令处理
  */
 
+const logger = require('../../utils/logger');
+
 class VoiceInteractionService {
   constructor() {
     this.pythonService = null;
@@ -59,8 +61,7 @@ class VoiceInteractionService {
    */
   async initialize() {
     try {
-      console.log('🎤 初始化语音交互服务...');
-
+      logger.debug('🎤 初始化语音交互服务...');
       // 初始化Python AI处理模块连接
       await this.initializePythonService();
 
@@ -70,10 +71,10 @@ class VoiceInteractionService {
       // 加载语音模型
       await this.loadVoiceModels();
 
-      console.log('✅ 语音交互服务初始化完成');
+      logger.debug('✅ 语音交互服务初始化完成');
       return true;
     } catch (error) {
-      console.error('❌ 语音交互服务初始化失败:', error);
+      logger.error('❌ 语音交互服务初始化失败:', error);
       throw error;
     }
   }
@@ -95,9 +96,9 @@ class VoiceInteractionService {
         throw new Error('Python语音服务连接失败');
       }
 
-      console.log('🐍 Python语音服务连接成功');
+      logger.debug('🐍 Python语音服务连接成功');
     } catch (error) {
-      console.warn('⚠️ Python语音服务未启动，使用备用方案');
+      logger.warn('⚠️ Python语音服务未启动，使用备用方案');
       this.pythonService = null;
     }
   }
@@ -115,10 +116,10 @@ class VoiceInteractionService {
         }
 
         this.audioContext = new AudioContext();
-        console.log('🎵 音频处理模块初始化成功');
+        logger.debug('🎵 音频处理模块初始化成功');
       }
     } catch (error) {
-      console.error('音频处理模块初始化失败:', error);
+      logger.error('音频处理模块初始化失败:', error);
     }
   }
 
@@ -135,9 +136,9 @@ class VoiceInteractionService {
         voiceCommand: 'loaded'
       };
 
-      console.log('🧠 语音模型加载完成');
+      logger.debug('🧠 语音模型加载完成');
     } catch (error) {
-      console.error('语音模型加载失败:', error);
+      logger.error('语音模型加载失败:', error);
     }
   }
 
@@ -194,11 +195,11 @@ class VoiceInteractionService {
       this.mediaRecorder.start(100); // 每100ms收集一次数据
       this.isRecording = true;
 
-      console.log('🎙️ 开始录音');
+      logger.debug('🎙️ 开始录音');
       return true;
 
     } catch (error) {
-      console.error('录音启动失败:', error);
+      logger.error('录音启动失败:', error);
       throw error;
     }
   }
@@ -216,11 +217,11 @@ class VoiceInteractionService {
       this.stream.getTracks().forEach(track => track.stop());
       this.isRecording = false;
 
-      console.log('⏹️ 停止录音');
+      logger.debug('⏹️ 停止录音');
       return true;
 
     } catch (error) {
-      console.error('停止录音失败:', error);
+      logger.error('停止录音失败:', error);
       throw error;
     }
   }
@@ -230,8 +231,7 @@ class VoiceInteractionService {
    */
   async processAudioData(audioArrayBuffer, config) {
     try {
-      console.log('🔄 处理音频数据...');
-
+      logger.debug('🔄 处理音频数据...');
       // 音频预处理
       const processedAudio = await this.preprocessAudio(audioArrayBuffer);
 
@@ -255,7 +255,7 @@ class VoiceInteractionService {
       };
 
     } catch (error) {
-      console.error('音频数据处理失败:', error);
+      logger.error('音频数据处理失败:', error);
       throw error;
     }
   }
@@ -280,7 +280,7 @@ class VoiceInteractionService {
       };
 
     } catch (error) {
-      console.error('音频预处理失败:', error);
+      logger.error('音频预处理失败:', error);
       throw error;
     }
   }
@@ -294,7 +294,7 @@ class VoiceInteractionService {
 
       // 检查缓存
       if (this.cache.has(cacheKey)) {
-        console.log('📋 使用缓存结果');
+        logger.debug('📋 使用缓存结果');
         return this.cache.get(cacheKey);
       }
 
@@ -328,7 +328,7 @@ class VoiceInteractionService {
       return result;
 
     } catch (error) {
-      console.error('语音识别失败:', error);
+      logger.error('语音识别失败:', error);
       throw error;
     }
   }
@@ -371,7 +371,7 @@ class VoiceInteractionService {
       }
 
     } catch (error) {
-      console.error('语音合成失败:', error);
+      logger.error('语音合成失败:', error);
       throw error;
     }
   }
@@ -415,7 +415,7 @@ class VoiceInteractionService {
       };
 
     } catch (error) {
-      console.error('命令解析失败:', error);
+      logger.error('命令解析失败:', error);
       return {
         text,
         commandType: 'error',
@@ -548,7 +548,7 @@ class VoiceInteractionService {
       return await response.json();
 
     } catch (error) {
-      console.error('Python服务调用失败:', error);
+      logger.error('Python服务调用失败:', error);
       throw error;
     }
   }
@@ -715,7 +715,7 @@ class VoiceInteractionService {
     }
 
     this.cache.clear();
-    console.log('🧹 语音服务资源已清理');
+    logger.debug('🧹 语音服务资源已清理');
   }
 }
 

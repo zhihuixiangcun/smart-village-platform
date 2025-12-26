@@ -5,6 +5,7 @@
 
 const realtimeEngine = require('../services/realtimeEngine');
 const streamProcessor = require('../services/streamProcessor');
+const logger = require('../utils/logger');
 
 class RealtimeTracker {
   constructor() {
@@ -125,7 +126,7 @@ class RealtimeTracker {
         timestamp: new Date()
       });
     } catch (error) {
-      console.error('请求开始跟踪失败:', error);
+      logger.error('请求开始跟踪失败:', error);
     }
   }
 
@@ -173,7 +174,7 @@ class RealtimeTracker {
       }
 
     } catch (error) {
-      console.error('请求跟踪失败:', error);
+      logger.error('请求跟踪失败:', error);
     }
   }
 
@@ -219,7 +220,7 @@ class RealtimeTracker {
       }
 
     } catch (error) {
-      console.error('提取业务数据失败:', error);
+      logger.error('提取业务数据失败:', error);
     }
 
     return businessData;
@@ -497,11 +498,11 @@ class RealtimeTracker {
 
     // 监听引擎连接事件
     realtimeEngine.on('connected', () => {
-      console.log('✅ 实时引擎已连接');
+      logger.debug('✅ 实时引擎已连接');
     });
 
     realtimeEngine.on('error', (error) => {
-      console.error('❌ 实时引擎错误:', error);
+      logger.error('❌ 实时引擎错误:', error);
     });
   }
 
@@ -550,8 +551,7 @@ class RealtimeTracker {
    * 处理处理错误
    */
   handleProcessingError(error) {
-    console.error('❌ 实时处理错误:', error);
-
+    logger.error('❌ 实时处理错误:', error);
     // 记录错误指标
     realtimeEngine.updateMetricValue('processing_errors', 1, 'system');
   }
@@ -560,8 +560,7 @@ class RealtimeTracker {
    * 发送关键警报
    */
   async sendCriticalAlert(alert) {
-    console.error(`🚨 关键警报: ${alert.metricName}`, alert);
-
+    logger.error(`🚨 关键警报: ${alert.metricName}`, alert);
     // 这里可以集成各种通知系统
     // 例如：短信、邮件、钉钉、企业微信等
   }
@@ -570,21 +569,21 @@ class RealtimeTracker {
    * 发送高优先级警报
    */
   async sendHighPriorityAlert(alert) {
-    console.warn(`⚠️ 高优先级警报: ${alert.ruleName}`, alert);
+    logger.warn(`⚠️ 高优先级警报: ${alert.ruleName}`, alert);
   }
 
   /**
    * 发送中等优先级警报
    */
   async sendMediumAlert(alert) {
-    console.info(`ℹ️ 中等优先级警报: ${alert.ruleName}`, alert);
+    logger.info(`ℹ️ 中等优先级警报: ${alert.ruleName}`, alert);
   }
 
   /**
    * 发送低优先级警报
    */
   async sendLowPriorityAlert(alert) {
-    console.log(`ℹ️ 低优先级警报: ${alert.ruleName}`, alert);
+    logger.debug(`ℹ️ 低优先级警报: ${alert.ruleName}`, alert);
   }
 
   /**
@@ -592,7 +591,7 @@ class RealtimeTracker {
    */
   enable() {
     this.trackingEnabled = true;
-    console.log('📊 实时跟踪已启用');
+    logger.debug('📊 实时跟踪已启用');
   }
 
   /**
@@ -600,7 +599,7 @@ class RealtimeTracker {
    */
   disable() {
     this.trackingEnabled = false;
-    console.log('📊 实时跟踪已禁用');
+    logger.debug('📊 实时跟踪已禁用');
   }
 
   /**

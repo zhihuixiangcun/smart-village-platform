@@ -8,6 +8,7 @@ const Household = require('../models/Household');
 const { validationResult } = require('express-validator');
 const QRCode = require('qrcode');
 const crypto = require('crypto');
+const logger = require('../utils/logger');
 
 class ResidentManagementController {
   /**
@@ -58,7 +59,7 @@ class ResidentManagementController {
       });
 
     } catch (error) {
-      console.error('创建村民档案失败:', error);
+      logger.error('创建村民档案失败:', error);
       res.status(500).json({
         success: false,
         message: '服务器内部错误',
@@ -92,7 +93,7 @@ class ResidentManagementController {
       });
 
     } catch (error) {
-      console.error('获取村民详情失败:', error);
+      logger.error('获取村民详情失败:', error);
       res.status(500).json({
         success: false,
         message: '服务器内部错误',
@@ -180,7 +181,7 @@ class ResidentManagementController {
       });
 
     } catch (error) {
-      console.error('更新村民信息失败:', error);
+      logger.error('更新村民信息失败:', error);
       res.status(500).json({
         success: false,
         message: '服务器内部错误',
@@ -227,7 +228,7 @@ class ResidentManagementController {
       });
 
     } catch (error) {
-      console.error('删除村民档案失败:', error);
+      logger.error('删除村民档案失败:', error);
       res.status(500).json({
         success: false,
         message: '服务器内部错误',
@@ -319,7 +320,7 @@ class ResidentManagementController {
       });
 
     } catch (error) {
-      console.error('获取村民列表失败:', error);
+      logger.error('获取村民列表失败:', error);
       res.status(500).json({
         success: false,
         message: '服务器内部错误',
@@ -381,7 +382,7 @@ class ResidentManagementController {
       });
 
     } catch (error) {
-      console.error('获取村民统计失败:', error);
+      logger.error('获取村民统计失败:', error);
       res.status(500).json({
         success: false,
         message: '服务器内部错误',
@@ -411,7 +412,7 @@ class ResidentManagementController {
       });
 
     } catch (error) {
-      console.error('获取特殊群体失败:', error);
+      logger.error('获取特殊群体失败:', error);
       res.status(500).json({
         success: false,
         message: '服务器内部错误',
@@ -459,7 +460,7 @@ class ResidentManagementController {
       });
 
     } catch (error) {
-      console.error('按户查询村民失败:', error);
+      logger.error('按户查询村民失败:', error);
       res.status(500).json({
         success: false,
         message: '服务器内部错误',
@@ -522,7 +523,7 @@ class ResidentManagementController {
       return household;
 
     } catch (error) {
-      console.error('生成户码失败:', error);
+      logger.error('生成户码失败:', error);
       throw error;
     }
   }

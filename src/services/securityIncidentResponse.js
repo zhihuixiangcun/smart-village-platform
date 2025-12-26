@@ -99,8 +99,7 @@ class SecurityIncidentResponse extends EventEmitter {
    * 初始化SIR系统
    */
   initialize() {
-    console.log('初始化安全事件响应系统...');
-
+    logger.debug('初始化安全事件响应系统...');
     // 加载响应手册
     this.loadPlaybooks();
 
@@ -110,7 +109,7 @@ class SecurityIncidentResponse extends EventEmitter {
     // 设置定时任务
     this.setupScheduledTasks();
 
-    console.log('安全事件响应系统初始化完成');
+    logger.debug('安全事件响应系统初始化完成');
   }
 
   /**
@@ -170,8 +169,7 @@ class SecurityIncidentResponse extends EventEmitter {
     // 触发事件
     this.emit('incident:detected', incident);
 
-    console.log(`检测到安全事件: ${incident.id} - ${incident.description}`);
-
+    logger.debug(`检测到安全事件: ${incident.id} - ${incident.description}`);
     return { success: true, incidentId: incident.id };
   }
 
@@ -214,7 +212,7 @@ class SecurityIncidentResponse extends EventEmitter {
       this.emit('incident:analyzed', incident);
 
     } catch (error) {
-      console.error(`分析事件失败 ${incidentId}:`, error);
+      logger.error(`分析事件失败 ${incidentId}:`, error);
       incident.status = this.status.detected; // 回退状态
     }
   }
@@ -427,10 +425,10 @@ class SecurityIncidentResponse extends EventEmitter {
         });
 
         if (!result.success) {
-          console.warn(`自动响应失败: ${action.type} - ${result.error}`);
+          logger.warn(`自动响应失败: ${action.type} - ${result.error}`);
         }
       } catch (error) {
-        console.error(`执行自动响应错误: ${action.type}`, error);
+        logger.error(`执行自动响应错误: ${action.type}`, error);
         incident.response.actions.push({
           action: action.type,
           result: 'error',
@@ -491,6 +489,7 @@ class SecurityIncidentResponse extends EventEmitter {
     try {
       // 实现用户隔离逻辑
       const userService = require('./userService');
+const logger = require('../utils/logger');
       if (userService && userService.isolateUser) {
         await userService.isolateUser(userId, incident.id);
         return { success: true, message: `用户 ${userId} 已被隔离` };
@@ -599,7 +598,7 @@ class SecurityIncidentResponse extends EventEmitter {
       return result;
 
     } catch (error) {
-      console.error(`手动响应失败 ${incidentId}:`, error);
+      logger.error(`手动响应失败 ${incidentId}:`, error);
       throw error;
     }
   }
@@ -638,8 +637,7 @@ class SecurityIncidentResponse extends EventEmitter {
     // 触发事件
     this.emit('incident:resolved', incident);
 
-    console.log(`事件已解决: ${incidentId} - ${finalStatus}`);
-
+    logger.debug(`事件已解决: ${incidentId} - ${finalStatus}`);
     return incident;
   }
 
@@ -988,7 +986,7 @@ class SecurityIncidentResponse extends EventEmitter {
       }
     }
 
-    console.log(`已初始化 ${this.alertChannels.size} 个告警渠道`);
+    logger.debug(`已初始化 ${this.alertChannels.size} 个告警渠道`);
   }
 
   /**
@@ -1045,7 +1043,7 @@ class SecurityIncidentResponse extends EventEmitter {
     };
 
     // 这里应该发送报告到指定的渠道
-    console.log('生成安全事件日报:', {
+    logger.debug('生成安全事件日报:', {
       total: report.summary.totalIncidents,
       resolved: report.summary.resolvedIncidents,
       active: report.summary.activeIncidents
@@ -1185,7 +1183,7 @@ class SecurityIncidentResponse extends EventEmitter {
    */
   updateConfig(newConfig) {
     Object.assign(this.config, newConfig);
-    console.log('SIR配置已更新');
+    logger.debug('SIR配置已更新');
   }
 
   /**
@@ -1221,12 +1219,12 @@ class EmailAlertChannel {
 
   async send(incident, level) {
     // 实现邮件发送逻辑
-    console.log(`发送邮件告警: ${incident.id} - ${incident.description}`);
+    logger.debug(`发送邮件告警: ${incident.id} - ${incident.description}`);
   }
 
   async escalate(incident, level) {
     // 实现邮件升级逻辑
-    console.log(`发送升级邮件告警: ${incident.id} - 级别: ${level}`);
+    logger.debug(`发送升级邮件告警: ${incident.id} - 级别: ${level}`);
   }
 }
 
@@ -1240,12 +1238,12 @@ class SMSAlertChannel {
 
   async send(incident, level) {
     // 实现短信发送逻辑
-    console.log(`发送短信告警: ${incident.id} - ${incident.description}`);
+    logger.debug(`发送短信告警: ${incident.id} - ${incident.description}`);
   }
 
   async escalate(incident, level) {
     // 实现短信升级逻辑
-    console.log(`发送升级短信告警: ${incident.id} - 级别: ${level}`);
+    logger.debug(`发送升级短信告警: ${incident.id} - 级别: ${level}`);
   }
 }
 
@@ -1259,12 +1257,12 @@ class SlackAlertChannel {
 
   async send(incident, level) {
     // 实现Slack通知逻辑
-    console.log(`发送Slack告警: ${incident.id} - ${incident.description}`);
+    logger.debug(`发送Slack告警: ${incident.id} - ${incident.description}`);
   }
 
   async escalate(incident, level) {
     // 实现Slack升级逻辑
-    console.log(`发送Slack升级告警: ${incident.id} - 级别: ${level}`);
+    logger.debug(`发送Slack升级告警: ${incident.id} - 级别: ${level}`);
   }
 }
 
@@ -1278,12 +1276,12 @@ class WebhookAlertChannel {
 
   async send(incident, level) {
     // 实现Webhook通知逻辑
-    console.log(`发送Webhook告警: ${incident.id} - ${incident.description}`);
+    logger.debug(`发送Webhook告警: ${incident.id} - ${incident.description}`);
   }
 
   async escalate(incident, level) {
     // 实现Webhook升级逻辑
-    console.log(`发送Webhook升级告警: ${incident.id} - 级别: ${level}`);
+    logger.debug(`发送Webhook升级告警: ${incident.id} - 级别: ${level}`);
   }
 }
 

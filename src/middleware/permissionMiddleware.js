@@ -6,6 +6,7 @@
 const { VillageAdminAuth, PermissionTemplate, AuditLog } = require('../models/Permission');
 const { promisify } = require('util');
 const crypto = require('crypto');
+const logger = require('../utils/logger');
 
 const randomBytesAsync = promisify(crypto.randomBytes);
 
@@ -41,7 +42,7 @@ const auditLogger = (operation = {}, options = {}) => {
         try {
           await logOperation(req, res, duration, data);
         } catch (error) {
-          console.error('审计日志记录失败:', error);
+          logger.error('审计日志记录失败:', error);
         }
       });
 
@@ -137,7 +138,7 @@ async function logOperation(req, res, duration, responseData) {
 
     await AuditLog.logOperation(auditLogData);
   } catch (error) {
-    console.error('记录审计日志失败:', error);
+    logger.error('记录审计日志失败:', error);
   }
 }
 
@@ -233,7 +234,7 @@ const requireVillageAdminAuth = (villageIdParam = 'villageId') => {
       req.villageAdminAuth = authRecord;
       next();
     } catch (error) {
-      console.error('村级管理员认证失败:', error);
+      logger.error('村级管理员认证失败:', error);
       return res.status(500).json({
         success: false,
         error: 'AUTHENTICATION_ERROR',
@@ -315,7 +316,7 @@ const requirePermission = (resource, action, scope = 'own') => {
 
       next();
     } catch (error) {
-      console.error('权限检查失败:', error);
+      logger.error('权限检查失败:', error);
       return res.status(500).json({
         success: false,
         error: 'PERMISSION_CHECK_ERROR',
@@ -349,7 +350,7 @@ const dataMasking = (options = {}) => {
         // 发送脱敏后的数据
         originalSend.call(this, typeof data === 'string' ? JSON.stringify(maskedData) : maskedData);
       } catch (error) {
-        console.error('数据脱敏失败:', error);
+        logger.error('数据脱敏失败:', error);
         originalSend.call(this, data);
       }
     };

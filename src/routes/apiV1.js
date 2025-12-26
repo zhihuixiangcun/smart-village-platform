@@ -4,6 +4,7 @@
  */
 
 const express = require('express');
+const logger = require('../utils/logger');
 const router = express.Router();
 
 // 导入安全中间件
@@ -1111,8 +1112,7 @@ router.use('/permissions', permissionRouter);
  * API错误处理中间件
  */
 router.use((error, req, res, next) => {
-  console.error('API Error:', error);
-
+  logger.error('API Error:', error);
   // 安全错误处理 - 避免泄露敏感信息
   const isProduction = process.env.NODE_ENV === 'production';
 

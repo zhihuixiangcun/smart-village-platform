@@ -6,6 +6,7 @@
 const { BlockchainRecord } = require('../models/Finance');
 const crypto = require('crypto');
 const axios = require('axios');
+const logger = require('../utils/logger');
 
 class BlockchainService {
   constructor() {
@@ -64,7 +65,7 @@ class BlockchainService {
       };
 
     } catch (error) {
-      console.error('区块链上链失败:', error);
+      logger.error('区块链上链失败:', error);
       throw error;
     }
   }
@@ -101,7 +102,7 @@ class BlockchainService {
       };
 
     } catch (error) {
-      console.error('以太坊上链失败:', error);
+      logger.error('以太坊上链失败:', error);
       throw error;
     }
   }
@@ -137,7 +138,7 @@ class BlockchainService {
       };
 
     } catch (error) {
-      console.error('Hyperledger上链失败:', error);
+      logger.error('Hyperledger上链失败:', error);
       throw error;
     }
   }
@@ -175,7 +176,7 @@ class BlockchainService {
       };
 
     } catch (error) {
-      console.error('自定义区块链上链失败:', error);
+      logger.error('自定义区块链上链失败:', error);
       throw error;
     }
   }
@@ -220,7 +221,7 @@ class BlockchainService {
       };
 
     } catch (error) {
-      console.error('区块链数据验证失败:', error);
+      logger.error('区块链数据验证失败:', error);
       return {
         isValid: false,
         error: error.message,
@@ -252,7 +253,7 @@ class BlockchainService {
       return record;
 
     } catch (error) {
-      console.error('查询区块链记录失败:', error);
+      logger.error('查询区块链记录失败:', error);
       throw error;
     }
   }
@@ -324,7 +325,7 @@ class BlockchainService {
       };
 
     } catch (error) {
-      console.error('获取区块链统计失败:', error);
+      logger.error('获取区块链统计失败:', error);
       throw error;
     }
   }
@@ -380,7 +381,7 @@ class BlockchainService {
       };
 
     } catch (error) {
-      console.error('批量验证失败:', error);
+      logger.error('批量验证失败:', error);
       throw error;
     }
   }
@@ -602,7 +603,7 @@ class BlockchainService {
       await record.save();
 
     } catch (error) {
-      console.error('更新验证状态失败:', error);
+      logger.error('更新验证状态失败:', error);
     }
   }
 

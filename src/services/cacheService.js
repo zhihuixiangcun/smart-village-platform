@@ -7,6 +7,7 @@ const NodeCache = require('node-cache');
 const Redis = require('ioredis');
 const LRU = require('lru-cache');
 const crypto = require('crypto');
+const logger = require('../utils/logger');
 
 class CacheService {
   constructor() {
@@ -81,25 +82,25 @@ class CacheService {
 
       this.l3Cache.on('connect', () => {
         this.redisConnected = true;
-        console.log('Redis缓存连接成功');
+        logger.debug('Redis缓存连接成功');
       });
 
       this.l3Cache.on('error', (error) => {
         this.redisConnected = false;
-        console.error('Redis缓存连接错误:', error);
+        logger.error('Redis缓存连接错误:', error);
         this.stats.errors.l3++;
         this.stats.errors.total++;
       });
 
       this.l3Cache.on('close', () => {
         this.redisConnected = false;
-        console.log('Redis缓存连接关闭');
+        logger.debug('Redis缓存连接关闭');
       });
 
       await this.l3Cache.connect();
 
     } catch (error) {
-      console.error('初始化Redis缓存失败:', error);
+      logger.error('初始化Redis缓存失败:', error);
       this.redisConnected = false;
     }
   }
@@ -121,7 +122,7 @@ class CacheService {
 
     this.l2Cache.on('expired', (key, value) => {
       if (this.config.enableDebug) {
-        console.log(`L2缓存过期: ${key}`);
+        logger.debug(`L2缓存过期: ${key}`);
       }
     });
 
@@ -129,7 +130,7 @@ class CacheService {
       this.stats.evictions.l2++;
       this.stats.evictions.total++;
       if (this.config.enableDebug) {
-        console.log(`L2缓存驱逐: ${key}`);
+        logger.debug(`L2缓存驱逐: ${key}`);
       }
     });
 
@@ -193,7 +194,7 @@ class CacheService {
         } catch (error) {
           this.stats.errors.l3++;
           this.stats.errors.total++;
-          console.error('Redis获取缓存失败:', error);
+          logger.error('Redis获取缓存失败:', error);
         }
       }
       this.stats.misses.l3++;
@@ -205,7 +206,7 @@ class CacheService {
     } catch (error) {
       this.stats.errors.l1++;
       this.stats.errors.total++;
-      console.error('获取缓存失败:', error);
+      logger.error('获取缓存失败:', error);
       this.recordResponseTime(startTime);
       return null;
     }
@@ -246,7 +247,7 @@ class CacheService {
           this.stats.sets.l3++;
         } catch (error) {
           this.stats.errors.l3++;
-          console.error('Redis设置缓存失败:', error);
+          logger.error('Redis设置缓存失败:', error);
         }
       }
 
@@ -257,7 +258,7 @@ class CacheService {
     } catch (error) {
       this.stats.errors.l1++;
       this.stats.errors.total++;
-      console.error('设置缓存失败:', error);
+      logger.error('设置缓存失败:', error);
       this.recordResponseTime(startTime);
       return false;
     }
@@ -285,7 +286,7 @@ class CacheService {
           if (l3Deleted > 0) this.stats.deletes.l3++;
         } catch (error) {
           this.stats.errors.l3++;
-          console.error('Redis删除缓存失败:', error);
+          logger.error('Redis删除缓存失败:', error);
         }
       }
 
@@ -296,7 +297,7 @@ class CacheService {
     } catch (error) {
       this.stats.errors.l1++;
       this.stats.errors.total++;
-      console.error('删除缓存失败:', error);
+      logger.error('删除缓存失败:', error);
       this.recordResponseTime(startTime);
       return false;
     }
@@ -359,7 +360,7 @@ class CacheService {
           }
         } catch (error) {
           this.stats.errors.l3++;
-          console.error('Redis批量获取缓存失败:', error);
+          logger.error('Redis批量获取缓存失败:', error);
         }
       }
 
@@ -372,7 +373,7 @@ class CacheService {
     } catch (error) {
       this.stats.errors.l1++;
       this.stats.errors.total++;
-      console.error('批量获取缓存失败:', error);
+      logger.error('批量获取缓存失败:', error);
       this.recordResponseTime(startTime);
       return new Map();
     }
@@ -428,7 +429,7 @@ class CacheService {
           this.stats.sets.l3 += redisPairs.length / 2;
         } catch (error) {
           this.stats.errors.l3++;
-          console.error('Redis批量设置缓存失败:', error);
+          logger.error('Redis批量设置缓存失败:', error);
         }
       }
 
@@ -439,7 +440,7 @@ class CacheService {
     } catch (error) {
       this.stats.errors.l1++;
       this.stats.errors.total++;
-      console.error('批量设置缓存失败:', error);
+      logger.error('批量设置缓存失败:', error);
       this.recordResponseTime(startTime);
       return new Map();
     }
@@ -491,7 +492,7 @@ class CacheService {
 
       return data;
     } catch (error) {
-      console.error('序列化失败:', error);
+      logger.error('序列化失败:', error);
       return null;
     }
   }
@@ -507,7 +508,7 @@ class CacheService {
       }
       return data;
     } catch (error) {
-      console.error('反序列化失败:', error);
+      logger.error('反序列化失败:', error);
       return null;
     }
   }
@@ -570,11 +571,11 @@ class CacheService {
         await this.l3Cache.flushdb();
       }
 
-      console.log('所有缓存已清空');
+      logger.debug('所有缓存已清空');
       return true;
 
     } catch (error) {
-      console.error('清空缓存失败:', error);
+      logger.error('清空缓存失败:', error);
       return false;
     }
   }
@@ -597,10 +598,9 @@ class CacheService {
 
       // Redis会自动清理过期键
 
-      console.log('缓存清理完成');
-
+      logger.debug('缓存清理完成');
     } catch (error) {
-      console.error('缓存清理失败:', error);
+      logger.error('缓存清理失败:', error);
     }
   }
 
@@ -665,9 +665,9 @@ class CacheService {
         await this.l3Cache.quit();
         this.l3Cache = null;
       }
-      console.log('缓存服务已关闭');
+      logger.debug('缓存服务已关闭');
     } catch (error) {
-      console.error('关闭缓存服务失败:', error);
+      logger.error('关闭缓存服务失败:', error);
     }
   }
 }

@@ -9,6 +9,7 @@ const fs = require('fs').promises;
 const path = require('path');
 const crypto = require('crypto');
 const sharp = require('sharp');
+const logger = require('../utils/logger');
 
 class FacialRecognitionService {
   constructor() {
@@ -50,7 +51,7 @@ class FacialRecognitionService {
         ]);
       } else {
         // 下载并加载模型
-        console.log('正在下载人脸识别模型...');
+        logger.debug('正在下载人脸识别模型...');
         await Promise.all([
           faceapi.nets.tinyFaceDetector.loadFromUri(modelUrls.tinyFaceDetector),
           faceapi.nets.faceLandmark68Net.loadFromUri(modelUrls.faceLandmark68Net),
@@ -60,10 +61,9 @@ class FacialRecognitionService {
       }
 
       this.isModelLoaded = true;
-      console.log('人脸识别模型加载完成');
-
+      logger.debug('人脸识别模型加载完成');
     } catch (error) {
-      console.error('初始化人脸识别模型失败:', error);
+      logger.error('初始化人脸识别模型失败:', error);
       throw new Error('人脸识别模型初始化失败');
     }
   }
@@ -146,7 +146,7 @@ class FacialRecognitionService {
       };
 
     } catch (error) {
-      console.error('人脸注册失败:', error);
+      logger.error('人脸注册失败:', error);
       throw error;
     }
   }
@@ -215,7 +215,7 @@ class FacialRecognitionService {
       };
 
     } catch (error) {
-      console.error('人脸认证失败:', error);
+      logger.error('人脸认证失败:', error);
       throw error;
     }
   }
@@ -270,7 +270,7 @@ class FacialRecognitionService {
       };
 
     } catch (error) {
-      console.error('活体检测失败:', error);
+      logger.error('活体检测失败:', error);
       throw error;
     }
   }
@@ -326,7 +326,7 @@ class FacialRecognitionService {
       };
 
     } catch (error) {
-      console.error('人脸搜索失败:', error);
+      logger.error('人脸搜索失败:', error);
       throw error;
     }
   }
@@ -354,7 +354,7 @@ class FacialRecognitionService {
       return img;
 
     } catch (error) {
-      console.error('图像预处理失败:', error);
+      logger.error('图像预处理失败:', error);
       throw new Error('图像预处理失败');
     }
   }
@@ -487,7 +487,7 @@ class FacialRecognitionService {
       return JSON.parse(data);
 
     } catch (error) {
-      console.error('加载注册人脸失败:', error);
+      logger.error('加载注册人脸失败:', error);
       return null;
     }
   }
@@ -510,7 +510,7 @@ class FacialRecognitionService {
             const faceData = JSON.parse(data);
             faces.push(faceData);
           } catch (error) {
-            console.error(`加载人脸特征文件失败 ${file}:`, error);
+            logger.error(`加载人脸特征文件失败 ${file}:`, error);
           }
         }
       }
@@ -518,7 +518,7 @@ class FacialRecognitionService {
       return faces;
 
     } catch (error) {
-      console.error('加载所有注册人脸失败:', error);
+      logger.error('加载所有注册人脸失败:', error);
       return [];
     }
   }
@@ -547,7 +547,7 @@ class FacialRecognitionService {
       };
 
     } catch (error) {
-      console.error('删除人脸特征失败:', error);
+      logger.error('删除人脸特征失败:', error);
       throw error;
     }
   }

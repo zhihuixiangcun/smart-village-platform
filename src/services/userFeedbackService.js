@@ -5,6 +5,7 @@
 
 const mongoose = require('mongoose')
 const EventEmitter = require('events')
+const logger = require('../utils/logger');
 
 // 反馈 Schema
 const feedbackSchema = new mongoose.Schema({
@@ -181,7 +182,7 @@ class UserFeedbackService extends EventEmitter {
       }
 
     } catch (error) {
-      console.error('提交反馈失败:', error)
+      logger.error('提交反馈失败:', error);
       throw error
     }
   }
@@ -248,7 +249,7 @@ class UserFeedbackService extends EventEmitter {
       }
 
     } catch (error) {
-      console.error('获取反馈列表失败:', error)
+      logger.error('获取反馈列表失败:', error);
       throw error
     }
   }
@@ -316,7 +317,7 @@ class UserFeedbackService extends EventEmitter {
       }
 
     } catch (error) {
-      console.error('处理反馈失败:', error)
+      logger.error('处理反馈失败:', error);
       throw error
     }
   }
@@ -355,7 +356,7 @@ class UserFeedbackService extends EventEmitter {
       }
 
     } catch (error) {
-      console.error('添加满意度评价失败:', error)
+      logger.error('添加满意度评价失败:', error);
       throw error
     }
   }
@@ -455,7 +456,7 @@ class UserFeedbackService extends EventEmitter {
       }
 
     } catch (error) {
-      console.error('获取反馈统计失败:', error)
+      logger.error('获取反馈统计失败:', error);
       throw error
     }
   }
@@ -503,7 +504,7 @@ class UserFeedbackService extends EventEmitter {
       }
 
     } catch (error) {
-      console.error('AI分析反馈趋势失败:', error)
+      logger.error('AI分析反馈趋势失败:', error);
       throw error
     }
   }
@@ -562,7 +563,7 @@ class UserFeedbackService extends EventEmitter {
       }
 
     } catch (error) {
-      console.error('推荐改进方案失败:', error)
+      logger.error('推荐改进方案失败:', error);
       throw error
     }
   }
@@ -654,7 +655,7 @@ class UserFeedbackService extends EventEmitter {
       }
 
     } catch (error) {
-      console.error('导出反馈数据失败:', error)
+      logger.error('导出反馈数据失败:', error);
       throw error
     }
   }

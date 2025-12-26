@@ -2,6 +2,7 @@ const DutyScheduleService = require('../services/dutyScheduleService');
 const { validationResult } = require('express-validator');
 const multer = require('multer');
 const path = require('path');
+const logger = require('../utils/logger');
 
 class DutyScheduleController {
   constructor() {
@@ -55,7 +56,7 @@ class DutyScheduleController {
         data: schedule
       });
     } catch (error) {
-      console.error('创建值班表失败:', error);
+      logger.error('创建值班表失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '创建值班表失败'
@@ -91,7 +92,7 @@ class DutyScheduleController {
         data: result
       });
     } catch (error) {
-      console.error('生成智能排班失败:', error);
+      logger.error('生成智能排班失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '生成智能排班失败'
@@ -141,7 +142,7 @@ class DutyScheduleController {
         data: result
       });
     } catch (error) {
-      console.error('紧急呼叫失败:', error);
+      logger.error('紧急呼叫失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '紧急呼叫失败'
@@ -194,7 +195,7 @@ class DutyScheduleController {
         data: result
       });
     } catch (error) {
-      console.error(`${req.body.action}失败:`, error);
+      logger.error(`${req.body.action}失败:`, error);
       res.status(500).json({
         success: false,
         message: error.message || `${req.body.action}失败`
@@ -232,7 +233,7 @@ class DutyScheduleController {
         data: result
       });
     } catch (error) {
-      console.error('获取值班表列表失败:', error);
+      logger.error('获取值班表列表失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '获取值班表列表失败'
@@ -261,7 +262,7 @@ class DutyScheduleController {
         data: schedule
       });
     } catch (error) {
-      console.error('获取值班表详情失败:', error);
+      logger.error('获取值班表详情失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '获取值班表详情失败'
@@ -284,7 +285,7 @@ class DutyScheduleController {
         data: result
       });
     } catch (error) {
-      console.error('生成二维码失败:', error);
+      logger.error('生成二维码失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '生成二维码失败'
@@ -306,7 +307,7 @@ class DutyScheduleController {
         data: currentDuty
       });
     } catch (error) {
-      console.error('获取当前值班信息失败:', error);
+      logger.error('获取当前值班信息失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '获取当前值班信息失败'
@@ -361,7 +362,7 @@ class DutyScheduleController {
         data: myAssignments
       });
     } catch (error) {
-      console.error('获取我的值班安排失败:', error);
+      logger.error('获取我的值班安排失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '获取我的值班安排失败'
@@ -415,7 +416,7 @@ class DutyScheduleController {
         data: updatedLog
       });
     } catch (error) {
-      console.error('添加工作记录失败:', error);
+      logger.error('添加工作记录失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '添加工作记录失败'
@@ -474,7 +475,7 @@ class DutyScheduleController {
             data: attachment
           });
         } catch (uploadError) {
-          console.error('文件上传处理失败:', uploadError);
+          logger.error('文件上传处理失败:', uploadError);
           res.status(500).json({
             success: false,
             message: uploadError.message || '文件上传处理失败'
@@ -482,7 +483,7 @@ class DutyScheduleController {
         }
       });
     } catch (error) {
-      console.error('文件上传失败:', error);
+      logger.error('文件上传失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '文件上传失败'
@@ -516,7 +517,7 @@ class DutyScheduleController {
         data: report
       });
     } catch (error) {
-      console.error('获取值班统计失败:', error);
+      logger.error('获取值班统计失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '获取值班统计失败'
@@ -563,7 +564,7 @@ class DutyScheduleController {
         data: schedule
       });
     } catch (error) {
-      console.error('更新值班表失败:', error);
+      logger.error('更新值班表失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '更新值班表失败'
@@ -597,7 +598,7 @@ class DutyScheduleController {
         message: '值班表删除成功'
       });
     } catch (error) {
-      console.error('删除值班表失败:', error);
+      logger.error('删除值班表失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '删除值班表失败'
@@ -652,7 +653,7 @@ class DutyScheduleController {
         data: updatedLog
       });
     } catch (error) {
-      console.error('交接班失败:', error);
+      logger.error('交接班失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '交接班失败'
@@ -694,7 +695,7 @@ class DutyScheduleController {
         data: result
       });
     } catch (error) {
-      console.error('获取值班历史失败:', error);
+      logger.error('获取值班历史失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '获取值班历史失败'
@@ -754,7 +755,7 @@ class DutyScheduleController {
         data: qrData
       });
     } catch (error) {
-      console.error('验证二维码失败:', error);
+      logger.error('验证二维码失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '验证二维码失败'
@@ -791,7 +792,7 @@ class DutyScheduleController {
         data: report
       });
     } catch (error) {
-      console.error('导出报表失败:', error);
+      logger.error('导出报表失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '导出报表失败'
@@ -825,7 +826,7 @@ class DutyScheduleController {
         data: calendarData
       });
     } catch (error) {
-      console.error('获取日历数据失败:', error);
+      logger.error('获取日历数据失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '获取日历数据失败'
@@ -864,7 +865,7 @@ class DutyScheduleController {
         data: result
       });
     } catch (error) {
-      console.error('扫码呼叫失败:', error);
+      logger.error('扫码呼叫失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '扫码呼叫失败'
@@ -889,7 +890,7 @@ class DutyScheduleController {
         }
       });
     } catch (error) {
-      console.error('获取今日值班失败:', error);
+      logger.error('获取今日值班失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '获取今日值班失败'

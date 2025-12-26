@@ -4,6 +4,7 @@
  */
 
 const BehaviorLog = require('../models/BehaviorLog');
+const logger = require('../utils/logger');
 
 class BehaviorTracker {
   constructor() {
@@ -137,7 +138,7 @@ class BehaviorTracker {
           try {
             await this.trackBehavior(req, res, startTime);
           } catch (error) {
-            console.error('行为追踪失败:', error);
+            logger.error('行为追踪失败:', error);
           }
         });
       };
@@ -195,11 +196,11 @@ class BehaviorTracker {
 
       // 异步保存行为日志
       BehaviorLog.logBehavior(behaviorData).catch(error => {
-        console.error('保存行为日志失败:', error);
+        logger.error('保存行为日志失败:', error);
       });
 
     } catch (error) {
-      console.error('行为追踪处理失败:', error);
+      logger.error('行为追踪处理失败:', error);
     }
   }
 
@@ -515,7 +516,7 @@ class BehaviorTracker {
 
       return await BehaviorLog.logBehavior(behaviorData);
     } catch (error) {
-      console.error('记录自定义行为失败:', error);
+      logger.error('记录自定义行为失败:', error);
       throw error;
     }
   }

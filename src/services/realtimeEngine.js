@@ -6,6 +6,7 @@
 const EventEmitter = require('events');
 const Redis = require('redis');
 const mongoose = require('mongoose');
+const logger = require('../utils/logger');
 
 class RealtimeEngine extends EventEmitter {
   constructor() {
@@ -57,18 +58,18 @@ class RealtimeEngine extends EventEmitter {
         });
 
         this.redis.on('connect', () => {
-          console.log('✅ 实时引擎Redis连接成功');
+          logger.debug('✅ 实时引擎Redis连接成功');
           this.emit('connected');
         });
 
         this.redis.on('error', (err) => {
-          console.error('❌ 实时引擎Redis连接失败:', err);
+          logger.error('❌ 实时引擎Redis连接失败:', err);
           this.emit('error', err);
         });
 
         await this.redis.connect();
       } else {
-        console.log('⚠️ Redis已禁用，使用内存模式运行实时引擎');
+        logger.debug('⚠️ Redis已禁用，使用内存模式运行实时引擎');
         this.redis = null;
       }
 
@@ -81,9 +82,9 @@ class RealtimeEngine extends EventEmitter {
       // 加载默认阈值规则
       this.loadDefaultThresholds();
 
-      console.log('🚀 实时计算引擎初始化完成');
+      logger.debug('🚀 实时计算引擎初始化完成');
     } catch (error) {
-      console.error('实时引擎初始化失败:', error);
+      logger.error('实时引擎初始化失败:', error);
       throw error;
     }
   }
@@ -105,7 +106,7 @@ class RealtimeEngine extends EventEmitter {
 
           await this.sleep(this.config.flushInterval);
         } catch (error) {
-          console.error('处理循环错误:', error);
+          logger.error('处理循环错误:', error);
           await this.sleep(1000);
         }
       }
@@ -158,7 +159,7 @@ class RealtimeEngine extends EventEmitter {
     }
 
     this.streamProcessors.get(dataType).push(processor);
-    console.log(`📝 注册流处理器: ${dataType}`);
+    logger.debug(`📝 注册流处理器: ${dataType}`);
   }
 
   /**
@@ -178,7 +179,7 @@ class RealtimeEngine extends EventEmitter {
       lastUpdate: Date.now()
     });
 
-    console.log(`📊 注册指标: ${name}`);
+    logger.debug(`📊 注册指标: ${name}`);
   }
 
   /**
@@ -199,7 +200,7 @@ class RealtimeEngine extends EventEmitter {
       enabled: true
     });
 
-    console.log(`⚠️ 设置阈值: ${metricName}`);
+    logger.debug(`⚠️ 设置阈值: ${metricName}`);
   }
 
   /**
@@ -218,7 +219,7 @@ class RealtimeEngine extends EventEmitter {
       triggerCount: 0
     });
 
-    console.log(`🚨 注册警报规则: ${ruleId}`);
+    logger.debug(`🚨 注册警报规则: ${ruleId}`);
   }
 
   /**
@@ -267,7 +268,7 @@ class RealtimeEngine extends EventEmitter {
       this.emit('dataProcessed', streamData);
 
     } catch (error) {
-      console.error('处理流数据失败:', error);
+      logger.error('处理流数据失败:', error);
       this.emit('processingError', { error, streamData });
     }
   }
@@ -313,7 +314,7 @@ class RealtimeEngine extends EventEmitter {
               { EX: 3600 } // 1小时过期
             );
           } catch (error) {
-            console.error(`同步指标 ${metricName} 到Redis失败:`, error);
+            logger.error(`同步指标 ${metricName} 到Redis失败:`, error);
           }
         }
       }
@@ -528,7 +529,7 @@ class RealtimeEngine extends EventEmitter {
           });
         }
       } catch (error) {
-        console.error(`警报规则评估失败 ${ruleId}:`, error);
+        logger.error(`警报规则评估失败 ${ruleId}:`, error);
       }
     }
   }
@@ -678,7 +679,7 @@ class RealtimeEngine extends EventEmitter {
 
       await this.redis.setEx(key, 3600, JSON.stringify(data));
     } catch (error) {
-      console.error('保存指标到Redis失败:', error);
+      logger.error('保存指标到Redis失败:', error);
     }
   }
 
@@ -715,7 +716,7 @@ class RealtimeEngine extends EventEmitter {
       default: return false;
       }
     } catch (error) {
-      console.error('规则条件评估失败:', error);
+      logger.error('规则条件评估失败:', error);
       return false;
     }
   }
@@ -752,7 +753,7 @@ class RealtimeEngine extends EventEmitter {
 
       case 'log':
         // 记录到日志
-        console.warn(`🚨 警报触发: ${rule.name}`, context);
+        logger.warn(`🚨 警报触发: ${rule.name}`, context);
         break;
 
       case 'function':
@@ -762,13 +763,13 @@ class RealtimeEngine extends EventEmitter {
         break;
       }
     } catch (error) {
-      console.error('执行警报动作失败:', error);
+      logger.error('执行警报动作失败:', error);
     }
   }
 
   async sendWebhook(url, data) {
     // 模拟webhook发送
-    console.log(`📡 发送Webhook: ${url}`, data);
+    logger.debug(`📡 发送Webhook: ${url}`, data);
   }
 
   async sendEmailNotification(recipients, data) {

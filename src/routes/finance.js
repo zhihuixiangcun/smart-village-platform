@@ -317,7 +317,7 @@ router.get('/public/village/:villageId/summary',
       });
 
     } catch (error) {
-      console.error('获取公开财务信息失败:', error);
+      logger.error('获取公开财务信息失败:', error);
       res.status(500).json({
         success: false,
         error: 'FETCH_FAILED',
@@ -358,7 +358,7 @@ router.get('/public/village/:villageId/transparency-report',
       });
 
     } catch (error) {
-      console.error('获取财务透明度报告失败:', error);
+      logger.error('获取财务透明度报告失败:', error);
       res.status(500).json({
         success: false,
         error: 'FETCH_FAILED',
@@ -397,7 +397,7 @@ router.post('/export',
       });
 
     } catch (error) {
-      console.error('导出财务数据失败:', error);
+      logger.error('导出财务数据失败:', error);
       res.status(500).json({
         success: false,
         error: 'EXPORT_FAILED',
@@ -448,7 +448,7 @@ router.get('/analytics/reports',
       });
 
     } catch (error) {
-      console.error('获取财务分析报表失败:', error);
+      logger.error('获取财务分析报表失败:', error);
       res.status(500).json({
         success: false,
         error: 'FETCH_FAILED',
@@ -496,7 +496,7 @@ router.get('/monitoring/alerts',
       });
 
     } catch (error) {
-      console.error('获取财务监控告警失败:', error);
+      logger.error('获取财务监控告警失败:', error);
       res.status(500).json({
         success: false,
         error: 'FETCH_FAILED',
@@ -535,7 +535,7 @@ router.post('/verify-permission',
       });
 
     } catch (error) {
-      console.error('验证财务权限失败:', error);
+      logger.error('验证财务权限失败:', error);
       res.status(500).json({
         success: false,
         error: 'VERIFICATION_FAILED',
@@ -562,7 +562,7 @@ router.get('/health',
       });
 
     } catch (error) {
-      console.error('财务模块健康检查失败:', error);
+      logger.error('财务模块健康检查失败:', error);
       res.status(500).json({
         status: 'unhealthy',
         timestamp: new Date(),
@@ -603,7 +603,7 @@ async function verifyUserFinancePermission(user, resource, action, context) {
     return permissions.includes('*') || permissions.includes(action);
 
   } catch (error) {
-    console.error('验证财务权限失败:', error);
+    logger.error('验证财务权限失败:', error);
     return false;
   }
 }
@@ -639,6 +639,7 @@ async function checkFinanceModuleHealth() {
 
     // 检查区块链服务
     const blockchainService = require('../services/blockchainService');
+const logger = require('../utils/logger');
     const blockchainNetworks = Object.keys(blockchainService.networks);
     checks.push({
       name: '区块链服务',

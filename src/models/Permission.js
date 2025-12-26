@@ -5,6 +5,7 @@
 
 const mongoose = require('mongoose');
 const crypto = require('crypto');
+const logger = require('../utils/logger');
 
 // 权限级别定义
 const PermissionLevels = {
@@ -668,7 +669,7 @@ VillageAdminAuthSchema.statics.createVillageAdminAuth = async function(villageDa
     return authRecord;
 
   } catch (error) {
-    console.error('创建村庄管理员认证失败:', error);
+    logger.error('创建村庄管理员认证失败:', error);
     throw error;
   }
 };
@@ -755,7 +756,7 @@ AuditLogSchema.statics.logOperation = async function(logData) {
 
     return log;
   } catch (error) {
-    console.error('记录审计日志失败:', error);
+    logger.error('记录审计日志失败:', error);
     // 不抛出错误，避免影响主业务流程
     return null;
   }
@@ -770,7 +771,7 @@ AuditLogSchema.statics.cleanupExpiredLogs = async function() {
     timestamp: { $lt: tenYearsAgo }
   });
 
-  console.log(`清理过期审计日志: ${result.deletedCount} 条`);
+  logger.debug(`清理过期审计日志: ${result.deletedCount} 条`);
   return result.deletedCount;
 };
 

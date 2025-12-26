@@ -8,6 +8,7 @@ const Resident = require('../models/Resident');
 const Finance = require('../models/Finance');
 const VillageCollaboration = require('../models/VillageCollaboration');
 const EmergencyResponse = require('../models/EmergencyResponse');
+const logger = require('../utils/logger');
 
 class DataIntegrationService {
   constructor() {
@@ -256,7 +257,7 @@ class DataIntegrationService {
       return integrationResult;
 
     } catch (error) {
-      console.error('数据整合失败:', error);
+      logger.error('数据整合失败:', error);
       throw new Error(`多源数据整合失败: ${error.message}`);
     }
   }

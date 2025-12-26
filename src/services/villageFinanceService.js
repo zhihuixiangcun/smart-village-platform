@@ -3,6 +3,8 @@
  * 管理村民对村级财务的访问权限、查询记录、问题反馈等
  */
 
+const logger = require('../utils/logger');
+
 const { VillageFinanceAccess, FinancialTransaction, BudgetApproval } = require('../models/Finance');
 const { User } = require('../models/User');
 const { AuditLog } = require('../models/Permission');
@@ -104,7 +106,7 @@ class VillageFinanceService {
       };
 
     } catch (error) {
-      console.error('授予财务查询权限失败:', error);
+      logger.error('授予财务查询权限失败:', error);
       throw error;
     }
   }
@@ -131,7 +133,7 @@ class VillageFinanceService {
       return financeAccess.hasAccess(accessType);
 
     } catch (error) {
-      console.error('检查访问权限失败:', error);
+      logger.error('检查访问权限失败:', error);
       return false;
     }
   }
@@ -255,7 +257,7 @@ class VillageFinanceService {
       return summary;
 
     } catch (error) {
-      console.error('获取财务摘要失败:', error);
+      logger.error('获取财务摘要失败:', error);
       throw error;
     }
   }
@@ -329,7 +331,7 @@ class VillageFinanceService {
       };
 
     } catch (error) {
-      console.error('获取交易详情失败:', error);
+      logger.error('获取交易详情失败:', error);
       throw error;
     }
   }
@@ -388,7 +390,7 @@ class VillageFinanceService {
       };
 
     } catch (error) {
-      console.error('提交财务问题失败:', error);
+      logger.error('提交财务问题失败:', error);
       throw error;
     }
   }
@@ -441,7 +443,7 @@ class VillageFinanceService {
       return questions;
 
     } catch (error) {
-      console.error('获取村民问题失败:', error);
+      logger.error('获取村民问题失败:', error);
       throw error;
     }
   }
@@ -507,7 +509,7 @@ class VillageFinanceService {
       };
 
     } catch (error) {
-      console.error('下载财务报告失败:', error);
+      logger.error('下载财务报告失败:', error);
       throw error;
     }
   }
@@ -551,7 +553,7 @@ class VillageFinanceService {
       };
 
     } catch (error) {
-      console.error('更新访问权限失败:', error);
+      logger.error('更新访问权限失败:', error);
       throw error;
     }
   }
@@ -591,7 +593,7 @@ class VillageFinanceService {
       };
 
     } catch (error) {
-      console.error('撤销财务访问权限失败:', error);
+      logger.error('撤销财务访问权限失败:', error);
       throw error;
     }
   }
@@ -688,7 +690,7 @@ class VillageFinanceService {
       };
 
     } catch (error) {
-      console.error('获取财务访问统计失败:', error);
+      logger.error('获取财务访问统计失败:', error);
       throw error;
     }
   }
@@ -859,7 +861,7 @@ class VillageFinanceService {
       }
 
     } catch (error) {
-      console.error('记录访问历史失败:', error);
+      logger.error('记录访问历史失败:', error);
     }
   }
 
@@ -904,7 +906,7 @@ class VillageFinanceService {
       });
 
     } catch (error) {
-      console.error('记录权限操作日志失败:', error);
+      logger.error('记录权限操作日志失败:', error);
     }
   }
 
@@ -943,7 +945,7 @@ class VillageFinanceService {
       });
 
     } catch (error) {
-      console.error('记录问题操作日志失败:', error);
+      logger.error('记录问题操作日志失败:', error);
     }
   }
 
@@ -964,7 +966,7 @@ class VillageFinanceService {
       });
 
     } catch (error) {
-      console.error('通知新问题失败:', error);
+      logger.error('通知新问题失败:', error);
     }
   }
 
@@ -1007,7 +1009,7 @@ class VillageFinanceService {
       };
 
     } catch (error) {
-      console.error('获取预算执行情况失败:', error);
+      logger.error('获取预算执行情况失败:', error);
       return {
         totalBudget: 0,
         executedAmount: 0,
@@ -1040,7 +1042,7 @@ class VillageFinanceService {
       };
 
     } catch (error) {
-      console.error('生成摘要报告失败:', error);
+      logger.error('生成摘要报告失败:', error);
       throw error;
     }
   }
@@ -1069,7 +1071,7 @@ class VillageFinanceService {
       };
 
     } catch (error) {
-      console.error('生成交易报告失败:', error);
+      logger.error('生成交易报告失败:', error);
       throw error;
     }
   }
@@ -1093,7 +1095,7 @@ class VillageFinanceService {
       };
 
     } catch (error) {
-      console.error('生成预算报告失败:', error);
+      logger.error('生成预算报告失败:', error);
       throw error;
     }
   }
@@ -1121,7 +1123,7 @@ class VillageFinanceService {
       };
 
     } catch (error) {
-      console.error('创建报告文件失败:', error);
+      logger.error('创建报告文件失败:', error);
       throw error;
     }
   }

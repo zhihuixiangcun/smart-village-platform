@@ -33,7 +33,7 @@ class PolicyCalculatorController {
         data: calculator
       });
     } catch (error) {
-      console.error('创建政策计算器失败:', error);
+      logger.error('创建政策计算器失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '创建政策计算器失败'
@@ -60,7 +60,7 @@ class PolicyCalculatorController {
         data: calculators
       });
     } catch (error) {
-      console.error('获取政策计算器列表失败:', error);
+      logger.error('获取政策计算器列表失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '获取政策计算器列表失败'
@@ -89,7 +89,7 @@ class PolicyCalculatorController {
         data: calculator
       });
     } catch (error) {
-      console.error('获取政策计算器详情失败:', error);
+      logger.error('获取政策计算器详情失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '获取政策计算器详情失败'
@@ -133,7 +133,7 @@ class PolicyCalculatorController {
         data: calculator
       });
     } catch (error) {
-      console.error('更新政策计算器失败:', error);
+      logger.error('更新政策计算器失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '更新政策计算器失败'
@@ -165,7 +165,7 @@ class PolicyCalculatorController {
         message: '政策计算器删除成功'
       });
     } catch (error) {
-      console.error('删除政策计算器失败:', error);
+      logger.error('删除政策计算器失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '删除政策计算器失败'
@@ -198,7 +198,7 @@ class PolicyCalculatorController {
         data: result
       });
     } catch (error) {
-      console.error('计算补贴金额失败:', error);
+      logger.error('计算补贴金额失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '计算补贴金额失败'
@@ -238,7 +238,7 @@ class PolicyCalculatorController {
         data: result
       });
     } catch (error) {
-      console.error('批量计算失败:', error);
+      logger.error('批量计算失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '批量计算失败'
@@ -273,7 +273,7 @@ class PolicyCalculatorController {
         data: application
       });
     } catch (error) {
-      console.error('创建补贴申请失败:', error);
+      logger.error('创建补贴申请失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '创建补贴申请失败'
@@ -295,7 +295,7 @@ class PolicyCalculatorController {
         data: application
       });
     } catch (error) {
-      console.error('提交申请失败:', error);
+      logger.error('提交申请失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '提交申请失败'
@@ -331,7 +331,7 @@ class PolicyCalculatorController {
         data: application
       });
     } catch (error) {
-      console.error('审核申请失败:', error);
+      logger.error('审核申请失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '审核申请失败'
@@ -367,7 +367,7 @@ class PolicyCalculatorController {
         data: application
       });
     } catch (error) {
-      console.error('处理支付失败:', error);
+      logger.error('处理支付失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '处理支付失败'
@@ -396,7 +396,7 @@ class PolicyCalculatorController {
         res.download(form.filepath, form.filename);
       }
     } catch (error) {
-      console.error('生成申请表单失败:', error);
+      logger.error('生成申请表单失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '生成申请表单失败'
@@ -420,7 +420,7 @@ class PolicyCalculatorController {
         data: certificate
       });
     } catch (error) {
-      console.error('生成证书失败:', error);
+      logger.error('生成证书失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '生成证书失败'
@@ -452,7 +452,7 @@ class PolicyCalculatorController {
         message: '通知发送成功'
       });
     } catch (error) {
-      console.error('发送通知失败:', error);
+      logger.error('发送通知失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '发送通知失败'
@@ -479,7 +479,7 @@ class PolicyCalculatorController {
         data: statistics
       });
     } catch (error) {
-      console.error('获取申请统计失败:', error);
+      logger.error('获取申请统计失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '获取申请统计失败'
@@ -509,7 +509,7 @@ class PolicyCalculatorController {
         data: result
       });
     } catch (error) {
-      console.error('获取申请列表失败:', error);
+      logger.error('获取申请列表失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '获取申请列表失败'
@@ -538,7 +538,7 @@ class PolicyCalculatorController {
         data: application
       });
     } catch (error) {
-      console.error('获取申请详情失败:', error);
+      logger.error('获取申请详情失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '获取申请详情失败'
@@ -565,7 +565,7 @@ class PolicyCalculatorController {
         data: result
       });
     } catch (error) {
-      console.error('同步政府政策失败:', error);
+      logger.error('同步政府政策失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '同步失败'
@@ -583,6 +583,7 @@ class PolicyCalculatorController {
 
       // 统计本地政策数量
       const PolicyCalculator = require('../models/PolicyCalculator');
+const logger = require('../utils/logger');
       const totalCount = await PolicyCalculator.countDocuments();
       const syncCount = await PolicyCalculator.countDocuments({ updatedFrom: 'government_sync' });
 
@@ -596,7 +597,7 @@ class PolicyCalculatorController {
         }
       });
     } catch (error) {
-      console.error('获取同步状态失败:', error);
+      logger.error('获取同步状态失败:', error);
       res.status(500).json({
         success: false,
         message: error.message || '获取同步状态失败'

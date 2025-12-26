@@ -9,6 +9,7 @@ const dataIntegrationService = require('../services/dataIntegrationService');
 const BehaviorLog = require('../models/BehaviorLog');
 const Resident = require('../models/Resident');
 const auth = require('../middleware/auth');
+const logger = require('../utils/logger');
 
 /**
  * 获取多源数据整合报告
@@ -48,7 +49,7 @@ router.get('/report/:villageId', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取数据整合报告失败:', error);
+    logger.error('获取数据整合报告失败:', error);
     res.status(500).json({
       success: false,
       message: '获取数据整合报告失败',
@@ -104,7 +105,7 @@ router.post('/behavior', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('记录行为数据失败:', error);
+    logger.error('记录行为数据失败:', error);
     res.status(500).json({
       success: false,
       message: '记录行为数据失败',
@@ -154,7 +155,7 @@ router.post('/behavior/batch', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('批量记录行为数据失败:', error);
+    logger.error('批量记录行为数据失败:', error);
     res.status(500).json({
       success: false,
       message: '批量记录行为数据失败',
@@ -201,7 +202,7 @@ router.get('/behavior/stats/:residentId', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取行为统计失败:', error);
+    logger.error('获取行为统计失败:', error);
     res.status(500).json({
       success: false,
       message: '获取行为统计失败',
@@ -241,7 +242,7 @@ router.get('/behavior/heatmap/:villageId', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取行为热力图失败:', error);
+    logger.error('获取行为热力图失败:', error);
     res.status(500).json({
       success: false,
       message: '获取行为热力图失败',
@@ -282,7 +283,7 @@ router.get('/behavior/patterns/:villageId', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('分析行为模式失败:', error);
+    logger.error('分析行为模式失败:', error);
     res.status(500).json({
       success: false,
       message: '分析行为模式失败',
@@ -358,7 +359,7 @@ router.get('/profile/:residentId', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取用户画像失败:', error);
+    logger.error('获取用户画像失败:', error);
     res.status(500).json({
       success: false,
       message: '获取用户画像失败',
@@ -405,7 +406,7 @@ router.get('/quality/:villageId', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取数据质量报告失败:', error);
+    logger.error('获取数据质量报告失败:', error);
     res.status(500).json({
       success: false,
       message: '获取数据质量报告失败',

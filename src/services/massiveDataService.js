@@ -7,6 +7,7 @@ const Resident = require('../models/Resident');
 const Finance = require('../models/Finance');
 const VillageCollaboration = require('../models/VillageCollaboration');
 const EmergencyResponse = require('../models/EmergencyResponse');
+const logger = require('../utils/logger');
 
 class MassiveDataService {
   constructor() {
@@ -100,7 +101,7 @@ class MassiveDataService {
         try {
           return await processor(doc, index);
         } catch (error) {
-          console.error(`处理文档 ${doc._id} 时出错:`, error);
+          logger.error(`处理文档 ${doc._id} 时出错:`, error);
           return { error: error.message, docId: doc._id };
         }
       });

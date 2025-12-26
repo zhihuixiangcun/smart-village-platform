@@ -142,7 +142,7 @@ class PaymentService {
       };
 
     } catch (error) {
-      console.error('创建微信支付订单失败:', error);
+      logger.error('创建微信支付订单失败:', error);
       throw new Error(`微信支付创建失败: ${error.message}`);
     }
   }
@@ -226,7 +226,7 @@ class PaymentService {
       };
 
     } catch (error) {
-      console.error('创建支付宝订单失败:', error);
+      logger.error('创建支付宝订单失败:', error);
       throw new Error(`支付宝创建失败: ${error.message}`);
     }
   }
@@ -290,7 +290,7 @@ class PaymentService {
       };
 
     } catch (error) {
-      console.error('申请退款失败:', error);
+      logger.error('申请退款失败:', error);
       throw new Error(`申请退款失败: ${error.message}`);
     }
   }
@@ -331,7 +331,7 @@ class PaymentService {
       };
 
     } catch (error) {
-      console.error('验证支付回调失败:', error);
+      logger.error('验证支付回调失败:', error);
       throw new Error(`验证支付回调失败: ${error.message}`);
     }
   }
@@ -617,7 +617,7 @@ class PaymentService {
       await record.save();
       return record;
     } catch (error) {
-      console.error('保存支付记录失败:', error);
+      logger.error('保存支付记录失败:', error);
       throw error;
     }
   }
@@ -630,7 +630,7 @@ class PaymentService {
       const PaymentRecord = require('../models/PaymentRecord');
       return await PaymentRecord.findOne({ orderId });
     } catch (error) {
-      console.error('获取支付记录失败:', error);
+      logger.error('获取支付记录失败:', error);
       return null;
     }
   }
@@ -668,7 +668,7 @@ class PaymentService {
         { $set: updateFields }
       );
     } catch (error) {
-      console.error('更新支付状态失败:', error);
+      logger.error('更新支付状态失败:', error);
     }
   }
 
@@ -693,7 +693,7 @@ class PaymentService {
         }
       );
     } catch (error) {
-      console.error('更新退款状态失败:', error);
+      logger.error('更新退款状态失败:', error);
     }
   }
 
@@ -781,6 +781,7 @@ class PaymentService {
   async parseWechatResponse(xmlData) {
     try {
       const xml2js = require('xml2js');
+const logger = require('../utils/logger');
       const parser = new xml2js.Parser({
         explicitArray: false,
         ignoreAttrs: true

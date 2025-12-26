@@ -50,7 +50,7 @@ exports.sendSMS = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('短信发送失败:', error);
+    logger.error('短信发送失败:', error);
     res.status(500).json({
       success: false,
       message: '短信发送失败',
@@ -104,7 +104,7 @@ exports.sendVoice = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('语音通知发送失败:', error);
+    logger.error('语音通知发送失败:', error);
     res.status(500).json({
       success: false,
       message: '语音通知发送失败',
@@ -167,7 +167,7 @@ exports.sendEmail = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('邮件发送失败:', error);
+    logger.error('邮件发送失败:', error);
     res.status(500).json({
       success: false,
       message: '邮件发送失败',
@@ -219,7 +219,7 @@ exports.sendPush = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('推送通知发送失败:', error);
+    logger.error('推送通知发送失败:', error);
     res.status(500).json({
       success: false,
       message: '推送通知发送失败',
@@ -258,7 +258,7 @@ exports.sendBatchMessages = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('批量消息发送失败:', error);
+    logger.error('批量消息发送失败:', error);
     res.status(500).json({
       success: false,
       message: '批量消息发送失败',
@@ -300,7 +300,7 @@ exports.sendVerificationCode = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('验证码发送失败:', error);
+    logger.error('验证码发送失败:', error);
     res.status(500).json({
       success: false,
       message: '验证码发送失败',
@@ -338,7 +338,7 @@ exports.verifyCode = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('验证码验证失败:', error);
+    logger.error('验证码验证失败:', error);
     res.status(500).json({
       success: false,
       message: '验证码验证失败',
@@ -385,7 +385,7 @@ exports.sendEmergencyBroadcast = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('应急广播发送失败:', error);
+    logger.error('应急广播发送失败:', error);
     res.status(500).json({
       success: false,
       message: '应急广播发送失败',
@@ -499,7 +499,7 @@ exports.sendVillageNotification = async (req, res) => {
         createdAt: new Date()
       }).save();
     } catch (logError) {
-      console.error('村务通知日志记录失败:', logError);
+      logger.error('村务通知日志记录失败:', logError);
     }
 
     res.json({
@@ -513,7 +513,7 @@ exports.sendVillageNotification = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('村务通知发送失败:', error);
+    logger.error('村务通知发送失败:', error);
     res.status(500).json({
       success: false,
       message: '村务通知发送失败',
@@ -590,7 +590,7 @@ exports.sendBirthdayGreetings = async (req, res) => {
           isAuto: true
         }).save();
       } catch (logError) {
-        console.error('生日祝福日志记录失败:', logError);
+        logger.error('生日祝福日志记录失败:', logError);
       }
     }
 
@@ -607,7 +607,7 @@ exports.sendBirthdayGreetings = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('生日祝福发送失败:', error);
+    logger.error('生日祝福发送失败:', error);
     res.status(500).json({
       success: false,
       message: '生日祝福发送失败',
@@ -698,7 +698,7 @@ exports.sendHolidayGreetings = async (req, res) => {
         sender: req.user.id
       }).save();
     } catch (logError) {
-      console.error('节日祝福日志记录失败:', logError);
+      logger.error('节日祝福日志记录失败:', logError);
     }
 
     res.json({
@@ -712,7 +712,7 @@ exports.sendHolidayGreetings = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('节日祝福发送失败:', error);
+    logger.error('节日祝福发送失败:', error);
     res.status(500).json({
       success: false,
       message: '节日祝福发送失败',
@@ -772,7 +772,7 @@ exports.getMessageHistory = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取消息历史失败:', error);
+    logger.error('获取消息历史失败:', error);
     res.status(500).json({
       success: false,
       message: '获取消息历史失败',
@@ -790,6 +790,7 @@ exports.getServiceStatus = async (req, res) => {
 
     // 获取今日统计数据
     const MessageLog = require('../models/MessageLog');
+const logger = require('../utils/logger');
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -824,7 +825,7 @@ exports.getServiceStatus = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取服务状态失败:', error);
+    logger.error('获取服务状态失败:', error);
     res.status(500).json({
       success: false,
       message: '获取服务状态失败',
@@ -846,7 +847,7 @@ exports.clearCache = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('清理缓存失败:', error);
+    logger.error('清理缓存失败:', error);
     res.status(500).json({
       success: false,
       message: '清理缓存失败',

@@ -199,7 +199,7 @@ class GovernmentIntegrationService {
       const response = await axios(requestConfig);
       return response.data;
     } catch (error) {
-      console.error(`政务API请求失败 [${platform}] ${endpoint}:`, error.message);
+      logger.error(`政务API请求失败 [${platform}] ${endpoint}:`, error.message);
       throw new Error(`政务平台请求失败: ${error.message}`);
     }
   }
@@ -208,8 +208,7 @@ class GovernmentIntegrationService {
    * 同步户籍数据
    */
   async syncHouseholdData(villageId, options = {}) {
-    console.log(`开始同步户籍数据 - 村庄: ${villageId}`);
-
+    logger.debug(`开始同步户籍数据 - 村庄: ${villageId}`);
     try {
       const startTime = Date.now();
       this.syncStatus.inProgress = true;
@@ -225,8 +224,7 @@ class GovernmentIntegrationService {
 
       for (let i = 0; i < batches.length; i++) {
         const batch = batches[i];
-        console.log(`同步批次 ${i + 1}/${batches.length}, 记录数: ${batch.length}`);
-
+        logger.debug(`同步批次 ${i + 1}/${batches.length}, 记录数: ${batch.length}`);
         try {
           await this.syncHouseholdBatch(batch, i + 1);
           this.syncStatus.processedRecords += batch.length;
@@ -253,8 +251,7 @@ class GovernmentIntegrationService {
       const duration = Date.now() - startTime;
       this.syncStatus.lastSyncTime = new Date();
 
-      console.log(`户籍数据同步完成 - 耗时: ${duration}ms, 成功: ${this.syncStatus.processedRecords}, 失败: ${this.syncStatus.failedRecords}`);
-
+      logger.debug(`户籍数据同步完成 - 耗时: ${duration}ms, 成功: ${this.syncStatus.processedRecords}, 失败: ${this.syncStatus.failedRecords}`);
       return {
         success: true,
         villageId,
@@ -266,7 +263,7 @@ class GovernmentIntegrationService {
       };
 
     } catch (error) {
-      console.error('户籍数据同步失败:', error);
+      logger.error('户籍数据同步失败:', error);
       throw error;
     } finally {
       this.syncStatus.inProgress = false;
@@ -277,8 +274,7 @@ class GovernmentIntegrationService {
    * 同步社保数据
    */
   async syncSocialSecurityData(villageId, options = {}) {
-    console.log(`开始同步社保数据 - 村庄: ${villageId}`);
-
+    logger.debug(`开始同步社保数据 - 村庄: ${villageId}`);
     try {
       const startTime = Date.now();
       const residents = await this.getVillageResidents(villageId);
@@ -317,8 +313,7 @@ class GovernmentIntegrationService {
 
       const duration = Date.now() - startTime;
 
-      console.log(`社保数据同步完成 - 耗时: ${duration}ms, 成功: ${totalProcessed}, 失败: ${totalFailed}`);
-
+      logger.debug(`社保数据同步完成 - 耗时: ${duration}ms, 成功: ${totalProcessed}, 失败: ${totalFailed}`);
       return {
         success: true,
         villageId,
@@ -330,7 +325,7 @@ class GovernmentIntegrationService {
       };
 
     } catch (error) {
-      console.error('社保数据同步失败:', error);
+      logger.error('社保数据同步失败:', error);
       throw error;
     }
   }
@@ -339,8 +334,7 @@ class GovernmentIntegrationService {
    * 上传统计报表
    */
   async uploadStatisticsReport(reportData, reportType) {
-    console.log(`上传统计报表 - 类型: ${reportType}`);
-
+    logger.debug(`上传统计报表 - 类型: ${reportType}`);
     try {
       // 验证报表数据
       const validation = await this.validateReportData(reportData, reportType);
@@ -390,8 +384,7 @@ class GovernmentIntegrationService {
         uploadTime: new Date()
       });
 
-      console.log(`统计报表上传成功 - 报告ID: ${provincialResult.reportId}`);
-
+      logger.debug(`统计报表上传成功 - 报告ID: ${provincialResult.reportId}`);
       return {
         success: true,
         reportId: provincialResult.reportId,
@@ -400,8 +393,7 @@ class GovernmentIntegrationService {
       };
 
     } catch (error) {
-      console.error('统计报表上传失败:', error);
-
+      logger.error('统计报表上传失败:', error);
       // 记录失败日志
       await this.logUploadHistory({
         reportType,
@@ -420,8 +412,7 @@ class GovernmentIntegrationService {
    * 查询便民服务
    */
   async queryGovernmentServices(serviceType, queryParams = {}) {
-    console.log(`查询便民服务 - 类型: ${serviceType}`);
-
+    logger.debug(`查询便民服务 - 类型: ${serviceType}`);
     try {
       const queryData = {
         serviceType,
@@ -463,7 +454,7 @@ class GovernmentIntegrationService {
       };
 
     } catch (error) {
-      console.error('查询便民服务失败:', error);
+      logger.error('查询便民服务失败:', error);
       throw error;
     }
   }
@@ -472,8 +463,7 @@ class GovernmentIntegrationService {
    * 申请便民服务
    */
   async applyForGovernmentService(serviceId, applicantData) {
-    console.log(`申请便民服务 - 服务ID: ${serviceId}`);
-
+    logger.debug(`申请便民服务 - 服务ID: ${serviceId}`);
     try {
       // 验证申请数据
       const validation = await this.validateApplicationData(applicantData);
@@ -510,8 +500,7 @@ class GovernmentIntegrationService {
         applyTime: new Date()
       });
 
-      console.log(`便民服务申请成功 - 申请ID: ${result.applicationId}`);
-
+      logger.debug(`便民服务申请成功 - 申请ID: ${result.applicationId}`);
       return {
         success: true,
         applicationId: result.applicationId,
@@ -520,7 +509,7 @@ class GovernmentIntegrationService {
       };
 
     } catch (error) {
-      console.error('申请便民服务失败:', error);
+      logger.error('申请便民服务失败:', error);
       throw error;
     }
   }
@@ -541,7 +530,7 @@ class GovernmentIntegrationService {
       return households.map(household => this.mapHouseholdData(household));
 
     } catch (error) {
-      console.error('获取本地户籍数据失败:', error);
+      logger.error('获取本地户籍数据失败:', error);
       throw new Error('获取本地户籍数据失败');
     }
   }
@@ -592,14 +581,13 @@ class GovernmentIntegrationService {
     const retryDelay = this.config.sync.retryDelay;
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      console.log(`重试同步批次 ${batchNumber} - 尝试 ${attempt}/${maxRetries}`);
-
+      logger.debug(`重试同步批次 ${batchNumber} - 尝试 ${attempt}/${maxRetries}`);
       try {
         if (dataType === 'household') {
           await this.syncHouseholdBatch(batch, batchNumber);
         }
 
-        console.log(`批次 ${batchNumber} 重试成功`);
+        logger.debug(`批次 ${batchNumber} 重试成功`);
         break;
 
       } catch (error) {
@@ -651,8 +639,7 @@ class GovernmentIntegrationService {
     try {
       // 这里应该更新数据库中的社保信息
       // 具体实现依赖于数据模型
-      console.log(`更新居民 ${residentId} 的社保信息`);
-
+      logger.debug(`更新居民 ${residentId} 的社保信息`);
       // 示例：更新村民模型中的社保信息
       const Resident = require('../models/Resident');
       await Resident.findByIdAndUpdate(residentId, {
@@ -661,7 +648,7 @@ class GovernmentIntegrationService {
       });
 
     } catch (error) {
-      console.error('更新本地社保数据失败:', error);
+      logger.error('更新本地社保数据失败:', error);
       throw new Error('更新社保数据失败');
     }
   }
@@ -679,7 +666,7 @@ class GovernmentIntegrationService {
       }).select('id name idCard villageId').lean();
 
     } catch (error) {
-      console.error('获取村庄村民信息失败:', error);
+      logger.error('获取村庄村民信息失败:', error);
       throw new Error('获取村民信息失败');
     }
   }
@@ -769,7 +756,7 @@ class GovernmentIntegrationService {
       await log.save();
 
     } catch (error) {
-      console.error('记录上传历史失败:', error);
+      logger.error('记录上传历史失败:', error);
     }
   }
 
@@ -791,7 +778,7 @@ class GovernmentIntegrationService {
       await log.save();
 
     } catch (error) {
-      console.error('记录申请历史失败:', error);
+      logger.error('记录申请历史失败:', error);
     }
   }
 
@@ -855,8 +842,7 @@ class GovernmentIntegrationService {
       return;
     }
 
-    console.log('启动政务数据自动同步...');
-
+    logger.debug('启动政务数据自动同步...');
     // 立即执行一次同步
     this.performAutoSync();
 
@@ -873,7 +859,7 @@ class GovernmentIntegrationService {
     if (this.syncInterval) {
       clearInterval(this.syncInterval);
       this.syncInterval = null;
-      console.log('政务数据自动同步已停止');
+      logger.debug('政务数据自动同步已停止');
     }
   }
 
@@ -882,13 +868,12 @@ class GovernmentIntegrationService {
    */
   async performAutoSync() {
     if (this.syncStatus.inProgress) {
-      console.log('自动同步跳过 - 上次同步仍在进行中');
+      logger.debug('自动同步跳过 - 上次同步仍在进行中');
       return;
     }
 
     try {
-      console.log('开始执行自动同步...');
-
+      logger.debug('开始执行自动同步...');
       // 获取需要同步的村庄列表
       const Village = require('../models/Village');
       const villages = await Village.find({ isActive: true }).select('_id name').lean();
@@ -908,14 +893,13 @@ class GovernmentIntegrationService {
           await new Promise(resolve => setTimeout(resolve, 5000));
 
         } catch (error) {
-          console.error(`村庄 ${village.name} 自动同步失败:`, error.message);
+          logger.error(`村庄 ${village.name} 自动同步失败:`, error.message);
         }
       }
 
-      console.log('自动同步完成');
-
+      logger.debug('自动同步完成');
     } catch (error) {
-      console.error('自动同步失败:', error);
+      logger.error('自动同步失败:', error);
     }
   }
 
@@ -953,6 +937,7 @@ class GovernmentIntegrationService {
   async getSyncHistory(limit = 50, offset = 0) {
     try {
       const SyncHistory = require('../models/SyncHistory');
+const logger = require('../utils/logger');
 
       const history = await SyncHistory.find()
         .sort({ syncTime: -1 })
@@ -971,7 +956,7 @@ class GovernmentIntegrationService {
       };
 
     } catch (error) {
-      console.error('获取同步历史失败:', error);
+      logger.error('获取同步历史失败:', error);
       throw new Error('获取同步历史失败');
     }
   }

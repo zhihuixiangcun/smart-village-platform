@@ -9,6 +9,7 @@ const crypto = require('crypto');
 const path = require('path');
 const multer = require('multer');
 const fs = require('fs').promises;
+const logger = require('../utils/logger');
 
 const randomBytesAsync = promisify(crypto.randomBytes);
 
@@ -113,7 +114,7 @@ async function createVillageAdminAuth(req, res) {
       }
     });
   } catch (error) {
-    console.error('创建村级管理员认证失败:', error);
+    logger.error('创建村级管理员认证失败:', error);
     res.status(500).json({
       success: false,
       error: 'CREATION_FAILED',
@@ -198,7 +199,7 @@ async function reviewVillageAdminAuth(req, res) {
       }
     });
   } catch (error) {
-    console.error('审核村级管理员认证失败:', error);
+    logger.error('审核村级管理员认证失败:', error);
     res.status(500).json({
       success: false,
       error: 'REVIEW_FAILED',
@@ -236,7 +237,7 @@ async function getVillageAdminAuth(req, res) {
       data: maskedAuth
     });
   } catch (error) {
-    console.error('获取村级管理员认证信息失败:', error);
+    logger.error('获取村级管理员认证信息失败:', error);
     res.status(500).json({
       success: false,
       error: 'FETCH_FAILED',
@@ -278,7 +279,7 @@ async function createPermissionTemplate(req, res) {
       data: template
     });
   } catch (error) {
-    console.error('创建权限模板失败:', error);
+    logger.error('创建权限模板失败:', error);
     res.status(500).json({
       success: false,
       error: 'CREATION_FAILED',
@@ -309,7 +310,7 @@ async function getPermissionTemplates(req, res) {
       data: templates
     });
   } catch (error) {
-    console.error('获取权限模板列表失败:', error);
+    logger.error('获取权限模板列表失败:', error);
     res.status(500).json({
       success: false,
       error: 'FETCH_FAILED',
@@ -337,7 +338,7 @@ async function applyPermissionTemplate(req, res) {
       }
     });
   } catch (error) {
-    console.error('应用权限模板失败:', error);
+    logger.error('应用权限模板失败:', error);
     res.status(500).json({
       success: false,
       error: 'APPLICATION_FAILED',
@@ -371,7 +372,7 @@ async function queryAuditLogs(req, res) {
       pagination: result.pagination
     });
   } catch (error) {
-    console.error('查询审计日志失败:', error);
+    logger.error('查询审计日志失败:', error);
     res.status(500).json({
       success: false,
       error: 'QUERY_FAILED',
@@ -448,7 +449,7 @@ async function getAuditLogStats(req, res) {
       data: result
     });
   } catch (error) {
-    console.error('获取审计日志统计失败:', error);
+    logger.error('获取审计日志统计失败:', error);
     res.status(500).json({
       success: false,
       error: 'STATS_FAILED',
@@ -522,7 +523,7 @@ async function changeAdminPermissions(req, res) {
       }
     });
   } catch (error) {
-    console.error('管理员权限变更失败:', error);
+    logger.error('管理员权限变更失败:', error);
     res.status(500).json({
       success: false,
       error: 'PERMISSION_CHANGE_FAILED',

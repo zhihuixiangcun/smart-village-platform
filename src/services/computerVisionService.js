@@ -8,6 +8,7 @@ const FormData = require('form-data');
 const fs = require('fs').promises;
 const path = require('path');
 const crypto = require('crypto');
+const logger = require('../utils/logger');
 
 class ComputerVisionService {
   constructor() {
@@ -58,17 +59,16 @@ class ComputerVisionService {
    */
   async initializeServices() {
     try {
-      console.log('👁️ 初始化计算机视觉服务...');
-
+      logger.debug('👁️ 初始化计算机视觉服务...');
       // 初始化API认证
       await this.initializeAPIAuth();
 
       // 加载本地模型
       await this.loadLocalModels();
 
-      console.log('✅ 计算机视觉服务初始化完成');
+      logger.debug('✅ 计算机视觉服务初始化完成');
     } catch (error) {
-      console.error('❌ 计算机视觉服务初始化失败:', error);
+      logger.error('❌ 计算机视觉服务初始化失败:', error);
     }
   }
 
@@ -82,9 +82,9 @@ class ComputerVisionService {
         await this.refreshBaiduToken();
       }
 
-      console.log('🔑 API认证初始化完成');
+      logger.debug('🔑 API认证初始化完成');
     } catch (error) {
-      console.error('API认证初始化失败:', error);
+      logger.error('API认证初始化失败:', error);
     }
   }
 
@@ -108,9 +108,9 @@ class ComputerVisionService {
       this.apiConfig.baidu.accessToken = response.data.access_token;
       this.apiConfig.baidu.tokenExpiry = Date.now() + (response.data.expires_in - 300) * 1000; // 提前5分钟过期
 
-      console.log('百度AI Token刷新成功');
+      logger.debug('百度AI Token刷新成功');
     } catch (error) {
-      console.error('百度AI Token刷新失败:', error);
+      logger.error('百度AI Token刷新失败:', error);
       throw error;
     }
   }
@@ -127,13 +127,13 @@ class ComputerVisionService {
         try {
           await fs.access(modelPath);
         } catch (error) {
-          console.warn(`模型文件不存在: ${modelPath}，将使用云端API`);
+          logger.warn(`模型文件不存在: ${modelPath}，将使用云端API`);
         }
       }
 
-      console.log('🤖 本地模型加载检查完成');
+      logger.debug('🤖 本地模型加载检查完成');
     } catch (error) {
-      console.error('本地模型加载失败:', error);
+      logger.error('本地模型加载失败:', error);
     }
   }
 
@@ -149,8 +149,7 @@ class ComputerVisionService {
         provider = 'baidu'
       } = options;
 
-      console.log('👤 开始人脸识别...');
-
+      logger.debug('👤 开始人脸识别...');
       // 图像质量检查
       if (qualityCheck) {
         const qualityResult = await this.checkImageQuality(imageBuffer);
@@ -191,11 +190,11 @@ class ComputerVisionService {
         timestamp: new Date()
       });
 
-      console.log('人脸识别完成:', result.success ? '成功' : '失败');
+      logger.debug('人脸识别完成:', result.success ? '成功' : '失败');
       return result;
 
     } catch (error) {
-      console.error('人脸识别失败:', error);
+      logger.error('人脸识别失败:', error);
       throw error;
     }
   }
@@ -258,7 +257,7 @@ class ComputerVisionService {
       }
 
     } catch (error) {
-      console.error('百度人脸识别失败:', error);
+      logger.error('百度人脸识别失败:', error);
       throw new Error('百度人脸识别服务异常');
     }
   }
@@ -274,8 +273,7 @@ class ComputerVisionService {
         validateFormat = true
       } = options;
 
-      console.log(`📄 开始${documentType}证件OCR识别...`);
-
+      logger.debug(`📄 开始${documentType}证件OCR识别...`);
       // 自动检测证件类型
       if (documentType === 'auto') {
         documentType = await this.detectDocumentType(imageBuffer);
@@ -315,11 +313,11 @@ class ComputerVisionService {
         timestamp: new Date()
       });
 
-      console.log(`${documentType}证件OCR识别完成:`, result.success ? '成功' : '失败');
+      logger.debug(`${documentType}证件OCR识别完成:`, result.success ? '成功' : '失败');
       return result;
 
     } catch (error) {
-      console.error('证件OCR识别失败:', error);
+      logger.error('证件OCR识别失败:', error);
       throw error;
     }
   }
@@ -382,7 +380,7 @@ class ComputerVisionService {
       }
 
     } catch (error) {
-      console.error('百度证件OCR识别失败:', error);
+      logger.error('百度证件OCR识别失败:', error);
       throw new Error('百度OCR服务异常');
     }
   }
@@ -399,8 +397,7 @@ class ComputerVisionService {
         includeTreatment = true
       } = options;
 
-      console.log('🌾 开始农作物病虫害识别...');
-
+      logger.debug('🌾 开始农作物病虫害识别...');
       // 自动检测作物类型
       if (cropType === 'auto') {
         cropType = await this.detectCropType(imageBuffer);
@@ -438,11 +435,11 @@ class ComputerVisionService {
         timestamp: new Date()
       });
 
-      console.log('农作物病虫害识别完成:', result.success ? '成功' : '失败');
+      logger.debug('农作物病虫害识别完成:', result.success ? '成功' : '失败');
       return result;
 
     } catch (error) {
-      console.error('农作物病虫害识别失败:', error);
+      logger.error('农作物病虫害识别失败:', error);
       throw error;
     }
   }
@@ -498,7 +495,7 @@ class ComputerVisionService {
       };
 
     } catch (error) {
-      console.error('本地病虫害识别失败:', error);
+      logger.error('本地病虫害识别失败:', error);
       throw new Error('本地识别服务异常');
     }
   }
@@ -515,8 +512,7 @@ class ComputerVisionService {
         provider = 'local'
       } = options;
 
-      console.log(`🏗️ 开始工程进度监控 - 项目: ${projectId}`);
-
+      logger.debug(`🏗️ 开始工程进度监控 - 项目: ${projectId}`);
       // 获取基准图像（如果需要对比）
       let baselineImage = null;
       if (compareWithBaseline) {
@@ -555,11 +551,11 @@ class ComputerVisionService {
         timestamp: new Date()
       });
 
-      console.log('工程进度监控完成');
+      logger.debug('工程进度监控完成');
       return analysisResult;
 
     } catch (error) {
-      console.error('工程进度监控失败:', error);
+      logger.error('工程进度监控失败:', error);
       throw error;
     }
   }
@@ -641,7 +637,7 @@ class ComputerVisionService {
       };
 
     } catch (error) {
-      console.error('工程进度分析失败:', error);
+      logger.error('工程进度分析失败:', error);
       throw new Error('工程进度分析服务异常');
     }
   }
@@ -673,7 +669,7 @@ class ComputerVisionService {
       };
 
     } catch (error) {
-      console.error('图像质量检查失败:', error);
+      logger.error('图像质量检查失败:', error);
       return { passed: false, reason: '质量检查失败' };
     }
   }
@@ -688,7 +684,7 @@ class ComputerVisionService {
 
       return imageBuffer; // 简化实现
     } catch (error) {
-      console.error('图像预处理失败:', error);
+      logger.error('图像预处理失败:', error);
       throw error;
     }
   }
@@ -703,7 +699,7 @@ class ComputerVisionService {
       const types = ['idcard', 'driver_license', 'passport', 'household_register'];
       return types[Math.floor(Math.random() * types.length)];
     } catch (error) {
-      console.error('文档类型检测失败:', error);
+      logger.error('文档类型检测失败:', error);
       return 'unknown';
     }
   }
@@ -717,7 +713,7 @@ class ComputerVisionService {
       const crops = ['rice', 'wheat', 'corn', 'soybean', 'cotton'];
       return crops[Math.floor(Math.random() * crops.length)];
     } catch (error) {
-      console.error('作物类型检测失败:', error);
+      logger.error('作物类型检测失败:', error);
       return 'unknown';
     }
   }
@@ -746,7 +742,7 @@ class ComputerVisionService {
 
       return fields;
     } catch (error) {
-      console.error('文档字段提取失败:', error);
+      logger.error('文档字段提取失败:', error);
       return {};
     }
   }
@@ -768,7 +764,7 @@ class ComputerVisionService {
 
       return null;
     } catch (error) {
-      console.error('字段提取失败:', error);
+      logger.error('字段提取失败:', error);
       return null;
     }
   }
@@ -794,7 +790,7 @@ class ComputerVisionService {
 
       return validation;
     } catch (error) {
-      console.error('文档字段验证失败:', error);
+      logger.error('文档字段验证失败:', error);
       return { valid: false, errors: ['验证失败'] };
     }
   }
@@ -831,7 +827,7 @@ class ComputerVisionService {
 
       return mockRecommendations;
     } catch (error) {
-      console.error('获取治疗方案失败:', error);
+      logger.error('获取治疗方案失败:', error);
       return null;
     }
   }
@@ -851,22 +847,22 @@ class ComputerVisionService {
    */
   async logFaceRecognition(logData) {
     // 记录人脸识别日志
-    console.log('Face Recognition Log:', logData);
+    logger.debug('Face Recognition Log:', logData);
   }
 
   async logDocumentOCR(logData) {
     // 记录OCR识别日志
-    console.log('Document OCR Log:', logData);
+    logger.debug('Document OCR Log:', logData);
   }
 
   async logPestDiseaseRecognition(logData) {
     // 记录病虫害识别日志
-    console.log('Pest Disease Recognition Log:', logData);
+    logger.debug('Pest Disease Recognition Log:', logData);
   }
 
   async logConstructionMonitoring(logData) {
     // 记录工程监控日志
-    console.log('Construction Monitoring Log:', logData);
+    logger.debug('Construction Monitoring Log:', logData);
   }
 }
 

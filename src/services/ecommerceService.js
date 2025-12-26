@@ -69,7 +69,7 @@ class EcommerceService {
         await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/smart_village');
       }
     } catch (error) {
-      console.error('数据库连接失败:', error);
+      logger.error('数据库连接失败:', error);
     }
   }
 
@@ -117,7 +117,7 @@ class EcommerceService {
         message: '农资产品创建成功'
       };
     } catch (error) {
-      console.error('创建农资产品失败:', error);
+      logger.error('创建农资产品失败:', error);
       throw error;
     }
   }
@@ -184,7 +184,7 @@ class EcommerceService {
         message: '获取农资产品列表成功'
       };
     } catch (error) {
-      console.error('获取农资产品列表失败:', error);
+      logger.error('获取农资产品列表失败:', error);
       throw error;
     }
   }
@@ -265,7 +265,7 @@ class EcommerceService {
         message: '订单创建成功'
       };
     } catch (error) {
-      console.error('创建订单失败:', error);
+      logger.error('创建订单失败:', error);
       throw error;
     }
   }
@@ -320,7 +320,7 @@ class EcommerceService {
         message: '支付处理成功'
       };
     } catch (error) {
-      console.error('处理支付失败:', error);
+      logger.error('处理支付失败:', error);
       throw error;
     }
   }
@@ -361,7 +361,7 @@ class EcommerceService {
         throw new Error(`微信支付失败: ${result.return_msg || result.err_code_des}`);
       }
     } catch (error) {
-      console.error('微信支付处理失败:', error);
+      logger.error('微信支付处理失败:', error);
       throw error;
     }
   }
@@ -401,7 +401,7 @@ class EcommerceService {
         throw new Error(`支付宝支付失败: ${response.data.alipay_trade_create_response.msg}`);
       }
     } catch (error) {
-      console.error('支付宝支付处理失败:', error);
+      logger.error('支付宝支付处理失败:', error);
       throw error;
     }
   }
@@ -462,7 +462,7 @@ class EcommerceService {
         message: '订单发货成功'
       };
     } catch (error) {
-      console.error('订单发货失败:', error);
+      logger.error('订单发货失败:', error);
       throw error;
     }
   }
@@ -504,7 +504,7 @@ class EcommerceService {
         message: '订单完成'
       };
     } catch (error) {
-      console.error('订单完成失败:', error);
+      logger.error('订单完成失败:', error);
       throw error;
     }
   }
@@ -566,7 +566,7 @@ class EcommerceService {
         message: '获取订单列表成功'
       };
     } catch (error) {
-      console.error('获取订单列表失败:', error);
+      logger.error('获取订单列表失败:', error);
       throw error;
     }
   }
@@ -626,7 +626,7 @@ class EcommerceService {
         message: '农产品供应信息创建成功'
       };
     } catch (error) {
-      console.error('创建农产品供应信息失败:', error);
+      logger.error('创建农产品供应信息失败:', error);
       throw error;
     }
   }
@@ -702,7 +702,7 @@ class EcommerceService {
         message: '获取农产品供应列表成功'
       };
     } catch (error) {
-      console.error('获取农产品供应列表失败:', error);
+      logger.error('获取农产品供应列表失败:', error);
       throw error;
     }
   }
@@ -736,7 +736,7 @@ class EcommerceService {
         message: '同步平台商品成功'
       };
     } catch (error) {
-      console.error('同步平台商品失败:', error);
+      logger.error('同步平台商品失败:', error);
       throw error;
     }
   }
@@ -781,7 +781,7 @@ class EcommerceService {
 
       return [];
     } catch (error) {
-      console.error('同步淘宝商品失败:', error);
+      logger.error('同步淘宝商品失败:', error);
       return [];
     }
   }
@@ -824,7 +824,7 @@ class EcommerceService {
 
       return [];
     } catch (error) {
-      console.error('同步京东商品失败:', error);
+      logger.error('同步京东商品失败:', error);
       return [];
     }
   }
@@ -939,9 +939,9 @@ class EcommerceService {
   async sendShippingNotification(order, logisticsInfo) {
     try {
       // 这里可以集成云通信服务发送通知
-      console.log(`订单 ${order.orderNo} 已发货，物流单号: ${logisticsInfo.trackingNumber}`);
+      logger.debug(`订单 ${order.orderNo} 已发货，物流单号: ${logisticsInfo.trackingNumber}`);
     } catch (error) {
-      console.error('发送发货通知失败:', error);
+      logger.error('发送发货通知失败:', error);
     }
   }
 
@@ -950,6 +950,7 @@ class EcommerceService {
    */
   async updateSalesStatistics(items) {
     const AgriculturalProduct = require('../models/AgriculturalProduct');
+const logger = require('../utils/logger');
 
     for (const item of items) {
       await AgriculturalProduct.findByIdAndUpdate(

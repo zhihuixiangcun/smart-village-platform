@@ -8,6 +8,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs').promises;
 const crypto = require('crypto');
+const logger = require('../utils/logger');
 
 // 创建上传目录
 const uploadDirs = {
@@ -88,14 +89,13 @@ exports.faceRecognition = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('人脸识别失败:', error);
-
+    logger.error('人脸识别失败:', error);
     // 清理临时文件
     if (req.file) {
       try {
         await fs.unlink(req.file.path);
       } catch (cleanupError) {
-        console.error('清理临时文件失败:', cleanupError);
+        logger.error('清理临时文件失败:', cleanupError);
       }
     }
 
@@ -173,13 +173,12 @@ exports.faceRegistration = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('人脸注册失败:', error);
-
+    logger.error('人脸注册失败:', error);
     if (req.file) {
       try {
         await fs.unlink(req.file.path);
       } catch (cleanupError) {
-        console.error('清理临时文件失败:', cleanupError);
+        logger.error('清理临时文件失败:', cleanupError);
       }
     }
 
@@ -257,8 +256,7 @@ exports.faceComparison = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('人脸比对失败:', error);
-
+    logger.error('人脸比对失败:', error);
     // 清理临时文件
     if (req.files) {
       const cleanupPromises = [];
@@ -307,13 +305,12 @@ exports.documentOCR = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('证件OCR识别失败:', error);
-
+    logger.error('证件OCR识别失败:', error);
     if (req.file) {
       try {
         await fs.unlink(req.file.path);
       } catch (cleanupError) {
-        console.error('清理临时文件失败:', cleanupError);
+        logger.error('清理临时文件失败:', cleanupError);
       }
     }
 
@@ -372,7 +369,7 @@ exports.batchDocumentOCR = async (req, res) => {
         try {
           await fs.unlink(file.path);
         } catch (cleanupError) {
-          console.error('清理临时文件失败:', cleanupError);
+          logger.error('清理临时文件失败:', cleanupError);
         }
       }
     }
@@ -388,8 +385,7 @@ exports.batchDocumentOCR = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('批量证件OCR识别失败:', error);
-
+    logger.error('批量证件OCR识别失败:', error);
     // 清理所有临时文件
     if (req.files) {
       const files = Array.isArray(req.files.files) ? req.files.files : [req.files.files];
@@ -440,13 +436,12 @@ exports.pestDiseaseRecognition = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('农作物病虫害识别失败:', error);
-
+    logger.error('农作物病虫害识别失败:', error);
     if (req.file) {
       try {
         await fs.unlink(req.file.path);
       } catch (cleanupError) {
-        console.error('清理临时文件失败:', cleanupError);
+        logger.error('清理临时文件失败:', cleanupError);
       }
     }
 
@@ -490,13 +485,12 @@ exports.constructionMonitoring = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('工程进度监控失败:', error);
-
+    logger.error('工程进度监控失败:', error);
     if (req.file) {
       try {
         await fs.unlink(req.file.path);
       } catch (cleanupError) {
-        console.error('清理临时文件失败:', cleanupError);
+        logger.error('清理临时文件失败:', cleanupError);
       }
     }
 
@@ -560,13 +554,12 @@ exports.uploadBaselineImage = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('基准图片上传失败:', error);
-
+    logger.error('基准图片上传失败:', error);
     if (req.file) {
       try {
         await fs.unlink(req.file.path);
       } catch (cleanupError) {
-        console.error('清理临时文件失败:', cleanupError);
+        logger.error('清理临时文件失败:', cleanupError);
       }
     }
 
@@ -630,7 +623,7 @@ exports.getConstructionHistory = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取工程历史失败:', error);
+    logger.error('获取工程历史失败:', error);
     res.status(500).json({
       success: false,
       message: '获取工程历史失败',
@@ -681,7 +674,7 @@ exports.getServiceStatus = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取服务状态失败:', error);
+    logger.error('获取服务状态失败:', error);
     res.status(500).json({
       success: false,
       message: '获取服务状态失败',
@@ -716,13 +709,13 @@ async function calculateUsedStorage() {
           totalSize += stats.size;
         }
       } catch (error) {
-        console.error(`计算目录大小失败: ${dir}`, error);
+        logger.error(`计算目录大小失败: ${dir}`, error);
       }
     }
 
     return `${(totalSize / (1024 * 1024 * 1024)).toFixed(2)  }GB`; // 转换为GB
   } catch (error) {
-    console.error('计算存储空间失败:', error);
+    logger.error('计算存储空间失败:', error);
     return '未知';
   }
 }

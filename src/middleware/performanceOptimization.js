@@ -7,6 +7,7 @@ const databaseOptimizer = require('../services/databaseOptimizer');
 const multiLevelCache = require('../services/multiLevelCache');
 const queryPerformanceMonitor = require('../services/queryPerformanceMonitor');
 const optimizedDatabase = require('../config/databaseOptimized');
+const logger = require('../utils/logger');
 
 class PerformanceOptimization {
   constructor() {
@@ -137,7 +138,7 @@ class PerformanceOptimization {
       }
       return null;
     } catch (error) {
-      console.error('获取缓存响应失败:', error);
+      logger.error('获取缓存响应失败:', error);
       return null;
     }
   }
@@ -226,7 +227,7 @@ class PerformanceOptimization {
       const ttl = this.getCacheTTL(req);
       await multiLevelCache.set('api_response', cacheKey, responseData, { ttl });
     } catch (error) {
-      console.error('缓存响应失败:', error);
+      logger.error('缓存响应失败:', error);
     }
   }
 
@@ -543,7 +544,7 @@ class PerformanceOptimization {
       // 这里需要根据实际缓存实现来清理
       deleted.total = 10; // 示例值
     } catch (error) {
-      console.error('清理缓存失败:', error);
+      logger.error('清理缓存失败:', error);
     }
 
     return deleted;
@@ -577,9 +578,9 @@ class PerformanceOptimization {
       // 断开数据库连接
       await optimizedDatabase.disconnect();
 
-      console.log('性能优化组件已停止');
+      logger.debug('性能优化组件已停止');
     } catch (error) {
-      console.error('停止性能优化失败:', error);
+      logger.error('停止性能优化失败:', error);
     }
   }
 }

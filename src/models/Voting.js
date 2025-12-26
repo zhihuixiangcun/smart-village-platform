@@ -4,6 +4,7 @@
  */
 
 const mongoose = require('mongoose');
+const logger = require('../utils/logger');
 
 // 投票类型
 const VotingTypes = {
@@ -494,7 +495,7 @@ VotingItemSchema.methods.updateStatistics = async function() {
     await this.save();
     return this.statistics;
   } catch (error) {
-    console.error('更新投票统计失败:', error);
+    logger.error('更新投票统计失败:', error);
     throw error;
   }
 };

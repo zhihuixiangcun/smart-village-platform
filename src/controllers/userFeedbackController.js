@@ -43,11 +43,11 @@ class UserFeedbackController {
 
     // 事件监听
     this.feedbackService.on('feedback:submitted', (feedback) => {
-      console.log(`新反馈提交: ${feedback.feedbackId}`)
+      logger.debug(`新反馈提交: ${feedback.feedbackId}`);
     })
 
     this.feedbackService.on('feedback:processed', (feedback) => {
-      console.log(`反馈已处理: ${feedback.feedbackId}`)
+      logger.debug(`反馈已处理: ${feedback.feedbackId}`);
     })
   }
 
@@ -89,7 +89,7 @@ class UserFeedbackController {
       res.status(201).json(result)
 
     } catch (error) {
-      console.error('提交反馈失败:', error)
+      logger.error('提交反馈失败:', error);
       res.status(500).json({
         success: false,
         message: '提交反馈失败',
@@ -132,7 +132,7 @@ class UserFeedbackController {
       res.json(result)
 
     } catch (error) {
-      console.error('获取反馈列表失败:', error)
+      logger.error('获取反馈列表失败:', error);
       res.status(500).json({
         success: false,
         message: '获取反馈列表失败',
@@ -175,7 +175,7 @@ class UserFeedbackController {
       })
 
     } catch (error) {
-      console.error('获取反馈详情失败:', error)
+      logger.error('获取反馈详情失败:', error);
       res.status(500).json({
         success: false,
         message: '获取反馈详情失败',
@@ -222,7 +222,7 @@ class UserFeedbackController {
       res.json(result)
 
     } catch (error) {
-      console.error('处理反馈失败:', error)
+      logger.error('处理反馈失败:', error);
       res.status(500).json({
         success: false,
         message: '处理反馈失败',
@@ -255,7 +255,7 @@ class UserFeedbackController {
       res.json(result)
 
     } catch (error) {
-      console.error('添加满意度评价失败:', error)
+      logger.error('添加满意度评价失败:', error);
       res.status(500).json({
         success: false,
         message: '添加满意度评价失败',
@@ -281,7 +281,7 @@ class UserFeedbackController {
       res.json(result)
 
     } catch (error) {
-      console.error('获取反馈统计失败:', error)
+      logger.error('获取反馈统计失败:', error);
       res.status(500).json({
         success: false,
         message: '获取反馈统计失败',
@@ -300,7 +300,7 @@ class UserFeedbackController {
       res.json(result)
 
     } catch (error) {
-      console.error('AI分析反馈趋势失败:', error)
+      logger.error('AI分析反馈趋势失败:', error);
       res.status(500).json({
         success: false,
         message: 'AI分析反馈趋势失败',
@@ -328,7 +328,7 @@ class UserFeedbackController {
       res.json(result)
 
     } catch (error) {
-      console.error('推荐改进方案失败:', error)
+      logger.error('推荐改进方案失败:', error);
       res.status(500).json({
         success: false,
         message: '推荐改进方案失败',
@@ -376,7 +376,7 @@ class UserFeedbackController {
       res.send(result.data.content)
 
     } catch (error) {
-      console.error('导出反馈数据失败:', error)
+      logger.error('导出反馈数据失败:', error);
       res.status(500).json({
         success: false,
         message: '导出反馈数据失败',
@@ -391,6 +391,7 @@ class UserFeedbackController {
   getCategoryStats = async (req, res) => {
     try {
       const Feedback = require('mongoose').model('Feedback')
+const logger = require('../utils/logger');
 
       const categoryStats = await Feedback.aggregate([
         {
@@ -410,7 +411,7 @@ class UserFeedbackController {
       })
 
     } catch (error) {
-      console.error('获取分类统计失败:', error)
+      logger.error('获取分类统计失败:', error);
       res.status(500).json({
         success: false,
         message: '获取分类统计失败',
@@ -444,7 +445,7 @@ class UserFeedbackController {
       res.json(result)
 
     } catch (error) {
-      console.error('获取用户反馈历史失败:', error)
+      logger.error('获取用户反馈历史失败:', error);
       res.status(500).json({
         success: false,
         message: '获取用户反馈历史失败',
@@ -505,7 +506,7 @@ class UserFeedbackController {
       })
 
     } catch (error) {
-      console.error('批量处理反馈失败:', error)
+      logger.error('批量处理反馈失败:', error);
       res.status(500).json({
         success: false,
         message: '批量处理反馈失败',

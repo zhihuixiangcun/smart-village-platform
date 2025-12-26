@@ -5,6 +5,7 @@
 
 const EventEmitter = require('events');
 const realtimeEngine = require('./realtimeEngine');
+const logger = require('../utils/logger');
 
 class StreamProcessor extends EventEmitter {
   constructor() {
@@ -23,7 +24,7 @@ class StreamProcessor extends EventEmitter {
    */
   registerProcessor(dataType, processor) {
     this.processors.set(dataType, processor);
-    console.log(`📝 注册流处理器: ${dataType}`);
+    logger.debug(`📝 注册流处理器: ${dataType}`);
   }
 
   /**
@@ -31,7 +32,7 @@ class StreamProcessor extends EventEmitter {
    */
   registerAggregator(aggregationName, aggregator) {
     this.aggregations.set(aggregationName, aggregator);
-    console.log(`📊 注册聚合器: ${aggregationName}`);
+    logger.debug(`📊 注册聚合器: ${aggregationName}`);
   }
 
   /**
@@ -39,7 +40,7 @@ class StreamProcessor extends EventEmitter {
    */
   registerFilter(filterName, filter) {
     this.filters.set(filterName, filter);
-    console.log(`🔍 注册过滤器: ${filterName}`);
+    logger.debug(`🔍 注册过滤器: ${filterName}`);
   }
 
   /**
@@ -47,7 +48,7 @@ class StreamProcessor extends EventEmitter {
    */
   registerTransformer(transformerName, transformer) {
     this.transforms.set(transformerName, transformer);
-    console.log(`🔄 注册转换器: ${transformerName}`);
+    logger.debug(`🔄 注册转换器: ${transformerName}`);
   }
 
   /**
@@ -119,7 +120,7 @@ class StreamProcessor extends EventEmitter {
       return processedData;
 
     } catch (error) {
-      console.error('流数据处理失败:', error);
+      logger.error('流数据处理失败:', error);
       this.emit('processingError', { error, dataType, data, options });
       throw error;
     }
@@ -278,7 +279,7 @@ class StreamProcessor extends EventEmitter {
       const key = `hourly_activity_${hour}`;
 
       // 这里可以使用Redis来维护聚合状态
-      console.log(`📊 聚合小时活动: ${hour}`);
+      logger.debug(`📊 聚合小时活动: ${hour}`);
     });
 
     this.registerAggregator('dailySummary', async (data) => {
@@ -286,7 +287,7 @@ class StreamProcessor extends EventEmitter {
       const date = new Date(data.timestamp).toISOString().split('T')[0];
       const key = `daily_summary_${date}`;
 
-      console.log(`📊 聚合日度汇总: ${date}`);
+      logger.debug(`📊 聚合日度汇总: ${date}`);
     });
 
     this.registerAggregator('userProfile', async (data) => {
@@ -295,7 +296,7 @@ class StreamProcessor extends EventEmitter {
         const key = `user_profile_${data.residentId}`;
 
         // 更新用户画像数据
-        console.log(`👤 聚合用户画像: ${data.residentId}`);
+        logger.debug(`👤 聚合用户画像: ${data.residentId}`);
       }
     });
   }
@@ -603,7 +604,7 @@ class DataStream extends EventEmitter {
           await this.flush();
           await this.sleep(this.options.flushInterval);
         } catch (error) {
-          console.error(`流处理错误 ${this.streamId}:`, error);
+          logger.error(`流处理错误 ${this.streamId}:`, error);
           await this.sleep(1000);
         }
       }

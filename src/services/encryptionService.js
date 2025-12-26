@@ -6,6 +6,7 @@
 const crypto = require('crypto');
 const fs = require('fs').promises;
 const path = require('path');
+const logger = require('../utils/logger');
 
 class EncryptionService {
   constructor() {
@@ -30,7 +31,7 @@ class EncryptionService {
       await this.loadKeys();
       await this.rotateKeysIfNeeded();
     } catch (error) {
-      console.error('初始化加密密钥失败:', error);
+      logger.error('初始化加密密钥失败:', error);
       throw error;
     }
   }
@@ -42,7 +43,7 @@ class EncryptionService {
     try {
       await fs.mkdir(this.keysPath, { recursive: true });
     } catch (error) {
-      console.error('创建密钥目录失败:', error);
+      logger.error('创建密钥目录失败:', error);
       throw error;
     }
   }
@@ -83,7 +84,7 @@ class EncryptionService {
       }
 
     } catch (error) {
-      console.error('加载密钥失败:', error);
+      logger.error('加载密钥失败:', error);
       // 如果没有密钥文件，生成新的密钥
       await this.generateNewKey();
     }
@@ -130,11 +131,11 @@ class EncryptionService {
 
       this.currentKeyId = keyId;
 
-      console.log(`新加密密钥已生成: ${keyId}`);
+      logger.debug(`新加密密钥已生成: ${keyId}`);
       return keyId;
 
     } catch (error) {
-      console.error('生成新密钥失败:', error);
+      logger.error('生成新密钥失败:', error);
       throw error;
     }
   }
@@ -155,7 +156,7 @@ class EncryptionService {
 
       await fs.writeFile(keyPath, JSON.stringify(fileData, null, 2));
     } catch (error) {
-      console.error('更新密钥文件失败:', error);
+      logger.error('更新密钥文件失败:', error);
       throw error;
     }
   }
@@ -175,7 +176,7 @@ class EncryptionService {
         await this.generateNewKey();
       }
     } catch (error) {
-      console.error('密钥轮换失败:', error);
+      logger.error('密钥轮换失败:', error);
     }
   }
 
@@ -214,7 +215,7 @@ class EncryptionService {
       };
 
     } catch (error) {
-      console.error('数据加密失败:', error);
+      logger.error('数据加密失败:', error);
       throw error;
     }
   }
@@ -245,7 +246,7 @@ class EncryptionService {
       }
 
     } catch (error) {
-      console.error('数据解密失败:', error);
+      logger.error('数据解密失败:', error);
       throw error;
     }
   }
@@ -266,7 +267,7 @@ class EncryptionService {
       return result;
 
     } catch (error) {
-      console.error('加密敏感字段失败:', error);
+      logger.error('加密敏感字段失败:', error);
       throw error;
     }
   }
@@ -287,7 +288,7 @@ class EncryptionService {
       return result;
 
     } catch (error) {
-      console.error('解密敏感字段失败:', error);
+      logger.error('解密敏感字段失败:', error);
       throw error;
     }
   }
@@ -303,7 +304,7 @@ class EncryptionService {
 
       return crypto.createHash(algorithm).update(data).digest('hex');
     } catch (error) {
-      console.error('生成哈希失败:', error);
+      logger.error('生成哈希失败:', error);
       throw error;
     }
   }
@@ -316,7 +317,7 @@ class EncryptionService {
       const actualHash = this.generateHash(data);
       return actualHash === expectedHash;
     } catch (error) {
-      console.error('验证数据完整性失败:', error);
+      logger.error('验证数据完整性失败:', error);
       return false;
     }
   }
@@ -337,7 +338,7 @@ class EncryptionService {
       return results;
 
     } catch (error) {
-      console.error('批量加密失败:', error);
+      logger.error('批量加密失败:', error);
       throw error;
     }
   }
@@ -357,7 +358,7 @@ class EncryptionService {
       return results;
 
     } catch (error) {
-      console.error('批量解密失败:', error);
+      logger.error('批量解密失败:', error);
       throw error;
     }
   }
@@ -369,7 +370,7 @@ class EncryptionService {
     try {
       return crypto.pbkdf2Sync(password, salt, iterations, this.keyLength, 'sha256');
     } catch (error) {
-      console.error('密钥派生失败:', error);
+      logger.error('密钥派生失败:', error);
       throw error;
     }
   }
@@ -389,7 +390,7 @@ class EncryptionService {
 
       return true;
     } catch (error) {
-      console.error('安全擦除失败:', error);
+      logger.error('安全擦除失败:', error);
       return false;
     }
   }
@@ -439,13 +440,13 @@ class EncryptionService {
       }
 
       if (expiredKeys.length > 0) {
-        console.log(`清理了 ${expiredKeys.length} 个过期密钥`);
+        logger.debug(`清理了 ${expiredKeys.length} 个过期密钥`);
       }
 
       return expiredKeys.length;
 
     } catch (error) {
-      console.error('清理过期密钥失败:', error);
+      logger.error('清理过期密钥失败:', error);
       throw error;
     }
   }

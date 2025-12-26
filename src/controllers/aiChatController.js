@@ -8,6 +8,7 @@ const { AgriQA, AgriculturePolicy } = require('../models/Agriculture');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs').promises;
+const logger = require('../utils/logger');
 
 // 创建上传目录
 const uploadDir = path.join(__dirname, '../uploads/ai-chat');
@@ -81,7 +82,7 @@ exports.chat = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('AI问答处理失败:', error);
+    logger.error('AI问答处理失败:', error);
     res.status(500).json({
       success: false,
       message: 'AI问答处理失败',
@@ -132,7 +133,7 @@ exports.voiceChat = async (req, res) => {
     try {
       await fs.unlink(audioPath);
     } catch (error) {
-      console.error('清理音频文件失败:', error);
+      logger.error('清理音频文件失败:', error);
     }
 
     res.json({
@@ -144,7 +145,7 @@ exports.voiceChat = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('语音问答处理失败:', error);
+    logger.error('语音问答处理失败:', error);
     res.status(500).json({
       success: false,
       message: '语音问答处理失败',
@@ -192,7 +193,7 @@ exports.calculatePolicy = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('政策计算失败:', error);
+    logger.error('政策计算失败:', error);
     res.status(500).json({
       success: false,
       message: '政策计算失败',
@@ -229,7 +230,7 @@ exports.fillForm = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('AI填表失败:', error);
+    logger.error('AI填表失败:', error);
     res.status(500).json({
       success: false,
       message: 'AI填表失败',
@@ -259,7 +260,7 @@ exports.getConversationHistory = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取对话历史失败:', error);
+    logger.error('获取对话历史失败:', error);
     res.status(500).json({
       success: false,
       message: '获取对话历史失败',
@@ -363,7 +364,7 @@ exports.searchAgriculture = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('农业知识搜索失败:', error);
+    logger.error('农业知识搜索失败:', error);
     res.status(500).json({
       success: false,
       message: '农业知识搜索失败',
@@ -398,7 +399,7 @@ exports.getPopularQA = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取热门问答失败:', error);
+    logger.error('获取热门问答失败:', error);
     res.status(500).json({
       success: false,
       message: '获取热门问答失败',
@@ -435,7 +436,7 @@ exports.submitFeedback = async (req, res) => {
     // 如果有评论，保存到反馈表
     if (comment) {
       // 这里可以保存到专门的反馈表
-      console.log(`用户反馈: ${qaId}, 评分: ${rating}, 评论: ${comment}`);
+      logger.debug(`用户反馈: ${qaId}, 评分: ${rating}, 评论: ${comment}`);
     }
 
     res.json({
@@ -444,7 +445,7 @@ exports.submitFeedback = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('提交反馈失败:', error);
+    logger.error('提交反馈失败:', error);
     res.status(500).json({
       success: false,
       message: '提交反馈失败',
@@ -473,7 +474,7 @@ exports.getSupportedDialects = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取方言列表失败:', error);
+    logger.error('获取方言列表失败:', error);
     res.status(500).json({
       success: false,
       message: '获取方言列表失败',
@@ -503,7 +504,7 @@ async function recognizeSpeech(audioPath) {
     return mockResults[`query${hash + 1}`] || '请告诉我农业种植相关问题';
 
   } catch (error) {
-    console.error('语音识别失败:', error);
+    logger.error('语音识别失败:', error);
     return null;
   }
 }
@@ -644,10 +645,9 @@ async function logUserQuery(req, message, result) {
     };
 
     // 这里可以保存到日志表
-    console.log('用户查询日志:', logData);
-
+    logger.debug('用户查询日志:', logData);
   } catch (error) {
-    console.error('记录查询日志失败:', error);
+    logger.error('记录查询日志失败:', error);
   }
 }
 

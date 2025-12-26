@@ -5,6 +5,7 @@
 
 const mongoose = require('mongoose');
 const crypto = require('crypto');
+const logger = require('../utils/logger');
 
 // 财务交易类型
 const TransactionTypes = {
@@ -906,7 +907,7 @@ BlockchainRecordSchema.statics.createBlockchainRecord = async function(data, blo
     return record;
 
   } catch (error) {
-    console.error('创建区块链存证失败:', error);
+    logger.error('创建区块链存证失败:', error);
     throw error;
   }
 };

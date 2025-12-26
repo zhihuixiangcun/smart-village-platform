@@ -9,6 +9,7 @@ const massiveDataService = require('../services/massiveDataService');
 const Resident = require('../models/Resident');
 const Finance = require('../models/Finance');
 const auth = require('../middleware/auth');
+const logger = require('../utils/logger');
 
 /**
  * 高性能分页查询村民数据
@@ -102,7 +103,7 @@ router.get('/residents', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('分页查询村民数据失败:', error);
+    logger.error('分页查询村民数据失败:', error);
     res.status(500).json({
       success: false,
       message: '查询失败',
@@ -146,7 +147,7 @@ router.post('/export/residents', auth, async (req, res) => {
         format,
         progressCallback: (progress) => {
           // 可以通过WebSocket实时推送进度
-          console.log(`导出进度: ${progress.progress}%`);
+          logger.debug(`导出进度: ${progress.progress}%`);
         }
       }
     );
@@ -199,7 +200,7 @@ router.post('/export/residents', auth, async (req, res) => {
     res.end();
 
   } catch (error) {
-    console.error('导出数据失败:', error);
+    logger.error('导出数据失败:', error);
     res.status(500).json({
       success: false,
       message: '导出失败',
@@ -231,7 +232,7 @@ router.get('/analytics/:villageId', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取统计分析失败:', error);
+    logger.error('获取统计分析失败:', error);
     res.status(500).json({
       success: false,
       message: '统计分析失败',
@@ -265,7 +266,7 @@ router.get('/financial-analytics/:villageId', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取财务分析失败:', error);
+    logger.error('获取财务分析失败:', error);
     res.status(500).json({
       success: false,
       message: '财务分析失败',
@@ -290,7 +291,7 @@ router.get('/realtime/:villageId', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取实时数据失败:', error);
+    logger.error('获取实时数据失败:', error);
     res.status(500).json({
       success: false,
       message: '实时数据获取失败',
@@ -329,7 +330,7 @@ router.get('/geospatial/:villageId', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('获取地理数据分析失败:', error);
+    logger.error('获取地理数据分析失败:', error);
     res.status(500).json({
       success: false,
       message: '地理数据分析失败',
@@ -400,9 +401,9 @@ router.post('/batch-process', auth, async (req, res) => {
         }
       }
     ).then((result) => {
-      console.log(`${taskName}完成:`, result);
+      logger.debug(`${taskName}完成:`, result);
     }).catch((error) => {
-      console.error(`${taskName}失败:`, error);
+      logger.error(`${taskName}失败:`, error);
     });
 
     res.json({
@@ -412,7 +413,7 @@ router.post('/batch-process', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('批处理任务失败:', error);
+    logger.error('批处理任务失败:', error);
     res.status(500).json({
       success: false,
       message: '批处理任务失败',
