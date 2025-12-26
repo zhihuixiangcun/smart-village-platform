@@ -63,6 +63,21 @@ export const verifyCode = (data) => {
   return request.post('/auth/verify-code', data)
 }
 
+// 人脸识别登录
+export const faceLogin = (data) => {
+  return request.post('/auth/face-login', data)
+}
+
+// 亲属代理登录
+export const proxyLogin = (data) => {
+  return request.post('/auth/proxy-login', data)
+}
+
+// 人脸注册
+export const registerFace = (data) => {
+  return request.post('/auth/register-face', data)
+}
+
 export const userAPI = {
   login,
   register,
@@ -75,5 +90,8 @@ export const userAPI = {
   resetPassword,
   verifyEmail,
   sendVerificationCode,
-  verifyCode
+  verifyCode,
+  faceLogin,
+  proxyLogin,
+  registerFace
 }
