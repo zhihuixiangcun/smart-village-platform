@@ -1,9 +1,9 @@
-const { Villager, News, Affair } = require('../../src/models');
+const { Villager, News, Affair } = require('../src/models');
 
 describe('Basic Test Suite', () => {
   test('should verify test environment is working', () => {
     expect(process.env.NODE_ENV).toBe('test');
-    expect(process.env.JWT_SECRET).toBe('test-secret-key');
+    expect(process.env.JWT_SECRET).toBe('test-secret-key-for-jwt-signing-in-tests-must-be-32-chars');
   });
 
   test('should have models defined', () => {

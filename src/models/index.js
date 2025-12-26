@@ -25,6 +25,7 @@ require('./AgriculturalProduct');
 // 多模型模块导出
 const agricultureModels = require('./Agriculture');
 
+require('./Announcement');
 require('./Notification');
 require('./Order');
 require('./PaymentRecord');
@@ -49,6 +50,7 @@ const financeModels = require('./Finance');
 require('./MessageLog');
 require('./SyncHistory');
 require('./UploadHistory');
+require('./Task');
 
 // 收集所有单模型导出（来自 modules）
 const singleModels = {
@@ -58,6 +60,7 @@ const singleModels = {
   Household: mongoose.model('Household'),
   AgriculturalProduct: mongoose.model('AgriculturalProduct'),
   Notification: mongoose.model('Notification'),
+  Announcement: mongoose.model('Announcement'),
   Order: mongoose.model('Order'),
   PaymentRecord: mongoose.model('PaymentRecord'),
   ApplicationHistory: mongoose.model('ApplicationHistory'),
@@ -72,6 +75,11 @@ const singleModels = {
   DutySchedule: mongoose.model('DutySchedule'),
   CommitteeAuditLog: mongoose.model('CommitteeAuditLog')
 };
+
+// 添加别名以支持旧的测试文件
+singleModels.Villager = mongoose.model('Resident');
+singleModels.News = mongoose.model('Announcement');
+singleModels.Affair = mongoose.model('Task');
 
 // 合并所有模型导出
 module.exports = {
