@@ -349,6 +349,21 @@ const router = createRouter({
               { title: '一户一码', path: '/services/household-codes' }
             ]
           }
+        },
+        {
+          path: 'voice-interaction',
+          name: 'services-voice-interaction',
+          component: () => import('@/views/village/VoiceInteraction.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '方言语音交互',
+            permissions: ['speech:recognize'],
+            breadcrumb: [
+              { title: '首页', path: '/dashboard' },
+              { title: '生活服务', path: '/services' },
+              { title: '方言语音交互', path: '/services/voice-interaction' }
+            ]
+          }
         }
       ]
     },
