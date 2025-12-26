@@ -19,8 +19,8 @@ const residentSchema = new mongoose.Schema({
   },
   phone: {
     type: String,
-    required: true,
-    index: true
+    required: true
+    // 索引在 schema.index() 中定义，避免重复
   },
   gender: {
     type: String,

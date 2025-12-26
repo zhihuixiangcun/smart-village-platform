@@ -1,821 +1,404 @@
-const DutyScheduleService = require('../services/dutyScheduleService');
-const { validationResult } = require('express-validator');
-const multer = require('multer');
-const path = require('path');
-const logger = require('../utils/logger');
+/**
+ * 智能值班表控制器
+ *
+ * 功能：
+ * - 值班表创建与管理
+ * - 一键呼叫值班人员
+ * - 值班排班与替班
+ * - 呼叫记录与统计
+ *
+ * @author Smart Village Platform
+ * @version 1.0.0
+ */
 
+const { DutySchedule, CommitteeMember, CommitteeAuditLog } = require('../models');
+const { sendNotification } = require('../services/notificationService');
+const socketService = require('../services/socketService');
+
+/**
+ * @class DutyScheduleController
+ */
 class DutyScheduleController {
-  constructor() {
-    this.dutyService = new DutyScheduleService();
-
-    // 配置文件上传
-    this.upload = multer({
-      dest: path.join(__dirname, '../uploads/duty'),
-      limits: {
-        fileSize: 10 * 1024 * 1024 // 10MB
-      },
-      fileFilter: (req, file, cb) => {
-        const allowedTypes = /jpeg|jpg|png|gif|pdf|doc|docx/;
-        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-        const mimetype = allowedTypes.test(file.mimetype);
-
-        if (mimetype && extname) {
-          return cb(null, true);
-        } else {
-          cb(new Error('只允许上传图片和文档文件'));
-        }
-      }
-    });
-  }
-
   /**
    * 创建值班表
+   * @route POST /api/v1/duty-schedule
    */
-  createSchedule = async (req, res) => {
+  static async createSchedule(req, res) {
     try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({
+      const {
+        villageId,
+        season,
+        year,
+        rules,
+        schedules = []
+      } = req.body;
+
+      // 权限验证
+      if (!req.user.permissions?.includes('duty:create')) {
+        return res.status(403).json({
           success: false,
-          message: '参数验证失败',
-          errors: errors.array()
+          message: '无权限创建值班表'
         });
       }
 
-      const scheduleData = {
-        ...req.body,
-        currentUserId: req.user._id,
-        villageId: req.user.villageId
-      };
+      // 检查是否已存在
+      const existing = await DutySchedule.findOne({ villageId, season, year });
+      if (existing) {
+        return res.status(400).json({
+          success: false,
+          message: '该季度值班表已存在'
+        });
+      }
 
-      const schedule = await this.dutyService.createSchedule(scheduleData);
+      const schedule = await DutySchedule.create({
+        villageId,
+        season,
+        year,
+        rules,
+        schedules,
+        metadata: {
+          createdBy: req.user.id,
+          published: false
+        }
+      });
+
+      // 记录审计日志
+      await CommitteeAuditLog.logAction({
+        operatorId: req.user.id,
+        operatorName: req.user.username,
+        villageId,
+        action: 'create',
+        resourceType: 'schedule',
+        resourceId: schedule._id,
+        details: {
+          changes: { after: { season, year, scheduleCount: schedules.length } },
+          result: 'success'
+        },
+        requestContext: {
+          ipAddress: req.ip,
+          userAgent: req.get('user-agent')
+        }
+      });
 
       res.status(201).json({
         success: true,
-        message: '值班表创建成功',
-        data: schedule
+        data: schedule,
+        message: '值班表创建成功'
       });
+
     } catch (error) {
-      logger.error('创建值班表失败:', error);
+      console.error('Create duty schedule error:', error);
       res.status(500).json({
         success: false,
-        message: error.message || '创建值班表失败'
+        message: '创建值班表失败'
       });
     }
-  };
-
-  /**
-   * 生成智能排班
-   */
-  generateSmartSchedule = async (req, res) => {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({
-          success: false,
-          message: '参数验证失败',
-          errors: errors.array()
-        });
-      }
-
-      const { scheduleId } = req.params;
-      const options = {
-        ...req.body,
-        currentUserId: req.user._id
-      };
-
-      const result = await this.dutyService.generateSmartSchedule(scheduleId, options);
-
-      res.json({
-        success: true,
-        message: '智能排班生成成功',
-        data: result
-      });
-    } catch (error) {
-      logger.error('生成智能排班失败:', error);
-      res.status(500).json({
-        success: false,
-        message: error.message || '生成智能排班失败'
-      });
-    }
-  };
-
-  /**
-   * 扫码紧急呼叫
-   */
-  emergencyCall = async (req, res) => {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({
-          success: false,
-          message: '参数验证失败',
-          errors: errors.array()
-        });
-      }
-
-      const { qrCodeData } = req.body;
-      const { emergencyType = 'general', latitude, longitude, address } = req.body;
-
-      const callerInfo = {
-        userId: req.user._id,
-        userName: req.user.name,
-        userPhone: req.user.phone,
-        location: {
-          latitude,
-          longitude,
-          address
-        },
-        timestamp: new Date()
-      };
-
-      const result = await this.dutyService.emergencyCall(
-        qrCodeData,
-        { latitude, longitude, address },
-        emergencyType,
-        callerInfo
-      );
-
-      res.json({
-        success: true,
-        message: '紧急呼叫已发送',
-        data: result
-      });
-    } catch (error) {
-      logger.error('紧急呼叫失败:', error);
-      res.status(500).json({
-        success: false,
-        message: error.message || '紧急呼叫失败'
-      });
-    }
-  };
-
-  /**
-   * 签到/签退
-   */
-  handleAttendance = async (req, res) => {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({
-          success: false,
-          message: '参数验证失败',
-          errors: errors.array()
-        });
-      }
-
-      const { scheduleId } = req.params;
-      const { action } = req.body;
-      const { latitude, longitude, address } = req.body;
-
-      const location = {
-        latitude: parseFloat(latitude),
-        longitude: parseFloat(longitude),
-        address
-      };
-
-      const additionalData = {
-        userName: req.user.name,
-        userPhone: req.user.phone,
-        userRole: req.user.roles[0],
-        department: req.user.department
-      };
-
-      const result = await this.dutyService.handleAttendance(
-        req.user._id,
-        scheduleId,
-        action,
-        location,
-        additionalData
-      );
-
-      res.json({
-        success: true,
-        message: `${action === 'checkin' ? '签到' : '签退'}成功`,
-        data: result
-      });
-    } catch (error) {
-      logger.error(`${req.body.action}失败:`, error);
-      res.status(500).json({
-        success: false,
-        message: error.message || `${req.body.action}失败`
-      });
-    }
-  };
+  }
 
   /**
    * 获取值班表列表
+   * @route GET /api/v1/duty-schedule
    */
-  getSchedules = async (req, res) => {
+  static async getSchedules(req, res) {
+    try {
+      const { villageId, year, season, published } = req.query;
+
+      const query = {};
+      if (villageId) query.villageId = villageId;
+      if (year) query.year = parseInt(year);
+      if (season) query.season = season;
+      if (published !== undefined) query['metadata.published'] = published === 'true';
+
+      const schedules = await DutySchedule.find(query)
+        .sort({ year: -1, season: -1 })
+        .populate('villageId', 'name code')
+        .lean();
+
+      res.json({
+        success: true,
+        data: schedules
+      });
+
+    } catch (error) {
+      console.error('Get duty schedules error:', error);
+      res.status(500).json({
+        success: false,
+        message: '获取值班表失败'
+      });
+    }
+  }
+
+  /**
+   * 获取当前值班人员
+   * @route GET /api/v1/duty-schedule/current-duty
+   */
+  static async getCurrentDuty(req, res) {
+    try {
+      const { villageId } = req.query;
+
+      if (!villageId) {
+        return res.status(400).json({
+          success: false,
+          message: '缺少村庄ID'
+        });
+      }
+
+      const personnel = await DutySchedule.getCurrentDutyPersonnel(villageId);
+
+      if (!personnel || personnel.length === 0) {
+        return res.json({
+          success: true,
+          data: [],
+          message: '当前无值班人员'
+        });
+      }
+
+      res.json({
+        success: true,
+        data: personnel,
+        timestamp: new Date()
+      });
+
+    } catch (error) {
+      console.error('Get current duty error:', error);
+      res.status(500).json({
+        success: false,
+        message: '获取当前值班人员失败'
+      });
+    }
+  }
+
+  /**
+   * 一键呼叫值班人员
+   * @route POST /api/v1/duty-schedule/call
+   */
+  static async callDutyPersonnel(req, res) {
     try {
       const {
-        page = 1,
-        limit = 10,
-        isActive = 'true',
-        scheduleType,
-        sortBy = 'createdAt',
-        sortOrder = 'desc'
-      } = req.query;
+        villageId,
+        date,
+        reason,
+        urgency = 'medium',
+        location
+      } = req.body;
 
-      const options = {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        isActive: isActive === 'true',
-        scheduleType,
-        sortBy,
-        sortOrder
-      };
-
-      const result = await this.dutyService.getSchedules(req.user.villageId, options);
-
-      res.json({
-        success: true,
-        data: result
-      });
-    } catch (error) {
-      logger.error('获取值班表列表失败:', error);
-      res.status(500).json({
-        success: false,
-        message: error.message || '获取值班表列表失败'
-      });
-    }
-  };
-
-  /**
-   * 获取值班表详情
-   */
-  getScheduleDetail = async (req, res) => {
-    try {
-      const { scheduleId } = req.params;
-      const { startDate, endDate, includeLogs } = req.query;
-
-      const options = {
-        startDate,
-        endDate,
-        includeLogs: includeLogs === 'true'
-      };
-
-      const schedule = await this.dutyService.getScheduleDetail(scheduleId, options);
-
-      res.json({
-        success: true,
-        data: schedule
-      });
-    } catch (error) {
-      logger.error('获取值班表详情失败:', error);
-      res.status(500).json({
-        success: false,
-        message: error.message || '获取值班表详情失败'
-      });
-    }
-  };
-
-  /**
-   * 生成值班表二维码
-   */
-  generateQRCode = async (req, res) => {
-    try {
-      const { scheduleId } = req.params;
-
-      const result = await this.dutyService.generateQRCode(scheduleId);
-
-      res.json({
-        success: true,
-        message: '二维码生成成功',
-        data: result
-      });
-    } catch (error) {
-      logger.error('生成二维码失败:', error);
-      res.status(500).json({
-        success: false,
-        message: error.message || '生成二维码失败'
-      });
-    }
-  };
-
-  /**
-   * 获取当前值班信息
-   */
-  getCurrentDuty = async (req, res) => {
-    try {
-      const currentDuty = await this.dutyService.constructor.getCurrentDutyByVillage(
-        req.user.villageId
-      );
-
-      res.json({
-        success: true,
-        data: currentDuty
-      });
-    } catch (error) {
-      logger.error('获取当前值班信息失败:', error);
-      res.status(500).json({
-        success: false,
-        message: error.message || '获取当前值班信息失败'
-      });
-    }
-  };
-
-  /**
-   * 获取我的值班安排
-   */
-  getMySchedule = async (req, res) => {
-    try {
-      const { startDate, endDate, status } = req.query;
-
-      // 获取用户参与的所有值班表
-      const schedules = await this.dutyService.constructor.find({
-        'assignments.userId': req.user._id,
-        villageId: req.user.villageId,
-        isActive: true
-      }).populate('assignments.userId');
-
-      // 过滤和整理用户的值班安排
-      let myAssignments = [];
-      schedules.forEach(schedule => {
-        schedule.assignments.forEach(assignment => {
-          if (assignment.userId._id.toString() === req.user._id.toString()) {
-            // 应用日期过滤
-            if (startDate || endDate) {
-              const assignmentDate = new Date(assignment.date);
-              if (startDate && assignmentDate < new Date(startDate)) return;
-              if (endDate && assignmentDate > new Date(endDate)) return;
-            }
-
-            // 应用状态过滤
-            if (status && assignment.status !== status) return;
-
-            myAssignments.push({
-              ...assignment.toObject(),
-              scheduleId: schedule._id,
-              scheduleName: schedule.scheduleName,
-              shift: schedule.shifts.id(assignment.shiftId)
-            });
-          }
-        });
-      });
-
-      // 按日期排序
-      myAssignments.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-      res.json({
-        success: true,
-        data: myAssignments
-      });
-    } catch (error) {
-      logger.error('获取我的值班安排失败:', error);
-      res.status(500).json({
-        success: false,
-        message: error.message || '获取我的值班安排失败'
-      });
-    }
-  };
-
-  /**
-   * 添加工作记录
-   */
-  addWorkRecord = async (req, res) => {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({
+      // 权限验证
+      if (!req.user.permissions?.includes('duty:call')) {
+        return res.status(403).json({
           success: false,
-          message: '参数验证失败',
-          errors: errors.array()
+          message: '无权限呼叫值班人员'
         });
       }
 
-      const { scheduleId } = req.params;
-      const recordData = {
-        ...req.body,
-        location: {
-          type: 'Point',
-          coordinates: [req.body.longitude, req.body.latitude]
-        }
-      };
-
-      const dutyLog = await this.dutyService.constructor.DutyLog.findOne({
-        scheduleId,
-        'dutyOfficer.userId': req.user._id,
-        'attendance.actualStart': {
-          $gte: new Date(new Date().setHours(0, 0, 0, 0))
+      // 获取值班表
+      const schedule = await DutySchedule.findOne({
+        villageId,
+        'metadata.published': true,
+        'schedules.date': {
+          $gte: new Date(date).setHours(0, 0, 0, 0),
+          $lt: new Date(date).setHours(23, 59, 59, 999)
         }
       });
-
-      if (!dutyLog) {
-        return res.status(404).json({
-          success: false,
-          message: '未找到今日值班记录'
-        });
-      }
-
-      const updatedLog = await this.dutyService.constructor.addWorkRecord(dutyLog, recordData);
-
-      res.json({
-        success: true,
-        message: '工作记录添加成功',
-        data: updatedLog
-      });
-    } catch (error) {
-      logger.error('添加工作记录失败:', error);
-      res.status(500).json({
-        success: false,
-        message: error.message || '添加工作记录失败'
-      });
-    }
-  };
-
-  /**
-   * 上传工作记录附件
-   */
-  uploadWorkRecordAttachment = async (req, res) => {
-    try {
-      const { scheduleId, logId } = req.params;
-
-      this.upload.single('file')(req, res, async (err) => {
-        if (err) {
-          return res.status(400).json({
-            success: false,
-            message: err.message
-          });
-        }
-
-        try {
-          if (!req.file) {
-            return res.status(400).json({
-              success: false,
-              message: '请选择要上传的文件'
-            });
-          }
-
-          const dutyLog = await this.dutyService.constructor.DutyLog.findOne({
-            _id: logId,
-            scheduleId,
-            'dutyOfficer.userId': req.user._id
-          });
-
-          if (!dutyLog) {
-            return res.status(404).json({
-              success: false,
-              message: '未找到值班记录'
-            });
-          }
-
-          // 创建附件记录
-          const attachment = {
-            type: this.getFileType(req.file.mimetype),
-            url: `/uploads/duty/${req.file.filename}`,
-            fileName: req.file.originalname,
-            fileSize: req.file.size,
-            uploadedAt: new Date()
-          };
-
-          res.json({
-            success: true,
-            message: '文件上传成功',
-            data: attachment
-          });
-        } catch (uploadError) {
-          logger.error('文件上传处理失败:', uploadError);
-          res.status(500).json({
-            success: false,
-            message: uploadError.message || '文件上传处理失败'
-          });
-        }
-      });
-    } catch (error) {
-      logger.error('文件上传失败:', error);
-      res.status(500).json({
-        success: false,
-        message: error.message || '文件上传失败'
-      });
-    }
-  };
-
-  /**
-   * 获取值班统计
-   */
-  getDutyStatistics = async (req, res) => {
-    try {
-      const { startDate, endDate, reportType = 'comprehensive' } = req.query;
-
-      if (!startDate || !endDate) {
-        return res.status(400).json({
-          success: false,
-          message: '请提供开始和结束日期'
-        });
-      }
-
-      const report = await this.dutyService.generateDutyReport(
-        req.user.villageId,
-        new Date(startDate),
-        new Date(endDate),
-        reportType
-      );
-
-      res.json({
-        success: true,
-        data: report
-      });
-    } catch (error) {
-      logger.error('获取值班统计失败:', error);
-      res.status(500).json({
-        success: false,
-        message: error.message || '获取值班统计失败'
-      });
-    }
-  };
-
-  /**
-   * 更新值班表
-   */
-  updateSchedule = async (req, res) => {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({
-          success: false,
-          message: '参数验证失败',
-          errors: errors.array()
-        });
-      }
-
-      const { scheduleId } = req.params;
-      const updateData = {
-        ...req.body,
-        lastModifiedBy: req.user._id
-      };
-
-      const schedule = await this.dutyService.constructor.findByIdAndUpdate(
-        scheduleId,
-        updateData,
-        { new: true, runValidators: true }
-      ).populate('createdBy lastModifiedBy');
 
       if (!schedule) {
         return res.status(404).json({
           success: false,
-          message: '值班表不存在'
+          message: '未找到当日值班安排'
         });
       }
 
-      res.json({
-        success: true,
-        message: '值班表更新成功',
-        data: schedule
+      // 获取当日班次
+      const todaySchedule = schedule.schedules.find(s => {
+        const scheduleDate = new Date(s.date);
+        const targetDate = new Date(date);
+        return scheduleDate.toDateString() === targetDate.toDateString();
       });
-    } catch (error) {
-      logger.error('更新值班表失败:', error);
-      res.status(500).json({
-        success: false,
-        message: error.message || '更新值班表失败'
-      });
-    }
-  };
 
-  /**
-   * 删除值班表
-   */
-  deleteSchedule = async (req, res) => {
-    try {
-      const { scheduleId } = req.params;
-
-      const schedule = await this.dutyService.constructor.findById(scheduleId);
-
-      if (!schedule) {
+      if (!todaySchedule || todaySchedule.shifts.length === 0) {
         return res.status(404).json({
           success: false,
-          message: '值班表不存在'
+          message: '当日无值班安排'
         });
       }
 
-      // 软删除
-      schedule.isActive = false;
-      schedule.lastModifiedBy = req.user._id;
-      await schedule.save();
-
-      res.json({
-        success: true,
-        message: '值班表删除成功'
-      });
-    } catch (error) {
-      logger.error('删除值班表失败:', error);
-      res.status(500).json({
-        success: false,
-        message: error.message || '删除值班表失败'
-      });
-    }
-  };
-
-  /**
-   * 交接班
-   */
-  handleShiftChange = async (req, res) => {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({
-          success: false,
-          message: '参数验证失败',
-          errors: errors.array()
-        });
-      }
-
-      const { scheduleId } = req.params;
-      const handoverData = {
-        ...req.body,
-        acknowledgedBy: {
-          userId: req.user._id,
-          userName: req.user.name,
-          acknowledgedAt: new Date()
-        }
-      };
-
-      const dutyLog = await this.dutyService.constructor.DutyLog.findOne({
-        scheduleId,
-        'dutyOfficer.userId': req.user._id,
-        'attendance.actualStart': {
-          $gte: new Date(new Date().setHours(0, 0, 0, 0))
-        }
-      });
-
-      if (!dutyLog) {
-        return res.status(404).json({
-          success: false,
-          message: '未找到今日值班记录'
-        });
-      }
-
-      const updatedLog = await this.dutyService.constructor.completeHandover(dutyLog, handoverData);
-
-      res.json({
-        success: true,
-        message: '交接班成功',
-        data: updatedLog
-      });
-    } catch (error) {
-      logger.error('交接班失败:', error);
-      res.status(500).json({
-        success: false,
-        message: error.message || '交接班失败'
-      });
-    }
-  };
-
-  /**
-   * 获取值班历史
-   */
-  getDutyHistory = async (req, res) => {
-    try {
-      const {
-        page = 1,
-        limit = 10,
-        startDate,
-        endDate,
-        userId
-      } = req.query;
-
-      const options = {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        startDate,
-        endDate,
-        villageId: req.user.villageId
-      };
-
-      // 如果指定了userId，则获取该用户的历史
-      const targetUserId = userId || req.user._id;
-
-      const result = await this.dutyService.constructor.DutyLog.getUserDutyHistory(
-        targetUserId,
-        options
-      );
-
-      res.json({
-        success: true,
-        data: result
-      });
-    } catch (error) {
-      logger.error('获取值班历史失败:', error);
-      res.status(500).json({
-        success: false,
-        message: error.message || '获取值班历史失败'
-      });
-    }
-  };
-
-  /**
-   * 验证值班二维码
-   */
-  validateQRCode = async (req, res) => {
-    try {
-      const { qrCodeData } = req.body;
-
-      let qrData;
-      try {
-        qrData = JSON.parse(qrCodeData);
-      } catch (e) {
-        return res.status(400).json({
-          success: false,
-          message: '无效的二维码数据'
-        });
-      }
-
-      if (qrData.type !== 'duty_schedule') {
-        return res.status(400).json({
-          success: false,
-          message: '不是有效的值班表二维码'
-        });
-      }
-
-      // 验证值班表是否存在且有效
-      const schedule = await this.dutyService.constructor.findById(qrData.scheduleId);
-
-      if (!schedule || !schedule.isActive) {
-        return res.status(404).json({
-          success: false,
-          message: '值班表不存在或已失效'
-        });
-      }
-
-      // 检查时间戳（二维码生成后1小时内有效）
-      const qrTime = new Date(qrData.timestamp);
+      // 根据当前时间确定班次
       const now = new Date();
-      const timeDiff = (now - qrTime) / (1000 * 60); // 分钟
+      const currentHour = now.getHours();
+      let currentShift = null;
 
-      if (timeDiff > 60) {
-        return res.status(400).json({
+      if (currentHour >= 6 && currentHour < 12) {
+        currentShift = todaySchedule.shifts.find(s => s.name === 'morning');
+      } else if (currentHour >= 12 && currentHour < 18) {
+        currentShift = todaySchedule.shifts.find(s => s.name === 'afternoon');
+      } else {
+        currentShift = todaySchedule.shifts.find(s => s.name === 'night');
+      }
+
+      if (!currentShift || currentShift.personnel.length === 0) {
+        return res.status(404).json({
           success: false,
-          message: '二维码已过期，请重新获取'
+          message: '当前时段无值班人员'
         });
+      }
+
+      // 生成呼叫ID
+      const callId = `CALL_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+      // 记录呼叫
+      const callData = {
+        callId,
+        date: new Date(date),
+        shift: currentShift.name,
+        caller: {
+          userId: req.user.id,
+          name: req.user.username,
+          phone: req.user.profile?.phone,
+          villageId
+        },
+        personnel: currentShift.personnel.map(p => ({
+          memberId: p.memberId,
+          name: p.name,
+          phone: p.phone,
+          responseStatus: 'calling'
+        })),
+        reason,
+        urgency,
+        location,
+        status: 'calling'
+      };
+
+      await schedule.recordCall(callData);
+
+      // 实时通知值班人员（WebSocket）
+      const io = socketService.getIO();
+      if (io) {
+        currentShift.personnel.forEach(person => {
+          // 向该值班人员的WebSocket房间发送通知
+          io.to(`user_${person.memberId}`).emit('duty_call', {
+            callId,
+            reason,
+            urgency,
+            location,
+            caller: req.user.username
+          });
+        });
+
+        // 向村庄管理员房间推送呼叫信息
+        io.to(`village_${villageId}_admin`).emit('duty_call_initiated', {
+          callId,
+          personnel: currentShift.personnel.map(p => p.name),
+          urgency
+        });
+      }
+
+      // 记录审计日志
+      await CommitteeAuditLog.logAction({
+        operatorId: req.user.id,
+        operatorName: req.user.username,
+        villageId,
+        action: 'duty_call',
+        resourceType: 'schedule',
+        resourceId: schedule._id,
+        details: {
+          changes: {
+            after: { callId, reason, urgency, personnelCount: currentShift.personnel.length }
+          },
+          result: 'success'
+        },
+        requestContext: {
+          ipAddress: req.ip,
+          userAgent: req.get('user-agent')
+        },
+        sensitiveAction: {
+          isSensitive: urgency === 'emergency' || urgency === 'high'
+        }
+      });
+
+      res.json({
+        success: true,
+        data: {
+          callId,
+          personnel: currentShift.personnel,
+          shift: currentShift.name,
+          status: 'calling'
+        },
+        message: '正在呼叫值班人员...'
+      });
+
+    } catch (error) {
+      console.error('Call duty personnel error:', error);
+      res.status(500).json({
+        success: false,
+        message: '呼叫值班人员失败'
+      });
+    }
+  }
+
+  /**
+   * 响应呼叫
+   * @route POST /api/v1/duty-schedule/calls/:callId/respond
+   */
+  static async respondToCall(req, res) {
+    try {
+      const { callId } = req.params;
+      const { memberId, status, responseTime, callDuration } = req.body;
+
+      // 查找包含该呼叫的值班表
+      const schedule = await DutySchedule.findOne({
+        'callHistory.callId': callId
+      });
+
+      if (!schedule) {
+        return res.status(404).json({
+          success: false,
+          message: '呼叫记录不存在'
+        });
+      }
+
+      await schedule.respondToCall(callId, memberId, {
+        status,
+        responseTime,
+        callDuration
+      });
+
+      // 通知呼叫者
+      const io = socketService.getIO();
+      if (io) {
+        const call = schedule.callHistory.find(c => c.callId === callId);
+        if (call) {
+          io.to(`user_${call.caller.userId}`).emit('duty_call_responded', {
+            callId,
+            memberId,
+            status,
+            responseTime
+          });
+        }
       }
 
       res.json({
         success: true,
-        message: '二维码验证成功',
-        data: qrData
+        message: '响应成功'
       });
+
     } catch (error) {
-      logger.error('验证二维码失败:', error);
+      console.error('Respond to call error:', error);
       res.status(500).json({
         success: false,
-        message: error.message || '验证二维码失败'
+        message: '响应失败'
       });
     }
-  };
+  }
 
   /**
-   * 导出值班报表
+   * 获取月度值班日历
+   * @route GET /api/v1/duty-schedule/calendar/:year/:month
    */
-  exportDutyReport = async (req, res) => {
+  static async getMonthlyCalendar(req, res) {
     try {
-      const { startDate, endDate, format = 'excel' } = req.query;
+      const { villageId } = req.query;
+      const { year, month } = req.params;
 
-      if (!startDate || !endDate) {
-        return res.status(400).json({
-          success: false,
-          message: '请提供开始和结束日期'
-        });
-      }
-
-      const report = await this.dutyService.generateDutyReport(
-        req.user.villageId,
-        new Date(startDate),
-        new Date(endDate),
-        'comprehensive'
-      );
-
-      // 这里可以根据format参数生成不同格式的文件
-      // 简化实现，返回JSON数据
-      res.json({
-        success: true,
-        message: '报表导出成功',
-        data: report
-      });
-    } catch (error) {
-      logger.error('导出报表失败:', error);
-      res.status(500).json({
-        success: false,
-        message: error.message || '导出报表失败'
-      });
-    }
-  };
-
-  /**
-   * 获取日历视图数据
-   */
-  getCalendarData = async (req, res) => {
-    try {
-      const { year, month } = req.query;
-      const villageId = req.user.villageId;
-
-      if (!year || !month) {
-        return res.status(400).json({
-          success: false,
-          message: '请提供年份和月份'
-        });
-      }
-
-      const calendarData = await this.dutyService.getCalendarData(
+      const calendar = await DutySchedule.getMonthlyCalendar(
         villageId,
         parseInt(year),
         parseInt(month)
@@ -823,87 +406,205 @@ class DutyScheduleController {
 
       res.json({
         success: true,
-        data: calendarData
+        data: {
+          year,
+          month,
+          calendar
+        }
       });
+
     } catch (error) {
-      logger.error('获取日历数据失败:', error);
+      console.error('Get monthly calendar error:', error);
       res.status(500).json({
         success: false,
-        message: error.message || '获取日历数据失败'
+        message: '获取月度日历失败'
       });
     }
-  };
+  }
 
   /**
-   * 扫码呼叫值班人员（村民端）
+   * 获取值班统计
+   * @route GET /api/v1/duty-schedule/statistics
    */
-  scanAndCall = async (req, res) => {
+  static async getStatistics(req, res) {
     try {
-      const { qrCodeData } = req.body;
-      const callerInfo = {
-        userId: req.user?._id || null,
-        name: req.user?.name || req.body.callerName,
-        phone: req.user?.phone || req.body.callerPhone,
-        address: req.body.address || req.location?.address
-      };
+      const { villageId, startDate, endDate } = req.query;
 
-      const callData = {
-        urgency: req.body.urgency || 'LOW',
-        content: req.body.content,
-        location: req.body.location || {}
-      };
+      if (!villageId || !startDate || !endDate) {
+        return res.status(400).json({
+          success: false,
+          message: '缺少必要参数'
+        });
+      }
 
-      const result = await this.dutyService.scanAndCallDutyOfficer(
-        qrCodeData,
-        callerInfo,
-        callData
+      const stats = await DutySchedule.getDutyStatistics(
+        villageId,
+        new Date(startDate),
+        new Date(endDate)
       );
 
       res.json({
         success: true,
-        message: '呼叫已发送',
-        data: result
+        data: stats
       });
+
     } catch (error) {
-      logger.error('扫码呼叫失败:', error);
+      console.error('Get statistics error:', error);
       res.status(500).json({
         success: false,
-        message: error.message || '扫码呼叫失败'
+        message: '获取统计数据失败'
       });
     }
-  };
+  }
 
   /**
-   * 获取今日值班信息（公开接口，用于村委大厅展示）
+   * 更新值班表
+   * @route PUT /api/v1/duty-schedule/:id
    */
-  getTodayDutyPublic = async (req, res) => {
+  static async updateSchedule(req, res) {
     try {
-      const { villageId } = req.params;
-      const todayDuty = await this.dutyService.getTodayDuty(villageId);
+      const { id } = req.params;
+      const updateData = req.body;
+
+      const schedule = await DutySchedule.findById(id);
+      if (!schedule) {
+        return res.status(404).json({
+          success: false,
+          message: '值班表不存在'
+        });
+      }
+
+      // 权限验证
+      if (!req.user.permissions?.includes('duty:update')) {
+        return res.status(403).json({
+          success: false,
+          message: '无权限更新值班表'
+        });
+      }
+
+      Object.assign(schedule, updateData);
+      schedule.metadata.updatedBy = req.user.id;
+      await schedule.save();
 
       res.json({
         success: true,
-        data: {
-          villageId,
-          date: new Date(),
-          duties: todayDuty
-        }
+        data: schedule,
+        message: '值班表更新成功'
       });
+
     } catch (error) {
-      logger.error('获取今日值班失败:', error);
+      console.error('Update schedule error:', error);
       res.status(500).json({
         success: false,
-        message: error.message || '获取今日值班失败'
+        message: '更新值班表失败'
       });
     }
-  };
+  }
 
-  // 辅助方法
-  getFileType(mimetype) {
-    if (mimetype.startsWith('image/')) return 'image';
-    if (mimetype.startsWith('video/')) return 'video';
-    if (mimetype.startsWith('audio/')) return 'audio';
-    return 'document';
+  /**
+   * 发布值班表
+   * @route POST /api/v1/duty-schedule/:id/publish
+   */
+  static async publishSchedule(req, res) {
+    try {
+      const { id } = req.params;
+
+      const schedule = await DutySchedule.findById(id);
+      if (!schedule) {
+        return res.status(404).json({
+          success: false,
+          message: '值班表不存在'
+        });
+      }
+
+      schedule.metadata.published = true;
+      schedule.metadata.publishedAt = new Date();
+      await schedule.save();
+
+      // 通知相关村委成员
+      await sendNotification({
+        type: 'duty_schedule_published',
+        villageId: schedule.villageId,
+        data: {
+          season: schedule.season,
+          year: schedule.year
+        }
+      });
+
+      res.json({
+        success: true,
+        message: '值班表已发布'
+      });
+
+    } catch (error) {
+      console.error('Publish schedule error:', error);
+      res.status(500).json({
+        success: false,
+        message: '发布值班表失败'
+      });
+    }
+  }
+
+  /**
+   * 申请替班
+   * @route POST /api/v1/duty-schedule/substitution
+   */
+  static async requestSubstitution(req, res) {
+    try {
+      const {
+        villageId,
+        scheduleId,
+        originalDate,
+        originalShift,
+        originalMemberId,
+        substituteMemberId,
+        reason
+      } = req.body;
+
+      const schedule = await DutySchedule.findById(scheduleId);
+      if (!schedule) {
+        return res.status(404).json({
+          success: false,
+          message: '值班表不存在'
+        });
+      }
+
+      await schedule.requestSubstitution({
+        originalDate: new Date(originalDate),
+        originalShift,
+        originalMemberId,
+        substituteMemberId,
+        reason,
+        approvedBy: req.user.id
+      });
+
+      // 通知替班人员
+      const substitute = await CommitteeMember.findById(substituteMemberId);
+      if (substitute) {
+        await sendNotification({
+          type: 'duty_substitution_request',
+          villageId,
+          recipients: [substituteMemberId],
+          data: {
+            date: originalDate,
+            shift: originalShift,
+            reason
+          }
+        });
+      }
+
+      res.json({
+        success: true,
+        message: '替班申请已提交'
+      });
+
+    } catch (error) {
+      console.error('Request substitution error:', error);
+      res.status(500).json({
+        success: false,
+        message: '申请替班失败'
+      });
+    }
   }
 }
 

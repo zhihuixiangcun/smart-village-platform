@@ -354,15 +354,15 @@ farmProductSupplySchema.virtual('averagePrice').get(function() {
   return (this.price.minPrice + this.price.maxPrice) / 2;
 });
 
-farmProductSupply.virtual('hasCertifications').get(function() {
+farmProductSupplySchema.virtual('hasCertifications').get(function() {
   return this.quality.certification && this.quality.certification.length > 0;
 });
 
-farmProductSchema.virtual('totalTransactions').get(function() {
+farmProductSupplySchema.virtual('totalTransactions').get(function() {
   return this.transactions ? this.transactions.length : 0;
 });
 
-farmProductSchema.virtual('isInStock').get(function() {
+farmProductSupplySchema.virtual('isInStock').get(function() {
   return this.quantity > 0 && this.isAvailable;
 });
 

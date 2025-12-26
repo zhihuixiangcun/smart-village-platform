@@ -55,7 +55,6 @@ const VillageAdminAuthSchema = new mongoose.Schema({
   currentAdmin: {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
       required: true
     },
     userName: {
@@ -109,7 +108,6 @@ const VillageAdminAuthSchema = new mongoose.Schema({
     timestamp: { type: Date, default: Date.now },
     operator: {
       userId: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
     },
     operatorName: String,
     description: String,
@@ -129,12 +127,10 @@ const VillageAdminAuthSchema = new mongoose.Schema({
     timestamp: { type: Date, default: Date.now },
     operator: {
       userId: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
     },
     operatorName: String,
     targetUser: {
       userId: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
     },
     targetUserName: String,
     oldPermissions: [String],
@@ -142,7 +138,6 @@ const VillageAdminAuthSchema = new mongoose.Schema({
     reason: String,
     approvedBy: {
       userId: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
     },
     approvedAt: Date
   }],
@@ -186,7 +181,6 @@ const VillageAdminAuthSchema = new mongoose.Schema({
   backupAdmins: [{
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
     },
     userName: String,
     phone: String,
@@ -213,13 +207,11 @@ const VillageAdminAuthSchema = new mongoose.Schema({
   metadata: {
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
     },
     createdAt: { type: Date, default: Date.now },
     lastModified: { type: Date, default: Date.now },
     lastModifiedBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
     },
     notes: String,
     tags: [String]
@@ -313,8 +305,7 @@ const PermissionTemplateSchema = new mongoose.Schema({
     appliedTo: [{
       userId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-      },
+        },
       userName: String,
       appliedAt: { type: Date, default: Date.now },
       expiresAt: Date
@@ -334,7 +325,6 @@ const PermissionTemplateSchema = new mongoose.Schema({
   metadata: {
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
     },
     createdAt: { type: Date, default: Date.now },
     lastModified: { type: Date, default: Date.now },
@@ -387,7 +377,6 @@ const AuditLogSchema = new mongoose.Schema({
   actor: {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
       required: true
     },
     userName: {
@@ -408,7 +397,6 @@ const AuditLogSchema = new mongoose.Schema({
   target: {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
     },
     userName: String,
     targetResource: String,
@@ -840,7 +828,7 @@ AuditLogSchema.statics.queryLogs = async function(filters = {}, pagination = {})
 };
 
 module.exports = {
-  VillageAdminAuth: mongoose.model('VillageAdminAuth', VillageAdminSchema),
+  VillageAdminAuth: mongoose.model('VillageAdminAuth', VillageAdminAuthSchema),
   PermissionTemplate: mongoose.model('PermissionTemplate', PermissionTemplateSchema),
   AuditLog: mongoose.model('AuditLog', AuditLogSchema),
   PermissionLevels,

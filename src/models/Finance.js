@@ -68,7 +68,7 @@ const BlockchainRecordSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    index: true,
+    // unique: true 已自动创建索引，无需 index: true
     description: '区块链交易哈希'
   },
 
@@ -510,7 +510,7 @@ const FinancialTransactionSchema = new mongoose.Schema({
       type: String,
       required: true,
       unique: true,
-      index: true,
+      // unique: true 已自动创建索引，无需 index: true
       description: '交易编号'
     },
     transactionType: {
@@ -684,7 +684,8 @@ const VillageFinanceAccessSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     userName: String,
     householdId: { type: mongoose.Schema.Types.ObjectId, ref: 'Household' },
-    villageId: { type: String, required: true, index: true }
+    villageId: { type: String, required: true }
+    // 索引在 schema.index() 中定义，避免重复
   },
 
   // 访问权限配置
@@ -801,7 +802,7 @@ const VillageFinanceAccessSchema = new mongoose.Schema({
 });
 
 // 索引定义
-BlockchainRecordSchema.index({ transactionHash: 1 });
+// transactionHash 的 unique 索引已在字段定义中创建，无需重复
 BlockchainRecordSchema.index({ dataFingerprint: 1 });
 BlockchainRecordSchema.index({ blockTimestamp: -1 });
 
@@ -815,7 +816,7 @@ BudgetApprovalSchema.index({ 'approvalWorkflow.currentStage': 1 });
 BudgetApprovalSchema.index({ 'execution.status': 1 });
 BudgetApprovalSchema.index({ createdBy: 1 });
 
-FinancialTransactionSchema.index({ 'transactionInfo.transactionNumber': 1 });
+// transactionNumber 的 unique 索引已在字段定义中创建，无需重复
 FinancialTransactionSchema.index({ 'transactionInfo.transactionType': 1 });
 FinancialTransactionSchema.index({ 'transactionInfo.transactionDate': -1 });
 FinancialTransactionSchema.index({ status: 1 });

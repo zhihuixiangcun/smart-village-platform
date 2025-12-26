@@ -27,6 +27,9 @@ mongoose.set('strict', false);
 // ============================================
 require('./models');
 
+// 重要：首先加载所有Mongoose模型，确保正确的加载顺序
+require('./models');
+
 // 导入实时计算组件
 console.log('[DEBUG] Loading realtime components...');
 const realtimeIntegrator = require('./integrator/realtimeIntegrator');
@@ -36,7 +39,7 @@ console.log('[DEBUG] realtimeTracker loaded');
 const behaviorTracker = require('./middleware/behaviorTracker');
 console.log('[DEBUG] behaviorTracker loaded');
 
-// 导入路由
+// 导入路由（必须在模型加载之后）
 console.log('[DEBUG] Loading routes...');
 const realtimeRoutes = require('./routes/realtimeRoutes');
 console.log('[DEBUG] realtimeRoutes loaded');
