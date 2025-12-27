@@ -77,6 +77,8 @@ console.log('[DEBUG] familyRoutes loaded');
 const residentProfileRoutes = require('./routes/residentProfileRoutes');
 console.log('[DEBUG] residentProfileRoutes loaded');
 const documentRoutes = require('./routes/documentRoutes');
+const batchImportRoutes = require('./routes/batchImport');
+console.log('[DEBUG] batchImportRoutes loaded');
 console.log('[DEBUG] documentRoutes loaded');
 
 // 导入村务管理路由
@@ -348,6 +350,7 @@ app.get('/api/v1/info', (req, res) => {
         finance: '/api/v1/finance/*',
         emergency: '/api/v1/emergency/*',
         ecommerce: '/api/v1/ecommerce/*',
+        batchImport: '/api/v1/batch-import/*',
         ai: '/api/v1/ai/*'
       },
       modules: {
@@ -412,6 +415,8 @@ app.use('/api/v1/ai', aiChatRoutes);
 
 // 村民管理系统路由
 app.use('/api/v1/families', familyRoutes);
+n// 批量导入路由
+app.use('/api/v1/batch-import', batchImportRoutes);
 app.use('/api/v1/resident-profiles', residentProfileRoutes);
 app.use('/api/v1/documents', documentRoutes);
 
