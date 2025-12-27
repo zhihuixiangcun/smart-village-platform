@@ -3,17 +3,17 @@
  * 提供RBAC权限管理、动态权限策略、权限继承等功能
  */
 
-const express = require('express')
-const router = express.Router()
-const enhancedPermissionController = require('../controllers/enhancedPermissionController')
-const authMiddleware = require('../middleware/authMiddleware')
-const rateLimitMiddleware = require('../middleware/rateLimitMiddleware')
-const auditMiddleware = require('../middleware/auditMiddleware')
+const express = require('express');
+const router = express.Router();
+const enhancedPermissionController = require('../controllers/enhancedPermissionController');
+const authMiddleware = require('../middleware/authMiddleware');
+const rateLimitMiddleware = require('../middleware/rateLimitMiddleware');
+const auditMiddleware = require('../middleware/auditMiddleware');
 
 // 应用中间件
-router.use(authMiddleware) // 需要认证
-router.use(auditMiddleware) // 审计日志
-router.use(rateLimitMiddleware.auth) // 认证相关API限流
+router.use(authMiddleware); // 需要认证
+router.use(auditMiddleware); // 审计日志
+router.use(rateLimitMiddleware.auth); // 认证相关API限流
 
 /**
  * @api {POST} /api/v1/enhanced-permissions/authenticate 增强认证
@@ -41,7 +41,7 @@ router.use(rateLimitMiddleware.auth) // 认证相关API限流
  * @apiError (401) {Boolean} success 认证失败
  * @apiError (401) {String} message 错误消息
  */
-router.post('/authenticate', enhancedPermissionController.enhancedAuthenticate)
+router.post('/authenticate', enhancedPermissionController.enhancedAuthenticate);
 
 /**
  * @api {POST} /api/v1/enhanced-permissions/check 权限检查
@@ -63,7 +63,7 @@ router.post('/authenticate', enhancedPermissionController.enhancedAuthenticate)
  * @apiError (400) {Boolean} success 失败
  * @apiError (400) {String} message 错误消息
  */
-router.post('/check', enhancedPermissionController.checkPermission)
+router.post('/check', enhancedPermissionController.checkPermission);
 
 /**
  * @api {GET} /api/v1/enhanced-permissions/user/permissions 获取用户权限
@@ -82,7 +82,7 @@ router.post('/check', enhancedPermissionController.checkPermission)
  * @apiError (500) {Boolean} success 服务器错误
  * @apiError (500) {String} message 错误消息
  */
-router.get('/user/permissions', enhancedPermissionController.getUserPermissions)
+router.get('/user/permissions', enhancedPermissionController.getUserPermissions);
 
 /**
  * @api {POST} /api/v1/enhanced-permissions/policies 创建权限策略
@@ -108,7 +108,7 @@ router.get('/user/permissions', enhancedPermissionController.getUserPermissions)
  * @apiError (403) {Boolean} success 权限不足
  * @apiError (403) {String} message 错误消息
  */
-router.post('/policies', enhancedPermissionController.createPermissionPolicy)
+router.post('/policies', enhancedPermissionController.createPermissionPolicy);
 
 /**
  * @api {GET} /api/v1/enhanced-permissions/policies 获取权限策略列表
@@ -123,7 +123,7 @@ router.post('/policies', enhancedPermissionController.createPermissionPolicy)
  * @apiError (500) {Boolean} success 服务器错误
  * @apiError (500) {String} message 错误消息
  */
-router.get('/policies', enhancedPermissionController.getPermissionPolicies)
+router.get('/policies', enhancedPermissionController.getPermissionPolicies);
 
 /**
  * @api {POST} /api/v1/enhanced-permissions/inheritance/configure 配置权限继承
@@ -145,7 +145,7 @@ router.get('/policies', enhancedPermissionController.getPermissionPolicies)
  * @apiError (403) {Boolean} success 权限不足
  * @apiError (403) {String} message 错误消息
  */
-router.post('/inheritance/configure', enhancedPermissionController.configurePermissionInheritance)
+router.post('/inheritance/configure', enhancedPermissionController.configurePermissionInheritance);
 
 /**
  * @api {GET} /api/v1/enhanced-permissions/inheritance/config 获取权限继承配置
@@ -160,7 +160,7 @@ router.post('/inheritance/configure', enhancedPermissionController.configurePerm
  * @apiError (500) {Boolean} success 服务器错误
  * @apiError (500) {String} message 错误消息
  */
-router.get('/inheritance/config', enhancedPermissionController.getPermissionInheritanceConfig)
+router.get('/inheritance/config', enhancedPermissionController.getPermissionInheritanceConfig);
 
 /**
  * @api {POST} /api/v1/enhanced-permissions/sessions/manage 会话管理
@@ -182,7 +182,7 @@ router.get('/inheritance/config', enhancedPermissionController.getPermissionInhe
  * @apiError (401) {Boolean} success 会话无效
  * @apiError (401) {String} message 错误消息
  */
-router.post('/sessions/manage', enhancedPermissionController.manageSession)
+router.post('/sessions/manage', enhancedPermissionController.manageSession);
 
 /**
  * @api {PUT} /api/v1/enhanced-permissions/users/:userId/permissions 实时更新权限
@@ -202,7 +202,7 @@ router.post('/sessions/manage', enhancedPermissionController.manageSession)
  * @apiError (403) {Boolean} success 权限不足
  * @apiError (403) {String} message 错误消息
  */
-router.put('/users/:userId/permissions', enhancedPermissionController.updatePermissionsRealtime)
+router.put('/users/:userId/permissions', enhancedPermissionController.updatePermissionsRealtime);
 
 /**
  * @api {GET} /api/v1/enhanced-permissions/audit/report 生成权限审计报告
@@ -228,7 +228,7 @@ router.put('/users/:userId/permissions', enhancedPermissionController.updatePerm
  * @apiError (500) {Boolean} success 服务器错误
  * @apiError (500) {String} message 错误消息
  */
-router.get('/audit/report', enhancedPermissionController.generatePermissionAuditReport)
+router.get('/audit/report', enhancedPermissionController.generatePermissionAuditReport);
 
 /**
  * @api {DELETE} /api/v1/enhanced-permissions/cache 清理权限缓存
@@ -243,7 +243,7 @@ router.get('/audit/report', enhancedPermissionController.generatePermissionAudit
  * @apiError (403) {Boolean} success 权限不足
  * @apiError (403) {String} message 错误消息
  */
-router.delete('/cache', enhancedPermissionController.clearPermissionCache)
+router.delete('/cache', enhancedPermissionController.clearPermissionCache);
 
 /**
  * @api {POST} /api/v1/enhanced-permissions/batch-check 批量权限检查
@@ -262,7 +262,7 @@ router.delete('/cache', enhancedPermissionController.clearPermissionCache)
  * @apiError (400) {Boolean} success 失败
  * @apiError (400) {String} message 错误消息
  */
-router.post('/batch-check', enhancedPermissionController.batchCheckPermissions)
+router.post('/batch-check', enhancedPermissionController.batchCheckPermissions);
 
 /**
  * @api {GET} /api/v1/enhanced-permissions/stats 获取权限统计
@@ -281,11 +281,11 @@ router.post('/batch-check', enhancedPermissionController.batchCheckPermissions)
  * @apiError (500) {Boolean} success 服务器错误
  * @apiError (500) {String} message 错误消息
  */
-router.get('/stats', enhancedPermissionController.getPermissionStats)
+router.get('/stats', enhancedPermissionController.getPermissionStats);
 
 // 错误处理中间件
 router.use((error, req, res, next) => {
-  const logger = require('../config/logger')
+  const logger = require('../config/logger');
 
   logger.error('增强权限路由错误:', {
     error: error.message,
@@ -293,14 +293,14 @@ router.use((error, req, res, next) => {
     url: req.url,
     method: req.method,
     user: req.user ? req.user.id : 'anonymous'
-  })
+  });
 
   // 参数验证错误
   if (error.name === 'ValidationError') {
     return res.status(400).json({
       success: false,
       message: `参数验证失败: ${error.message}`
-    })
+    });
   }
 
   // 权限错误
@@ -308,7 +308,7 @@ router.use((error, req, res, next) => {
     return res.status(403).json({
       success: false,
       message: '权限不足'
-    })
+    });
   }
 
   // 认证错误
@@ -316,14 +316,14 @@ router.use((error, req, res, next) => {
     return res.status(401).json({
       success: false,
       message: '认证失败'
-    })
+    });
   }
 
   // 默认错误处理
   res.status(500).json({
     success: false,
     message: '服务器内部错误'
-  })
-})
+  });
+});
 
-module.exports = router
+module.exports = router;

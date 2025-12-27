@@ -79,7 +79,7 @@ class EmergencyService {
     } catch (error) {
       await session.abortTransaction();
       logger.error('创建应急事件失败:', error);
-      throw new Error('创建应急事件失败: ' + error.message);
+      throw new Error(`创建应急事件失败: ${  error.message}`);
     } finally {
       session.endSession();
     }
@@ -118,7 +118,7 @@ class EmergencyService {
       return emergency;
     } catch (error) {
       logger.error('快速上报失败:', error);
-      throw new Error('快速上报失败: ' + error.message);
+      throw new Error(`快速上报失败: ${  error.message}`);
     }
   }
 
@@ -209,7 +209,7 @@ class EmergencyService {
     } catch (error) {
       await session.abortTransaction();
       logger.error('更新应急事件状态失败:', error);
-      throw new Error('更新应急事件状态失败: ' + error.message);
+      throw new Error(`更新应急事件状态失败: ${  error.message}`);
     } finally {
       session.endSession();
     }
@@ -304,7 +304,7 @@ class EmergencyService {
     } catch (error) {
       await session.abortTransaction();
       logger.error('分配应急资源失败:', error);
-      throw new Error('分配应急资源失败: ' + error.message);
+      throw new Error(`分配应急资源失败: ${  error.message}`);
     } finally {
       session.endSession();
     }
@@ -365,7 +365,7 @@ class EmergencyService {
           name: operator.name
         },
         performedAt: new Date(),
-        planId: planId,
+        planId,
         executionResults
       });
 
@@ -409,7 +409,7 @@ class EmergencyService {
       };
     } catch (error) {
       logger.error('执行应急预案失败:', error);
-      throw new Error('执行应急预案失败: ' + error.message);
+      throw new Error(`执行应急预案失败: ${  error.message}`);
     }
   }
 
@@ -521,7 +521,7 @@ class EmergencyService {
       };
     } catch (error) {
       logger.error('获取应急事件统计失败:', error);
-      throw new Error('获取应急事件统计失败: ' + error.message);
+      throw new Error(`获取应急事件统计失败: ${  error.message}`);
     }
   }
 
@@ -690,33 +690,33 @@ class EmergencyService {
   async executePlanStep(emergency, step, operator) {
     // 根据步骤类型执行相应操作
     switch (step.type) {
-      case 'notification':
-        // 发送通知
-        await notificationService.sendBulkNotification({
-          type: 'emergency_plan_notification',
-          recipients: step.targets || [],
-          subject: step.title,
-          message: step.content,
-          data: {
-            emergencyId: emergency._id,
-            planStepId: step._id
-          }
-        });
-        return { message: '通知已发送' };
-
-      case 'resource_allocation':
-        // 分配资源
-        if (step.resourceIds) {
-          await this.allocateResources(emergency._id, step.resourceIds, operator);
+    case 'notification':
+      // 发送通知
+      await notificationService.sendBulkNotification({
+        type: 'emergency_plan_notification',
+        recipients: step.targets || [],
+        subject: step.title,
+        message: step.content,
+        data: {
+          emergencyId: emergency._id,
+          planStepId: step._id
         }
-        return { message: '资源已分配' };
+      });
+      return { message: '通知已发送' };
 
-      case 'evacuation':
-        // 疏散指令
-        return { message: '疏散指令已执行' };
+    case 'resource_allocation':
+      // 分配资源
+      if (step.resourceIds) {
+        await this.allocateResources(emergency._id, step.resourceIds, operator);
+      }
+      return { message: '资源已分配' };
 
-      default:
-        return { message: '步骤已执行' };
+    case 'evacuation':
+      // 疏散指令
+      return { message: '疏散指令已执行' };
+
+    default:
+      return { message: '步骤已执行' };
     }
   }
 }

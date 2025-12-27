@@ -377,7 +377,7 @@ class ApprovalWorkflowService {
             decision: 'forwarded',
             message: `已转至${nextStage.name}`,
             transactionId: transaction._id,
-            nextStage: nextStage,
+            nextStage,
             remainingApprovers: this.getRemainingApprovers(nextStage, transaction)
           };
         }
@@ -496,7 +496,7 @@ class ApprovalWorkflowService {
       });
 
       // 使用Function构造器安全地评估条件
-      return new Function('return ' + evaluatedCondition)();
+      return new Function(`return ${  evaluatedCondition}`)();
     } catch (error) {
       logger.error('条件评估失败:', error);
       return false;
@@ -510,31 +510,31 @@ class ApprovalWorkflowService {
    */
   applyRule(rule, config) {
     switch (rule.action) {
-      case 'add_stage':
-        const stage = {
-          id: rule.params.stageId,
-          name: rule.params.name,
-          requiredRoles: rule.params.requiredRoles,
-          minApprovers: 1,
-          maxApprovers: 1,
-          timeoutDays: 3,
-          canReject: true,
-          canReturn: false
-        };
+    case 'add_stage':
+      const stage = {
+        id: rule.params.stageId,
+        name: rule.params.name,
+        requiredRoles: rule.params.requiredRoles,
+        minApprovers: 1,
+        maxApprovers: 1,
+        timeoutDays: 3,
+        canReject: true,
+        canReturn: false
+      };
 
-        const insertAfter = rule.params.insertAfter;
-        const insertIndex = config.stages.findIndex(s => s.id === insertAfter);
+      const insertAfter = rule.params.insertAfter;
+      const insertIndex = config.stages.findIndex(s => s.id === insertAfter);
 
-        if (insertIndex !== -1) {
-          config.stages.splice(insertIndex + 1, 0, stage);
-        } else {
-          config.stages.push(stage);
-        }
-        break;
+      if (insertIndex !== -1) {
+        config.stages.splice(insertIndex + 1, 0, stage);
+      } else {
+        config.stages.push(stage);
+      }
+      break;
 
       // 可以添加更多规则类型
-      default:
-        logger.warn(`未知的规则动作: ${rule.action}`);
+    default:
+      logger.warn(`未知的规则动作: ${rule.action}`);
     }
   }
 

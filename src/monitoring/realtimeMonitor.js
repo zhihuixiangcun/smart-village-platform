@@ -158,20 +158,20 @@ class RealtimeMonitor extends EventEmitter {
    */
   handleClientMessage(ws, clientId, data) {
     switch (data.type) {
-      case 'subscribe':
-        this.handleSubscription(ws, clientId, data.channels);
-        break;
-      case 'unsubscribe':
-        this.handleUnsubscription(ws, clientId, data.channels);
-        break;
-      case 'getMetrics':
-        this.sendMetrics(ws);
-        break;
-      case 'getHistory':
-        this.sendHistory(ws, data.options);
-        break;
-      default:
-        logger.warn('未知的客户端消息类型', { type: data.type });
+    case 'subscribe':
+      this.handleSubscription(ws, clientId, data.channels);
+      break;
+    case 'unsubscribe':
+      this.handleUnsubscription(ws, clientId, data.channels);
+      break;
+    case 'getMetrics':
+      this.sendMetrics(ws);
+      break;
+    case 'getHistory':
+      this.sendHistory(ws, data.options);
+      break;
+    default:
+      logger.warn('未知的客户端消息类型', { type: data.type });
     }
   }
 
@@ -240,7 +240,7 @@ class RealtimeMonitor extends EventEmitter {
       memory: memUsage.rss / 1024 / 1024, // MB
       heapUsed: memUsage.heapUsed / 1024 / 1024, // MB
       heapTotal: memUsage.heapTotal / 1024 / 1024, // MB
-      uptime: uptime,
+      uptime,
       timestamp: now
     };
 

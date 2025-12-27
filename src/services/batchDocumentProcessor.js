@@ -458,7 +458,7 @@ class BatchDocumentProcessor extends EventEmitter {
    * 处理单个文件
    */
   async processSingleFile(file, options) {
-    let result = {};
+    const result = {};
 
     try {
       // OCR识别

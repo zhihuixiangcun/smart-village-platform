@@ -551,7 +551,7 @@ class ResidentProfileServiceOptimized {
         }
       }
 
-      let matchStage = { status: '正常' };
+      const matchStage = { status: '正常' };
 
       // 如果指定了村庄，通过家庭关联过滤
       if (village) {

@@ -4,14 +4,14 @@
  * 支持多轮对话、上下文记忆、专业化回答等功能
  */
 
-const axios = require('axios')
-const crypto = require('crypto')
-const EventEmitter = require('events')
-const logger = require('../config/logger')
+const axios = require('axios');
+const crypto = require('crypto');
+const EventEmitter = require('events');
+const logger = require('../config/logger');
 
 class AIQuestionAnswerService extends EventEmitter {
   constructor() {
-    super()
+    super();
 
     // OpenAI配置
     this.openaiConfig = {
@@ -21,7 +21,7 @@ class AIQuestionAnswerService extends EventEmitter {
       temperature: 0.7,
       maxTokens: 2000,
       timeout: 30000
-    }
+    };
 
     // 百度文心一言配置
     this.wenxinConfig = {
@@ -34,10 +34,10 @@ class AIQuestionAnswerService extends EventEmitter {
       temperature: 0.7,
       maxTokens: 2000,
       timeout: 30000
-    }
+    };
 
     // 默认使用的AI服务
-    this.defaultProvider = process.env.DEFAULT_AI_PROVIDER || 'openai'
+    this.defaultProvider = process.env.DEFAULT_AI_PROVIDER || 'openai';
 
     // 对话配置
     this.conversationConfig = {
@@ -51,7 +51,7 @@ class AIQuestionAnswerService extends EventEmitter {
         health: '你是一个健康咨询专家，专门提供农村医疗、健康保健、疾病预防等建议。请注意不能替代专业医生诊断。',
         law: '你是一个法律咨询专家，专门解答农村法律问题，如土地承包、婚姻家庭、邻里纠纷等。请提供法律条款和解决建议。'
       }
-    }
+    };
 
     // 智能提示词库
     this.promptTemplates = {
@@ -81,13 +81,13 @@ class AIQuestionAnswerService extends EventEmitter {
 3. 申请材料和流程
 4. 审批时间
 5. 注意事项和常见问题`
-    }
+    };
 
     // 会话管理
-    this.sessions = new Map()
+    this.sessions = new Map();
 
     // 缓存和统计
-    this.cache = new Map()
+    this.cache = new Map();
     this.stats = {
       totalQuestions: 0,
       successfulAnswers: 0,
@@ -99,10 +99,10 @@ class AIQuestionAnswerService extends EventEmitter {
       },
       categoryUsage: {},
       sessionCount: 0
-    }
+    };
 
     // 初始化文心一言access token
-    this.initWenxinToken()
+    this.initWenxinToken();
   }
 
   /**
@@ -111,7 +111,7 @@ class AIQuestionAnswerService extends EventEmitter {
   async initWenxinToken() {
     try {
       const response = await axios.post(
-        `https://aip.baidubce.com/oauth/2.0/token`,
+        'https://aip.baidubce.com/oauth/2.0/token',
         null,
         {
           params: {
@@ -120,20 +120,20 @@ class AIQuestionAnswerService extends EventEmitter {
             client_secret: this.wenxinConfig.apiSecret
           }
         }
-      )
+      );
 
-      this.wenxinConfig.accessToken = response.data.access_token
-      this.wenxinConfig.tokenExpiry = Date.now() + (response.data.expires_in - 60) * 1000
+      this.wenxinConfig.accessToken = response.data.access_token;
+      this.wenxinConfig.tokenExpiry = Date.now() + (response.data.expires_in - 60) * 1000;
 
-      logger.info('文心一言access token初始化成功')
+      logger.info('文心一言access token初始化成功');
 
       // 设置自动刷新
       setTimeout(() => {
-        this.initWenxinToken()
-      }, (response.data.expires_in - 120) * 1000)
+        this.initWenxinToken();
+      }, (response.data.expires_in - 120) * 1000);
 
     } catch (error) {
-      logger.error('文心一言access token初始化失败:', error)
+      logger.error('文心一言access token初始化失败:', error);
     }
   }
 
@@ -144,7 +144,7 @@ class AIQuestionAnswerService extends EventEmitter {
    * @returns {string} 会话ID
    */
   createSession(userId, config = {}) {
-    const sessionId = crypto.randomBytes(16).toString('hex')
+    const sessionId = crypto.randomBytes(16).toString('hex');
 
     const session = {
       id: sessionId,
@@ -161,19 +161,19 @@ class AIQuestionAnswerService extends EventEmitter {
         enableContext: config.enableContext !== false,
         ...config
       }
-    }
+    };
 
     // 添加系统消息
     session.messages.push({
       role: 'system',
       content: session.systemPrompt
-    })
+    });
 
-    this.sessions.set(sessionId, session)
-    this.stats.sessionCount++
+    this.sessions.set(sessionId, session);
+    this.stats.sessionCount++;
 
-    logger.info(`创建AI对话会话: ${sessionId} (用户: ${userId})`)
-    return sessionId
+    logger.info(`创建AI对话会话: ${sessionId} (用户: ${userId})`);
+    return sessionId;
   }
 
   /**
@@ -185,28 +185,28 @@ class AIQuestionAnswerService extends EventEmitter {
    */
   async sendMessage(sessionId, message, options = {}) {
     try {
-      const startTime = Date.now()
-      this.stats.totalQuestions++
+      const startTime = Date.now();
+      this.stats.totalQuestions++;
 
-      const session = this.sessions.get(sessionId)
+      const session = this.sessions.get(sessionId);
       if (!session) {
-        throw new Error('会话不存在或已过期')
+        throw new Error('会话不存在或已过期');
       }
 
       // 验证消息长度
       if (message.length > this.conversationConfig.maxMessageLength) {
-        throw new Error('消息长度超过限制')
+        throw new Error('消息长度超过限制');
       }
 
       // 上下文管理
       if (session.config.enableContext) {
         // 限制上下文长度
-        const maxMessages = this.conversationConfig.maxContextLength * 2 + 1 // system + user/assistant pairs
+        const maxMessages = this.conversationConfig.maxContextLength * 2 + 1; // system + user/assistant pairs
         if (session.messages.length > maxMessages) {
           // 保留系统消息和最近的对话
-          const systemMessage = session.messages[0]
-          const recentMessages = session.messages.slice(-maxMessages + 1)
-          session.messages = [systemMessage, ...recentMessages]
+          const systemMessage = session.messages[0];
+          const recentMessages = session.messages.slice(-maxMessages + 1);
+          session.messages = [systemMessage, ...recentMessages];
         }
       }
 
@@ -214,40 +214,40 @@ class AIQuestionAnswerService extends EventEmitter {
       session.messages.push({
         role: 'user',
         content: message
-      })
+      });
 
       // 选择AI提供商
-      const provider = options.provider || session.config.provider || this.defaultProvider
+      const provider = options.provider || session.config.provider || this.defaultProvider;
 
       // 生成回答
       const response = provider === 'wenxin'
         ? await this.askWenxin(session.messages, session.config)
-        : await this.askOpenAI(session.messages, session.config)
+        : await this.askOpenAI(session.messages, session.config);
 
       if (response.success) {
         // 添加助手回答到上下文
         session.messages.push({
           role: 'assistant',
           content: response.answer
-        })
+        });
 
         // 更新统计
-        const responseTime = Date.now() - startTime
-        this.stats.successfulAnswers++
-        this.stats.totalTokens += response.tokens || 0
-        this.stats.providerUsage[provider]++
+        const responseTime = Date.now() - startTime;
+        this.stats.successfulAnswers++;
+        this.stats.totalTokens += response.tokens || 0;
+        this.stats.providerUsage[provider]++;
 
         // 更新平均响应时间
         this.stats.averageResponseTime = (
           (this.stats.averageResponseTime * (this.stats.successfulAnswers - 1) + responseTime) /
           this.stats.successfulAnswers
-        ).toFixed(2)
+        ).toFixed(2);
 
         // 更新分类统计
-        this.stats.categoryUsage[session.context] = (this.stats.categoryUsage[session.context] || 0) + 1
+        this.stats.categoryUsage[session.context] = (this.stats.categoryUsage[session.context] || 0) + 1;
 
         // 更新会话活动时间
-        session.lastActivity = new Date()
+        session.lastActivity = new Date();
 
         // 发出事件
         this.emit('message-answered', {
@@ -258,7 +258,7 @@ class AIQuestionAnswerService extends EventEmitter {
           responseTime,
           provider,
           tokens: response.tokens
-        })
+        });
 
         return {
           success: true,
@@ -268,23 +268,23 @@ class AIQuestionAnswerService extends EventEmitter {
           responseTime,
           tokens: response.tokens,
           provider
-        }
+        };
       } else {
-        throw new Error(response.error || 'AI服务响应异常')
+        throw new Error(response.error || 'AI服务响应异常');
       }
 
     } catch (error) {
-      logger.error('AI问答失败:', error)
+      logger.error('AI问答失败:', error);
       this.emit('answer-error', {
         sessionId,
         error: error.message
-      })
+      });
 
       return {
         success: false,
         error: error.message,
         sessionId
-      }
+      };
     }
   }
 
@@ -300,7 +300,7 @@ class AIQuestionAnswerService extends EventEmitter {
         `${this.openaiConfig.baseUrl}/chat/completions`,
         {
           model: config.model || this.openaiConfig.model,
-          messages: messages,
+          messages,
           temperature: config.temperature || this.openaiConfig.temperature,
           max_tokens: config.maxTokens || this.openaiConfig.maxTokens,
           stream: false
@@ -312,25 +312,25 @@ class AIQuestionAnswerService extends EventEmitter {
           },
           timeout: config.timeout || this.openaiConfig.timeout
         }
-      )
+      );
 
-      const data = response.data
-      const answer = data.choices[0]?.message?.content || ''
-      const tokens = data.usage?.total_tokens || 0
+      const data = response.data;
+      const answer = data.choices[0]?.message?.content || '';
+      const tokens = data.usage?.total_tokens || 0;
 
       return {
         success: true,
         answer: answer.trim(),
         tokens,
         usage: data.usage
-      }
+      };
 
     } catch (error) {
-      logger.error('OpenAI API调用失败:', error)
+      logger.error('OpenAI API调用失败:', error);
       return {
         success: false,
         error: error.response?.data?.error?.message || error.message
-      }
+      };
     }
   }
 
@@ -344,11 +344,11 @@ class AIQuestionAnswerService extends EventEmitter {
     try {
       // 检查token是否有效
       if (Date.now() > this.wenxinConfig.tokenExpiry) {
-        await this.initWenxinToken()
+        await this.initWenxinToken();
       }
 
       // 转换消息格式
-      const wenxinMessages = this.convertMessagesToWenxin(messages)
+      const wenxinMessages = this.convertMessagesToWenxin(messages);
 
       const response = await axios.post(
         `${this.wenxinConfig.baseUrl}/${config.model || this.wenxinConfig.model}`,
@@ -369,29 +369,29 @@ class AIQuestionAnswerService extends EventEmitter {
           },
           timeout: config.timeout || this.wenxinConfig.timeout
         }
-      )
+      );
 
-      const data = response.data
+      const data = response.data;
       if (data.error_code !== 0) {
-        throw new Error(data.error_msg || '文心一言API错误')
+        throw new Error(data.error_msg || '文心一言API错误');
       }
 
-      const answer = data.result || ''
-      const tokens = data.usage?.total_tokens || 0
+      const answer = data.result || '';
+      const tokens = data.usage?.total_tokens || 0;
 
       return {
         success: true,
         answer: answer.trim(),
         tokens,
         usage: data.usage
-      }
+      };
 
     } catch (error) {
-      logger.error('文心一言API调用失败:', error)
+      logger.error('文心一言API调用失败:', error);
       return {
         success: false,
         error: error.response?.data?.error_msg || error.message
-      }
+      };
     }
   }
 
@@ -404,7 +404,7 @@ class AIQuestionAnswerService extends EventEmitter {
     return messages.map(msg => ({
       role: msg.role === 'assistant' ? 'assistant' : 'user',
       content: msg.content
-    }))
+    }));
   }
 
   /**
@@ -416,48 +416,48 @@ class AIQuestionAnswerService extends EventEmitter {
    */
   async smartQuestion(category, params, options = {}) {
     try {
-      const template = this.promptTemplates[category]
+      const template = this.promptTemplates[category];
       if (!template) {
-        throw new Error(`不支持的问答类别: ${category}`)
+        throw new Error(`不支持的问答类别: ${category}`);
       }
 
       // 构建提示词
-      let prompt = template
+      let prompt = template;
       Object.keys(params).forEach(key => {
-        prompt = prompt.replace(new RegExp(`\\{${key}\\}`, 'g'), params[key])
-      })
+        prompt = prompt.replace(new RegExp(`\\{${key}\\}`, 'g'), params[key]);
+      });
 
       // 临时会话
       const sessionId = this.createSession('smart_question', {
         context: category,
         enableContext: false,
         provider: options.provider || this.defaultProvider
-      })
+      });
 
       // 添加构建好的提示词
-      const session = this.sessions.get(sessionId)
+      const session = this.sessions.get(sessionId);
       session.messages = [{
         role: 'system',
         content: this.getSystemPrompt(category)
       }, {
         role: 'user',
         content: prompt
-      }]
+      }];
 
       // 发送消息
-      const response = await this.sendMessage(sessionId, prompt, options)
+      const response = await this.sendMessage(sessionId, prompt, options);
 
       // 清理会话
-      this.sessions.delete(sessionId)
+      this.sessions.delete(sessionId);
 
-      return response
+      return response;
 
     } catch (error) {
-      logger.error('智能问答失败:', error)
+      logger.error('智能问答失败:', error);
       return {
         success: false,
         error: error.message
-      }
+      };
     }
   }
 
@@ -467,7 +467,7 @@ class AIQuestionAnswerService extends EventEmitter {
    * @returns {string} 系统提示词
    */
   getSystemPrompt(context) {
-    return this.conversationConfig.contexts[context] || this.conversationConfig.defaultSystemPrompt
+    return this.conversationConfig.contexts[context] || this.conversationConfig.defaultSystemPrompt;
   }
 
   /**
@@ -476,9 +476,9 @@ class AIQuestionAnswerService extends EventEmitter {
    * @returns {Object} 会话信息
    */
   getSessionInfo(sessionId) {
-    const session = this.sessions.get(sessionId)
+    const session = this.sessions.get(sessionId);
     if (!session) {
-      return null
+      return null;
     }
 
     return {
@@ -489,7 +489,7 @@ class AIQuestionAnswerService extends EventEmitter {
       lastActivity: session.lastActivity,
       messageCount: session.messages.length,
       config: session.config
-    }
+    };
   }
 
   /**
@@ -498,36 +498,36 @@ class AIQuestionAnswerService extends EventEmitter {
    * @returns {boolean} 是否成功
    */
   endSession(sessionId) {
-    const session = this.sessions.get(sessionId)
+    const session = this.sessions.get(sessionId);
     if (!session) {
-      return false
+      return false;
     }
 
-    this.sessions.delete(sessionId)
-    logger.info(`结束AI对话会话: ${sessionId}`)
-    this.emit('session-ended', sessionId)
-    return true
+    this.sessions.delete(sessionId);
+    logger.info(`结束AI对话会话: ${sessionId}`);
+    this.emit('session-ended', sessionId);
+    return true;
   }
 
   /**
    * 清理过期会话
    */
   cleanupExpiredSessions() {
-    const now = new Date()
-    const expiredThreshold = 24 * 60 * 60 * 1000 // 24小时
+    const now = new Date();
+    const expiredThreshold = 24 * 60 * 60 * 1000; // 24小时
 
-    const expiredSessions = []
+    const expiredSessions = [];
     for (const [sessionId, session] of this.sessions) {
       if (now - session.lastActivity > expiredThreshold) {
-        expiredSessions.push(sessionId)
+        expiredSessions.push(sessionId);
       }
     }
 
     expiredSessions.forEach(sessionId => {
-      this.endSession(sessionId)
-    })
+      this.endSession(sessionId);
+    });
 
-    logger.info(`清理了 ${expiredSessions.length} 个过期的AI对话会话`)
+    logger.info(`清理了 ${expiredSessions.length} 个过期的AI对话会话`);
   }
 
   /**
@@ -538,7 +538,7 @@ class AIQuestionAnswerService extends EventEmitter {
     return {
       ...this.stats,
       successRate: this.stats.totalQuestions > 0
-        ? (this.stats.successfulAnswers / this.stats.totalQuestions * 100).toFixed(2) + '%'
+        ? `${(this.stats.successfulAnswers / this.stats.totalQuestions * 100).toFixed(2)  }%`
         : '0%',
       averageTokensPerAnswer: this.stats.successfulAnswers > 0
         ? Math.round(this.stats.totalTokens / this.stats.successfulAnswers)
@@ -548,7 +548,7 @@ class AIQuestionAnswerService extends EventEmitter {
       topCategories: Object.entries(this.stats.categoryUsage)
         .sort(([,a], [,b]) => b - a)
         .slice(0, 5)
-    }
+    };
   }
 
   /**
@@ -560,7 +560,7 @@ class AIQuestionAnswerService extends EventEmitter {
       key,
       name: this.getContextName(key),
       description: this.getContextDescription(key)
-    }))
+    }));
   }
 
   /**
@@ -576,8 +576,8 @@ class AIQuestionAnswerService extends EventEmitter {
       finance: '金融服务',
       health: '健康咨询',
       law: '法律咨询'
-    }
-    return names[context] || context
+    };
+    return names[context] || context;
   }
 
   /**
@@ -593,8 +593,8 @@ class AIQuestionAnswerService extends EventEmitter {
       finance: '解答惠农贷款、补贴申请、财务管理等',
       health: '提供健康保健、疾病预防、医疗咨询等',
       law: '解答土地承包、婚姻家庭、邻里纠纷等法律问题'
-    }
-    return descriptions[context] || '提供相关领域专业咨询服务'
+    };
+    return descriptions[context] || '提供相关领域专业咨询服务';
   }
 
   /**
@@ -612,8 +612,8 @@ class AIQuestionAnswerService extends EventEmitter {
       },
       categoryUsage: {},
       sessionCount: 0
-    }
-    logger.info('AI问答服务统计已重置')
+    };
+    logger.info('AI问答服务统计已重置');
   }
 
   /**
@@ -623,22 +623,22 @@ class AIQuestionAnswerService extends EventEmitter {
    */
   async generateSummary(sessionId) {
     try {
-      const session = this.sessions.get(sessionId)
+      const session = this.sessions.get(sessionId);
       if (!session) {
-        throw new Error('会话不存在')
+        throw new Error('会话不存在');
       }
 
       // 构建摘要请求
       const messages = [
         { role: 'system', content: '请为以下对话生成一个简洁的摘要，包括主要讨论的问题和关键信息点。' },
         { role: 'user', content: session.messages.map(m => `${m.role}: ${m.content}`).join('\n\n') }
-      ]
+      ];
 
       // 生成摘要
       const response = await this.askOpenAI(messages, {
         temperature: 0.3,
         maxTokens: 500
-      })
+      });
 
       if (response.success) {
         return {
@@ -647,20 +647,20 @@ class AIQuestionAnswerService extends EventEmitter {
           sessionId,
           messageCount: session.messages.length,
           duration: Date.now() - session.createdAt
-        }
+        };
       } else {
-        throw new Error(response.error)
+        throw new Error(response.error);
       }
 
     } catch (error) {
-      logger.error('生成对话摘要失败:', error)
+      logger.error('生成对话摘要失败:', error);
       return {
         success: false,
         error: error.message,
         sessionId
-      }
+      };
     }
   }
 }
 
-module.exports = AIQuestionAnswerService
+module.exports = AIQuestionAnswerService;

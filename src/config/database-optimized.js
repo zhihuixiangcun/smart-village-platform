@@ -256,29 +256,29 @@ class DatabaseManager extends EventEmitter {
       let result;
 
       switch (operation) {
-        case 'find':
-          result = await connection.model(model.modelName).find(query, options.projection, options);
-          break;
-        case 'findOne':
-          result = await connection.model(model.modelName).findOne(query, options.projection, options);
-          break;
-        case 'aggregate':
-          result = await connection.model(model.modelName).aggregate(query, options);
-          break;
-        case 'countDocuments':
-          result = await connection.model(model.modelName).countDocuments(query, options);
-          break;
-        case 'insertOne':
-        case 'insertMany':
-        case 'updateOne':
-        case 'updateMany':
-        case 'deleteOne':
-        case 'deleteMany':
-          // 写操作使用写连接
-          result = await this.getWriteConnection().model(model.modelName)[operation](query, options);
-          break;
-        default:
-          throw new Error(`不支持的操作: ${operation}`);
+      case 'find':
+        result = await connection.model(model.modelName).find(query, options.projection, options);
+        break;
+      case 'findOne':
+        result = await connection.model(model.modelName).findOne(query, options.projection, options);
+        break;
+      case 'aggregate':
+        result = await connection.model(model.modelName).aggregate(query, options);
+        break;
+      case 'countDocuments':
+        result = await connection.model(model.modelName).countDocuments(query, options);
+        break;
+      case 'insertOne':
+      case 'insertMany':
+      case 'updateOne':
+      case 'updateMany':
+      case 'deleteOne':
+      case 'deleteMany':
+        // 写操作使用写连接
+        result = await this.getWriteConnection().model(model.modelName)[operation](query, options);
+        break;
+      default:
+        throw new Error(`不支持的操作: ${operation}`);
       }
 
       const duration = Date.now() - startTime;

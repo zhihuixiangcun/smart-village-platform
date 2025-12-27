@@ -171,7 +171,7 @@ class EnhancedRateLimiter {
       ip: this.hashIdentifier(ip),
       user: this.hashIdentifier(userId),
       api: this.hashIdentifier(apiKey),
-      path: path,
+      path,
       ip_user: `${this.hashIdentifier(ip)}_${this.hashIdentifier(userId)}`,
       ip_path: `${this.hashIdentifier(ip)}_${path}`,
       user_path: `${this.hashIdentifier(userId)}_${path}`
@@ -460,9 +460,9 @@ class EnhancedRateLimiter {
     return {
       ...this.stats,
       blockRate: this.stats.totalRequests > 0 ?
-        (this.stats.blockedRequests / this.stats.totalRequests * 100).toFixed(2) + '%' : '0%',
+        `${(this.stats.blockedRequests / this.stats.totalRequests * 100).toFixed(2)  }%` : '0%',
       cacheHitRate: (this.stats.cacheHits + this.stats.cacheMisses) > 0 ?
-        (this.stats.cacheHits / (this.stats.cacheHits + this.stats.cacheMisses) * 100).toFixed(2) + '%' : '0%',
+        `${(this.stats.cacheHits / (this.stats.cacheHits + this.stats.cacheMisses) * 100).toFixed(2)  }%` : '0%',
       memoryStoreSize: this.memoryStore.size,
       redisConnected: !!this.redis
     };

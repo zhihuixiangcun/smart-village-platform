@@ -1,0 +1,26 @@
+[
+  {
+    "id": "resident_001",
+    "name": "张三",
+    "villageId": "village_001",
+    "role": "admin",
+    "phone": "138****1234",
+    "status": "active"
+  },
+  {
+    "id": "resident_002",
+    "name": "李四",
+    "villageId": "village_001",
+    "role": "villager",
+    "phone": "139****5678",
+    "status": "active"
+  },
+  {
+    "id": "resident_003",
+    "name": "王五",
+    "villageId": "village_002",
+    "role": "villager",
+    "phone": "137****9012",
+    "status": "active"
+  }
+]

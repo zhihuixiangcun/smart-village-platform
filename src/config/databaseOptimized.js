@@ -358,24 +358,24 @@ class OptimizedDatabase extends EventEmitter {
 
     // 更新操作计数
     switch (data.operation) {
-      case 'find':
-      case 'findOne':
-        this.metrics.operations.reads++;
-        break;
-      case 'insert':
-      case 'create':
-        this.metrics.operations.writes++;
-        break;
-      case 'update':
-      case 'updateOne':
-      case 'updateMany':
-        this.metrics.operations.updates++;
-        break;
-      case 'delete':
-      case 'deleteOne':
-      case 'deleteMany':
-        this.metrics.operations.deletes++;
-        break;
+    case 'find':
+    case 'findOne':
+      this.metrics.operations.reads++;
+      break;
+    case 'insert':
+    case 'create':
+      this.metrics.operations.writes++;
+      break;
+    case 'update':
+    case 'updateOne':
+    case 'updateMany':
+      this.metrics.operations.updates++;
+      break;
+    case 'delete':
+    case 'deleteOne':
+    case 'deleteMany':
+      this.metrics.operations.deletes++;
+      break;
     }
 
     this.updateLatencyMetrics();

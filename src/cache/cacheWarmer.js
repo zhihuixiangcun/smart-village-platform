@@ -98,17 +98,17 @@ class CacheWarmer extends EventEmitter {
 
       // 根据策略执行预热
       switch (this.config.strategy) {
-        case 'aggressive':
-          await this.aggressiveWarmup(options);
-          break;
-        case 'conservative':
-          await this.conservativeWarmup(options);
-          break;
-        case 'intelligent':
-          await this.intelligentWarmup(options);
-          break;
-        default:
-          await this.intelligentWarmup(options);
+      case 'aggressive':
+        await this.aggressiveWarmup(options);
+        break;
+      case 'conservative':
+        await this.conservativeWarmup(options);
+        break;
+      case 'intelligent':
+        await this.intelligentWarmup(options);
+        break;
+      default:
+        await this.intelligentWarmup(options);
       }
 
       const duration = performance.now() - startTime;

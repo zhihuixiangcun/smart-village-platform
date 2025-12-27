@@ -408,7 +408,7 @@ router.get('/login-history', authenticateToken, async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query;
     const VillageUser = require('../models/VillageUser');
-const logger = require('../utils/logger');
+    const logger = require('../utils/logger');
 
     const user = await VillageUser.findById(
       req.user.userId,

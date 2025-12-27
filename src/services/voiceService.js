@@ -107,10 +107,10 @@ class VoiceService {
       const params = new URLSearchParams({
         'dev_pid': dialectConfig.code.toString(),
         'cuid': userId || 'unknown',
-        'token': token,
+        token,
         'rate': rate.toString(),
         'channel': channel.toString(),
-        'format': format
+        format
       });
 
       // 读取音频文件
@@ -120,7 +120,7 @@ class VoiceService {
       const response = await this.sendRequest(`${this.baiduConfig.asrUrl}`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'audio/' + format,
+          'Content-Type': `audio/${  format}`,
           'Content-Length': audioData.length
         },
         body: audioData,
@@ -474,7 +474,7 @@ class VoiceService {
    */
   async generateToken() {
     try {
-      const url = `https://aip.baidubce.com/oauth/2.0/token`;
+      const url = 'https://aip.baidubce.com/oauth/2.0/token';
       const params = new URLSearchParams({
         'grant_type': 'client_credentials',
         'client_id': this.baiduConfig.apiKey,

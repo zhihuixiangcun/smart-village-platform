@@ -364,23 +364,23 @@ class MessageProducer {
   async sendMessage(type, data, options = {}) {
     try {
       switch (type) {
-        case 'village_event':
-          return await this.sendVillageEvent(data.eventType, data.eventData, options);
+      case 'village_event':
+        return await this.sendVillageEvent(data.eventType, data.eventData, options);
 
-        case 'notification':
-          return await this.sendNotification(data.notificationType, data.notificationData, options);
+      case 'notification':
+        return await this.sendNotification(data.notificationType, data.notificationData, options);
 
-        case 'task':
-          return await this.sendTask(data.taskType, data.taskData, options);
+      case 'task':
+        return await this.sendTask(data.taskType, data.taskData, options);
 
-        case 'analytics':
-          return await this.sendAnalyticsEvent(data.analyticsType, data.analyticsData, options);
+      case 'analytics':
+        return await this.sendAnalyticsEvent(data.analyticsType, data.analyticsData, options);
 
-        case 'audit':
-          return await this.sendAuditLog(data.action, data.entity, data.entityData, options);
+      case 'audit':
+        return await this.sendAuditLog(data.action, data.entity, data.entityData, options);
 
-        default:
-          throw new Error(`未知的消息类型: ${type}`);
+      default:
+        throw new Error(`未知的消息类型: ${type}`);
       }
     } catch (error) {
       Logger.error(`发送消息失败 (${type}):`, error);

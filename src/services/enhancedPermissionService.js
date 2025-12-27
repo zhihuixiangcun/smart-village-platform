@@ -3,11 +3,11 @@
  * 基于现有系统进行功能增强，支持RBAC、ABAC、动态权限、权限继承等
  */
 
-const crypto = require('crypto')
-const jwt = require('jsonwebtoken')
-const NodeCache = require('node-cache')
-const EventEmitter = require('events')
-const logger = require('../config/logger')
+const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
+const NodeCache = require('node-cache');
+const EventEmitter = require('events');
+const logger = require('../config/logger');
 const {
   VillageAdminAuth,
   PermissionTemplate,
@@ -15,17 +15,17 @@ const {
   PermissionLevels,
   PermissionActions,
   DataSensitivity
-} = require('../models/Permission')
-const User = require('../models/User')
+} = require('../models/Permission');
+const User = require('../models/User');
 
 class EnhancedPermissionService extends EventEmitter {
   constructor() {
-    super()
+    super();
 
     // 多层缓存系统
-    this.permissionCache = new NodeCache({ stdTTL: 300 }) // 5分钟
-    this.roleCache = new NodeCache({ stdTTL: 600 }) // 10分钟
-    this.userSessionCache = new NodeCache({ stdTTL: 1800 }) // 30分钟
+    this.permissionCache = new NodeCache({ stdTTL: 300 }); // 5分钟
+    this.roleCache = new NodeCache({ stdTTL: 600 }); // 10分钟
+    this.userSessionCache = new NodeCache({ stdTTL: 1800 }); // 30分钟
 
     // 权限策略配置
     this.policyConfig = {
@@ -64,7 +64,7 @@ class EnhancedPermissionService extends EventEmitter {
         realTimeAlerts: true,
         suspiciousActivityThreshold: 10
       }
-    }
+    };
 
     // 权限继承规则
     this.inheritanceRules = {
@@ -85,11 +85,11 @@ class EnhancedPermissionService extends EventEmitter {
         inheritsFrom: [PermissionLevels.VILLAGER],
         additionalPermissions: ['resident:*', 'service:*']
       }
-    }
+    };
 
     // 动态权限规则
-    this.dynamicPermissionRules = new Map()
-    this.setupDynamicRules()
+    this.dynamicPermissionRules = new Map();
+    this.setupDynamicRules();
   }
 
   /**
@@ -101,20 +101,20 @@ class EnhancedPermissionService extends EventEmitter {
       name: '时间访问控制',
       description: '基于时间段限制访问权限',
       evaluate: (user, resource, action, context) => {
-        const now = new Date()
-        const hour = now.getHours()
-        const dayOfWeek = now.getDay()
+        const now = new Date();
+        const hour = now.getHours();
+        const dayOfWeek = now.getDay();
 
         // 工作时间限制（周一至周五 8:00-18:00）
         if (resource.startsWith('finance:') && action === 'approve') {
-          const isWorkday = dayOfWeek >= 1 && dayOfWeek <= 5
-          const isWorkHours = hour >= 8 && hour < 18
-          return isWorkday && isWorkHours
+          const isWorkday = dayOfWeek >= 1 && dayOfWeek <= 5;
+          const isWorkHours = hour >= 8 && hour < 18;
+          return isWorkday && isWorkHours;
         }
 
-        return true
+        return true;
       }
-    })
+    });
 
     // 基于位置的权限规则
     this.dynamicPermissionRules.set('location_based', {
@@ -122,18 +122,18 @@ class EnhancedPermissionService extends EventEmitter {
       description: '基于地理位置限制访问权限',
       evaluate: (user, resource, action, context) => {
         if (!context.location || !user.village) {
-          return true
+          return true;
         }
 
         // 只能在本村内访问敏感资源
         if (resource.startsWith('resident:') || resource.startsWith('household:')) {
-          const isInVillage = context.location.villageId === user.village.villageId
-          return isInVillage
+          const isInVillage = context.location.villageId === user.village.villageId;
+          return isInVillage;
         }
 
-        return true
+        return true;
       }
-    })
+    });
 
     // 基于设备信任的权限规则
     this.dynamicPermissionRules.set('device_trust', {
@@ -141,55 +141,55 @@ class EnhancedPermissionService extends EventEmitter {
       description: '基于设备信任级别限制权限',
       evaluate: (user, resource, action, context) => {
         if (!context.device || !context.device.trustLevel) {
-          return resource === 'read' ? true : false
+          return resource === 'read' ? true : false;
         }
 
         // 高敏感操作需要可信设备
         const highSensitiveResources = [
           'system:config', 'user:delete', 'finance:approve',
           'village:delete', 'emergency:dispatch'
-        ]
+        ];
 
         if (highSensitiveResources.some(r => resource.startsWith(r.split(':')[0]))) {
-          return context.device.trustLevel === 'trusted'
+          return context.device.trustLevel === 'trusted';
         }
 
-        return true
+        return true;
       }
-    })
+    });
 
     // 基于操作频率的权限规则
     this.dynamicPermissionRules.set('rate_limit', {
       name: '操作频率限制',
       description: '基于操作频率限制权限',
       evaluate: (user, resource, action, context) => {
-        const cacheKey = `rate_limit_${user._id}_${resource}_${action}`
-        const recentOperations = this.userSessionCache.get(cacheKey) || []
-        const now = Date.now()
+        const cacheKey = `rate_limit_${user._id}_${resource}_${action}`;
+        const recentOperations = this.userSessionCache.get(cacheKey) || [];
+        const now = Date.now();
 
         // 清理过期记录（1小时内）
         const validOperations = recentOperations.filter(
           timestamp => now - timestamp < 60 * 60 * 1000
-        )
+        );
 
         // 普通操作限制：每小时100次
         if (validOperations.length >= 100) {
-          return false
+          return false;
         }
 
         // 敏感操作限制：每小时10次
-        const sensitiveOperations = ['create', 'delete', 'approve']
+        const sensitiveOperations = ['create', 'delete', 'approve'];
         if (sensitiveOperations.includes(action) && validOperations.length >= 10) {
-          return false
+          return false;
         }
 
         // 记录当前操作
-        validOperations.push(now)
-        this.userSessionCache.set(cacheKey, validOperations)
+        validOperations.push(now);
+        this.userSessionCache.set(cacheKey, validOperations);
 
-        return true
+        return true;
       }
-    })
+    });
   }
 
   /**
@@ -208,18 +208,18 @@ class EnhancedPermissionService extends EventEmitter {
         userAgent,
         location,
         mfaToken = null
-      } = authData
+      } = authData;
 
       // 1. 基础身份验证
-      const user = await this.validateUserCredentials(username, password)
+      const user = await this.validateUserCredentials(username, password);
       if (!user) {
-        await this.handleAuthenticationFailure(username, ipAddress, deviceId)
-        throw new Error('用户名或密码错误')
+        await this.handleAuthenticationFailure(username, ipAddress, deviceId);
+        throw new Error('用户名或密码错误');
       }
 
       // 2. 检查账户状态
       if (!this.isAccountActive(user)) {
-        throw new Error('账户已被禁用或锁定')
+        throw new Error('账户已被禁用或锁定');
       }
 
       // 3. 多因素认证验证（如果启用）
@@ -229,23 +229,23 @@ class EnhancedPermissionService extends EventEmitter {
             success: false,
             requiresMFA: true,
             mfaMethods: user.mfaMethods || ['totp']
-          }
+          };
         }
 
-        const mfaValid = await this.validateMFA(user, mfaToken)
+        const mfaValid = await this.validateMFA(user, mfaToken);
         if (!mfaValid) {
-          throw new Error('多因素认证失败')
+          throw new Error('多因素认证失败');
         }
       }
 
       // 4. 设备信任验证
-      const deviceTrust = await this.evaluateDeviceTrust(user, deviceId, deviceFingerprint)
+      const deviceTrust = await this.evaluateDeviceTrust(user, deviceId, deviceFingerprint);
 
       // 5. 地理位置验证（如果启用）
       if (this.policyConfig.accessPolicy.geoFencing) {
-        const locationValid = await this.validateLocation(user, location)
+        const locationValid = await this.validateLocation(user, location);
         if (!locationValid) {
-          throw new Error('访问位置不被允许')
+          throw new Error('访问位置不被允许');
         }
       }
 
@@ -258,7 +258,7 @@ class EnhancedPermissionService extends EventEmitter {
         location,
         deviceTrust,
         loginTime: new Date()
-      })
+      });
 
       // 7. 记录成功登录
       await this.recordAuthenticationEvent({
@@ -271,10 +271,10 @@ class EnhancedPermissionService extends EventEmitter {
           location,
           deviceTrust
         }
-      })
+      });
 
       // 8. 清理失败登录记录
-      await this.clearFailedLoginAttempts(username)
+      await this.clearFailedLoginAttempts(username);
 
       return {
         success: true,
@@ -282,16 +282,16 @@ class EnhancedPermissionService extends EventEmitter {
         session,
         permissions: await this.getEnhancedUserPermissions(user),
         deviceTrust
-      }
+      };
 
     } catch (error) {
-      logger.error('增强认证失败:', error)
+      logger.error('增强认证失败:', error);
       await this.recordAuthenticationEvent({
         user: { username: authData.username },
         event: 'LOGIN_FAILED',
         error: error.message
-      })
-      throw error
+      });
+      throw error;
     }
   }
 
@@ -305,11 +305,11 @@ class EnhancedPermissionService extends EventEmitter {
    */
   async enhancedPermissionCheck(user, resource, action, context = {}) {
     try {
-      const startTime = Date.now()
+      const startTime = Date.now();
 
       // 1. 基础权限检查
-      const basePermissions = await this.getUserPermissions(user)
-      const hasBasePermission = this.checkBasePermissions(basePermissions, resource, action)
+      const basePermissions = await this.getUserPermissions(user);
+      const hasBasePermission = this.checkBasePermissions(basePermissions, resource, action);
 
       if (!hasBasePermission) {
         await this.recordPermissionEvent({
@@ -320,27 +320,27 @@ class EnhancedPermissionService extends EventEmitter {
           reason: 'BASE_PERMISSION_MISSING',
           context,
           duration: Date.now() - startTime
-        })
+        });
 
         return {
           allowed: false,
           reason: 'BASE_PERMISSION_MISSING',
           policyApplied: []
-        }
+        };
       }
 
       // 2. 动态权限规则检查
-      const appliedPolicies = []
+      const appliedPolicies = [];
       for (const [policyId, policy] of this.dynamicPermissionRules) {
         try {
-          const policyResult = policy.evaluate(user, resource, action, context)
+          const policyResult = policy.evaluate(user, resource, action, context);
           if (!policyResult) {
             appliedPolicies.push({
-              policyId: policyId,
+              policyId,
               policyName: policy.name,
               decision: 'DENIED',
               reason: '动态权限规则拒绝'
-            })
+            });
 
             await this.recordPermissionEvent({
               user,
@@ -351,31 +351,31 @@ class EnhancedPermissionService extends EventEmitter {
               appliedPolicies,
               context,
               duration: Date.now() - startTime
-            })
+            });
 
             return {
               allowed: false,
               reason: `DYNAMIC_POLICY_${policyId}`,
               policyApplied: appliedPolicies
-            }
+            };
           } else {
             appliedPolicies.push({
-              policyId: policyId,
+              policyId,
               policyName: policy.name,
               decision: 'ALLOWED'
-            })
+            });
           }
         } catch (error) {
-          logger.error(`动态权限规则 ${policyId} 执行失败:`, error)
+          logger.error(`动态权限规则 ${policyId} 执行失败:`, error);
         }
       }
 
       // 3. 权限继承检查
-      const inheritedPermissions = await this.getInheritedPermissions(user)
-      const hasInheritedPermission = this.checkBasePermissions(inheritedPermissions, resource, action)
+      const inheritedPermissions = await this.getInheritedPermissions(user);
+      const hasInheritedPermission = this.checkBasePermissions(inheritedPermissions, resource, action);
 
       // 4. 最终权限决定
-      const allowed = hasBasePermission || hasInheritedPermission
+      const allowed = hasBasePermission || hasInheritedPermission;
 
       await this.recordPermissionEvent({
         user,
@@ -387,22 +387,22 @@ class EnhancedPermissionService extends EventEmitter {
         policyApplied: appliedPolicies,
         context,
         duration: Date.now() - startTime
-      })
+      });
 
       return {
         allowed,
         basePermissions: hasBasePermission,
         inheritedPermissions: hasInheritedPermission,
         policyApplied: appliedPolicies
-      }
+      };
 
     } catch (error) {
-      logger.error('增强权限检查失败:', error)
+      logger.error('增强权限检查失败:', error);
       return {
         allowed: false,
         reason: 'PERMISSION_CHECK_ERROR',
         error: error.message
-      }
+      };
     }
   }
 
@@ -413,30 +413,30 @@ class EnhancedPermissionService extends EventEmitter {
    */
   async getEnhancedUserPermissions(user) {
     try {
-      const cacheKey = `enhanced_permissions_${user._id}`
+      const cacheKey = `enhanced_permissions_${user._id}`;
 
       // 检查缓存
       if (this.permissionCache.has(cacheKey)) {
-        return this.permissionCache.get(cacheKey)
+        return this.permissionCache.get(cacheKey);
       }
 
       // 获取基础权限
-      const basePermissions = await this.getUserPermissions(user)
+      const basePermissions = await this.getUserPermissions(user);
 
       // 获取继承权限
-      const inheritedPermissions = await this.getInheritedPermissions(user)
+      const inheritedPermissions = await this.getInheritedPermissions(user);
 
       // 合并权限
-      const allPermissions = [...new Set([...basePermissions, ...inheritedPermissions])]
+      const allPermissions = [...new Set([...basePermissions, ...inheritedPermissions])];
 
       // 缓存结果
-      this.permissionCache.set(cacheKey, allPermissions)
+      this.permissionCache.set(cacheKey, allPermissions);
 
-      return allPermissions
+      return allPermissions;
 
     } catch (error) {
-      logger.error('获取增强用户权限失败:', error)
-      return []
+      logger.error('获取增强用户权限失败:', error);
+      return [];
     }
   }
 
@@ -447,30 +447,30 @@ class EnhancedPermissionService extends EventEmitter {
    */
   async getInheritedPermissions(user) {
     try {
-      const inheritedPermissions = []
-      const userRole = user.role
+      const inheritedPermissions = [];
+      const userRole = user.role;
 
       // 检查是否有继承规则
-      const inheritanceRule = this.inheritanceRules[userRole]
+      const inheritanceRule = this.inheritanceRules[userRole];
       if (!inheritanceRule) {
-        return inheritedPermissions
+        return inheritedPermissions;
       }
 
       // 递归获取继承权限
       for (const parentRole of inheritanceRule.inheritsFrom) {
-        const mockParentUser = { ...user, role: parentRole }
-        const parentPermissions = await this.getUserPermissions(mockParentUser)
-        inheritedPermissions.push(...parentPermissions)
+        const mockParentUser = { ...user, role: parentRole };
+        const parentPermissions = await this.getUserPermissions(mockParentUser);
+        inheritedPermissions.push(...parentPermissions);
       }
 
       // 添加额外权限
-      inheritedPermissions.push(...inheritanceRule.additionalPermissions)
+      inheritedPermissions.push(...inheritanceRule.additionalPermissions);
 
-      return inheritedPermissions
+      return inheritedPermissions;
 
     } catch (error) {
-      logger.error('获取继承权限失败:', error)
-      return []
+      logger.error('获取继承权限失败:', error);
+      return [];
     }
   }
 
@@ -489,12 +489,12 @@ class EnhancedPermissionService extends EventEmitter {
         targetRoles,
         priority = 'medium',
         enabled = true
-      } = policyData
+      } = policyData;
 
       // 验证规则
       for (const rule of rules) {
         if (!this.dynamicPermissionRules.has(rule.type)) {
-          throw new Error(`不支持的规则类型: ${rule.type}`)
+          throw new Error(`不支持的规则类型: ${rule.type}`);
         }
       }
 
@@ -510,24 +510,24 @@ class EnhancedPermissionService extends EventEmitter {
         enabled,
         createdAt: new Date(),
         updatedAt: new Date()
-      }
+      };
 
       // 保存策略（这里应该保存到数据库）
-      await this.savePermissionPolicy(policy)
+      await this.savePermissionPolicy(policy);
 
       // 清除相关缓存
-      this.clearPermissionCache()
+      this.clearPermissionCache();
 
-      logger.info('权限策略创建成功:', policy.id)
+      logger.info('权限策略创建成功:', policy.id);
 
       return {
         success: true,
         policy
-      }
+      };
 
     } catch (error) {
-      logger.error('创建权限策略失败:', error)
-      throw error
+      logger.error('创建权限策略失败:', error);
+      throw error;
     }
   }
 
@@ -538,17 +538,17 @@ class EnhancedPermissionService extends EventEmitter {
    */
   async configurePermissionInheritance(config) {
     try {
-      const { role, inheritsFrom, additionalPermissions, conditions } = config
+      const { role, inheritsFrom, additionalPermissions, conditions } = config;
 
       // 验证角色存在
       if (!Object.values(PermissionLevels).includes(role)) {
-        throw new Error(`无效的角色: ${role}`)
+        throw new Error(`无效的角色: ${role}`);
       }
 
       // 验证继承角色
       for (const parentRole of inheritsFrom) {
         if (!Object.values(PermissionLevels).includes(parentRole)) {
-          throw new Error(`无效的继承角色: ${parentRole}`)
+          throw new Error(`无效的继承角色: ${parentRole}`);
         }
       }
 
@@ -557,21 +557,21 @@ class EnhancedPermissionService extends EventEmitter {
         inheritsFrom,
         additionalPermissions: additionalPermissions || [],
         conditions: conditions || {}
-      }
+      };
 
       // 清除权限缓存
-      this.clearPermissionCache()
+      this.clearPermissionCache();
 
-      logger.info('权限继承配置更新:', role)
+      logger.info('权限继承配置更新:', role);
 
       return {
         success: true,
         message: `角色 ${role} 的权限继承配置已更新`
-      }
+      };
 
     } catch (error) {
-      logger.error('配置权限继承失败:', error)
-      throw error
+      logger.error('配置权限继承失败:', error);
+      throw error;
     }
   }
 
@@ -583,43 +583,43 @@ class EnhancedPermissionService extends EventEmitter {
    */
   async manageSession(sessionId, sessionData) {
     try {
-      const session = this.userSessionCache.get(sessionId)
+      const session = this.userSessionCache.get(sessionId);
 
       if (!session) {
-        throw new Error('会话不存在或已过期')
+        throw new Error('会话不存在或已过期');
       }
 
       // 检查会话有效性
-      const now = Date.now()
-      const idleTime = now - session.lastActivity
-      const totalTime = now - session.createdAt
+      const now = Date.now();
+      const idleTime = now - session.lastActivity;
+      const totalTime = now - session.createdAt;
 
       // 检查空闲超时
       if (idleTime > this.policyConfig.sessionPolicy.idleTimeout) {
-        this.userSessionCache.del(sessionId)
-        throw new Error('会话因空闲时间过长已过期')
+        this.userSessionCache.del(sessionId);
+        throw new Error('会话因空闲时间过长已过期');
       }
 
       // 检查绝对超时
       if (totalTime > this.policyConfig.sessionPolicy.absoluteTimeout) {
-        this.userSessionCache.del(sessionId)
-        throw new Error('会话已过期')
+        this.userSessionCache.del(sessionId);
+        throw new Error('会话已过期');
       }
 
       // 更新会话活动时间
-      session.lastActivity = now
-      session.data = { ...session.data, ...sessionData }
-      this.userSessionCache.set(sessionId, session)
+      session.lastActivity = now;
+      session.data = { ...session.data, ...sessionData };
+      this.userSessionCache.set(sessionId, session);
 
       return {
         valid: true,
         session,
         remainingTime: this.policyConfig.sessionPolicy.absoluteTimeout - totalTime
-      }
+      };
 
     } catch (error) {
-      logger.error('会话管理失败:', error)
-      throw error
+      logger.error('会话管理失败:', error);
+      throw error;
     }
   }
 
@@ -632,41 +632,41 @@ class EnhancedPermissionService extends EventEmitter {
   async updatePermissionsRealtime(userId, newPermissions) {
     try {
       // 更新数据库中的权限
-      const user = await User.findById(userId)
+      const user = await User.findById(userId);
       if (!user) {
-        throw new Error('用户不存在')
+        throw new Error('用户不存在');
       }
 
-      user.permissions = newPermissions
-      await user.save()
+      user.permissions = newPermissions;
+      await user.save();
 
       // 清除用户权限缓存
       const cacheKeys = [
         `user_permissions_${userId}`,
         `enhanced_permissions_${userId}`
-      ]
+      ];
 
       cacheKeys.forEach(key => {
-        this.permissionCache.del(key)
-      })
+        this.permissionCache.del(key);
+      });
 
       // 通知其他服务实例权限更新
       this.emit('permission_update', {
         userId,
         permissions: newPermissions,
         timestamp: new Date()
-      })
+      });
 
-      logger.info('用户权限实时更新成功:', userId)
+      logger.info('用户权限实时更新成功:', userId);
 
       return {
         success: true,
         message: '权限更新成功'
-      }
+      };
 
     } catch (error) {
-      logger.error('实时权限更新失败:', error)
-      throw error
+      logger.error('实时权限更新失败:', error);
+      throw error;
     }
   }
 
@@ -684,7 +684,7 @@ class EnhancedPermissionService extends EventEmitter {
         resource,
         action,
         result
-      } = filters
+      } = filters;
 
       // 构建查询条件
       const query = {
@@ -693,17 +693,17 @@ class EnhancedPermissionService extends EventEmitter {
           $gte: startDate || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
           $lte: endDate || new Date()
         }
-      }
+      };
 
-      if (userId) query['actor.userId'] = userId
-      if (resource) query.resource = resource
-      if (action) query.action = action
-      if (result) query.result = result
+      if (userId) query['actor.userId'] = userId;
+      if (resource) query.resource = resource;
+      if (action) query.action = action;
+      if (result) query.result = result;
 
       // 查询审计日志
       const auditLogs = await AuditLog.find(query)
         .sort({ timestamp: -1 })
-        .limit(10000)
+        .limit(10000);
 
       // 生成报告
       const report = {
@@ -719,17 +719,17 @@ class EnhancedPermissionService extends EventEmitter {
         timeDistribution: this.groupByTime(auditLogs),
         topDenials: this.getTopDenials(auditLogs),
         suspiciousActivity: this.detectSuspiciousActivity(auditLogs)
-      }
+      };
 
       return {
         success: true,
         report,
         generatedAt: new Date()
-      }
+      };
 
     } catch (error) {
-      logger.error('生成权限审计报告失败:', error)
-      throw error
+      logger.error('生成权限审计报告失败:', error);
+      throw error;
     }
   }
 
@@ -746,21 +746,21 @@ class EnhancedPermissionService extends EventEmitter {
           { email: username },
           { phone: username }
         ]
-      }).populate('village')
+      }).populate('village');
 
       if (!user || !user.auth) {
-        return null
+        return null;
       }
 
       // 验证密码
-      const bcrypt = require('bcrypt')
-      const passwordMatch = await bcrypt.compare(password, user.auth.password)
+      const bcrypt = require('bcrypt');
+      const passwordMatch = await bcrypt.compare(password, user.auth.password);
 
-      return passwordMatch ? user : null
+      return passwordMatch ? user : null;
 
     } catch (error) {
-      logger.error('验证用户凭证失败:', error)
-      return null
+      logger.error('验证用户凭证失败:', error);
+      return null;
     }
   }
 
@@ -768,7 +768,7 @@ class EnhancedPermissionService extends EventEmitter {
    * 检查账户状态
    */
   isAccountActive(user) {
-    return user.status === 'active' && !user.lockedUntil
+    return user.status === 'active' && !user.lockedUntil;
   }
 
   /**
@@ -777,7 +777,7 @@ class EnhancedPermissionService extends EventEmitter {
   async validateMFA(user, mfaToken) {
     // 这里应该集成真实的MFA验证服务
     // 简化实现
-    return true
+    return true;
   }
 
   /**
@@ -785,32 +785,32 @@ class EnhancedPermissionService extends EventEmitter {
    */
   async evaluateDeviceTrust(user, deviceId, deviceFingerprint) {
     try {
-      const deviceKey = `device_trust_${user._id}_${deviceId}`
-      const cachedDevice = this.userSessionCache.get(deviceKey)
+      const deviceKey = `device_trust_${user._id}_${deviceId}`;
+      const cachedDevice = this.userSessionCache.get(deviceKey);
 
       if (cachedDevice) {
         return {
           trustLevel: cachedDevice.trustLevel,
           lastUsed: cachedDevice.lastUsed
-        }
+        };
       }
 
       // 新设备评估
-      const trustLevel = deviceFingerprint ? 'trusted' : 'unknown'
+      const trustLevel = deviceFingerprint ? 'trusted' : 'unknown';
 
       const deviceInfo = {
         trustLevel,
         lastUsed: new Date(),
         firstSeen: new Date()
-      }
+      };
 
-      this.userSessionCache.set(deviceKey, deviceInfo)
+      this.userSessionCache.set(deviceKey, deviceInfo);
 
-      return deviceInfo
+      return deviceInfo;
 
     } catch (error) {
-      logger.error('评估设备信任失败:', error)
-      return { trustLevel: 'unknown' }
+      logger.error('评估设备信任失败:', error);
+      return { trustLevel: 'unknown' };
     }
   }
 
@@ -819,14 +819,14 @@ class EnhancedPermissionService extends EventEmitter {
    */
   async validateLocation(user, location) {
     // 简化实现，实际应该与用户注册位置进行比较
-    return true
+    return true;
   }
 
   /**
    * 创建安全会话
    */
   async createSecureSession(user, sessionData) {
-    const sessionId = crypto.randomUUID()
+    const sessionId = crypto.randomUUID();
     const sessionToken = jwt.sign(
       {
         userId: user._id,
@@ -835,7 +835,7 @@ class EnhancedPermissionService extends EventEmitter {
       },
       process.env.JWT_SECRET,
       { expiresIn: '8h' }
-    )
+    );
 
     const session = {
       sessionId,
@@ -845,11 +845,11 @@ class EnhancedPermissionService extends EventEmitter {
       createdAt: Date.now(),
       lastActivity: Date.now(),
       permissions: await this.getEnhancedUserPermissions(user)
-    }
+    };
 
-    this.userSessionCache.set(sessionId, session)
+    this.userSessionCache.set(sessionId, session);
 
-    return session
+    return session;
   }
 
   /**
@@ -860,10 +860,10 @@ class EnhancedPermissionService extends EventEmitter {
            permissions.includes(`*:${action}`) ||
            permissions.includes(`${resource}:*`) ||
            permissions.some(permission => {
-             const [res, acts] = permission.split(':')
+             const [res, acts] = permission.split(':');
              return (res === resource || res === '*') &&
-                    acts.split(',').includes(action)
-           })
+                    acts.split(',').includes(action);
+           });
   }
 
   /**
@@ -884,9 +884,9 @@ class EnhancedPermissionService extends EventEmitter {
           status: eventData.event === 'LOGIN_SUCCESS' ? 'SUCCESS' : 'FAILED'
         },
         error: eventData.error
-      })
+      });
     } catch (error) {
-      logger.error('记录认证事件失败:', error)
+      logger.error('记录认证事件失败:', error);
     }
   }
 
@@ -908,9 +908,9 @@ class EnhancedPermissionService extends EventEmitter {
         },
         context: eventData.context,
         duration: eventData.duration
-      })
+      });
     } catch (error) {
-      logger.error('记录权限事件失败:', error)
+      logger.error('记录权限事件失败:', error);
     }
   }
 
@@ -918,88 +918,88 @@ class EnhancedPermissionService extends EventEmitter {
    * 清理权限缓存
    */
   clearPermissionCache() {
-    this.permissionCache.flushAll()
-    this.roleCache.flushAll()
-    this.emit('cache_cleared')
+    this.permissionCache.flushAll();
+    this.roleCache.flushAll();
+    this.emit('cache_cleared');
   }
 
   /**
    * 审计报告辅助方法
    */
   groupByResource(logs) {
-    const grouped = {}
+    const grouped = {};
     logs.forEach(log => {
       if (!grouped[log.resource]) {
-        grouped[log.resource] = { total: 0, allowed: 0, denied: 0 }
+        grouped[log.resource] = { total: 0, allowed: 0, denied: 0 };
       }
-      grouped[log.resource].total++
-      grouped[log.resource][log.result.toLowerCase() === 'allowed' ? 'allowed' : 'denied']++
-    })
-    return grouped
+      grouped[log.resource].total++;
+      grouped[log.resource][log.result.toLowerCase() === 'allowed' ? 'allowed' : 'denied']++;
+    });
+    return grouped;
   }
 
   groupByUser(logs) {
-    const grouped = {}
+    const grouped = {};
     logs.forEach(log => {
-      const userId = log.actor?.userId || 'unknown'
+      const userId = log.actor?.userId || 'unknown';
       if (!grouped[userId]) {
-        grouped[userId] = { total: 0, allowed: 0, denied: 0 }
+        grouped[userId] = { total: 0, allowed: 0, denied: 0 };
       }
-      grouped[userId].total++
-      grouped[userId][log.result.toLowerCase() === 'allowed' ? 'allowed' : 'denied']++
-    })
-    return grouped
+      grouped[userId].total++;
+      grouped[userId][log.result.toLowerCase() === 'allowed' ? 'allowed' : 'denied']++;
+    });
+    return grouped;
   }
 
   groupByPolicy(logs) {
-    const grouped = {}
+    const grouped = {};
     logs.forEach(log => {
       if (log.result?.policyApplied) {
         log.result.policyApplied.forEach(policy => {
           if (!grouped[policy.policyId]) {
-            grouped[policy.policyId] = { name: policy.policyName, count: 0 }
+            grouped[policy.policyId] = { name: policy.policyName, count: 0 };
           }
-          grouped[policy.policyId].count++
-        })
+          grouped[policy.policyId].count++;
+        });
       }
-    })
-    return grouped
+    });
+    return grouped;
   }
 
   groupByTime(logs) {
-    const hourly = {}
+    const hourly = {};
     logs.forEach(log => {
-      const hour = new Date(log.timestamp).getHours()
-      hourly[hour] = (hourly[hour] || 0) + 1
-    })
-    return hourly
+      const hour = new Date(log.timestamp).getHours();
+      hourly[hour] = (hourly[hour] || 0) + 1;
+    });
+    return hourly;
   }
 
   getTopDenials(logs) {
-    const denials = logs.filter(log => log.result === 'DENIED')
-    const reasons = {}
+    const denials = logs.filter(log => log.result === 'DENIED');
+    const reasons = {};
 
     denials.forEach(log => {
-      const reason = log.reason || 'UNKNOWN'
-      reasons[reason] = (reasons[reason] || 0) + 1
-    })
+      const reason = log.reason || 'UNKNOWN';
+      reasons[reason] = (reasons[reason] || 0) + 1;
+    });
 
     return Object.entries(reasons)
       .sort(([,a], [,b]) => b - a)
-      .slice(0, 10)
+      .slice(0, 10);
   }
 
   detectSuspiciousActivity(logs) {
-    const suspicious = []
+    const suspicious = [];
 
     // 检测频繁拒绝
-    const userDenials = {}
+    const userDenials = {};
     logs.forEach(log => {
       if (log.result === 'DENIED') {
-        const userId = log.actor?.userId || 'unknown'
-        userDenials[userId] = (userDenials[userId] || 0) + 1
+        const userId = log.actor?.userId || 'unknown';
+        userDenials[userId] = (userDenials[userId] || 0) + 1;
       }
-    })
+    });
 
     Object.entries(userDenials).forEach(([userId, count]) => {
       if (count >= this.policyConfig.auditPolicy.suspiciousActivityThreshold) {
@@ -1008,12 +1008,12 @@ class EnhancedPermissionService extends EventEmitter {
           userId,
           count,
           threshold: this.policyConfig.auditPolicy.suspiciousActivityThreshold
-        })
+        });
       }
-    })
+    });
 
-    return suspicious
+    return suspicious;
   }
 }
 
-module.exports = EnhancedPermissionService
+module.exports = EnhancedPermissionService;

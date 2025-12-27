@@ -614,15 +614,15 @@ const i18n = {
 
     // 根据不同地区的习惯格式化数字
     switch (targetLocale) {
-      case 'yue':
-      case 'nan':
-      case 'hakka':
-        // 港台地区习惯
-        return number.toLocaleString('zh-TW');
-      case 'sichuan':
-      case 'zh-CN':
-      default:
-        return number.toLocaleString('zh-CN');
+    case 'yue':
+    case 'nan':
+    case 'hakka':
+      // 港台地区习惯
+      return number.toLocaleString('zh-TW');
+    case 'sichuan':
+    case 'zh-CN':
+    default:
+      return number.toLocaleString('zh-CN');
     }
   },
 

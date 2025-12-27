@@ -215,14 +215,14 @@ class DatabaseShardingManager {
    */
   calculateShard(shardKeyValue) {
     switch (this.config.shardAlgorithm) {
-      case 'hash':
-        return this.hashSharding(shardKeyValue);
-      case 'range':
-        return this.rangeSharding(shardKeyValue);
-      case 'geoHash':
-        return this.geoHashSharding(shardKeyValue);
-      default:
-        return this.hashSharding(shardKeyValue);
+    case 'hash':
+      return this.hashSharding(shardKeyValue);
+    case 'range':
+      return this.rangeSharding(shardKeyValue);
+    case 'geoHash':
+      return this.geoHashSharding(shardKeyValue);
+    default:
+      return this.hashSharding(shardKeyValue);
     }
   }
 

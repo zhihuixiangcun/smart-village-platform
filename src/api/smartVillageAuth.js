@@ -596,7 +596,7 @@ async function refreshToken(req, res) {
     }
 
     // 验证刷新令牌
-    const decoded = jwt.verify(refreshToken, JWT_SECRET + '_refresh');
+    const decoded = jwt.verify(refreshToken, `${JWT_SECRET  }_refresh`);
 
     const user = await VillageUser.findById(decoded.userId);
     if (!user || user.status !== 'active') {

@@ -368,7 +368,7 @@ class MultiLevelCache extends EventEmitter {
       }
 
       // 读取数据
-      let data = await fs.readFile(filePath);
+      const data = await fs.readFile(filePath);
 
       // 如果是压缩的，需要解压
       if (meta.compressed) {
@@ -397,7 +397,7 @@ class MultiLevelCache extends EventEmitter {
       const metaPath = this.getL3MetaPath(key);
 
       // 准备数据
-      let data = JSON.stringify(value);
+      const data = JSON.stringify(value);
 
       // 压缩处理
       if (compress) {

@@ -458,23 +458,23 @@ class VoiceInteractionService {
 
     // 根据命令类型提取特定实体
     switch (commandType) {
-      case 'query':
-        const queryKeywords = ['村民', '公告', '政策', '补贴', '费用'];
-        queryKeywords.forEach(keyword => {
-          if (text.includes(keyword)) {
-            entities.push({ type: 'query_target', value: keyword });
-          }
-        });
-        break;
+    case 'query':
+      const queryKeywords = ['村民', '公告', '政策', '补贴', '费用'];
+      queryKeywords.forEach(keyword => {
+        if (text.includes(keyword)) {
+          entities.push({ type: 'query_target', value: keyword });
+        }
+      });
+      break;
 
-      case 'service':
-        const services = ['医保', '社保', '身份证', '户口', '结婚证'];
-        services.forEach(service => {
-          if (text.includes(service)) {
-            entities.push({ type: 'service_type', value: service });
-          }
-        });
-        break;
+    case 'service':
+      const services = ['医保', '社保', '身份证', '户口', '结婚证'];
+      services.forEach(service => {
+        if (text.includes(service)) {
+          entities.push({ type: 'service_type', value: service });
+        }
+      });
+      break;
     }
 
     return entities;

@@ -60,7 +60,7 @@ async function createResident(req, res) {
       username: req.user?.username || 'system',
       name: req.user?.name || '系统',
       role: req.user?.role || 'admin',
-      sessionId: req.headers['x-session-id'] || 'session_' + Date.now()
+      sessionId: req.headers['x-session-id'] || `session_${  Date.now()}`
     };
 
     // 调用服务层创建村民
@@ -120,7 +120,7 @@ async function batchImportResidents(req, res) {
       username: req.user?.username || 'system',
       name: req.user?.name || '系统',
       role: req.user?.role || 'admin',
-      sessionId: req.headers['x-session-id'] || 'session_' + Date.now()
+      sessionId: req.headers['x-session-id'] || `session_${  Date.now()}`
     };
 
     // 调用服务层批量导入
@@ -157,7 +157,7 @@ async function getResidentById(req, res) {
       username: req.user?.username || 'system',
       name: req.user?.name || '系统',
       role: req.user?.role || 'admin',
-      sessionId: req.headers['x-session-id'] || 'session_' + Date.now(),
+      sessionId: req.headers['x-session-id'] || `session_${  Date.now()}`,
       idCard: req.user?.idCard
     };
 
@@ -218,7 +218,7 @@ async function listResidents(req, res) {
       username: req.user?.username || 'system',
       name: req.user?.name || '系统',
       role: req.user?.role || 'admin',
-      sessionId: req.headers['x-session-id'] || 'session_' + Date.now()
+      sessionId: req.headers['x-session-id'] || `session_${  Date.now()}`
     };
 
     // 调用服务层查询村民列表
@@ -253,7 +253,7 @@ async function updateResident(req, res) {
       username: req.user?.username || 'system',
       name: req.user?.name || '系统',
       role: req.user?.role || 'admin',
-      sessionId: req.headers['x-session-id'] || 'session_' + Date.now()
+      sessionId: req.headers['x-session-id'] || `session_${  Date.now()}`
     };
 
     // 调用服务层更新村民信息
@@ -314,7 +314,7 @@ async function deleteResident(req, res) {
       username: req.user?.username || 'system',
       name: req.user?.name || '系统',
       role: req.user?.role || 'admin',
-      sessionId: req.headers['x-session-id'] || 'session_' + Date.now()
+      sessionId: req.headers['x-session-id'] || `session_${  Date.now()}`
     };
 
     // 调用服务层删除村民档案
@@ -373,7 +373,7 @@ async function uploadPhoto(req, res) {
       username: req.user?.username || 'system',
       name: req.user?.name || '系统',
       role: req.user?.role || 'admin',
-      sessionId: req.headers['x-session-id'] || 'session_' + Date.now()
+      sessionId: req.headers['x-session-id'] || `session_${  Date.now()}`
     };
 
     // 准备文件信息
@@ -455,7 +455,7 @@ async function searchResidents(req, res) {
       username: req.user?.username || 'system',
       name: req.user?.name || '系统',
       role: req.user?.role || 'admin',
-      sessionId: req.headers['x-session-id'] || 'session_' + Date.now()
+      sessionId: req.headers['x-session-id'] || `session_${  Date.now()}`
     };
 
     // 调用服务层搜索村民
@@ -503,7 +503,7 @@ async function getFamilyNetwork(req, res) {
       username: req.user?.username || 'system',
       name: req.user?.name || '系统',
       role: req.user?.role || 'admin',
-      sessionId: req.headers['x-session-id'] || 'session_' + Date.now()
+      sessionId: req.headers['x-session-id'] || `session_${  Date.now()}`
     };
 
     // 调用服务层获取家庭关系网络

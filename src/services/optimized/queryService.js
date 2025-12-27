@@ -229,7 +229,7 @@ class OptimizedQueryService extends EventEmitter {
         if (typeof regex === 'string') {
           // 添加锚点以提高性能
           if (!regex.startsWith('^')) {
-            optimized[key].$regex = '^' + regex;
+            optimized[key].$regex = `^${  regex}`;
           }
           // 设置为不区分大小写（如果需要）
           if (!optimized[key].$options) {
@@ -288,7 +288,7 @@ class OptimizedQueryService extends EventEmitter {
   async getOptimalIndex(collectionName, filter) {
     // 从缓存获取索引建议
     const cacheKey = `index:${collectionName}:${JSON.stringify(filter)}`;
-    let indexHint = await CacheUtil.get(cacheKey);
+    const indexHint = await CacheUtil.get(cacheKey);
 
     if (indexHint) {
       return indexHint;
@@ -522,8 +522,8 @@ class OptimizedQueryService extends EventEmitter {
           type,
           totalQueries: stats.count,
           slowQueries: stats.slowQueries.length,
-          slowQueryRate: (stats.slowQueries.length / stats.count * 100).toFixed(2) + '%',
-          avgDuration: stats.avgDuration.toFixed(2) + 'ms'
+          slowQueryRate: `${(stats.slowQueries.length / stats.count * 100).toFixed(2)  }%`,
+          avgDuration: `${stats.avgDuration.toFixed(2)  }ms`
         };
 
         // 生成优化建议
@@ -597,14 +597,14 @@ class OptimizedQueryService extends EventEmitter {
       report.collections[collectionName] = {
         type,
         queries: stats.count,
-        avgDuration: stats.avgDuration.toFixed(2) + 'ms',
+        avgDuration: `${stats.avgDuration.toFixed(2)  }ms`,
         slowQueries: stats.slowQueries.length,
-        slowQueryRate: (stats.slowQueries.length / stats.count * 100).toFixed(2) + '%'
+        slowQueryRate: `${(stats.slowQueries.length / stats.count * 100).toFixed(2)  }%`
       };
     }
 
     if (queryCount > 0) {
-      report.avgResponseTime = (totalDuration / queryCount).toFixed(2) + 'ms';
+      report.avgResponseTime = `${(totalDuration / queryCount).toFixed(2)  }ms`;
     }
 
     return report;

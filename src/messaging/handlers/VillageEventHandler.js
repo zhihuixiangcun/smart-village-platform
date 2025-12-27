@@ -36,25 +36,25 @@ class VillageEventHandler {
 
     try {
       switch (eventType) {
-        case 'resident.created':
-          return await this.handleResidentCreated(content);
-        case 'resident.updated':
-          return await this.handleResidentUpdated(content);
-        case 'family.created':
-          return await this.handleFamilyCreated(content);
-        case 'family.member.added':
-          return await this.handleFamilyMemberAdded(content);
-        case 'announcement.published':
-          return await this.handleAnnouncementPublished(content);
-        case 'meeting.created':
-          return await this.handleMeetingCreated(content);
-        case 'emergency.occurred':
-          return await this.handleEmergencyOccurred(content);
-        case 'village.statistics.updated':
-          return await this.handleVillageStatisticsUpdated(content);
-        default:
-          Logger.warn('未知的村庄事件类型', { eventType });
-          return { handled: false, reason: 'Unknown event type' };
+      case 'resident.created':
+        return await this.handleResidentCreated(content);
+      case 'resident.updated':
+        return await this.handleResidentUpdated(content);
+      case 'family.created':
+        return await this.handleFamilyCreated(content);
+      case 'family.member.added':
+        return await this.handleFamilyMemberAdded(content);
+      case 'announcement.published':
+        return await this.handleAnnouncementPublished(content);
+      case 'meeting.created':
+        return await this.handleMeetingCreated(content);
+      case 'emergency.occurred':
+        return await this.handleEmergencyOccurred(content);
+      case 'village.statistics.updated':
+        return await this.handleVillageStatisticsUpdated(content);
+      default:
+        Logger.warn('未知的村庄事件类型', { eventType });
+        return { handled: false, reason: 'Unknown event type' };
       }
     } catch (error) {
       Logger.error(`处理村庄事件失败 (${eventType})`, {
@@ -241,7 +241,7 @@ class VillageEventHandler {
         targetUsers: data.targetUsers,
         data: {
           title: data.title,
-          content: data.content.substring(0, 100) + '...',
+          content: `${data.content.substring(0, 100)  }...`,
           priority: data.priority,
           announcementId: data.announcementId
         }

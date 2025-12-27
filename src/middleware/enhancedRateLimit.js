@@ -312,7 +312,7 @@ class EnhancedRateLimiter {
   getStats() {
     return {
       ...this.stats,
-      blockedRate: (this.stats.blockedRequests / this.stats.totalRequests * 100).toFixed(2) + '%',
+      blockedRate: `${(this.stats.blockedRequests / this.stats.totalRequests * 100).toFixed(2)  }%`,
       blacklistedIPs: BLACKLIST_IPS.size,
       activeLimiters: this.limiters.size
     };

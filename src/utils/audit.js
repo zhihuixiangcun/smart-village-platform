@@ -447,14 +447,14 @@ class AuditUtil {
 
       // 根据格式导出
       switch (format) {
-        case 'csv':
-          return this.exportToCSV(logs);
-        case 'excel':
-          return this.exportToExcel(logs);
-        case 'json':
-          return this.exportToJSON(logs);
-        default:
-          throw new Error('不支持的导出格式');
+      case 'csv':
+        return this.exportToCSV(logs);
+      case 'excel':
+        return this.exportToExcel(logs);
+      case 'json':
+        return this.exportToJSON(logs);
+      default:
+        throw new Error('不支持的导出格式');
       }
     } catch (error) {
       console.error('导出审计日志失败:', error);

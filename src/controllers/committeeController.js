@@ -162,7 +162,7 @@ class CommitteeController {
         villageId,
         status = 'active',
         position,
-      // 搜索关键词
+        // 搜索关键词
         name,
         phone,
         // 分页

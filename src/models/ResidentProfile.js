@@ -159,7 +159,7 @@ const residentProfileSchema = new mongoose.Schema({
     hasUnemploymentInsurance: { type: Boolean },
     hasWorkInjuryInsurance: { type: Boolean },
     hasMaternityInsurance: { type: Boolean },
-   公积金Account: { type: String, encrypted: true }
+    公积金Account: { type: String, encrypted: true }
   },
 
   // 健康档案
@@ -435,7 +435,7 @@ residentProfileSchema.pre('save', async function(next) {
     }
 
     // 加密家庭成员信息
-    for (let relation of this.familyRelations) {
+    for (const relation of this.familyRelations) {
       if (relation.idCard) {
         relation.idCard = await EncryptionUtil.encrypt(relation.idCard);
       }
@@ -445,7 +445,7 @@ residentProfileSchema.pre('save', async function(next) {
     }
 
     // 加密银行账号
-    for (let account of this.assets.bankAccounts) {
+    for (const account of this.assets.bankAccounts) {
       if (account.accountNumber) {
         account.accountNumber = await EncryptionUtil.encrypt(account.accountNumber);
       }
@@ -491,7 +491,7 @@ residentProfileSchema.post(['find', 'findOne'], async function(docs) {
     }
 
     // 解密家庭成员信息
-    for (let relation of doc.familyRelations) {
+    for (const relation of doc.familyRelations) {
       if (relation.idCard) {
         relation.idCard = await EncryptionUtil.decrypt(relation.idCard);
       }
@@ -501,7 +501,7 @@ residentProfileSchema.post(['find', 'findOne'], async function(docs) {
     }
 
     // 解密银行账号
-    for (let account of doc.assets.bankAccounts) {
+    for (const account of doc.assets.bankAccounts) {
       if (account.accountNumber) {
         account.accountNumber = await EncryptionUtil.decrypt(account.accountNumber);
       }
@@ -509,7 +509,7 @@ residentProfileSchema.post(['find', 'findOne'], async function(docs) {
   };
 
   if (Array.isArray(docs)) {
-    for (let doc of docs) {
+    for (const doc of docs) {
       await decryptDoc(doc);
     }
   } else {

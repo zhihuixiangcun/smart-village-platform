@@ -433,7 +433,7 @@ class AuthMiddleware {
     const accessToken = jwt.sign(
       {
         userId: user._id,
-        sessionId: sessionId,
+        sessionId,
         permissions: user.permissions,
         role: user.role,
         type: 'access'
@@ -449,7 +449,7 @@ class AuthMiddleware {
     const refreshToken = jwt.sign(
       {
         userId: user._id,
-        sessionId: sessionId,
+        sessionId,
         type: 'refresh'
       },
       this.jwtSecret,
@@ -461,7 +461,7 @@ class AuthMiddleware {
 
     // 创建会话
     const session = {
-      sessionId: sessionId,
+      sessionId,
       userId: user._id,
       status: 'active',
       loginTime: new Date(),
@@ -535,11 +535,11 @@ class AuthMiddleware {
     const unit = match[2];
 
     switch (unit) {
-      case 's': return value;
-      case 'm': return value * 60;
-      case 'h': return value * 3600;
-      case 'd': return value * 86400;
-      default: return 3600;
+    case 's': return value;
+    case 'm': return value * 60;
+    case 'h': return value * 3600;
+    case 'd': return value * 86400;
+    default: return 3600;
     }
   }
 }

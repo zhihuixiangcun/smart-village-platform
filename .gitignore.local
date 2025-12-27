@@ -1,0 +1,37 @@
+# 本地开发文件
+.baofeng/
+.bash_history
+.bash_profile
+.bashrc
+.claude/
+.config/
+.git-for-windows-updater
+.mcp.json
+.node_repl_history
+.npm-cache/
+.ssh/
+.trae-aicc/
+.zshrc
+
+# 无效文件
+nul
+
+# 缓存和日志
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# 临时配置
+.env.local
+.env.*.local
+
+# IDE和编辑器
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# 测试覆盖率
+coverage/
+.nyc_output/

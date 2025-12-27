@@ -132,7 +132,7 @@ class VotingService {
 
       // 创建投票记录
       const votingRecord = new VotingRecord({
-        votingId: votingId,
+        votingId,
         voter: {
           userId: voter.userId,
           userName: voter.userName,
@@ -294,7 +294,7 @@ class VotingService {
       let userVote = null;
       if (user) {
         userVote = await VotingRecord.findOne({
-          votingId: votingId,
+          votingId,
           'voter.userId': user.userId,
           status: 'valid'
         });
@@ -349,7 +349,7 @@ class VotingService {
       await voting.updateStatistics();
 
       const votingRecords = await VotingRecord.find({
-        votingId: votingId,
+        votingId,
         status: 'valid'
       });
 
@@ -561,27 +561,27 @@ class VotingService {
    */
   async calculateEligibleVoters(permissions) {
     switch (permissions.type) {
-      case VotingPermissions.ALL_VILLAGERS:
-        return await User.countDocuments({
-          role: 'villager',
-          status: 'active'
-        });
+    case VotingPermissions.ALL_VILLAGERS:
+      return await User.countDocuments({
+        role: 'villager',
+        status: 'active'
+      });
 
-      case VotingPermissions.COMMITTEE_MEMBERS:
-        return await User.countDocuments({
-          role: { $in: ['village_admin', 'department_head', 'village_party_secretary'] },
-          status: 'active'
-        });
+    case VotingPermissions.COMMITTEE_MEMBERS:
+      return await User.countDocuments({
+        role: { $in: ['village_admin', 'department_head', 'village_party_secretary'] },
+        status: 'active'
+      });
 
-      case VotingPermissions.REGISTERED_VOTERS:
-        return await User.countDocuments({
-          role: 'villager',
-          status: 'active',
-          'profile.isRegisteredVoter': true
-        });
+    case VotingPermissions.REGISTERED_VOTERS:
+      return await User.countDocuments({
+        role: 'villager',
+        status: 'active',
+        'profile.isRegisteredVoter': true
+      });
 
-      default:
-        return this.defaultConfig.minParticipants;
+    default:
+      return this.defaultConfig.minParticipants;
     }
   }
 
@@ -626,17 +626,17 @@ class VotingService {
    */
   async checkVotingPermission(permissions, voter) {
     switch (permissions.type) {
-      case VotingPermissions.ALL_VILLAGERS:
-        return voter.role === 'villager';
+    case VotingPermissions.ALL_VILLAGERS:
+      return voter.role === 'villager';
 
-      case VotingPermissions.COMMITTEE_MEMBERS:
-        return ['village_admin', 'department_head', 'village_party_secretary'].includes(voter.role);
+    case VotingPermissions.COMMITTEE_MEMBERS:
+      return ['village_admin', 'department_head', 'village_party_secretary'].includes(voter.role);
 
-      case VotingPermissions.REGISTERED_VOTERS:
-        return voter.role === 'villager' && voter.profile?.isRegisteredVoter;
+    case VotingPermissions.REGISTERED_VOTERS:
+      return voter.role === 'villager' && voter.profile?.isRegisteredVoter;
 
-      default:
-        return true;
+    default:
+      return true;
     }
   }
 
@@ -674,7 +674,7 @@ class VotingService {
   async cancelPreviousVote(votingId, userId) {
     await VotingRecord.updateMany(
       {
-        votingId: votingId,
+        votingId,
         'voter.userId': userId,
         status: 'valid'
       },
@@ -819,12 +819,12 @@ class VotingService {
    */
   async getVoterList(votingId) {
     const records = await VotingRecord.find({
-      votingId: votingId,
+      votingId,
       status: 'valid',
       'voter.isAnonymous': false
     })
-    .select('voter.userName votedAt')
-    .sort({ votedAt: 1 });
+      .select('voter.userName votedAt')
+      .sort({ votedAt: 1 });
 
     return records.map(record => ({
       userName: record.voter.userName,
@@ -901,23 +901,23 @@ class VotingService {
    * @returns {Promise<Array>} 用户ID列表
    */
   async getEligibleUsers(permissions) {
-    let query = {
+    const query = {
       status: 'active'
     };
 
     switch (permissions.type) {
-      case VotingPermissions.ALL_VILLAGERS:
-        query.role = 'villager';
-        break;
-      case VotingPermissions.COMMITTEE_MEMBERS:
-        query.role = { $in: ['village_admin', 'department_head', 'village_party_secretary'] };
-        break;
-      case VotingPermissions.REGISTERED_VOTERS:
-        query.role = 'villager';
-        query['profile.isRegisteredVoter'] = true;
-        break;
-      default:
-        query.role = 'villager';
+    case VotingPermissions.ALL_VILLAGERS:
+      query.role = 'villager';
+      break;
+    case VotingPermissions.COMMITTEE_MEMBERS:
+      query.role = { $in: ['village_admin', 'department_head', 'village_party_secretary'] };
+      break;
+    case VotingPermissions.REGISTERED_VOTERS:
+      query.role = 'villager';
+      query['profile.isRegisteredVoter'] = true;
+      break;
+    default:
+      query.role = 'villager';
     }
 
     const users = await User.find(query).select('_id');
@@ -1012,8 +1012,8 @@ class VotingService {
         $group: {
           _id: {
             $dateToString: {
-              format: "%Y-%m-%d",
-              date: "$createdAt"
+              format: '%Y-%m-%d',
+              date: '$createdAt'
             }
           },
           count: { $sum: 1 }

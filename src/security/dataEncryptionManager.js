@@ -369,7 +369,7 @@ class DataEncryptionManager {
         } catch (error) {
           console.error(`加密字段 ${fieldName} 失败:`, error);
           // 加密失败时保留原值，但记录错误
-          result[fieldName + '_encryption_error'] = error.message;
+          result[`${fieldName  }_encryption_error`] = error.message;
         }
       }
     }

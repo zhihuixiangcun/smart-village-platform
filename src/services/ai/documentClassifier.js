@@ -849,7 +849,7 @@ class KeywordExtractor {
       .slice(0, 100); // 限制关键词数量
 
     return {
-      text: text,
+      text,
       keywords,
       keywordCount: keywords.length,
       uniqueWords: new Set(keywords).size

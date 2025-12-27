@@ -410,22 +410,22 @@ async function identifySpecialGroups(villageId, groupType) {
   let specialGroups = [];
 
   switch (groupType) {
-    case 'elderly':
-      query.birthDate = { $lte: new Date(`${new Date().getFullYear() - 60}-01-01`) };
-      break;
-    case 'left_behind_children':
-      query.birthDate = { $gte: new Date(`${new Date().getFullYear() - 18}-01-01`) };
-      query['migrantWork.isMigrantWorker'] = true;
-      break;
-    case 'disabled':
-      query['health.disabilities.0'] = { $exists: true };
-      break;
-    case 'low_income':
-      query['household.householdType'] = { $in: ['low_income', 'minimum_living'] };
-      break;
-    case 'single_parent':
-      // 复杂查询，需要进一步处理
-      break;
+  case 'elderly':
+    query.birthDate = { $lte: new Date(`${new Date().getFullYear() - 60}-01-01`) };
+    break;
+  case 'left_behind_children':
+    query.birthDate = { $gte: new Date(`${new Date().getFullYear() - 18}-01-01`) };
+    query['migrantWork.isMigrantWorker'] = true;
+    break;
+  case 'disabled':
+    query['health.disabilities.0'] = { $exists: true };
+    break;
+  case 'low_income':
+    query['household.householdType'] = { $in: ['low_income', 'minimum_living'] };
+    break;
+  case 'single_parent':
+    // 复杂查询，需要进一步处理
+    break;
   }
 
   if (groupType !== 'single_parent') {
@@ -456,7 +456,7 @@ async function identifySpecialGroups(villageId, groupType) {
       if (children.length > 0 && adults.length === 1) {
         specialGroups.push({
           singleParent: adults[0],
-          children: children,
+          children,
           householdMembers: members
         });
       }
@@ -471,7 +471,7 @@ async function identifySpecialGroups(villageId, groupType) {
  */
 async function checkDataQuality(villageId) {
   const Resident = require('../models/Resident');
-const logger = require('../utils/logger');
+  const logger = require('../utils/logger');
 
   const residents = await Resident.find({ villageId });
   const totalResidents = residents.length;

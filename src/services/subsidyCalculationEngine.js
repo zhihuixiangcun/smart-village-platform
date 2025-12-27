@@ -488,27 +488,27 @@ class SubsidyCalculationEngine {
     const calcRules = policyData.calculationRules || {};
 
     switch (calcRules.calculationType) {
-      case this.calculationTypes.FIXED:
-        return calcRules.baseAmount || 0;
+    case this.calculationTypes.FIXED:
+      return calcRules.baseAmount || 0;
 
-      case this.calculationTypes.PERCAPITA:
-        const perCapitaRate = calcRules.perCapitaRate || 0;
-        const householdSize = factors.household?.size || 1;
-        return perCapitaRate * householdSize;
+    case this.calculationTypes.PERCAPITA:
+      const perCapitaRate = calcRules.perCapitaRate || 0;
+      const householdSize = factors.household?.size || 1;
+      return perCapitaRate * householdSize;
 
-      case this.calculationTypes.PER_AREA:
-        const perAreaRate = calcRules.perAreaRate || 0;
-        const landArea = factors.land?.eligibleArea || 0;
-        return perAreaRate * landArea;
+    case this.calculationTypes.PER_AREA:
+      const perAreaRate = calcRules.perAreaRate || 0;
+      const landArea = factors.land?.eligibleArea || 0;
+      return perAreaRate * landArea;
 
-      case this.calculationTypes.HYBRID:
-        const baseFixed = calcRules.baseAmount || 0;
-        const perCapita = (calcRules.perCapitaRate || 0) * (factors.household?.size || 0);
-        const perArea = (calcRules.perAreaRate || 0) * (factors.land?.eligibleArea || 0);
-        return baseFixed + perCapita + perArea;
+    case this.calculationTypes.HYBRID:
+      const baseFixed = calcRules.baseAmount || 0;
+      const perCapita = (calcRules.perCapitaRate || 0) * (factors.household?.size || 0);
+      const perArea = (calcRules.perAreaRate || 0) * (factors.land?.eligibleArea || 0);
+      return baseFixed + perCapita + perArea;
 
-      default:
-        return calcRules.baseAmount || 0;
+    default:
+      return calcRules.baseAmount || 0;
     }
   }
 
@@ -577,7 +577,7 @@ class SubsidyCalculationEngine {
         name: '申请时间调整',
         rate: temporalFactor,
         amount: amount * (temporalFactor - 1),
-        description: `基于申请时间的调整`
+        description: '基于申请时间的调整'
       });
     }
 
@@ -839,14 +839,14 @@ class SubsidyCalculationEngine {
     steps.push({
       step: 6,
       title: '应用调整系数',
-      description: `应用地区、时间等调整系数`,
+      description: '应用地区、时间等调整系数',
       details: `调整后金额：${result.adjustedAmount}元`
     });
 
     steps.push({
       step: 7,
       title: '特殊群体加成',
-      description: `应用特殊群体政策加成`,
+      description: '应用特殊群体政策加成',
       details: `加成金额：${result.bonusAmount}元`
     });
 

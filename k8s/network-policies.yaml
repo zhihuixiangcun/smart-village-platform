@@ -1,0 +1,132 @@
+# Network Policy - API Server
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: api-server-netpol
+  namespace: smartvillage
+spec:
+  podSelector:
+    matchLabels:
+      app: smartvillage
+      component: api-server
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: smartvillage
+    - podSelector:
+        matchLabels:
+          app: smartvillage
+    ports:
+    - protocol: TCP
+      port: 3001
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    ports:
+    - protocol: TCP
+      port: 3001
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          app: mongodb
+    ports:
+    - protocol: TCP
+      port: 27017
+  - to:
+    - podSelector:
+        matchLabels:
+          app: redis
+    ports:
+    - protocol: TCP
+      port: 6379
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 443
+    - protocol: TCP
+      port: 53
+
+---
+# Network Policy - Village Server
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: village-server-netpol
+  namespace: smartvillage
+spec:
+  podSelector:
+    matchLabels:
+      app: smartvillage
+      component: village-server
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: smartvillage
+    ports:
+    - protocol: TCP
+      port: 5000
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          app: mongodb
+    ports:
+    - protocol: TCP
+      port: 27017
+  - to:
+    - podSelector:
+        matchLabels:
+          app: redis
+    ports:
+    - protocol: TCP
+      port: 6379
+
+---
+# Network Policy - Frontend
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: client-netpol
+  namespace: smartvillage
+spec:
+  podSelector:
+    matchLabels:
+      app: smartvillage
+      component: client
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    ports:
+    - protocol: TCP
+      port: 80
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: smartvillage
+    ports:
+    - protocol: TCP
+      port: 3001
+    - protocol: TCP
+      port: 5000
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 443

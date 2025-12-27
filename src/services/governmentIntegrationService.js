@@ -937,7 +937,7 @@ class GovernmentIntegrationService {
   async getSyncHistory(limit = 50, offset = 0) {
     try {
       const SyncHistory = require('../models/SyncHistory');
-const logger = require('../utils/logger');
+      const logger = require('../utils/logger');
 
       const history = await SyncHistory.find()
         .sort({ syncTime: -1 })

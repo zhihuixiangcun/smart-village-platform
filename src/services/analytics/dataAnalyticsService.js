@@ -280,7 +280,7 @@ class DataAnalyticsService {
 
     return {
       totalRequests,
-      errorRate: totalRequests > 0 ? (errors / totalRequests * 100).toFixed(2) + '%' : '0%',
+      errorRate: totalRequests > 0 ? `${(errors / totalRequests * 100).toFixed(2)  }%` : '0%',
       apiUsage: apiUsage.map(item => ({
         endpoint: item._id,
         count: item.count
@@ -496,17 +496,17 @@ class DataAnalyticsService {
     };
 
     switch (type) {
-      case 'population':
-        predictions.data = await this.predictPopulation(villageId);
-        break;
-      case 'finance':
-        predictions.data = await this.predictFinance(villageId);
-        break;
-      case 'emergency':
-        predictions.data = await this.predictEmergency(villageId);
-        break;
-      default:
-        throw new Error(`Unknown prediction type: ${type}`);
+    case 'population':
+      predictions.data = await this.predictPopulation(villageId);
+      break;
+    case 'finance':
+      predictions.data = await this.predictFinance(villageId);
+      break;
+    case 'emergency':
+      predictions.data = await this.predictEmergency(villageId);
+      break;
+    default:
+      throw new Error(`Unknown prediction type: ${type}`);
     }
 
     return predictions;
@@ -662,23 +662,23 @@ class DataAnalyticsService {
     let startDate;
 
     switch (timeRange) {
-      case '24h':
-        startDate = new Date(now - 24 * 60 * 60 * 1000);
-        break;
-      case '7d':
-        startDate = new Date(now - 7 * 24 * 60 * 60 * 1000);
-        break;
-      case '30d':
-        startDate = new Date(now - 30 * 24 * 60 * 60 * 1000);
-        break;
-      case '90d':
-        startDate = new Date(now - 90 * 24 * 60 * 60 * 1000);
-        break;
-      case '1y':
-        startDate = new Date(now - 365 * 24 * 60 * 60 * 1000);
-        break;
-      default:
-        startDate = new Date(now - 24 * 60 * 60 * 1000);
+    case '24h':
+      startDate = new Date(now - 24 * 60 * 60 * 1000);
+      break;
+    case '7d':
+      startDate = new Date(now - 7 * 24 * 60 * 60 * 1000);
+      break;
+    case '30d':
+      startDate = new Date(now - 30 * 24 * 60 * 60 * 1000);
+      break;
+    case '90d':
+      startDate = new Date(now - 90 * 24 * 60 * 60 * 1000);
+      break;
+    case '1y':
+      startDate = new Date(now - 365 * 24 * 60 * 60 * 1000);
+      break;
+    default:
+      startDate = new Date(now - 24 * 60 * 60 * 1000);
     }
 
     return { startDate, endDate: now };

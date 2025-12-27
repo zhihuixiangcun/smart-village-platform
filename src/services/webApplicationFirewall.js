@@ -590,7 +590,7 @@ class WebApplicationFirewall {
   getGeoLocation(ip) {
     // 简化实现，实际应该使用GeoIP数据库
     const geoip = require('geoip-lite');
-const logger = require('../utils/logger');
+    const logger = require('../utils/logger');
     return geoip.lookup(ip) || { country: 'Unknown' };
   }
 

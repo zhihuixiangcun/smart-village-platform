@@ -639,7 +639,7 @@ async function checkFinanceModuleHealth() {
 
     // 检查区块链服务
     const blockchainService = require('../services/blockchainService');
-const logger = require('../utils/logger');
+    const logger = require('../utils/logger');
     const blockchainNetworks = Object.keys(blockchainService.networks);
     checks.push({
       name: '区块链服务',

@@ -1,0 +1,40 @@
+# Pod Disruption Budget - API Server
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-server-pdb
+  namespace: smartvillage
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: smartvillage
+      component: api-server
+
+---
+# Pod Disruption Budget - Village Server
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: village-server-pdb
+  namespace: smartvillage
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: smartvillage
+      component: village-server
+
+---
+# Pod Disruption Budget - Frontend
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: client-pdb
+  namespace: smartvillage
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: smartvillage
+      component: client

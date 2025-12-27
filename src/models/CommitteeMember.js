@@ -18,7 +18,7 @@ const committeeMemberSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    set: function(value) {
+    set(value) {
       // 存储时加密
       if (value && !value.startsWith('encrypted:')) {
         return `encrypted:${encryptData(value)}`;
@@ -31,7 +31,7 @@ const committeeMemberSchema = new mongoose.Schema({
     required: true,
     trim: true,
     validate: {
-      validator: function(v) {
+      validator(v) {
         return /^1[3-9]\d{9}$/.test(v);
       },
       message: '手机号格式不正确'

@@ -435,14 +435,14 @@ class EnhancedOCRService {
 
     try {
       switch (provider) {
-        case 'baidu':
-          return await this.performBaiduOCR(imagePath, type, invoiceType);
-        case 'tencent':
-          return await this.performTencentOCR(imagePath, type);
-        case 'ali':
-          return await this.performAliOCR(imagePath, type);
-        default:
-          return await this.performTesseractOCR(imagePath);
+      case 'baidu':
+        return await this.performBaiduOCR(imagePath, type, invoiceType);
+      case 'tencent':
+        return await this.performTencentOCR(imagePath, type);
+      case 'ali':
+        return await this.performAliOCR(imagePath, type);
+      default:
+        return await this.performTesseractOCR(imagePath);
       }
     } catch (error) {
       logger.error(`${provider} OCR识别失败，尝试备用方案:`, error);
@@ -462,16 +462,16 @@ class EnhancedOCRService {
 
       let endpoint;
       switch (type) {
-        case 'invoice':
-          endpoint = invoiceType === 'receipt' ?
-            this.providers.baidu.endpoints.receipt :
-            this.providers.baidu.endpoints.vat;
-          break;
-        case 'idcard':
-          endpoint = this.providers.baidu.endpoints.idcard;
-          break;
-        default:
-          endpoint = this.providers.baidu.endpoints.vat;
+      case 'invoice':
+        endpoint = invoiceType === 'receipt' ?
+          this.providers.baidu.endpoints.receipt :
+          this.providers.baidu.endpoints.vat;
+        break;
+      case 'idcard':
+        endpoint = this.providers.baidu.endpoints.idcard;
+        break;
+      default:
+        endpoint = this.providers.baidu.endpoints.vat;
       }
 
       const formData = new FormData();

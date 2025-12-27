@@ -1,0 +1,564 @@
+# Beijing Region - API Microservices Deployment
+# 华北区 - API 微服务部署
+#
+# Services deployed:
+# - User Service (port 3001)
+# - Resident Service (port 3002)
+# - Village Service (port 3003)
+# - Finance Service (port 3004)
+# - Agritech Service (port 3010)
+# - Farm Product Service (port 3011)
+# - Agri-Tech Service (port 3012)
+# - Agri-Finance Service (port 3013)
+# - Subscription Service (port 3020)
+# - Tenant Service (port 3021)
+# - Data Sync Service (port 3022)
+# - Standard Service (port 3023)
+#
+# Region: Beijing (cn-north-1)
+# Role: Primary API Region
+
+---
+# API Gateway Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: smart-village
+  labels:
+    app: api-gateway
+    region: beijing
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+        region: beijing
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - api-gateway
+              topologyKey: kubernetes.io/hostname
+      containers:
+      - name: api-gateway
+        image: smart-village/api-gateway:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+          name: http
+          protocol: TCP
+        - containerPort: 9090
+          name: metrics
+          protocol: TCP
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: REGION_CODE
+          value: "cn-north-1"
+        - name: MONGO_URI
+          valueFrom:
+            secretKeyRef:
+              name: smart-village-secrets
+              key: MONGO_URI
+        - name: REDIS_CLUSTER_NODES
+          valueFrom:
+            configMapKeyRef:
+              name: smart-village-config
+              key: REDIS_CLUSTER_NODES
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: smart-village-secrets
+              key: JWT_SECRET
+        - name: MULTI_TENANT_ENABLED
+          value: "true"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+
+---
+# User Service Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: smart-village
+  labels:
+    app: user-service
+    region: beijing
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+        region: beijing
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9091"
+    spec:
+      containers:
+      - name: user-service
+        image: smart-village/user-service:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3001
+          name: http
+        - containerPort: 9091
+          name: metrics
+        envFrom:
+        - configMapRef:
+            name: smart-village-config
+        env:
+        - name: MONGO_URI
+          valueFrom:
+            secretKeyRef:
+              name: smart-village-secrets
+              key: MONGO_URI
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: smart-village-secrets
+              key: JWT_SECRET
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+
+---
+# Resident Service Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: resident-service
+  namespace: smart-village
+  labels:
+    app: resident-service
+    region: beijing
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: resident-service
+  template:
+    metadata:
+      labels:
+        app: resident-service
+        region: beijing
+    spec:
+      containers:
+      - name: resident-service
+        image: smart-village/resident-service:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3002
+          name: http
+        envFrom:
+        - configMapRef:
+            name: smart-village-config
+        env:
+        - name: MONGO_URI
+          valueFrom:
+            secretKeyRef:
+              name: smart-village-secrets
+              key: MONGO_URI
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+
+---
+# Agritech Service Deployment (New)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agritech-service
+  namespace: smart-village
+  labels:
+    app: agritech-service
+    region: beijing
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: agritech-service
+  template:
+    metadata:
+      labels:
+        app: agritech-service
+        region: beijing
+    spec:
+      containers:
+      - name: agritech-service
+        image: smart-village/agritech-service:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3010
+          name: http
+        envFrom:
+        - configMapRef:
+            name: smart-village-config
+        env:
+        - name: MONGO_URI
+          valueFrom:
+            secretKeyRef:
+              name: smart-village-secrets
+              key: MONGO_URI
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+
+---
+# Subscription Service Deployment (New)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: subscription-service
+  namespace: smart-village
+  labels:
+    app: subscription-service
+    region: beijing
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: subscription-service
+  template:
+    metadata:
+      labels:
+        app: subscription-service
+        region: beijing
+    spec:
+      containers:
+      - name: subscription-service
+        image: smart-village/subscription-service:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3020
+          name: http
+        envFrom:
+        - configMapRef:
+            name: smart-village-config
+        env:
+        - name: MONGO_URI
+          valueFrom:
+            secretKeyRef:
+              name: smart-village-secrets
+              key: MONGO_URI
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+
+---
+# Tenant Service Deployment (New)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tenant-service
+  namespace: smart-village
+  labels:
+    app: tenant-service
+    region: beijing
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: tenant-service
+  template:
+    metadata:
+      labels:
+        app: tenant-service
+        region: beijing
+    spec:
+      containers:
+      - name: tenant-service
+        image: smart-village/tenant-service:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3021
+          name: http
+        envFrom:
+        - configMapRef:
+            name: smart-village-config
+        env:
+        - name: MONGO_URI
+          valueFrom:
+            secretKeyRef:
+              name: smart-village-secrets
+              key: MONGO_URI
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+
+---
+# Data Sync Service Deployment (New)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-sync-service
+  namespace: smart-village
+  labels:
+    app: data-sync-service
+    region: beijing
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: data-sync-service
+  template:
+    metadata:
+      labels:
+        app: data-sync-service
+        region: beijing
+    spec:
+      containers:
+      - name: data-sync-service
+        image: smart-village/data-sync-service:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3022
+          name: http
+        envFrom:
+        - configMapRef:
+            name: smart-village-config
+        env:
+        - name: MONGO_URI
+          valueFrom:
+            secretKeyRef:
+              name: smart-village-secrets
+              key: MONGO_URI
+        - name: PEER_REGIONS
+          value: "cn-east-1,cn-south-1"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+
+---
+# Services
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+  namespace: smart-village
+  labels:
+    app: api-gateway
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3000
+    targetPort: 3000
+    name: http
+  selector:
+    app: api-gateway
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: smart-village
+  labels:
+    app: user-service
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3001
+    targetPort: 3001
+    name: http
+  selector:
+    app: user-service
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: resident-service
+  namespace: smart-village
+  labels:
+    app: resident-service
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3002
+    targetPort: 3002
+    name: http
+  selector:
+    app: resident-service
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: agritech-service
+  namespace: smart-village
+  labels:
+    app: agritech-service
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3010
+    targetPort: 3010
+    name: http
+  selector:
+    app: agritech-service
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: subscription-service
+  namespace: smart-village
+  labels:
+    app: subscription-service
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3020
+    targetPort: 3020
+    name: http
+  selector:
+    app: subscription-service
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tenant-service
+  namespace: smart-village
+  labels:
+    app: tenant-service
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3021
+    targetPort: 3021
+    name: http
+  selector:
+    app: tenant-service
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: data-sync-service
+  namespace: smart-village
+  labels:
+    app: data-sync-service
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3022
+    targetPort: 3022
+    name: http
+  selector:
+    app: data-sync-service
+
+---
+# Horizontal Pod Autoscaler
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: api-gateway-hpa
+  namespace: smart-village
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: api-gateway
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 30
+
+---
+# Pod Disruption Budget for API Gateway
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-gateway-pdb
+  namespace: smart-village
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: api-gateway

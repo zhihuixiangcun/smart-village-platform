@@ -1,0 +1,149 @@
+# Pod安全策略
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: smartvillage-psp
+  namespace: smartvillage
+  labels:
+    app: smartvillage
+    component: security
+spec:
+  # 特权控制
+  privileged: false
+  allowPrivilegeEscalation: false
+  requiredDropCapabilities:
+    - ALL
+  defaultAddCapabilities:
+  - NET_BIND_SERVICE
+
+  # 用户和组
+  runAsUser:
+    rule: 'MustRunAsNonRoot'
+  runAsGroup:
+    rule: 'MustRunAs'
+    ranges:
+      - min: 1001
+        max: 1001
+  fsGroup:
+    rule: 'MustRunAs'
+    ranges:
+      - min: 1001
+        max: 1001
+
+  # 卷控制
+  volumes:
+    - 'configMap'
+    - 'emptyDir'
+    - 'projected'
+    - 'secret'
+    - 'downwardAPI'
+    - 'persistentVolumeClaim'
+
+  # 只读根文件系统
+  readOnlyRootFilesystem: true
+
+  # 网络策略
+  hostNetwork: false
+  hostIPC: false
+  hostPID: false
+  hostPorts: []
+
+  # SELinux
+  seLinux:
+    rule: 'RunAsAny'
+
+  # AppArmor
+  allowedProfiles:
+    - runtime/default
+    - docker/default
+
+  # 安全上下文
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 1001
+    runAsGroup: 1001
+    fsGroup: 1001
+
+---
+# 网络策略
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: smartvillage-network-policy
+  namespace: smartvillage
+  labels:
+    app: smartvillage
+    component: security
+spec:
+  podSelector:
+    matchLabels:
+      app: smartvillage
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    - namespaceSelector:
+        matchLabels:
+          name: smartvillage
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: smartvillage
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 443
+    - protocol: TCP
+      port: 80
+    - protocol: TCP
+      port: 27017
+    - protocol: TCP
+      port: 6379
+
+---
+# 角色绑定
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: smartvillage-psp-user
+  namespace: smartvillage
+  labels:
+    app: smartvillage
+    component: security
+subjects:
+- kind: ServiceAccount
+  name: smartvillage
+  namespace: smartvillage
+roleRef:
+  kind: ClusterRole
+  name: privileged-psp-user
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# 服务账户
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: smartvillage
+  namespace: smartvillage
+  labels:
+    app: smartvillage
+    component: security
+automountServiceAccountToken: false

@@ -486,7 +486,7 @@ class ClusterCacheManager {
       : 0;
 
     return {
-      hitRate: hitRate.toFixed(2) + '%',
+      hitRate: `${hitRate.toFixed(2)  }%`,
       hits: this.metrics.hits,
       misses: this.metrics.misses,
       errors: this.metrics.errors,

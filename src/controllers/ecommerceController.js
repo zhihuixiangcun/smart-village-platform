@@ -835,7 +835,7 @@ exports.updateShoppingCart = async (req, res) => {
 exports.clearShoppingCart = async (req, res) => {
   try {
     const ShoppingCart = require('../models/ShoppingCart');
-const logger = require('../utils/logger');
+    const logger = require('../utils/logger');
 
     await ShoppingCart.findOneAndUpdate(
       { userId: req.user.id },

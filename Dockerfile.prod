@@ -1,0 +1,83 @@
+# 多阶段构建 Dockerfile
+# 生产环境优化版本
+
+# 第一阶段：依赖安装
+FROM node:20-alpine AS deps
+WORKDIR /app
+
+# 复制package文件
+COPY package*.json ./
+
+# 安装所有依赖
+RUN npm ci --only=production && npm cache clean --force
+
+# 第二阶段：构建前端
+FROM node:20-alpine AS frontend
+WORKDIR /app
+
+# 复制package文件
+COPY package*.json ./
+
+# 安装前端构建依赖
+RUN npm ci --include=dev
+
+# 复制客户端代码
+COPY client/ ./client/
+
+# 构建前端应用
+WORKDIR /app/client
+RUN npm run build
+
+# 第三阶段：生产应用
+FROM node:20-alpine AS production
+
+# 创建应用用户
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S smartvillage -u 1001
+
+# 安装必要的系统依赖
+RUN apk add --no-cache \
+    curl \
+    dumb-init \
+    ca-certificates \
+    tini \
+    && apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing \
+    imagemagick \
+    tesseract-ocr \
+    tesseract-ocr-data-chi_sim \
+    && rm -rf /var/cache/apk/*
+
+# 设置工作目录
+WORKDIR /app
+
+# 复制依赖
+COPY --from=deps --chown=smartvillage:nodejs /app/node_modules ./node_modules
+
+# 复制应用代码
+COPY --chown=smartvillage:nodejs . .
+
+# 复制前端构建产物
+COPY --from=frontend --chown=smartvillage:nodejs /app/client/dist ./client/dist
+
+# 创建必要的目录
+RUN mkdir -p uploads/{announcements,emergencies,residents,meetings,tasks} \
+    logs config \
+    && chown -R smartvillage:nodejs uploads logs config
+
+# 设置环境变量
+ENV NODE_ENV=production
+ENV PORT=3001
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:3001/health || exit 1
+
+# 切换到非root用户
+USER smartvillage
+
+# 暴露端口
+EXPOSE 3001
+
+# 启动应用
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "src/app.js"]

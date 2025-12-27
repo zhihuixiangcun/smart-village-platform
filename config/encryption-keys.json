@@ -1,0 +1,10 @@
+{
+  "currentVersion": 1,
+  "keys": {
+    "1": {
+      "encryptedKey": "PLACEHOLDER_ENCRYPTED_KEY",
+      "createdAt": "2025-12-21T00:00:00.000Z",
+      "algorithm": "aes-256-gcm"
+    }
+  }
+}

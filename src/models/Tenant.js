@@ -34,7 +34,7 @@ const tenantSchema = new Schema({
     // Format:行政区划代码 (6 digits for village level)
     // Example: 110112 (Beijing, Daxing District)
     validate: {
-      validator: function(v) {
+      validator(v) {
         return /^[0-9]{6,12}$/.test(v);
       },
       message: '租户代码格式无效'

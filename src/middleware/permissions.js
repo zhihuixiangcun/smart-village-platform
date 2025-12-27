@@ -269,7 +269,7 @@ class PermissionMiddleware {
           });
         }
 
-        let villageId = req.body.villageId || req.params.villageId || req.query.villageId || req.villageId;
+        const villageId = req.body.villageId || req.params.villageId || req.query.villageId || req.villageId;
 
         // 检查财务权限
         const hasPermission = await this.checkFinancePermission(req.user, villageId, action);
@@ -315,7 +315,7 @@ class PermissionMiddleware {
           });
         }
 
-        let villageId = req.body.villageId || req.params.villageId || req.query.villageId || req.villageId;
+        const villageId = req.body.villageId || req.params.villageId || req.query.villageId || req.villageId;
 
         // 检查应急权限
         const hasPermission = await this.checkEmergencyPermission(req.user, villageId, action);
@@ -586,33 +586,33 @@ class PermissionMiddleware {
 
     // 根据权限级别进行脱敏
     switch (permission) {
-      case 'self':
-        // 本人可以看到完整信息
-        break;
-      case 'family':
-        // 家人可以看到部分信息
-        if (masked.phone) {
-          masked.phone = masked.phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
-        }
-        if (masked.idCard) {
-          masked.idCard = masked.idCard.replace(/(\d{6})\d*(\d{4})/, '$1********$2');
-        }
-        break;
-      case 'village_admin':
-      case 'admin':
-        // 管理员可以看到完整信息
-        break;
-      default:
-        // 其他人只能看到脱敏信息
-        if (masked.phone) {
-          masked.phone = masked.phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
-        }
-        if (masked.idCard) {
-          masked.idCard = masked.idCard.replace(/(\d{6})\d*(\d{4})/, '$1********$2');
-        }
-        if (masked.email) {
-          masked.email = masked.email.replace(/(.{2}).*(@.*)/, '$1****$2');
-        }
+    case 'self':
+      // 本人可以看到完整信息
+      break;
+    case 'family':
+      // 家人可以看到部分信息
+      if (masked.phone) {
+        masked.phone = masked.phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
+      }
+      if (masked.idCard) {
+        masked.idCard = masked.idCard.replace(/(\d{6})\d*(\d{4})/, '$1********$2');
+      }
+      break;
+    case 'village_admin':
+    case 'admin':
+      // 管理员可以看到完整信息
+      break;
+    default:
+      // 其他人只能看到脱敏信息
+      if (masked.phone) {
+        masked.phone = masked.phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
+      }
+      if (masked.idCard) {
+        masked.idCard = masked.idCard.replace(/(\d{6})\d*(\d{4})/, '$1********$2');
+      }
+      if (masked.email) {
+        masked.email = masked.email.replace(/(.{2}).*(@.*)/, '$1****$2');
+      }
     }
 
     return masked;

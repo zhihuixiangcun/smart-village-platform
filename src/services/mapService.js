@@ -554,7 +554,7 @@ class MapService {
   async getVillageMapInfo(villageId) {
     try {
       const Village = require('../models/Village');
-const logger = require('../utils/logger');
+      const logger = require('../utils/logger');
       const village = await Village.findById(villageId);
 
       if (!village) {

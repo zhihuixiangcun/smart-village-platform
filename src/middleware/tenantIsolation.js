@@ -276,7 +276,7 @@ async function logTenantOperation(req, result) {
 
   try {
     const AuditLog = require('../models/AuditLog');
-const logger = require('../utils/logger');
+    const logger = require('../utils/logger');
 
     await AuditLog.create({
       tenantId: req.tenantContext.tenantId,

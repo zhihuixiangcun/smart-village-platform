@@ -305,7 +305,7 @@ const PermissionTemplateSchema = new mongoose.Schema({
     appliedTo: [{
       userId: {
         type: mongoose.Schema.Types.ObjectId,
-        },
+      },
       userName: String,
       appliedAt: { type: Date, default: Date.now },
       expiresAt: Date

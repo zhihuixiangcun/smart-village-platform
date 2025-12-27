@@ -17,8 +17,8 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    const uniqueSuffix = `${Date.now()  }-${  Math.round(Math.random() * 1E9)}`;
+    cb(null, `${file.fieldname  }-${  uniqueSuffix  }${path.extname(file.originalname)}`);
   }
 });
 
@@ -415,7 +415,7 @@ router.post('/admin/terminate-session',
       const familyProxyService = require('../services/familyProxyService');
       const result = await familyProxyService.terminateProxySession(
         sessionId,
-        `${reason}${notes ? ': ' + notes : ''}`
+        `${reason}${notes ? `: ${  notes}` : ''}`
       );
 
       res.json({
@@ -475,7 +475,7 @@ router.get('/admin/audit-logs',
       const { userId, action, startDate, endDate, page = 1, limit = 50 } = req.query;
 
       const AuditLog = require('../models/FamilyProxyAuditLog');
-const logger = require('../utils/logger');
+      const logger = require('../utils/logger');
       const query = {};
 
       if (userId) {

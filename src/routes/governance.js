@@ -188,7 +188,7 @@ router.get('/tasks/schedule',
       if (date) {
         query.scheduledDate = {
           $gte: new Date(date),
-          $lt: new Date(date + 'T23:59:59')
+          $lt: new Date(`${date  }T23:59:59`)
         };
       }
 
@@ -412,9 +412,9 @@ router.get('/dashboard', async (req, res) => {
         priority: 'urgent',
         status: { $in: ['pending', 'in-progress'] }
       })
-      .sort({ dueDate: 1 })
-      .limit(5)
-      .select('title dueDate priority')
+        .sort({ dueDate: 1 })
+        .limit(5)
+        .select('title dueDate priority')
     ]);
 
     res.json({

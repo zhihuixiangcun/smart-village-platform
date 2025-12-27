@@ -178,20 +178,20 @@ class PerformanceOrchestrator extends EventEmitter {
     cacheMetric.lastUpdate = now;
 
     switch (metric.action) {
-      case 'hit':
-        cacheMetric.hits++;
-        cacheMetric.totalRequests++;
-        break;
-      case 'miss':
-        cacheMetric.misses++;
-        cacheMetric.totalRequests++;
-        break;
-      case 'eviction':
-        cacheMetric.evictions++;
-        break;
-      case 'size':
-        cacheMetric.size = metric.size;
-        break;
+    case 'hit':
+      cacheMetric.hits++;
+      cacheMetric.totalRequests++;
+      break;
+    case 'miss':
+      cacheMetric.misses++;
+      cacheMetric.totalRequests++;
+      break;
+    case 'eviction':
+      cacheMetric.evictions++;
+      break;
+    case 'size':
+      cacheMetric.size = metric.size;
+      break;
     }
 
     // 更新全局命中率

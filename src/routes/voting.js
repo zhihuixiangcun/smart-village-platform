@@ -234,74 +234,74 @@ router.post('/analytics',
       let aggregationPipeline = [];
 
       switch (analysisType) {
-        case 'participation_trend':
-          aggregationPipeline = [
-            {
-              $match: filters || {}
-            },
-            {
-              $group: {
-                _id: {
-                  $dateToString: {
-                    format: "%Y-%m-%d",
-                    date: "$createdAt"
-                  }
-                },
-                totalVotings: { $sum: 1 },
-                totalVotes: { $sum: "$statistics.votedCount" }
-              }
-            },
-            { $sort: { _id: 1 } }
-          ];
-          break;
-
-        case 'voting_type_distribution':
-          aggregationPipeline = [
-            {
-              $match: filters || {}
-            },
-            {
-              $group: {
-                _id: "$votingType",
-                count: { $sum: 1 },
-                averageParticipation: { $avg: "$statistics.participationRate" }
-              }
+      case 'participation_trend':
+        aggregationPipeline = [
+          {
+            $match: filters || {}
+          },
+          {
+            $group: {
+              _id: {
+                $dateToString: {
+                  format: '%Y-%m-%d',
+                  date: '$createdAt'
+                }
+              },
+              totalVotings: { $sum: 1 },
+              totalVotes: { $sum: '$statistics.votedCount' }
             }
-          ];
-          break;
+          },
+          { $sort: { _id: 1 } }
+        ];
+        break;
 
-        case 'peak_voting_hours':
-          aggregationPipeline = [
-            {
-              $match: filters || {}
-            },
-            {
-              $lookup: {
-                from: 'voting_records',
-                localField: '_id',
-                foreignField: 'votingId',
-                as: 'records'
-              }
-            },
-            {
-              $unwind: '$records'
-            },
-            {
-              $group: {
-                _id: {
-                  $hour: {
-                    $hour: '$records.votedAt'
-                  }
-                },
-                voteCount: { $sum: 1 }
-              }
-            },
-            { $sort: { voteCount: -1 } }
-          ];
-          break;
+      case 'voting_type_distribution':
+        aggregationPipeline = [
+          {
+            $match: filters || {}
+          },
+          {
+            $group: {
+              _id: '$votingType',
+              count: { $sum: 1 },
+              averageParticipation: { $avg: '$statistics.participationRate' }
+            }
+          }
+        ];
+        break;
 
-        default:
-          throw new Error('不支持的分析类型');
+      case 'peak_voting_hours':
+        aggregationPipeline = [
+          {
+            $match: filters || {}
+          },
+          {
+            $lookup: {
+              from: 'voting_records',
+              localField: '_id',
+              foreignField: 'votingId',
+              as: 'records'
+            }
+          },
+          {
+            $unwind: '$records'
+          },
+          {
+            $group: {
+              _id: {
+                $hour: {
+                  $hour: '$records.votedAt'
+                }
+              },
+              voteCount: { $sum: 1 }
+            }
+          },
+          { $sort: { voteCount: -1 } }
+        ];
+        break;
+
+      default:
+        throw new Error('不支持的分析类型');
       }
 
       const results = await VotingItem.aggregate(aggregationPipeline);
@@ -348,7 +348,7 @@ router.post('/:votingId/notify',
         // 获取所有符合条件的投票者
         const VotingRecord = require('../models/Voting').VotingRecord;
         const voters = await VotingRecord.find({
-          votingId: votingId,
+          votingId,
           status: 'valid'
         }).distinct('voter.userId');
         recipientIds = voters;
@@ -409,7 +409,7 @@ router.post('/:votingId/check-permission',
       }
 
       const votingService = require('../services/votingService');
-const logger = require('../utils/logger');
+      const logger = require('../utils/logger');
       const canVote = await votingService.canUserVote(votingId, user);
       const canView = votingService.canViewVoting(voting, user);
 

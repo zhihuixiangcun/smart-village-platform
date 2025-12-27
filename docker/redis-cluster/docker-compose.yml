@@ -1,0 +1,255 @@
+# Redis Cluster Configuration for Smart Village Platform
+# 3 Masters + 3 Replicas High Availability Setup
+
+version: '3.8'
+
+services:
+  # ==================== Master Nodes ====================
+  redis-master-1:
+    image: redis:7.2-alpine
+    container_name: sv-redis-master-1
+    command: redis-server /usr/local/etc/redis/redis-master-1.conf
+    ports:
+      - "7001:7001"
+      - "17001:17001"  # Cluster bus port
+    volumes:
+      - ./redis-master-1.conf:/usr/local/etc/redis/redis-master-1.conf
+      - redis-master-1-data:/data
+      - ./logs/redis-master-1:/var/log/redis
+    networks:
+      - redis-cluster-net
+    environment:
+      - REDIS_REPLICATION_MODE=master
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "7001", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+
+  redis-master-2:
+    image: redis:7.2-alpine
+    container_name: sv-redis-master-2
+    command: redis-server /usr/local/etc/redis/redis-master-2.conf
+    ports:
+      - "7002:7002"
+      - "17002:17002"
+    volumes:
+      - ./redis-master-2.conf:/usr/local/etc/redis/redis-master-2.conf
+      - redis-master-2-data:/data
+      - ./logs/redis-master-2:/var/log/redis
+    networks:
+      - redis-cluster-net
+    environment:
+      - REDIS_REPLICATION_MODE=master
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "7002", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+
+  redis-master-3:
+    image: redis:7.2-alpine
+    container_name: sv-redis-master-3
+    command: redis-server /usr/local/etc/redis/redis-master-3.conf
+    ports:
+      - "7003:7003"
+      - "17003:17003"
+    volumes:
+      - ./redis-master-3.conf:/usr/local/etc/redis/redis-master-3.conf
+      - redis-master-3-data:/data
+      - ./logs/redis-master-3:/var/log/redis
+    networks:
+      - redis-cluster-net
+    environment:
+      - REDIS_REPLICATION_MODE=master
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "7003", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+
+  # ==================== Replica Nodes ====================
+  redis-replica-1:
+    image: redis:7.2-alpine
+    container_name: sv-redis-replica-1
+    command: redis-server /usr/local/etc/redis/redis-replica-1.conf
+    ports:
+      - "7004:7004"
+      - "17004:17004"
+    volumes:
+      - ./redis-replica-1.conf:/usr/local/etc/redis/redis-replica-1.conf
+      - redis-replica-1-data:/data
+      - ./logs/redis-replica-1:/var/log/redis
+    networks:
+      - redis-cluster-net
+    environment:
+      - REDIS_REPLICATION_MODE=replica
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "7004", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+
+  redis-replica-2:
+    image: redis:7.2-alpine
+    container_name: sv-redis-replica-2
+    command: redis-server /usr/local/etc/redis/redis-replica-2.conf
+    ports:
+      - "7005:7005"
+      - "17005:17005"
+    volumes:
+      - ./redis-replica-2.conf:/usr/local/etc/redis/redis-replica-2.conf
+      - redis-replica-2-data:/data
+      - ./logs/redis-replica-2:/var/log/redis
+    networks:
+      - redis-cluster-net
+    environment:
+      - REDIS_REPLICATION_MODE=replica
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "7005", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+
+  redis-replica-3:
+    image: redis:7.2-alpine
+    container_name: sv-redis-replica-3
+    command: redis-server /usr/local/etc/redis/redis-replica-3.conf
+    ports:
+      - "7006:7006"
+      - "17006:17006"
+    volumes:
+      - ./redis-replica-3.conf:/usr/local/etc/redis/redis-replica-3.conf
+      - redis-replica-3-data:/data
+      - ./logs/redis-replica-3:/var/log/redis
+    networks:
+      - redis-cluster-net
+    environment:
+      - REDIS_REPLICATION_MODE=replica
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "7006", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+
+  # ==================== Redis Commander (Management UI) ====================
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: sv-redis-commander
+    ports:
+      - "8081:8081"
+    environment:
+      - REDIS_HOSTS=local:redis-master-1:7001,local:redis-master-2:7002,local:redis-master-3:7003
+    networks:
+      - redis-cluster-net
+    depends_on:
+      - redis-master-1
+      - redis-master-2
+      - redis-master-3
+    restart: unless-stopped
+
+  # ==================== Redis Exporter (Prometheus Metrics) ====================
+  redis-exporter-1:
+    image: oliver006/redis_exporter:latest
+    container_name: sv-redis-exporter-1
+    ports:
+      - "9121:9121"
+    environment:
+      - REDIS_ADDR=redis://redis-master-1:7001
+    networks:
+      - redis-cluster-net
+    depends_on:
+      - redis-master-1
+    restart: unless-stopped
+
+  redis-exporter-2:
+    image: oliver006/redis_exporter:latest
+    container_name: sv-redis-exporter-2
+    ports:
+      - "9122:9121"
+    environment:
+      - REDIS_ADDR=redis://redis-master-2:7002
+    networks:
+      - redis-cluster-net
+    depends_on:
+      - redis-master-2
+    restart: unless-stopped
+
+  redis-exporter-3:
+    image: oliver006/redis_exporter:latest
+    container_name: sv-redis-exporter-3
+    ports:
+      - "9123:9121"
+    environment:
+      - REDIS_ADDR=redis://redis-master-3:7003
+    networks:
+      - redis-cluster-net
+    depends_on:
+      - redis-master-3
+    restart: unless-stopped
+
+# ==================== Networks ====================
+networks:
+  redis-cluster-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
+
+# ==================== Volumes ====================
+volumes:
+  redis-master-1-data:
+    driver: local
+  redis-master-2-data:
+    driver: local
+  redis-master-3-data:
+    driver: local
+  redis-replica-1-data:
+    driver: local
+  redis-replica-2-data:
+    driver: local
+  redis-replica-3-data:
+    driver: local

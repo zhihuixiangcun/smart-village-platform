@@ -1,0 +1,38 @@
+{
+  "timestamp": "2025-12-18T15:46:02.353Z",
+  "period": "Last 10 minutes",
+  "dataPoints": 10,
+  "statistics": {
+    "memory": {
+      "avg": 113.4,
+      "min": 56,
+      "max": 182
+    },
+    "cpu": {
+      "avg": 15.231669699211238,
+      "min": 0.19883802647852056,
+      "max": 41.30483913412057
+    },
+    "requestRate": {
+      "avg": 1039,
+      "min": 700,
+      "max": 1459
+    },
+    "errorRate": {
+      "avg": 2.8790542948399884,
+      "min": 0.6872495629664793,
+      "max": 4.757033650483738
+    },
+    "responseTime": {
+      "avg": 375,
+      "min": 104.4047829636631,
+      "max": 572.5564844610619
+    }
+  },
+  "healthThresholds": {
+    "memoryUsageWarning": 80,
+    "cpuLoadWarning": 75,
+    "errorRateWarning": 5,
+    "responseTimeWarning": 500
+  }
+}

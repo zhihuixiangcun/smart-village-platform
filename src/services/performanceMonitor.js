@@ -292,7 +292,7 @@ class PerformanceMonitor extends EventEmitter {
   async getTodayTransactionsCount() {
     try {
       const Transaction = require('../models/Transaction');
-const logger = require('../utils/logger');
+      const logger = require('../utils/logger');
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       return await Transaction.countDocuments({

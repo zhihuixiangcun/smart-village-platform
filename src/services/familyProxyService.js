@@ -455,7 +455,7 @@ class FamilyProxyService {
     const verificationMethods = {
       documents: this.verifyDocuments.bind(this),
       household: this.verifyHouseholdRegistration.bind(this),
-     村委会: this.verifyVillageCommittee.bind(this),
+      村委会: this.verifyVillageCommittee.bind(this),
       witness: this.verifyWitnesses.bind(this)
     };
 
@@ -1184,12 +1184,12 @@ class FamilyProxyService {
    */
   violatesDataRestriction(data, restriction) {
     switch (restriction.type) {
-      case 'financial_data':
-        return data.amount && data.amount > restriction.maxAmount;
-      case 'personal_info':
-        return restriction.excludeFields?.some(field => data[field]);
-      default:
-        return false;
+    case 'financial_data':
+      return data.amount && data.amount > restriction.maxAmount;
+    case 'personal_info':
+      return restriction.excludeFields?.some(field => data[field]);
+    default:
+      return false;
     }
   }
 

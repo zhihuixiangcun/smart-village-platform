@@ -3,17 +3,17 @@
  * 提供AI智能问答、政策解读、生活指导等API路由
  */
 
-const express = require('express')
-const router = express.Router()
-const aiController = require('../controllers/aiQuestionAnswerController')
-const authMiddleware = require('../middleware/authMiddleware')
-const rateLimitMiddleware = require('../middleware/rateLimitMiddleware')
-const auditMiddleware = require('../middleware/auditMiddleware')
+const express = require('express');
+const router = express.Router();
+const aiController = require('../controllers/aiQuestionAnswerController');
+const authMiddleware = require('../middleware/authMiddleware');
+const rateLimitMiddleware = require('../middleware/rateLimitMiddleware');
+const auditMiddleware = require('../middleware/auditMiddleware');
 
 // 应用中间件
-router.use(authMiddleware) // 需要认证
-router.use(auditMiddleware) // 审计日志
-router.use(rateLimitMiddleware.ai) // AI API限流
+router.use(authMiddleware); // 需要认证
+router.use(auditMiddleware); // 审计日志
+router.use(rateLimitMiddleware.ai); // AI API限流
 
 /**
  * @api {POST} /api/ai/sessions 创建对话会话
@@ -39,7 +39,7 @@ router.use(rateLimitMiddleware.ai) // AI API限流
  * @apiError (500) {Boolean} success 服务器错误
  * @apiError (500) {String} message 错误消息
  */
-router.post('/sessions', aiController.createSession)
+router.post('/sessions', aiController.createSession);
 
 /**
  * @api {POST} /api/ai/messages 发送消息
@@ -68,7 +68,7 @@ router.post('/sessions', aiController.createSession)
  * @apiError (500) {Boolean} success 服务器错误
  * @apiError (500) {String} message 错误消息
  */
-router.post('/messages', aiController.sendMessage)
+router.post('/messages', aiController.sendMessage);
 
 /**
  * @api {POST} /api/ai/smart-question 智能问答
@@ -91,7 +91,7 @@ router.post('/messages', aiController.sendMessage)
  * @apiError (500) {Boolean} success 服务器错误
  * @apiError (500) {String} message 错误消息
  */
-router.post('/smart-question', aiController.smartQuestion)
+router.post('/smart-question', aiController.smartQuestion);
 
 /**
  * @api {GET} /api/ai/sessions/:sessionId 获取会话信息
@@ -115,7 +115,7 @@ router.post('/smart-question', aiController.smartQuestion)
  * @apiError (500) {Boolean} success 服务器错误
  * @apiError (500) {String} message 错误消息
  */
-router.get('/sessions/:sessionId', aiController.getSessionInfo)
+router.get('/sessions/:sessionId', aiController.getSessionInfo);
 
 /**
  * @api {DELETE} /api/ai/sessions/:sessionId 结束会话
@@ -132,7 +132,7 @@ router.get('/sessions/:sessionId', aiController.getSessionInfo)
  * @apiError (500) {Boolean} success 服务器错误
  * @apiError (500) {String} message 错误消息
  */
-router.delete('/sessions/:sessionId', aiController.endSession)
+router.delete('/sessions/:sessionId', aiController.endSession);
 
 /**
  * @api {POST} /api/ai/sessions/:sessionId/summary 生成对话摘要
@@ -153,7 +153,7 @@ router.delete('/sessions/:sessionId', aiController.endSession)
  * @apiError (500) {Boolean} success 服务器错误
  * @apiError (500) {String} message 错误消息
  */
-router.post('/sessions/:sessionId/summary', aiController.generateSummary)
+router.post('/sessions/:sessionId/summary', aiController.generateSummary);
 
 /**
  * @api {GET} /api/ai/categories 获取支持的问答类别
@@ -171,7 +171,7 @@ router.post('/sessions/:sessionId/summary', aiController.generateSummary)
  * @apiError (500) {Boolean} success 服务器错误
  * @apiError (500) {String} message 错误消息
  */
-router.get('/categories', aiController.getSupportedCategories)
+router.get('/categories', aiController.getSupportedCategories);
 
 /**
  * @api {POST} /api/ai/batch-question 批量智能问答
@@ -193,7 +193,7 @@ router.get('/categories', aiController.getSupportedCategories)
  * @apiError (500) {Boolean} success 服务器错误
  * @apiError (500) {String} message 错误消息
  */
-router.post('/batch-question', aiController.batchSmartQuestion)
+router.post('/batch-question', aiController.batchSmartQuestion);
 
 /**
  * @api {POST} /api/ai/analyze-policy 政策分析
@@ -214,7 +214,7 @@ router.post('/batch-question', aiController.batchSmartQuestion)
  * @apiError (500) {Boolean} success 服务器错误
  * @apiError (500) {String} message 错误消息
  */
-router.post('/analyze-policy', aiController.analyzePolicy)
+router.post('/analyze-policy', aiController.analyzePolicy);
 
 /**
  * @api {POST} /api/ai/agriculture-advice 农业技术咨询
@@ -236,7 +236,7 @@ router.post('/analyze-policy', aiController.analyzePolicy)
  * @apiError (500) {Boolean} success 服务器错误
  * @apiError (500) {String} message 错误消息
  */
-router.post('/agriculture-advice', aiController.getAgricultureAdvice)
+router.post('/agriculture-advice', aiController.getAgricultureAdvice);
 
 /**
  * @api {POST} /api/ai/financial-guidance 金融指导
@@ -258,7 +258,7 @@ router.post('/agriculture-advice', aiController.getAgricultureAdvice)
  * @apiError (500) {Boolean} success 服务器错误
  * @apiError (500) {String} message 错误消息
  */
-router.post('/financial-guidance', aiController.getFinancialGuidance)
+router.post('/financial-guidance', aiController.getFinancialGuidance);
 
 /**
  * @api {GET} /api/ai/stats 获取AI服务统计
@@ -282,7 +282,7 @@ router.post('/financial-guidance', aiController.getFinancialGuidance)
  * @apiError (500) {Boolean} success 服务器错误
  * @apiError (500) {String} message 错误消息
  */
-router.get('/stats', aiController.getStats)
+router.get('/stats', aiController.getStats);
 
 /**
  * @api {POST} /api/ai/stats/reset 重置统计信息
@@ -298,7 +298,7 @@ router.get('/stats', aiController.getStats)
  * @apiError (500) {Boolean} success 服务器错误
  * @apiError (500) {String} message 错误消息
  */
-router.post('/stats/reset', aiController.resetStats)
+router.post('/stats/reset', aiController.resetStats);
 
 /**
  * @api {POST} /api/ai/cleanup-sessions 清理过期会话
@@ -314,11 +314,11 @@ router.post('/stats/reset', aiController.resetStats)
  * @apiError (500) {Boolean} success 服务器错误
  * @apiError (500) {String} message 错误消息
  */
-router.post('/cleanup-sessions', aiController.cleanupSessions)
+router.post('/cleanup-sessions', aiController.cleanupSessions);
 
 // 错误处理中间件
 router.use((error, req, res, next) => {
-  const logger = require('../config/logger')
+  const logger = require('../config/logger');
 
   logger.error('AI问答路由错误:', {
     error: error.message,
@@ -326,14 +326,14 @@ router.use((error, req, res, next) => {
     url: req.url,
     method: req.method,
     user: req.user ? req.user.id : 'anonymous'
-  })
+  });
 
   // 参数验证错误
   if (error.name === 'ValidationError') {
     return res.status(400).json({
       success: false,
       message: `参数验证失败: ${error.message}`
-    })
+    });
   }
 
   // 限流错误
@@ -341,14 +341,14 @@ router.use((error, req, res, next) => {
     return res.status(429).json({
       success: false,
       message: '请求过于频繁，请稍后再试'
-    })
+    });
   }
 
   // 默认错误处理
   res.status(500).json({
     success: false,
     message: '服务器内部错误'
-  })
-})
+  });
+});
 
-module.exports = router
+module.exports = router;

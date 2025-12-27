@@ -790,7 +790,7 @@ exports.getServiceStatus = async (req, res) => {
 
     // 获取今日统计数据
     const MessageLog = require('../models/MessageLog');
-const logger = require('../utils/logger');
+    const logger = require('../utils/logger');
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 

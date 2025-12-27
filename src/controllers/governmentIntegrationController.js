@@ -669,7 +669,7 @@ exports.cancelApplication = async (req, res) => {
     }
 
     const ApplicationHistory = require('../models/ApplicationHistory');
-const logger = require('../utils/logger');
+    const logger = require('../utils/logger');
 
     // 查找申请记录
     const application = await ApplicationHistory.findOne({

@@ -92,7 +92,7 @@ class SmartCache extends EventEmitter {
     // 记录访问
     pattern.accesses.push({
       timestamp: now,
-      hit: hit,
+      hit,
       metadata
     });
 
@@ -289,7 +289,7 @@ class SmartCache extends EventEmitter {
     const sequenceKey = hit ? `hit:${key}` : `miss:${key}`;
 
     // 获取当前序列
-    let sequence = this.predictionModel.sequences.get('current') || [];
+    const sequence = this.predictionModel.sequences.get('current') || [];
 
     // 添加到序列
     sequence.push(sequenceKey);
@@ -414,7 +414,7 @@ class SmartCache extends EventEmitter {
       };
     }
 
-    let strategy = {
+    const strategy = {
       ttl: this.config.ttlThresholds.medium,
       priority: 'normal',
       preload: false,
@@ -557,10 +557,10 @@ class SmartCache extends EventEmitter {
     }
 
     if (key.length <= 8) {
-      return key.substring(0, 2) + '***';
+      return `${key.substring(0, 2)  }***`;
     }
 
-    return key.substring(0, 4) + '***' + key.substring(key.length - 4);
+    return `${key.substring(0, 4)  }***${  key.substring(key.length - 4)}`;
   }
 
   /**
@@ -598,9 +598,9 @@ class SmartCache extends EventEmitter {
     const max = Math.max(...rates);
 
     return {
-      avg: (avg * 100).toFixed(2) + '%',
-      min: (min * 100).toFixed(2) + '%',
-      max: (max * 100).toFixed(2) + '%'
+      avg: `${(avg * 100).toFixed(2)  }%`,
+      min: `${(min * 100).toFixed(2)  }%`,
+      max: `${(max * 100).toFixed(2)  }%`
     };
   }
 
@@ -617,8 +617,8 @@ class SmartCache extends EventEmitter {
       total: patterns.length,
       hot: hotCount,
       cold: coldCount,
-      hotRate: patterns.length > 0 ? (hotCount / patterns.length * 100).toFixed(2) + '%' : '0%',
-      coldRate: patterns.length > 0 ? (coldCount / patterns.length * 100).toFixed(2) + '%' : '0%'
+      hotRate: patterns.length > 0 ? `${(hotCount / patterns.length * 100).toFixed(2)  }%` : '0%',
+      coldRate: patterns.length > 0 ? `${(coldCount / patterns.length * 100).toFixed(2)  }%` : '0%'
     };
   }
 

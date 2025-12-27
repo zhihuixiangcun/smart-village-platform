@@ -659,7 +659,7 @@ async function getUrgentAnnouncements(villageId) {
 
 async function getUpcomingMeetings(villageId) {
   const Meeting = require('../models/Meeting');
-const logger = require('../utils/logger');
+  const logger = require('../utils/logger');
   return await Meeting.findUpcomingMeetings(villageId, 3);
 }
 

@@ -400,7 +400,7 @@ class AuthController {
             description: `用户登出: ${req.user.username}`
           },
           riskLevel: 'LOW',
-          sessionId: sessionId
+          sessionId
         });
       }
 

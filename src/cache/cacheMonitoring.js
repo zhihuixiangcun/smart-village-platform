@@ -374,7 +374,7 @@ class CacheMonitoringSystem extends EventEmitter {
         message: `Cache hit rate anomaly detected: ${currentHitRate.toFixed(3)} (z-score: ${zScore.toFixed(2)})`,
         value: currentHitRate,
         baseline: mean,
-        zScore: zScore
+        zScore
       });
     }
   }
@@ -476,17 +476,17 @@ class CacheMonitoringSystem extends EventEmitter {
     for (const channel of this.options.alertChannels) {
       try {
         switch (channel) {
-          case AlertChannel.CONSOLE:
-            this._consoleAlert(alertWithTimestamp);
-            break;
-          case AlertChannel.WEBHOOK:
-            await this._webhookAlert(alertWithTimestamp);
-            break;
-          case AlertChannel.SLACK:
-            await this._slackAlert(alertWithTimestamp);
-            break;
-          default:
-            console.log(`[CacheMonitoring] Unknown alert channel: ${channel}`);
+        case AlertChannel.CONSOLE:
+          this._consoleAlert(alertWithTimestamp);
+          break;
+        case AlertChannel.WEBHOOK:
+          await this._webhookAlert(alertWithTimestamp);
+          break;
+        case AlertChannel.SLACK:
+          await this._slackAlert(alertWithTimestamp);
+          break;
+        default:
+          console.log(`[CacheMonitoring] Unknown alert channel: ${channel}`);
         }
       } catch (error) {
         console.error(`[CacheMonitoring] Alert send error (${channel}):`, error.message);

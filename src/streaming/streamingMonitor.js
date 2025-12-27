@@ -527,20 +527,20 @@ class StreamingMonitor extends EventEmitter {
    */
   async sendAlertToChannel(alert, channel, level) {
     switch (channel) {
-      case 'email':
-        await this.sendEmailAlert(alert);
-        break;
-      case 'webhook':
-        await this.sendWebhookAlert(alert);
-        break;
-      case 'slack':
-        await this.sendSlackAlert(alert);
-        break;
-      case 'sms':
-        await this.sendSMSAlert(alert);
-        break;
-      default:
-        logger.warn('未知告警渠道', { channel });
+    case 'email':
+      await this.sendEmailAlert(alert);
+      break;
+    case 'webhook':
+      await this.sendWebhookAlert(alert);
+      break;
+    case 'slack':
+      await this.sendSlackAlert(alert);
+      break;
+    case 'sms':
+      await this.sendSMSAlert(alert);
+      break;
+    default:
+      logger.warn('未知告警渠道', { channel });
     }
   }
 
@@ -1048,14 +1048,14 @@ class StreamingMonitor extends EventEmitter {
    */
   async sendReportToChannel(report, channel) {
     switch (channel) {
-      case 'email':
-        await this.sendEmailReport(report);
-        break;
-      case 'webhook':
-        await this.sendWebhookReport(report);
-        break;
-      default:
-        logger.warn('未知报告渠道', { channel });
+    case 'email':
+      await this.sendEmailReport(report);
+      break;
+    case 'webhook':
+      await this.sendWebhookReport(report);
+      break;
+    default:
+      logger.warn('未知报告渠道', { channel });
     }
   }
 

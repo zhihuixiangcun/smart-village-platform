@@ -201,16 +201,16 @@ class ApprovalNotificationService {
   async sendToChannel(channel, recipient, content, notificationData) {
     try {
       switch (channel) {
-        case 'sms':
-          return await this.sendSMS(recipient, content);
-        case 'email':
-          return await this.sendEmail(recipient, content);
-        case 'push':
-          return await this.sendPushNotification(recipient, content, notificationData);
-        case 'websocket':
-          return await this.sendWebSocketSingle(recipient, content);
-        default:
-          throw new Error(`不支持的通知渠道: ${channel}`);
+      case 'sms':
+        return await this.sendSMS(recipient, content);
+      case 'email':
+        return await this.sendEmail(recipient, content);
+      case 'push':
+        return await this.sendPushNotification(recipient, content, notificationData);
+      case 'websocket':
+        return await this.sendWebSocketSingle(recipient, content);
+      default:
+        throw new Error(`不支持的通知渠道: ${channel}`);
       }
     } catch (error) {
       logger.error(`发送${channel}通知失败:`, error);
@@ -433,22 +433,22 @@ class ApprovalNotificationService {
 
     // 根据通知类型和数据确定优先级
     switch (notificationData.type) {
-      case 'approval_request':
-        // 根据金额确定优先级
-        const amount = parseFloat(notificationData.data?.amount || 0);
-        if (amount > 100000) return 'high';
-        if (amount > 50000) return 'medium';
-        return 'low';
+    case 'approval_request':
+      // 根据金额确定优先级
+      const amount = parseFloat(notificationData.data?.amount || 0);
+      if (amount > 100000) return 'high';
+      if (amount > 50000) return 'medium';
+      return 'low';
 
-      case 'approval_overdue':
-        return 'high';
+    case 'approval_overdue':
+      return 'high';
 
-      case 'approval_result':
-      case 'approval_forward':
-        return 'medium';
+    case 'approval_result':
+    case 'approval_forward':
+      return 'medium';
 
-      default:
-        return 'medium';
+    default:
+      return 'medium';
     }
   }
 
