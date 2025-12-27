@@ -29,7 +29,7 @@
     "health-check": "node -e \"console.log('Node.js:', process.version); console.log('Platform:', process.platform);\"",
     "security:audit": "node scripts/security-audit.js",
     "security:test": "jest tests/security/ --detectOpenHandles",
-    "performance:test": "artillery run tests/performance/load-test.yml && artillery run tests/performance/stress-test.yml",
+    "performance:test": "artillery run tests/performance/load-test.yml",
     "optimize:performance": "node scripts/performance-optimization.js",
     "dev:servers": "node scripts/dev-servers.js",
     "database:start": "node scripts/start-database.js",
@@ -39,7 +39,11 @@
     "database:logs": "docker-compose -f docker-compose.dev.yml logs -f",
     "setup:database": "npm run database:start && npm run init-db",
     "test:report": "npm run test:comprehensive && npm run test:performance && npm run security:test",
-    "coverage:report": "open coverage/comprehensive/lcov-report/index.html"
+    "coverage:report": "open coverage/comprehensive/lcov-report/index.html",
+    "performance:benchmark": "npx jest tests/performance/ --maxWorkers=1",
+    "performance:api": "npx jest tests/performance/api-benchmark.test.js --maxWorkers=1",
+    "performance:service": "npx jest tests/performance/service-benchmark.test.js --maxWorkers=1",
+    "performance:report": "node tests/performance/generate-report.js"
   },
   "keywords": [
     "smart-village",

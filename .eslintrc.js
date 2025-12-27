@@ -27,7 +27,13 @@ module.exports = {
     'linebreak-style': ['error', 'unix'],
     'quotes': ['error', 'single'],
     'semi': ['error', 'always'],
-    'comma-dangle': ['error', 'es5'],
+    'comma-dangle': ['error', {
+      arrays: 'only-multiline',
+      objects: 'only-multiline',
+      imports: 'only-multiline',
+      exports: 'only-multiline',
+      functions: 'never',
+    }],
 
     // ES6+规则
     'arrow-spacing': 'error',

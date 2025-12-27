@@ -67,8 +67,24 @@ class CloudCommunicationService {
     this.messageQueue = [];
     this.isProcessingQueue = false;
 
-    // 初始化消息队列处理
-    this.initMessageQueueProcessor();
+    // 保存定时器引用
+    this.queueProcessorTimer = null;
+
+    // 只在非测试环境初始化消息队列处理
+    if (process.env.NODE_ENV !== 'test') {
+      this.initMessageQueueProcessor();
+    }
+  }
+
+  /**
+   * 停止消息队列处理器（用于测试环境清理）
+   */
+  stopMessageQueueProcessor() {
+    if (this.queueProcessorTimer) {
+      clearInterval(this.queueProcessorTimer);
+      this.queueProcessorTimer = null;
+    }
+    this.isProcessingQueue = false;
   }
 
   /**
@@ -743,7 +759,7 @@ class CloudCommunicationService {
    * 初始化消息队列处理器
    */
   initMessageQueueProcessor() {
-    setInterval(async () => {
+    this.queueProcessorTimer = setInterval(async () => {
       if (this.isProcessingQueue || this.messageQueue.length === 0) {
         return;
       }
@@ -821,7 +837,7 @@ class CloudCommunicationService {
   async logEmergencyBroadcast(villageId, message, channels, results) {
     try {
       const EmergencyBroadcast = require('../models/EmergencyBroadcast');
-const logger = require('../utils/logger');
+      const logger = require('../utils/logger');
       await new EmergencyBroadcast({
         villageId,
         message,

@@ -314,11 +314,17 @@ class VillageManagementApp {
       }
 
       console.log('✅ 优雅关闭完成');
-      process.exit(code);
+      // 只在非测试环境调用 process.exit
+      if (process.env.NODE_ENV !== 'test' && process.env.NODE_ENV !== 'uat') {
+        process.exit(code);
+      }
 
     } catch (error) {
       console.error('❌ 优雅关闭失败:', error);
-      process.exit(1);
+      // 只在非测试环境调用 process.exit
+      if (process.env.NODE_ENV !== 'test' && process.env.NODE_ENV !== 'uat') {
+        process.exit(1);
+      }
     }
   }
 

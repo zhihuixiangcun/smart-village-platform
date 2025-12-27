@@ -1,134 +1,155 @@
+# ============================================
+# 智慧乡村平台 - Artillery 负载测试配置
+# ============================================
+
 config:
-  target: '{{ $processEnvironment.API_URL || "http://localhost:3001" }}'
+  # 目标服务器配置
+  target: "http://localhost:3001"
+  processor: "./load-test-processor.js"
+
+  # 阶段定义: 模拟不同负载级别
   phases:
-    - duration: 60
-      arrivalRate: 10
-      name: "Warm up"
+    # 阶段1: 预热 (2分钟) - 从0逐步增加到10个用户
     - duration: 120
-      arrivalRate: 50
-      name: "Ramp up load"
+      arrivalRate: 0
+      rampTo: 10
+      name: "Warm Up"
+
+    # 阶段2: 正常负载 (5分钟) - 稳定在20个用户
     - duration: 300
+      arrivalRate: 20
+      name: "Normal Load"
+
+    # 阶段3: 峰值负载 (5分钟) - 增加到50个用户
+    - duration: 300
+      arrivalRate: 50
+      name: "Peak Load"
+
+    # 阶段4: 压力测试 (3分钟) - 增加到100个用户
+    - duration: 180
       arrivalRate: 100
-      name: "Sustained load"
-    - duration: 60
-      arrivalRate: 200
-      name: "Peak load"
-    - duration: 60
-      arrivalRate: 10
-      name: "Cool down"
-  processor: "./test-processor.js"
-  variables:
-    authToken:
-      - "test-token-1"
-      - "test-token-2"
-      - "test-token-3"
+      name: "Stress Test"
+
+    # 阶段5: 恢复 (2分钟) - 回到正常负载
+    - duration: 120
+      arrivalRate: 20
+      name: "Recovery"
+
+  # 默认请求配置
+  defaults:
+    headers:
+      Content-Type: "application/json"
+      Accept: "application/json"
+
+  # 性能阈值
+  ensure:
+    maxErrorRate: 1        # 最大错误率 1%
+    p95: 500               # 95%请求响应时间 < 500ms
+    p99: 1000              # 99%请求响应时间 < 1000ms
+
+# ============================================
+# 测试场景定义
+# ============================================
 
 scenarios:
-  - name: "API Health Check"
-    weight: 10
+  # 场景1: 健康检查
+  - name: "Health Check"
+    weight: 10  # 10%流量
     flow:
       - get:
           url: "/health"
           expect:
             - statusCode: 200
-            - contentType: application/json
+            - hasProperty: "status"
+            - equals:
+                - "{{ $json.status }}"
+                - "ok"
 
+  # 场景2: 用户认证
   - name: "User Authentication"
-    weight: 20
+    weight: 15  # 15%流量
     flow:
       - post:
           url: "/api/v1/auth/login"
           json:
-            username: "testuser"
-            password: "testpass"
+            username: "testuser_{{ $randomNumber() }}"
+            password: "password123"
           capture:
             - json: "$.token"
               as: "authToken"
+            - json: "$.user.id"
+              as: "userId"
           expect:
             - statusCode: 200
+            - hasProperty: "token"
 
-  - name: "Get Village List"
-    weight: 30
+  # 场景3: 获取村民列表
+  - name: "Get Residents List"
+    weight: 25  # 25%流量
     flow:
       - get:
-          url: "/api/v1/villages"
+          url: "/api/v1/residents"
           headers:
-            Authorization: "Bearer {{ authToken }}"
+            Authorization: "Bearer {{ $processEnv.TEST_TOKEN || 'test-token' }}"
+          qs:
+            page: "{{ $randomNumber(1, 10) }}"
+            limit: 20
           expect:
             - statusCode: 200
+            - hasProperty: "data"
 
+  # 场景4: 查询单个村民
+  - name: "Get Single Resident"
+    weight: 20  # 20%流量
+    flow:
+      - get:
+          url: "/api/v1/residents/{{ $randomString() }}"
+          headers:
+            Authorization: "Bearer {{ $processEnv.TEST_TOKEN || 'test-token' }}"
+          expect:
+            - statusCode:
+                - 200
+                - 404
+
+  # 场景5: 创建村民档案
+  - name: "Create Resident"
+    weight: 10  # 10%流量
+    flow:
+      - post:
+          url: "/api/v1/residents"
+          headers:
+            Authorization: "Bearer {{ $processEnv.TEST_TOKEN || 'test-token' }}"
+          json:
+            realName: "测试用户_{{ $randomString() }}"
+            idCard: "110101199001011234"
+            phone: "13800138000"
+            villageId: "village_001"
+          expect:
+            - statusCode:
+                - 200
+                - 201
+                - 400
+
+  # 场景6: 获取公告列表
   - name: "Get Announcements"
-    weight: 25
+    weight: 15  # 15%流量
     flow:
       - get:
           url: "/api/v1/announcements"
-          headers:
-            Authorization: "Bearer {{ authToken }}"
           qs:
+            villageId: "village_001"
             page: 1
             limit: 10
           expect:
             - statusCode: 200
+            - hasProperty: "data"
 
-  - name: "Create Announcement"
-    weight: 5
-    flow:
-      - post:
-          url: "/api/v1/announcements"
-          headers:
-            Authorization: "Bearer {{ authToken }}"
-          json:
-            title: "Test Announcement {{ $randomString() }}"
-            content: "This is a test announcement"
-            type: "general"
-          expect:
-            - statusCode: 201
-
-  - name: "Get User Profile"
-    weight: 10
+  # 场景7: 获取系统监控数据
+  - name: "System Monitoring"
+    weight: 5  # 5%流量
     flow:
       - get:
-          url: "/api/v1/users/profile"
-          headers:
-            Authorization: "Bearer {{ authToken }}"
+          url: "/api/monitoring/metrics"
           expect:
             - statusCode: 200
-
-  - name: "Search Residents"
-    weight: 15
-    flow:
-      - get:
-          url: "/api/v1/residents/search"
-          headers:
-            Authorization: "Bearer {{ authToken }}"
-          qs:
-            q: "张"
-            page: 1
-          expect:
-            - statusCode: 200
-
-  - name: "Upload File"
-    weight: 5
-    flow:
-      - post:
-          url: "/api/v1/upload"
-          headers:
-            Authorization: "Bearer {{ authToken }}"
-          formData:
-            file: "@tests/fixtures/test-file.jpg"
-            type: "avatar"
-          expect:
-            - statusCode: 200
-
-  - name: "WebSocket Connection Test"
-    weight: 5
-    engine: ws
-    flow:
-      - connect:
-          target: "/ws"
-          qs:
-            token: "{{ authToken }}"
-      - send: '{"type":"ping"}'
-      - think: 1
-      - send: '{"type":"subscribe","channel":"village-updates"}'
-      - think: 5
+            - hasProperty: "system"

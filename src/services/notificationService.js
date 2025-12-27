@@ -13,8 +13,25 @@ class NotificationService extends EventEmitter {
     this.pushQueue = [];
     this.isProcessing = false;
 
-    // 启动队列处理
-    this.startProcessing();
+    // 保存定时器引用
+    this.timers = [];
+
+    // 只在非测试环境启动队列处理
+    if (process.env.NODE_ENV !== 'test') {
+      this.startProcessing();
+    }
+  }
+
+  /**
+   * 停止队列处理（用于测试环境清理）
+   */
+  stopProcessing() {
+    this.timers.forEach(timer => {
+      if (timer) clearInterval(timer);
+    });
+    this.timers = [];
+    this.isProcessing = false;
+    logger.info('通知服务队列处理已停止');
   }
 
   /**
@@ -82,7 +99,7 @@ class NotificationService extends EventEmitter {
       // 添加到队列
       this.smsQueue.push(smsData);
 
-      logger.info(`短信通知已加入队列`, { phone });
+      logger.info('短信通知已加入队列', { phone });
 
       return {
         success: true,
@@ -284,20 +301,20 @@ class NotificationService extends EventEmitter {
 
     this.isProcessing = true;
 
-    // 处理邮件队列
-    setInterval(() => {
+    // 处理邮件队列 - 保存定时器引用
+    this.timers.push(setInterval(() => {
       this.processEmailQueue();
-    }, 5000);
+    }, 5000));
 
-    // 处理短信队列
-    setInterval(() => {
+    // 处理短信队列 - 保存定时器引用
+    this.timers.push(setInterval(() => {
       this.processSMSQueue();
-    }, 3000);
+    }, 3000));
 
-    // 处理推送队列
-    setInterval(() => {
+    // 处理推送队列 - 保存定时器引用
+    this.timers.push(setInterval(() => {
       this.processPushQueue();
-    }, 2000);
+    }, 2000));
 
     logger.info('通知服务队列处理已启动');
   }
