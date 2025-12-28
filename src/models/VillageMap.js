@@ -161,25 +161,8 @@ const villageMapSchema = new mongoose.Schema({
       }
     },
     properties: {
-      name: String,
-      description: String,
-      address: String,
-      type: String,
-      status: {
-        type: String,
-        enum: ['active', 'inactive', 'under_construction', 'damaged'],
-        default: 'active'
-      },
-      capacity: Number,
-      currentOccupancy: Number,
-      lastUpdated: {
-        type: Date,
-        default: Date.now
-      },
-      attributes: {
-        type: mongoose.Schema.Types.Mixed,
-        default: {}
-      }
+      type: mongoose.Schema.Types.Mixed,
+      default: {}
     },
     style: {
       color: String,
@@ -287,7 +270,11 @@ const villageMapSchema = new mongoose.Schema({
       pointId: String,
       name: String,
       location: {
-        type: 'Point',
+        type: {
+          type: String,
+          enum: ['Point'],
+          default: 'Point'
+        },
         coordinates: [Number]
       },
       capacity: Number,
@@ -338,7 +325,11 @@ const villageMapSchema = new mongoose.Schema({
         coordinates: mongoose.Schema.Types.Mixed
       },
       centerPoint: {
-        type: 'Point',
+        type: {
+          type: String,
+          enum: ['Point'],
+          default: 'Point'
+        },
         coordinates: [Number]
       },
       radius: Number, // 米
@@ -373,7 +364,11 @@ const villageMapSchema = new mongoose.Schema({
       stationId: String,
       name: String,
       location: {
-        type: 'Point',
+        type: {
+          type: String,
+          enum: ['Point'],
+          default: 'Point'
+        },
         coordinates: [Number]
       },
       stationType: {
@@ -465,7 +460,11 @@ const villageMapSchema = new mongoose.Schema({
       areaId: String,
       name: String,
       bounds: {
-        type: 'Polygon',
+        type: {
+          type: String,
+          enum: ['Polygon', 'MultiPolygon'],
+          default: 'Polygon'
+        },
         coordinates: [[[Number]]]
       },
       allowedRoles: [String],

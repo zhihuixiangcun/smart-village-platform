@@ -605,5 +605,6 @@ module.exports = {
   auditLogger,
   requireVillageAdminAuth,
   requirePermission,
+  checkPermission: requirePermission, // 别名，保持向后兼容
   dataMasking
 };

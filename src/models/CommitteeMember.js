@@ -319,7 +319,7 @@ committeeMemberSchema.statics.findByPosition = function(villageId, position) {
 committeeMemberSchema.statics.getStatistics = function(villageId) {
   return this.aggregate([
     {
-      $match: { villageId: mongoose.Types.ObjectId(villageId) }
+      $match: { villageId: new mongoose.Types.ObjectId(villageId) }
     },
     {
       $group: {

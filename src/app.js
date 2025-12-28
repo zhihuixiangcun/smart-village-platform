@@ -79,6 +79,8 @@ console.log('[DEBUG] residentProfileRoutes loaded');
 const documentRoutes = require('./routes/documentRoutes');
 const batchImportRoutes = require('./routes/batchImport');
 console.log('[DEBUG] batchImportRoutes loaded');
+const pointsRoutes = require('./routes/points');
+console.log('[DEBUG] pointsRoutes loaded');
 console.log('[DEBUG] documentRoutes loaded');
 
 // 导入村务管理路由
@@ -86,6 +88,16 @@ const villageManagementRoutes = require('./routes/villageManagement');
 console.log('[DEBUG] villageManagementRoutes loaded');
 const villageUserRoutes = require('./routes/villageUser');
 console.log('[DEBUG] villageUserRoutes loaded');
+
+// 导入村委管理路由
+const committeeRoutes = require('./routes/committee');
+console.log('[DEBUG] committeeRoutes loaded');
+const dutyScheduleRoutes = require('./routes/dutySchedule');
+console.log('[DEBUG] dutyScheduleRoutes loaded');
+const villageMapRoutes = require('./routes/villageMap');
+console.log('[DEBUG] villageMapRoutes loaded');
+const committeeDocumentsRoutes = require('./routes/committeeDocuments');
+console.log('[DEBUG] committeeDocumentsRoutes loaded');
 
 // 导入API文档生成器
 console.log('[DEBUG] Loading apiDocumentation...');
@@ -351,6 +363,7 @@ app.get('/api/v1/info', (req, res) => {
         emergency: '/api/v1/emergency/*',
         ecommerce: '/api/v1/ecommerce/*',
         batchImport: '/api/v1/batch-import/*',
+        points: '/api/v1/points/*',
         ai: '/api/v1/ai/*'
       },
       modules: {
@@ -415,8 +428,10 @@ app.use('/api/v1/ai', aiChatRoutes);
 
 // 村民管理系统路由
 app.use('/api/v1/families', familyRoutes);
-n// 批量导入路由
+// 批量导入路由
 app.use('/api/v1/batch-import', batchImportRoutes);
+// 积分系统路由
+app.use('/api/v1/points', pointsRoutes);
 app.use('/api/v1/resident-profiles', residentProfileRoutes);
 app.use('/api/v1/documents', documentRoutes);
 
@@ -425,6 +440,12 @@ app.use('/api/village-management', villageManagementRoutes);
 
 // 村民用户系统路由
 app.use('/api/village-users', villageUserRoutes);
+
+// 村委管理系统路由
+app.use('/api/v1/committee', committeeRoutes);
+app.use('/api/v1/duty-schedule', dutyScheduleRoutes);
+app.use('/api/v1/village-map', villageMapRoutes);
+app.use('/api/v1/committee-documents', committeeDocumentsRoutes);
 
 // 政策计算器系统路由
 app.use('/api/v1/policy-calculator', require('./routes/policyCalculator'));

@@ -38,6 +38,8 @@ const villageCollaborationModels = require('./VillageCollaboration');
 require('./CommitteeMember');
 require('./DutySchedule');
 require('./CommitteeAuditLog');
+require('./VillageMap');
+require('./CommitteeDocument');
 
 // 高级模型 - 可能依赖多个其他模型
 require('./ApplicationHistory');
@@ -73,7 +75,9 @@ const singleModels = {
   // MVP村委管理模型
   CommitteeMember: mongoose.model('CommitteeMember'),
   DutySchedule: mongoose.model('DutySchedule'),
-  CommitteeAuditLog: mongoose.model('CommitteeAuditLog')
+  CommitteeAuditLog: mongoose.model('CommitteeAuditLog'),
+  VillageMap: mongoose.model('VillageMap'),
+  CommitteeDocument: mongoose.model('CommitteeDocument')
 };
 
 // 添加别名以支持旧的测试文件
