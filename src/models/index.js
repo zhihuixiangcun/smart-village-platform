@@ -42,6 +42,10 @@ require('./VillageMap');
 require('./CommitteeDocument');
 require('./LocationTracking');
 
+// 智能交互和认证模块
+require('./SmartInteraction');
+require('./SmartAuthentication');
+
 // 聊天功能模型
 require('./Friendship');
 require('./ChatMessage');
@@ -95,6 +99,13 @@ const singleModels = {
   VillageMap: mongoose.model('VillageMap'),
   CommitteeDocument: mongoose.model('CommitteeDocument'),
   LocationTracking: mongoose.model('LocationTracking'),
+  // 智能交互和认证模块
+  UserInteractionPreference: mongoose.model('UserInteractionPreference'),
+  VoiceInteractionLog: mongoose.model('VoiceInteractionLog'),
+  DialectModel: mongoose.model('DialectModel'),
+  FaceBiometric: mongoose.model('FaceBiometric'),
+  ProxyAuthorization: mongoose.model('ProxyAuthorization'),
+  AuthSession: mongoose.model('AuthSession'),
   // 聊天功能模型
   Friendship: mongoose.model('Friendship'),
   ChatMessage: mongoose.model('ChatMessage'),

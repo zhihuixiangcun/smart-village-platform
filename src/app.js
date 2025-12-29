@@ -99,6 +99,11 @@ console.log('[DEBUG] villageMapRoutes loaded');
 const committeeDocumentsRoutes = require('./routes/committeeDocuments');
 console.log('[DEBUG] committeeDocumentsRoutes loaded');
 
+// 智能交互和认证模块路由
+const smartInteractionRoutes = require('./routes/smartInteraction');
+const smartAuthenticationRoutes = require('./routes/smartAuthentication');
+console.log('[DEBUG] smart interaction routes loaded');
+
 // 导入聊天功能路由
 const chatRoutes = require('./routes/chat');
 console.log('[DEBUG] chatRoutes loaded');
@@ -490,6 +495,10 @@ app.use('/api/v1/committee', committeeRoutes);
 app.use('/api/v1/duty-schedule', dutyScheduleRoutes);
 app.use('/api/v1/village-map', villageMapRoutes);
 app.use('/api/v1/committee-documents', committeeDocumentsRoutes);
+
+// 智能交互和认证模块路由
+app.use('/api/smart-interaction', smartInteractionRoutes);
+app.use('/api/smart-auth', smartAuthenticationRoutes);
 
 // 聊天功能路由
 app.use('/api/v1/chat', chatRoutes);
