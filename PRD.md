@@ -254,6 +254,221 @@
 
 **实施状态**：✅ 后端已完成（2025-12-28）
 
+#### 3.1.1.2 村委协作平台 ⭐ 新增
+
+**功能描述**：为村干部提供专属的内部协作工作空间，支持任务分配与跟踪、实时通讯、审批流程等功能，实现高效协同办公。
+
+**子功能**：
+
+- **协作空间管理**
+  - 创建不同类型协作空间（通用办公、部门专用、项目协作、应急指挥）
+  - 协作空间归档与生命周期管理
+  - 自动统计活跃任务、待审批数、即将到来的会议、本周消息数
+
+- **成员管理**
+  - 添加/移除协作空间成员
+  - 成员角色管理（村支书、管理员、普通成员）
+  - 权限继承自村委成员角色（secretary/admin/member）
+  - 成员活跃时间追踪
+
+- **任务分配与跟踪**
+  - **任务类型**：常规工作、紧急任务、项目工作、检查巡查、其他
+  - **优先级**：低、中、高、紧急
+  - **任务状态流转**：草稿 → 已分配 → 进行中 → 审核中 → 已完成/已取消
+  - **进度管理**：0-100%进度条，进度100%自动完成任务
+  - **子任务支持**：支持任务分解，父任务自动汇总子任务进度
+  - **检查点（里程碑）**：设置任务检查点，跟踪关键节点完成情况
+  - **关注机制**：添加关注人（抄送），任务更新时通知相关人员
+  - **反馈记录**：支持添加文本反馈和附件
+  - **审核流程**：任务完成后提交审核，审核通过/退回
+  - **任务统计**：按状态统计任务数量
+  - **日历视图**：按截止日期查看任务分布
+  - **搜索功能**：按关键词、状态、负责人、优先级等搜索
+
+- **实时通讯集成**
+  - 每个协作空间自动关联专属聊天群组
+  - 支持文字、图片、语音、视频、文件等多种消息类型
+  - @提及功能、消息撤回（2分钟内）
+  - WebSocket实时通知
+
+- **高级功能**
+  - **地理位置任务**：支持巡查路线、区域范围任务
+  - **循环任务**：支持每日/每周/每月/每年自动生成新任务
+  - **提醒设置**：任务到期前自动提醒
+  - **批量创建**：从会议纪要等场景批量创建任务
+
+**数据模型**：
+
+| 模型 | 说明 | 主要字段 |
+|------|------|----------|
+| CollabWorkspace | 协作空间 | name, villageId, workspaceType, chatGroupId, members[], settings, stats |
+| TaskAssignment | 任务分配 | title, assigneeId, assignerId, status, priority, progress, checkpoints[], subtaskIds[] |
+
+**技术实现**：
+- Mongoose ODM数据建模
+- Socket.IO实时通信
+- WebSocket消息推送
+- Aggregation Pipeline统计查询
+- 文本搜索索引
+
+**API端点**：
+
+**协作空间管理**：
+- POST `/api/v1/committee-collab/workspaces` - 创建协作空间
+- GET `/api/v1/committee-collab/workspaces` - 获取用户的协作空间列表
+- GET `/api/v1/committee-collab/workspaces/:workspaceId` - 获取协作空间详情
+- PUT `/api/v1/committee-collab/workspaces/:workspaceId` - 更新协作空间
+- DELETE `/api/v1/committee-collab/workspaces/:workspaceId` - 归档协作空间
+- GET `/api/v1/committee-collab/workspaces/:workspaceId/stats` - 获取统计信息
+
+**成员管理**：
+- POST `/api/v1/committee-collab/workspaces/:workspaceId/members` - 添加成员
+- DELETE `/api/v1/committee-collab/workspaces/:workspaceId/members/:memberId` - 移除成员
+- PUT `/api/v1/committee-collab/workspaces/:workspaceId/members/:memberId/role` - 更新角色
+
+**任务管理**：
+- POST `/api/v1/committee-collab/tasks` - 创建任务
+- POST `/api/v1/committee-collab/tasks/batch` - 批量创建任务
+- GET `/api/v1/committee-collab/tasks/:taskId` - 获取任务详情
+- POST `/api/v1/committee-collab/tasks/:taskId/start` - 开始任务
+- PUT `/api/v1/committee-collab/tasks/:taskId/progress` - 更新进度
+- POST `/api/v1/committee-collab/tasks/:taskId/complete` - 完成任务
+- POST `/api/v1/committee-collab/tasks/:taskId/cancel` - 取消任务
+- GET `/api/v1/committee-collab/workspaces/:workspaceId/tasks` - 获取工作空间任务列表
+- GET `/api/v1/committee-collab/workspaces/:workspaceId/tasks/overdue` - 获取逾期任务
+- GET `/api/v1/committee-collab/workspaces/:workspaceId/tasks/calendar` - 日历视图
+
+**检查点管理**：
+- POST `/api/v1/committee-collab/tasks/:taskId/checkpoints` - 添加检查点
+- POST `/api/v1/committee-collab/tasks/:taskId/checkpoints/:checkpointId/complete` - 完成检查点
+
+**子任务管理**：
+- POST `/api/v1/committee-collab/tasks/:parentTaskId/subtasks` - 创建子任务
+- GET `/api/v1/committee-collab/tasks/:parentTaskId/subtasks` - 获取子任务列表
+
+**关注与反馈**：
+- POST `/api/v1/committee-collab/tasks/:taskId/watchers` - 添加关注人
+- DELETE `/api/v1/committee-collab/tasks/:taskId/watchers/:watcherId` - 移除关注人
+- POST `/api/v1/committee-collab/tasks/:taskId/feedbacks` - 添加反馈
+
+**任务审核**：
+- POST `/api/v1/committee-collab/tasks/:taskId/submit-review` - 提交审核
+- POST `/api/v1/committee-collab/tasks/:taskId/review` - 审核任务
+
+- **会议管理** ⭐ 新增
+  - **会议类型**：常规会议、紧急会议、项目会议、培训会议、其他
+  - **会议状态**：已安排、进行中、已完成、已取消
+  - **参与者管理**：组织者、必需参与者、可选参与者、列席者
+  - **响应管理**：接受、拒绝、待定
+  - **会议议程**：支持多议程项目，每个议程可设置时长
+  - **会议纪要**：记录决议、待办事项、参会人员
+  - **循环会议**：支持每日/每周/每月/每年自动生成会议
+  - **会议提醒**：会前1小时和1天自动提醒
+
+**API端点**：
+- POST `/api/v1/committee-collab/meetings` - 创建会议
+- GET `/api/v1/committee-collab/workspaces/:workspaceId/meetings` - 获取工作空间会议列表
+- GET `/api/v1/committee-collab/users/meetings` - 获取用户的会议列表
+- GET `/api/v1/committee-collab/meetings/:meetingId` - 获取会议详情
+- POST `/api/v1/committee-collab/meetings/:meetingId/respond` - 响应会议邀请
+- POST `/api/v1/committee-collab/meetings/:meetingId/start` - 开始会议
+- POST `/api/v1/committee-collab/meetings/:meetingId/end` - 结束会议
+- POST `/api/v1/committee-collab/meetings/:meetingId/minutes` - 添加会议纪要
+
+- **工作日志管理** ⭐ 新增
+  - **日志类型**：日报、周报、月报、项目日志、事件日志、其他
+  - **日志状态**：草稿、已提交、审核中、已通过、已退回
+  - **内容结构**：
+    - 总结：工作概况
+    - 已完成任务：任务、结果、进度
+    - 进行中任务：任务、进度、下一步计划
+    - 问题记录：问题描述、解决方案、状态
+    - 下期计划：工作安排
+  - **审核流程**：提交审核 → 审核人审核 → 通过/退回
+
+**API端点**：
+- POST `/api/v1/committee-collab/work-logs` - 创建工作日志
+- GET `/api/v1/committee-collab/workspaces/:workspaceId/work-logs` - 获取工作空间日志列表
+- GET `/api/v1/committee-collab/users/work-logs` - 获取用户的日志列表
+- GET `/api/v1/committee-collab/work-logs/:logId` - 获取工作日志详情
+- POST `/api/v1/committee-collab/work-logs/:logId/submit` - 提交工作日志
+- POST `/api/v1/committee-collab/work-logs/:logId/review` - 审核工作日志
+- PUT `/api/v1/committee-collab/work-logs/:logId` - 更新工作日志
+
+- **审批管理** ⭐ 新增
+  - **审批类型**：财务审批、项目审批、采购审批、请假审批、费用审批、文档审批、政策审批
+  - **审批状态**：待审批、审批中、已批准、已拒绝、已取消
+  - **工作流支持**：
+    - 串行审批：依次经过各审批节点
+    - 并行审批：多个审批节点同时审批
+    - 条件审批：根据条件选择不同审批路径
+  - **审批记录**：完整记录每个审批节点的审批人、状态、意见、时间
+  - **自动通知**：审批流程推进时自动通知下一审批人
+  - **审批关联**：可关联任务、项目、会议等业务对象
+
+**API端点**：
+- POST `/api/v1/committee-collab/approvals` - 创建审批请求
+- GET `/api/v1/committee-collab/workspaces/:workspaceId/approvals` - 获取工作空间审批列表
+- GET `/api/v1/committee-collab/users/pending-approvals` - 获取待审批列表
+- GET `/api/v1/committee-collab/users/applications` - 获取用户的审批申请
+- GET `/api/v1/committee-collab/approvals/:approvalId` - 获取审批详情
+- POST `/api/v1/committee-collab/approvals/:approvalId/approve` - 批准审批
+- POST `/api/v1/committee-collab/approvals/:approvalId/reject` - 拒绝审批
+- POST `/api/v1/committee-collab/approvals/:approvalId/cancel` - 取消审批请求
+- GET `/api/v1/committee-collab/workspaces/:workspaceId/approvals/statistics` - 获取审批统计
+
+**数据模型扩展**：
+
+| 模型 | 说明 | 主要字段 |
+|------|------|----------|
+| Meeting | 会议 | title, meetingType, organizerId, participants[], scheduledStart, scheduledEnd, agenda, minutes, isRecurring |
+| WorkLog | 工作日志 | logType, authorId, reviewerId, content{summary, completedTasks, ongoingTasks, issues, nextPlan}, status |
+| ApprovalRequest | 审批请求 | approvalType, applicantId, workflow{nodes[], currentNodeIndex}, approvalRecords[], status |
+
+**实时通知与定时任务** ⭐ 新增
+
+- **WebSocket实时通知**
+  - 工作空间通知：成员变更、任务更新
+  - 任务通知：任务分配、状态变更、到期提醒
+  - 会议通知：会议邀请、状态更新、开始提醒
+  - 审批通知：待审批提醒、审批结果通知
+  - 系统通知：用户状态、在线用户
+
+- **定时任务调度**
+  - 任务提醒：根据优先级在到期前自动提醒（紧急1小时前、高优先级1天前、中优先级2天前）
+  - 会议提醒：会前1小时和1天自动提醒
+  - 循环任务生成：按配置自动生成循环任务
+  - 循环会议生成：按配置自动生成循环会议
+  - 逾期任务检查：每6小时检查并标记逾期任务
+  - 工作空间归档：90天无活跃自动归档
+
+**权限控制** ⭐ 新增
+
+- **工作空间角色**：
+  - admin（管理员）：完全控制权限
+  - member（成员）：参与协作，可创建任务、会议
+  - guest（访客）：只读访问
+
+- **资源权限验证**：
+  - 工作空间成员验证：验证用户是否为工作空间成员
+  - 任务权限验证：基于用户角色和任务关系验证操作权限
+  - 会议权限验证：基于组织者、参与者身份验证操作权限
+  - 工作日志权限验证：基于作者、审核人身份验证操作权限
+  - 审批权限验证：基于审批节点验证审批权限
+
+**优先级**：P0
+
+**实施状态**：✅ 后端已完成（2025-12-29）
+
+**技术实现**：
+- Mongoose ODM数据建模（CollabWorkspace, TaskAssignment, Meeting, WorkLog, ApprovalRequest）
+- Socket.IO实时通信
+- WebSocket消息推送（webSocketService增强）
+- node-cron定时任务调度
+- 权限中间件（collaborationPermission.js）
+- Aggregation Pipeline统计查询
+- 文本搜索索引
+
 #### 3.1.2 村民管理模块
 
 **功能描述**：建立村民档案库，提供数字化管理和在线办事服务

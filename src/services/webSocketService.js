@@ -726,6 +726,68 @@ class WebSocketService {
     return `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
+  // ==================== 协作平台专用通知方法 ====================
+
+  /**
+   * 发送协作空间通知
+   * @param {string} workspaceId - 工作空间ID
+   * @param {Object} data - 通知数据
+   */
+  notifyWorkspace(workspaceId, data) {
+    this.broadcastToRoom(`workspace:${workspaceId}`, {
+      type: 'collaboration_notification',
+      data
+    });
+  }
+
+  /**
+   * 发送任务通知
+   * @param {string} userId - 用户ID
+   * @param {Object} taskData - 任务数据
+   */
+  notifyTask(userId, taskData) {
+    this.broadcastToUser(userId, {
+      type: 'task_notification',
+      data: taskData
+    }, 'high');
+  }
+
+  /**
+   * 发送会议通知
+   * @param {string} workspaceId - 工作空间ID
+   * @param {Object} meetingData - 会议数据
+   */
+  notifyMeeting(workspaceId, meetingData) {
+    this.broadcastToRoom(`workspace:${workspaceId}`, {
+      type: 'meeting_notification',
+      data: meetingData
+    }, 'high');
+  }
+
+  /**
+   * 发送审批通知
+   * @param {string} userId - 用户ID
+   * @param {Object} approvalData - 审批数据
+   */
+  notifyApproval(userId, approvalData) {
+    this.broadcastToUser(userId, {
+      type: 'approval_notification',
+      data: approvalData
+    }, 'high');
+  }
+
+  /**
+   * 发送工作空间成员变化通知
+   * @param {string} workspaceId - 工作空间ID
+   * @param {Object} memberData - 成员数据
+   */
+  notifyMemberChange(workspaceId, memberData) {
+    this.broadcastToRoom(`workspace:${workspaceId}`, {
+      type: 'member_change',
+      data: memberData
+    });
+  }
+
   /**
    * 获取IO实例
    * @returns {Object} Socket.IO实例

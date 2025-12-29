@@ -107,6 +107,14 @@ console.log('[DEBUG] chatRoutes loaded');
 const productPublicationRoutes = require('./routes/productPublication');
 console.log('[DEBUG] productPublicationRoutes loaded');
 
+// 导入村委协作平台路由
+const committeeCollaborationRoutes = require('./routes/committeeCollaboration');
+console.log('[DEBUG] committeeCollaborationRoutes loaded');
+
+// 导入协作平台调度器
+const collaborationScheduler = require('./services/scheduler/collaborationScheduler');
+console.log('[DEBUG] collaborationScheduler loaded');
+
 // 导入API文档生成器
 console.log('[DEBUG] Loading apiDocumentation...');
 const { apiDocGenerator } = require('./utils/apiDocumentation');
@@ -460,6 +468,9 @@ app.use('/api/v1/chat', chatRoutes);
 
 // 产品发布管理路由
 app.use('/api/v1/products', productPublicationRoutes);
+
+// 村委协作平台路由
+app.use('/api/v1/committee-collab', committeeCollaborationRoutes);
 
 // 政策计算器系统路由
 app.use('/api/v1/policy-calculator', require('./routes/policyCalculator'));
@@ -852,6 +863,15 @@ async function startServer() {
     // 初始化实时计算系统
     await initializeRealtimeSystem();
 
+    // 启动协作平台调度器
+    try {
+      collaborationScheduler.start();
+      logger.info('✅ 协作平台调度器启动成功');
+    } catch (error) {
+      logger.error('❌ 协作平台调度器启动失败:', error);
+      logger.warn('⚠️ 协作平台定时任务功能已禁用');
+    }
+
     // 启动HTTP服务器
     const server = app.listen(PORT, () => {
       logger.info('✅ 智慧村庄平台主服务启动成功');
@@ -862,6 +882,7 @@ async function startServer() {
       logger.info(`📋 API信息: http://localhost:${PORT}/api/v1/info`);
       logger.info(`📈 性能监控: http://localhost:${PORT}/api/v1/performance`);
       logger.info(`🔄 实时计算引擎: ${realtimeInitialized ? '已启用' : '已禁用'}`);
+      logger.info(`📅 协作平台调度器: ✅`);
 
       // 显示服务特性
       logger.info('🌟 服务特性:');
@@ -885,6 +906,10 @@ async function startServer() {
         logger.info('📡 HTTP服务器已关闭');
 
         try {
+          // 关闭协作平台调度器
+          collaborationScheduler.stop();
+          logger.info('📅 协作平台调度器已关闭');
+
           // 关闭实时计算系统
           if (realtimeInitialized) {
             await realtimeIntegrator.stop();
