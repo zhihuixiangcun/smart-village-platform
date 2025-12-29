@@ -66,6 +66,9 @@ require('./SyncHistory');
 require('./UploadHistory');
 require('./Task');
 
+// 积分系统模型
+const pointsModels = require('./Points');
+
 // 收集所有单模型导出（来自 modules）
 const singleModels = {
   User,
@@ -115,5 +118,6 @@ module.exports = {
   ...votingModels,
   ...villageCollaborationModels,
   ...emergencyResponseModels,
-  ...financeModels
+  ...financeModels,
+  ...pointsModels
 };
