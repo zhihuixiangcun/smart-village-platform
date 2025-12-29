@@ -103,6 +103,10 @@ console.log('[DEBUG] committeeDocumentsRoutes loaded');
 const chatRoutes = require('./routes/chat');
 console.log('[DEBUG] chatRoutes loaded');
 
+// 导入产品发布管理路由
+const productPublicationRoutes = require('./routes/productPublication');
+console.log('[DEBUG] productPublicationRoutes loaded');
+
 // 导入API文档生成器
 console.log('[DEBUG] Loading apiDocumentation...');
 const { apiDocGenerator } = require('./utils/apiDocumentation');
@@ -453,6 +457,9 @@ app.use('/api/v1/committee-documents', committeeDocumentsRoutes);
 
 // 聊天功能路由
 app.use('/api/v1/chat', chatRoutes);
+
+// 产品发布管理路由
+app.use('/api/v1/products', productPublicationRoutes);
 
 // 政策计算器系统路由
 app.use('/api/v1/policy-calculator', require('./routes/policyCalculator'));
