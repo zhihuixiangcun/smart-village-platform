@@ -99,6 +99,10 @@ console.log('[DEBUG] villageMapRoutes loaded');
 const committeeDocumentsRoutes = require('./routes/committeeDocuments');
 console.log('[DEBUG] committeeDocumentsRoutes loaded');
 
+// 导入聊天功能路由
+const chatRoutes = require('./routes/chat');
+console.log('[DEBUG] chatRoutes loaded');
+
 // 导入API文档生成器
 console.log('[DEBUG] Loading apiDocumentation...');
 const { apiDocGenerator } = require('./utils/apiDocumentation');
@@ -446,6 +450,9 @@ app.use('/api/v1/committee', committeeRoutes);
 app.use('/api/v1/duty-schedule', dutyScheduleRoutes);
 app.use('/api/v1/village-map', villageMapRoutes);
 app.use('/api/v1/committee-documents', committeeDocumentsRoutes);
+
+// 聊天功能路由
+app.use('/api/v1/chat', chatRoutes);
 
 // 政策计算器系统路由
 app.use('/api/v1/policy-calculator', require('./routes/policyCalculator'));

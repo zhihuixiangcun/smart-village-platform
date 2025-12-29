@@ -41,6 +41,11 @@ require('./CommitteeAuditLog');
 require('./VillageMap');
 require('./CommitteeDocument');
 
+// 聊天功能模型
+require('./Friendship');
+require('./ChatMessage');
+require('./ChatGroup');
+
 // 高级模型 - 可能依赖多个其他模型
 require('./ApplicationHistory');
 require('./BehaviorLog');
@@ -77,7 +82,11 @@ const singleModels = {
   DutySchedule: mongoose.model('DutySchedule'),
   CommitteeAuditLog: mongoose.model('CommitteeAuditLog'),
   VillageMap: mongoose.model('VillageMap'),
-  CommitteeDocument: mongoose.model('CommitteeDocument')
+  CommitteeDocument: mongoose.model('CommitteeDocument'),
+  // 聊天功能模型
+  Friendship: mongoose.model('Friendship'),
+  ChatMessage: mongoose.model('ChatMessage'),
+  ChatGroup: mongoose.model('ChatGroup')
 };
 
 // 添加别名以支持旧的测试文件
