@@ -681,6 +681,235 @@ const router = createRouter({
       ]
     },
 
+    // ========== P2功能模块 ==========
+
+    // 村级应急响应系统 (P2)
+    {
+      path: '/emergency-response',
+      name: 'emergency-response',
+      redirect: '/emergency-response/plans',
+      meta: {
+        requiresAuth: true,
+        title: '村级应急响应',
+        icon: 'WarningFilled',
+        permissions: ['emergency:read']
+      },
+      children: [
+        {
+          path: 'plans',
+          name: 'emergency-response-plans',
+          component: () => import('@/views/emergencyResponse/EmergencyPlansView.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '应急预案',
+            permissions: ['emergency:read'],
+            breadcrumb: [
+              { title: '首页', path: '/dashboard' },
+              { title: '村级应急响应', path: '/emergency-response' },
+              { title: '应急预案', path: '/emergency-response/plans' }
+            ]
+          }
+        },
+        {
+          path: 'equipment',
+          name: 'emergency-response-equipment',
+          component: () => import('@/views/emergencyResponse/EmergencyEquipmentView.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '救援设备',
+            permissions: ['emergency:read'],
+            breadcrumb: [
+              { title: '首页', path: '/dashboard' },
+              { title: '村级应急响应', path: '/emergency-response' },
+              { title: '救援设备', path: '/emergency-response/equipment' }
+            ]
+          }
+        }
+      ]
+    },
+
+    // 上级联动枢纽 (P2)
+    {
+      path: '/government-linkage',
+      name: 'government-linkage',
+      redirect: '/government-linkage/data-report',
+      meta: {
+        requiresAuth: true,
+        title: '上级联动枢纽',
+        icon: 'Connection',
+        permissions: ['government:read']
+      },
+      children: [
+        {
+          path: 'data-report',
+          name: 'government-linkage-data-report',
+          component: () => import('@/views/governmentLinkage/DataReportView.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '数据自动上报',
+            permissions: ['government:read'],
+            breadcrumb: [
+              { title: '首页', path: '/dashboard' },
+              { title: '上级联动枢纽', path: '/government-linkage' },
+              { title: '数据自动上报', path: '/government-linkage/data-report' }
+            ]
+          }
+        },
+        {
+          path: 'resource-schedule',
+          name: 'government-linkage-resource-schedule',
+          component: () => import('@/views/governmentLinkage/ResourceScheduleView.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '跨域资源调度',
+            permissions: ['government:read'],
+            breadcrumb: [
+              { title: '首页', path: '/dashboard' },
+              { title: '上级联动枢纽', path: '/government-linkage' },
+              { title: '跨域资源调度', path: '/government-linkage/resource-schedule' }
+            ]
+          }
+        }
+      ]
+    },
+
+    // 阳光村务系统 (P2)
+    {
+      path: '/transparency',
+      name: 'transparency',
+      redirect: '/transparency/financial',
+      meta: {
+        requiresAuth: true,
+        title: '阳光村务系统',
+        icon: 'Sunny',
+        permissions: ['transparency:read']
+      },
+      children: [
+        {
+          path: 'financial',
+          name: 'transparency-financial',
+          component: () => import('@/views/transparency/FinancialTransparencyView.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '财务透明化',
+            permissions: ['transparency:read'],
+            breadcrumb: [
+              { title: '首页', path: '/dashboard' },
+              { title: '阳光村务系统', path: '/transparency' },
+              { title: '财务透明化', path: '/transparency/financial' }
+            ]
+          }
+        },
+        {
+          path: 'project-supervision',
+          name: 'transparency-project-supervision',
+          component: () => import('@/views/transparency/ProjectSupervisionView.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '工程项目监督',
+            permissions: ['transparency:read'],
+            breadcrumb: [
+              { title: '首页', path: '/dashboard' },
+              { title: '阳光村务系统', path: '/transparency' },
+              { title: '工程项目监督', path: '/transparency/project-supervision' }
+            ]
+          }
+        }
+      ]
+    },
+
+    // 乡村生活服务圈 (P2)
+    {
+      path: '/village-services',
+      name: 'village-services',
+      redirect: '/village-services/neighbor-help',
+      meta: {
+        requiresAuth: true,
+        title: '乡村生活服务圈',
+        icon: 'ShoppingBag',
+        permissions: ['service:read']
+      },
+      children: [
+        {
+          path: 'neighbor-help',
+          name: 'village-services-neighbor-help',
+          component: () => import('@/views/villageServices/NeighborHelpView.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '邻里互助',
+            permissions: ['service:read'],
+            breadcrumb: [
+              { title: '首页', path: '/dashboard' },
+              { title: '乡村生活服务圈', path: '/village-services' },
+              { title: '邻里互助', path: '/village-services/neighbor-help' }
+            ]
+          }
+        },
+        {
+          path: 'carpool',
+          name: 'village-services-carpool',
+          component: () => import('@/views/villageServices/CarpoolView.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '乡村拼车',
+            permissions: ['service:read'],
+            breadcrumb: [
+              { title: '首页', path: '/dashboard' },
+              { title: '乡村生活服务圈', path: '/village-services' },
+              { title: '乡村拼车', path: '/village-services/carpool' }
+            ]
+          }
+        },
+        {
+          path: 'shared-equipment',
+          name: 'village-services-shared-equipment',
+          component: () => import('@/views/villageServices/SharedEquipmentView.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '设备共享',
+            permissions: ['service:read'],
+            breadcrumb: [
+              { title: '首页', path: '/dashboard' },
+              { title: '乡村生活服务圈', path: '/village-services' },
+              { title: '设备共享', path: '/village-services/shared-equipment' }
+            ]
+          }
+        },
+        {
+          path: 'activities',
+          name: 'village-services-activities',
+          component: () => import('@/views/villageServices/VillageActivitiesView.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '乡村活动',
+            permissions: ['service:read'],
+            breadcrumb: [
+              { title: '首页', path: '/dashboard' },
+              { title: '乡村生活服务圈', path: '/village-services' },
+              { title: '乡村活动', path: '/village-services/activities' }
+            ]
+          }
+        }
+      ]
+    },
+
+    // 村干部工作规划 (P1)
+    {
+      path: '/work-plan',
+      name: 'work-plan',
+      component: () => import('@/views/workPlan/WorkPlanView.vue'),
+      meta: {
+        requiresAuth: true,
+        title: '每日工作规划',
+        icon: 'List',
+        permissions: ['committee:read'],
+        breadcrumb: [
+          { title: '首页', path: '/dashboard' },
+          { title: '每日工作规划', path: '/work-plan' }
+        ]
+      }
+    },
+
     // 系统管理模块
     {
       path: '/system',

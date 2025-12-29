@@ -36,6 +36,42 @@
           <button class="card-btn">财务管理</button>
         </div>
 
+        <!-- P2功能模块 -->
+        <div class="feature-card p2-feature" @click="router.push('/emergency-response')">
+          <div class="card-icon">🚨</div>
+          <h3>村级应急响应</h3>
+          <p>应急预案、一键启动、设备定位</p>
+          <button class="card-btn p2-btn">应急响应</button>
+        </div>
+
+        <div class="feature-card p2-feature" @click="router.push('/government-linkage')">
+          <div class="card-icon">🔗</div>
+          <h3>上级联动枢纽</h3>
+          <p>数据上报、资源调度、任务承接</p>
+          <button class="card-btn p2-btn">上级联动</button>
+        </div>
+
+        <div class="feature-card p2-feature" @click="router.push('/transparency')">
+          <div class="card-icon">☀️</div>
+          <h3>阳光村务系统</h3>
+          <p>财务透明、工程监督、区块链存证</p>
+          <button class="card-btn p2-btn">村务公开</button>
+        </div>
+
+        <div class="feature-card p2-feature" @click="router.push('/village-services')">
+          <div class="card-icon">🤝</div>
+          <h3>乡村生活服务圈</h3>
+          <p>邻里互助、拼车共享、活动圈</p>
+          <button class="card-btn p2-btn">生活服务</button>
+        </div>
+
+        <div class="feature-card" @click="router.push('/work-plan')">
+          <div class="card-icon">📋</div>
+          <h3>每日工作规划</h3>
+          <p>四象限法则、智能规划、工作汇总</p>
+          <button class="card-btn">工作规划</button>
+        </div>
+
         <div class="feature-card" @click="openMonitoring">
           <div class="card-icon">📊</div>
           <h3>实时监控</h3>
@@ -74,11 +110,40 @@
           <button class="card-btn">生活服务</button>
         </div>
 
-        <div class="feature-card" @click="router.push('/finance/overview')">
+        <!-- P2村民功能 -->
+        <div class="feature-card p2-feature" @click="router.push('/transparency/financial')">
           <div class="card-icon">💰</div>
           <h3>财务公开</h3>
           <p>村财务公示、资金使用透明化</p>
-          <button class="card-btn">查看财务</button>
+          <button class="card-btn p2-btn">查看财务</button>
+        </div>
+
+        <div class="feature-card p2-feature" @click="router.push('/transparency/project-supervision')">
+          <div class="card-icon">🏗️</div>
+          <h3>工程监督</h3>
+          <p>项目进度、质量反馈、拍照监督</p>
+          <button class="card-btn p2-btn">查看工程</button>
+        </div>
+
+        <div class="feature-card p2-feature" @click="router.push('/village-services/neighbor-help')">
+          <div class="card-icon">🤝</div>
+          <h3>邻里互助</h3>
+          <p>发布求助、抢单帮忙、积分奖励</p>
+          <button class="card-btn p2-btn">邻里互助</button>
+        </div>
+
+        <div class="feature-card p2-feature" @click="router.push('/village-services/carpool')">
+          <div class="card-icon">🚗</div>
+          <h3>乡村拼车</h3>
+          <p>发布拼车、加入拼车、绿色出行</p>
+          <button class="card-btn p2-btn">拼车出行</button>
+        </div>
+
+        <div class="feature-card p2-feature" @click="router.push('/village-services/shared-equipment')">
+          <div class="card-icon">🚜</div>
+          <h3>设备共享</h3>
+          <p>农具共享、设备借用、资源优化</p>
+          <button class="card-btn p2-btn">共享设备</button>
         </div>
 
         <div class="feature-card" @click="router.push('/proposals')">
@@ -215,6 +280,26 @@ onMounted(() => {
 
 .card-btn:hover {
   background: #45a049;
+}
+
+/* P2功能卡片样式 */
+.feature-card.p2-feature {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border: 2px solid #0ea5e9;
+}
+
+.feature-card.p2-feature:hover {
+  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(14, 165, 233, 0.3);
+}
+
+.card-btn.p2-btn {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+}
+
+.card-btn.p2-btn:hover {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
 }
 
 .stats-section {

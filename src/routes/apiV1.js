@@ -1109,6 +1109,14 @@ permissionRouter.post('/check', async (req, res) => {
 router.use('/permissions', permissionRouter);
 
 /**
+ * 村干部工作规划 API (RESTful)
+ * BASE: /api/v1/work-plans
+ * 基于四象限法则的工作规划、执行跟踪、汇总
+ */
+const workPlanRouter = require('./workPlan');
+router.use('/work-plans', workPlanRouter);
+
+/**
  * API错误处理中间件
  */
 router.use((error, req, res, next) => {
