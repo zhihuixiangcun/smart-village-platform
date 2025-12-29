@@ -16,7 +16,16 @@ const MessageType = {
   LINK: 'link',                    // 链接分享
   SYSTEM: 'system',                // 系统消息
   NOTICE: 'notice',                // 通知消息
-  CALL: 'call'                     // 通话消息
+  CALL: 'call',                    // 通话消息
+  // 协作消息类型
+  TASK_ASSIGNED: 'task_assigned',      // 任务分配
+  TASK_UPDATED: 'task_updated',        // 任务更新
+  TASK_COMPLETED: 'task_completed',    // 任务完成
+  TASK_REMINDER: 'task_reminder',       // 任务提醒
+  MEETING_CREATED: 'meeting_created',   // 会议创建
+  MEETING_REMINDER: 'meeting_reminder', // 会议提醒
+  APPROVAL_PENDING: 'approval_pending', // 待审批
+  WORKSPACE_NOTIF: 'workspace_notif'    // 工作空间通知
 };
 
 // 消息状态枚举
@@ -216,6 +225,71 @@ const chatMessageSchema = new mongoose.Schema({
       enum: ['pending', 'processed', 'dismissed'],
       default: 'pending'
     }
+  }],
+
+  // ==================== 协作相关字段 ====================
+
+  // 关联的协作空间ID
+  workspaceId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'CollabWorkspace'
+  },
+
+  // 关联的任务ID
+  taskId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'TaskAssignment'
+  },
+
+  // 关联的会议ID
+  meetingId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Meeting'
+  },
+
+  // 关联的审批ID
+  approvalId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'ApprovalRequest'
+  },
+
+  // 任务分配信息
+  taskAssignment: {
+    title: String,
+    description: String,
+    priority: String,
+    dueDate: Date,
+    assigneeName: String,
+    status: String
+  },
+
+  // 会议邀请信息
+  meetingInvitation: {
+    title: String,
+    scheduledStart: Date,
+    scheduledEnd: Date,
+    location: String,
+    agenda: [String]
+  },
+
+  // 审批通知信息
+  approvalNotification: {
+    title: String,
+    approvalType: String,
+    amount: Number,
+    applicantName: String,
+    status: String
+  },
+
+  // 快捷操作按钮
+  quickActions: [{
+    actionId: String,
+    text: String,
+    type: {
+      type: String,
+      enum: ['accept_task', 'decline_task', 'view_task', 'accept_meeting', 'decline_meeting', 'approve', 'reject', 'view_detail']
+    },
+    data: mongoose.Schema.Types.Mixed
   }],
 
   // 发送时间

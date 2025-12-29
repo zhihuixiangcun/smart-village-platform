@@ -111,6 +111,34 @@ console.log('[DEBUG] productPublicationRoutes loaded');
 const committeeCollaborationRoutes = require('./routes/committeeCollaboration');
 console.log('[DEBUG] committeeCollaborationRoutes loaded');
 
+// 导入协作群聊路由
+const collabChatRoutes = require('./routes/collabChat');
+console.log('[DEBUG] collabChatRoutes loaded');
+
+// 导入村务公告互动路由
+const announcementInteractionRoutes = require('./routes/announcementInteraction');
+console.log('[DEBUG] announcementInteractionRoutes loaded');
+
+// 导入乡村活动管理路由
+const villageEventRoutes = require('./routes/villageEvent');
+console.log('[DEBUG] villageEventRoutes loaded');
+
+// 导入增强电商路由
+const enhancedEcommerceRoutes = require('./routes/enhancedEcommerce');
+console.log('[DEBUG] enhancedEcommerceRoutes loaded');
+
+// 导入政务管理路由
+const governmentRoutes = require('./routes/government');
+console.log('[DEBUG] governmentRoutes loaded');
+
+// 导入公共服务路由
+const publicServiceRoutes = require('./routes/publicService');
+console.log('[DEBUG] publicServiceRoutes loaded');
+
+// 导入缴费管理路由
+const paymentManagementRoutes = require('./routes/paymentManagement');
+console.log('[DEBUG] paymentManagementRoutes loaded');
+
 // 导入协作平台调度器
 const collaborationScheduler = require('./services/scheduler/collaborationScheduler');
 console.log('[DEBUG] collaborationScheduler loaded');
@@ -471,6 +499,27 @@ app.use('/api/v1/products', productPublicationRoutes);
 
 // 村委协作平台路由
 app.use('/api/v1/committee-collab', committeeCollaborationRoutes);
+
+// 协作群聊路由
+app.use('/api/v1/collab-chat', collabChatRoutes);
+
+// 村务公告互动路由
+app.use('/api/v1', announcementInteractionRoutes);
+
+// 乡村活动管理路由
+app.use('/api/v1', villageEventRoutes);
+
+// 增强电商路由（拼团、农资采购等）
+app.use('/api/v1', enhancedEcommerceRoutes);
+
+// 政务管理路由（村民档案、证件、福利）
+app.use('/api/v1', governmentRoutes);
+
+// 公共服务路由（医疗、教育、就业）
+app.use('/api/v1', publicServiceRoutes);
+
+// 缴费管理路由（保险、水电费等）
+app.use('/api/v1', paymentManagementRoutes);
 
 // 政策计算器系统路由
 app.use('/api/v1/policy-calculator', require('./routes/policyCalculator'));

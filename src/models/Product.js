@@ -563,7 +563,7 @@ const OrderSchema = new mongoose.Schema({
 });
 
 /**
- * 团购活动模型
+ * 团购活动模型（增强版）
  */
 const GroupBuySchema = new mongoose.Schema({
   productId: {
@@ -574,16 +574,39 @@ const GroupBuySchema = new mongoose.Schema({
   },
   productName: String,
   productImage: String,
+  villageId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Village',
+    required: true,
+    index: true
+  },
 
-  // 团购设置
+  // 团购设置（阶梯定价）
   originalPrice: {
     type: Number,
     required: true
   },
-  groupPrice: {
+  tiers: [{
+    minQuantity: {
+      type: Number,
+      required: true
+    },
+    maxQuantity: Number,
+    price: {
+      type: Number,
+      required: true
+    },
+    discount: {
+      type: Number,
+      default: 0
+    }
+  }],
+  currentPrice: {
     type: Number,
     required: true
   },
+
+  // 数量设置
   targetQuantity: {
     type: Number,
     required: true,
@@ -593,7 +616,18 @@ const GroupBuySchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  maxQuantity: Number,
+  maxQuantity: {
+    type: Number,
+    default: 999999
+  },
+  minOrderPerUser: {
+    type: Number,
+    default: 1
+  },
+  maxOrderPerUser: {
+    type: Number,
+    default: 10
+  },
 
   // 时间设置
   startTime: {
@@ -604,46 +638,129 @@ const GroupBuySchema = new mongoose.Schema({
     type: Date,
     required: true
   },
+  autoActivateTime: Date,  // 自动激活时间
+  earlyEndTime: Date,       // 提前结束时间（达到目标时）
+
+  // 自动设置
+  autoActivate: {
+    type: Boolean,
+    default: false
+  },
+  autoSuccess: {
+    type: Boolean,
+    default: true
+  },  // 达到目标自动成功
+  autoFail: {
+    type: Boolean,
+    default: true
+  },    // 超时自动失败
 
   // 活动描述
+  title: {
+    type: String,
+    maxlength: 200
+  },
   description: String,
   rules: [String],
+  terms: String,
+  images: [String],
+
+  // 团长信息
+  leaderId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    index: true
+  },
+  leaderName: String,
+  leaderPhone: String,
+  leaderCommission: {
+    type: Number,
+    default: 0
+  },  // 团长佣金比例
+
+  // 配送设置
+  deliveryMethod: {
+    type: String,
+    enum: ['pickup', 'delivery', 'group_pickup'],
+    default: 'group_pickup'
+  },
+  pickupLocation: {
+    address: String,
+    contact: String,
+    coordinates: {
+      type: { type: String, enum: ['Point'], default: 'Point' },
+      coordinates: [Number]
+    }
+  },
+  deliveryFee: {
+    type: Number,
+    default: 0
+  },
 
   // 参与者
   participants: [{
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      // ref: 'User',
       required: true
     },
+    userName: String,
+    userPhone: String,
     quantity: {
       type: Number,
       required: true,
       min: 1
     },
+    price: Number,      // 下单时的价格
+    savedAmount: Number,  // 节省金额
     joinedAt: {
       type: Date,
       default: Date.now
     },
     status: {
       type: String,
-      enum: ['pending', 'paid', 'cancelled'],
+      enum: ['pending', 'paid', 'confirmed', 'cancelled', 'refunded'],
       default: 'pending'
-    }
+    },
+    paymentId: String,
+    paidAt: Date
   }],
+
+  // 分享统计
+  shareCount: {
+    type: Number,
+    default: 0
+  },
+  viewCount: {
+    type: Number,
+    default: 0
+  },
 
   // 状态
   status: {
     type: String,
-    enum: ['draft', 'active', 'success', 'failed', 'cancelled'],
-    default: 'draft'
+    enum: ['draft', 'upcoming', 'active', 'success', 'failed', 'cancelled', 'refunding'],
+    default: 'draft',
+    index: true
   },
   successTime: Date,
+  failedReason: String,
+
+  // 退款信息
+  refundConfig: {
+    enabled: {
+      type: Boolean,
+      default: true
+    },
+    autoRefund: {
+      type: Boolean,
+      default: true
+    },
+    refundDeadline: Number  // 退款截止时间（小时）
+  },
 
   // 创建信息
   creatorId: {
     type: mongoose.Schema.Types.ObjectId,
-    // ref: 'User',
     required: true
   },
   createdAt: {
@@ -657,6 +774,374 @@ const GroupBuySchema = new mongoose.Schema({
 }, {
   timestamps: true,
   collection: 'group_buys'
+});
+
+/**
+ * 农资采购模型
+ */
+const AgriculturalSupplySchema = new mongoose.Schema({
+  // 基础信息
+  name: {
+    type: String,
+    required: true,
+    maxlength: 200
+  },
+  code: {
+    type: String,
+    unique: true,
+    index: true
+  },
+  description: {
+    type: String,
+    maxlength: 2000
+  },
+
+  // 分类
+  category: {
+    type: String,
+    enum: ['seed', 'fertilizer', 'pesticide', 'feed', 'equipment', 'other'],
+    required: true,
+    index: true
+  },
+  subCategory: String,
+
+  // 供应商信息
+  supplierId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Shop',
+    required: true
+  },
+  supplierName: String,
+  supplierLicense: String,
+  supplierContact: {
+    name: String,
+    phone: String,
+    address: String
+  },
+
+  // 规格参数
+  specifications: {
+    brand: String,
+    model: String,
+    weight: Number,
+    weightUnit: {
+      type: String,
+      enum: ['g', 'kg', 'ml', 'l', 'piece', 'bag', 'box'],
+      default: 'kg'
+    },
+    package: String,
+    shelfLife: Number,  // 保质期（月）
+    storageCondition: String
+  },
+
+  // 价格信息
+  price: {
+    type: Number,
+    required: true,
+    min: 0
+  },
+  wholesalePrice: Number,  // 批发价
+  wholesaleMinQty: {
+    type: Number,
+    default: 10
+  },
+  unit: {
+    type: String,
+    required: true
+  },
+
+  // 库存信息
+  stock: {
+    type: Number,
+    required: true,
+    default: 0
+  },
+  minStock: {
+    type: Number,
+    default: 10
+  },  // 最低库存预警
+  warehouseLocation: String,
+
+  // 质量认证
+  certifications: [{
+    type: {
+      type: String,
+      enum: ['organic', 'green', 'iso', 'gap', 'other']
+    },
+    number: String,
+    expiryDate: Date,
+    image: String
+  }],
+
+  // 使用说明
+  usageInstructions: {
+    target: String,      // 适用作物
+    dosage: String,      // 用量
+    method: String,      // 使用方法
+    precautions: [String]  // 注意事项
+  },
+
+  // 安全信息
+  safetyInfo: {
+    toxicity: {
+      type: String,
+      enum: ['low', 'moderate', 'high']
+    },
+    hazardClass: String,
+    firstAid: String,
+    emergencyContact: String
+  },
+
+  // 限制购买
+  purchaseRestriction: {
+    requiresLicense: {
+      type: Boolean,
+      default: false
+    },  // 是否需要许可证
+    licenseTypes: [String],
+    maxQuantityPerUser: Number
+  },
+
+  // 季节性
+  seasonality: {
+    peakSeasons: [String],  // 旺季月份
+    offSeasons: [String]   // 淡季月份
+  },
+
+  // 图片
+  images: [{
+    url: String,
+    type: {
+      type: String,
+      enum: ['product', 'package', 'label', 'certification']
+    }
+  }],
+
+  // 状态
+  status: {
+    type: String,
+    enum: ['draft', 'active', 'inactive', 'out_of_stock', 'discontinued'],
+    default: 'active',
+    index: true
+  },
+
+  // 村庄关联
+  villageId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Village',
+    required: true,
+    index: true
+  },
+
+  // 统计
+  sales: {
+    type: Number,
+    default: 0
+  },
+  rating: {
+    average: { type: Number, default: 0, min: 0, max: 5 },
+    count: { type: Number, default: 0 }
+  },
+
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  }
+}, {
+  timestamps: true,
+  collection: 'agricultural_supplies'
+});
+
+/**
+ * 集体采购模型
+ */
+const BulkPurchaseSchema = new mongoose.Schema({
+  // 采购信息
+  title: {
+    type: String,
+    required: true,
+    maxlength: 200
+  },
+  type: {
+    type: String,
+    enum: ['seed', 'fertilizer', 'pesticide', 'equipment', 'mixed'],
+    required: true
+  },
+
+  // 采购目标
+  targetQuantity: {
+    type: Number,
+    required: true
+  },
+  currentQuantity: {
+    type: Number,
+    default: 0
+  },
+  unit: String,
+
+  // 采购项目
+  items: [{
+    supplyId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'AgriculturalSupply'
+    },
+    name: String,
+    quantity: Number,
+    unit: String,
+    estimatedPrice: Number
+  }],
+
+  // 预算信息
+  estimatedBudget: {
+    type: Number,
+    required: true
+  },
+  currentCollected: {
+    type: Number,
+    default: 0
+  },
+
+  // 组织者
+  organizerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true
+  },
+  organizerName: String,
+  organizerRole: {
+    type: String,
+    enum: ['committee', 'cooperative', 'group_leader']
+  },
+
+  // 供应商
+  suppliers: [{
+    supplierId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Shop'
+    },
+    supplierName: String,
+    quotedPrice: Number,
+    deliveryTime: Number,
+    paymentTerms: String,
+    status: {
+      type: String,
+      enum: ['pending', 'selected', 'rejected'],
+      default: 'pending'
+    }
+  }],
+  selectedSupplierId: {
+    type: mongoose.Schema.Types.ObjectId
+  },
+
+  // 时间安排
+  registrationStart: {
+    type: Date,
+    required: true
+  },
+  registrationEnd: {
+    type: Date,
+    required: true
+  },
+  expectedDeliveryDate: Date,
+
+  // 参与农户
+  participants: [{
+    userId: {
+      type: mongoose.Schema.Types.ObjectId
+    },
+    userName: String,
+    farmArea: Number,  // 种植面积
+    requiredQuantity: Number,
+    contributedAmount: Number,
+    paymentStatus: {
+      type: String,
+      enum: ['pending', 'partial', 'paid', 'refunded'],
+      default: 'pending'
+    },
+    joinedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
+
+  // 配送计划
+  deliveryPlan: {
+    method: {
+      type: String,
+      enum: ['central pickup', 'farm delivery']
+    },
+    location: String,
+    distributionDate: Date,
+    coordinator: String
+  },
+
+  // 审批流程
+  approval: {
+    required: {
+      type: Boolean,
+      default: true
+    },
+    approvers: [{
+      userId: {
+        type: mongoose.Schema.Types.ObjectId
+      },
+      userName: String,
+      role: String,
+      status: {
+        type: String,
+        enum: ['pending', 'approved', 'rejected'],
+        default: 'pending'
+      },
+      comment: String,
+    decidedAt: Date
+    }],
+    status: {
+      type: String,
+      enum: ['pending', 'approved', 'rejected'],
+      default: 'pending'
+    }
+  },
+
+  // 状态
+  status: {
+    type: String,
+    enum: ['draft', 'registering', 'approved', 'purchasing', 'distributing', 'completed', 'cancelled'],
+    default: 'draft',
+    index: true
+  },
+
+  // 公示信息
+  announcement: {
+    publishDate: Date,
+    content: String,
+    attachments: [String]
+  },
+
+  // 备注
+  notes: String,
+
+  // 村庄关联
+  villageId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Village',
+    required: true,
+    index: true
+  },
+
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  }
+}, {
+  timestamps: true,
+  collection: 'bulk_purchases'
 });
 
 /**
@@ -764,6 +1249,17 @@ OrderSchema.index({ createdAt: -1 });
 GroupBuySchema.index({ productId: 1 });
 GroupBuySchema.index({ status: 1 });
 GroupBuySchema.index({ endTime: 1 });
+GroupBuySchema.index({ villageId: 1, status: 1 });
+GroupBuySchema.index({ leaderId: 1 });
+
+AgriculturalSupplySchema.index({ code: 1 });
+AgriculturalSupplySchema.index({ category: 1 });
+AgriculturalSupplySchema.index({ supplierId: 1 });
+AgriculturalSupplySchema.index({ villageId: 1, status: 1 });
+
+BulkPurchaseSchema.index({ villageId: 1, status: 1 });
+BulkPurchaseSchema.index({ organizerId: 1 });
+BulkPurchaseSchema.index({ registrationEnd: 1 });
 
 ReviewSchema.index({ userId: 1, productId: 1 });
 ReviewSchema.index({ productId: 1, rating: -1 });
@@ -802,7 +1298,38 @@ GroupBuySchema.virtual('progressPercentage').get(function() {
 });
 
 GroupBuySchema.virtual('discountAmount').get(function() {
-  return this.originalPrice - this.groupPrice;
+  return this.originalPrice - this.currentPrice;
+});
+
+GroupBuySchema.virtual('currentTier').get(function() {
+  if (this.tiers && this.tiers.length > 0) {
+    const currentTier = this.tiers.slice().reverse().find(tier =>
+      this.currentQuantity >= tier.minQuantity
+    );
+    return currentTier || this.tiers[0];
+  }
+  return null;
+});
+
+GroupBuySchema.virtual('nextTier').get(function() {
+  if (this.tiers && this.tiers.length > 0) {
+    return this.tiers.find(tier => this.currentQuantity < tier.minQuantity);
+  }
+  return null;
+});
+
+BulkPurchaseSchema.virtual('progressPercentage').get(function() {
+  if (this.targetQuantity > 0) {
+    return (this.currentQuantity / this.targetQuantity * 100).toFixed(2);
+  }
+  return 0;
+});
+
+BulkPurchaseSchema.virtual('budgetProgressPercentage').get(function() {
+  if (this.estimatedBudget > 0) {
+    return (this.currentCollected / this.estimatedBudget * 100).toFixed(2);
+  }
+  return 0;
 });
 
 module.exports = {
@@ -812,6 +1339,8 @@ module.exports = {
   Cart: mongoose.model('Cart', CartSchema),
   Order: mongoose.model('Order', OrderSchema),
   GroupBuy: mongoose.model('GroupBuy', GroupBuySchema),
+  AgriculturalSupply: mongoose.model('AgriculturalSupply', AgriculturalSupplySchema),
+  BulkPurchase: mongoose.model('BulkPurchase', BulkPurchaseSchema),
   Review: mongoose.model('Review', ReviewSchema),
   ProductStatus
 };
