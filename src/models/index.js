@@ -40,6 +40,7 @@ require('./DutySchedule');
 require('./CommitteeAuditLog');
 require('./VillageMap');
 require('./CommitteeDocument');
+require('./LocationTracking');
 
 // 聊天功能模型
 require('./Friendship');
@@ -93,6 +94,7 @@ const singleModels = {
   CommitteeAuditLog: mongoose.model('CommitteeAuditLog'),
   VillageMap: mongoose.model('VillageMap'),
   CommitteeDocument: mongoose.model('CommitteeDocument'),
+  LocationTracking: mongoose.model('LocationTracking'),
   // 聊天功能模型
   Friendship: mongoose.model('Friendship'),
   ChatMessage: mongoose.model('ChatMessage'),

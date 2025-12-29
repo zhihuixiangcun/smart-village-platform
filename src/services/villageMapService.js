@@ -1,10 +1,8 @@
-// const VillageMap = require('../models/VillageMap'); // 临时禁用 - 模型未实现
-// const LocationTracking = require('../models/LocationTracking'); // 临时禁用 - 模型未实现
+const VillageMap = require('../models/VillageMap');
+const LocationTracking = require('../models/LocationTracking');
 const User = require('../models/User');
 const Village = require('../models/Village');
 const logger = require('../utils/logger');
-// const turf = require('@turf/turf'); // 临时禁用 - 服务依赖未实现的模型
-// const geolib = require('geolib'); // 临时禁用 - 服务依赖未实现的模型
 
 class VillageMapService {
   constructor() {
