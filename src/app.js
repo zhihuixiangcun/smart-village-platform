@@ -85,6 +85,10 @@ console.log('[DEBUG] villageManagementRoutes loaded');
 const villageUserRoutes = require('./routes/villageUser');
 console.log('[DEBUG] villageUserRoutes loaded');
 
+// 导入离线数据同步路由
+const syncRoutes = require('./routes/sync.routes');
+console.log('[DEBUG] syncRoutes loaded');
+
 // 导入API文档生成器
 console.log('[DEBUG] Loading apiDocumentation...');
 const { apiDocGenerator } = require('./utils/apiDocumentation');

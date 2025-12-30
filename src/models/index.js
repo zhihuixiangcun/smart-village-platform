@@ -52,6 +52,12 @@ require('./SyncHistory');
 require('./UploadHistory');
 require('./Task');
 
+// 离线数据同步模型（新增）
+require('./PendingOperation');
+require('./SyncLog');
+require('./DataVersion');
+require('./DataConflict');
+
 // 收集所有单模型导出（来自 modules）
 const singleModels = {
   User,
@@ -73,7 +79,13 @@ const singleModels = {
   // MVP村委管理模型
   CommitteeMember: mongoose.model('CommitteeMember'),
   DutySchedule: mongoose.model('DutySchedule'),
-  CommitteeAuditLog: mongoose.model('CommitteeAuditLog')
+  CommitteeAuditLog: mongoose.model('CommitteeAuditLog'),
+  // 离线数据同步模型
+  PendingOperation: mongoose.model('PendingOperation'),
+  SyncLog: mongoose.model('SyncLog'),
+  DataVersion: mongoose.model('DataVersion'),
+  DataConflict: mongoose.model('DataConflict'),
+  SyncOperation: mongoose.model('SyncOperation')
 };
 
 // 添加别名以支持旧的测试文件
