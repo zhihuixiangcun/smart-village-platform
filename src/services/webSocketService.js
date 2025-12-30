@@ -6,7 +6,7 @@
 const { Server } = require('socket.io');
 const jwt = require('jsonwebtoken');
 const NotificationModel = require('../models/Notification');
-const logger = require('../config/logger');
+const logger = require('../utils/logger');
 const { getClientUrl } = require('../config/service.config');
 
 class WebSocketService {

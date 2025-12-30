@@ -618,19 +618,15 @@ async function getEmergencyStats(req, res) {
                 $mergeObjects: [
                   '$$value',
                   {
-                    $arrayToObject: [
-                    [{
-                      k: '$$this',
-                      v: {
-                        $add: [
-                          { $ifNull: [{ $getField: { field: '$$this', input: '$$value' } }, 0] },
-                          1
-                        ]
+                    $arrayToObject: [[
+                      {
+                        k: '$$this',
+                        v: 1
                       }
-                    }]
-                  ]
-                }
-              ]
+                    ]]
+                  }
+                ]
+              }
             }
           }
         }

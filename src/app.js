@@ -530,17 +530,17 @@ app.use('/api/v1', publicServiceRoutes);
 // 缴费管理路由（保险、水电费等）
 app.use('/api/v1', paymentManagementRoutes);
 
-// 政策计算器系统路由
-app.use('/api/v1/policy-calculator', require('./routes/policyCalculator'));
+// 政策计算器系统路由 - 临时禁用，缺少 pdfkit 依赖
+// app.use('/api/v1/policy-calculator', require('./routes/policyCalculator'));
 
-// OCR票据识别系统路由
-app.use('/api/v1/ocr', require('./routes/ocr'));
+// OCR票据识别系统路由 - 临时禁用，tensorflow 原生模块问题
+// app.use('/api/v1/ocr', require('./routes/ocr'));
 
 // 家庭代理系统路由
-app.use('/api/v1/family-proxy', require('./routes/familyProxy'));
+// app.use('/api/v1/family-proxy', require('./routes/familyProxy'));
 
 // 实时计算引擎路由
-app.use('/api/v1/realtime-computation', require('./routes/realtimeComputation'));
+// app.use('/api/v1/realtime-computation', require('./routes/realtimeComputation'));
 
 // 安全中间件集成
 const SecurityMiddleware = require('./security/securityMiddleware');
@@ -1039,8 +1039,16 @@ async function startServer() {
 }
 
 // 启动服务器
+console.log('[DEBUG] About to check require.main === module');
+console.log('[DEBUG] require.main:', require.main);
+console.log('[DEBUG] module:', module);
+console.log('[DEBUG] require.main === module:', require.main === module);
+
 if (require.main === module) {
+  console.log('[DEBUG] Calling startServer...');
   startServer();
+} else {
+  console.log('[DEBUG] Skipping startServer, not main module');
 }
 
 module.exports = app;
