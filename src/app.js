@@ -912,11 +912,39 @@ app.use('*', (req, res) => {
 app.use(errorHandler);
 
 /**
+ * 连接数据库
+ */
+async function connectDatabase() {
+  try {
+    logger.info('🗄️  正在连接 MongoDB...');
+    const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/smart-village';
+
+    await mongoose.connect(MONGO_URI, {
+      serverSelectionTimeoutMS: 5000,
+      maxPoolSize: 50,
+      minPoolSize: 10,
+      socketTimeoutMS: 45000,
+      family: 4
+    });
+
+    logger.info('✅ MongoDB 连接成功');
+    logger.info(`📍 数据库地址: ${MONGO_URI}`);
+
+  } catch (error) {
+    logger.error('❌ MongoDB 连接失败:', error.message);
+    throw error;
+  }
+}
+
+/**
  * 启动应用服务器
  */
 async function startServer() {
   try {
     logger.info('🚀 启动智慧村庄平台主服务...');
+
+    // 连接数据库
+    await connectDatabase();
 
     // 初始化实时计算系统
     await initializeRealtimeSystem();

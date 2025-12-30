@@ -5,8 +5,7 @@
 
 const Announcement = require('../models/Announcement');
 const Meeting = require('../models/Meeting');
-const Task = require('../models/Task');
-const TaskSchedule = require('../models/TaskSchedule');
+const { Task, TaskSchedule } = require('../models/Task');
 const Feedback = require('../models/Feedback');
 const Village = require('../models/Village');
 const Resident = require('../models/Resident');

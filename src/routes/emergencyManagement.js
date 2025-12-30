@@ -411,8 +411,7 @@ router.get('/dashboard', async (req, res) => {
 });
 
 // 快速上报（简化接口，用于紧急情况）
-router.post('/quick-report',
-  async (req, res) => {
+router.post('/quick-report', async (req, res) => {
     try {
       const {
         type,
@@ -433,7 +432,7 @@ router.post('/quick-report',
 
       // 创建简化的事件记录
       const Emergency = require('../models/Emergency');
-const logger = require('../utils/logger');
+      const logger = require('../utils/logger');
       const emergency = new Emergency({
         incidentNumber: generateIncidentNumber(villageId, type),
         type,
@@ -473,7 +472,6 @@ const logger = require('../utils/logger');
         error: '快速上报失败'
       });
     }
-  }
 });
 
 // 健康检查
