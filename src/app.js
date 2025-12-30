@@ -530,6 +530,9 @@ app.use('/api/v1', publicServiceRoutes);
 // 缴费管理路由（保险、水电费等）
 app.use('/api/v1', paymentManagementRoutes);
 
+// 村委财务报销管理路由
+app.use('/api/v1/reimbursement', require('./routes/reimbursement'));
+
 // 政策计算器系统路由 - 临时禁用，缺少 pdfkit 依赖
 // app.use('/api/v1/policy-calculator', require('./routes/policyCalculator'));
 
