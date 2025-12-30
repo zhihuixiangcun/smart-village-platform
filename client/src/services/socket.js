@@ -17,7 +17,7 @@ class SocketService {
   // 连接Socket.IO服务器
   connect() {
     try {
-      this.socket = io('http://localhost:5000', {
+      this.socket = io(import.meta.env.VITE_VILLAGE_SERVER_URL || 'http://localhost:5000', {
         transports: ['websocket', 'polling'],
         timeout: 10000,
         autoConnect: true

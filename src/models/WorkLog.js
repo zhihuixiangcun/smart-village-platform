@@ -184,7 +184,7 @@ workLogSchema.methods.submit = function() {
   return this.save();
 };
 
-workLogSchema.methods.review = function(reviewerId, comments, approved) {
+workLogSchema.methods.performReview = function(reviewerId, comments, approved) {
   if (this.status !== WorkLogStatus.SUBMITTED && this.status !== WorkLogStatus.REVIEWED) {
     throw new Error('只有已提交的日志可以审核');
   }

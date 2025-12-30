@@ -7,6 +7,7 @@ const { Server } = require('socket.io');
 const jwt = require('jsonwebtoken');
 const NotificationModel = require('../models/Notification');
 const logger = require('../config/logger');
+const { getClientUrl } = require('../config/service.config');
 
 class WebSocketService {
   constructor() {
@@ -52,7 +53,7 @@ class WebSocketService {
     try {
       const defaultOptions = {
         cors: {
-          origin: process.env.CLIENT_URL || 'http://localhost:3000',
+          origin: process.env.CLIENT_URL || getClientUrl(),
           methods: ['GET', 'POST'],
           credentials: true
         },

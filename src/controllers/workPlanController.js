@@ -1,6 +1,13 @@
 /**
- * 村干部工作规划控制器
- * 处理基于四象限法则的工作规划、执行跟踪、汇总的HTTP请求
+ * @fileoverview 村干部工作规划控制器
+ * @description 处理基于四象限法则的工作规划、执行跟踪、汇总的HTTP请求
+ * @module controllers/workPlanController
+ * @author Smart Village Team
+ * @version 1.0.0
+ * @since 2024-12-30
+ *
+ * @see module:models/WorkPlan - WorkPlan 数据模型
+ * @see module:services/aiAnalysisService - AI 分析服务
  */
 
 const { WorkPlan, QuadrantType, PlanStatus, TaskStatus } = require('../models/WorkPlan');
@@ -10,7 +17,75 @@ const aiAnalysisService = require('../services/aiAnalysisService');
 // ==================== 工作规划管理 ====================
 
 /**
- * 创建工作规划
+ * 创建今日工作规划
+ *
+ * @async
+ * @function
+ * @name createWorkPlan
+ * @memberof module:controllers/workPlanController
+ * @description 接收任务列表，使用AI自动分析并分配到四象限，创建新的工作规划
+ *
+ * @route {POST} /api/v1/work-plans
+ * @access private (需要认证，村干部权限)
+ *
+ * @param {Object} req - Express 请求对象
+ * @param {Object} req.body - 请求体
+ * @param {string} req.body.villageId - 村庄 ID
+ * @param {Array<Object>} req.body.tasks - 任务列表
+ * @param {string} req.body.tasks[].title - 任务标题
+ * @param {string} [req.body.tasks[].description] - 任务描述
+ * @param {number} [req.body.tasks[].estimatedTime] - 预估时间(分钟)
+ * @param {string} [req.body.tasks[].notes] - 任务备注
+ * @param {string} [req.body.notes] - 规划备注
+ * @param {Object} req.user - 当前用户信息
+ * @param {string} req.user.id - 用户 ID
+ * @param {string} [req.user.name] - 用户姓名
+ * @param {string} [req.user.username] - 用户名
+ *
+ * @param {Object} res - Express 响应对象
+ *
+ * @returns {Promise<Object>} JSON 响应
+ * @returns {number} returns[0].success - 成功标志 (true/false)
+ * @returns {Object} returns[0].data - 创建的工作规划对象
+ * @returns {string} returns[0].message - 响应消息
+ * @returns {string} returns[0].data._id - 规划 ID
+ * @returns {Object} returns[0].data.tasks - 四象限任务分配结果
+ * @returns {Array<Object>} returns[0].data.tasks.Q1 - 重要且紧急任务
+ * @returns {Array<Object>} returns[0].data.tasks.Q2 - 重要不紧急任务
+ * @returns {Array<Object>} returns[0].data.tasks.Q3 - 紧急不重要任务
+ * @returns {Array<Object>} returns[0].data.tasks.Q4 - 不重要不紧急任务
+ *
+ * @throws {Error} 当数据库操作失败时
+ * @throws {Error} 当 AI 分析失败时
+ *
+ * @example
+ * // 请求示例
+ * POST /api/v1/work-plans
+ * {
+ *   "villageId": "507f1f77bcf86cd799439011",
+ *   "tasks": [
+ *     { "title": "处理村民纠纷", "description": "张某与李某因宅基地问题产生纠纷", "estimatedTime": 60 },
+ *     { "title": "制定下月工作计划", "estimatedTime": 30 }
+ *   ],
+ *   "notes": "今日重点处理纠纷问题"
+ * }
+ *
+ * @example
+ * // 响应示例
+ * {
+ *   "success": true,
+ *   "data": {
+ *     "_id": "507f191e810c19729de860ea",
+ *     "planDate": "2024-12-30T00:00:00.000Z",
+ *     "planStatus": "draft",
+ *     "tasks": {
+ *       "Q1": [{ "title": "处理村民纠纷", "quadrant": "Q1", "priority": 9 }],
+ *       "Q2": [{ "title": "制定下月工作计划", "quadrant": "Q2", "priority": 7 }]
+ *     },
+ *     "statistics": { "totalTasks": 2 }
+ *   },
+ *   "message": "工作规划创建成功"
+ * }
  */
 exports.createWorkPlan = async (req, res) => {
   try {
@@ -170,7 +245,7 @@ exports.generateDailySummary = async (req, res) => {
     await workPlan.generateDailySummary();
 
     // 添加用户感悟
-    if (insights && Array.isArray(inssights)) {
+    if (insights && Array.isArray(insights)) {
       workPlan.dailySummary.insights = insights;
     }
 

@@ -504,7 +504,7 @@ taskAssignmentSchema.methods.submitForReview = function(reviewerId) {
 };
 
 // 审核任务
-taskAssignmentSchema.methods.review = function(approved, comments, reviewerId) {
+taskAssignmentSchema.methods.performReview = function(approved, comments, reviewerId) {
   this.review.approved = approved;
   this.review.comments = comments;
   this.review.reviewedAt = new Date();

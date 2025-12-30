@@ -74,6 +74,9 @@ require('./Task');
 // 积分系统模型
 const pointsModels = require('./Points');
 
+// 工作规划模型
+require('./WorkPlan');
+
 // 收集所有单模型导出（来自 modules）
 const singleModels = {
   User,

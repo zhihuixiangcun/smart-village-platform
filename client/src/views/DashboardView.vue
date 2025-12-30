@@ -194,7 +194,7 @@ const userRole = computed(() => userStore.userInfo?.role || 'villager')
 const isAdmin = computed(() => userRole.value === 'admin')
 
 const openMonitoring = () => {
-  window.open('http://localhost:3001/monitoring', '_blank')
+  window.open(import.meta.env.VITE_MONITORING_URL || 'http://localhost:3001/monitoring', '_blank')
 }
 
 onMounted(() => {
