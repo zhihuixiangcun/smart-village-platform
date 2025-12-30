@@ -4,8 +4,8 @@
  *
  * 权限说明:
  * - 会计员 (accountant): 可修改所有报销资料
- * - 村支书 (party_secretary): 可查看所有报销资料
- * - 村主任 (village_head): 可审批报销
+ * - 村支书 (party_secretary): 可查看和审批所有报销资料
+ * - 村主任 (village_head): 可查看和审批所有报销资料
  * - 村干部 (village_cadre): 只能查看和操作自己的报销申请
  * - 其他人: 无权限访问
  */
@@ -32,14 +32,14 @@ function checkReimbursementPermission(user, reimbursement, action = 'view') {
     return { hasPermission: true };
   }
 
-  // 村支书 - 只读权限
+  // 村支书 - 查看和审批权限
   if (userRole === 'party_secretary') {
-    if (action === 'view') {
+    if (action === 'view' || action === 'approve') {
       return { hasPermission: true };
     }
     return {
       hasPermission: false,
-      message: '村支书只能查看报销资料，不能进行此操作'
+      message: '村支书只能查看和审批报销资料，不能进行此操作'
     };
   }
 
@@ -437,7 +437,7 @@ exports.submitReimbursement = async (req, res) => {
 
 /**
  * 审批报销
- * 权限: 村主任和会计员可以审批
+ * 权限: 村支书、村主任和会计员可以审批
  */
 exports.approveReimbursement = async (req, res) => {
   try {
@@ -453,7 +453,7 @@ exports.approveReimbursement = async (req, res) => {
       });
     }
 
-    // 检查审批权限 - 会计员或村主任可以审批
+    // 检查审批权限 - 会计员、村支书或村主任可以审批
     const { hasPermission, message } = checkReimbursementPermission(req.user, reimbursement, 'approve');
     if (!hasPermission) {
       return res.status(403).json({
