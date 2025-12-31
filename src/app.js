@@ -164,6 +164,10 @@ console.log('[DEBUG] documentPackageRoutes loaded');
 const offlineRoutes = require('./routes/offline');
 console.log('[DEBUG] offlineRoutes loaded');
 
+// 导入离线数据同步路由
+const syncRoutes = require('./routes/sync.routes');
+console.log('[DEBUG] syncRoutes loaded');
+
 // 导入协作平台调度器
 const collaborationScheduler = require('./services/scheduler/collaborationScheduler');
 console.log('[DEBUG] collaborationScheduler loaded');

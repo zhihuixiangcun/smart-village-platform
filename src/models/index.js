@@ -84,6 +84,12 @@ const pointsModels = require('./Points');
 // 工作规划模型
 require('./WorkPlan');
 
+// 离线数据同步模型
+require('./PendingOperation');
+require('./SyncLog');
+require('./DataVersion');
+require('./DataConflict');
+
 // 收集所有单模型导出（来自 modules）
 const singleModels = {
   User,
@@ -129,7 +135,13 @@ const singleModels = {
   TaskAssignment: mongoose.model('TaskAssignment'),
   Meeting: mongoose.model('Meeting'),
   WorkLog: mongoose.model('WorkLog'),
-  ApprovalRequest: mongoose.model('ApprovalRequest')
+  ApprovalRequest: mongoose.model('ApprovalRequest'),
+  // 离线数据同步模型
+  PendingOperation: mongoose.model('PendingOperation'),
+  SyncLog: mongoose.model('SyncLog'),
+  DataVersion: mongoose.model('DataVersion'),
+  DataConflict: mongoose.model('DataConflict'),
+  SyncOperation: mongoose.model('SyncOperation')
 };
 
 // 添加别名以支持旧的测试文件

@@ -1,0 +1,165 @@
+// 适老化样式变量
+@import './variables.scss';
+
+// 重置样式
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// 标准模式（默认）
+body {
+  font-size: 16px;
+  line-height: 1.5;
+  color: #333;
+  background: #f5f5f5;
+}
+
+// 大字模式
+[data-elderly-mode="large"] {
+  font-size: 18px;
+
+  h1 { font-size: 24px; }
+  h2 { font-size: 22px; }
+  h3 { font-size: 20px; }
+}
+
+// 超大字模式
+[data-elderly-mode="xl"] {
+  font-size: 24px;
+
+  h1 { font-size: 32px; }
+  h2 { font-size: 28px; }
+  h3 { font-size: 26px; }
+}
+
+// 通用工具类
+.container {
+  width: 100%;
+  max-width: 750px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.page {
+  min-height: 100vh;
+  background: #f5f5f5;
+  padding-bottom: 60px; // 为底部导航栏留出空间
+}
+
+.card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+// 适老化按钮
+.elderly-button {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.elderly-button--primary {
+  background: $primary-color;
+  color: #fff;
+}
+
+.elderly-button--success {
+  background: $success-color;
+  color: #fff;
+}
+
+.elderly-button--warning {
+  background: $warning-color;
+  color: #fff;
+}
+
+.elderly-button--danger {
+  background: $danger-color;
+  color: #fff;
+}
+
+// 高对比度模式
+[data-elderly-contrast="high"] {
+  .elderly-button--primary {
+    background: #0066cc;
+  }
+
+  .card {
+    border: 2px solid #333;
+  }
+}
+
+// 加载动画
+.loading {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(0, 0, 0, 0.1);
+  border-top-color: $primary-color;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// 淡入动画
+.fade-in {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// 安全区域适配
+.safe-area-bottom {
+  padding-bottom: constant(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+// 响应式
+@media (max-width: 375px) {
+  .container {
+    padding: 0 12px;
+  }
+
+  .card {
+    padding: 12px;
+  }
+}
