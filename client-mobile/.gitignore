@@ -1,0 +1,29 @@
+node_modules/
+dist/
+.unpackage/
+.hbuilderx/
+
+.DS_Store
+*.log
+*.local
+
+# IDE
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Environment
+.env.local
+.env.*.local
+
+# Testing
+coverage/
+.nyc_output/
+*.lcov
+
+# OS
+Thumbs.db
