@@ -1,0 +1,198 @@
+{
+  "pages": [
+    {
+      "path": "pages/village/index",
+      "style": {
+        "navigationBarTitleText": "村务治理",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/village/announcement",
+      "style": {
+        "navigationBarTitleText": "村务公告"
+      }
+    },
+    {
+      "path": "pages/village/meeting",
+      "style": {
+        "navigationBarTitleText": "会议通知"
+      }
+    },
+    {
+      "path": "pages/village/vote",
+      "style": {
+        "navigationBarTitleText": "在线投票"
+      }
+    },
+    {
+      "path": "pages/village/finance",
+      "style": {
+        "navigationBarTitleText": "财务公示"
+      }
+    },
+    {
+      "path": "pages/services/index",
+      "style": {
+        "navigationBarTitleText": "村民服务",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/services/household-qr",
+      "style": {
+        "navigationBarTitleText": "一户一码"
+      }
+    },
+    {
+      "path": "pages/services/application",
+      "style": {
+        "navigationBarTitleText": "在线办事"
+      }
+    },
+    {
+      "path": "pages/life/index",
+      "style": {
+        "navigationBarTitleText": "生活服务",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/life/ecommerce",
+      "style": {
+        "navigationBarTitleText": "乡村电商"
+      }
+    },
+    {
+      "path": "pages/life/carpooling",
+      "style": {
+        "navigationBarTitleText": "邻里拼车"
+      }
+    },
+    {
+      "path": "pages/agriculture/index",
+      "style": {
+        "navigationBarTitleText": "农技社区",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/agriculture/knowledge",
+      "style": {
+        "navigationBarTitleText": "农技知识"
+      }
+    },
+    {
+      "path": "pages/agriculture/ask",
+      "style": {
+        "navigationBarTitleText": "专家问答"
+      }
+    },
+    {
+      "path": "pages/agriculture/disease",
+      "style": {
+        "navigationBarTitleText": "病虫害识别"
+      }
+    },
+    {
+      "path": "pages/profile/index",
+      "style": {
+        "navigationBarTitleText": "我的",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/profile/settings",
+      "style": {
+        "navigationBarTitleText": "设置"
+      }
+    },
+    {
+      "path": "pages/profile/elderly",
+      "style": {
+        "navigationBarTitleText": "适老化设置"
+      }
+    },
+    {
+      "path": "pages/auth/login",
+      "style": {
+        "navigationBarTitleText": "登录",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/auth/register",
+      "style": {
+        "navigationBarTitleText": "注册"
+      }
+    }
+  ],
+  "tabBar": {
+    "color": "#4A5568",
+    "selectedColor": "#2F855A",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/village/index",
+        "iconPath": "static/tabbar/village.png",
+        "selectedIconPath": "static/tabbar/village-active.png",
+        "text": "村务"
+      },
+      {
+        "pagePath": "pages/services/index",
+        "iconPath": "static/tabbar/services.png",
+        "selectedIconPath": "static/tabbar/services-active.png",
+        "text": "服务"
+      },
+      {
+        "pagePath": "pages/life/index",
+        "iconPath": "static/tabbar/life.png",
+        "selectedIconPath": "static/tabbar/life-active.png",
+        "text": "生活"
+      },
+      {
+        "pagePath": "pages/agriculture/index",
+        "iconPath": "static/tabbar/agriculture.png",
+        "selectedIconPath": "static/tabbar/agriculture-active.png",
+        "text": "农技"
+      }
+    ]
+  },
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "智慧乡村",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "backgroundColor": "#F7FAFC"
+  },
+  "easycom": {
+    "autoscan": true,
+    "custom": {
+      "^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue"
+    }
+  },
+  "subPackages": [
+    {
+      "root": "pages/village",
+      "pages": [
+        {
+          "path": "detail",
+          "style": {
+            "navigationBarTitleText": "详情"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages/services",
+      "pages": [
+        {
+          "path": "detail",
+          "style": {
+            "navigationBarTitleText": "详情"
+          }
+        }
+      ]
+    }
+  ]
+}
