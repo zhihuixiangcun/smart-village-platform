@@ -560,3 +560,14 @@ export default {
   agriculture,
   sync
 }
+
+// 导出为api命名对象（兼容性）
+export const api = {
+  auth,
+  user,
+  village,
+  services,
+  life,
+  agriculture,
+  sync
+}
