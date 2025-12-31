@@ -144,6 +144,26 @@ console.log('[DEBUG] publicServiceRoutes loaded');
 const paymentManagementRoutes = require('./routes/paymentManagement');
 console.log('[DEBUG] paymentManagementRoutes loaded');
 
+// 导入朋友圈路由
+const socialRoutes = require('./routes/socialRoutes');
+console.log('[DEBUG] socialRoutes loaded');
+
+// 导入拼车服务路由
+const carpoolRoutes = require('./routes/carpoolRoutes');
+console.log('[DEBUG] carpoolRoutes loaded');
+
+// 导入农业知识分享路由
+const agricultureRoutes = require('./routes/agricultureRoutes');
+console.log('[DEBUG] agricultureRoutes loaded');
+
+// 导入村民证件包路由
+const documentPackageRoutes = require('./routes/documents');
+console.log('[DEBUG] documentPackageRoutes loaded');
+
+// 导入离线模式路由
+const offlineRoutes = require('./routes/offline');
+console.log('[DEBUG] offlineRoutes loaded');
+
 // 导入协作平台调度器
 const collaborationScheduler = require('./services/scheduler/collaborationScheduler');
 console.log('[DEBUG] collaborationScheduler loaded');
@@ -533,11 +553,36 @@ app.use('/api/v1', paymentManagementRoutes);
 // 村委财务报销管理路由
 app.use('/api/v1/reimbursement', require('./routes/reimbursement'));
 
-// 政策计算器系统路由 - 临时禁用，缺少 pdfkit 依赖
-// app.use('/api/v1/policy-calculator', require('./routes/policyCalculator'));
+// 朋友圈系统路由
+app.use('/api/v1/social', socialRoutes);
 
-// OCR票据识别系统路由 - 临时禁用，tensorflow 原生模块问题
-// app.use('/api/v1/ocr', require('./routes/ocr'));
+// 拼车服务路由
+app.use('/api/v1/carpool', carpoolRoutes);
+
+// 农业知识分享路由
+app.use('/api/v1/agriculture', agricultureRoutes);
+
+// 村民证件包管理路由
+app.use('/api/v1/document-package', documentPackageRoutes);
+
+// 离线模式API路由
+app.use('/api/offline', offlineRoutes);
+
+// 区块链存证API路由
+const ledgerProofRoutes = require('./routes/ledgerProof');
+console.log('[DEBUG] ledgerProofRoutes loaded');
+app.use('/api/ledger-proof', ledgerProofRoutes);
+
+// 实时通知扩展API路由 (暂时禁用以排查问题)
+// const realtimeNotificationRoutes = require('./routes/realtimeNotification');
+// console.log('[DEBUG] realtimeNotificationRoutes loaded');
+// app.use('/api/notifications', realtimeNotificationRoutes);
+
+// 政策计算器系统路由
+app.use('/api/v1/policy-calculator', require('./routes/policyCalculator'));
+
+// OCR票据识别系统路由
+app.use('/api/v1/ocr', require('./routes/ocr'));
 
 // 家庭代理系统路由
 // app.use('/api/v1/family-proxy', require('./routes/familyProxy'));
@@ -961,6 +1006,16 @@ async function startServer() {
       logger.warn('⚠️ 协作平台定时任务功能已禁用');
     }
 
+    // 启动多端推送服务定时任务
+    try {
+      const multiChannelPushService = require('./services/multiChannelPushService');
+      multiChannelPushService.startScheduledTasks();
+      logger.info('✅ 多端推送服务定时任务启动成功');
+    } catch (error) {
+      logger.error('❌ 多端推送服务启动失败:', error);
+      logger.warn('⚠️ 多端推送定时任务功能已禁用');
+    }
+
     // 启动HTTP服务器
     const server = app.listen(PORT, () => {
       logger.info('✅ 智慧村庄平台主服务启动成功');
@@ -972,6 +1027,7 @@ async function startServer() {
       logger.info(`📈 性能监控: http://localhost:${PORT}/api/v1/performance`);
       logger.info(`🔄 实时计算引擎: ${realtimeInitialized ? '已启用' : '已禁用'}`);
       logger.info(`📅 协作平台调度器: ✅`);
+      logger.info(`🔔 多端推送服务: ✅`);
 
       // 显示服务特性
       logger.info('🌟 服务特性:');
@@ -980,6 +1036,9 @@ async function startServer() {
       logger.info('   - 海量数据处理: ✅');
       logger.info(`   - 动态阈值监控: ${realtimeInitialized ? '✅' : '❌'}`);
       logger.info(`   - 智能预警系统: ${realtimeInitialized ? '✅' : '❌'}`);
+      logger.info('   - 多端通知推送: ✅');
+      logger.info('   - 离线队列同步: ✅');
+      logger.info('   - 区块链存证: ✅');
     });
 
     // 设置服务器超时

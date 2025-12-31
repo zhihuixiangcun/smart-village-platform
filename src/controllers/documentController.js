@@ -1,677 +1,264 @@
-/**
- * 文档管理控制器
- * 处理文档相关的HTTP请求
- */
-
-const DocumentService = require('../services/documentService');
-const { validationResult } = require('express-validator');
-const logger = require('../utils/logger');
-const multer = require('multer');
+const { DocumentPackage, DocumentAccessLog, DOCUMENT_TYPES } = require('../models/DocumentPackage');
+const User = require('../models/User');
+const fsProm = require('fs').promises;
 const path = require('path');
+const crypto = require('crypto');
+const logger = require('../utils/logger');
 
-// 配置multer用于文件上传
-const storage = multer.memoryStorage();
-const upload = multer({
-  storage,
-  limits: {
-    fileSize: 10 * 1024 * 1024 // 10MB限制
-  },
-  fileFilter: (req, file, cb) => {
-    // 允许的文件类型
-    const allowedTypes = [
-      'image/jpeg',
-      'image/png',
-      'image/gif',
-      'application/pdf',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-    ];
+exports.createOrUpdatePackage = async (req, res) => {
+  try {
+    const { residentId, documents, accessSettings } = req.body;
+    const userId = req.user.id;
+    const userRole = req.user.role;
 
-    if (allowedTypes.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new Error('不支持的文件类型'), false);
+    if (userId !== residentId && userRole !== 'admin') {
+      return res.status(403).json({ success: false, error: 'Permission denied' });
     }
-  }
-});
 
-class DocumentController {
-  /**
-   * 上传单个文档
-   */
-  static async uploadDocument(req, res) {
-    try {
-      // 使用multer中间件处理文件
-      upload.single('file')(req, res, async (err) => {
-        if (err) {
-          return res.status(400).json({
-            success: false,
-            message: err.message
-          });
-        }
-
-        if (!req.file) {
-          return res.status(400).json({
-            success: false,
-            message: '请选择要上传的文件'
-          });
-        }
-
-        try {
-          // 验证请求参数
-          const errors = validationResult(req);
-          if (!errors.isEmpty()) {
-            return res.status(400).json({
-              success: false,
-              message: '参数验证失败',
-              errors: errors.array()
-            });
-          }
-
-          const documentInfo = req.body;
-          const uploader = {
-            id: req.user.id,
-            ipAddress: req.ip
-          };
-
-          const document = await DocumentService.uploadDocument(
-            req.file,
-            documentInfo,
-            uploader
-          );
-
-          res.status(201).json({
-            success: true,
-            message: '文档上传成功',
-            data: document
-          });
-        } catch (error) {
-          logger.error('上传文档失败:', error);
-          res.status(500).json({
-            success: false,
-            message: error.message || '上传文档失败'
-          });
-        }
-      });
-    } catch (error) {
-      logger.error('上传文档失败:', error);
-      res.status(500).json({
-        success: false,
-        message: error.message || '上传文档失败'
-      });
+    const resident = await User.findById(residentId);
+    if (!resident) {
+      return res.status(404).json({ success: false, error: 'Resident not found' });
     }
-  }
 
-  /**
-   * 批量上传文档
-   */
-  static async batchUploadDocuments(req, res) {
-    try {
-      // 使用multer处理多文件上传
-      upload.array('files', 10)(req, res, async (err) => {
-        if (err) {
-          return res.status(400).json({
-            success: false,
-            message: err.message
-          });
-        }
+    let pkg = await DocumentPackage.findByResident(residentId);
 
-        if (!req.files || req.files.length === 0) {
-          return res.status(400).json({
-            success: false,
-            message: '请选择要上传的文件'
-          });
-        }
-
-        try {
-          const files = req.files;
-          const documentsInfo = JSON.parse(req.body.documentsInfo || '[]');
-
-          if (documentsInfo.length !== files.length) {
-            return res.status(400).json({
-              success: false,
-              message: '文档信息数量与文件数量不匹配'
-            });
-          }
-
-          const uploader = {
-            id: req.user.id,
-            ipAddress: req.ip
-          };
-
-          const result = await DocumentService.batchUploadDocuments(
-            files,
-            documentsInfo,
-            uploader
-          );
-
-          res.status(201).json({
-            success: true,
-            message: '批量上传完成',
-            data: result
-          });
-        } catch (error) {
-          logger.error('批量上传失败:', error);
-          res.status(500).json({
-            success: false,
-            message: error.message || '批量上传失败'
-          });
-        }
+    if (!pkg) {
+      pkg = new DocumentPackage({
+        residentId,
+        villageId: resident.villageId,
+        documents: [],
+        accessSettings: accessSettings || { allowCommitteeView: false }
       });
-    } catch (error) {
-      logger.error('批量上传失败:', error);
-      res.status(500).json({
-        success: false,
-        message: error.message || '批量上传失败'
-      });
+    } else if (accessSettings) {
+      pkg.accessSettings = { ...pkg.accessSettings, ...accessSettings };
     }
-  }
 
-  /**
-   * 获取文档列表
-   */
-  static async getDocumentList(req, res) {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({
-          success: false,
-          message: '参数验证失败',
-          errors: errors.array()
-        });
+    if (documents && documents.length > 0) {
+      for (const doc of documents) {
+        await pkg.addDocument(doc);
       }
-
-      const {
-        page = 1,
-        limit = 20,
-        sortBy = 'createdAt',
-        sortOrder = 'desc',
-        userId,
-        familyId,
-        category,
-        documentType,
-        status,
-        tags,
-        search,
-        expiringSoon
-      } = req.query;
-
-      const filters = {};
-      if (userId) filters.userId = userId;
-      if (familyId) filters.familyId = familyId;
-      if (category) filters.category = category;
-      if (documentType) filters.documentType = documentType;
-      if (status) filters.status = status;
-      if (tags) {
-        filters.tags = Array.isArray(tags) ? tags : [tags];
-      }
-      if (search) filters.search = search;
-      if (expiringSoon === 'true') filters.expiringSoon = true;
-
-      const options = {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        sortBy,
-        sortOrder
-      };
-
-      const requester = {
-        id: req.user.id,
-        role: req.user.role,
-        village: req.user.village
-      };
-
-      const result = await DocumentService.getDocumentList(filters, options, requester);
-
-      res.json({
-        success: true,
-        message: '获取文档列表成功',
-        data: result
-      });
-    } catch (error) {
-      logger.error('获取文档列表失败:', error);
-      res.status(500).json({
-        success: false,
-        message: error.message || '获取文档列表失败'
-      });
     }
+
+    await pkg.save();
+
+    res.json({ success: true, message: 'Saved', data: { packageId: pkg._id, totalDocuments: pkg.documents.length } });
+  } catch (error) {
+    logger.error('Failed:', error);
+    res.status(500).json({ success: false, error: 'Failed' });
   }
+};
 
-  /**
-   * 获取文档详情
-   */
-  static async getDocumentById(req, res) {
-    try {
-      const { documentId } = req.params;
-      const requester = {
-        id: req.user.id,
-        role: req.user.role,
-        village: req.user.village,
-        ipAddress: req.ip
-      };
+exports.getPackage = async (req, res) => {
+  try {
+    const { residentId } = req.params;
+    const userId = req.user.id;
+    const userRole = req.user.role;
+    const userVillageId = req.user.villageId;
 
-      const document = await DocumentService.getDocumentById(documentId, requester);
+    const access = await DocumentPackage.checkAccess(residentId, userId, userRole, userVillageId);
 
-      res.json({
-        success: true,
-        message: '获取文档详情成功',
-        data: document
-      });
-    } catch (error) {
-      logger.error('获取文档详情失败:', error);
-
-      if (error.message === '文档不存在') {
-        return res.status(404).json({
-          success: false,
-          message: error.message
-        });
-      }
-
-      if (error.message === '无权访问该文档') {
-        return res.status(403).json({
-          success: false,
-          message: error.message
-        });
-      }
-
-      res.status(500).json({
-        success: false,
-        message: error.message || '获取文档详情失败'
-      });
+    if (!access.allowed) {
+      return res.status(403).json({ success: false, error: 'Permission denied' });
     }
-  }
 
-  /**
-   * 更新文档信息
-   */
-  static async updateDocument(req, res) {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({
-          success: false,
-          message: '参数验证失败',
-          errors: errors.array()
-        });
-      }
+    let pkg = await DocumentPackage.findOne({ residentId })
+      .populate('residentId', 'name phone villageId')
+      .populate('villageId', 'name');
 
-      const { documentId } = req.params;
-      const updateData = req.body;
-      const updater = {
-        id: req.user.id,
-        ipAddress: req.ip
-      };
-
-      const document = await DocumentService.updateDocument(
-        documentId,
-        updateData,
-        updater
-      );
-
-      res.json({
-        success: true,
-        message: '文档更新成功',
-        data: document
-      });
-    } catch (error) {
-      logger.error('更新文档失败:', error);
-
-      if (error.message === '文档不存在') {
-        return res.status(404).json({
-          success: false,
-          message: error.message
-        });
-      }
-
-      if (error.message === '无权修改该文档') {
-        return res.status(403).json({
-          success: false,
-          message: error.message
-        });
-      }
-
-      res.status(500).json({
-        success: false,
-        message: error.message || '更新文档失败'
-      });
+    if (!pkg) {
+      return res.status(404).json({ success: false, error: 'Not found' });
     }
-  }
 
-  /**
-   * 删除文档
-   */
-  static async deleteDocument(req, res) {
-    try {
-      const { documentId } = req.params;
-      const operator = {
-        id: req.user.id,
-        role: req.user.role,
-        ipAddress: req.ip
-      };
-
-      const result = await DocumentService.deleteDocument(documentId, operator);
-
-      res.json({
-        success: true,
-        message: '文档删除成功',
-        data: result
-      });
-    } catch (error) {
-      logger.error('删除文档失败:', error);
-
-      if (error.message === '文档不存在') {
-        return res.status(404).json({
-          success: false,
-          message: error.message
-        });
-      }
-
-      if (error.message === '无权删除该文档') {
-        return res.status(403).json({
-          success: false,
-          message: error.message
-        });
-      }
-
-      res.status(500).json({
-        success: false,
-        message: error.message || '删除文档失败'
-      });
+    if (access.requireMask) {
+      pkg = pkg.getMaskedData();
     }
+
+    res.json({ success: true, data: pkg });
+  } catch (error) {
+    logger.error('Failed:', error);
+    res.status(500).json({ success: false, error: 'Failed' });
   }
+};
 
-  /**
-   * 分享文档
-   */
-  static async shareDocument(req, res) {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({
-          success: false,
-          message: '参数验证失败',
-          errors: errors.array()
-        });
-      }
+exports.updateDocument = async (req, res) => {
+  try {
+    const { residentId, documentId } = req.params;
+    const userId = req.user.id;
+    const userRole = req.user.role;
 
-      const { documentId } = req.params;
-      const { sharedWith, permission } = req.body;
-      const operator = {
-        id: req.user.id,
-        ipAddress: req.ip
-      };
-
-      if (!Array.isArray(sharedWith) || sharedWith.length === 0) {
-        return res.status(400).json({
-          success: false,
-          message: '请选择分享对象'
-        });
-      }
-
-      const document = await DocumentService.shareDocument(
-        documentId,
-        sharedWith,
-        permission,
-        operator
-      );
-
-      res.json({
-        success: true,
-        message: '文档分享成功',
-        data: document
-      });
-    } catch (error) {
-      logger.error('分享文档失败:', error);
-
-      if (error.message === '文档不存在') {
-        return res.status(404).json({
-          success: false,
-          message: error.message
-        });
-      }
-
-      if (error.message === '无权分享该文档') {
-        return res.status(403).json({
-          success: false,
-          message: error.message
-        });
-      }
-
-      res.status(500).json({
-        success: false,
-        message: error.message || '分享文档失败'
-      });
+    if (userId !== residentId && userRole !== 'admin') {
+      return res.status(403).json({ success: false, error: 'Permission denied' });
     }
-  }
 
-  /**
-   * 下载文档
-   */
-  static async downloadDocument(req, res) {
-    try {
-      const { documentId } = req.params;
-      const requester = {
-        id: req.user.id,
-        role: req.user.role,
-        village: req.user.village,
-        serviceId: req.query.serviceId,
-        serviceName: req.query.serviceName
-      };
-
-      const result = await DocumentService.downloadDocument(documentId, requester);
-
-      // 设置响应头
-      res.setHeader('Content-Type', result.mimeType);
-      res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(result.fileName)}"`);
-      res.setHeader('Content-Length', result.fileSize);
-
-      // 发送文件
-      const fs = require('fs');
-      const fileStream = fs.createReadStream(result.filePath);
-      fileStream.pipe(res);
-    } catch (error) {
-      logger.error('下载文档失败:', error);
-
-      if (error.message === '文档不存在' || error.message === '文件不存在') {
-        return res.status(404).json({
-          success: false,
-          message: error.message
-        });
-      }
-
-      if (error.message === '无权下载该文档') {
-        return res.status(403).json({
-          success: false,
-          message: error.message
-        });
-      }
-
-      res.status(500).json({
-        success: false,
-        message: error.message || '下载文档失败'
-      });
+    const pkg = await DocumentPackage.findByResident(residentId);
+    if (!pkg) {
+      return res.status(404).json({ success: false, error: 'Not found' });
     }
+
+    await pkg.updateDocument(documentId, req.body);
+    res.json({ success: true, message: 'Updated' });
+  } catch (error) {
+    logger.error('Failed:', error);
+    res.status(500).json({ success: false, error: 'Failed' });
   }
+};
 
-  /**
-   * 获取文档统计
-   */
-  static async getDocumentStats(req, res) {
-    try {
-      const { userId, familyId } = req.query;
+exports.deleteDocument = async (req, res) => {
+  try {
+    const { residentId, documentId } = req.params;
+    const userId = req.user.id;
+    const userRole = req.user.role;
 
-      const stats = await DocumentService.getDocumentStats(userId, familyId);
-
-      res.json({
-        success: true,
-        message: '获取文档统计成功',
-        data: stats
-      });
-    } catch (error) {
-      logger.error('获取文档统计失败:', error);
-      res.status(500).json({
-        success: false,
-        message: error.message || '获取文档统计失败'
-      });
+    if (userId !== residentId && userRole !== 'admin') {
+      return res.status(403).json({ success: false, error: 'Permission denied' });
     }
-  }
 
-  /**
-   * 语音读取文档内容
-   */
-  static async readDocumentContent(req, res) {
-    try {
-      const { documentId } = req.params;
-      const { language = 'zh-CN' } = req.query;
-      const requester = {
-        id: req.user.id,
-        role: req.user.role,
-        ipAddress: req.ip
-      };
-
-      const result = await DocumentService.readDocumentContent(
-        documentId,
-        requester,
-        language
-      );
-
-      // 设置音频响应头
-      res.setHeader('Content-Type', 'audio/mpeg');
-      res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(result.documentName)}.mp3"`);
-
-      // 发送音频数据
-      res.send(result.audioBuffer);
-    } catch (error) {
-      logger.error('语音读取文档失败:', error);
-
-      if (error.message === '文档不存在') {
-        return res.status(404).json({
-          success: false,
-          message: error.message
-        });
-      }
-
-      if (error.message === '无权访问该文档') {
-        return res.status(403).json({
-          success: false,
-          message: error.message
-        });
-      }
-
-      res.status(500).json({
-        success: false,
-        message: error.message || '语音读取失败'
-      });
+    const pkg = await DocumentPackage.findByResident(residentId);
+    if (!pkg) {
+      return res.status(404).json({ success: false, error: 'Not found' });
     }
+
+    await pkg.removeDocument(documentId);
+    res.json({ success: true, message: 'Deleted' });
+  } catch (error) {
+    logger.error('Failed:', error);
+    res.status(500).json({ success: false, error: 'Failed' });
   }
+};
 
-  /**
-   * 获取我的文档
-   */
-  static async getMyDocuments(req, res) {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({
-          success: false,
-          message: '参数验证失败',
-          errors: errors.array()
-        });
-      }
+exports.uploadDocumentFile = async (req, res) => {
+  try {
+    const { residentId } = req.params;
+    const userId = req.user.id;
+    const userRole = req.user.role;
 
-      const {
-        page = 1,
-        limit = 20,
-        sortBy = 'createdAt',
-        sortOrder = 'desc',
-        category,
-        documentType,
-        tags,
-        search
-      } = req.query;
-
-      const filters = {
-        userId: req.user.id
-      };
-      if (category) filters.category = category;
-      if (documentType) filters.documentType = documentType;
-      if (tags) {
-        filters.tags = Array.isArray(tags) ? tags : [tags];
-      }
-      if (search) filters.search = search;
-
-      const options = {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        sortBy,
-        sortOrder
-      };
-
-      const requester = {
-        id: req.user.id,
-        role: req.user.role,
-        village: req.user.village
-      };
-
-      const result = await DocumentService.getDocumentList(filters, options, requester);
-
-      res.json({
-        success: true,
-        message: '获取我的文档成功',
-        data: result
-      });
-    } catch (error) {
-      logger.error('获取我的文档失败:', error);
-      res.status(500).json({
-        success: false,
-        message: error.message || '获取我的文档失败'
-      });
+    if (userId !== residentId && userRole !== 'admin') {
+      return res.status(403).json({ success: false, error: 'Permission denied' });
     }
-  }
 
-  /**
-   * 预览文档（返回图片或PDF的可读内容）
-   */
-  static async previewDocument(req, res) {
-    try {
-      const { documentId } = req.params;
-      const requester = {
-        id: req.user.id,
-        role: req.user.role
-      };
-
-      const document = await DocumentService.getDocumentById(documentId, requester);
-
-      // 如果是图片，直接返回
-      if (document.fileInfo.mimeType.startsWith('image/')) {
-        const fs = require('fs');
-        const filePath = require('path').join(process.cwd(), document.fileInfo.filePath);
-
-        res.setHeader('Content-Type', document.fileInfo.mimeType);
-        res.setHeader('Cache-Control', 'public, max-age=3600'); // 缓存1小时
-
-        const fileStream = fs.createReadStream(filePath);
-        fileStream.pipe(res);
-      } else {
-        // 其他类型返回OCR识别的文本
-        res.json({
-          success: true,
-          message: '获取文档预览成功',
-          data: {
-            type: 'text',
-            content: document.ocrResult?.text || '暂无预览内容',
-            confidence: document.ocrResult?.confidence || 0
-          }
-        });
-      }
-    } catch (error) {
-      logger.error('预览文档失败:', error);
-      res.status(500).json({
-        success: false,
-        message: error.message || '预览文档失败'
-      });
+    if (!req.file) {
+      return res.status(400).json({ success: false, error: 'No file' });
     }
-  }
-}
 
-module.exports = DocumentController;
+    const fileExt = path.extname(req.file.originalname);
+    const timestamp = Date.now();
+    const randomBytes = crypto.randomBytes(8).toString('hex');
+    const fileKey = 'documents/' + residentId + '/' + timestamp + '_' + randomBytes + fileExt;
+
+    const fileBuffer = await fsProm.readFile(req.file.path);
+    const checksum = crypto.createHash('sha256').update(fileBuffer).digest('hex');
+
+    await fsProm.unlink(req.file.path);
+
+    res.json({ success: true, message: 'Uploaded', data: { fileKey, fileName: req.file.originalname, size: req.file.size, checksum } });
+  } catch (error) {
+    logger.error('Failed:', error);
+    res.status(500).json({ success: false, error: 'Failed' });
+  }
+};
+
+exports.getAccessLogs = async (req, res) => {
+  try {
+    const { residentId } = req.params;
+    const { page = 1, limit = 20 } = req.query;
+
+    const logs = await DocumentAccessLog.find({ residentId })
+      .sort({ createdAt: -1 })
+      .limit(limit * 1)
+      .skip((page - 1) * limit)
+      .populate('operatorId', 'name role');
+
+    const total = await DocumentAccessLog.countDocuments({ residentId });
+
+    res.json({ success: true, data: logs, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / limit) } });
+  } catch (error) {
+    logger.error('Failed:', error);
+    res.status(500).json({ success: false, error: 'Failed' });
+  }
+};
+
+exports.updateAccessSettings = async (req, res) => {
+  try {
+    const { residentId } = req.params;
+    const { allowCommitteeView } = req.body;
+    const userId = req.user.id;
+
+    if (userId !== residentId) {
+      return res.status(403).json({ success: false, error: 'Permission denied' });
+    }
+
+    const pkg = await DocumentPackage.findByResident(residentId);
+    if (!pkg) {
+      return res.status(404).json({ success: false, error: 'Not found' });
+    }
+
+    pkg.accessSettings.allowCommitteeView = allowCommitteeView;
+    await pkg.save();
+
+    res.json({ success: true, message: 'Updated', data: { allowCommitteeView } });
+  } catch (error) {
+    logger.error('Failed:', error);
+    res.status(500).json({ success: false, error: 'Failed' });
+  }
+};
+
+exports.getDocumentTypes = async (req, res) => {
+  try {
+    const types = Object.entries(DOCUMENT_TYPES).map(([key, value]) => ({ value, label: key, key }));
+    res.json({ success: true, data: types });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed' });
+  }
+};
+
+exports.getExpiringDocuments = async (req, res) => {
+  try {
+    const { days = 30 } = req.query;
+    const expiring = await DocumentPackage.findExpiringDocuments(parseInt(days));
+    res.json({ success: true, data: expiring });
+  } catch (error) {
+    logger.error('Failed:', error);
+    res.status(500).json({ success: false, error: 'Failed' });
+  }
+};
+
+exports.getStatistics = async (req, res) => {
+  try {
+    const { villageId } = req.query;
+    const stats = await DocumentPackage.getStatistics(villageId);
+    res.json({ success: true, data: stats[0] || { totalPackages: 0, totalDocuments: 0 } });
+  } catch (error) {
+    logger.error('Failed:', error);
+    res.status(500).json({ success: false, error: 'Failed' });
+  }
+};
+
+exports.getResidentsList = async (req, res) => {
+  try {
+    const userRole = req.user.role;
+    const userVillageId = req.user.villageId;
+
+    if (!['committee_member', 'village_admin', 'village_secretary', 'admin'].includes(userRole)) {
+      return res.status(403).json({ success: false, error: 'Permission denied' });
+    }
+
+    const query = { role: 'resident' };
+    if (userRole !== 'admin') {
+      query.villageId = userVillageId;
+    }
+
+    const residents = await User.find(query).select('name phone villageId').populate('villageId', 'name');
+    const residentIds = residents.map(r => r._id);
+    const packages = await DocumentPackage.find({ residentId: { $in: residentIds } });
+
+    const result = residents.map(resident => {
+      const pkg = packages.find(p => p.residentId.toString() === resident._id.toString());
+      return { _id: resident._id, name: resident.name, phone: resident.phone, villageId: resident.villageId, hasPackage: !!pkg, totalDocuments: pkg ? pkg.documents.length : 0 };
+    });
+
+    res.json({ success: true, data: result });
+  } catch (error) {
+    logger.error('Failed:', error);
+    res.status(500).json({ success: false, error: 'Failed' });
+  }
+};

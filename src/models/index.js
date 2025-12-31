@@ -68,8 +68,15 @@ require('./FarmProductSupply');
 const financeModels = require('./Finance');
 require('./MessageLog');
 require('./SyncHistory');
+require('./OfflineQueue');
+require('./OfflineSyncLog');
+require('./LedgerProof');
+require('./RealtimeNotification');
 require('./UploadHistory');
 require('./Task');
+
+// 村民证件包模型
+const documentModels = require('./DocumentPackage');
 
 // 积分系统模型
 const pointsModels = require('./Points');
@@ -94,6 +101,10 @@ const singleModels = {
   FarmProductSupply: mongoose.model('FarmProductSupply'),
   MessageLog: mongoose.model('MessageLog'),
   SyncHistory: mongoose.model('SyncHistory'),
+  OfflineQueue: mongoose.model('OfflineQueue'),
+  OfflineSyncLog: mongoose.model('OfflineSyncLog'),
+  LedgerProof: mongoose.model('LedgerProof'),
+  RealtimeNotification: mongoose.model('RealtimeNotification'),
   UploadHistory: mongoose.model('UploadHistory'),
   // MVP村委管理模型
   CommitteeMember: mongoose.model('CommitteeMember'),
@@ -135,5 +146,6 @@ module.exports = {
   ...villageCollaborationModels,
   ...emergencyResponseModels,
   ...financeModels,
-  ...pointsModels
+  ...pointsModels,
+  ...documentModels
 };

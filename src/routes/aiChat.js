@@ -6,7 +6,6 @@
 const express = require('express');
 const router = express.Router();
 const aiChatController = require('../controllers/aiChatController');
-const auth = require('../middleware/auth');
 const rateLimit = require('../middleware/rateLimit');
 
 // AI问答接口
@@ -62,8 +61,8 @@ router.post('/form/fill',
   aiChatController.fillForm
 );
 
-// 获取对话历史（需要登录）
-router.get('/history', auth.optional, aiChatController.getConversationHistory);
+// Get conversation history (no auth required for now)
+router.get('/history', aiChatController.getConversationHistory);
 
 // 农业知识搜索
 router.get('/search/agriculture',
@@ -81,8 +80,8 @@ router.get('/search/agriculture',
 // 获取热门问答
 router.get('/popular', aiChatController.getPopularQA);
 
-// 提问答反馈
-router.post('/feedback', auth.optional, aiChatController.submitFeedback);
+// Submit feedback (no auth required for now)
+router.post('/feedback', aiChatController.submitFeedback);
 
 // 获取支持的方言列表
 router.get('/dialects', aiChatController.getSupportedDialects);

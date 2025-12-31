@@ -210,6 +210,16 @@ const cleanupExpiredData = () => {
 // 启动清理任务
 cleanupExpiredData();
 
+// Factory function to create custom rate limiters
+const create = (config) => {
+  return rateLimit({
+    ...baseConfig,
+    windowMs: config.windowMs || 60 * 1000,
+    max: config.max || 100,
+    message: config.message || 'Too many requests'
+  });
+};
+
 module.exports = {
   faceDetection,
   faceRegister,
@@ -222,5 +232,6 @@ module.exports = {
   general,
   strictIP,
   adaptiveRateLimit,
-  logRateLimitViolations
+  logRateLimitViolations,
+  create
 };
