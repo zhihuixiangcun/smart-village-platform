@@ -1,0 +1,3189 @@
+openapi: 3.0.3
+info:
+  title: 智慧乡村移动端 API
+  description: |
+    智慧乡村移动端API文档 - 支持Uni-app多端（小程序、APP、H5）
+
+    ## 平台概述
+    本API专为智慧乡村移动端设计，提供村务治理、村民服务、生活服务、农技社区等核心功能。
+
+    ## 核心功能
+    - **村务治理**: 公告发布、会议管理、投票表决、财务公开
+    - **村民服务**: 一户一码、在线办事、证件办理、福利申请
+    - **生活服务**: 乡村电商、拼车出行、邻里互助、农资采购
+    - **农技社区**: 知识库、专家问答、病虫害识别、农友圈
+
+    ## 技术特性
+    - JWT认证授权
+    - 离线数据同步
+    - 方言语音交互
+    - 人脸识别登录
+    - 适老化设计
+
+    ## 接口基础
+    - Base URL: `https://api.smartvillage.com/api/v1`
+    - 认证方式: Bearer Token (JWT)
+    - 数据格式: JSON
+    - 字符编码: UTF-8
+
+  version: 1.0.0
+  contact:
+    name: 智慧乡村移动端开发团队
+    email: mobile@smartvillage.com
+    url: https://smartvillage.com/mobile/support
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3001/api/v1
+    description: 开发环境 - 主API服务器
+  - url: http://localhost:5000/api/v1
+    description: 开发环境 - 村庄服务服务器
+  - url: https://api.smartvillage.com/api/v1
+    description: 生产环境 - 主API服务器
+  - url: https://village-api.smartvillage.com/api/v1
+    description: 生产环境 - 村庄服务服务器
+
+security:
+  - BearerAuth: []
+
+tags:
+  - name: 认证授权
+    description: 用户登录、注册、Token管理
+  - name: 村务治理
+    description: 公告、会议、投票、财务
+  - name: 村民服务
+    description: 一户一码、办事、证件、福利
+  - name: 生活服务
+    description: 电商、拼车、邻里互助
+  - name: 农技社区
+    description: 知识库、专家问答、病虫害
+  - name: 离线同步
+    description: 数据同步、状态管理
+
+paths:
+  # ============================================
+  # 认证授权模块
+  # ============================================
+  /auth/login:
+    post:
+      tags:
+        - 认证授权
+      summary: 用户登录
+      description: |
+        支持多种登录方式：
+        - 密码登录（用户名/手机号 + 密码）
+        - 人脸识别登录
+        - 验证码登录
+        - 微信快捷登录
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - type
+              properties:
+                type:
+                  type: string
+                  enum: [password, face, sms, wechat]
+                  description: 登录方式
+                username:
+                  type: string
+                  description: 用户名或手机号
+                  example: "13800138000"
+                password:
+                  type: string
+                  format: password
+                  description: 密码（MD5加密）
+                  example: "e10adc3949ba59abbe56e057f20f883e"
+                faceImage:
+                  type: string
+                  format: base64
+                  description: 人脸图片数据
+                smsCode:
+                  type: string
+                  description: 短信验证码
+                deviceId:
+                  type: string
+                  description: 设备唯一标识
+            examples:
+              passwordLogin:
+                summary: 密码登录
+                value:
+                  type: "password"
+                  username: "13800138000"
+                  password: "e10adc3949ba59abbe56e057f20f883e"
+                  deviceId: "device_12345"
+              faceLogin:
+                summary: 人脸登录
+                value:
+                  type: "face"
+                  faceImage: "data:image/jpeg;base64,/9j/4AAQSkZJRg..."
+                  deviceId: "device_12345"
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          user:
+                            $ref: '#/components/schemas/User'
+                          accessToken:
+                            type: string
+                            description: 访问令牌
+                            example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                          refreshToken:
+                            type: string
+                            description: 刷新令牌
+                          expiresAt:
+                            type: string
+                            format: date-time
+                            description: Token过期时间
+              examples:
+                success:
+                  summary: 登录成功
+                  value:
+                    success: true
+                    code: "LOGIN_SUCCESS"
+                    message: "登录成功"
+                    data:
+                      user:
+                        id: "64f1a2b3c4d5e6f7a8b9c0d"
+                        username: "张三"
+                        phone: "138****8000"
+                        role: "resident"
+                        villageId: "village_001"
+                        profile:
+                          name: "张三"
+                          avatar: "https://cdn.smartvillage.com/avatars/default.png"
+                      accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                      refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                      expiresAt: "2025-12-30T12:00:00Z"
+                    timestamp: "2025-12-30T10:00:00Z"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+      security: []
+
+  /auth/refresh:
+    post:
+      tags:
+        - 认证授权
+      summary: 刷新访问令牌
+      description: 使用refreshToken获取新的accessToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refreshToken
+              properties:
+                refreshToken:
+                  type: string
+                  description: 刷新令牌
+      responses:
+        '200':
+          description: 刷新成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          accessToken:
+                            type: string
+                          expiresAt:
+                            type: string
+                            format: date-time
+        '401':
+          description: refreshToken无效或已过期
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              example:
+                success: false
+                code: "INVALID_REFRESH_TOKEN"
+                message: "刷新令牌无效或已过期"
+                timestamp: "2025-12-30T10:00:00Z"
+      security: []
+
+  /auth/logout:
+    post:
+      tags:
+        - 认证授权
+      summary: 用户登出
+      description: 登出当前用户，使Token失效
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                deviceId:
+                  type: string
+                  description: 设备ID（可选）
+      responses:
+        '200':
+          description: 登出成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              example:
+                success: true
+                code: "LOGOUT_SUCCESS"
+                message: "登出成功"
+                timestamp: "2025-12-30T10:00:00Z"
+
+  # ============================================
+  # 村务治理模块
+  # ============================================
+  /village/announcements:
+    get:
+      tags:
+        - 村务治理
+      summary: 获取公告列表
+      description: |
+        获取村务公告列表，支持分类筛选、分页查询
+
+        支持的分类：
+        - notice: 通知公告
+        - policy: 政策宣传
+        - meeting: 会议通知
+        - emergency: 紧急通知
+        - activity: 活动通知
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [notice, policy, meeting, emergency, activity]
+          description: 公告分类
+        - name: priority
+          in: query
+          schema:
+            type: string
+            enum: [low, medium, high, urgent]
+          description: 优先级
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, published, expired, cancelled]
+          description: 状态
+      responses:
+        '200':
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          announcements:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Announcement'
+                          pagination:
+                            $ref: '#/components/schemas/Pagination'
+
+  /village/announcements/{id}:
+    get:
+      tags:
+        - 村务治理
+      summary: 获取公告详情
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: 公告ID
+      responses:
+        '200':
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/AnnouncementDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /village/meetings:
+    post:
+      tags:
+        - 村务治理
+      summary: 创建会议
+      description: 创建村务会议，支持在线会议和线下会议
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MeetingCreateRequest'
+      responses:
+        '201':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Meeting'
+
+  /village/votes:
+    get:
+      tags:
+        - 村务治理
+      summary: 获取投票列表
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, active, ended, cancelled]
+          description: 投票状态
+      responses:
+        '200':
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          votes:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Vote'
+                          pagination:
+                            $ref: '#/components/schemas/Pagination'
+
+  /village/votes/{id}/vote:
+    post:
+      tags:
+        - 村务治理
+      summary: 参与投票
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: 投票ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - optionId
+              properties:
+                optionId:
+                  type: string
+                  description: 选项ID
+      responses:
+        '200':
+          description: 投票成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /village/finance/transactions:
+    get:
+      tags:
+        - 村务治理
+      summary: 获取财务交易记录
+      description: |
+        获取村财务公开信息
+
+        权限说明：
+        - 普通村民可查看已审批通过的公开交易
+        - 村委成员可查看所有交易
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [income, expense]
+          description: 交易类型
+        - name: category
+          in: query
+          schema:
+            type: string
+          description: 分类
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          transactions:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/FinanceTransaction'
+                          summary:
+                            $ref: '#/components/schemas/FinanceSummary'
+                          pagination:
+                            $ref: '#/components/schemas/Pagination'
+
+  # ============================================
+  # 村民服务模块
+  # ============================================
+  /services/household-qr:
+    get:
+      tags:
+        - 村民服务
+      summary: 获取一户一码
+      description: |
+        获取村民家庭的专属二维码
+
+        功能说明：
+        - 每户生成唯一的二维码
+        - 扫码可查看家庭信息
+        - 支持信息更新
+        - 数据脱敏保护
+      responses:
+        '200':
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/HouseholdQR'
+
+  /services/applications:
+    get:
+      tags:
+        - 村民服务
+      summary: 获取办事申请列表
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, processing, approved, rejected, completed]
+          description: 申请状态
+        - name: type
+          in: query
+          schema:
+            type: string
+          description: 申请类型
+      responses:
+        '200':
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          applications:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/ServiceApplication'
+                          pagination:
+                            $ref: '#/components/schemas/Pagination'
+
+    post:
+      tags:
+        - 村民服务
+      summary: 创建办事申请
+      description: |
+        创建在线办事申请
+
+        支持的服务类型：
+        - 证件办理：身份证、户口本、居住证等
+        - 证明开具：各类证明文件
+        - 福利申请：低保、补贴等
+        - 政策咨询
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationCreateRequest'
+            examples:
+              certificate:
+                summary: 证件办理
+                value:
+                  type: "certificate"
+                  certificateType: "resident_permit"
+                  applicant:
+                    name: "张三"
+                    idCard: "330106199001011234"
+                    phone: "13800138000"
+                  materials:
+                    - "https://cdn.smartvillage.com/uploads/id_card_front.jpg"
+                    - "https://cdn.smartvillage.com/uploads/id_card_back.jpg"
+                  remarks: "急需办理"
+      responses:
+        '201':
+          description: 申请提交成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ServiceApplication'
+
+  /services/certificates:
+    get:
+      tags:
+        - 村民服务
+      summary: 获取证件列表
+      description: 获取当前用户的所有证件信息
+      responses:
+        '200':
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          certificates:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Certificate'
+
+  /services/welfares:
+    post:
+      tags:
+        - 村民服务
+      summary: 申请福利
+      description: |
+        申请各类福利补贴
+
+        支持的福利类型：
+        - 最低生活保障
+        - 残疾人补贴
+        - 老年人补贴
+        - 独生子女奖励
+        - 教育资助
+        - 医疗救助
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WelfareApplicationRequest'
+      responses:
+        '201':
+          description: 申请成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/WelfareApplication'
+
+  # ============================================
+  # 生活服务模块
+  # ============================================
+  /life/ecommerce/products:
+    get:
+      tags:
+        - 生活服务
+      summary: 获取电商产品列表
+      description: |
+        获取乡村电商产品
+
+        商品分类：
+        - 农产品：新鲜蔬果、土特产等
+        - 农资：种子、化肥、农药等
+        - 日用品：日常生活用品
+        - 家电：家用电器
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [agricultural, supplies, daily, appliances]
+          description: 商品分类
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: 搜索关键词
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            enum: [price_asc, price_desc, sales, rating]
+          description: 排序方式
+      responses:
+        '200':
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          products:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Product'
+                          pagination:
+                            $ref: '#/components/schemas/Pagination'
+
+  /life/ecommerce/products/{id}:
+    get:
+      tags:
+        - 生活服务
+      summary: 获取商品详情
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ProductDetail'
+
+  /life/carpooling/list:
+    get:
+      tags:
+        - 生活服务
+      summary: 获取拼车列表
+      description: |
+        获取乡村拼车信息
+
+        拼车类型：
+        - 顺风车：村民共享出行
+        - 班车：固定路线班车
+        - 货运：农产品运输
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [ride, shuttle, freight]
+        - name: departure
+          in: query
+          schema:
+            type: string
+          description: 出发地
+        - name: destination
+          in: query
+          schema:
+            type: string
+          description: 目的地
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          carpools:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Carpooling'
+                          pagination:
+                            $ref: '#/components/schemas/Pagination'
+
+  /life/neighborhood/help:
+    get:
+      tags:
+        - 生活服务
+      summary: 获取邻里互助列表
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [farm_work, errand, care, repair, other]
+      responses:
+        '200':
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          helps:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/NeighborhoodHelp'
+                          pagination:
+                            $ref: '#/components/schemas/Pagination'
+
+    post:
+      tags:
+        - 生活服务
+      summary: 发布邻里互助
+      description: |
+        发布邻里互助需求
+
+        互助类型：
+        - farm_work: 农活帮忙（收割、种植等）
+        - errand: 跑腿办事
+        - care: 照料服务（老人、儿童）
+        - repair: 维修服务
+        - other: 其他
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NeighborhoodHelpCreateRequest'
+      responses:
+        '201':
+          description: 发布成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/NeighborhoodHelp'
+
+  /life/agricultural/supplies:
+    get:
+      tags:
+        - 生活服务
+      summary: 获取农资列表
+      description: |
+        获取农资供应信息
+
+        农资类型：
+        - seeds: 种子
+        - fertilizers: 化肥
+        - pesticides: 农药
+        - feed: 饲料
+        - equipment: 农机设备
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [seeds, fertilizers, pesticides, feed, equipment]
+      responses:
+        '200':
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          supplies:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/AgriculturalSupply'
+                          pagination:
+                            $ref: '#/components/schemas/Pagination'
+
+  # ============================================
+  # 农技社区模块
+  # ============================================
+  /agriculture/knowledge:
+    get:
+      tags:
+        - 农技社区
+      summary: 获取农技知识库
+      description: |
+        获取农业技术知识
+
+        知识分类：
+        - planting: 种植技术
+        - disease: 病虫害防治
+        - breeding: 养殖技术
+        - processing: 农产品加工
+        - market: 市场信息
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [planting, disease, breeding, processing, market]
+        - name: crop
+          in: query
+          schema:
+            type: string
+          description: 作物类型
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: 搜索关键词
+      responses:
+        '200':
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          articles:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/AgricultureKnowledge'
+                          pagination:
+                            $ref: '#/components/schemas/Pagination'
+
+  /agriculture/knowledge/{id}:
+    get:
+      tags:
+        - 农技社区
+      summary: 获取知识详情
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/AgricultureKnowledgeDetail'
+
+  /agriculture/ask:
+    post:
+      tags:
+        - 农技社区
+      summary: 专家问答
+      description: 向农业专家提问
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - question
+                - category
+              properties:
+                question:
+                  type: string
+                  description: 问题描述
+                  minLength: 10
+                  maxLength: 500
+                category:
+                  type: string
+                  enum: [planting, disease, breeding, processing, other]
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: uri
+                  description: 相关图片（如病虫害照片）
+                isUrgent:
+                  type: boolean
+                  default: false
+                  description: 是否紧急
+      responses:
+        '201':
+          description: 提问成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ExpertQuestion'
+
+    get:
+      tags:
+        - 农技社区
+      summary: 获取问答列表
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, answered, closed]
+      responses:
+        '200':
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          questions:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/ExpertQuestion'
+                          pagination:
+                            $ref: '#/components/schemas/Pagination'
+
+  /agriculture/disease/identify:
+    post:
+      tags:
+        - 农技社区
+      summary: 病虫害识别
+      description: |
+        AI识别农作物病虫害
+
+        支持的作物：
+        - 水稻、小麦、玉米
+        - 蔬菜类
+        - 果树类
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - image
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: 病害图片
+                cropType:
+                  type: string
+                  description: 作物类型
+                location:
+                  type: string
+                  description: 地理位置
+      responses:
+        '200':
+          description: 识别成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/DiseaseIdentificationResult'
+
+  /agriculture/community:
+    get:
+      tags:
+        - 农技社区
+      summary: 农友圈动态
+      description: 获取农友圈的动态信息
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [post, video, question]
+          description: 内容类型
+      responses:
+        '200':
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          posts:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/CommunityPost'
+                          pagination:
+                            $ref: '#/components/schemas/Pagination'
+
+    post:
+      tags:
+        - 农技社区
+      summary: 发布农友圈动态
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommunityPostCreateRequest'
+      responses:
+        '201':
+          description: 发布成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/CommunityPost'
+
+  # ============================================
+  # 离线同步模块
+  # ============================================
+  /sync/pending:
+    get:
+      tags:
+        - 离线同步
+      summary: 获取待同步数据
+      description: |
+        获取离线期间需要同步的数据
+
+        同步类型：
+        - announcement: 公告更新
+        - news: 新闻资讯
+        - emergency: 紧急通知
+      parameters:
+        - name: lastSyncTime
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: 上次同步时间
+        - name: types
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: false
+          description: 数据类型
+      responses:
+        '200':
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/SyncPacket'
+
+  /sync/upload:
+    post:
+      tags:
+        - 离线同步
+      summary: 上传离线数据
+      description: 上传离线期间产生的本地数据
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SyncUploadRequest'
+      responses:
+        '200':
+          description: 上传成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          syncId:
+                            type: string
+                          processedCount:
+                            type: integer
+                          conflicts:
+                            type: array
+                            items:
+                              type: object
+                            description: 数据冲突列表
+                          nextSyncTime:
+                            type: string
+                            format: date-time
+
+  /sync/status:
+    get:
+      tags:
+        - 离线同步
+      summary: 同步状态查询
+      description: 查询数据同步状态
+      responses:
+        '200':
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/SyncStatus'
+
+components:
+  # ============================================
+  # 安全方案
+  # ============================================
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT 访问令牌认证
+
+        ## Token 格式
+        ```
+        Authorization: Bearer <access_token>
+        ```
+
+        ## Token 有效期
+        - Access Token: 2小时
+        - Refresh Token: 30天
+
+        ## 错误处理
+        - 401: Token无效或过期
+        - 419: Token已撤销
+
+  # ============================================
+  # 参数定义
+  # ============================================
+  parameters:
+    PageParam:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      description: 页码
+
+    LimitParam:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+      description: 每页数量
+
+    SearchParam:
+      name: search
+      in: query
+      schema:
+        type: string
+      description: 搜索关键词
+
+  # ============================================
+  # 数据模型定义
+  # ============================================
+  schemas:
+    # 通用响应格式
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: 请求是否成功
+        code:
+          type: string
+          description: 响应代码
+          example: "SUCCESS"
+        message:
+          type: string
+          description: 响应消息
+          example: "操作成功"
+        timestamp:
+          type: string
+          format: date-time
+          description: 响应时间戳
+      required:
+        - success
+        - code
+        - timestamp
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          description: 当前页码
+        limit:
+          type: integer
+          description: 每页数量
+        total:
+          type: integer
+          description: 总记录数
+        totalPages:
+          type: integer
+          description: 总页数
+
+    # 用户相关
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          description: 用户ID
+        username:
+          type: string
+          description: 用户名
+        phone:
+          type: string
+          description: 手机号（脱敏）
+        email:
+          type: string
+          format: email
+          description: 邮箱
+        role:
+          type: string
+          enum: [village_admin, staff, resident, guest]
+          description: 用户角色
+        villageId:
+          type: string
+          description: 所属村庄ID
+        profile:
+          type: object
+          properties:
+            name:
+              type: string
+              description: 姓名
+            avatar:
+              type: string
+              format: uri
+              description: 头像URL
+            idCard:
+              type: string
+              description: 身份证号（脱敏）
+            address:
+              type: string
+              description: 地址
+        status:
+          type: string
+          enum: [active, inactive, suspended]
+          description: 账号状态
+        isElderly:
+          type: boolean
+          description: 是否老年用户（60岁以上）
+        digitalSkills:
+          type: object
+          properties:
+            canUseSmartphone:
+              type: boolean
+            canUseWechat:
+              type: boolean
+            canOnlinePayment:
+              type: boolean
+        lastLoginAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    # 村务相关
+    Announcement:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        summary:
+          type: string
+          description: 摘要
+        type:
+          type: string
+          enum: [notice, policy, meeting, emergency, activity]
+        category:
+          type: string
+        status:
+          type: string
+          enum: [draft, published, expired, cancelled]
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+        publishedAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+        readCount:
+          type: integer
+        attachments:
+          type: array
+          items:
+            type: object
+            properties:
+              filename:
+                type: string
+              url:
+                type: string
+                format: uri
+              type:
+                type: string
+              size:
+                type: integer
+        createdAt:
+          type: string
+          format: date-time
+
+    AnnouncementDetail:
+      allOf:
+        - $ref: '#/components/schemas/Announcement'
+        - type: object
+          properties:
+            content:
+              type: string
+              description: 公告内容（HTML格式）
+            author:
+              type: object
+              properties:
+                id:
+                  type: string
+                name:
+                  type: string
+                position:
+                  type: string
+            comments:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  userId:
+                    type: string
+                  userName:
+                    type: string
+                  content:
+                    type: string
+                  createdAt:
+                    type: string
+                    format: date-time
+            isRead:
+              type: boolean
+              description: 当前用户是否已读
+
+    Meeting:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        type:
+          type: string
+          enum: [offline, online, hybrid]
+        agenda:
+          type: string
+          description: 会议议程
+        location:
+          type: string
+          description: 会议地点/会议链接
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [scheduled, in_progress, completed, cancelled]
+        participants:
+          type: array
+          items:
+            type: object
+            properties:
+              userId:
+                type: string
+              name:
+                type: string
+              status:
+                type: string
+                enum: [pending, accepted, declined, attended]
+        attachments:
+          type: array
+          items:
+            type: string
+                format: uri
+        createdAt:
+          type: string
+          format: date-time
+
+    MeetingCreateRequest:
+      type: object
+      required:
+        - title
+        - type
+        - startTime
+        - endTime
+      properties:
+        title:
+          type: string
+          minLength: 5
+          maxLength: 100
+        type:
+          type: string
+          enum: [offline, online, hybrid]
+        agenda:
+          type: string
+          maxLength: 1000
+        location:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        participantIds:
+          type: array
+          items:
+            type: string
+          description: 参与者ID列表
+        attachments:
+          type: array
+          items:
+            type: string
+            format: uri
+
+    Vote:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum: [draft, active, ended, cancelled]
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        options:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              text:
+                type: string
+              count:
+                type: integer
+                description: 票数
+        isAnonymous:
+          type: boolean
+          description: 是否匿名投票
+        hasVoted:
+          type: boolean
+          description: 当前用户是否已投票
+        totalVotes:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+
+    FinanceTransaction:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [income, expense]
+        category:
+          type: string
+          description: 收支类别
+        amount:
+          type: number
+          format: float
+          description: 金额（元）
+        description:
+          type: string
+          description: 摘要说明
+        date:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [draft, pending, approved, completed, rejected]
+        attachments:
+          type: array
+          items:
+            type: object
+            properties:
+              filename:
+                type: string
+              url:
+                type: string
+                format: uri
+        createdBy:
+          type: string
+          description: 创建人
+        approvedBy:
+          type: string
+          description: 审批人
+        approvedAt:
+          type: string
+          format: date-time
+        blockchainHash:
+          type: string
+          description: 区块链存证哈希（可选）
+        createdAt:
+          type: string
+          format: date-time
+
+    FinanceSummary:
+      type: object
+      properties:
+        totalIncome:
+          type: number
+          description: 总收入
+        totalExpense:
+          type: number
+          description: 总支出
+        balance:
+          type: number
+          description: 余额
+        pendingAmount:
+          type: number
+          description: 待审批金额
+        incomeByCategory:
+          type: object
+          additionalProperties:
+            type: number
+        expenseByCategory:
+          type: object
+          additionalProperties:
+            type: number
+
+    # 村民服务相关
+    HouseholdQR:
+      type: object
+      properties:
+        qrCodeUrl:
+          type: string
+          format: uri
+          description: 二维码图片URL
+        qrCodeData:
+          type: string
+          description: 二维码数据内容
+        household:
+          type: object
+          properties:
+            householdNumber:
+              type: string
+              description: 户号
+            householder:
+              type: string
+              description: 户主姓名
+            address:
+              type: string
+              description: 家庭地址
+            members:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  relationship:
+                    type: string
+                  idCard:
+                    type: string
+                    description: 身份证号（脱敏）
+        expiresAt:
+          type: string
+          format: date-time
+          description: 二维码过期时间
+        permissions:
+          type: object
+          properties:
+            canView:
+              type: boolean
+            canUpdate:
+              type: boolean
+            canExport:
+              type: boolean
+
+    ServiceApplication:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          description: 申请类型
+        typeName:
+          type: string
+          description: 类型名称
+        status:
+          type: string
+          enum: [pending, processing, approved, rejected, completed]
+        statusText:
+          type: string
+          description: 状态文本
+        applicant:
+          type: object
+          properties:
+            name:
+              type: string
+            idCard:
+              type: string
+            phone:
+              type: string
+        content:
+          type: object
+          description: 申请内容
+        materials:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              url:
+                type: string
+                format: uri
+        remarks:
+          type: string
+        handler:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+        processLog:
+          type: array
+          items:
+            type: object
+            properties:
+              action:
+                type: string
+              operator:
+                type: string
+              time:
+                type: string
+                format: date-time
+              remark:
+                type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ApplicationCreateRequest:
+      type: object
+      required:
+        - type
+        - applicant
+      properties:
+        type:
+          type: string
+          description: 申请类型
+        certificateType:
+          type: string
+          description: 证件类型（type=certificate时必填）
+        applicant:
+          type: object
+          required:
+            - name
+            - idCard
+            - phone
+          properties:
+            name:
+              type: string
+            idCard:
+              type: string
+            phone:
+              type: string
+        materials:
+          type: array
+          items:
+            type: string
+            format: uri
+          description: 材料文件URL列表
+        remarks:
+          type: string
+          maxLength: 500
+
+    Certificate:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          description: 证件类型
+        typeName:
+          type: string
+          description: 证件名称
+        certificateNumber:
+          type: string
+          description: 证件号码
+        name:
+          type: string
+          description: 持证人姓名
+        idCard:
+          type: string
+          description: 身份证号（脱敏）
+        issueDate:
+          type: string
+          format: date
+          description: 发证日期
+        expiryDate:
+          type: string
+          format: date
+          description: 有效期
+        issuingAuthority:
+          type: string
+          description: 发证机关
+        status:
+          type: string
+          enum: [valid, expired, revoked]
+        files:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum: [front, back]
+              url:
+                type: string
+                format: uri
+        createdAt:
+          type: string
+          format: date-time
+
+    WelfareApplication:
+      type: object
+      properties:
+        id:
+          type: string
+        welfareType:
+          type: string
+          enum: [subsistence, disability, elderly, one_child, education, medical]
+        welfareTypeName:
+          type: string
+        status:
+          type: string
+          enum: [pending, reviewing, approved, rejected, issued]
+        applicant:
+          type: object
+          properties:
+            name:
+              type: string
+            idCard:
+              type: string
+            phone:
+              type: string
+            householdNumber:
+              type: string
+        householdInfo:
+          type: object
+          properties:
+            members:
+              type: integer
+              description: 家庭成员数
+            income:
+              type: number
+              description: 家庭年收入
+            assets:
+              type: object
+              description: 家庭资产
+        reason:
+          type: string
+          description: 申请理由
+        supportingDocuments:
+          type: array
+          items:
+            type: string
+            format: uri
+        estimatedAmount:
+          type: number
+          description: 预计补贴金额
+        approvedAmount:
+          type: number
+          description: 审批金额
+        reviewDate:
+          type: string
+          format: date-time
+        reviewer:
+          type: string
+          description: 审批人
+        remarks:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    WelfareApplicationRequest:
+      type: object
+      required:
+        - welfareType
+        - applicant
+      properties:
+        welfareType:
+          type: string
+          enum: [subsistence, disability, elderly, one_child, education, medical]
+        applicant:
+          type: object
+          required:
+            - name
+            - idCard
+            - phone
+            - householdNumber
+          properties:
+            name:
+              type: string
+            idCard:
+              type: string
+            phone:
+              type: string
+            householdNumber:
+              type: string
+        householdInfo:
+          type: object
+          properties:
+            members:
+              type: integer
+            income:
+              type: number
+            assets:
+              type: object
+        reason:
+          type: string
+          maxLength: 1000
+        supportingDocuments:
+          type: array
+          items:
+            type: string
+            format: uri
+
+    # 生活服务相关
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        category:
+          type: string
+          enum: [agricultural, supplies, daily, appliances]
+        categoryName:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+        price:
+          type: number
+          format: float
+        originalPrice:
+          type: number
+          format: float
+        unit:
+          type: string
+          description: 单位（如kg、斤、个）
+        stock:
+          type: integer
+          description: 库存
+        sales:
+          type: integer
+          description: 销量
+        rating:
+          type: number
+          format: float
+          description: 评分
+        reviews:
+          type: integer
+          description: 评论数
+        isLocal:
+          type: boolean
+          description: 是否本地产品
+        producer:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            village:
+              type: string
+            avatar:
+              type: string
+              format: uri
+        tags:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum: [on_sale, out_of_stock, off_shelf]
+        createdAt:
+          type: string
+          format: date-time
+
+    ProductDetail:
+      allOf:
+        - $ref: '#/components/schemas/Product'
+        - type: object
+          properties:
+            description:
+              type: string
+              description: 商品详情（HTML）
+            specifications:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  value:
+                    type: string
+            details:
+              type: array
+              items:
+                type: string
+                format: uri
+              description: 详情图片
+            delivery:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum: [pickup, delivery, both]
+                fee:
+                  type: number
+                freeThreshold:
+                  type: number
+                  description: 包邮门槛
+            reviews:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  userId:
+                    type: string
+                  userName:
+                    type: string
+                  avatar:
+                    type: string
+                    format: uri
+                  rating:
+                    type: number
+                  content:
+                    type: string
+                  images:
+                    type: array
+                    items:
+                      type: string
+                      format: uri
+                  createdAt:
+                    type: string
+                    format: date-time
+
+    Carpooling:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [ride, shuttle, freight]
+        typeName:
+          type: string
+        departure:
+          type: string
+          description: 出发地
+        destination:
+          type: string
+          description: 目的地
+        departureTime:
+          type: string
+          format: date-time
+        estimatedArrival:
+          type: string
+          format: date-time
+        availableSeats:
+          type: integer
+          description: 可用座位数
+        price:
+          type: number
+          description: 价格
+        unit:
+          type: string
+          enum: [per_seat, per_trip, per_weight]
+        driver:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            phone:
+              type: string
+            avatar:
+              type: string
+              format: uri
+            rating:
+              type: number
+        vehicle:
+          type: object
+          properties:
+            type:
+              type: string
+              enum: [car, suv, van, truck, tricycle]
+            plateNumber:
+              type: string
+              description: 车牌号（脱敏）
+            capacity:
+              type: integer
+          remarks:
+            type: string
+          status:
+            type: string
+            enum: [pending, full, completed, cancelled]
+          createdAt:
+            type: string
+            format: date-time
+
+    NeighborhoodHelp:
+      type: object
+      properties:
+        id:
+          type: string
+        category:
+          type: string
+          enum: [farm_work, errand, care, repair, other]
+        categoryName:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        location:
+          type: string
+        urgent:
+          type: boolean
+          description: 是否紧急
+        expectedTime:
+          type: string
+          format: date-time
+          description: 期望完成时间
+        reward:
+          type: string
+          description: 报酬（积分或现金）
+        publisher:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            avatar:
+              type: string
+              format: uri
+            phone:
+              type: string
+        helpers:
+          type: array
+          items:
+            type: object
+            properties:
+              userId:
+                type: string
+              userName:
+                type: string
+              avatar:
+                type: string
+                format: uri
+              appliedAt:
+                type: string
+                format: date-time
+        status:
+          type: string
+          enum: [open, accepted, in_progress, completed, cancelled]
+        completedAt:
+          type: string
+          format: date-time
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+        createdAt:
+          type: string
+          format: date-time
+
+    NeighborhoodHelpCreateRequest:
+      type: object
+      required:
+        - category
+        - title
+        - description
+        - location
+      properties:
+        category:
+          type: string
+          enum: [farm_work, errand, care, repair, other]
+        title:
+          type: string
+          minLength: 5
+          maxLength: 50
+        description:
+          type: string
+          minLength: 10
+          maxLength: 500
+        location:
+          type: string
+        urgent:
+          type: boolean
+          default: false
+        expectedTime:
+          type: string
+          format: date-time
+        reward:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+
+    AgriculturalSupply:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [seeds, fertilizers, pesticides, feed, equipment]
+        typeName:
+          type: string
+        name:
+          type: string
+        brand:
+          type: string
+        specifications:
+          type: string
+          description: 规格
+        unit:
+          type: string
+          description: 单位
+        price:
+          type: number
+        stock:
+          type: integer
+        supplier:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            phone:
+              type: string
+            address:
+              type: string
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+        description:
+          type: string
+        usage:
+          type: string
+          description: 使用说明
+        tags:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    # 农技社区相关
+    AgricultureKnowledge:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        category:
+          type: string
+          enum: [planting, disease, breeding, processing, market]
+        categoryName:
+          type: string
+        crop:
+          type: string
+          description: 相关作物
+        summary:
+          type: string
+          description: 摘要
+        coverImage:
+          type: string
+          format: uri
+        author:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            type:
+              type: string
+              enum: [expert, technician, experienced_farmer]
+            avatar:
+              type: string
+              format: uri
+        viewCount:
+          type: integer
+        likeCount:
+          type: integer
+        isVerified:
+          type: boolean
+          description: 是否专家认证
+        tags:
+          type: array
+          items:
+            type: string
+        publishTime:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    AgricultureKnowledgeDetail:
+      allOf:
+        - $ref: '#/components/schemas/AgricultureKnowledge'
+        - type: object
+          properties:
+            content:
+              type: string
+              description: 文章内容（HTML格式）
+            relatedArticles:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  title:
+                    type: string
+                  coverImage:
+                    type: string
+                    format: uri
+            isLiked:
+              type: boolean
+            comments:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  userId:
+                    type: string
+                  userName:
+                    type: string
+                  avatar:
+                    type: string
+                    format: uri
+                  content:
+                    type: string
+                  createdAt:
+                    type: string
+                    format: date-time
+
+    ExpertQuestion:
+      type: object
+      properties:
+        id:
+          type: string
+        question:
+          type: string
+        category:
+          type: string
+          enum: [planting, disease, breeding, processing, other]
+        categoryName:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+        isUrgent:
+          type: boolean
+        status:
+          type: string
+          enum: [pending, answering, answered, closed]
+        questioner:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            village:
+              type: string
+        answer:
+          type: object
+          properties:
+            content:
+              type: string
+            expert:
+              type: object
+              properties:
+                id:
+                  type: string
+                name:
+                  type: string
+                title:
+                  type: string
+                  description: 职称
+                avatar:
+                  type: string
+                  format: uri
+            answeredAt:
+              type: string
+              format: date-time
+        helpfulCount:
+          type: integer
+          description: 有用数
+        createdAt:
+          type: string
+          format: date-time
+
+    DiseaseIdentificationResult:
+      type: object
+      properties:
+        detected:
+          type: boolean
+          description: 是否检测到病害
+        disease:
+          type: object
+          properties:
+            name:
+              type: string
+              description: 病害名称
+            scientificName:
+              type: string
+              description: 学名
+            category:
+              type: string
+              description: 病害类别
+            severity:
+              type: string
+              enum: [mild, moderate, severe]
+              description: 严重程度
+        confidence:
+          type: number
+          format: float
+          description: 识别置信度
+          minimum: 0
+          maximum: 1
+        description:
+          type: string
+          description: 病害描述
+        symptoms:
+          type: array
+          items:
+            type: string
+          description: 症状列表
+        causes:
+          type: array
+          items:
+            type: string
+          description: 病因分析
+        treatments:
+          type: array
+          items:
+            type: object
+            properties:
+              method:
+                type: string
+                description: 防治方法
+              chemicals:
+                type: array
+                items:
+                  type: string
+                description: 所需药剂
+              instructions:
+                type: string
+                description: 使用说明
+        prevention:
+          type: array
+          items:
+            type: string
+          description: 预防措施
+        relatedProducts:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              price:
+                type: number
+              url:
+                type: string
+                format: uri
+        expertAdvice:
+          type: string
+          description: 专家建议
+
+    CommunityPost:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [post, video, question]
+        content:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+        video:
+          type: object
+          properties:
+            url:
+              type: string
+              format: uri
+            thumbnail:
+              type: string
+              format: uri
+            duration:
+              type: integer
+              description: 时长（秒）
+        author:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            avatar:
+              type: string
+              format: uri
+            village:
+              type: string
+            isVerified:
+              type: boolean
+        tags:
+          type: array
+          items:
+            type: string
+        location:
+          type: string
+        viewCount:
+          type: integer
+        likeCount:
+          type: integer
+        commentCount:
+          type: integer
+        isLiked:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    CommunityPostCreateRequest:
+      type: object
+      required:
+        - type
+        - content
+      properties:
+        type:
+          type: string
+          enum: [post, video, question]
+        content:
+          type: string
+          minLength: 5
+          maxLength: 5000
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+          maxItems: 9
+        video:
+          type: object
+          properties:
+            url:
+              type: string
+              format: uri
+            thumbnail:
+              type: string
+              format: uri
+        tags:
+          type: array
+          items:
+            type: string
+        location:
+          type: string
+
+    # 离线同步相关
+    SyncPacket:
+      type: object
+      properties:
+        packetId:
+          type: string
+        version:
+          type: string
+          description: 数据版本号
+        compressed:
+          type: boolean
+        dataSize:
+          type: integer
+          description: 数据大小（字节）
+        checksum:
+          type: string
+          description: 数据校验和
+        data:
+          type: object
+          properties:
+            announcements:
+              type: array
+              items:
+                $ref: '#/components/schemas/Announcement'
+            news:
+              type: array
+              items:
+                type: object
+            emergency:
+              type: array
+              items:
+                type: object
+        expiresAt:
+          type: string
+          format: date-time
+
+    SyncUploadRequest:
+      type: object
+      required:
+        - deviceId
+        - data
+      properties:
+        deviceId:
+          type: string
+          description: 设备唯一标识
+        lastSyncTime:
+          type: string
+          format: date-time
+          description: 上次同步时间
+        data:
+          type: object
+          description: 离线数据
+          properties:
+            applications:
+              type: array
+              items:
+                $ref: '#/components/schemas/ServiceApplication'
+            feedback:
+              type: array
+              items:
+                type: object
+            behaviors:
+              type: array
+              items:
+                type: object
+        checksum:
+          type: string
+          description: 数据校验和
+
+    SyncStatus:
+      type: object
+      properties:
+        lastSyncTime:
+          type: string
+          format: date-time
+        isOnline:
+          type: boolean
+        pendingUpload:
+          type: integer
+          description: 待上传记录数
+        pendingDownload:
+          type: integer
+          description: 待下载数据包数
+        conflicts:
+          type: integer
+          description: 冲突数量
+        storageUsage:
+          type: object
+          properties:
+            used:
+              type: integer
+              description: 已使用（字节）
+            total:
+              type: integer
+              description: 总容量（字节）
+
+  # ============================================
+  # 响应模板
+  # ============================================
+  responses:
+    BadRequest:
+      description: 请求参数错误
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ApiResponse'
+              - type: object
+                properties:
+                  success:
+                    type: boolean
+                    const: false
+                  code:
+                    type: string
+                    const: "BAD_REQUEST"
+                  message:
+                    type: string
+                    example: "请求参数错误"
+          examples:
+            validationError:
+              summary: 参数验证失败
+              value:
+                success: false
+                code: "VALIDATION_ERROR"
+                message: "参数验证失败"
+                errors:
+                  - field: "phone"
+                    message: "手机号格式不正确"
+                timestamp: "2025-12-30T10:00:00Z"
+
+    Unauthorized:
+      description: 未授权访问
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ApiResponse'
+              - type: object
+                properties:
+                  success:
+                    type: boolean
+                    const: false
+                  code:
+                    type: string
+                    const: "UNAUTHORIZED"
+                  message:
+                    type: string
+                    const: "未授权访问，请先登录"
+          example:
+            success: false
+            code: "UNAUTHORIZED"
+            message: "未授权访问，请先登录"
+            timestamp: "2025-12-30T10:00:00Z"
+
+    Forbidden:
+      description: 禁止访问
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ApiResponse'
+              - type: object
+                properties:
+                  success:
+                    type: boolean
+                    const: false
+                  code:
+                    type: string
+                    const: "FORBIDDEN"
+                  message:
+                    type: string
+                    const: "无权限访问该资源"
+          example:
+            success: false
+            code: "FORBIDDEN"
+            message: "无权限访问该资源"
+            timestamp: "2025-12-30T10:00:00Z"
+
+    NotFound:
+      description: 资源不存在
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ApiResponse'
+              - type: object
+                properties:
+                  success:
+                    type: boolean
+                    const: false
+                  code:
+                    type: string
+                    const: "NOT_FOUND"
+                  message:
+                    type: string
+                    const: "请求的资源不存在"
+          example:
+            success: false
+            code: "NOT_FOUND"
+            message: "请求的资源不存在"
+            timestamp: "2025-12-30T10:00:00Z"
+
+    TooManyRequests:
+      description: 请求过于频繁
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ApiResponse'
+              - type: object
+                properties:
+                  success:
+                    type: boolean
+                    const: false
+                  code:
+                    type: string
+                    const: "TOO_MANY_REQUESTS"
+                  message:
+                    type: string
+                    const: "请求过于频繁，请稍后再试"
+                  retryAfter:
+                    type: integer
+                    description: 建议重试等待时间（秒）
+          example:
+            success: false
+            code: "TOO_MANY_REQUESTS"
+            message: "请求过于频繁，请稍后再试"
+            retryAfter: 60
+            timestamp: "2025-12-30T10:00:00Z"
+
+    InternalServerError:
+      description: 服务器内部错误
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ApiResponse'
+              - type: object
+                properties:
+                  success:
+                    type: boolean
+                    const: false
+                  code:
+                    type: string
+                    const: "INTERNAL_SERVER_ERROR"
+                  message:
+                    type: string
+                    const: "服务器内部错误"
+          example:
+            success: false
+            code: "INTERNAL_SERVER_ERROR"
+            message: "服务器内部错误"
+            timestamp: "2025-12-30T10:00:00Z"
+
+# ============================================
+# 扩展配置
+# ============================================
+
+# 标签分组
+x-tagGroups:
+  - name: 核心功能
+    tags:
+      - 认证授权
+  - name: 村务服务
+    tags:
+      - 村务治理
+      - 村民服务
+  - name: 生活与农技
+    tags:
+      - 生活服务
+      - 农技社区
+  - name: 系统功能
+    tags:
+      - 离线同步
+
+# 全局参数
+x-globalParameters:
+  X-Request-ID:
+    name: X-Request-ID
+    in: header
+    description: 请求唯一标识符
+    schema:
+      type: string
+      format: uuid
+    required: false
+    example: "550e8400-e29b-41d4-a716-446655440000"
+
+  X-Device-ID:
+    name: X-Device-ID
+    in: header
+    description: 设备唯一标识
+    schema:
+      type: string
+    required: true
+    example: "device_android_12345"
+
+  X-App-Version:
+    name: X-App-Version
+    in: header
+    description: APP版本号
+    schema:
+      type: string
+    required: false
+    example: "1.0.0"
+
+  Accept-Language:
+    name: Accept-Language
+    in: header
+    description: 语言偏好
+    schema:
+      type: string
+      enum: [zh-CN, pcc, pcc-qn, en-US]
+      default: zh-CN
+    required: false
+    example: "zh-CN"
+
+# 限流规则
+x-rateLimits:
+  default:
+    requests: 1000
+    window: 15m
+    strategy: sliding_window
+  auth:
+    requests: 10
+    window: 1m
+    strategy: fixed_window
+  upload:
+    requests: 50
+    window: 1h
+    strategy: token_bucket
+
+# 错误码定义
+x-errorCodes:
+  # 认证相关
+  AUTH_FAILED:
+    code: "AUTH_FAILED"
+    message: "认证失败"
+    httpStatus: 401
+  TOKEN_EXPIRED:
+    code: "TOKEN_EXPIRED"
+    message: "令牌已过期"
+    httpStatus: 401
+  TOKEN_INVALID:
+    code: "TOKEN_INVALID"
+    message: "令牌无效"
+    httpStatus: 401
+  USER_NOT_FOUND:
+    code: "USER_NOT_FOUND"
+    message: "用户不存在"
+    httpStatus: 404
+  USER_DISABLED:
+    code: "USER_DISABLED"
+    message: "用户已被禁用"
+    httpStatus: 403
+
+  # 权限相关
+  PERMISSION_DENIED:
+    code: "PERMISSION_DENIED"
+    message: "权限不足"
+    httpStatus: 403
+  VILLAGE_MISMATCH:
+    code: "VILLAGE_MISMATCH"
+    message: "村庄信息不匹配"
+    httpStatus: 403
+
+  # 参数相关
+  VALIDATION_ERROR:
+    code: "VALIDATION_ERROR"
+    message: "参数验证失败"
+    httpStatus: 400
+  INVALID_PARAM:
+    code: "INVALID_PARAM"
+    message: "无效的参数"
+    httpStatus: 400
+
+  # 资源相关
+  RESOURCE_NOT_FOUND:
+    code: "RESOURCE_NOT_FOUND"
+    message: "资源不存在"
+    httpStatus: 404
+  RESOURCE_EXPIRED:
+    code: "RESOURCE_EXPIRED"
+    message: "资源已过期"
+    httpStatus: 410
+
+  # 业务相关
+  APPLICATION_PENDING:
+    code: "APPLICATION_PENDING"
+    message: "申请正在审核中"
+    httpStatus: 409
+  APPLICATION_REJECTED:
+    code: "APPLICATION_REJECTED"
+    message: "申请已被拒绝"
+    httpStatus: 409
+  STOCK_INSUFFICIENT:
+    code: "STOCK_INSUFFICIENT"
+    message: "库存不足"
+    httpStatus: 409
+
+  # 系统相关
+  SYSTEM_ERROR:
+    code: "SYSTEM_ERROR"
+    message: "系统错误"
+    httpStatus: 500
+  SERVICE_UNAVAILABLE:
+    code: "SERVICE_UNAVAILABLE"
+    message: "服务暂不可用"
+    httpStatus: 503
+  MAINTENANCE_MODE:
+    code: "MAINTENANCE_MODE"
+    message: "系统维护中"
+    httpStatus: 503
+
+# 数据字典
+x-dataDictionary:
+  userRoles:
+    village_admin:
+      name: "村管理员"
+      description: "村庄最高权限管理员"
+    staff:
+      name: "村委成员"
+      description: "村委工作人员"
+    resident:
+      name: "村民"
+      description: "普通村民用户"
+    guest:
+      name: "访客"
+      description: "访客用户"
+
+  householdTypes:
+    ordinary:
+      name: "普通家庭"
+      description: "普通农户家庭"
+    low_income:
+      name: "低收入家庭"
+      description: "低收入家庭"
+    minimum_living:
+      name: "低保家庭"
+      description: "享受最低生活保障家庭"
+    five_guarantees:
+      name: "五保户"
+      description: "五保供养对象"
+    subsistence:
+      name: "困难家庭"
+      description: "生活困难家庭"
+    disabled:
+      name: "残疾人家庭"
+      description: "有残疾人成员的家庭"
+
+  specialIdentities:
+    party_member:
+      name: "党员"
+      description: "中国共产党党员"
+    veteran:
+      name: "退伍军人"
+      description: "退伍军人"
+    martyr_family:
+      name: "烈士家属"
+      description: "烈士遗属"
+    disabled:
+      name: "残疾人"
+      description: "持有残疾证人员"
+    poverty:
+      name: "贫困户"
+      description: "建档立卡贫困户"
+    elderly:
+      name: "老年人"
+      description: "60岁以上老年人"
+    left_behind_children:
+      name: "留守儿童"
+      description: "父母外出务工的儿童"
+    empty_nester:
+      name: "空巢老人"
+      description: "无子女同住的老年人"
+    entrepreneur:
+      name: "创业人员"
+      description: "返乡创业人员"
+
+# 文档配置
+x-documentation:
+  authGuide:
+    title: "认证指南"
+    url: "https://docs.smartvillage.com/mobile/auth"
+  quickStart:
+    title: "快速开始"
+    url: "https://docs.smartvillage.com/mobile/quickstart"
+  sdkDownloads:
+    title: "SDK下载"
+    url: "https://docs.smartvillage.com/mobile/sdk"
+  changelog:
+    title: "更新日志"
+    url: "https://docs.smartvillage.com/mobile/changelog"
