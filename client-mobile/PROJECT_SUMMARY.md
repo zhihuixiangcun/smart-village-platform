@@ -3,9 +3,15 @@
 ## 📱 项目概述
 
 **项目名称**: 智慧乡村移动端 (Smart Village Mobile)
-**技术栈**: Uni-app 3.0 + Vue 3 + Pinia
+**技术栈**: Vue 3 + Vite + Pinia + Vue Router
 **开发周期**: 2024年12月
 **当前版本**: v1.0.0
+
+**技术说明**:
+- 原计划使用Uni-app实现多端发布，但Uni-app alpha版本未在npm发布
+- 改用标准Vue 3 + Vite架构，专注于H5移动端开发
+- 保留uni API模拟层，便于后续迁移到Uni-app或Taro框架
+- 所有组件使用Vue 3 Composition API编写，具有良好的跨框架兼容性
 
 ---
 
@@ -98,12 +104,20 @@ API接口: 35+接口
 
 ### 前端架构
 ```
-Uni-app 3.0
-├── Vue 3.3+ (Composition API)
+Vue 3 + Vite
+├── Vue 3.4+ (Composition API)
+├── Vue Router 4+ (路由管理)
 ├── Pinia 2.1+ (状态管理)
-├── uView 2.0 (UI组件库)
-└── Vite 3+ (构建工具)
+├── Axios (HTTP客户端)
+├── SCSS (样式预处理器)
+└── Vite 5+ (构建工具)
 ```
+
+**uni API模拟层**:
+- 为了兼容原有组件设计，实现了uni API的浏览器模拟
+- 支持localStorage替代storage API
+- 支持router替代navigate API
+- 可平滑迁移到Uni-app框架
 
 ### 状态管理
 ```
@@ -150,21 +164,29 @@ npm install
 
 ### 开发模式
 ```bash
-# 微信小程序
-npm run dev:mp-weixin
+# 启动开发服务器
+npm run dev
 
-# H5
-npm run dev:h5
-
-# APP
-npm run dev:app
+# 在浏览器打开
+# 访问: http://localhost:3000
 ```
 
 ### 生产构建
 ```bash
-npm run build:mp-weixin
-npm run build:h5
-npm run build:app
+# 构建生产版本
+npm run build
+
+# 预览生产构建
+npm run preview
+```
+
+### 代码检查
+```bash
+# ESLint检查
+npm run lint
+
+# Prettier格式化
+npm run format
 ```
 
 ---
@@ -187,11 +209,12 @@ npm run test:coverage
 
 | 平台 | 状态 | 说明 |
 |------|------|------|
-| 微信小程序 | ✅ | 主要平台 |
-| 支付宝小程序 | ✅ | 需配置 |
-| H5 | ✅ | 响应式设计 |
-| Android APP | ✅ | 支持5.0+ |
-| iOS APP | ✅ | 支持12.0+ |
+| H5移动端 | ✅ | 主要平台，响应式设计 |
+| 微信小程序 | 🔄 | 需要迁移到Uni-app |
+| Android APP | 🔄 | 需要使用Cordova/Capacitor |
+| iOS APP | 🔄 | 需要使用Cordova/Capacitor |
+
+**注**: 当前专注于H5移动端开发，可通过PWA方式提供原生应用体验
 
 ---
 
