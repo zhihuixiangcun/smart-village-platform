@@ -4,6 +4,15 @@ import App from './App.vue'
 import router from './router'
 import './styles/index.scss'
 
+// 全局注册 uni 组件替代品
+import UniLoadMore from './components/uni/UniLoadMore.vue'
+import ScrollView from './components/uni/ScrollView.vue'
+import UniIcons from './components/uni/UniIcons.vue'
+import UniBadge from './components/uni/UniBadge.vue'
+import UniTag from './components/uni/UniTag.vue'
+import UniList from './components/uni/UniList.vue'
+import UniListItem from './components/uni/UniListItem.vue'
+
 // 模拟 uni API (用于兼容原有组件)
 const mockUniAPI = {
   getStorageSync: (key) => localStorage.getItem(key) ? JSON.parse(localStorage.getItem(key)) : '',
@@ -61,6 +70,15 @@ window.uni = mockUniAPI
 
 const app = createApp(App)
 const pinia = createPinia()
+
+// 全局注册组件
+app.component('uni-load-more', UniLoadMore)
+app.component('scroll-view', ScrollView)
+app.component('uni-icons', UniIcons)
+app.component('uni-badge', UniBadge)
+app.component('uni-tag', UniTag)
+app.component('uni-list', UniList)
+app.component('uni-list-item', UniListItem)
 
 app.use(pinia)
 app.use(router)
