@@ -131,7 +131,7 @@ const AuditLogSchema = new mongoose.Schema({
   villageId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Village',
-    required: true,
+    required: false,
     index: true
   }
 }, {
