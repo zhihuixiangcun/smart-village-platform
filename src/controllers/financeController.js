@@ -1207,6 +1207,61 @@ async function sendBudgetApprovalNotification(budget) {
   logger.info('发送预算审批通知:', budget.budgetInfo.budgetName);
 }
 
+/**
+ * 获取待办审批任务
+ */
+async function getPendingTasks(req, res) {
+  try {
+    const { type = 'all', page = 1, limit = 20 } = req.query;
+    const userId = req.user.userId;
+
+    // 获取待办任务
+    const tasks = await financeModule.getPendingTasks(userId, {
+      type,
+      page: parseInt(page),
+      limit: parseInt(limit)
+    });
+
+    res.json({
+      success: true,
+      data: tasks
+    });
+
+  } catch (error) {
+    logger.error('获取待办任务失败:', error);
+    res.status(500).json({
+      success: false,
+      error: 'FETCH_FAILED',
+      message: '获取待办任务失败'
+    });
+  }
+}
+
+/**
+ * 获取审批工作流状态
+ */
+async function getWorkflowStatus(req, res) {
+  try {
+    const { transactionId } = req.params;
+
+    // 获取工作流状态
+    const workflowStatus = await financeModule.getWorkflowStatus(transactionId);
+
+    res.json({
+      success: true,
+      data: workflowStatus
+    });
+
+  } catch (error) {
+    logger.error('获取工作流状态失败:', error);
+    res.status(500).json({
+      success: false,
+      error: 'FETCH_FAILED',
+      message: '获取工作流状态失败'
+    });
+  }
+}
+
 module.exports = {
   // 财务交易管理
   createTransaction,
@@ -1219,9 +1274,9 @@ module.exports = {
   verifyBlockchainData,
   getBlockchainStats,
 
-  // 智能票据OCR识别
-  recognizeInvoice: [upload.single('invoice'), recognizeInvoice],
-  batchRecognizeInvoices: [upload.array('invoices', 10), batchRecognizeInvoices],
+  // 智能票据OCR识别 - 导出处理器函数
+  recognizeInvoice,
+  batchRecognizeInvoices,
   verifyInvoiceWithTaxAuthority,
   getOCRRecords,
 
@@ -1231,11 +1286,18 @@ module.exports = {
   reviewBudget,
   getBudgets,
 
+  // 审批工作流管理
+  getPendingTasks,
+  getWorkflowStatus,
+
   // 村民财务查询权限管理
   grantFinanceAccess,
   getFinanceSummary,
   getTransactionDetails,
   submitFinanceQuestion,
   downloadFinanceReport,
-  getFinanceAccessStats
+  getFinanceAccessStats,
+
+  // 导出upload中间件供路由使用
+  upload
 };

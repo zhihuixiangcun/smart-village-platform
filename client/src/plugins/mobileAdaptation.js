@@ -3,7 +3,7 @@
  * 为Vue应用提供移动端适配功能
  */
 
-import { App } from 'vue'
+// App type not needed in JavaScript - removed invalid import
 import mobileAdaptationService from '@/services/mobileAdaptationService'
 
 const MobileAdaptationPlugin = {
@@ -25,8 +25,8 @@ const MobileAdaptationPlugin = {
          * 设置组件的移动端适配
          */
         setupMobileAdaptation() {
-          const element = this.$el
-          if (!element) return
+          const element = this.$el || this.$root?.$el
+          if (!element || !element.classList) return
 
           // 添加响应式类
           this.addResponsiveClasses(element)
@@ -45,6 +45,7 @@ const MobileAdaptationPlugin = {
          * 添加响应式类
          */
         addResponsiveClasses(element) {
+          if (!element || !element.classList) return
           const deviceInfo = mobileAdaptationService.getDeviceInfo()
 
           // 设备类型类
@@ -289,7 +290,7 @@ const MobileAdaptationPlugin = {
          * 触觉反馈
          */
         $hapticFeedback(type) {
-          return mobileAdaptionService.hapticFeedback(type)
+          return mobileAdaptationService.hapticFeedback(type)
         },
 
         /**
@@ -316,7 +317,7 @@ const MobileAdaptationPlugin = {
       },
       updated(el, binding) {
         const config = binding.value || {}
-        mobileAdiationService.adaptiveLayout(el, config)
+        mobileAdaptationService.adaptiveLayout(el, config)
       }
     })
 
@@ -342,7 +343,7 @@ const MobileAdaptationPlugin = {
     // 滑动指令
     app.directive('swipe', {
       mounted(el, binding) {
-        if (!mobileAdiationService.isMobileDevice()) return
+        if (!mobileAdaptationService.isMobileDevice()) return
 
         const config = binding.value || {}
         const direction = config.direction || 'horizontal'

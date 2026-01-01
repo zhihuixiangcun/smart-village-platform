@@ -20,8 +20,14 @@ const {
   uploadInvoice
 } = require('../controllers/enhancedResidentController');
 const { authenticateToken } = require('../middleware/auth');
-const { checkPermission } = require('../middleware/permissionMiddleware');
+const { requirePermission } = require('../middleware/permissionMiddleware');
 const rateLimit = require('express-rate-limit');
+
+// 权限检查辅助函数
+function checkPermission(permissionStr) {
+  const [resource, action] = permissionStr.split(':');
+  return requirePermission(resource, action, 'own');
+}
 
 // OCR识别限流
 const ocrRateLimit = rateLimit({

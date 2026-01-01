@@ -4,7 +4,7 @@
  */
 
 import { ref, reactive, computed, watch } from 'vue'
-import { useStore } from 'pinia'
+// useStore not used in this file - removed invalid import
 
 class MobileAdaptationService {
   constructor() {

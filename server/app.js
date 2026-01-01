@@ -98,7 +98,10 @@ app.get('/health', (req, res) => {
     service: 'village-service',
     port: PORT,
     socket: {
-      connected: io.engine.clientsCount(),
+      // Handle Socket.IO version compatibility
+      connected: typeof io.engine.clientsCount === 'function'
+        ? io.engine.clientsCount()
+        : (io._nsps.get('/')?.adapter?.sockets?.size || 0),
       rooms: Object.keys(io.sockets.adapter.rooms).length
     },
     memory: process.memoryUsage(),
