@@ -611,14 +611,14 @@ class OCRService {
           try {
             let result;
             switch (type) {
-              case 'invoice':
-                result = await this.recognizeInvoice(imageFile.path);
-                break;
-              case 'idcard':
-                result = await this.recognizeIdCard(imageFile.path);
-                break;
-              default:
-                result = await this.recognize(imageFile.path);
+            case 'invoice':
+              result = await this.recognizeInvoice(imageFile.path);
+              break;
+            case 'idcard':
+              result = await this.recognizeIdCard(imageFile.path);
+              break;
+            default:
+              result = await this.recognize(imageFile.path);
             }
 
             if (result.success) {
@@ -796,23 +796,23 @@ class OCRService {
       // 根据字段类型自动填充
       for (const [fieldName, value] of Object.entries(parsedFields)) {
         switch (fieldName) {
-          case 'name':
-            filledFields[fieldName] = user.name || value;
-            break;
-          case 'idNumber':
-            filledFields[fieldName] = user.idCard || value;
-            break;
-          case 'gender':
-            filledFields[fieldName] = this.formatGender(user.gender) || value;
-            break;
-          case 'address':
-            filledFields[fieldName] = user.address || value;
-            break;
-          case 'phone':
-            filledFields[fieldName] = user.phone || value;
-            break;
-          default:
-            filledFields[fieldName] = value;
+        case 'name':
+          filledFields[fieldName] = user.name || value;
+          break;
+        case 'idNumber':
+          filledFields[fieldName] = user.idCard || value;
+          break;
+        case 'gender':
+          filledFields[fieldName] = this.formatGender(user.gender) || value;
+          break;
+        case 'address':
+          filledFields[fieldName] = user.address || value;
+          break;
+        case 'phone':
+          filledFields[fieldName] = user.phone || value;
+          break;
+        default:
+          filledFields[fieldName] = value;
         }
       }
 

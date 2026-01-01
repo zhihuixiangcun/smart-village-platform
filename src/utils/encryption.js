@@ -141,11 +141,11 @@ function maskName(name) {
   }
 
   if (name.length === 2) {
-    return name[0] + '*';
+    return `${name[0]  }*`;
   } else if (name.length === 3) {
-    return name[0] + '*' + name[2];
+    return `${name[0]  }*${  name[2]}`;
   } else {
-    return name[0] + '*' + name[name.length - 1];
+    return `${name[0]  }*${  name[name.length - 1]}`;
   }
 }
 
@@ -160,7 +160,7 @@ function maskAddress(address, keepLength = 10) {
     return address;
   }
 
-  return address.substring(0, keepLength) + '***';
+  return `${address.substring(0, keepLength)  }***`;
 }
 
 /**

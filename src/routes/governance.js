@@ -19,8 +19,14 @@ const {
   upload
 } = require('../controllers/villageGovernanceController');
 const { authenticateToken } = require('../middleware/auth');
-const { checkPermission } = require('../middleware/permissionMiddleware');
+const { requirePermission } = require('../middleware/permissionMiddleware');
 const rateLimit = require('express-rate-limit');
+
+// 权限检查辅助函数
+function checkPermission(permissionStr) {
+  const [resource, action] = permissionStr.split(':');
+  return requirePermission(resource, action, 'own');
+}
 
 // 限流配置
 const governanceRateLimit = rateLimit({
@@ -188,7 +194,7 @@ router.get('/tasks/schedule',
       if (date) {
         query.scheduledDate = {
           $gte: new Date(date),
-          $lt: new Date(date + 'T23:59:59')
+          $lt: new Date(`${date  }T23:59:59`)
         };
       }
 
@@ -412,9 +418,9 @@ router.get('/dashboard', async (req, res) => {
         priority: 'urgent',
         status: { $in: ['pending', 'in-progress'] }
       })
-      .sort({ dueDate: 1 })
-      .limit(5)
-      .select('title dueDate priority')
+        .sort({ dueDate: 1 })
+        .limit(5)
+        .select('title dueDate priority')
     ]);
 
     res.json({

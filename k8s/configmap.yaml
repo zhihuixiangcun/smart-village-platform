@@ -1,0 +1,48 @@
+# 智慧乡村系统配置
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: smartvillage-config
+  namespace: smartvillage
+  labels:
+    app: smartvillage
+    component: config
+data:
+  # 应用配置
+  NODE_ENV: "production"
+  PORT: "3001"
+  LOG_LEVEL: "info"
+
+  # 数据库配置
+  MONGO_DB: "smartvillage"
+  REDIS_DB: "0"
+
+  # 性能优化配置
+  UV_THREADPOOL_SIZE: "16"
+  NODE_OPTIONS: "--max-old-space-size=2048"
+
+  # 缓存配置
+  CACHE_TTL: "300"
+  CACHE_MAX_KEYS: "10000"
+
+  # 连接池配置
+  DB_POOL_MIN: "5"
+  DB_POOL_MAX: "20"
+  DB_POOL_IDLE_TIMEOUT: "30000"
+
+  # 限流配置
+  RATE_LIMIT_WINDOW_MS: "60000"
+  RATE_LIMIT_MAX_REQUESTS: "1000"
+
+  # 文件上传配置
+  MAX_FILE_SIZE: "10485760"
+  UPLOAD_PATH: "/app/uploads"
+
+  # 监控配置
+  METRICS_ENABLED: "true"
+  METRICS_PORT: "9091"
+
+  # 健康检查配置
+  HEALTH_CHECK_INTERVAL: "30"
+  HEALTH_CHECK_TIMEOUT: "10"
+  HEALTH_CHECK_RETRIES: "3"

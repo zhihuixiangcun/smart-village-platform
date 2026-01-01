@@ -560,16 +560,16 @@ class CacheStrategyOptimizer extends EventEmitter {
     const dataType = metadata.dataType || 'unknown';
 
     switch (dataType) {
-      case 'realtime':
-      case 'emergency':
-        return { ...this.strategyTemplates.realtime };
-      case 'static':
-      case 'image':
-      case 'css':
-      case 'js':
-        return { ...this.strategyTemplates.static_resource };
-      default:
-        return { ...this.strategyTemplates.medium_frequency };
+    case 'realtime':
+    case 'emergency':
+      return { ...this.strategyTemplates.realtime };
+    case 'static':
+    case 'image':
+    case 'css':
+    case 'js':
+      return { ...this.strategyTemplates.static_resource };
+    default:
+      return { ...this.strategyTemplates.medium_frequency };
     }
   }
 

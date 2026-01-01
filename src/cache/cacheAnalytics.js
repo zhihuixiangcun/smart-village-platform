@@ -164,7 +164,7 @@ class CacheAnalytics extends EventEmitter {
 
       // 命中率
       hitRate: windowMetrics.requests > 0 ?
-        (windowMetrics.hits / windowMetrics.requests * 100).toFixed(2) + '%' : '0%',
+        `${(windowMetrics.hits / windowMetrics.requests * 100).toFixed(2)  }%` : '0%',
 
       // 时间信息
       windowSize: this.config.windowSize,
@@ -697,9 +697,9 @@ class CacheAnalytics extends EventEmitter {
         qps: currentQps
       },
       comparison: {
-        hitRateChange: ((currentHitRate - this.performanceBaseline.hitRate) / this.performanceBaseline.hitRate * 100).toFixed(2) + '%',
-        responseTimeChange: ((current.avgResponseTime - this.performanceBaseline.avgResponseTime) / this.performanceBaseline.avgResponseTime * 100).toFixed(2) + '%',
-        qpsChange: ((currentQps - this.performanceBaseline.qps) / this.performanceBaseline.qps * 100).toFixed(2) + '%'
+        hitRateChange: `${((currentHitRate - this.performanceBaseline.hitRate) / this.performanceBaseline.hitRate * 100).toFixed(2)  }%`,
+        responseTimeChange: `${((current.avgResponseTime - this.performanceBaseline.avgResponseTime) / this.performanceBaseline.avgResponseTime * 100).toFixed(2)  }%`,
+        qpsChange: `${((currentQps - this.performanceBaseline.qps) / this.performanceBaseline.qps * 100).toFixed(2)  }%`
       }
     };
   }

@@ -289,9 +289,9 @@ async function getUserVotingHistory(req, res) {
       _id: { $in: votingIds },
       'approval.isApproved': true
     })
-    .select('title description votingType status timeSettings organizer')
-    .populate('organizer.userId', 'profile.displayName')
-    .lean();
+      .select('title description votingType status timeSettings organizer')
+      .populate('organizer.userId', 'profile.displayName')
+      .lean();
 
     const total = await VotingRecord.countDocuments(query);
 
@@ -368,7 +368,7 @@ async function getActiveVotings(req, res) {
       VotingStatus
     } = require('../models/Voting');
 
-    let query = {
+    const query = {
       status: VotingStatus.ACTIVE,
       'timeSettings.startTime': { $lte: new Date() },
       'timeSettings.endTime': { $gte: new Date() },
@@ -420,7 +420,7 @@ async function getUserEligibleVotings(req, res) {
     } = require('../models/Voting');
 
     // 构建查询条件
-    let query = {
+    const query = {
       status: VotingStatus.ACTIVE,
       'timeSettings.startTime': { $lte: new Date() },
       'timeSettings.endTime': { $gte: new Date() },

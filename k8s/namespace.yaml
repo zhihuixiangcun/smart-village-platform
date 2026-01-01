@@ -1,0 +1,10 @@
+# 智慧乡村系统命名空间
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: smartvillage
+  labels:
+    name: smartvillage
+    environment: production
+  annotations:
+    description: "智慧乡村综合服务平台生产环境"

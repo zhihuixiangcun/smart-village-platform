@@ -140,7 +140,7 @@ class DatabaseIndexOptimizer {
     // 检查4: 地理空间索引优化
     if (result.geoIndexes.length > 0) {
       for (const geoIndex of result.geoIndexes) {
-        if (geoIndex.includes("'2d'")) {
+        if (geoIndex.includes('\'2d\'')) {
           result.issues.push('使用旧的2d索引，应升级到2dsphere');
           result.recommendations.push('将2d索引改为2dsphere以获得更好的地理查询性能');
         }
@@ -255,13 +255,13 @@ class DatabaseIndexOptimizer {
     console.log('║         数据库索引分析报告                           ║');
     console.log('╚════════════════════════════════════════════════════╝\n');
 
-    console.log(`📊 统计信息:`);
+    console.log('📊 统计信息:');
     console.log(`   总模型数: ${analysis.summary.totalModels}`);
     console.log(`   总索引数: ${analysis.summary.totalIndexes}`);
     console.log(`   问题模型数: ${analysis.summary.problematicModels.length}\n`);
 
     if (analysis.summary.problematicModels.length > 0) {
-      console.log(`⚠️  需要优化的模型:\n`);
+      console.log('⚠️  需要优化的模型:\n');
 
       analysis.summary.problematicModels
         .sort((a, b) => b.totalIndexes - a.totalIndexes)
@@ -273,13 +273,13 @@ class DatabaseIndexOptimizer {
           console.log('');
         });
 
-      console.log(`💡 优化建议:\n`);
-      console.log(`   1. 移除不必要的单字段索引`);
-      console.log(`   2. 合并相似的复合索引`);
-      console.log(`   3. 遵循ESR原则设计复合索引（等值-排序-范围）`);
-      console.log(`   4. 定期审查慢查询日志`);
+      console.log('💡 优化建议:\n');
+      console.log('   1. 移除不必要的单字段索引');
+      console.log('   2. 合并相似的复合索引');
+      console.log('   3. 遵循ESR原则设计复合索引（等值-排序-范围）');
+      console.log('   4. 定期审查慢查询日志');
     } else {
-      console.log(`✅ 没有发现严重的索引问题！`);
+      console.log('✅ 没有发现严重的索引问题！');
     }
 
     console.log('');
@@ -345,7 +345,7 @@ if (require.main === module) {
 
   console.log('\n✅ 索引分析完成！');
   console.log('\n下一步:');
-  console.log('1. 查看报告: ' + optimizer.reportDir);
+  console.log(`1. 查看报告: ${  optimizer.reportDir}`);
   console.log('2. 运行审查脚本: mongosh reports/review-indexes.js');
   console.log('3. 根据建议优化问题模型\n');
 }

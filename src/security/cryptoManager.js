@@ -120,7 +120,7 @@ class CryptoManager {
       encryptedData: encrypted,
       authTag: authTag.toString('hex'),
       iv: iv.toString('hex'),
-      keyId: keyId,
+      keyId,
       algorithm: this.algorithm,
       timestamp: Date.now()
     };
@@ -157,7 +157,7 @@ class CryptoManager {
    */
   async encryptFaceFeatures(features, metadata = {}) {
     const data = {
-      features: features,
+      features,
       metadata: {
         ...metadata,
         algorithmVersion: '1.0',

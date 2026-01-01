@@ -344,7 +344,7 @@ class InvoiceTemplates {
    */
   matchTemplate(ocrResult, detectedKeywords = []) {
     const text = typeof ocrResult === 'string' ? ocrResult :
-                 (ocrResult.data?.text || '');
+      (ocrResult.data?.text || '');
 
     let bestMatch = null;
     let bestScore = 0;

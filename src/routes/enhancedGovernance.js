@@ -28,8 +28,14 @@ const {
   upload
 } = require('../controllers/governanceController');
 const { authenticateToken } = require('../middleware/auth');
-const { checkPermission } = require('../middleware/permissionMiddleware');
+const { requirePermission } = require('../middleware/permissionMiddleware');
 const rateLimit = require('express-rate-limit');
+
+// 权限检查辅助函数
+function checkPermission(permissionStr) {
+  const [resource, action] = permissionStr.split(':');
+  return requirePermission(resource, action, 'own');
+}
 
 // 通用限流
 const governanceRateLimit = rateLimit({
@@ -659,7 +665,7 @@ async function getUrgentAnnouncements(villageId) {
 
 async function getUpcomingMeetings(villageId) {
   const Meeting = require('../models/Meeting');
-const logger = require('../utils/logger');
+  const logger = require('../utils/logger');
   return await Meeting.findUpcomingMeetings(villageId, 3);
 }
 

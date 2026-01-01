@@ -302,7 +302,7 @@ documentSchema.post(['find', 'findOne'], async function(docs) {
   };
 
   if (Array.isArray(docs)) {
-    for (let doc of docs) {
+    for (const doc of docs) {
       await decryptDoc(doc);
     }
   } else {

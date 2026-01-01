@@ -101,14 +101,14 @@ class CodeGenerator {
    * 生成设备ID
    */
   static generateDeviceId() {
-    return 'DEV_' + crypto.randomBytes(16).toString('hex').toUpperCase();
+    return `DEV_${  crypto.randomBytes(16).toString('hex').toUpperCase()}`;
   }
 
   /**
    * 生成会话ID
    */
   static generateSessionId() {
-    return 'SES_' + crypto.randomBytes(32).toString('hex');
+    return `SES_${  crypto.randomBytes(32).toString('hex')}`;
   }
 }
 

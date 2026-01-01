@@ -1,0 +1,39 @@
+# Smart Village Platform - Multi-Region Kubernetes Configuration
+# 智慧乡村综合服务平台 - 多区域Kubernetes配置
+#
+# Architecture:
+# - Beijing (华北区): Primary region, MongoDB primary nodes
+# - Shanghai (华东区): Secondary region, MongoDB secondary nodes
+# - Guangzhou (华南区): Tertiary region, MongoDB secondary nodes
+#
+# Each region has:
+# - MongoDB Sharded Cluster
+# - Redis Cluster
+# - API Services (microservices)
+# - CDN/Edge nodes
+# - Monitoring (Prometheus + Grafana)
+#
+# Usage:
+# kubectl apply -f k8s/multi-region/base/namespace.yaml
+# kubectl apply -f k8s/multi-region/beijing/
+# kubectl apply -f k8s/multi-region/shanghai/
+# kubectl apply -f k8s/multi-region/guangzhou/
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: smart-village
+  labels:
+    name: smart-village
+    project: smart-village-platform
+    environment: production
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: smart-village-monitoring
+  labels:
+    name: smart-village-monitoring
+    project: smart-village-platform

@@ -107,7 +107,7 @@ class FinanceService {
     } catch (error) {
       await session.abortTransaction();
       logger.error('创建财务记录失败:', error);
-      throw new Error('创建财务记录失败: ' + error.message);
+      throw new Error(`创建财务记录失败: ${  error.message}`);
     } finally {
       session.endSession();
     }
@@ -232,7 +232,7 @@ class FinanceService {
     } catch (error) {
       await session.abortTransaction();
       logger.error('审批财务记录失败:', error);
-      throw new Error('审批财务记录失败: ' + error.message);
+      throw new Error(`审批财务记录失败: ${  error.message}`);
     } finally {
       session.endSession();
     }
@@ -289,7 +289,7 @@ class FinanceService {
       return budget;
     } catch (error) {
       logger.error('创建预算失败:', error);
-      throw new Error('创建预算失败: ' + error.message);
+      throw new Error(`创建预算失败: ${  error.message}`);
     }
   }
 
@@ -401,7 +401,7 @@ class FinanceService {
       };
     } catch (error) {
       logger.error('获取财务报表失败:', error);
-      throw new Error('获取财务报表失败: ' + error.message);
+      throw new Error(`获取财务报表失败: ${  error.message}`);
     }
   }
 
@@ -464,17 +464,17 @@ class FinanceService {
       // 根据格式导出
       let exportData;
       switch (format) {
-        case 'excel':
-          exportData = await this.exportToExcel(maskedRecords);
-          break;
-        case 'csv':
-          exportData = await this.exportToCSV(maskedRecords);
-          break;
-        case 'pdf':
-          exportData = await this.exportToPDF(maskedRecords);
-          break;
-        default:
-          throw new Error('不支持的导出格式');
+      case 'excel':
+        exportData = await this.exportToExcel(maskedRecords);
+        break;
+      case 'csv':
+        exportData = await this.exportToCSV(maskedRecords);
+        break;
+      case 'pdf':
+        exportData = await this.exportToPDF(maskedRecords);
+        break;
+      default:
+        throw new Error('不支持的导出格式');
       }
 
       // 记录审计日志
@@ -496,7 +496,7 @@ class FinanceService {
       return exportData;
     } catch (error) {
       logger.error('导出财务数据失败:', error);
-      throw new Error('导出财务数据失败: ' + error.message);
+      throw new Error(`导出财务数据失败: ${  error.message}`);
     }
   }
 
@@ -668,7 +668,7 @@ class FinanceService {
    */
   maskTaxNumber(taxNumber) {
     if (!taxNumber || taxNumber.length < 10) return taxNumber;
-    return taxNumber.slice(0, 4) + '********' + taxNumber.slice(-4);
+    return `${taxNumber.slice(0, 4)  }********${  taxNumber.slice(-4)}`;
   }
 
   /**

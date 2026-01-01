@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智慧乡村监控大屏 - Smart Village Monitoring Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #fff;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-template-rows: auto 1fr 1fr;
+            gap: 15px;
+            padding: 20px;
+            max-width: 1920px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            background: linear-gradient(90deg, #00d4ff, #7b2cbf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header .status {
+            display: flex;
+            gap: 20px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.active { background: #00ff88; }
+        .status-dot.warning { background: #ffaa00; }
+        .status-dot.error { background: #ff4444; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Cards */
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-title {
+            font-size: 16px;
+            color: #aaa;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-value {
+            font-size: 32px;
+            font-weight: bold;
+            background: linear-gradient(90deg, #00d4ff, #7b2cbf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .card-change {
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .card-change.positive { color: #00ff88; }
+        .card-change.negative { color: #ff4444; }
+
+        /* Metric Cards */
+        .metric-card {
+            grid-column: span 3;
+        }
+
+        /* Charts */
+        .chart-card {
+            grid-column: span 6;
+            min-height: 350px;
+        }
+
+        .chart-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 280px;
+        }
+
+        /* System Health */
+        .health-card {
+            grid-column: span 4;
+        }
+
+        .health-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .health-item:last-child {
+            border-bottom: none;
+        }
+
+        .health-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .health-bar {
+            width: 100px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .health-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s;
+        }
+
+        /* Alert List */
+        .alert-card {
+            grid-column: span 4;
+        }
+
+        .alert-item {
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 3px solid #00d4ff;
+        }
+
+        .alert-item.warning {
+            border-left-color: #ffaa00;
+        }
+
+        .alert-item.error {
+            border-left-color: #ff4444;
+        }
+
+        .alert-time {
+            font-size: 12px;
+            color: #888;
+        }
+
+        /* Activity Log */
+        .activity-card {
+            grid-column: span 4;
+        }
+
+        .activity-item {
+            padding: 10px 0;
+            font-size: 13px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 1400px) {
+            .metric-card { grid-column: span 4; }
+            .chart-card { grid-column: span 6; }
+            .health-card, .alert-card, .activity-card { grid-column: span 6; }
+        }
+
+        @media (max-width: 900px) {
+            .dashboard { grid-template-columns: 1fr; }
+            .metric-card, .chart-card, .health-card, .alert-card, .activity-card {
+                grid-column: 1 / -1;
+            }
+        }
+
+        /* Loading */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading" id="loading">加载中...</div>
+
+    <div class="dashboard" id="dashboard" style="display: none;">
+        <!-- Header -->
+        <div class="header">
+            <h1>智慧乡村监控大屏</h1>
+            <div class="status">
+                <div class="status-item">
+                    <div class="status-dot active" id="apiStatus"></div>
+                    <span>API</span>
+                </div>
+                <div class="status-item">
+                    <div class="status-dot active" id="dbStatus"></div>
+                    <span>数据库</span>
+                </div>
+                <div class="status-item">
+                    <div class="status-dot active" id="redisStatus"></div>
+                    <span>缓存</span>
+                </div>
+                <div class="status-item">
+                    <div class="status-dot active" id="socketStatus"></div>
+                    <span>实时</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metric Cards -->
+        <div class="card metric-card">
+            <div class="card-title">总用户数</div>
+            <div class="card-value" id="totalUsers">0</div>
+            <div class="card-change positive" id="usersChange">↑ 12%</div>
+        </div>
+
+        <div class="card metric-card">
+            <div class="card-title">活跃村庄</div>
+            <div class="card-value" id="activeVillages">0</div>
+            <div class="card-change positive" id="villagesChange">↑ 5%</div>
+        </div>
+
+        <div class="card metric-card">
+            <div class="card-title">今日请求</div>
+            <div class="card-value" id="todayRequests">0</div>
+            <div class="card-change positive" id="requestsChange">↑ 18%</div>
+        </div>
+
+        <div class="card metric-card">
+            <div class="card-title">缓存命中率</div>
+            <div class="card-value" id="cacheHitRate">0%</div>
+            <div class="card-change negative" id="cacheChange">↓ 2%</div>
+        </div>
+
+        <!-- Request Volume Chart -->
+        <div class="card chart-card">
+            <div class="card-title">请求量趋势</div>
+            <div class="chart-container" id="requestChart"></div>
+        </div>
+
+        <!-- Response Time Chart -->
+        <div class="card chart-card">
+            <div class="card-title">响应时间分布</div>
+            <div class="chart-container" id="responseTimeChart"></div>
+        </div>
+
+        <!-- API Endpoint Usage -->
+        <div class="card chart-card">
+            <div class="card-title">API接口使用排行</div>
+            <div class="chart-container" id="apiUsageChart"></div>
+        </div>
+
+        <!-- User Activity -->
+        <div class="card chart-card">
+            <div class="card-title">用户活跃度</div>
+            <div class="chart-container" id="userActivityChart"></div>
+        </div>
+
+        <!-- System Health -->
+        <div class="card health-card">
+            <div class="card-title">系统健康度</div>
+            <div class="health-item">
+                <div class="health-label">CPU使用率</div>
+                <div class="health-bar">
+                    <div class="health-bar-fill" id="cpuBar" style="width: 45%; background: linear-gradient(90deg, #00d4ff, #7b2cbf);"></div>
+                </div>
+                <span id="cpuValue">45%</span>
+            </div>
+            <div class="health-item">
+                <div class="health-label">内存使用率</div>
+                <div class="health-bar">
+                    <div class="health-bar-fill" id="memoryBar" style="width: 62%; background: linear-gradient(90deg, #00d4ff, #7b2cbf);"></div>
+                </div>
+                <span id="memoryValue">62%</span>
+            </div>
+            <div class="health-item">
+                <div class="health-label">磁盘使用率</div>
+                <div class="health-bar">
+                    <div class="health-bar-fill" id="diskBar" style="width: 38%; background: linear-gradient(90deg, #00d4ff, #7b2cbf);"></div>
+                </div>
+                <span id="diskValue">38%</span>
+            </div>
+            <div class="health-item">
+                <div class="health-label">数据库连接</div>
+                <div class="health-bar">
+                    <div class="health-bar-fill" id="dbConnBar" style="width: 25%; background: linear-gradient(90deg, #00d4ff, #7b2cbf);"></div>
+                </div>
+                <span id="dbConnValue">25%</span>
+            </div>
+        </div>
+
+        <!-- Recent Alerts -->
+        <div class="card alert-card">
+            <div class="card-title">最近告警</div>
+            <div class="alert-item warning">
+                <div>缓存命中率低于70%</div>
+                <div class="alert-time">2分钟前</div>
+            </div>
+            <div class="alert-item error">
+                <div>数据库连接数超过阈值</div>
+                <div class="alert-time">15分钟前</div>
+            </div>
+            <div class="alert-item">
+                <div>新用户注册量激增</div>
+                <div class="alert-time">1小时前</div>
+            </div>
+        </div>
+
+        <!-- Activity Log -->
+        <div class="card activity-card">
+            <div class="card-title">操作日志</div>
+            <div class="activity-item">
+                <span>管理员张三登录系统</span>
+                <span class="alert-time">刚刚</span>
+            </div>
+            <div class="activity-item">
+                <span>村民李四提交补贴申请</span>
+                <span class="alert-time">5分钟前</span>
+            </div>
+            <div class="activity-item">
+                <span>系统自动备份完成</span>
+                <span class="alert-time">10分钟前</span>
+            </div>
+            <div class="activity-item">
+                <span>新公告发布成功</span>
+                <span class="alert-time">20分钟前</span>
+            </div>
+            <div class="activity-item">
+                <span>数据库索引优化完成</span>
+                <span class="alert-time">1小时前</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize charts
+        let requestChart, responseTimeChart, apiUsageChart, userActivityChart;
+        let socket;
+
+        // Initialize dashboard
+        async function initDashboard() {
+            try {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'grid';
+
+                initCharts();
+                connectWebSocket();
+                await loadData();
+                setInterval(updateData, 5000); // Update every 5 seconds
+            } catch (error) {
+                console.error('Failed to initialize dashboard:', error);
+            }
+        }
+
+        // Initialize all charts
+        function initCharts() {
+            // Request Volume Chart
+            requestChart = echarts.init(document.getElementById('requestChart'));
+            requestChart.setOption({
+                tooltip: { trigger: 'axis' },
+                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                xAxis: {
+                    type: 'category',
+                    data: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
+                    axisLine: { lineStyle: { color: '#666' } }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: { lineStyle: { color: '#666' } }
+                },
+                series: [{
+                    data: [120, 200, 1500, 800, 700, 1100],
+                    type: 'line',
+                    smooth: true,
+                    areaStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: 'rgba(0, 212, 255, 0.3)' },
+                            { offset: 1, color: 'rgba(123, 44, 191, 0.1)' }
+                        ])
+                    },
+                    lineStyle: { color: '#00d4ff' },
+                    itemStyle: { color: '#00d4ff' }
+                }]
+            });
+
+            // Response Time Chart
+            responseTimeChart = echarts.init(document.getElementById('responseTimeChart'));
+            responseTimeChart.setOption({
+                tooltip: { trigger: 'axis' },
+                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                xAxis: {
+                    type: 'category',
+                    data: ['0-50ms', '50-100ms', '100-200ms', '200-500ms', '500ms+'],
+                    axisLine: { lineStyle: { color: '#666' } }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: { lineStyle: { color: '#666' } }
+                },
+                series: [{
+                    data: [65, 20, 10, 4, 1],
+                    type: 'bar',
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: '#00d4ff' },
+                            { offset: 1, color: '#7b2cbf' }
+                        ])
+                    }
+                }]
+            });
+
+            // API Usage Chart
+            apiUsageChart = echarts.init(document.getElementById('apiUsageChart'));
+            apiUsageChart.setOption({
+                tooltip: { trigger: 'axis' },
+                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                xAxis: {
+                    type: 'value',
+                    axisLine: { lineStyle: { color: '#666' } }
+                },
+                yAxis: {
+                    type: 'category',
+                    data: ['公告', '村务', '文件', '财务', '村民'],
+                    axisLine: { lineStyle: { color: '#666' } }
+                },
+                series: [{
+                    type: 'bar',
+                    data: [2340, 1890, 1560, 1230, 980],
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                            { offset: 0, color: '#00d4ff' },
+                            { offset: 1, color: '#7b2cbf' }
+                        ])
+                    }
+                }]
+            });
+
+            // User Activity Chart
+            userActivityChart = echarts.init(document.getElementById('userActivityChart'));
+            userActivityChart.setOption({
+                tooltip: { trigger: 'item' },
+                series: [{
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    avoidLabelOverlap: false,
+                    itemStyle: {
+                        borderRadius: 10,
+                        borderColor: '#1a1a2e',
+                        borderWidth: 2
+                    },
+                    label: { show: false },
+                    data: [
+                        { value: 1048, name: '管理员', itemStyle: { color: '#00d4ff' } },
+                        { value: 735, name: '村委', itemStyle: { color: '#7b2cbf' } },
+                        { value: 580, name: '村民', itemStyle: { color: '#00ff88' } },
+                        { value: 484, name: '访客', itemStyle: { color: '#ffaa00' } }
+                    ]
+                }]
+            });
+        }
+
+        // Connect to WebSocket for real-time updates
+        function connectWebSocket() {
+            socket = io('http://localhost:3001', {
+                transports: ['websocket'],
+                reconnection: true
+            });
+
+            socket.on('connect', () => {
+                console.log('WebSocket connected');
+                document.getElementById('socketStatus').classList.add('active');
+                document.getElementById('socketStatus').classList.remove('error');
+            });
+
+            socket.on('disconnect', () => {
+                console.log('WebSocket disconnected');
+                document.getElementById('socketStatus').classList.remove('active');
+                document.getElementById('socketStatus').classList.add('error');
+            });
+
+            socket.on('metrics:update', (data) => {
+                updateMetrics(data);
+            });
+
+            socket.on('alert:new', (alert) => {
+                showAlert(alert);
+            });
+        }
+
+        // Load initial data
+        async function loadData() {
+            try {
+                const response = await fetch('http://localhost:3001/api/monitoring/summary');
+                const data = await response.json();
+                updateMetrics(data);
+            } catch (error) {
+                console.error('Failed to load data:', error);
+                // Use mock data for demo
+                updateMetrics({
+                    totalUsers: 12847,
+                    activeVillages: 156,
+                    todayRequests: 45678,
+                    cacheHitRate: 78.5,
+                    cpu: 45,
+                    memory: 62,
+                    disk: 38,
+                    dbConnections: 25
+                });
+            }
+        }
+
+        // Update metrics
+        function updateMetrics(data) {
+            if (data.totalUsers !== undefined) {
+                animateValue('totalUsers', data.totalUsers);
+            }
+            if (data.activeVillages !== undefined) {
+                animateValue('activeVillages', data.activeVillages);
+            }
+            if (data.todayRequests !== undefined) {
+                animateValue('todayRequests', data.todayRequests);
+            }
+            if (data.cacheHitRate !== undefined) {
+                document.getElementById('cacheHitRate').textContent = data.cacheHitRate + '%';
+            }
+            if (data.cpu !== undefined) {
+                document.getElementById('cpuBar').style.width = data.cpu + '%';
+                document.getElementById('cpuValue').textContent = data.cpu + '%';
+            }
+            if (data.memory !== undefined) {
+                document.getElementById('memoryBar').style.width = data.memory + '%';
+                document.getElementById('memoryValue').textContent = data.memory + '%';
+            }
+            if (data.disk !== undefined) {
+                document.getElementById('diskBar').style.width = data.disk + '%';
+                document.getElementById('diskValue').textContent = data.disk + '%';
+            }
+            if (data.dbConnections !== undefined) {
+                document.getElementById('dbConnBar').style.width = data.dbConnections + '%';
+                document.getElementById('dbConnValue').textContent = data.dbConnections + '%';
+            }
+        }
+
+        // Animate value changes
+        function animateValue(id, end) {
+            const element = document.getElementById(id);
+            const start = parseInt(element.textContent.replace(/,/g, '')) || 0;
+            const duration = 1000;
+            const startTime = performance.now();
+
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+
+                const current = Math.floor(start + (end - start) * progress);
+                element.textContent = current.toLocaleString();
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+
+            requestAnimationFrame(update);
+        }
+
+        // Update data periodically
+        async function updateData() {
+            await loadData();
+        }
+
+        // Show alert
+        function showAlert(alert) {
+            const alertsContainer = document.querySelector('.alert-card');
+            // Add alert to top of list
+            const alertHtml = `
+                <div class="alert-item ${alert.severity}">
+                    <div>${alert.message}</div>
+                    <div class="alert-time">刚刚</div>
+                </div>
+            `;
+            alertsContainer.insertAdjacentHTML('afterbegin', alertHtml);
+        }
+
+        // Resize charts on window resize
+        window.addEventListener('resize', () => {
+            requestChart?.resize();
+            responseTimeChart?.resize();
+            apiUsageChart?.resize();
+            userActivityChart?.resize();
+        });
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', initDashboard);
+    </script>
+</body>
+</html>

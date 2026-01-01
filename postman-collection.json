@@ -1,0 +1,944 @@
+{
+  "info": {
+    "name": "智慧乡村综合服务平台 API Collection",
+    "description": "智慧乡村综合服务平台完整API接口集合，涵盖村民管理、村务治理、信息公示、生活服务四大核心模块",
+    "version": "2.0.0",
+    "contact": {
+      "name": "智慧乡村开发团队",
+      "email": "support@smart-village.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "item": [
+    {
+      "name": "系统管理",
+      "item": [
+        {
+          "name": "健康检查",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        },
+        {
+          "name": "监控面板",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/monitoring",
+              "host": ["{{baseUrl}}"],
+              "path": ["monitoring"]
+            }
+          }
+        },
+        {
+          "name": "监控数据",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/monitoring/data?timeRange=1h",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "monitoring", "data"],
+              "query": [
+                {
+                  "key": "timeRange",
+                  "value": "1h"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "认证管理",
+      "item": [
+        {
+          "name": "用户登录",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"loginType\": \"password\",\n  \"username\": \"admin\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "用户注册",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"13800138000\",\n  \"name\": \"张三\",\n  \"password\": \"password123\",\n  \"smsCode\": \"123456\",\n  \"idCard\": \"110101199001010001\",\n  \"villageId\": \"village_001\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "村民管理",
+      "item": [
+        {
+          "name": "获取村民档案列表",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/residents?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "residents"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "创建村民档案",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"李四\",\n  \"phone\": \"13800138001\",\n  \"idCard\": \"110101199002020002\",\n  \"address\": \"幸福村1组10号\",\n  \"familyType\": \"normal\",\n  \"familyMembers\": [\n    {\n      \"name\": \"王五\",\n      \"relationship\": \"spouse\",\n      \"age\": 30,\n      \"idCard\": \"110101199003030003\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/residents",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "residents"]
+            }
+          }
+        },
+        {
+          "name": "获取村民详细信息",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/residents/{{residentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "residents", "{{residentId}}"]
+            }
+          }
+        },
+        {
+          "name": "获取一户一码",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/residents/{{residentId}}/qr-code",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "residents", "{{residentId}}", "qr-code"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "村委管理",
+      "item": [
+        {
+          "name": "获取村委成员列表",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/village-committee/members",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "village-committee", "members"]
+            }
+          }
+        },
+        {
+          "name": "添加村委成员",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"张书记\",\n  \"role\": \"secretary\",\n  \"phone\": \"13800138100\",\n  \"idCard\": \"110101197001010001\",\n  \"duties\": [\"党务管理\", \"村务决策\"],\n  \"certificationDoc\": \"/uploads/cert/appointment.pdf\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/village-committee/members",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "village-committee", "members"]
+            }
+          }
+        },
+        {
+          "name": "获取值班安排",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/village-committee/duty-schedule",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "village-committee", "duty-schedule"]
+            }
+          }
+        },
+        {
+          "name": "一键紧急呼叫",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"scheduleId\": \"duty_001\",\n  \"emergencyType\": \"fire\",\n  \"description\": \"村东头发生火灾\",\n  \"location\": {\n    \"latitude\": 39.9042,\n    \"longitude\": 116.4074,\n    \"address\": \"幸福村东头老王家\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/village-committee/emergency-call",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "village-committee", "emergency-call"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "村务治理",
+      "item": [
+        {
+          "name": "获取财务记录",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/village-finance/records?type=all&startDate=2024-01-01&endDate=2024-12-31",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "village-finance", "records"],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "all"
+                },
+                {
+                  "key": "startDate",
+                  "value": "2024-01-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2024-12-31"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "添加财务记录",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"expense\",\n  \"amount\": 5000,\n  \"category\": \"基础设施\",\n  \"description\": \"修建村道\",\n  \"date\": \"2024-01-15\",\n  \"vendor\": \"建设公司\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/village-finance/records",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "village-finance", "records"]
+            }
+          }
+        },
+        {
+          "name": "OCR票据识别",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/village-finance/ocr-receipt",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "village-finance", "ocr-receipt"]
+            }
+          }
+        },
+        {
+          "name": "获取村级项目列表",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/village-projects",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "village-projects"]
+            }
+          }
+        },
+        {
+          "name": "创建新项目",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"村民广场建设项目\",\n  \"description\": \"在村中心建设一个供村民休闲娱乐的广场\",\n  \"category\": \"基础设施\",\n  \"budget\": 500000,\n  \"expectedDuration\": 120,\n  \"managerId\": \"member_001\",\n  \"milestones\": [\n    {\n      \"name\": \"设计方案完成\",\n      \"plannedDate\": \"2024-03-01\"\n    },\n    {\n      \"name\": \"施工开始\",\n      \"plannedDate\": \"2024-04-01\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/village-projects",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "village-projects"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "信息公示",
+      "item": [
+        {
+          "name": "获取公告列表",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/announcements?category=notice&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "announcements"],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "notice"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "发布新公告",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"2024年春节活动安排通知\",\n  \"content\": \"各位村民：\\n\\n为丰富村民春节期间的文化生活，现安排如下活动：\\n1. 2月10日晚7点 村民联欢会\\n2. 2月12日上午 传统民俗表演\\n\\n请大家积极参与！\\n\\n村委会\\n2024年1月20日\",\n  \"category\": \"activity\",\n  \"priority\": \"normal\",\n  \"expiryDate\": \"2024-02-29T23:59:59.999Z\",\n  \"tags\": [\"春节\", \"活动\", \"通知\"],\n  \"targetAudience\": [\"all\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/announcements",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "announcements"]
+            }
+          }
+        },
+        {
+          "name": "获取公告详情",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/announcements/{{announcementId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "announcements", "{{announcementId}}"]
+            }
+          }
+        },
+        {
+          "name": "政策计算器",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"policyType\": \"farmland_protection\",\n  \"householdSize\": 4,\n  \"farmlandArea\": 2.5,\n  \"incomeLevel\": \"low\",\n  \"elderlyCount\": 1,\n  \"studentCount\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/policy-calculator",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "policy-calculator"]
+            }
+          }
+        }
+      ]
+    {
+      "name": "通知服务",
+      "item": [
+        {
+          "name": "通知服务健康检查",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/notifications/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "notifications", "health"]
+            }
+          }
+        },
+        {
+          "name": "获取API信息",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/notifications/info",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "notifications", "info"]
+            }
+          }
+        },
+        {
+          "name": "获取通知列表",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/notifications?status=unread&language=zh-CN",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "notifications"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "unread"
+                },
+                {
+                  "key": "language",
+                  "value": "zh-CN"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "发送通知",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"重要通知\",\n  \"content\": \"请所有村民注意防火安全\",\n  \"type\": \"system\",\n  \"priority\": \"high\",\n  \"targetUsers\": [\"user1\", \"user2\"],\n  \"languages\": [\"zh-CN\"],\n  \"voiceEnabled\": true,\n  \"dialectType\": \"mandarin\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/notifications",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "notifications"]
+            }
+          }
+        },
+        {
+          "name": "获取所有模板",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/notifications/templates",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "notifications", "templates"]
+            }
+          }
+        },
+        {
+          "name": "预览台风预警模板",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": {\n    \"village\": { \"name\": \"幸福村\" },\n    \"typhoon\": { \n      \"name\": \"海燕\",\n      \"arrivalTime\": \"今晚8点\"\n    },\n    \"contact\": { \"emergency\": \"110\" }\n  },\n  \"options\": {\n    \"dialect\": \"四川话\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/notifications/templates/emergency_typhoon/preview",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "notifications", "templates", "emergency_typhoon", "preview"]
+            }
+          }
+        },
+        {
+          "name": "紧急广播",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"紧急火灾预警\",\n  \"content\": \"村东头发生火灾，请村民立即疏散\",\n  \"level\": \"critical\",\n  \"targetArea\": \"村东头\",\n  \"voiceEnabled\": true,\n  \"dialectType\": \"mandarin\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/notifications/emergency-broadcast",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "notifications", "emergency-broadcast"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "生活服务",
+      "item": [
+        {
+          "name": "乡村商城",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/services/village-mall?category=produce",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "services", "village-mall"],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "produce"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "获取拼车信息",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/services/carpooling?origin=村口&destination=县城",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "services", "carpooling"],
+              "query": [
+                {
+                  "key": "origin",
+                  "value": "村口"
+                },
+                {
+                  "key": "destination",
+                  "value": "县城"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "发布拼车",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"origin\": \"村口\",\n  \"destination\": \"县城\",\n  \"departureTime\": \"2024-02-01T08:00:00.000Z\",\n  \"availableSeats\": 3,\n  \"price\": 20,\n  \"vehicleInfo\": \"白色五菱宏光\",\n  \"notes\": \"准时出发，不等人\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/services/carpooling",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "services", "carpooling"]
+            }
+          }
+        },
+        {
+          "name": "获取共享资源",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/services/resource-sharing?resourceType=water_pump&available=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "services", "resource-sharing"],
+              "query": [
+                {
+                  "key": "resourceType",
+                  "value": "water_pump"
+                },
+                {
+                  "key": "available",
+                  "value": "true"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "发布共享资源",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"高压水泵\",\n  \"type\": \"water_pump\",\n  \"description\": \"用于农田灌溉的高压水泵，功率5KW\",\n  \"location\": \"张三家院子\",\n  \"condition\": \"good\",\n  \"rentalPrice\": 50,\n  \"availabilitySchedule\": [\n    {\n      \"startTime\": \"2024-02-01T06:00:00.000Z\",\n      \"endTime\": \"2024-02-01T18:00:00.000Z\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/services/resource-sharing",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "services", "resource-sharing"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "安全审计",
+      "item": [
+        {
+          "name": "获取审计日志",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/audit/logs?level=info&startDate=2024-01-01T00:00:00.000Z",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "audit", "logs"],
+              "query": [
+                {
+                  "key": "level",
+                  "value": "info"
+                },
+                {
+                  "key": "startDate",
+                  "value": "2024-01-01T00:00:00.000Z"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "获取安全事件",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/audit/security-events?severity=high&status=open",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "audit", "security-events"],
+              "query": [
+                {
+                  "key": "severity",
+                  "value": "high"
+                },
+                {
+                  "key": "status",
+                  "value": "open"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "权限管理",
+      "item": [
+        {
+          "name": "获取权限模板",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/permissions/templates",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "permissions", "templates"]
+            }
+          }
+        },
+        {
+          "name": "创建权限模板",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"position\": \"村会计\",\n  \"permissions\": [\n    {\n      \"module\": \"finance\",\n      \"actions\": [\"read\", \"write\", \"approve\"]\n    },\n    {\n      \"module\": \"residents\",\n      \"actions\": [\"read\"]\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/permissions/templates",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "permissions", "templates"]
+            }
+          }
+        }
+      ]
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001",
+      "type": "string"
+    },
+    {
+      "key": "serverUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string",
+      "description": "JWT认证令牌，从登录接口获取"
+    },
+    {
+      "key": "residentId",
+      "value": "resident_001",
+      "type": "string"
+    },
+    {
+      "key": "announcementId",
+      "value": "announcement_001",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{authToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// 设置全局时间戳",
+          "pm.globals.set('timestamp', Date.now());"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// 全局测试脚本",
+          "pm.test('响应状态码正常', function () {",
+          "    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204, 400, 401, 403, 404]);",
+          "});",
+          "",
+          "pm.test('响应时间小于5秒', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+          "});",
+          "",
+          "// 如果是登录接口且成功，保存token",
+          "if (pm.request.url.path.includes('login') && pm.response.code === 200) {",
+          "    var responseJson = pm.response.json();",
+          "    if (responseJson.token) {",
+          "        pm.globals.set('authToken', responseJson.token);",
+          "    }",
+          "}"
+        ]
+      }
+    }
+  ]
+}

@@ -337,9 +337,9 @@ locationTrackingSchema.methods.updateLocation = function(newLocationData) {
         severity: 'high',
         description: `检测到异常位置移动，速度: ${speed.toFixed(2)}km/h`,
         data: {
-          distance: distance,
-          timeDiff: timeDiff,
-          speed: speed
+          distance,
+          timeDiff,
+          speed
         }
       });
     }

@@ -643,16 +643,16 @@ class TaskHandler {
     });
 
     switch (action) {
-      case 'notify_all_village_officials':
-        return await this.notifyVillageOfficials(emergencyData, 'all');
-      case 'notify_emergency_services':
-        return await this.notifyEmergencyServices(emergencyData);
-      case 'activate_emergency_broadcast':
-        return await this.activateEmergencyBroadcast(emergencyData);
-      case 'create_incident_report':
-        return await this.createIncidentReport(emergencyData);
-      default:
-        Logger.warn('未知的紧急响应动作', { action });
+    case 'notify_all_village_officials':
+      return await this.notifyVillageOfficials(emergencyData, 'all');
+    case 'notify_emergency_services':
+      return await this.notifyEmergencyServices(emergencyData);
+    case 'activate_emergency_broadcast':
+      return await this.activateEmergencyBroadcast(emergencyData);
+    case 'create_incident_report':
+      return await this.createIncidentReport(emergencyData);
+    default:
+      Logger.warn('未知的紧急响应动作', { action });
     }
   }
 

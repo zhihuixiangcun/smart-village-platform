@@ -583,7 +583,7 @@ class PolicyCalculatorController {
 
       // 统计本地政策数量
       const PolicyCalculator = require('../models/PolicyCalculator');
-const logger = require('../utils/logger');
+      const logger = require('../utils/logger');
       const totalCount = await PolicyCalculator.countDocuments();
       const syncCount = await PolicyCalculator.countDocuments({ updatedFrom: 'government_sync' });
 

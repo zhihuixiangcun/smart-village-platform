@@ -1,0 +1,78 @@
+{
+  "name": "aiops-service",
+  "version": "1.0.0",
+  "description": "智慧乡村平台智能运维(AIOps)服务 - 提供异常检测、预测性扩容、自动故障恢复和容量规划建议功能",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "keywords": ["smart-village", "aiops", "anomaly-detection", "predictive-scaling", "auto-healing", "capacity-planning"],
+  "author": "Smart Village Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^7.4.0",
+    "redis": "^4.6.7",
+    "node-cron": "^3.0.2",
+    "winston": "^3.10.0",
+    "dotenv": "^16.3.1",
+    "uuid": "^9.0.0",
+    "moment": "^2.29.4",
+    "lodash": "^4.17.21",
+    "crypto": "^1.0.1",
+    "node-fetch": "^3.3.2",
+    "pm2": "^5.3.0",
+    "simple-statistics": "^7.8.3",
+    "ml-regression": "^6.0.0",
+    "ml-kmeans": "^6.0.0",
+    "time-series": "^1.0.0",
+    "ml-stats": "^1.0.0",
+    "chart.js": "^4.4.0",
+    "chartjs-adapter-date-fns": "^3.0.0",
+    "date-fns": "^2.30.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "jest": "^29.6.1",
+    "supertest": "^6.3.3",
+    "eslint": "^8.45.0",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-n": "^16.0.1",
+    "eslint-plugin-promise": "^6.1.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "collectCoverageFrom": [
+      "**/*.js",
+      "!node_modules/**",
+      "!coverage/**",
+      "!jest.config.js"
+    ],
+    "coverageDirectory": "coverage",
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "html"
+    ]
+  },
+  "eslintConfig": {
+    "extends": "standard",
+    "env": {
+      "node": true,
+      "jest": true
+    },
+    "rules": {
+      "no-console": "off"
+    }
+  }
+}

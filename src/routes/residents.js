@@ -203,7 +203,7 @@ router.get('/stats/health',
   async (req, res) => {
     try {
       const Resident = require('../models/Resident');
-const logger = require('../utils/logger');
+      const logger = require('../utils/logger');
       const { villageId, startDate, endDate } = req.query;
 
       // 构建查询条件

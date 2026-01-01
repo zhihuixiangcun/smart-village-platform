@@ -341,7 +341,7 @@ class LLMClient {
   async callBaidu(messages, config, options) {
     const fetch = require('node-fetch');
     const crypto = require('crypto');
-const logger = require('../../utils/logger');
+    const logger = require('../../utils/logger');
 
     // Get access token
     const tokenResponse = await fetch('https://aip.baidubce.com/oauth/2.0/token', {

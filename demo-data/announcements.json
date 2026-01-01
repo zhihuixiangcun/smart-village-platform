@@ -1,0 +1,20 @@
+[
+  {
+    "id": "announce_001",
+    "title": "关于加强疫情防控的通知",
+    "content": "各位村民请注意，近期疫情防控形势严峻，请大家做好防护措施...",
+    "villageId": "village_001",
+    "author": "张三",
+    "timestamp": "2025-12-21T14:20:23.412Z",
+    "priority": "high"
+  },
+  {
+    "id": "announce_002",
+    "title": "春季农作物种植技术培训",
+    "content": "为提高农业生产效率，村委将组织春季农作物种植技术培训...",
+    "villageId": "village_002",
+    "author": "王五",
+    "timestamp": "2025-12-21T14:20:23.416Z",
+    "priority": "medium"
+  }
+]

@@ -87,7 +87,7 @@ class EmergencyBroadcastService {
         severity: emergency.severity,
         location: emergency.location,
         content: content || this.generateBroadcastContent(emergency),
-        voiceUrl: voiceUrl,
+        voiceUrl,
         channels,
         targetAreas,
         repeatCount,
@@ -177,20 +177,20 @@ class EmergencyBroadcastService {
   async broadcastToChannel(channel, broadcastData, targetAudience) {
     try {
       switch (channel) {
-        case 'sms':
-          return await this.broadcastSMS(broadcastData, targetAudience);
-        case 'phone':
-          return await this.broadcastPhone(broadcastData, targetAudience);
-        case 'wechat':
-          return await this.broadcastWechat(broadcastData, targetAudience);
-        case 'village_broadcast':
-          return await this.broadcastVillageSystem(broadcastData);
-        case 'outdoor_speakers':
-          return await this.broadcastOutdoorSpeakers(broadcastData);
-        case 'mobile_broadcast':
-          return await this.broadcastMobileVehicles(broadcastData);
-        default:
-          throw new Error(`不支持的广播渠道: ${channel}`);
+      case 'sms':
+        return await this.broadcastSMS(broadcastData, targetAudience);
+      case 'phone':
+        return await this.broadcastPhone(broadcastData, targetAudience);
+      case 'wechat':
+        return await this.broadcastWechat(broadcastData, targetAudience);
+      case 'village_broadcast':
+        return await this.broadcastVillageSystem(broadcastData);
+      case 'outdoor_speakers':
+        return await this.broadcastOutdoorSpeakers(broadcastData);
+      case 'mobile_broadcast':
+        return await this.broadcastMobileVehicles(broadcastData);
+      default:
+        throw new Error(`不支持的广播渠道: ${channel}`);
       }
     } catch (error) {
       logger.error(`${channel}广播失败:`, error);
@@ -373,7 +373,7 @@ class EmergencyBroadcastService {
       const Resident = require('../models/Resident');
       const Village = require('../models/Village');
 
-      let query = {
+      const query = {
         villageId: emergency.villageId,
         status: 'active'
       };

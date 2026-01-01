@@ -1,0 +1,469 @@
+# 智慧村庄平台生产环境 Docker Compose 配置
+# Smart Village Platform Production Docker Compose Configuration
+
+version: '3.8'
+
+services:
+  # API 服务 (主服务)
+  api-server:
+    image: ghcr.io/smart-village/api:${IMAGE_TAG:-latest}
+    container_name: smart-village-api
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      MONGO_URI: ${MONGO_URI}
+      REDIS_URL: ${REDIS_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      BOUNDARY_SECRET: ${BOUNDARY_SECRET}
+      LOG_LEVEL: info
+      MONITORING_ENABLED: true
+      METRICS_ENABLED: true
+    volumes:
+      - ./logs/api:/app/logs
+      - ./uploads:/app/uploads
+      - ./config/production.json:/app/config/production.json:ro
+    networks:
+      - smart-village-network
+    depends_on:
+      - mongodb
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+
+  # Village 服务 (核心业务服务)
+  village-server:
+    image: ghcr.io/smart-village/village:${IMAGE_TAG:-latest}
+    container_name: smart-village-core
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      MONGO_URI: ${MONGO_URI}
+      REDIS_URL: ${REDIS_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      SOCKET_IO_CORS_ORIGIN: ${CLIENT_URL:-https://smartvillage.com}
+      UPLOAD_PATH: /app/uploads
+      LOG_LEVEL: info
+    volumes:
+      - ./logs/village:/app/logs
+      - ./uploads:/app/uploads
+      - ./config/production.json:/app/config/production.json:ro
+    networks:
+      - smart-village-network
+    depends_on:
+      - mongodb
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1.5G
+        reservations:
+          cpus: '0.75'
+          memory: 768M
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+
+  # 客户端服务
+  client-server:
+    image: ghcr.io/smart-village/client:${IMAGE_TAG:-latest}
+    container_name: smart-village-client
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    environment:
+      NODE_ENV: production
+      VITE_API_URL: ${API_URL:-https://api.smartvillage.com}
+      VITE_SOCKET_URL: ${SOCKET_URL:-https://ws.smartvillage.com}
+      VITE_UPLOAD_URL: ${UPLOAD_URL:-https://upload.smartvillage.com}
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./logs/nginx:/var/log/nginx
+    networks:
+      - smart-village-network
+    depends_on:
+      - api-server
+      - village-server
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+      replicas: 2
+
+  # MongoDB 数据库
+  mongodb:
+    image: mongo:6.0
+    container_name: smart-village-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE:-smart_village}
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+      - ./mongodb/mongod.conf:/etc/mongod.conf:ro
+      - ./mongodb/init:/docker-entrypoint-initdb.d:ro
+      - ./backups:/backups
+    networks:
+      - smart-village-network
+    command: mongod --config /etc/mongod.conf
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.runCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+
+  # Redis 缓存
+  redis:
+    image: redis:7-alpine
+    container_name: smart-village-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+      - redis_config:/usr/local/etc/redis
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    networks:
+      - smart-village-network
+    command: redis-server /usr/local/etc/redis/redis.conf
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  # Elasticsearch 搜索引擎
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.0
+    container_name: smart-village-elasticsearch
+    restart: unless-stopped
+    ports:
+      - "9200:9200"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - cluster.name=smart-village
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+      - ./elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+    networks:
+      - smart-village-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+
+  # Prometheus 监控
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: smart-village-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/rules:/etc/prometheus/rules:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.enable-lifecycle'
+    networks:
+      - smart-village-network
+    depends_on:
+      - api-server
+      - village-server
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  # Grafana 可视化
+  grafana:
+    image: grafana/grafana:latest
+    container_name: smart-village-grafana
+    restart: unless-stopped
+    ports:
+      - "3002:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    networks:
+      - smart-village-network
+    depends_on:
+      - prometheus
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  # Nginx 反向代理
+  nginx-proxy:
+    image: nginx:alpine
+    container_name: smart-village-nginx-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx-proxy.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./logs/nginx-proxy:/var/log/nginx
+      - static_files:/var/www/static
+    networks:
+      - smart-village-network
+    depends_on:
+      - api-server
+      - village-server
+      - client-server
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+  # 监控日志收集
+  fluentd:
+    image: fluent/fluentd:v1.16-1
+    container_name: smart-village-fluentd
+    restart: unless-stopped
+    volumes:
+      - ./fluentd/fluent.conf:/fluentd/etc/fluent.conf:ro
+      - ./logs:/var/log
+    networks:
+      - smart-village-network
+    depends_on:
+      - elasticsearch
+    environment:
+      FLUENTD_CONF: fluent.conf
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  # 定时任务调度器
+  cron:
+    image: ghcr.io/smart-village/cron:${IMAGE_TAG:-latest}
+    container_name: smart-village-cron
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      MONGO_URI: ${MONGO_URI}
+      REDIS_URL: ${REDIS_URL}
+      CRON_SCHEDULE: "0 2 * * *"
+    volumes:
+      - ./logs/cron:/app/logs
+      - ./config/production.json:/app/config/production.json:ro
+      - ./backups:/backups
+    networks:
+      - smart-village-network
+    depends_on:
+      - mongodb
+      - redis
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  # 备份服务
+  backup:
+    image: ghcr.io/smart-village/backup:${IMAGE_TAG:-latest}
+    container_name: smart-village-backup
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      MONGO_URI: ${MONGO_URI}
+      S3_BUCKET: ${BACKUP_S3_BUCKET}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      BACKUP_SCHEDULE: "0 3 * * *"
+      RETENTION_DAYS: 30
+    volumes:
+      - ./logs/backup:/app/logs
+      - ./backups:/backups
+      - backup_storage:/backup-storage
+    networks:
+      - smart-village-network
+    depends_on:
+      - mongodb
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+# 数据卷
+volumes:
+  mongodb_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_PATH:-/data}/mongodb
+
+  mongodb_config:
+    driver: local
+
+  redis_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_PATH:-/data}/redis
+
+  redis_config:
+    driver: local
+
+  elasticsearch_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_PATH:-/data}/elasticsearch
+
+  prometheus_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_PATH:-/data}/prometheus
+
+  grafana_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_PATH:-/data}/grafana
+
+  static_files:
+    driver: local
+
+  backup_storage:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${BACKUP_PATH:-/data}/backups
+
+# 网络
+networks:
+  smart-village-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1

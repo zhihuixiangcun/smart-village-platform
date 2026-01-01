@@ -120,7 +120,7 @@ class ResidentService {
     } catch (error) {
       await session.abortTransaction();
       logger.error('创建村民档案失败:', error);
-      throw new Error('创建村民档案失败: ' + error.message);
+      throw new Error(`创建村民档案失败: ${  error.message}`);
     } finally {
       session.endSession();
     }
@@ -197,7 +197,7 @@ class ResidentService {
       return results;
     } catch (error) {
       logger.error('批量导入村民失败:', error);
-      throw new Error('批量导入失败: ' + error.message);
+      throw new Error(`批量导入失败: ${  error.message}`);
     }
   }
 
@@ -242,7 +242,7 @@ class ResidentService {
       return maskedData;
     } catch (error) {
       logger.error('获取村民信息失败:', error);
-      throw new Error('获取村民信息失败: ' + error.message);
+      throw new Error(`获取村民信息失败: ${  error.message}`);
     }
   }
 
@@ -316,7 +316,7 @@ class ResidentService {
     } catch (error) {
       await session.abortTransaction();
       logger.error('更新村民信息失败:', error);
-      throw new Error('更新村民信息失败: ' + error.message);
+      throw new Error(`更新村民信息失败: ${  error.message}`);
     } finally {
       session.endSession();
     }
@@ -357,7 +357,7 @@ class ResidentService {
       };
     } catch (error) {
       logger.error('获取家庭网络失败:', error);
-      throw new Error('获取家庭网络失败: ' + error.message);
+      throw new Error(`获取家庭网络失败: ${  error.message}`);
     }
   }
 
@@ -460,8 +460,8 @@ class ResidentService {
 
     // 判断查看者角色
     const role = viewer.userId === data._id.toString() ? 'self' :
-                 viewer.familyId === data.familyId?.toString() ? 'family' :
-                 viewer.role === 'village_official' ? 'admin' : 'other';
+      viewer.familyId === data.familyId?.toString() ? 'family' :
+        viewer.role === 'village_official' ? 'admin' : 'other';
 
     // 脱敏身份证号
     if (data.idCard) {

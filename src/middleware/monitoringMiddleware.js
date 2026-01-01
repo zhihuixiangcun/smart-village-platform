@@ -32,7 +32,7 @@ function apiPerformanceMonitor(req, res, next) {
       method: req.method,
       url: req.url,
       statusCode: res.statusCode,
-      responseTime: responseTime,
+      responseTime,
       contentLength: res.get('Content-Length') || 0
     });
 
@@ -41,7 +41,7 @@ function apiPerformanceMonitor(req, res, next) {
       performanceMonitoringService.triggerAlert('slow_api_request', {
         url: req.url,
         method: req.method,
-        responseTime: responseTime,
+        responseTime,
         threshold: MONITORING_CONFIG.application.responseTimeThreshold
       });
     }

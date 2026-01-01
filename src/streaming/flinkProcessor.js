@@ -549,20 +549,20 @@ public class ${pipeline.name}Job {
    */
   generateOperationCode(operation) {
     switch (operation.type) {
-      case 'filter':
-        return `stream = stream.filter(${operation.condition});`;
-      case 'map':
-        return `stream = stream.map(${operation.mapper});`;
-      case 'flatMap':
-        return `stream = stream.flatMap(${operation.mapper});`;
-      case 'keyBy':
-        return `KeyedStream<String, String> keyedStream = stream.keyBy(${operation.keySelector});`;
-      case 'window':
-        return `WindowedStream<String, String, TimeWindow> windowedStream = keyedStream.window(${operation.windowAssigner});`;
-      case 'aggregate':
-        return `stream = windowedStream.aggregate(${operation.aggregator});`;
-      default:
-        return `// 未知操作类型: ${operation.type}`;
+    case 'filter':
+      return `stream = stream.filter(${operation.condition});`;
+    case 'map':
+      return `stream = stream.map(${operation.mapper});`;
+    case 'flatMap':
+      return `stream = stream.flatMap(${operation.mapper});`;
+    case 'keyBy':
+      return `KeyedStream<String, String> keyedStream = stream.keyBy(${operation.keySelector});`;
+    case 'window':
+      return `WindowedStream<String, String, TimeWindow> windowedStream = keyedStream.window(${operation.windowAssigner});`;
+    case 'aggregate':
+      return `stream = windowedStream.aggregate(${operation.aggregator});`;
+    default:
+      return `// 未知操作类型: ${operation.type}`;
     }
   }
 

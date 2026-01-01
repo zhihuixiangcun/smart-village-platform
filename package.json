@@ -105,7 +105,8 @@
     "web3": "^4.16.0",
     "winston": "^3.17.0",
     "workbox-webpack-plugin": "^7.1.0",
-    "ws": "^8.18.3"
+    "ws": "^8.18.3",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "eslint": "^8.56.0",

@@ -243,7 +243,7 @@ router.get('/overview/:villageId', auth, async (req, res) => {
 router.post('/duty/call/:villageId', auth, async (req, res) => {
   try {
     const DutySchedule = require('../models/DutySchedule');
-const logger = require('../utils/logger');
+    const logger = require('../utils/logger');
     const { emergency = false, message = '' } = req.body;
 
     const currentDuty = await DutySchedule.getCurrentDutyByVillage(req.params.villageId);

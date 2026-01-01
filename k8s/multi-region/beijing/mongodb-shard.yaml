@@ -1,0 +1,463 @@
+# Beijing Region - MongoDB Sharded Cluster Deployment
+# 华北区 - MongoDB 分片集群部署
+#
+# Architecture:
+# - 3 Config Server Replica Set
+# - 3 Shard Replica Sets (each with 3 nodes)
+# - 2 Mongos Router instances
+#
+# Region: Beijing (cn-north-1)
+# Role: Primary (Write operations)
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongodb-config-server
+  namespace: smart-village
+  labels:
+    app: mongodb
+    component: config-server
+    region: beijing
+spec:
+  serviceName: mongodb-config-server
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mongodb
+      component: config-server
+  template:
+    metadata:
+      labels:
+        app: mongodb
+        component: config-server
+        region: beijing
+    spec:
+      containers:
+      - name: mongodb
+        image: mongo:6.0
+        command:
+        - mongod
+        - --configsvr
+        - --replSet
+        - config-server-rs
+        - --bind_ip_all
+        ports:
+        - containerPort: 27019
+          name: mongodb
+        volumeMounts:
+        - name: mongodb-data
+          mountPath: /data/db
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: smart-village-secrets
+              key: MONGO_USERNAME
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: smart-village-secrets
+              key: MONGO_PASSWORD
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+  volumeClaimTemplates:
+  - metadata:
+      name: mongodb-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: fast-ssd
+      resources:
+        requests:
+          storage: 50Gi
+
+---
+# MongoDB Shard 0 (Primary Data Shard)
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongodb-shard-0
+  namespace: smart-village
+  labels:
+    app: mongodb
+    component: shard-0
+    region: beijing
+spec:
+  serviceName: mongodb-shard-0
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mongodb
+      component: shard-0
+  template:
+    metadata:
+      labels:
+        app: mongodb
+        component: shard-0
+        region: beijing
+    spec:
+      containers:
+      - name: mongodb
+        image: mongo:6.0
+        command:
+        - mongod
+        - --shardsvr
+        - --replSet
+        - shard-0-rs
+        - --bind_ip_all
+        - --port
+        - "27018"
+        ports:
+        - containerPort: 27018
+          name: mongodb
+        volumeMounts:
+        - name: mongodb-data
+          mountPath: /data/db
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: smart-village-secrets
+              key: MONGO_USERNAME
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: smart-village-secrets
+              key: MONGO_PASSWORD
+        resources:
+          requests:
+            memory: "4Gi"
+            cpu: "2000m"
+          limits:
+            memory: "8Gi"
+            cpu: "4000m"
+  volumeClaimTemplates:
+  - metadata:
+      name: mongodb-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: fast-ssd
+      resources:
+        requests:
+          storage: 200Gi
+
+---
+# MongoDB Shard 1
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongodb-shard-1
+  namespace: smart-village
+  labels:
+    app: mongodb
+    component: shard-1
+    region: beijing
+spec:
+  serviceName: mongodb-shard-1
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mongodb
+      component: shard-1
+  template:
+    metadata:
+      labels:
+        app: mongodb
+        component: shard-1
+        region: beijing
+    spec:
+      containers:
+      - name: mongodb
+        image: mongo:6.0
+        command:
+        - mongod
+        - --shardsvr
+        - --replSet
+        - shard-1-rs
+        - --bind_ip_all
+        - --port
+        - "27018"
+        ports:
+        - containerPort: 27018
+          name: mongodb
+        volumeMounts:
+        - name: mongodb-data
+          mountPath: /data/db
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: smart-village-secrets
+              key: MONGO_USERNAME
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: smart-village-secrets
+              key: MONGO_PASSWORD
+        resources:
+          requests:
+            memory: "4Gi"
+            cpu: "2000m"
+          limits:
+            memory: "8Gi"
+            cpu: "4000m"
+  volumeClaimTemplates:
+  - metadata:
+      name: mongodb-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: fast-ssd
+      resources:
+        requests:
+          storage: 200Gi
+
+---
+# MongoDB Shard 2
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongodb-shard-2
+  namespace: smart-village
+  labels:
+    app: mongodb
+    component: shard-2
+    region: beijing
+spec:
+  serviceName: mongodb-shard-2
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mongodb
+      component: shard-2
+  template:
+    metadata:
+      labels:
+        app: mongodb
+        component: shard-2
+        region: beijing
+    spec:
+      containers:
+      - name: mongodb
+        image: mongo:6.0
+        command:
+        - mongod
+        - --shardsvr
+        - --replSet
+        - shard-2-rs
+        - --bind_ip_all
+        - --port
+        - "27018"
+        ports:
+        - containerPort: 27018
+          name: mongodb
+        volumeMounts:
+        - name: mongodb-data
+          mountPath: /data/db
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: smart-village-secrets
+              key: MONGO_USERNAME
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: smart-village-secrets
+              key: MONGO_PASSWORD
+        resources:
+          requests:
+            memory: "4Gi"
+            cpu: "2000m"
+          limits:
+            memory: "8Gi"
+            cpu: "4000m"
+  volumeClaimTemplates:
+  - metadata:
+      name: mongodb-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: fast-ssd
+      resources:
+        requests:
+          storage: 200Gi
+
+---
+# Mongos Router
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb-mongos
+  namespace: smart-village
+  labels:
+    app: mongodb
+    component: mongos
+    region: beijing
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: mongodb
+      component: mongos
+  template:
+    metadata:
+      labels:
+        app: mongodb
+        component: mongos
+        region: beijing
+    spec:
+      containers:
+      - name: mongos
+        image: mongo:6.0
+        command:
+        - mongos
+        - --configdb
+        - config-server-rs/mongodb-config-server-0.mongodb-config-server:27019,mongodb-config-server-1.mongodb-config-server:27019,mongodb-config-server-2.mongodb-config-server:27019
+        - --bind_ip_all
+        - --port
+        - "27017"
+        ports:
+        - containerPort: 27017
+          name: mongodb
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+
+---
+# MongoDB Shards Services
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-config-server
+  namespace: smart-village
+  labels:
+    app: mongodb
+    component: config-server
+spec:
+  clusterIP: None
+  ports:
+  - port: 27019
+    targetPort: 27019
+  selector:
+    app: mongodb
+    component: config-server
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-shard-0
+  namespace: smart-village
+  labels:
+    app: mongodb
+    component: shard-0
+spec:
+  clusterIP: None
+  ports:
+  - port: 27018
+    targetPort: 27018
+  selector:
+    app: mongodb
+    component: shard-0
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-shard-1
+  namespace: smart-village
+  labels:
+    app: mongodb
+    component: shard-1
+spec:
+  clusterIP: None
+  ports:
+  - port: 27018
+    targetPort: 27018
+  selector:
+    app: mongodb
+    component: shard-1
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-shard-2
+  namespace: smart-village
+  labels:
+    app: mongodb
+    component: shard-2
+spec:
+  clusterIP: None
+  ports:
+  - port: 27018
+    targetPort: 27018
+  selector:
+    app: mongodb
+    component: shard-2
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-mongos
+  namespace: smart-village
+  labels:
+    app: mongodb
+    component: mongos
+spec:
+  type: ClusterIP
+  ports:
+  - port: 27017
+    targetPort: 27017
+  selector:
+    app: mongodb
+    component: mongos
+
+---
+# MongoDB Pod Disruption Budget
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: mongodb-shard-0-pdb
+  namespace: smart-village
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: mongodb
+      component: shard-0
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: mongodb-shard-1-pdb
+  namespace: smart-village
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: mongodb
+      component: shard-1
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: mongodb-shard-2-pdb
+  namespace: smart-village
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: mongodb
+      component: shard-2

@@ -1,0 +1,122 @@
+# 智慧乡村综合服务平台 - 开发环境 Docker Compose
+version: "3.8"
+
+services:
+  # API 服务器
+  api-server:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api-server.v2
+      target: builder
+    container_name: smart-village-api-dev
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      MONGO_URI: mongodb://mongodb:27017/smart_village_dev
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: dev-secret-key
+    volumes:
+      - ./src:/app/src:delegated
+      - ./server:/app/server:delegated
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+    networks:
+      - smart-village-dev
+    depends_on:
+      - mongodb
+      - redis
+    command: npm run dev
+
+  # Village 服务器
+  village-server:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.village-server.v2
+      target: builder
+    container_name: smart-village-village-dev
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: development
+      PORT: 5000
+      MONGO_URI: mongodb://mongodb:27017/smart_village_dev
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    volumes:
+      - ./server:/app/server:delegated
+      - ./uploads:/app/uploads
+    networks:
+      - smart-village-dev
+    depends_on:
+      - mongodb
+      - redis
+    command: cd server && npm run dev
+
+  # 前端开发服务器
+  client:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend.v2
+      target: builder
+    container_name: smart-village-client-dev
+    ports:
+      - "3000:3000"
+    environment:
+      VITE_API_URL: http://localhost:3001
+      VITE_SOCKET_URL: http://localhost:5000
+    volumes:
+      - ./client:/app/client:delegated
+      - /app/client/node_modules
+    networks:
+      - smart-village-dev
+    command: cd client && npm run dev
+
+  # MongoDB
+  mongodb:
+    image: mongo:6.0
+    container_name: smart-village-mongodb-dev
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - mongodb_dev_data:/data/db
+    networks:
+      - smart-village-dev
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: smart-village-redis-dev
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_dev_data:/data
+    networks:
+      - smart-village-dev
+
+  # MongoDB Express
+  mongo-express:
+    image: mongo-express:latest
+    container_name: smart-village-mongo-express
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://admin:password@mongodb:27017/
+    networks:
+      - smart-village-dev
+    depends_on:
+      - mongodb
+
+volumes:
+  mongodb_dev_data:
+  redis_dev_data:
+
+networks:
+  smart-village-dev:
+    driver: bridge

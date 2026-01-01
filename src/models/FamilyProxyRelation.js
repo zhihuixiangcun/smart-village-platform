@@ -317,8 +317,8 @@ FamilyProxyRelationSchema.statics.findValidRelation = function(agentUserId, prin
 // 静态方法：获取用户的所有代理关系
 FamilyProxyRelationSchema.statics.getUserRelations = function(userId, role = 'both') {
   const query = role === 'agent' ? { agentUserId: userId } :
-               role === 'principal' ? { principalUserId: userId } :
-               { $or: [{ agentUserId: userId }, { principalUserId: userId }] };
+    role === 'principal' ? { principalUserId: userId } :
+      { $or: [{ agentUserId: userId }, { principalUserId: userId }] };
 
   return this.find(query)
     .populate('agentUserId principalUserId', 'name email phone')

@@ -3,12 +3,12 @@
  * 定义反馈管理的API端点
  */
 
-const express = require('express')
-const router = express.Router()
-const UserFeedbackController = require('../controllers/userFeedbackController')
+const express = require('express');
+const router = express.Router();
+const UserFeedbackController = require('../controllers/userFeedbackController');
 
 // 实例化控制器
-const feedbackController = new UserFeedbackController()
+const feedbackController = new UserFeedbackController();
 
 /**
  * @swagger
@@ -151,7 +151,7 @@ router.post(
   UserFeedbackController.uploadMiddleware(),
   UserFeedbackController.validateFeedbackSubmission,
   feedbackController.submitFeedback
-)
+);
 
 /**
  * @swagger
@@ -229,7 +229,7 @@ router.post(
  *       500:
  *         description: 服务器错误
  */
-router.get('/', feedbackController.getFeedbackList)
+router.get('/', feedbackController.getFeedbackList);
 
 /**
  * @swagger
@@ -259,7 +259,7 @@ router.get('/', feedbackController.getFeedbackList)
  *       500:
  *         description: 服务器错误
  */
-router.get('/categories/stats', feedbackController.getCategoryStats)
+router.get('/categories/stats', feedbackController.getCategoryStats);
 
 /**
  * @swagger
@@ -287,7 +287,7 @@ router.get('/categories/stats', feedbackController.getCategoryStats)
 router.get('/stats',
   UserFeedbackController.requirePermission('feedback:stats'),
   feedbackController.getFeedbackStats
-)
+);
 
 /**
  * @swagger
@@ -304,7 +304,7 @@ router.get('/stats',
 router.get('/analyze/trends',
   UserFeedbackController.requirePermission('feedback:analyze'),
   feedbackController.analyzeFeedbackTrends
-)
+);
 
 /**
  * @swagger
@@ -335,7 +335,7 @@ router.get('/analyze/trends',
 router.post('/recommend/improvements',
   UserFeedbackController.requirePermission('feedback:recommend'),
   feedbackController.recommendImprovements
-)
+);
 
 /**
  * @swagger
@@ -388,7 +388,7 @@ router.post('/recommend/improvements',
 router.get('/export',
   UserFeedbackController.validateExportPermission,
   feedbackController.exportFeedbackData
-)
+);
 
 /**
  * @swagger
@@ -429,7 +429,7 @@ router.get('/export',
 router.post('/batch',
   UserFeedbackController.validateProcessPermission,
   feedbackController.batchProcessFeedback
-)
+);
 
 /**
  * @swagger
@@ -463,7 +463,7 @@ router.post('/batch',
  *       500:
  *         description: 服务器错误
  */
-router.get('/:feedbackId', feedbackController.getFeedbackDetail)
+router.get('/:feedbackId', feedbackController.getFeedbackDetail);
 
 /**
  * @swagger
@@ -515,7 +515,7 @@ router.get('/:feedbackId', feedbackController.getFeedbackDetail)
 router.put('/:feedbackId',
   UserFeedbackController.validateProcessPermission,
   feedbackController.processFeedback
-)
+);
 
 /**
  * @swagger
@@ -555,7 +555,7 @@ router.put('/:feedbackId',
  *       500:
  *         description: 服务器错误
  */
-router.post('/:feedbackId/satisfaction', feedbackController.addSatisfactionRating)
+router.post('/:feedbackId/satisfaction', feedbackController.addSatisfactionRating);
 
 /**
  * @swagger
@@ -590,6 +590,6 @@ router.post('/:feedbackId/satisfaction', feedbackController.addSatisfactionRatin
  *       500:
  *         description: 服务器错误
  */
-router.get('/user/:userId', feedbackController.getUserFeedbackHistory)
+router.get('/user/:userId', feedbackController.getUserFeedbackHistory);
 
-module.exports = router
+module.exports = router;

@@ -5,13 +5,47 @@
 
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { User } = require('../models/User');
+const User = require('../models/User');
 const { FamilyRelation } = require('../models/FaceRecognition');
 const { AuditLog } = require('../models/Permission');
 const { generateTokens } = require('../middleware/auth');
 const logger = require('../utils/logger');
-const { AuditUtil } = require('../utils/audit');
+const AuditUtil = require('../utils/audit');
 const cloudCommunicationService = require('../services/cloudCommunicationService');
+
+// 辅助函数：获取默认权限
+function getDefaultPermissions(role) {
+  const permissions = {
+    admin: [
+      'user.read', 'user.write', 'user.delete',
+      'resident.read', 'resident.write', 'resident.delete',
+      'governance.read', 'governance.write', 'governance.delete',
+      'finance.read', 'finance.write', 'finance.delete',
+      'emergency.read', 'emergency.write', 'emergency.delete',
+      'ecommerce.read', 'ecommerce.write', 'ecommerce.delete',
+      'system.read', 'system.write'
+    ],
+    village_admin: [
+      'resident.read', 'resident.write',
+      'governance.read', 'governance.write',
+      'finance.read', 'finance.write',
+      'emergency.read', 'emergency.write',
+      'ecommerce.read', 'ecommerce.write'
+    ],
+    village_official: [
+      'resident.read',
+      'governance.read', 'governance.write',
+      'emergency.read', 'emergency.write'
+    ],
+    resident: [
+      'resident.read',
+      'governance.read',
+      'ecommerce.read'
+    ]
+  };
+
+  return permissions[role] || permissions.resident;
+}
 
 class AuthController {
   /**
@@ -63,7 +97,7 @@ class AuthController {
         villageId,
         email,
         status: 'active',
-        permissions: this.getDefaultPermissions(role),
+        permissions: getDefaultPermissions(role),
         createdAt: new Date(),
         updatedAt: new Date()
       });
@@ -80,29 +114,33 @@ class AuthController {
 
       const tokens = generateTokens(user, deviceInfo);
 
-      // 记录审计日志
-      await AuditUtil.logOperation('CREATE', 'user', {
-        userId: user._id,
-        username: user.username,
-        name: user.name,
-        role: user.role
-      }, {
-        target: {
-          id: user._id,
-          type: 'User',
-          name: username
-        },
-        result: 'SUCCESS',
-        details: {
-          description: `用户注册成功: ${username}`,
-          changes: {
-            before: null,
-            after: { username, name, role, status: 'active' }
-          }
-        },
-        riskLevel: 'MEDIUM',
-        sessionId: tokens.sessionId
-      });
+      // 记录审计日志（非阻塞）
+      try {
+        await AuditUtil.logOperation('CREATE', 'user', {
+          userId: user._id,
+          username: user.username,
+          name: user.name,
+          role: user.role
+        }, {
+          target: {
+            id: user._id,
+            type: 'User',
+            name: username
+          },
+          result: 'SUCCESS',
+          details: {
+            description: `用户注册成功: ${username}`,
+            changes: {
+              before: null,
+              after: { username, name, role, status: 'active' }
+            }
+          },
+          riskLevel: 'MEDIUM',
+          sessionId: tokens.sessionId
+        });
+      } catch (auditError) {
+        logger.warn('审计日志记录失败（不影响注册）:', auditError.message);
+      }
 
       logger.info(`用户注册成功: ${username}`);
 
@@ -221,26 +259,30 @@ class AuthController {
       user.loginCount = (user.loginCount || 0) + 1;
       await user.save();
 
-      // 记录审计日志
-      await AuditUtil.logOperation('LOGIN', 'user', {
-        userId: user._id,
-        username: user.username,
-        name: user.name,
-        role: user.role
-      }, {
-        target: {
-          id: user._id,
-          type: 'User',
-          name: username
-        },
-        result: 'SUCCESS',
-        details: {
-          description: `用户登录成功: ${username}`,
-          deviceInfo: fullDeviceInfo
-        },
-        riskLevel: 'LOW',
-        sessionId: tokens.sessionId
-      });
+      // 记录审计日志（非阻塞）
+      try {
+        await AuditUtil.logOperation('LOGIN', 'user', {
+          userId: user._id,
+          username: user.username,
+          name: user.name,
+          role: user.role
+        }, {
+          target: {
+            id: user._id,
+            type: 'User',
+            name: username
+          },
+          result: 'SUCCESS',
+          details: {
+            description: `用户登录成功: ${username}`,
+            deviceInfo: fullDeviceInfo
+          },
+          riskLevel: 'LOW',
+          sessionId: tokens.sessionId
+        });
+      } catch (auditError) {
+        logger.warn('审计日志记录失败（不影响登录）:', auditError.message);
+      }
 
       logger.info(`用户登录成功: ${username} from ${req.ip}`);
 
@@ -400,7 +442,7 @@ class AuthController {
             description: `用户登出: ${req.user.username}`
           },
           riskLevel: 'LOW',
-          sessionId: sessionId
+          sessionId
         });
       }
 
@@ -669,46 +711,6 @@ class AuthController {
         message: '服务器内部错误'
       });
     }
-  }
-
-  /**
-   * 辅助方法
-   */
-
-  /**
-   * 获取默认权限
-   */
-  getDefaultPermissions(role) {
-    const permissions = {
-      admin: [
-        'user.read', 'user.write', 'user.delete',
-        'resident.read', 'resident.write', 'resident.delete',
-        'governance.read', 'governance.write', 'governance.delete',
-        'finance.read', 'finance.write', 'finance.delete',
-        'emergency.read', 'emergency.write', 'emergency.delete',
-        'ecommerce.read', 'ecommerce.write', 'ecommerce.delete',
-        'system.read', 'system.write'
-      ],
-      village_admin: [
-        'resident.read', 'resident.write',
-        'governance.read', 'governance.write',
-        'finance.read', 'finance.write',
-        'emergency.read', 'emergency.write',
-        'ecommerce.read', 'ecommerce.write'
-      ],
-      village_official: [
-        'resident.read',
-        'governance.read', 'governance.write',
-        'emergency.read', 'emergency.write'
-      ],
-      resident: [
-        'resident.read',
-        'governance.read',
-        'ecommerce.read'
-      ]
-    };
-
-    return permissions[role] || permissions.resident;
   }
 
   /**
@@ -1106,7 +1108,7 @@ class AuthController {
         role,
         email,
         status: 'active',
-        permissions: this.getDefaultPermissions(role),
+        permissions: getDefaultPermissions(role),
         createdAt: new Date(),
         updatedAt: new Date()
       });

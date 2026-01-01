@@ -523,7 +523,7 @@ class IPWhitelistManager {
   pathMatches(path, pattern) {
     // 简单的通配符匹配
     const regex = new RegExp(
-      '^' + pattern.replace(/\*/g, '.*').replace(/\?/g, '.') + '$'
+      `^${  pattern.replace(/\*/g, '.*').replace(/\?/g, '.')  }$`
     );
     return regex.test(path);
   }
@@ -694,9 +694,9 @@ class IPWhitelistManager {
     return {
       ...this.stats,
       blockRate: this.stats.totalRequests > 0 ?
-        (this.stats.blockedRequests / this.stats.totalRequests * 100).toFixed(2) + '%' : '0%',
+        `${(this.stats.blockedRequests / this.stats.totalRequests * 100).toFixed(2)  }%` : '0%',
       cacheHitRate: (this.stats.cacheHits + this.stats.cacheMisses) > 0 ?
-        (this.stats.cacheHits / (this.stats.cacheHits + this.stats.cacheMisses) * 100).toFixed(2) + '%' : '0%',
+        `${(this.stats.cacheHits / (this.stats.cacheHits + this.stats.cacheMisses) * 100).toFixed(2)  }%` : '0%',
       cacheSize: this.ipCache.size,
       whitelistMode: this.config.defaultMode,
       totalWhitelistEntries: this.getTotalWhitelistEntries(),

@@ -479,20 +479,20 @@ class VillageMapService {
       let data = [];
 
       switch (dataType) {
-        case 'population':
-          data = await this.generatePopulationHeatmap(villageId, bounds);
-          break;
-        case 'emergency':
-          data = await this.generateEmergencyHeatmap(villageId, bounds);
-          break;
-        case 'activity':
-          data = await this.generateActivityHeatmap(villageId, bounds);
-          break;
-        case 'disaster':
-          data = await this.generateDisasterHeatmap(villageId, bounds);
-          break;
-        default:
-          throw new Error('不支持的热力图类型');
+      case 'population':
+        data = await this.generatePopulationHeatmap(villageId, bounds);
+        break;
+      case 'emergency':
+        data = await this.generateEmergencyHeatmap(villageId, bounds);
+        break;
+      case 'activity':
+        data = await this.generateActivityHeatmap(villageId, bounds);
+        break;
+      case 'disaster':
+        data = await this.generateDisasterHeatmap(villageId, bounds);
+        break;
+      default:
+        throw new Error('不支持的热力图类型');
       }
 
       return {
@@ -820,8 +820,8 @@ class VillageMapService {
           lat: warning.centerPoint.coordinates[1],
           lng: warning.centerPoint.coordinates[0],
           intensity: warning.severity === 'red' ? 1.0 :
-                    warning.severity === 'orange' ? 0.8 :
-                    warning.severity === 'yellow' ? 0.6 : 0.4
+            warning.severity === 'orange' ? 0.8 :
+              warning.severity === 'yellow' ? 0.6 : 0.4
         });
       }
     });

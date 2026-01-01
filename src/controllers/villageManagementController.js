@@ -9,7 +9,7 @@ const logger = require('../utils/logger');
 
 // 配置文件上传
 const storage = multer.diskStorage({
-  destination: async function (req, file, cb) {
+  async destination (req, file, cb) {
     const uploadDir = path.join(__dirname, '../uploads/documents', new Date().getFullYear().toString());
     try {
       await fs.mkdir(uploadDir, { recursive: true });
@@ -18,19 +18,19 @@ const storage = multer.diskStorage({
       cb(error);
     }
   },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+  filename (req, file, cb) {
+    const uniqueSuffix = `${Date.now()  }-${  Math.round(Math.random() * 1E9)}`;
     const ext = path.extname(file.originalname);
-    cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+    cb(null, `${file.fieldname  }-${  uniqueSuffix  }${ext}`);
   }
 });
 
 const upload = multer({
-  storage: storage,
+  storage,
   limits: {
     fileSize: 10 * 1024 * 1024 // 10MB
   },
-  fileFilter: function (req, file, cb) {
+  fileFilter (req, file, cb) {
     const allowedTypes = /jpeg|jpg|png|gif|pdf|doc|docx|xls|xlsx|ppt|pptx|txt|zip|rar/;
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
     const mimetype = allowedTypes.test(file.mimetype);

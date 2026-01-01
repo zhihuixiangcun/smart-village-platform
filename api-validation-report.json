@@ -1,0 +1,23 @@
+{
+  "timestamp": "2025-09-28T05:05:33.616Z",
+  "summary": {
+    "total": 349,
+    "matched": 10,
+    "missing": 34,
+    "extra": 504,
+    "warnings": 0
+  },
+  "successRate": 2.9,
+  "recommendations": [
+    {
+      "type": "implementation",
+      "message": "需要实现 34 个已文档化的API端点",
+      "priority": "high"
+    },
+    {
+      "type": "documentation",
+      "message": "需要为 504 个已实现的API端点添加文档",
+      "priority": "medium"
+    }
+  ]
+}

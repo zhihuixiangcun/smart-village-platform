@@ -28,8 +28,8 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['admin', 'village_admin', 'user', 'committee_member'],
-    default: 'user'
+    enum: ['admin', 'village_admin', 'village_official', 'resident'],
+    default: 'resident'
   },
   profile: {
     firstName: { type: String, trim: true },

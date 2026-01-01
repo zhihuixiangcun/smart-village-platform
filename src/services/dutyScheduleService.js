@@ -247,7 +247,7 @@ class DutyScheduleService {
       throw new Error('值班表不存在');
     }
 
-    const qrContent = 'smartvillage://duty/' + schedule.villageId + '/' + scheduleId;
+    const qrContent = `smartvillage://duty/${  schedule.villageId  }/${  scheduleId}`;
     
     // 生成二维码（需要qrcode库）
     try {
@@ -333,7 +333,7 @@ class DutyScheduleService {
             userPhone: user.phone,
             userRole: user.role,
             shiftId: shift._id,
-            date: date,
+            date,
             isPrimary: i === 0, // 第一个是主值班
             status: 'scheduled'
           });
@@ -392,7 +392,7 @@ class DutyScheduleService {
     } = options;
 
     // 过滤可用用户
-    let availableUsers = users.filter(user => {
+    const availableUsers = users.filter(user => {
       // 检查是否已在该日期分配
       const alreadyAssigned = existingAssignments.some(
         a => a.userId.toString() === user._id.toString() &&
@@ -445,7 +445,7 @@ class DutyScheduleService {
       const count = assignments.filter(a => a.shiftId.toString() === shiftId).length;
       result[shift.shiftName] = {
         total: count,
-        shiftId: shiftId
+        shiftId
       };
     }
 

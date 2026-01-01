@@ -122,20 +122,20 @@ class VoiceRecognitionService {
 
       // 根据提供商调用不同的识别服务
       switch (provider) {
-        case 'baidu':
-          result = await this.recognizeWithBaidu(audioData, language, format, sampleRate);
-          break;
-        case 'xunfei':
-          result = await this.recognizeWithXunfei(audioData, language, format, sampleRate);
-          break;
-        case 'tencent':
-          result = await this.recognizeWithTencent(audioData, language, format, sampleRate);
-          break;
-        case 'local':
-          result = await this.recognizeWithLocal(audioData, language, format, sampleRate);
-          break;
-        default:
-          throw new Error(`不支持的语音识别提供商: ${provider}`);
+      case 'baidu':
+        result = await this.recognizeWithBaidu(audioData, language, format, sampleRate);
+        break;
+      case 'xunfei':
+        result = await this.recognizeWithXunfei(audioData, language, format, sampleRate);
+        break;
+      case 'tencent':
+        result = await this.recognizeWithTencent(audioData, language, format, sampleRate);
+        break;
+      case 'local':
+        result = await this.recognizeWithLocal(audioData, language, format, sampleRate);
+        break;
+      default:
+        throw new Error(`不支持的语音识别提供商: ${provider}`);
       }
 
       // 如果需要提取个人信息
@@ -449,7 +449,7 @@ class VoiceRecognitionService {
    */
   buildXunfeiUrl() {
     const crypto = require('crypto');
-const logger = require('../utils/logger');
+    const logger = require('../utils/logger');
     const url = new URL(this.config.xunfei.endpoint);
 
     const date = new Date().toUTCString();

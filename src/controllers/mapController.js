@@ -604,7 +604,7 @@ exports.updateResidentLocation = async (req, res) => {
     }
 
     const Resident = require('../models/Resident');
-const logger = require('../utils/logger');
+    const logger = require('../utils/logger');
     const resident = await Resident.findById(residentId);
 
     if (!resident) {

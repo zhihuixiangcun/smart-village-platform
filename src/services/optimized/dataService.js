@@ -180,7 +180,7 @@ class OptimizedDataService extends EventEmitter {
     const cacheKey = 'village:stats:hot';
 
     // 检查缓存
-    let stats = await CacheUtil.get(cacheKey);
+    const stats = await CacheUtil.get(cacheKey);
     if (stats) return stats;
 
     const { Village } = require('../../models/Village');
@@ -216,7 +216,7 @@ class OptimizedDataService extends EventEmitter {
   async preloadRecentAnnouncements() {
     const cacheKey = 'announcements:recent:hot';
 
-    let announcements = await CacheUtil.get(cacheKey);
+    const announcements = await CacheUtil.get(cacheKey);
     if (announcements) return announcements;
 
     const { Announcement } = require('../../models/Announcement');
@@ -225,11 +225,11 @@ class OptimizedDataService extends EventEmitter {
       status: 'published',
       priority: { $in: ['high', 'urgent'] }
     })
-    .populate('villageId', 'name')
-    .populate('authorId', 'name')
-    .sort({ createdAt: -1 })
-    .limit(50)
-    .lean();
+      .populate('villageId', 'name')
+      .populate('authorId', 'name')
+      .sort({ createdAt: -1 })
+      .limit(50)
+      .lean();
 
     await CacheUtil.set(cacheKey, recentAnnouncements, 300); // 5分钟
 
@@ -242,7 +242,7 @@ class OptimizedDataService extends EventEmitter {
   async preloadEmergencyContacts() {
     const cacheKey = 'emergency:contacts:hot';
 
-    let contacts = await CacheUtil.get(cacheKey);
+    const contacts = await CacheUtil.get(cacheKey);
     if (contacts) return contacts;
 
     const { User } = require('../../models/User');
@@ -251,9 +251,9 @@ class OptimizedDataService extends EventEmitter {
       roles: { $in: ['admin', 'manager', 'emergency'] },
       status: 'active'
     })
-    .select('name phone email villageId roles')
-    .populate('villageId', 'name')
-    .lean();
+      .select('name phone email villageId roles')
+      .populate('villageId', 'name')
+      .lean();
 
     await CacheUtil.set(cacheKey, emergencyContacts, 1800); // 30分钟
 
@@ -266,7 +266,7 @@ class OptimizedDataService extends EventEmitter {
   async preloadServiceCategories() {
     const cacheKey = 'services:categories:hot';
 
-    let categories = await CacheUtil.get(cacheKey);
+    const categories = await CacheUtil.get(cacheKey);
     if (categories) return categories;
 
     // 服务分类数据
@@ -308,7 +308,7 @@ class OptimizedDataService extends EventEmitter {
   async preloadPopularResidents() {
     const cacheKey = 'residents:popular:hot';
 
-    let residents = await CacheUtil.get(cacheKey);
+    const residents = await CacheUtil.get(cacheKey);
     if (residents) return residents;
 
     const { Resident } = require('../../models/Resident');
@@ -318,11 +318,11 @@ class OptimizedDataService extends EventEmitter {
       status: 'active',
       lastLoginAt: { $exists: true }
     })
-    .populate('villageId', 'name')
-    .sort({ lastLoginAt: -1 })
-    .limit(100)
-    .select('name phone age villageId lastLoginAt')
-    .lean();
+      .populate('villageId', 'name')
+      .sort({ lastLoginAt: -1 })
+      .limit(100)
+      .select('name phone age villageId lastLoginAt')
+      .lean();
 
     await CacheUtil.set(cacheKey, popularResidents, 600); // 10分钟
 
@@ -507,7 +507,7 @@ class OptimizedDataService extends EventEmitter {
       report.accessStats[type] = {
         ...stats,
         cacheHitRate: stats.totalRequests > 0 ?
-          (stats.cacheHits / stats.totalRequests * 100).toFixed(2) + '%' : '0%'
+          `${(stats.cacheHits / stats.totalRequests * 100).toFixed(2)  }%` : '0%'
       };
     });
 

@@ -229,7 +229,7 @@ familySchema.pre('save', async function(next) {
     }
 
     // 加密成员身份证和电话
-    for (let member of this.members) {
+    for (const member of this.members) {
       if (member.idCard) {
         member.idCard = EncryptionUtil.encrypt(member.idCard);
       }
@@ -263,7 +263,7 @@ familySchema.post(['find', 'findOne'], async function(docs) {
     }
 
     // 解密成员信息
-    for (let member of doc.members) {
+    for (const member of doc.members) {
       if (member.idCard) {
         member.idCard = EncryptionUtil.decrypt(member.idCard);
       }
@@ -274,7 +274,7 @@ familySchema.post(['find', 'findOne'], async function(docs) {
   };
 
   if (Array.isArray(docs)) {
-    for (let doc of docs) {
+    for (const doc of docs) {
       await decryptDoc(doc);
     }
   } else {

@@ -473,7 +473,7 @@ class MessageConsumer {
         } catch (error) {
           queueInfo[name] = {
             error: error.message,
-            queue: queue
+            queue
           };
         }
       }

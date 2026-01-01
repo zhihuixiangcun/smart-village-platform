@@ -1,0 +1,135 @@
+{
+  "timestamp": "2025-12-18T15:46:02.449Z",
+  "testType": "Performance Monitor Validation",
+  "results": {
+    "systemMetrics": {
+      "success": true,
+      "message": "系统指标收集正常",
+      "details": {
+        "systemInfo": {
+          "platform": "win32",
+          "arch": "x64",
+          "nodeVersion": "v24.11.1",
+          "uptime": 56405.14,
+          "freeMemory": 692,
+          "totalMemory": 8094,
+          "cpus": 4
+        },
+        "memoryMetrics": {
+          "rss": 43,
+          "heapUsed": 4,
+          "heapTotal": 6,
+          "external": 2,
+          "arrayBuffers": 0
+        },
+        "cpuMetrics": {
+          "user": 0,
+          "system": 0,
+          "loadAverage": [
+            0,
+            0,
+            0
+          ],
+          "cpuCount": 4
+        },
+        "performanceAssessment": {
+          "memoryUsage": "66.67%",
+          "cpuLoad": "0.00%",
+          "memoryEfficiency": "good",
+          "cpuEfficiency": "good"
+        }
+      }
+    },
+    "serviceConfig": {
+      "success": true,
+      "message": "服务配置检查完成",
+      "details": {
+        "requiredFiles": {
+          "../src/services/performanceMonitor.js": {
+            "exists": true,
+            "size": 17262,
+            "lastModified": "2025-12-18T12:44:11.482Z"
+          },
+          "../src/config/database-optimized.js": {
+            "exists": true,
+            "size": 13735,
+            "lastModified": "2025-12-18T12:40:09.781Z"
+          },
+          "../src/services/cacheService.js": {
+            "exists": true,
+            "size": 17877,
+            "lastModified": "2025-12-18T12:38:04.846Z"
+          }
+        },
+        "configFiles": {
+          ".env": true,
+          "package.json": true,
+          "src/app.js": true
+        },
+        "environmentVariables": {
+          "NODE_ENV": "development",
+          "MONGO_URI": "✅",
+          "REDIS_HOST": "localhost",
+          "REDIS_PORT": "6379"
+        }
+      }
+    },
+    "monitoringSetup": {
+      "success": false,
+      "message": "监控设置验证失败: 无法加载性能监控服务: Cannot find module 'mongoose'\nRequire stack:\n- G:\\claude code\\src\\config\\database-optimized.js\n- G:\\claude code\\src\\services\\performanceMonitor.js\n- G:\\claude code\\scripts\\testPerformanceMonitor.js"
+    },
+    "baselineCreation": {
+      "success": true,
+      "message": "性能基线创建成功",
+      "details": {
+        "dataPoints": 10,
+        "statistics": {
+          "memory": {
+            "avg": 113.4,
+            "min": 56,
+            "max": 182
+          },
+          "cpu": {
+            "avg": 15.231669699211238,
+            "min": 0.19883802647852056,
+            "max": 41.30483913412057
+          },
+          "requestRate": {
+            "avg": 1039,
+            "min": 700,
+            "max": 1459
+          },
+          "errorRate": {
+            "avg": 2.8790542948399884,
+            "min": 0.6872495629664793,
+            "max": 4.757033650483738
+          },
+          "responseTime": {
+            "avg": 375,
+            "min": 104.4047829636631,
+            "max": 572.5564844610619
+          }
+        },
+        "savedTo": "./performance-baseline.json"
+      }
+    }
+  },
+  "summary": {
+    "totalTests": 4,
+    "successCount": 3,
+    "capabilityScore": 75
+  },
+  "environment": {
+    "nodeVersion": "v24.11.1",
+    "platform": "win32",
+    "arch": "x64",
+    "memory": {
+      "rss": 45883392,
+      "heapTotal": 6348800,
+      "heapUsed": 4950288,
+      "external": 1574350,
+      "arrayBuffers": 10551
+    },
+    "uptime": 0.6602565
+  }
+}

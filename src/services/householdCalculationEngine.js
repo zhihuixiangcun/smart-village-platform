@@ -50,7 +50,7 @@ class HouseholdCalculationEngine {
       customWeights = {}
     } = options;
 
-    let result = {
+    const result = {
       baseCount: 0,
       adjustedCount: 0,
       weightedCount: 0,
@@ -69,7 +69,7 @@ class HouseholdCalculationEngine {
         infants: 0
       },
       calculationDetails: {
-        method: method,
+        method,
         verifications: {},
         adjustments: [],
         confidence: 1.0
@@ -129,20 +129,20 @@ class HouseholdCalculationEngine {
     const { householdMembers, registeredHouseholdSize, actualHouseholdSize } = householdData;
 
     switch (method) {
-      case this.calculationMethods.REGISTERED:
-        return registeredHouseholdSize || (householdMembers ? householdMembers.length : 0);
+    case this.calculationMethods.REGISTERED:
+      return registeredHouseholdSize || (householdMembers ? householdMembers.length : 0);
 
-      case this.calculationMethods.ACTUAL:
-        return actualHouseholdSize || this.countActualResidents(householdMembers);
+    case this.calculationMethods.ACTUAL:
+      return actualHouseholdSize || this.countActualResidents(householdMembers);
 
-      case this.calculationMethods.MIXED:
-        return this.calculateMixedCount(householdData);
+    case this.calculationMethods.MIXED:
+      return this.calculateMixedCount(householdData);
 
-      case this.calculationMethods.DYNAMIC:
-        return this.calculateDynamicCount(householdData);
+    case this.calculationMethods.DYNAMIC:
+      return this.calculateDynamicCount(householdData);
 
-      default:
-        return registeredHouseholdSize || 0;
+    default:
+      return registeredHouseholdSize || 0;
     }
   }
 
@@ -337,14 +337,14 @@ class HouseholdCalculationEngine {
    */
   getVerificationRequirements(level) {
     switch (level) {
-      case 'basic':
-        return ['name', 'relationship'];
-      case 'detailed':
-        return ['name', 'idNumber', 'relationship', 'birthDate', 'gender'];
-      case 'strict':
-        return ['name', 'idNumber', 'relationship', 'birthDate', 'gender', 'address', 'phone'];
-      default:
-        return ['name', 'relationship'];
+    case 'basic':
+      return ['name', 'relationship'];
+    case 'detailed':
+      return ['name', 'idNumber', 'relationship', 'birthDate', 'gender'];
+    case 'strict':
+      return ['name', 'idNumber', 'relationship', 'birthDate', 'gender', 'address', 'phone'];
+    default:
+      return ['name', 'relationship'];
     }
   }
 
@@ -469,31 +469,31 @@ class HouseholdCalculationEngine {
 
     // 根据计算方法调整置信度
     switch (method) {
-      case this.calculationMethods.REGISTERED:
-        confidence *= 0.9;
-        break;
-      case this.calculationMethods.ACTUAL:
-        confidence *= 0.85;
-        break;
-      case this.calculationMethods.MIXED:
-        confidence *= 0.95;
-        break;
-      case this.calculationMethods.DYNAMIC:
-        confidence *= 0.8;
-        break;
+    case this.calculationMethods.REGISTERED:
+      confidence *= 0.9;
+      break;
+    case this.calculationMethods.ACTUAL:
+      confidence *= 0.85;
+      break;
+    case this.calculationMethods.MIXED:
+      confidence *= 0.95;
+      break;
+    case this.calculationMethods.DYNAMIC:
+      confidence *= 0.8;
+      break;
     }
 
     // 根据核实水平调整置信度
     switch (verificationLevel) {
-      case 'basic':
-        confidence *= 0.8;
-        break;
-      case 'detailed':
-        confidence *= 0.9;
-        break;
-      case 'strict':
-        confidence *= 0.95;
-        break;
+    case 'basic':
+      confidence *= 0.8;
+      break;
+    case 'detailed':
+      confidence *= 0.9;
+      break;
+    case 'strict':
+      confidence *= 0.95;
+      break;
     }
 
     // 根据数据完整性调整
@@ -527,18 +527,18 @@ class HouseholdCalculationEngine {
 
     // 计算方法说明
     switch (method) {
-      case this.calculationMethods.REGISTERED:
-        explanations.push(`采用户籍人口计算法，基础人口数：${result.baseCount}`);
-        break;
-      case this.calculationMethods.ACTUAL:
-        explanations.push(`采用实际居住人口计算法，基础人口数：${result.baseCount}`);
-        break;
-      case this.calculationMethods.MIXED:
-        explanations.push(`采用混合计算法，结合户籍和实际居住数据`);
-        break;
-      case this.calculationMethods.DYNAMIC:
-        explanations.push(`采用动态计算法，根据成员具体情况调整`);
-        break;
+    case this.calculationMethods.REGISTERED:
+      explanations.push(`采用户籍人口计算法，基础人口数：${result.baseCount}`);
+      break;
+    case this.calculationMethods.ACTUAL:
+      explanations.push(`采用实际居住人口计算法，基础人口数：${result.baseCount}`);
+      break;
+    case this.calculationMethods.MIXED:
+      explanations.push('采用混合计算法，结合户籍和实际居住数据');
+      break;
+    case this.calculationMethods.DYNAMIC:
+      explanations.push('采用动态计算法，根据成员具体情况调整');
+      break;
     }
 
     // 权重调整说明

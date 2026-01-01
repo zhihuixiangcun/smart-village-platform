@@ -290,8 +290,8 @@ documentCollectionSchema.statics.findOverdue = function() {
     deadline: { $lt: new Date() },
     status: { $nin: ['approved', 'archived', 'rejected'] }
   })
-  .populate('collector.userId', 'name phone email')
-  .sort({ deadline: 1 });
+    .populate('collector.userId', 'name phone email')
+    .sort({ deadline: 1 });
 };
 
 documentCollectionSchema.statics.search = function(searchTerm, filters = {}) {

@@ -40,7 +40,10 @@ const {
   getTransactionDetails,
   submitFinanceQuestion,
   downloadFinanceReport,
-  getFinanceAccessStats
+  getFinanceAccessStats,
+
+  // Multer中间件
+  upload
 } = require('../controllers/financeController');
 
 const { authenticateToken } = require('../middleware/auth');
@@ -160,6 +163,7 @@ router.post('/ocr/recognize',
     action: 'RECOGNIZE_INVOICE'
   }, { sensitiveLevel: 'internal' }),
   requirePermission('invoice', 'ocr'),
+  upload.single('invoice'),
   recognizeInvoice
 );
 
@@ -170,6 +174,7 @@ router.post('/ocr/batch-recognize',
     action: 'BATCH_RECOGNIZE'
   }, { sensitiveLevel: 'internal' }),
   requirePermission('invoice', 'ocr'),
+  upload.array('invoices', 10),
   batchRecognizeInvoices
 );
 
@@ -639,7 +644,7 @@ async function checkFinanceModuleHealth() {
 
     // 检查区块链服务
     const blockchainService = require('../services/blockchainService');
-const logger = require('../utils/logger');
+    const logger = require('../utils/logger');
     const blockchainNetworks = Object.keys(blockchainService.networks);
     checks.push({
       name: '区块链服务',

@@ -4,14 +4,14 @@
  * 提供语音转文字、文字转语音、方言检测等功能
  */
 
-const crypto = require('crypto')
-const WebSocket = require('ws')
-const EventEmitter = require('events')
-const logger = require('../config/logger')
+const crypto = require('crypto');
+const WebSocket = require('ws');
+const EventEmitter = require('events');
+const logger = require('../config/logger');
 
 class DialectSpeechService extends EventEmitter {
   constructor() {
-    super()
+    super();
 
     // 科大讯飞API配置
     this.config = {
@@ -21,7 +21,7 @@ class DialectSpeechService extends EventEmitter {
       wsUrl: 'wss://iat-api.xfyun.cn/v2/iat',
       ttsUrl: 'wss://tts-api.xfyun.cn/v2/tts',
       hostUrl: 'iat-api.xfyun.cn'
-    }
+    };
 
     // 支持的方言配置
     this.dialects = {
@@ -54,7 +54,7 @@ class DialectSpeechService extends EventEmitter {
       mongolian: { code: 'mn_cn', name: '蒙古语', region: 'mongolia' },
       uyghur: { code: 'ug_cn', name: '维吾尔语', region: 'xinjiang' },
       kazakh: { code: 'kk_cn', name: '哈萨克语', region: 'xinjiang' }
-    }
+    };
 
     // 语音合成配置
     this.ttsVoices = {
@@ -87,12 +87,12 @@ class DialectSpeechService extends EventEmitter {
         volume: 50,
         emotion: 'happy'
       }
-    }
+    };
 
     // 当前会话状态
-    this.currentSession = null
-    this.isRecording = false
-    this.isProcessing = false
+    this.currentSession = null;
+    this.isRecording = false;
+    this.isProcessing = false;
 
     // 音频处理配置
     this.audioConfig = {
@@ -102,17 +102,17 @@ class DialectSpeechService extends EventEmitter {
       frameSize: 1280,
       silenceThreshold: 0.01,
       silenceTimeout: 2000
-    }
+    };
 
     // 缓存和统计
-    this.cache = new Map()
+    this.cache = new Map();
     this.stats = {
       totalRecognitions: 0,
       successfulRecognitions: 0,
       totalSyntheses: 0,
       successfulSyntheses: 0,
       dialectDistribution: {}
-    }
+    };
   }
 
   /**
@@ -122,25 +122,25 @@ class DialectSpeechService extends EventEmitter {
    * @returns {string} 带鉴权的URL
    */
   generateAuthUrl(url, method = 'GET') {
-    const urlObj = new URL(url)
-    const { host, pathname, search } = urlObj
+    const urlObj = new URL(url);
+    const { host, pathname, search } = urlObj;
 
     // 生成日期
-    const date = new Date().toUTCString()
+    const date = new Date().toUTCString();
 
     // 生成签名字符串
-    const signatureOrigin = `${method}\n${pathname}${search}\nhost: ${host}\ndate: ${date}\n`
+    const signatureOrigin = `${method}\n${pathname}${search}\nhost: ${host}\ndate: ${date}\n`;
     const signatureSha = crypto
       .createHmac('sha256', this.config.apiSecret)
       .update(signatureOrigin)
-      .digest('base64')
+      .digest('base64');
 
     // 生成authorization
-    const authorizationOrigin = `api_key="${this.config.apiKey}", algorithm="hmac-sha256", headers="host date request-line", signature="${signatureSha}"`
-    const authorization = Buffer.from(authorizationOrigin).toString('base64')
+    const authorizationOrigin = `api_key="${this.config.apiKey}", algorithm="hmac-sha256", headers="host date request-line", signature="${signatureSha}"`;
+    const authorization = Buffer.from(authorizationOrigin).toString('base64');
 
     // 组装最终URL
-    return `${url}?authorization=${authorization}&date=${encodeURIComponent(date)}&host=${host}`
+    return `${url}?authorization=${authorization}&date=${encodeURIComponent(date)}&host=${host}`;
   }
 
   /**
@@ -150,10 +150,10 @@ class DialectSpeechService extends EventEmitter {
    */
   async detectDialect(audioData) {
     try {
-      const url = this.generateAuthUrl(`${this.config.wsUrl}/detect`)
+      const url = this.generateAuthUrl(`${this.config.wsUrl}/detect`);
 
       const response = await new Promise((resolve, reject) => {
-        const ws = new WebSocket(url)
+        const ws = new WebSocket(url);
 
         ws.on('open', () => {
           const params = {
@@ -173,33 +173,33 @@ class DialectSpeechService extends EventEmitter {
               data_type: 1,
               data: audioData.toString('base64')
             }
-          }
-          ws.send(JSON.stringify(params))
-        })
+          };
+          ws.send(JSON.stringify(params));
+        });
 
         ws.on('message', (data) => {
-          const result = JSON.parse(data.toString())
+          const result = JSON.parse(data.toString());
           if (result.code === 0) {
-            resolve(result)
+            resolve(result);
           } else {
-            reject(new Error(result.message || '方言检测失败'))
+            reject(new Error(result.message || '方言检测失败'));
           }
-        })
+        });
 
-        ws.on('error', reject)
+        ws.on('error', reject);
         ws.on('close', () => {
           if (ws.readyState === WebSocket.OPEN) {
-            ws.close()
+            ws.close();
           }
-        })
-      })
+        });
+      });
 
-      const detectedDialect = this.mapDialectFromResponse(response)
+      const detectedDialect = this.mapDialectFromResponse(response);
 
       // 更新统计
       if (detectedDialect) {
         this.stats.dialectDistribution[detectedDialect] =
-          (this.stats.dialectDistribution[detectedDialect] || 0) + 1
+          (this.stats.dialectDistribution[detectedDialect] || 0) + 1;
       }
 
       return {
@@ -207,16 +207,16 @@ class DialectSpeechService extends EventEmitter {
         dialect: detectedDialect,
         confidence: response.confidence || 0,
         alternatives: response.ws || []
-      }
+      };
 
     } catch (error) {
-      logger.error('方言检测失败:', error)
+      logger.error('方言检测失败:', error);
       return {
         success: false,
         error: error.message,
         dialect: 'mandarin', // 默认返回普通话
         confidence: 0
-      }
+      };
     }
   }
 
@@ -234,34 +234,34 @@ class DialectSpeechService extends EventEmitter {
         domain = 'iat',
         proficiency = 1,
         useCache = true
-      } = options
+      } = options;
 
       // 缓存检查
-      const cacheKey = this.generateCacheKey(audioData, { dialect, accent, domain })
+      const cacheKey = this.generateCacheKey(audioData, { dialect, accent, domain });
       if (useCache && this.cache.has(cacheKey)) {
-        return this.cache.get(cacheKey)
+        return this.cache.get(cacheKey);
       }
 
-      this.isProcessing = true
-      this.stats.totalRecognitions++
+      this.isProcessing = true;
+      this.stats.totalRecognitions++;
 
       // 检测方言（如果指定为自动检测）
-      let detectedDialect = dialect
+      let detectedDialect = dialect;
       if (dialect === 'auto') {
-        const detection = await this.detectDialect(audioData)
-        detectedDialect = detection.success ? detection.dialect : 'mandarin'
+        const detection = await this.detectDialect(audioData);
+        detectedDialect = detection.success ? detection.dialect : 'mandarin';
       }
 
       // 获取方言配置
-      const dialectConfig = this.dialects[detectedDialect] || this.dialects.mandarian
+      const dialectConfig = this.dialects[detectedDialect] || this.dialects.mandarian;
 
       // 进行语音识别
-      const url = this.generateAuthUrl(this.config.wsUrl)
+      const url = this.generateAuthUrl(this.config.wsUrl);
 
       const result = await new Promise((resolve, reject) => {
-        const ws = new WebSocket(url)
-        let recognizedText = ''
-        let isEnd = false
+        const ws = new WebSocket(url);
+        let recognizedText = '';
+        let isEnd = false;
 
         ws.on('open', () => {
           // 发送识别参数
@@ -273,8 +273,8 @@ class DialectSpeechService extends EventEmitter {
               language: dialectConfig.code,
               dialect: dialectConfig.region || 'mainland',
               accent: accent || dialectConfig.accent,
-              domain: domain,
-              proficiency: proficiency,
+              domain,
+              proficiency,
               vad_eos: 3000,
               speech_timeout: 10000,
               punctuation: 1,
@@ -288,38 +288,38 @@ class DialectSpeechService extends EventEmitter {
               data_type: 1,
               data: audioData.toString('base64')
             }
-          }
-          ws.send(JSON.stringify(params))
-        })
+          };
+          ws.send(JSON.stringify(params));
+        });
 
         ws.on('message', (data) => {
-          const response = JSON.parse(data.toString())
+          const response = JSON.parse(data.toString());
 
           if (response.code === 0) {
             if (response.ws && response.ws.length > 0) {
               response.ws.forEach(wsItem => {
                 if (wsItem.cw && wsItem.cw.length > 0) {
-                  recognizedText += wsItem.cw.map(cw => cw.w).join('')
+                  recognizedText += wsItem.cw.map(cw => cw.w).join('');
                 }
-              })
+              });
             }
 
             if (response.data && response.data.status === 2) {
-              isEnd = true
-              ws.close()
+              isEnd = true;
+              ws.close();
             }
           } else {
-            reject(new Error(response.message || '语音识别失败'))
+            reject(new Error(response.message || '语音识别失败'));
           }
-        })
+        });
 
-        ws.on('error', reject)
+        ws.on('error', reject);
         ws.on('close', () => {
           if (!isEnd) {
-            reject(new Error('连接意外关闭'))
+            reject(new Error('连接意外关闭'));
           }
-        })
-      })
+        });
+      });
 
       const response = {
         success: true,
@@ -328,41 +328,41 @@ class DialectSpeechService extends EventEmitter {
         confidence: this.calculateConfidence(result),
         processingTime: Date.now() - this.startTime,
         audioLength: audioData.length / (this.audioConfig.sampleRate * 2)
-      }
+      };
 
       // 缓存结果
       if (useCache) {
-        this.cache.set(cacheKey, response)
+        this.cache.set(cacheKey, response);
 
         // 限制缓存大小
         if (this.cache.size > 1000) {
-          const firstKey = this.cache.keys().next().value
-          this.cache.delete(firstKey)
+          const firstKey = this.cache.keys().next().value;
+          this.cache.delete(firstKey);
         }
       }
 
-      this.stats.successfulRecognitions++
-      this.isProcessing = false
+      this.stats.successfulRecognitions++;
+      this.isProcessing = false;
 
       // 发出事件
-      this.emit('recognition-complete', response)
+      this.emit('recognition-complete', response);
 
-      return response
+      return response;
 
     } catch (error) {
-      logger.error('语音识别失败:', error)
-      this.isProcessing = false
+      logger.error('语音识别失败:', error);
+      this.isProcessing = false;
 
       const response = {
         success: false,
         error: error.message,
         text: '',
-        dialect: dialect,
+        dialect,
         confidence: 0
-      }
+      };
 
-      this.emit('recognition-error', response)
-      return response
+      this.emit('recognition-error', response);
+      return response;
     }
   }
 
@@ -381,18 +381,18 @@ class DialectSpeechService extends EventEmitter {
         volume = 50,
         emotion = 'neutral',
         format = 'mp3'
-      } = options
+      } = options;
 
-      this.stats.totalSyntheses++
+      this.stats.totalSyntheses++;
 
       // 获取语音配置
-      const voiceConfig = { ...this.ttsVoices[voice], options }
+      const voiceConfig = { ...this.ttsVoices[voice], options };
 
-      const url = this.generateAuthUrl(this.config.ttsUrl)
+      const url = this.generateAuthUrl(this.config.ttsUrl);
 
       const audioBuffer = await new Promise((resolve, reject) => {
-        const ws = new WebSocket(url)
-        let audioData = Buffer.alloc(0)
+        const ws = new WebSocket(url);
+        let audioData = Buffer.alloc(0);
 
         ws.on('open', () => {
           const params = {
@@ -414,44 +414,44 @@ class DialectSpeechService extends EventEmitter {
               status: 2,
               text: Buffer.from(text, 'utf8').toString('base64')
             }
-          }
-          ws.send(JSON.stringify(params))
-        })
+          };
+          ws.send(JSON.stringify(params));
+        });
 
         ws.on('message', (data) => {
-          const response = JSON.parse(data.toString())
+          const response = JSON.parse(data.toString());
 
           if (response.code === 0) {
             if (response.data && response.data.audio) {
-              const audioChunk = Buffer.from(response.data.audio, 'base64')
-              audioData = Buffer.concat([audioData, audioChunk])
+              const audioChunk = Buffer.from(response.data.audio, 'base64');
+              audioData = Buffer.concat([audioData, audioChunk]);
             }
 
             if (response.data && response.data.status === 2) {
-              ws.close()
+              ws.close();
             }
           } else {
-            reject(new Error(response.message || '语音合成失败'))
+            reject(new Error(response.message || '语音合成失败'));
           }
-        })
+        });
 
-        ws.on('error', reject)
+        ws.on('error', reject);
         ws.on('close', () => {
-          resolve(audioData)
-        })
-      })
+          resolve(audioData);
+        });
+      });
 
-      this.stats.successfulSyntheses++
+      this.stats.successfulSyntheses++;
 
       // 发出事件
-      this.emit('synthesis-complete', { text, audioData: audioBuffer, voice })
+      this.emit('synthesis-complete', { text, audioData: audioBuffer, voice });
 
-      return audioBuffer
+      return audioBuffer;
 
     } catch (error) {
-      logger.error('语音合成失败:', error)
-      this.emit('synthesis-error', { text, error: error.message })
-      throw error
+      logger.error('语音合成失败:', error);
+      this.emit('synthesis-error', { text, error: error.message });
+      throw error;
     }
   }
 
@@ -462,26 +462,26 @@ class DialectSpeechService extends EventEmitter {
    */
   startRealTimeRecognition(options = {}) {
     if (this.currentSession) {
-      throw new Error('已有进行中的识别会话')
+      throw new Error('已有进行中的识别会话');
     }
 
     const {
       dialect = 'mandarin',
       interimResults = true,
       silenceTimeout = 2000
-    } = options
+    } = options;
 
-    this.isRecording = true
-    this.currentSession = new EventEmitter()
+    this.isRecording = true;
+    this.currentSession = new EventEmitter();
 
     // 启动WebSocket连接
-    const url = this.generateAuthUrl(this.config.wsUrl)
-    const ws = new WebSocket(url)
-    let silenceTimer = null
-    let partialText = ''
+    const url = this.generateAuthUrl(this.config.wsUrl);
+    const ws = new WebSocket(url);
+    let silenceTimer = null;
+    let partialText = '';
 
     ws.on('open', () => {
-      const dialectConfig = this.dialects[dialect] || this.dialects.mandarin
+      const dialectConfig = this.dialects[dialect] || this.dialects.mandarin;
 
       const params = {
         common: {
@@ -496,64 +496,64 @@ class DialectSpeechService extends EventEmitter {
           punctuation: 1,
           result_type: 'plain'
         }
-      }
-      ws.send(JSON.stringify(params))
+      };
+      ws.send(JSON.stringify(params));
 
-      this.currentSession.emit('start', { dialect, ws })
-    })
+      this.currentSession.emit('start', { dialect, ws });
+    });
 
     ws.on('message', (data) => {
-      const response = JSON.parse(data.toString())
+      const response = JSON.parse(data.toString());
 
       if (response.code === 0) {
         if (response.ws && response.ws.length > 0) {
-          let segmentText = ''
+          let segmentText = '';
           response.ws.forEach(wsItem => {
             if (wsItem.cw && wsItem.cw.length > 0) {
-              segmentText += wsItem.cw.map(cw => cw.w).join('')
+              segmentText += wsItem.cw.map(cw => cw.w).join('');
             }
-          })
+          });
 
           if (interimResults && response.snf !== undefined && response.snf !== 0) {
             // 临时结果
             this.currentSession.emit('interim-result', {
               text: partialText + segmentText,
               isFinal: false
-            })
+            });
           } else {
             // 最终结果
-            partialText += segmentText
+            partialText += segmentText;
             this.currentSession.emit('final-result', {
               text: partialText,
               isFinal: true
-            })
+            });
           }
         }
 
         // 重置静音检测
         if (silenceTimer) {
-          clearTimeout(silenceTimer)
+          clearTimeout(silenceTimer);
         }
         silenceTimer = setTimeout(() => {
-          this.stopRealTimeRecognition()
-        }, silenceTimeout)
+          this.stopRealTimeRecognition();
+        }, silenceTimeout);
       } else {
-        this.currentSession.emit('error', new Error(response.message))
+        this.currentSession.emit('error', new Error(response.message));
       }
-    })
+    });
 
     ws.on('error', (error) => {
-      this.currentSession.emit('error', error)
-    })
+      this.currentSession.emit('error', error);
+    });
 
     ws.on('close', () => {
       if (silenceTimer) {
-        clearTimeout(silenceTimer)
+        clearTimeout(silenceTimer);
       }
       if (this.isRecording) {
-        this.currentSession.emit('end')
+        this.currentSession.emit('end');
       }
-    })
+    });
 
     // 提供发送音频数据的方法
     this.currentSession.sendAudio = (audioData) => {
@@ -567,12 +567,12 @@ class DialectSpeechService extends EventEmitter {
             data_type: 1,
             data: audioData.toString('base64')
           }
-        }
-        ws.send(JSON.stringify(params))
+        };
+        ws.send(JSON.stringify(params));
       }
-    }
+    };
 
-    return this.currentSession
+    return this.currentSession;
   }
 
   /**
@@ -580,10 +580,10 @@ class DialectSpeechService extends EventEmitter {
    */
   stopRealTimeRecognition() {
     if (this.currentSession && this.isRecording) {
-      this.isRecording = false
+      this.isRecording = false;
 
       // 发送结束标记
-      const ws = this.currentSession.ws
+      const ws = this.currentSession.ws;
       if (ws && ws.readyState === WebSocket.OPEN) {
         const params = {
           data: {
@@ -594,12 +594,12 @@ class DialectSpeechService extends EventEmitter {
             data_type: 1,
             data: ''
           }
-        }
-        ws.send(JSON.stringify(params))
+        };
+        ws.send(JSON.stringify(params));
       }
 
-      this.currentSession.emit('end')
-      this.currentSession = null
+      this.currentSession.emit('end');
+      this.currentSession = null;
     }
   }
 
@@ -614,17 +614,17 @@ class DialectSpeechService extends EventEmitter {
     try {
       // 这里可以集成翻译API或使用预定义的方言词典
       // 简化实现，返回原文
-      logger.info(`方言翻译: ${fromDialect} -> ${toDialect}`, { text })
+      logger.info(`方言翻译: ${fromDialect} -> ${toDialect}`, { text });
 
       // 实际实现中可以：
       // 1. 使用本地方言词典
       // 2. 调用翻译API
       // 3. 使用大语言模型进行方言转换
 
-      return text
+      return text;
     } catch (error) {
-      logger.error('方言翻译失败:', error)
-      return text
+      logger.error('方言翻译失败:', error);
+      return text;
     }
   }
 
@@ -639,7 +639,7 @@ class DialectSpeechService extends EventEmitter {
       code: value.code,
       region: value.region,
       accent: value.accent
-    }))
+    }));
   }
 
   /**
@@ -650,12 +650,12 @@ class DialectSpeechService extends EventEmitter {
     return {
       ...this.stats,
       successRate: this.stats.totalRecognitions > 0
-        ? (this.stats.successfulRecognitions / this.stats.totalRecognitions * 100).toFixed(2) + '%'
+        ? `${(this.stats.successfulRecognitions / this.stats.totalRecognitions * 100).toFixed(2)  }%`
         : '0%',
       cacheSize: this.cache.size,
       isRecording: this.isRecording,
       isProcessing: this.isProcessing
-    }
+    };
   }
 
   /**
@@ -668,14 +668,14 @@ class DialectSpeechService extends EventEmitter {
     const audioHash = crypto
       .createHash('md5')
       .update(audioData)
-      .digest('hex')
+      .digest('hex');
 
     const optionsHash = crypto
       .createHash('md5')
       .update(JSON.stringify(options))
-      .digest('hex')
+      .digest('hex');
 
-    return `${audioHash}_${optionsHash}`
+    return `${audioHash}_${optionsHash}`;
   }
 
   /**
@@ -686,15 +686,15 @@ class DialectSpeechService extends EventEmitter {
   mapDialectFromResponse(response) {
     // 根据API响应映射到方言键
     if (response.language === 'zh_cn') {
-      if (response.dialect === 'cantonese') return 'cantonese'
+      if (response.dialect === 'cantonese') return 'cantonese';
       if (response.accent) {
         return Object.keys(this.dialects).find(key =>
           this.dialects[key].accent === response.accent
-        ) || 'mandarin'
+        ) || 'mandarin';
       }
     }
 
-    return 'mandarin'
+    return 'mandarin';
   }
 
   /**
@@ -705,15 +705,15 @@ class DialectSpeechService extends EventEmitter {
   calculateConfidence(result) {
     // 简化实现，返回默认置信度
     // 实际中可以根据API响应中的置信度字段计算
-    return 0.85
+    return 0.85;
   }
 
   /**
    * 清理缓存
    */
   clearCache() {
-    this.cache.clear()
-    logger.info('语音服务缓存已清理')
+    this.cache.clear();
+    logger.info('语音服务缓存已清理');
   }
 
   /**
@@ -726,8 +726,8 @@ class DialectSpeechService extends EventEmitter {
       totalSyntheses: 0,
       successfulSyntheses: 0,
       dialectDistribution: {}
-    }
+    };
   }
 }
 
-module.exports = DialectSpeechService
+module.exports = DialectSpeechService;

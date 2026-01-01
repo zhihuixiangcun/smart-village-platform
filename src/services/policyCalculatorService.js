@@ -476,15 +476,15 @@ class PolicyCalculatorService {
       const sentMethod = metadata.sentMethod || 'sms';
 
       switch (sentMethod) {
-        case 'sms':
-          await this.sendSMSNotification(application.applicantInfo.phone, content);
-          break;
-        case 'email':
-          await this.sendEmailNotification(application.applicantInfo.email, content);
-          break;
-        case 'wechat':
-          await this.sendWeChatNotification(metadata.openId, content);
-          break;
+      case 'sms':
+        await this.sendSMSNotification(application.applicantInfo.phone, content);
+        break;
+      case 'email':
+        await this.sendEmailNotification(application.applicantInfo.email, content);
+        break;
+      case 'wechat':
+        await this.sendWeChatNotification(metadata.openId, content);
+        break;
       }
 
       return true;
@@ -697,8 +697,8 @@ class PolicyCalculatorService {
 
     // 标题
     doc.fontSize(20)
-       .text('补贴批准证书', { align: 'center' })
-       .moveDown();
+      .text('补贴批准证书', { align: 'center' })
+      .moveDown();
 
     // 基本信息
     doc.fontSize(14);
@@ -732,7 +732,7 @@ class PolicyCalculatorService {
    */
   maskIdNumber(idNumber) {
     if (!idNumber || idNumber.length < 8) return idNumber;
-    return idNumber.substring(0, 4) + '********' + idNumber.substring(idNumber.length - 4);
+    return `${idNumber.substring(0, 4)  }********${  idNumber.substring(idNumber.length - 4)}`;
   }
 
   /**
@@ -877,7 +877,7 @@ class PolicyCalculatorService {
       // 这里应该调用真实的政府API
       // 示例实现（需要根据实际政府API文档调整）
       const axios = require('axios');
-const logger = require('../utils/logger');
+      const logger = require('../utils/logger');
       const response = await axios.get(apiUrl, {
         params: {
           region: options.region,

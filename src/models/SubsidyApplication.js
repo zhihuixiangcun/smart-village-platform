@@ -585,7 +585,7 @@ subsidyApplicationSchema.methods.addPaymentRecord = function(paymentData) {
 // 实例方法：计算完成度
 subsidyApplicationSchema.methods.calculateCompletion = function() {
   let score = 0;
-  let total = 100;
+  const total = 100;
 
   // 基础信息 (30分)
   if (this.applicantInfo && this.applicantInfo.name && this.applicantInfo.idNumber) {

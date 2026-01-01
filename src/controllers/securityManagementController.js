@@ -1212,7 +1212,7 @@ async function generateExcelReport(reportData, res) {
 
   return new Promise((resolve, reject) => {
     const fs = require('fs').promises;
-const logger = require('../utils/logger');
+    const logger = require('../utils/logger');
     fs.writeFile(reportPath, JSON.stringify(reportData, null, 2));
     resolve();
   });

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模态框对比度修复测试页面</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #f5576c, #4facfe);
+            background-size: 400% 400%;
+            animation: gradientXY 15s ease infinite;
+        }
+
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* 复制登录页面的所有修复样式 */
+        .btn-primary {
+            background: linear-gradient(135deg, #4a7c7e, #2d5f5f) !important;
+            color: #ffffff !important;
+            font-weight: 600 !important;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #3d6a6c, #244e4e) !important;
+            transform: translateY(-1px) !important;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #8b7355, #6b5a45) !important;
+            color: #ffffff !important;
+            font-weight: 600 !important;
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #7a6448, #5a4938) !important;
+            transform: translateY(-1px) !important;
+        }
+
+        .btn-outline {
+            background: rgba(255, 255, 255, 0.25) !important;
+            color: #ffffff !important;
+            font-weight: 600 !important;
+            border: 2px solid rgba(255, 255, 255, 0.5) !important;
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.35) !important;
+            border-color: rgba(255, 255, 255, 0.7) !important;
+        }
+
+        /* 弹窗内容样式修复 */
+        .modal-content {
+            background: rgba(0, 0, 0, 0.8) !important;
+            backdrop-filter: blur(10px) !important;
+        }
+
+        .modal-title {
+            color: #ffffff !important;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5) !important;
+        }
+
+        .help-item-title {
+            color: #fbbf24 !important;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5) !important;
+        }
+
+        .label-text {
+            color: #e5e7eb !important;
+        }
+
+        /* 强制覆盖模态框中所有Tailwind样式 */
+        #forgotPasswordModal,
+        #helpModal {
+            background: rgba(0, 0, 0, 0.7) !important;
+        }
+
+        #forgotPasswordModal .bg-white\/10,
+        #helpModal .bg-white\/10 {
+            background: rgba(0, 0, 0, 0.6) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        }
+
+        #forgotPasswordModal .text-white\/80,
+        #helpModal .text-white\/80 {
+            color: #e5e7eb !important;
+            text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8) !important;
+        }
+
+        #forgotPasswordModal .border-white\/20,
+        #helpModal .border-white\/20 {
+            border-color: rgba(255, 255, 255, 0.4) !important;
+        }
+
+        #forgotPasswordModal .placeholder-white\/50,
+        #helpModal .placeholder-white\/50 {
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+
+        #forgotPasswordModal .focus\:ring-white\/50:focus,
+        #helpModal .focus\:ring-white\/50:focus {
+            --tw-ring-color: rgba(255, 255, 255, 0.6) !important;
+        }
+
+        #forgotPasswordModal .text-white\/60,
+        #helpModal .text-white\/60 {
+            color: #d1d5db !important;
+        }
+
+        #helpModal .bg-white\/10 {
+            background: rgba(31, 41, 55, 0.8) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        }
+
+        #helpModal .text-white {
+            color: #ffffff !important;
+        }
+
+        /* 强制所有模态框按钮使用深色背景 */
+        .modal-content button {
+            background: linear-gradient(135deg, #4a7c7e, #2d5f5f) !important;
+            color: #ffffff !important;
+            font-weight: 600 !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        }
+
+        .modal-content button:hover {
+            background: linear-gradient(135deg, #3d6a6c, #244e4e) !important;
+        }
+
+        /* 特殊处理取消按钮 */
+        .modal-content button.btn-outline {
+            background: rgba(107, 114, 128, 0.8) !important;
+            color: #ffffff !important;
+            border: 2px solid rgba(255, 255, 255, 0.5) !important;
+        }
+
+        .modal-content button.btn-outline:hover {
+            background: rgba(107, 114, 128, 0.9) !important;
+        }
+
+        @keyframes gradientXY {
+            0%, 100% { background-position: 0% 0%; }
+            25% { background-position: 100% 0%; }
+            50% { background-position: 100% 100%; }
+            75% { background-position: 0% 100%; }
+        }
+    </style>
+</head>
+<body class="min-h-screen gradient-bg flex items-center justify-center p-4">
+    <div class="w-full max-w-4xl mx-auto">
+        <h1 class="text-4xl font-bold text-white text-center mb-8">模态框对比度修复测试页面</h1>
+
+        <!-- 测试区域 -->
+        <div class="glass-morphism rounded-3xl p-8">
+            <h2 class="text-2xl font-bold text-white mb-6">测试以下功能：</h2>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- 忘记密码测试 -->
+                <div class="bg-white/10 rounded-2xl p-6">
+                    <h3 class="text-xl font-semibold text-white mb-4">忘记密码模态框</h3>
+                    <p class="text-white/80 mb-4">测试忘记密码弹窗中的文字和按钮对比度</p>
+                    <button onclick="showForgotPassword()" class="w-full py-3 btn-primary rounded-xl transition-all duration-300">
+                        <i class="fas fa-key mr-2"></i>打开忘记密码弹窗
+                    </button>
+                </div>
+
+                <!-- 帮助模态测试 -->
+                <div class="bg-white/10 rounded-2xl p-6">
+                    <h3 class="text-xl font-semibold text-white mb-4">使用帮助模态框</h3>
+                    <p class="text-white/80 mb-4">测试使用帮助弹窗中的文字和按钮对比度</p>
+                    <button onclick="showHelp()" class="w-full py-3 btn-secondary rounded-xl transition-all duration-300">
+                        <i class="fas fa-question-circle mr-2"></i>打开使用帮助弹窗
+                    </button>
+                </div>
+            </div>
+
+            <!-- 对比度检查列表 -->
+            <div class="mt-8 bg-white/10 rounded-2xl p-6">
+                <h3 class="text-xl font-semibold text-white mb-4">对比度检查清单</h3>
+                <div class="grid md:grid-cols-2 gap-4 text-white">
+                    <div>
+                        <h4 class="font-medium mb-2">忘记密码弹窗：</h4>
+                        <ul class="space-y-1 text-sm">
+                            <li>✅ 标题"找回密码"可见</li>
+                            <li>✅ 标签"手机号码"可见</li>
+                            <li>✅ 标签"验证码"可见</li>
+                            <li>✅ 标签"新密码"可见</li>
+                            <li>✅ 输入框边框可见</li>
+                            <li>✅ 按钮文字清晰可见</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-medium mb-2">使用帮助弹窗：</h4>
+                        <ul class="space-y-1 text-sm">
+                            <li>✅ 标题"使用帮助"可见</li>
+                            <li>✅ 帮助项目标题可见</li>
+                            <li>✅ 帮助内容文字可见</li>
+                            <li>✅ 背景对比度足够</li>
+                            <li>✅ 按钮文字清晰可见</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 技术说明 -->
+            <div class="mt-6 bg-white/10 rounded-2xl p-6">
+                <h3 class="text-xl font-semibold text-white mb-4">修复技术说明</h3>
+                <div class="text-white/80 space-y-2 text-sm">
+                    <p><strong>问题原因：</strong>Tailwind CSS类具有高特异性，覆盖了自定义样式</p>
+                    <p><strong>解决方案：</strong>使用ID选择器和!important强制覆盖Tailwind样式</p>
+                    <p><strong>修复范围：</strong>所有模态框中的文字、按钮、输入框、边框</p>
+                    <p><strong>兼容性：</strong>保持原有动画和交互效果不变</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 忘记密码弹窗 (从登录页面复制) -->
+    <div id="forgotPasswordModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+        <div class="modal-content rounded-2xl p-6 w-full max-w-md">
+            <h3 class="text-xl font-bold modal-title mb-4">找回密码</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block label-text text-sm font-medium mb-2">手机号码</label>
+                    <input type="tel" id="resetPhone" placeholder="请输入注册手机号" class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50">
+                </div>
+                <div>
+                    <label class="block label-text text-sm font-medium mb-2">验证码</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="verifyCode" placeholder="请输入验证码" class="flex-1 px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50">
+                        <button onclick="sendVerifyCode()" id="codeBtn" class="px-4 py-3 btn-secondary rounded-xl transition-all duration-300">
+                            获取验证码
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block label-text text-sm font-medium mb-2">新密码</label>
+                    <input type="password" id="newPassword" placeholder="请输入新密码" class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50">
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeForgotPassword()" class="flex-1 py-3 btn-outline rounded-xl transition-all duration-300">
+                    取消
+                </button>
+                <button onclick="handleResetPassword()" class="flex-1 py-3 btn-primary rounded-xl transition-all duration-300">
+                    确认重置
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 帮助弹窗 (从登录页面复制) -->
+    <div id="helpModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+        <div class="modal-content rounded-2xl p-6 w-full max-w-md max-h-[80vh] overflow-y-auto">
+            <h3 class="text-xl font-bold modal-title mb-4">使用帮助</h3>
+            <div class="space-y-4 text-white/80">
+                <div class="bg-white/10 rounded-xl p-4">
+                    <h4 class="help-item-title"><i class="fas fa-key mr-2 text-village-primary"></i>默认密码</h4>
+                    <p class="text-sm">首次登录密码为手机号后6位数字</p>
+                </div>
+                <div class="bg-white/10 rounded-xl p-4">
+                    <h4 class="help-item-title"><i class="fas fa-smile mr-2 text-village-pink"></i>人脸登录</h4>
+                    <p class="text-sm">请先注册人脸信息，确保光线充足，面部清晰可见</p>
+                </div>
+                <div class="bg-white/10 rounded-xl p-4">
+                    <h4 class="help-item-title"><i class="fas fa-microphone mr-2 text-village-purple"></i>语音登录</h4>
+                    <p class="text-sm">支持多种方言识别，请清晰说出手机号和姓名</p>
+                </div>
+                <div class="bg-white/10 rounded-xl p-4">
+                    <h4 class="help-item-title"><i class="fas fa-users mr-2 text-village-secondary"></i>功能介绍</h4>
+                    <p class="text-sm">提供村务管理、便民服务、资料收集、数据统计等功能</p>
+                </div>
+                <div class="bg-white/10 rounded-xl p-4">
+                    <h4 class="help-item-title"><i class="fas fa-headset mr-2 text-village-accent"></i>技术支持</h4>
+                    <p class="text-sm">如遇问题请联系村委管理员或拨打客服热线：400-888-8888</p>
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeHelp()" class="flex-1 py-3 btn-primary rounded-xl transition-all duration-300">
+                    我知道了
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        function showForgotPassword() {
+            document.getElementById('forgotPasswordModal').classList.remove('hidden');
+        }
+
+        function closeForgotPassword() {
+            document.getElementById('forgotPasswordModal').classList.add('hidden');
+        }
+
+        function showHelp() {
+            document.getElementById('helpModal').classList.remove('hidden');
+        }
+
+        function closeHelp() {
+            document.getElementById('helpModal').classList.add('hidden');
+        }
+
+        function sendVerifyCode() {
+            alert('验证码功能仅用于测试对比度');
+        }
+
+        function handleResetPassword() {
+            alert('密码重置功能仅用于测试对比度');
+        }
+
+        // 点击模态框外部关闭
+        document.getElementById('forgotPasswordModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeForgotPassword();
+            }
+        });
+
+        document.getElementById('helpModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeHelp();
+            }
+        });
+
+        // ESC键关闭模态框
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeForgotPassword();
+                closeHelp();
+            }
+        });
+    </script>
+</body>
+</html>

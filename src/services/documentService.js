@@ -74,7 +74,7 @@ class DocumentService {
         },
         fileInfo: {
           originalName: fileData.originalname,
-          fileName: fileName,
+          fileName,
           filePath: relativeFilePath,
           fileSize: fileData.size,
           mimeType: fileData.mimetype,
@@ -771,7 +771,7 @@ class DocumentService {
 
       // 限制文本长度（TTS有长度限制）
       if (textToRead.length > 500) {
-        textToRead = textToRead.substring(0, 500) + '...';
+        textToRead = `${textToRead.substring(0, 500)  }...`;
       }
 
       // 调用语音合成

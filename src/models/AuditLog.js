@@ -138,7 +138,7 @@ AuditLogSchema.statics.createBulkLogs = async function(logsData, parentLogId = n
     // 创建父审计日志
     const parentLog = await this.createLog({
       ...logsData[0],
-      action: 'BULK_' + logsData[0].action,
+      action: `BULK_${  logsData[0].action}`,
       details: {
         description: `批量操作: ${logsData.length}条记录`,
         metadata: { totalCount: logsData.length }
@@ -201,20 +201,20 @@ AuditLogSchema.statics.generateReport = async function(filters = {}) {
   // 构建分组格式
   let groupFormat;
   switch (groupBy) {
-    case 'hour':
-      groupFormat = { $dateToString: { format: "%Y-%m-%d %H:00:00", date: "$timestamp" } };
-      break;
-    case 'day':
-      groupFormat = { $dateToString: { format: "%Y-%m-%d", date: "$timestamp" } };
-      break;
-    case 'week':
-      groupFormat = { $dateToString: { format: "%Y-W%U", date: "$timestamp" } };
-      break;
-    case 'month':
-      groupFormat = { $dateToString: { format: "%Y-%m", date: "$timestamp" } };
-      break;
-    default:
-      groupFormat = { $dateToString: { format: "%Y-%m-%d", date: "$timestamp" } };
+  case 'hour':
+    groupFormat = { $dateToString: { format: '%Y-%m-%d %H:00:00', date: '$timestamp' } };
+    break;
+  case 'day':
+    groupFormat = { $dateToString: { format: '%Y-%m-%d', date: '$timestamp' } };
+    break;
+  case 'week':
+    groupFormat = { $dateToString: { format: '%Y-W%U', date: '$timestamp' } };
+    break;
+  case 'month':
+    groupFormat = { $dateToString: { format: '%Y-%m', date: '$timestamp' } };
+    break;
+  default:
+    groupFormat = { $dateToString: { format: '%Y-%m-%d', date: '$timestamp' } };
   }
 
   // 执行聚合查询

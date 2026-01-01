@@ -433,35 +433,35 @@ async function executeVoiceCommand(command, req) {
 
     // 根据意图执行不同的操作
     switch (intent) {
-      case '村民信息':
-        return await handleResidentQuery(entities, userId, villageId);
+    case '村民信息':
+      return await handleResidentQuery(entities, userId, villageId);
 
-      case '查询公告':
-        return await handleAnnouncementQuery(entities, userId, villageId);
+    case '查询公告':
+      return await handleAnnouncementQuery(entities, userId, villageId);
 
-      case '政策查询':
-        return await handlePolicyQuery(entities, userId, villageId);
+    case '政策查询':
+      return await handlePolicyQuery(entities, userId, villageId);
 
-      case '补贴查询':
-        return await handleSubsidyQuery(entities, userId, villageId);
+    case '补贴查询':
+      return await handleSubsidyQuery(entities, userId, villageId);
 
-      case '提交申请':
-        return await handleSubmitApplication(entities, userId, villageId);
+    case '提交申请':
+      return await handleSubmitApplication(entities, userId, villageId);
 
-      case '打开首页':
-        return { action: 'navigate', target: '/home', message: '正在打开首页' };
+    case '打开首页':
+      return { action: 'navigate', target: '/home', message: '正在打开首页' };
 
-      case '打开个人中心':
-        return { action: 'navigate', target: '/profile', message: '正在打开个人中心' };
+    case '打开个人中心':
+      return { action: 'navigate', target: '/profile', message: '正在打开个人中心' };
 
-      case '打开服务大厅':
-        return { action: 'navigate', target: '/services', message: '正在打开服务大厅' };
+    case '打开服务大厅':
+      return { action: 'navigate', target: '/services', message: '正在打开服务大厅' };
 
-      default:
-        return {
-          action: 'unknown',
-          message: '抱歉，我不理解这个指令。您可以说"帮助"查看支持的指令。'
-        };
+    default:
+      return {
+        action: 'unknown',
+        message: '抱歉，我不理解这个指令。您可以说"帮助"查看支持的指令。'
+      };
     }
 
   } catch (error) {

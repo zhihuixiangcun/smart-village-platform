@@ -1,0 +1,16 @@
+{
+  "testEnvironment": "node",
+  "verbose": true,
+  "collectCoverage": true,
+  "coverageDirectory": "coverage",
+  "coverageReporters": [
+    "text",
+    "lcov"
+  ],
+  "testMatch": [
+    "<rootDir>/tests/security/**/*.test.js"
+  ],
+  "setupFilesAfterEnv": [
+    "<rootDir>/tests/setup.js"
+  ]
+}

@@ -3,10 +3,10 @@
  * 提供动态权限验证、继承权限检查等功能
  */
 
-const EnhancedPermissionService = require('../services/enhancedPermissionService')
-const logger = require('../config/logger')
+const EnhancedPermissionService = require('../services/enhancedPermissionService');
+const logger = require('../config/logger');
 
-const enhancedPermissionService = new EnhancedPermissionService()
+const enhancedPermissionService = new EnhancedPermissionService();
 
 /**
  * 权限验证中间件
@@ -19,7 +19,7 @@ const requirePermissions = (permissions, options = {}) => {
     requireAll = true, // 是否需要所有权限
     allowSelf = true, // 是否允许用户操作自己的资源
     resourceParam = 'id' // 资源ID参数名
-  } = options
+  } = options;
 
   return async (req, res, next) => {
     try {
@@ -29,31 +29,31 @@ const requirePermissions = (permissions, options = {}) => {
           success: false,
           message: '未认证用户',
           code: 'UNAUTHORIZED'
-        })
+        });
       }
 
       // 如果是操作自己的资源
       if (allowSelf && req.params[resourceParam] === req.user._id.toString()) {
-        return next()
+        return next();
       }
 
       // 转换权限为数组
-      const requiredPermissions = Array.isArray(permissions) ? permissions : [permissions]
+      const requiredPermissions = Array.isArray(permissions) ? permissions : [permissions];
 
       // 权限检查结果
-      const permissionResults = []
+      const permissionResults = [];
 
       // 批量检查权限
       for (const permission of requiredPermissions) {
-        const [resource, action] = permission.split(':')
+        const [resource, action] = permission.split(':');
 
         if (!resource || !action) {
           permissionResults.push({
             permission,
             allowed: false,
             reason: 'INVALID_PERMISSION_FORMAT'
-          })
-          continue
+          });
+          continue;
         }
 
         try {
@@ -69,38 +69,38 @@ const requirePermissions = (permissions, options = {}) => {
               ipAddress: req.ip,
               userAgent: req.get('User-Agent')
             }
-          )
+          );
 
           permissionResults.push({
             permission,
             allowed: result.allowed,
             reason: result.reason,
             policyApplied: result.policyApplied
-          })
+          });
 
         } catch (error) {
-          logger.error('权限检查失败:', error)
+          logger.error('权限检查失败:', error);
           permissionResults.push({
             permission,
             allowed: false,
             reason: 'PERMISSION_CHECK_ERROR',
             error: error.message
-          })
+          });
         }
       }
 
       // 判断是否允许访问
-      let allowed = false
+      let allowed = false;
       if (requireAll) {
         // 需要所有权限
-        allowed = permissionResults.every(result => result.allowed)
+        allowed = permissionResults.every(result => result.allowed);
       } else {
         // 只需要其中一个权限
-        allowed = permissionResults.some(result => result.allowed)
+        allowed = permissionResults.some(result => result.allowed);
       }
 
       if (!allowed) {
-        const deniedPermissions = permissionResults.filter(result => !result.allowed)
+        const deniedPermissions = permissionResults.filter(result => !result.allowed);
 
         return res.status(403).json({
           success: false,
@@ -113,27 +113,27 @@ const requirePermissions = (permissions, options = {}) => {
               reason: result.reason
             }))
           }
-        })
+        });
       }
 
       // 将权限检查结果添加到请求对象
       req.permissionCheck = {
         permissions: requiredPermissions,
         results: permissionResults
-      }
+      };
 
-      next()
+      next();
 
     } catch (error) {
-      logger.error('权限中间件错误:', error)
+      logger.error('权限中间件错误:', error);
       res.status(500).json({
         success: false,
         message: '权限验证失败',
         code: 'PERMISSION_MIDDLEWARE_ERROR'
-      })
+      });
     }
-  }
-}
+  };
+};
 
 /**
  * 角色验证中间件
@@ -144,7 +144,7 @@ const requirePermissions = (permissions, options = {}) => {
 const requireRoles = (roles, options = {}) => {
   const {
     requireAll = false // 是否需要匹配所有角色
-  } = options
+  } = options;
 
   return (req, res, next) => {
     try {
@@ -154,19 +154,19 @@ const requireRoles = (roles, options = {}) => {
           success: false,
           message: '未认证用户',
           code: 'UNAUTHORIZED'
-        })
+        });
       }
 
-      const allowedRoles = Array.isArray(roles) ? roles : [roles]
-      const userRole = req.user.role
+      const allowedRoles = Array.isArray(roles) ? roles : [roles];
+      const userRole = req.user.role;
 
-      let hasRole = false
+      let hasRole = false;
       if (requireAll) {
         // 需要匹配所有角色
-        hasRole = allowedRoles.every(role => userRole === role)
+        hasRole = allowedRoles.every(role => userRole === role);
       } else {
         // 只需要匹配其中一个角色
-        hasRole = allowedRoles.includes(userRole)
+        hasRole = allowedRoles.includes(userRole);
       }
 
       if (!hasRole) {
@@ -178,41 +178,41 @@ const requireRoles = (roles, options = {}) => {
             requiredRoles: allowedRoles,
             userRole
           }
-        })
+        });
       }
 
-      next()
+      next();
 
     } catch (error) {
-      logger.error('角色验证中间件错误:', error)
+      logger.error('角色验证中间件错误:', error);
       res.status(500).json({
         success: false,
         message: '角色验证失败',
         code: 'ROLE_MIDDLEWARE_ERROR'
-      })
+      });
     }
-  }
-}
+  };
+};
 
 /**
  * 超级管理员验证中间件
  */
-const requireSuperAdmin = requireRoles(['super_admin'])
+const requireSuperAdmin = requireRoles(['super_admin']);
 
 /**
  * 村管理员验证中间件
  */
-const requireVillageAdmin = requireRoles(['super_admin', 'village_admin'], { requireAll: false })
+const requireVillageAdmin = requireRoles(['super_admin', 'village_admin'], { requireAll: false });
 
 /**
  * 工作人员验证中间件
  */
-const requireStaff = requireRoles(['super_admin', 'village_admin', 'department_head', 'staff'], { requireAll: false })
+const requireStaff = requireRoles(['super_admin', 'village_admin', 'department_head', 'staff'], { requireAll: false });
 
 /**
  * 村民验证中间件
  */
-const requireVillager = requireRoles(['super_admin', 'village_admin', 'department_head', 'staff', 'villager'], { requireAll: false })
+const requireVillager = requireRoles(['super_admin', 'village_admin', 'department_head', 'staff', 'villager'], { requireAll: false });
 
 /**
  * 资源所有者验证中间件
@@ -224,7 +224,7 @@ const requireResourceOwner = (userIdField = 'userId', options = {}) => {
   const {
     allowAdmin = true, // 是否允许管理员访问
     strict = false // 是否严格模式（只有所有者可以访问）
-  } = options
+  } = options;
 
   return async (req, res, next) => {
     try {
@@ -233,23 +233,23 @@ const requireResourceOwner = (userIdField = 'userId', options = {}) => {
           success: false,
           message: '未认证用户',
           code: 'UNAUTHORIZED'
-        })
+        });
       }
 
-      const resourceUserId = req.body[userIdField] || req.params[userIdField] || req.query[userIdField]
-      const currentUserId = req.user._id.toString()
+      const resourceUserId = req.body[userIdField] || req.params[userIdField] || req.query[userIdField];
+      const currentUserId = req.user._id.toString();
 
       // 检查是否是资源所有者
-      const isOwner = resourceUserId && resourceUserId.toString() === currentUserId
+      const isOwner = resourceUserId && resourceUserId.toString() === currentUserId;
 
       // 检查是否是管理员
       const isAdmin = allowAdmin && (
         req.user.role === 'super_admin' ||
         req.user.role === 'village_admin'
-      )
+      );
 
       // 允许访问的条件
-      const allowed = isOwner || (!strict && isAdmin)
+      const allowed = isOwner || (!strict && isAdmin);
 
       if (!allowed) {
         return res.status(403).json({
@@ -262,51 +262,51 @@ const requireResourceOwner = (userIdField = 'userId', options = {}) => {
             resourceUserId,
             currentUserId
           }
-        })
+        });
       }
 
       // 标记为资源所有者访问
-      req.isResourceOwner = isOwner
+      req.isResourceOwner = isOwner;
 
-      next()
+      next();
 
     } catch (error) {
-      logger.error('资源所有者验证中间件错误:', error)
+      logger.error('资源所有者验证中间件错误:', error);
       res.status(500).json({
         success: false,
         message: '资源访问验证失败',
         code: 'RESOURCE_OWNER_MIDDLEWARE_ERROR'
-      })
+      });
     }
-  }
-}
+  };
+};
 
 /**
  * 会话验证中间件
  */
 const validateSession = async (req, res, next) => {
   try {
-    const sessionId = req.get('X-Session-Id')
+    const sessionId = req.get('X-Session-Id');
 
     if (!sessionId) {
       return res.status(401).json({
         success: false,
         message: '缺少会话ID',
         code: 'MISSING_SESSION_ID'
-      })
+      });
     }
 
     const sessionResult = await enhancedPermissionService.manageSession(sessionId, {
       lastActivity: new Date(),
       endpoint: req.originalUrl
-    })
+    });
 
     if (!sessionResult.valid) {
       return res.status(401).json({
         success: false,
         message: '会话无效或已过期',
         code: 'INVALID_SESSION'
-      })
+      });
     }
 
     // 添加会话信息到请求对象
@@ -314,19 +314,19 @@ const validateSession = async (req, res, next) => {
       sessionId,
       remainingTime: sessionResult.remainingTime,
       lastActivity: sessionResult.session.lastActivity
-    }
+    };
 
-    next()
+    next();
 
   } catch (error) {
-    logger.error('会话验证中间件错误:', error)
+    logger.error('会话验证中间件错误:', error);
     res.status(500).json({
       success: false,
       message: '会话验证失败',
       code: 'SESSION_VALIDATION_ERROR'
-    })
+    });
   }
-}
+};
 
 /**
  * 权限缓存刷新中间件
@@ -337,22 +337,22 @@ const refreshPermissionCache = (userId = null) => {
     try {
       // 如果指定了用户ID，只刷新该用户的权限缓存
       if (userId) {
-        const cacheKey = `enhanced_permissions_${userId}`
-        enhancedPermissionService.permissionCache.del(cacheKey)
+        const cacheKey = `enhanced_permissions_${userId}`;
+        enhancedPermissionService.permissionCache.del(cacheKey);
       } else {
         // 否则刷新所有权限缓存
-        enhancedPermissionService.clearPermissionCache()
+        enhancedPermissionService.clearPermissionCache();
       }
 
-      next()
+      next();
 
     } catch (error) {
-      logger.error('权限缓存刷新失败:', error)
+      logger.error('权限缓存刷新失败:', error);
       // 缓存刷新失败不应该影响正常流程
-      next()
+      next();
     }
-  }
-}
+  };
+};
 
 /**
  * 操作审计中间件
@@ -366,11 +366,11 @@ const auditOperation = (options = {}) => {
     sensitiveLevel = 'normal',
     logResponse = false,
     logRequestBody = true
-  } = options
+  } = options;
 
   return (req, res, next) => {
     // 记录请求开始时间
-    req.auditStartTime = Date.now()
+    req.auditStartTime = Date.now();
     req.auditData = {
       resource: resource || req.route?.path,
       action: action || req.method.toLowerCase(),
@@ -381,22 +381,22 @@ const auditOperation = (options = {}) => {
       userAgent: req.get('User-Agent'),
       userId: req.user?._id,
       userRole: req.user?.role
-    }
+    };
 
     // 记录请求体（如果不包含敏感信息）
     if (logRequestBody && req.body && sensitiveLevel !== 'high') {
-      req.auditData.requestBody = JSON.parse(JSON.stringify(req.body))
+      req.auditData.requestBody = JSON.parse(JSON.stringify(req.body));
     }
 
     // 修改res.end以记录响应
-    const originalEnd = res.end
+    const originalEnd = res.end;
     res.end = function(chunk, encoding) {
       if (logResponse && sensitiveLevel !== 'high') {
-        req.auditData.responseBody = chunk ? chunk.toString() : null
+        req.auditData.responseBody = chunk ? chunk.toString() : null;
       }
 
-      req.auditData.responseStatus = res.statusCode
-      req.auditData.duration = Date.now() - req.auditStartTime
+      req.auditData.responseStatus = res.statusCode;
+      req.auditData.duration = Date.now() - req.auditStartTime;
 
       // 异步记录审计日志
       setImmediate(() => {
@@ -429,18 +429,18 @@ const auditOperation = (options = {}) => {
               accessReason: 'API操作',
               legalBasis: 'legitimate_interest'
             }
-          })
+          });
         } catch (error) {
-          logger.error('记录审计日志失败:', error)
+          logger.error('记录审计日志失败:', error);
         }
-      })
+      });
 
-      originalEnd.call(this, chunk, encoding)
-    }
+      originalEnd.call(this, chunk, encoding);
+    };
 
-    next()
-  }
-}
+    next();
+  };
+};
 
 module.exports = {
   requirePermissions,
@@ -454,4 +454,4 @@ module.exports = {
   refreshPermissionCache,
   auditOperation,
   enhancedPermissionService
-}
+};

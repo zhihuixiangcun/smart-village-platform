@@ -89,21 +89,21 @@ class OptimizedSerializer {
       // Serialize data
       let serialized;
       switch (format) {
-        case SerializationFormat.MSGPACK:
-          serialized = this._serializeMsgPack(data);
-          this.metrics.formatUsage.msgpack++;
-          break;
-        case SerializationFormat.JSON:
-          serialized = this._serializeJSON(data);
-          this.metrics.formatUsage.json++;
-          break;
-        case SerializationFormat.BINARY:
-          serialized = this._serializeBinary(data);
-          this.metrics.formatUsage.binary++;
-          break;
-        default:
-          serialized = this._serializeMsgPack(data);
-          this.metrics.formatUsage.msgpack++;
+      case SerializationFormat.MSGPACK:
+        serialized = this._serializeMsgPack(data);
+        this.metrics.formatUsage.msgpack++;
+        break;
+      case SerializationFormat.JSON:
+        serialized = this._serializeJSON(data);
+        this.metrics.formatUsage.json++;
+        break;
+      case SerializationFormat.BINARY:
+        serialized = this._serializeBinary(data);
+        this.metrics.formatUsage.binary++;
+        break;
+      default:
+        serialized = this._serializeMsgPack(data);
+        this.metrics.formatUsage.msgpack++;
       }
 
       // Compress if beneficial
@@ -185,17 +185,17 @@ class OptimizedSerializer {
       // Deserialize based on format
       let deserialized;
       switch (header.format) {
-        case SerializationFormat.MSGPACK:
-          deserialized = this._deserializeMsgPack(data);
-          break;
-        case SerializationFormat.JSON:
-          deserialized = this._deserializeJSON(data);
-          break;
-        case SerializationFormat.BINARY:
-          deserialized = this._deserializeBinary(data);
-          break;
-        default:
-          deserialized = this._deserializeMsgPack(data);
+      case SerializationFormat.MSGPACK:
+        deserialized = this._deserializeMsgPack(data);
+        break;
+      case SerializationFormat.JSON:
+        deserialized = this._deserializeJSON(data);
+        break;
+      case SerializationFormat.BINARY:
+        deserialized = this._deserializeBinary(data);
+        break;
+      default:
+        deserialized = this._deserializeMsgPack(data);
       }
 
       this.metrics.deserializeCount++;
@@ -278,20 +278,20 @@ class OptimizedSerializer {
       }
 
       switch (actualAlgorithm) {
-        case CompressionAlgorithm.BROTLI:
-          try {
-            compressed = await brotli.compress(data);
-          } catch (e) {
-            // Fallback to gzip if brotli fails
-            compressed = await zlib.promises.gzip(data);
-            actualAlgorithm = CompressionAlgorithm.GZIP;
-          }
-          break;
-        case CompressionAlgorithm.GZIP:
+      case CompressionAlgorithm.BROTLI:
+        try {
+          compressed = await brotli.compress(data);
+        } catch (e) {
+          // Fallback to gzip if brotli fails
           compressed = await zlib.promises.gzip(data);
-          break;
-        default:
-          return { compressed: false, data };
+          actualAlgorithm = CompressionAlgorithm.GZIP;
+        }
+        break;
+      case CompressionAlgorithm.GZIP:
+        compressed = await zlib.promises.gzip(data);
+        break;
+      default:
+        return { compressed: false, data };
       }
 
       // Only use compression if it reduces size
@@ -314,17 +314,17 @@ class OptimizedSerializer {
   async _decompress(data, algorithm) {
     try {
       switch (algorithm) {
-        case CompressionAlgorithm.BROTLI:
-          try {
-            return await brotli.decompress(data);
-          } catch (e) {
-            // Fallback to gzip
-            return await zlib.promises.gunzip(data);
-          }
-        case CompressionAlgorithm.GZIP:
+      case CompressionAlgorithm.BROTLI:
+        try {
+          return await brotli.decompress(data);
+        } catch (e) {
+          // Fallback to gzip
           return await zlib.promises.gunzip(data);
-        default:
-          return data;
+        }
+      case CompressionAlgorithm.GZIP:
+        return await zlib.promises.gunzip(data);
+      default:
+        return data;
       }
     } catch (error) {
       throw new Error(`Decompression failed with ${algorithm}: ${error.message}`);
@@ -370,11 +370,11 @@ class OptimizedSerializer {
       return {
         length: 2 + headerLength,
         format: header.f === 'm' ? SerializationFormat.MSGPACK :
-                header.f === 'j' ? SerializationFormat.JSON :
-                SerializationFormat.BINARY,
+          header.f === 'j' ? SerializationFormat.JSON :
+            SerializationFormat.BINARY,
         compression: header.c === 'n' ? CompressionAlgorithm.NONE :
-                    header.c === 'g' ? CompressionAlgorithm.GZIP :
-                    CompressionAlgorithm.BROTLI,
+          header.c === 'g' ? CompressionAlgorithm.GZIP :
+            CompressionAlgorithm.BROTLI,
         originalSize: header.os,
         compressedSize: header.cs,
         checksum: header.chk,

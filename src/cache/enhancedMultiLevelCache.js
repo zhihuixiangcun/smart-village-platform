@@ -211,7 +211,7 @@ class EnhancedMultiLevelCache extends EventEmitter {
         });
 
         this.caches.l2.on('node error', (err, node) => {
-          logger.error('Redis集群节点错误', { node: node.options.host + ':' + node.options.port, error: err.message });
+          logger.error('Redis集群节点错误', { node: `${node.options.host  }:${  node.options.port}`, error: err.message });
         });
 
         // 集群健康检查

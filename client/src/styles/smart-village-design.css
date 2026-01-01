@@ -1,0 +1,504 @@
+/* 智慧村务管理系统 - 统一设计系统 */
+
+/* CSS变量定义 */
+:root {
+  /* === 主题色彩 === */
+  /* 主色调 - 科技蓝 */
+  --sv-primary: #1890ff;
+  --sv-primary-light: #40a9ff;
+  --sv-primary-dark: #096dd9;
+  --sv-primary-bg: #e6f7ff;
+
+  /* 功能色彩 */
+  --sv-success: #52c41a;
+  --sv-success-light: #73d13d;
+  --sv-success-bg: #f6ffed;
+
+  --sv-warning: #faad14;
+  --sv-warning-light: #ffc53d;
+  --sv-warning-bg: #fffbe6;
+
+  --sv-error: #ff4d4f;
+  --sv-error-light: #ff7875;
+  --sv-error-bg: #fff2f0;
+
+  /* 中性色彩 */
+  --sv-text-primary: #262626;
+  --sv-text-secondary: #595959;
+  --sv-text-disabled: #bfbfbf;
+  --sv-text-inverse: #ffffff;
+
+  --sv-bg-primary: #ffffff;
+  --sv-bg-secondary: #fafafa;
+  --sv-bg-tertiary: #f5f5f5;
+  --sv-bg-quaternary: #f0f0f0;
+
+  --sv-border-primary: #d9d9d9;
+  --sv-border-secondary: #e8e8e8;
+  --sv-border-tertiary: #f0f0f0;
+
+  /* 农村特色色彩 */
+  --sv-earth: #8b4513;
+  --sv-green: #3cb371;
+  --sv-harvest: #daa520;
+  --sv-water: #4682b4;
+
+  /* === 阴影 === */
+  --sv-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px rgba(0, 0, 0, 0.02);
+  --sv-shadow: 0 2px 4px rgba(0, 0, 0, 0.06), 0 2px 12px rgba(0, 0, 0, 0.04);
+  --sv-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.05), 0 2px 8px rgba(0, 0, 0, 0.06);
+  --sv-shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+
+  /* === 圆角 === */
+  --sv-radius-sm: 4px;
+  --sv-radius: 6px;
+  --sv-radius-md: 8px;
+  --sv-radius-lg: 12px;
+  --sv-radius-xl: 16px;
+
+  /* === 间距 === */
+  --sv-space-xs: 4px;
+  --sv-space-sm: 8px;
+  --sv-space: 12px;
+  --sv-space-md: 16px;
+  --sv-space-lg: 20px;
+  --sv-space-xl: 24px;
+  --sv-space-2xl: 32px;
+
+  /* === 字体 === */
+  --sv-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --sv-font-size-xs: 10px;
+  --sv-font-size-sm: 12px;
+  --sv-font-size: 14px;
+  --sv-font-size-md: 16px;
+  --sv-font-size-lg: 18px;
+  --sv-font-size-xl: 20px;
+  --sv-font-size-2xl: 24px;
+  --sv-font-size-3xl: 30px;
+
+  /* === 过渡动画 === */
+  --sv-transition-fast: 0.1s ease;
+  --sv-transition: 0.2s ease;
+  --sv-transition-slow: 0.3s ease;
+
+  /* === Z-index === */
+  --sv-z-dropdown: 1000;
+  --sv-z-sticky: 1020;
+  --sv-z-fixed: 1030;
+  --sv-z-modal-backdrop: 1040;
+  --sv-z-modal: 1050;
+  --sv-z-popover: 1060;
+  --sv-z-tooltip: 1070;
+}
+
+/* === 基础样式重置 === */
+* {
+  box-sizing: border-box;
+}
+
+.sv-container {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0 var(--sv-space-md);
+}
+
+/* === 布局组件 === */
+.sv-card {
+  background: var(--sv-bg-primary);
+  border-radius: var(--sv-radius-lg);
+  box-shadow: var(--sv-shadow);
+  overflow: hidden;
+  transition: all var(--sv-transition);
+}
+
+.sv-card:hover {
+  box-shadow: var(--sv-shadow-md);
+}
+
+.sv-card-header {
+  padding: var(--sv-space-md) var(--sv-space-lg);
+  border-bottom: 1px solid var(--sv-border-secondary);
+  background: var(--sv-bg-secondary);
+}
+
+.sv-card-body {
+  padding: var(--sv-space-lg);
+}
+
+.sv-card-footer {
+  padding: var(--sv-space-md) var(--sv-space-lg);
+  border-top: 1px solid var(--sv-border-secondary);
+  background: var(--sv-bg-secondary);
+}
+
+/* === 按钮样式 === */
+.sv-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sv-space-sm) var(--sv-space-md);
+  font-size: var(--sv-font-size);
+  font-weight: 500;
+  border: 1px solid transparent;
+  border-radius: var(--sv-radius);
+  cursor: pointer;
+  transition: all var(--sv-transition);
+  user-select: none;
+  text-decoration: none;
+  min-height: 32px;
+}
+
+.sv-btn-primary {
+  background: var(--sv-primary);
+  border-color: var(--sv-primary);
+  color: var(--sv-text-inverse);
+}
+
+.sv-btn-primary:hover {
+  background: var(--sv-primary-light);
+  border-color: var(--sv-primary-light);
+}
+
+.sv-btn-success {
+  background: var(--sv-success);
+  border-color: var(--sv-success);
+  color: var(--sv-text-inverse);
+}
+
+.sv-btn-warning {
+  background: var(--sv-warning);
+  border-color: var(--sv-warning);
+  color: var(--sv-text-inverse);
+}
+
+.sv-btn-error {
+  background: var(--sv-error);
+  border-color: var(--sv-error);
+  color: var(--sv-text-inverse);
+}
+
+.sv-btn-ghost {
+  background: transparent;
+  border-color: var(--sv-border-primary);
+  color: var(--sv-text-primary);
+}
+
+.sv-btn-ghost:hover {
+  background: var(--sv-bg-tertiary);
+}
+
+.sv-btn-lg {
+  padding: var(--sv-space-md) var(--sv-space-lg);
+  font-size: var(--sv-font-size-md);
+  min-height: 40px;
+}
+
+.sv-btn-sm {
+  padding: var(--sv-space-xs) var(--sv-space-sm);
+  font-size: var(--sv-font-size-sm);
+  min-height: 24px;
+}
+
+.sv-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* === 表单样式 === */
+.sv-form-group {
+  margin-bottom: var(--sv-space-md);
+}
+
+.sv-form-label {
+  display: block;
+  margin-bottom: var(--sv-space-xs);
+  font-size: var(--sv-font-size);
+  font-weight: 500;
+  color: var(--sv-text-primary);
+}
+
+.sv-form-control {
+  display: block;
+  width: 100%;
+  padding: var(--sv-space-sm) var(--sv-space-md);
+  font-size: var(--sv-font-size);
+  line-height: 1.5;
+  color: var(--sv-text-primary);
+  background: var(--sv-bg-primary);
+  border: 1px solid var(--sv-border-primary);
+  border-radius: var(--sv-radius);
+  transition: all var(--sv-transition);
+}
+
+.sv-form-control:focus {
+  border-color: var(--sv-primary);
+  box-shadow: 0 0 0 2px var(--sv-primary-bg);
+  outline: none;
+}
+
+.sv-form-control:disabled {
+  background: var(--sv-bg-quaternary);
+  color: var(--sv-text-disabled);
+  cursor: not-allowed;
+}
+
+/* === 标签样式 === */
+.sv-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--sv-space-xs) var(--sv-space-sm);
+  font-size: var(--sv-font-size-xs);
+  font-weight: 500;
+  border-radius: var(--sv-radius-sm);
+  white-space: nowrap;
+}
+
+.sv-tag-primary {
+  background: var(--sv-primary-bg);
+  color: var(--sv-primary);
+}
+
+.sv-tag-success {
+  background: var(--sv-success-bg);
+  color: var(--sv-success);
+}
+
+.sv-tag-warning {
+  background: var(--sv-warning-bg);
+  color: var(--sv-warning);
+}
+
+.sv-tag-error {
+  background: var(--sv-error-bg);
+  color: var(--sv-error);
+}
+
+/* === 状态指示器 === */
+.sv-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sv-space-xs);
+  font-size: var(--sv-font-size-sm);
+}
+
+.sv-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.sv-status-active .sv-status-dot {
+  background: var(--sv-success);
+}
+
+.sv-status-inactive .sv-status-dot {
+  background: var(--sv-text-disabled);
+}
+
+.sv-status-warning .sv-status-dot {
+  background: var(--sv-warning);
+}
+
+.sv-status-error .sv-status-dot {
+  background: var(--sv-error);
+}
+
+/* === 加载状态 === */
+.sv-loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.sv-loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: sv-loading-shimmer 1.5s infinite;
+}
+
+@keyframes sv-loading-shimmer {
+  100% {
+    left: 100%;
+  }
+}
+
+/* === 响应式布局 === */
+@media (max-width: 768px) {
+  .sv-container {
+    padding: 0 var(--sv-space);
+  }
+
+  .sv-card-body {
+    padding: var(--sv-space-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .sv-container {
+    padding: 0 var(--sv-space-sm);
+  }
+
+  .sv-card-body {
+    padding: var(--sv-space);
+  }
+}
+
+/* === 无障碍访问 === */
+.sv-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* 焦点样式 */
+.sv-focus-visible:focus {
+  outline: 2px solid var(--sv-primary);
+  outline-offset: 2px;
+}
+
+/* === 打印样式 === */
+@media print {
+  .sv-no-print {
+    display: none !important;
+  }
+
+  .sv-card {
+    box-shadow: none;
+    border: 1px solid var(--sv-border-primary);
+  }
+}
+
+/* === 深色模式支持 === */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --sv-text-primary: #ffffff;
+    --sv-text-secondary: #a6a6a6;
+    --sv-text-disabled: #737373;
+
+    --sv-bg-primary: #141414;
+    --sv-bg-secondary: #1f1f1f;
+    --sv-bg-tertiary: #262626;
+    --sv-bg-quaternary: #2f2f2f;
+
+    --sv-border-primary: #434343;
+    --sv-border-secondary: #404040;
+    --sv-border-tertiary: #2f2f2f;
+  }
+}
+
+/* === 动画效果 === */
+.sv-fade-in {
+  animation: sv-fade-in var(--sv-transition-slow) ease-out;
+}
+
+@keyframes sv-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sv-scale-in {
+  animation: sv-scale-in var(--sv-transition) ease-out;
+}
+
+@keyframes sv-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* === 乡村主题装饰 === */
+.sv-rural-pattern {
+  background-image:
+    radial-gradient(circle at 20% 80%, var(--sv-green) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, var(--sv-earth) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, var(--sv-harvest) 0%, transparent 50%);
+  background-size: 100px 100px;
+  background-position: 0 0, 0 0, 0 0;
+  opacity: 0.1;
+}
+
+.sv-wheat-border {
+  border-image: repeating-linear-gradient(
+    45deg,
+    var(--sv-harvest),
+    var(--sv-harvest) 10px,
+    transparent 10px,
+    transparent 20px
+  ) 1;
+}
+
+/* === 特殊组件样式 === */
+.sv-emergency-alert {
+  background: linear-gradient(135deg, var(--sv-error) 0%, var(--sv-error-light) 100%);
+  color: white;
+  padding: var(--sv-space-md);
+  border-radius: var(--sv-radius);
+  position: relative;
+  overflow: hidden;
+}
+
+.sv-emergency-alert::before {
+  content: '⚠';
+  position: absolute;
+  top: var(--sv-space-sm);
+  right: var(--sv-space-md);
+  font-size: var(--sv-font-size-2xl);
+  opacity: 0.3;
+}
+
+.sv-stat-card {
+  background: linear-gradient(135deg, var(--sv-bg-primary) 0%, var(--sv-bg-secondary) 100%);
+  border: 1px solid var(--sv-border-tertiary);
+  border-radius: var(--sv-radius-lg);
+  padding: var(--sv-space-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+.sv-stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--sv-primary);
+}
+
+.sv-stat-card.success::before {
+  background: var(--sv-success);
+}
+
+.sv-stat-card.warning::before {
+  background: var(--sv-warning);
+}
+
+.sv-stat-card.error::before {
+  background: var(--sv-error);
+}

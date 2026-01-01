@@ -1,0 +1,24 @@
+[
+  {
+    "id": "village_001",
+    "name": "凤凰村",
+    "location": {
+      "lat": 30.5928,
+      "lng": 114.3055
+    },
+    "population": 1250,
+    "area": 15.6,
+    "description": "美丽的江南水乡，以生态农业和文化传承闻名"
+  },
+  {
+    "id": "village_002",
+    "name": "幸福村",
+    "location": {
+      "lat": 30.5852,
+      "lng": 114.3128
+    },
+    "population": 980,
+    "area": 12.3,
+    "description": "现代化新农村，示范数字化乡村治理"
+  }
+]

@@ -781,7 +781,7 @@ class PaymentService {
   async parseWechatResponse(xmlData) {
     try {
       const xml2js = require('xml2js');
-const logger = require('../utils/logger');
+      const logger = require('../utils/logger');
       const parser = new xml2js.Parser({
         explicitArray: false,
         ignoreAttrs: true

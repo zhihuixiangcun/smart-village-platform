@@ -438,20 +438,20 @@ class AlertSystem extends EventEmitter {
    */
   async sendNotification(alert, channel) {
     switch (channel) {
-      case 'webhook':
-        await this.sendWebhookNotification(alert);
-        break;
-      case 'email':
-        await this.sendEmailNotification(alert);
-        break;
-      case 'sms':
-        await this.sendSMSNotification(alert);
-        break;
-      case 'dingtalk':
-        await this.sendDingTalkNotification(alert);
-        break;
-      default:
-        logger.warn(`未知的通知渠道: ${channel}`);
+    case 'webhook':
+      await this.sendWebhookNotification(alert);
+      break;
+    case 'email':
+      await this.sendEmailNotification(alert);
+      break;
+    case 'sms':
+      await this.sendSMSNotification(alert);
+      break;
+    case 'dingtalk':
+      await this.sendDingTalkNotification(alert);
+      break;
+    default:
+      logger.warn(`未知的通知渠道: ${channel}`);
     }
   }
 
@@ -542,12 +542,12 @@ class AlertSystem extends EventEmitter {
 
     // 根据不同的短信提供商发送
     switch (provider) {
-      case 'tencent':
-        await this.sendTencentSMS(alert, phones);
-        break;
+    case 'tencent':
+      await this.sendTencentSMS(alert, phones);
+      break;
       // 添加其他短信提供商
-      default:
-        logger.warn(`不支持的短信提供商: ${provider}`);
+    default:
+      logger.warn(`不支持的短信提供商: ${provider}`);
     }
   }
 
@@ -793,7 +793,7 @@ class AlertSystem extends EventEmitter {
       avgResponseTime: responseTime,
       p95ResponseTime: responseTime * 1.5,
       p99ResponseTime: responseTime * 2,
-      errorRate: errorRate,
+      errorRate,
       requestsPerSecond: 100 + Math.random() * 400,
       totalRequests: 10000 + Math.random() * 50000,
       totalErrors: Math.floor(errorRate * 10000),
@@ -921,7 +921,7 @@ class AlertSystem extends EventEmitter {
           level: rule.level,
           message: rule.message(metrics),
           suggestion: rule.suggestion,
-          metrics: metrics,
+          metrics,
           timestamp: new Date(),
           channels: ['webhook'],
           test: true

@@ -722,17 +722,17 @@ policyCalculatorSchema.methods.evaluateCondition = function(condition, data) {
   const fieldValue = this.getFieldValue(data, condition.field);
 
   switch (condition.operator) {
-    case 'eq': return fieldValue === condition.value;
-    case 'ne': return fieldValue !== condition.value;
-    case 'gt': return fieldValue > condition.value;
-    case 'lt': return fieldValue < condition.value;
-    case 'gte': return fieldValue >= condition.value;
-    case 'lte': return fieldValue <= condition.value;
-    case 'in': return Array.isArray(condition.value) && condition.value.includes(fieldValue);
-    case 'nin': return Array.isArray(condition.value) && !condition.value.includes(fieldValue);
-    case 'exists': return fieldValue !== undefined && fieldValue !== null;
-    case 'regex': return new RegExp(condition.value).test(String(fieldValue));
-    default: return true;
+  case 'eq': return fieldValue === condition.value;
+  case 'ne': return fieldValue !== condition.value;
+  case 'gt': return fieldValue > condition.value;
+  case 'lt': return fieldValue < condition.value;
+  case 'gte': return fieldValue >= condition.value;
+  case 'lte': return fieldValue <= condition.value;
+  case 'in': return Array.isArray(condition.value) && condition.value.includes(fieldValue);
+  case 'nin': return Array.isArray(condition.value) && !condition.value.includes(fieldValue);
+  case 'exists': return fieldValue !== undefined && fieldValue !== null;
+  case 'regex': return new RegExp(condition.value).test(String(fieldValue));
+  default: return true;
   }
 };
 
@@ -785,7 +785,7 @@ policyCalculatorSchema.methods.evaluateFormula = function(formula, variables) {
     });
 
     // 计算结果
-    return Function('"use strict"; return (' + evaluatedFormula + ')')();
+    return Function(`"use strict"; return (${  evaluatedFormula  })`)();
   } catch (error) {
     logger.error('Formula evaluation error:', error);
     return 0;
@@ -822,7 +822,7 @@ policyCalculatorSchema.statics.batchCalculate = async function(calculators, appl
           calculatorId: calculator._id,
           calculatorName: calculator.calculatorName,
           applicationId: application._id,
-          result: result
+          result
         });
       } catch (error) {
         results.push({

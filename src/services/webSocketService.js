@@ -52,7 +52,7 @@ class WebSocketService {
     try {
       const defaultOptions = {
         cors: {
-          origin: process.env.CLIENT_URL || "http://localhost:3000",
+          origin: process.env.CLIENT_URL || 'http://localhost:3000',
           methods: ['GET', 'POST'],
           credentials: true
         },
@@ -138,8 +138,8 @@ class WebSocketService {
     // 记录用户连接信息
     this.connectedUsers.set(userId, {
       socketId: socket.id,
-      socket: socket,
-      userId: userId,
+      socket,
+      userId,
       userInfo: socket.userInfo,
       connectedAt: new Date(),
       lastActivity: new Date(),
@@ -154,7 +154,7 @@ class WebSocketService {
     // 发送连接成功消息
     socket.emit('connected', {
       status: 'success',
-      userId: userId,
+      userId,
       timestamp: new Date(),
       serverTime: Date.now()
     });
@@ -245,7 +245,7 @@ class WebSocketService {
       // 创建消息记录
       const messageRecord = {
         id: this.generateMessageId(),
-        userId: userId,
+        userId,
         type: message.type,
         content: message.content,
         data: message.data || {},
@@ -255,17 +255,17 @@ class WebSocketService {
 
       // 根据消息类型处理
       switch (message.type) {
-        case 'notification':
-          await this.handleNotificationMessage(userId, messageRecord);
-          break;
-        case 'chat':
-          await this.handleChatMessage(userId, messageRecord);
-          break;
-        case 'system':
-          await this.handleSystemMessage(userId, messageRecord);
-          break;
-        default:
-          logger.warn(`未知消息类型: ${message.type}`);
+      case 'notification':
+        await this.handleNotificationMessage(userId, messageRecord);
+        break;
+      case 'chat':
+        await this.handleChatMessage(userId, messageRecord);
+        break;
+      case 'system':
+        await this.handleSystemMessage(userId, messageRecord);
+        break;
+      default:
+        logger.warn(`未知消息类型: ${message.type}`);
       }
 
     } catch (error) {
@@ -335,14 +335,14 @@ class WebSocketService {
 
     // 处理系统级消息
     switch (message.data.action) {
-      case 'get-status':
-        this.sendUserStatus(userId);
-        break;
-      case 'get-online-users':
-        this.sendOnlineUsers(userId);
-        break;
-      default:
-        logger.warn(`未知系统消息操作: ${message.data.action}`);
+    case 'get-status':
+      this.sendUserStatus(userId);
+      break;
+    case 'get-online-users':
+      this.sendOnlineUsers(userId);
+      break;
+    default:
+      logger.warn(`未知系统消息操作: ${message.data.action}`);
     }
   }
 
@@ -672,7 +672,7 @@ class WebSocketService {
     this.broadcastToUser(userId, {
       type: 'user-status',
       data: {
-        userId: userId,
+        userId,
         connectedAt: userInfo.connectedAt,
         lastActivity: userInfo.lastActivity,
         rooms: Array.from(this.userRooms.get(userId) || []),

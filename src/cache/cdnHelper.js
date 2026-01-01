@@ -54,17 +54,17 @@ class CDNHelper {
    */
   initProvider() {
     switch (this.config.provider) {
-      case 'aws_cloudfront':
-        this.initCloudFront();
-        break;
-      case 'aliyun_cdn':
-        this.initAliyunCDN();
-        break;
-      case 'tencent_cdn':
-        this.initTencentCDN();
-        break;
-      default:
-        throw new Error(`不支持的CDN供应商: ${this.config.provider}`);
+    case 'aws_cloudfront':
+      this.initCloudFront();
+      break;
+    case 'aliyun_cdn':
+      this.initAliyunCDN();
+      break;
+    case 'tencent_cdn':
+      this.initTencentCDN();
+      break;
+    default:
+      throw new Error(`不支持的CDN供应商: ${this.config.provider}`);
     }
   }
 

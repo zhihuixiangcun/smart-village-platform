@@ -3,22 +3,22 @@
  * 提供语音识别、合成、方言检测等API路由
  */
 
-const express = require('express')
-const speechController = require('../controllers/speechController')
-const authMiddleware = require('../middleware/authMiddleware')
-const rateLimitMiddleware = require('../middleware/rateLimitMiddleware')
-const auditMiddleware = require('../middleware/auditMiddleware')
-const { WebSocketServer } = require('ws')
+const express = require('express');
+const speechController = require('../controllers/speechController');
+const authMiddleware = require('../middleware/authMiddleware');
+const rateLimitMiddleware = require('../middleware/rateLimitMiddleware');
+const auditMiddleware = require('../middleware/auditMiddleware');
+const { WebSocketServer } = require('ws');
 
-const router = express.Router()
+const router = express.Router();
 
 // 应用中间件
-router.use(authMiddleware) // 需要认证
-router.use(auditMiddleware) // 审计日志
-router.use(rateLimitMiddleware.speech) // 语音API限流
+router.use(authMiddleware); // 需要认证
+router.use(auditMiddleware); // 审计日志
+router.use(rateLimitMiddleware.speech); // 语音API限流
 
 // 音频文件上传中间件
-const upload = speechController.upload
+const upload = speechController.upload;
 
 /**
  * @api {POST} /api/speech/recognize 语音识别
@@ -46,7 +46,7 @@ const upload = speechController.upload
  * @apiError (500) {Boolean} success 服务器错误
  * @apiError (500) {String} message 错误消息
  */
-router.post('/recognize', upload.single('audio'), speechController.recognizeSpeech)
+router.post('/recognize', upload.single('audio'), speechController.recognizeSpeech);
 
 /**
  * @api {POST} /api/speech/synthesize 语音合成
@@ -70,7 +70,7 @@ router.post('/recognize', upload.single('audio'), speechController.recognizeSpee
  * @apiError (500) {Boolean} success 服务器错误
  * @apiError (500) {String} message 错误消息
  */
-router.post('/synthesize', speechController.synthesizeSpeech)
+router.post('/synthesize', speechController.synthesizeSpeech);
 
 /**
  * @api {POST} /api/speech/detect-dialect 方言检测
@@ -92,7 +92,7 @@ router.post('/synthesize', speechController.synthesizeSpeech)
  * @apiError (500) {Boolean} success 服务器错误
  * @apiError (500) {String} message 错误消息
  */
-router.post('/detect-dialect', upload.single('audio'), speechController.detectDialect)
+router.post('/detect-dialect', upload.single('audio'), speechController.detectDialect);
 
 /**
  * @api {POST} /api/speech/translate-dialect 方言翻译
@@ -117,7 +117,7 @@ router.post('/detect-dialect', upload.single('audio'), speechController.detectDi
  * @apiError (500) {Boolean} success 服务器错误
  * @apiError (500) {String} message 错误消息
  */
-router.post('/translate-dialect', speechController.translateDialect)
+router.post('/translate-dialect', speechController.translateDialect);
 
 /**
  * @api {GET} /api/speech/dialects 获取支持的方言列表
@@ -137,7 +137,7 @@ router.post('/translate-dialect', speechController.translateDialect)
  * @apiError (500) {Boolean} success 服务器错误
  * @apiError (500) {String} message 错误消息
  */
-router.get('/dialects', speechController.getSupportedDialects)
+router.get('/dialects', speechController.getSupportedDialects);
 
 /**
  * @api {GET} /api/speech/stats 获取语音服务统计
@@ -161,7 +161,7 @@ router.get('/dialects', speechController.getSupportedDialects)
  * @apiError (500) {Boolean} success 服务器错误
  * @apiError (500) {String} message 错误消息
  */
-router.get('/stats', speechController.getStats)
+router.get('/stats', speechController.getStats);
 
 /**
  * @api {GET} /api/speech/audio-config 获取音频配置
@@ -185,7 +185,7 @@ router.get('/stats', speechController.getStats)
  * @apiError (500) {Boolean} success 服务器错误
  * @apiError (500) {String} message 错误消息
  */
-router.get('/audio-config', speechController.getAudioConfig)
+router.get('/audio-config', speechController.getAudioConfig);
 
 /**
  * @api {POST} /api/speech/batch-recognize 批量语音识别
@@ -211,7 +211,7 @@ router.get('/audio-config', speechController.getAudioConfig)
  * @apiError (500) {Boolean} success 服务器错误
  * @apiError (500) {String} message 错误消息
  */
-router.post('/batch-recognize', upload.array('files', 10), speechController.batchRecognizeSpeech)
+router.post('/batch-recognize', upload.array('files', 10), speechController.batchRecognizeSpeech);
 
 /**
  * @api {DELETE} /api/speech/cache 清理语音服务缓存
@@ -226,7 +226,7 @@ router.post('/batch-recognize', upload.array('files', 10), speechController.batc
  * @apiError (500) {Boolean} success 服务器错误
  * @apiError (500) {String} message 错误消息
  */
-router.delete('/cache', speechController.clearCache)
+router.delete('/cache', speechController.clearCache);
 
 /**
  * @api {POST} /api/speech/stats/reset 重置统计信息
@@ -241,7 +241,7 @@ router.delete('/cache', speechController.clearCache)
  * @apiError (500) {Boolean} success 服务器错误
  * @apiError (500) {String} message 错误消息
  */
-router.post('/stats/reset', speechController.resetStats)
+router.post('/stats/reset', speechController.resetStats);
 
 /**
  * 实时语音识别WebSocket路由
@@ -267,19 +267,19 @@ router.post('/stats/reset', speechController.resetStats)
 router.get('/real-time-recognize', (req, res, next) => {
   if (req.headers.upgrade && req.headers.upgrade.toLowerCase() === 'websocket') {
     // 设置WebSocket
-    req.ws = true
-    return next()
+    req.ws = true;
+    return next();
   }
 
   res.status(400).json({
     success: false,
     message: '该端点需要WebSocket连接'
-  })
-}, speechController.handleRealTimeRecognition)
+  });
+}, speechController.handleRealTimeRecognition);
 
 // 错误处理中间件
 router.use((error, req, res, next) => {
-  const logger = require('../config/logger')
+  const logger = require('../config/logger');
 
   logger.error('语音路由错误:', {
     error: error.message,
@@ -287,35 +287,35 @@ router.use((error, req, res, next) => {
     url: req.url,
     method: req.method,
     user: req.user ? req.user.id : 'anonymous'
-  })
+  });
 
   // Multer错误处理
   if (error.code === 'LIMIT_FILE_SIZE') {
     return res.status(400).json({
       success: false,
       message: '文件大小超过限制(10MB)'
-    })
+    });
   }
 
   if (error.code === 'LIMIT_FILE_COUNT') {
     return res.status(400).json({
       success: false,
       message: '文件数量超过限制(10个)'
-    })
+    });
   }
 
   if (error.code === 'LIMIT_UNEXPECTED_FILE') {
     return res.status(400).json({
       success: false,
       message: '不支持的文件类型'
-    })
+    });
   }
 
   // 默认错误处理
   res.status(500).json({
     success: false,
     message: '服务器内部错误'
-  })
-})
+  });
+});
 
-module.exports = router
+module.exports = router;

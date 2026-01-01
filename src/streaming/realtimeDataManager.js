@@ -504,23 +504,23 @@ class RealtimeDataManager extends EventEmitter {
       let result = {};
 
       switch (metricType) {
-        case 'village_overview':
-          result = await this.queryVillageOverview(filters);
-          break;
-        case 'user_activity':
-          result = await this.queryUserActivity(filters);
-          break;
-        case 'system_performance':
-          result = await this.querySystemPerformance(filters);
-          break;
-        case 'emergency_events':
-          result = await this.queryEmergencyEvents(filters);
-          break;
-        case 'iot_sensors':
-          result = await this.queryIotSensors(filters);
-          break;
-        default:
-          throw new Error(`不支持的指标类型: ${metricType}`);
+      case 'village_overview':
+        result = await this.queryVillageOverview(filters);
+        break;
+      case 'user_activity':
+        result = await this.queryUserActivity(filters);
+        break;
+      case 'system_performance':
+        result = await this.querySystemPerformance(filters);
+        break;
+      case 'emergency_events':
+        result = await this.queryEmergencyEvents(filters);
+        break;
+      case 'iot_sensors':
+        result = await this.queryIotSensors(filters);
+        break;
+      default:
+        throw new Error(`不支持的指标类型: ${metricType}`);
       }
 
       logger.debug('实时指标查询成功', { metricType, filters });

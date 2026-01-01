@@ -950,7 +950,7 @@ class EcommerceService {
    */
   async updateSalesStatistics(items) {
     const AgriculturalProduct = require('../models/AgriculturalProduct');
-const logger = require('../utils/logger');
+    const logger = require('../utils/logger');
 
     for (const item of items) {
       await AgriculturalProduct.findByIdAndUpdate(

@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智慧乡村综合服务平台 - 登录</title>
+    <meta name="description" content="智慧乡村综合服务平台登录入口 - 支持人脸识别、语音交互、多语言、多种登录方式">
+    <meta name="keywords" content="智慧乡村,登录,人脸识别,语音交互,村务管理">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'village-primary': '#2563eb',
+                        'village-secondary': '#10b981',
+                        'village-accent': '#f59e0b',
+                        'village-danger': '#ef4444',
+                        'village-purple': '#8b5cf6',
+                        'village-pink': '#ec4899',
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-glow': 'pulseGlow 3s ease-in-out infinite',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                        'fade-in': 'fadeIn 1s ease-out',
+                        'gradient-x': 'gradientX 15s ease infinite',
+                        'gradient-y': 'gradientY 15s ease infinite',
+                        'gradient-xy': 'gradientXY 15s ease infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { boxShadow: '0 0 20px rgba(59, 130, 246, 0.5)' },
+                            '50%': { boxShadow: '0 0 40px rgba(59, 130, 246, 0.8)' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(30px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        gradientX: {
+                            '0%, 100%': { backgroundPosition: '0% 50%' },
+                            '50%': { backgroundPosition: '100% 50%' },
+                        },
+                        gradientY: {
+                            '0%, 100%': { backgroundPosition: '50% 0%' },
+                            '50%': { backgroundPosition: '50% 100%' },
+                        },
+                        gradientXY: {
+                            '0%, 100%': { backgroundPosition: '0% 0%' },
+                            '25%': { backgroundPosition: '100% 0%' },
+                            '50%': { backgroundPosition: '100% 100%' },
+                            '75%': { backgroundPosition: '0% 100%' },
+                        },
+                    },
+                    fontFamily: {
+                        'chinese': ['PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'WenQuanYi Micro Hei', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* 自定义样式 */
+        .gradient-bg {
+            background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #f5576c, #4facfe);
+            background-size: 400% 400%;
+            animation: gradientXY 15s ease infinite;
+        }
+
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .text-shadow {
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .hover-scale {
+            transition: transform 0.3s ease;
+        }
+
+        .hover-scale:hover {
+            transform: scale(1.05);
+        }
+
+        .loading-dots::after {
+            content: '';
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+
+        /* ============================================
+           UI/UX 改进：按钮设计系统
+           所有按钮使用深色背景，白色文字清晰可见
+           ============================================ */
+
+        /* 主按钮 - 用于最重要的操作 (登录、确认) */
+        .btn-primary {
+            background: linear-gradient(135deg, #2d5f5f, #1a3a3a) !important;
+            color: #ffffff !important;
+            font-weight: 600 !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+            transition: all 0.2s ease !important;
+            position: relative !important;
+            overflow: hidden !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: linear-gradient(135deg, #3d6a6c, #244e4e) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
+        }
+
+        .btn-primary:active:not(:disabled) {
+            transform: translateY(0) !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        /* 次要按钮 - 用于获取验证码等操作 */
+        .btn-secondary {
+            background: linear-gradient(135deg, #4a5568, #2d3748) !important;
+            color: #ffffff !important;
+            font-weight: 600 !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #5a6578, #3d4758) !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        /* 强调按钮 - 用于特殊操作 (语音确认) */
+        .btn-accent {
+            background: linear-gradient(135deg, #b8956f, #8f7350) !important;
+            color: #ffffff !important;
+            font-weight: 600 !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+            transition: all 0.2s ease !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        }
+
+        .btn-accent:hover {
+            background: linear-gradient(135deg, #c8a57f, #9f8360) !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4) !important;
+        }
+
+        /* 危险按钮 - 用于删除等不可逆操作 */
+        .btn-danger {
+            background: linear-gradient(135deg, #b84c4c, #8f3333) !important;
+            color: #ffffff !important;
+            font-weight: 600 !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+            transition: all 0.2s ease !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #c85c5c, #9f4343) !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4) !important;
+        }
+
+        /* 轮廓按钮 - 用于返回等次要操作，改为深色背景 */
+        .btn-outline {
+            background: linear-gradient(135deg, #374151, #1f2937) !important;
+            color: #ffffff !important;
+            font-weight: 600 !important;
+            border: 2px solid rgba(255, 255, 255, 0.3) !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .btn-outline:hover {
+            background: linear-gradient(135deg, #475569, #374151) !important;
+            border-color: rgba(255, 255, 255, 0.5) !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        /* ============================================
+           UI/UX 改进：弹窗和标签样式
+           ============================================ */
+
+        /* 弹窗内容 */
+        .modal-content {
+            background: rgba(30, 41, 59, 0.95) !important;
+            backdrop-filter: blur(20px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        }
+
+        .modal-title {
+            color: #ffffff !important;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5) !important;
+            font-size: 1.25rem !important;
+            font-weight: 600 !important;
+        }
+
+        .help-item-title {
+            color: #fbbf24 !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+        }
+
+        .help-item {
+            background: rgba(59, 130, 246, 0.15) !important;
+            border-left: 4px solid #3b82f6 !important;
+            border-radius: 0.5rem !important;
+            transition: background 0.2s ease !important;
+        }
+
+        .help-item:hover {
+            background: rgba(59, 130, 246, 0.2) !important;
+        }
+
+        /* 表单标签优化 */
+        .label-text {
+            color: #e5e7eb !important;
+            font-weight: 500 !important;
+            font-size: 0.875rem !important;
+            margin-bottom: 0.5rem !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.25rem !important;
+        }
+
+        /* 添加必填标记 */
+        .label-required::after {
+            content: '*' !important;
+            color: #ef4444 !important;
+            margin-left: 0.25rem !important;
+        }
+
+        /* 表单输入框增强 */
+        input:focus,
+        select:focus {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3) !important;
+        }
+
+        /* 输入框错误状态 */
+        input.error,
+        select.error {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+        }
+
+        .error-message {
+            color: #fca5a5 !important;
+            font-size: 0.75rem !important;
+            margin-top: 0.25rem !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.25rem !important;
+        }
+
+        /* 禁用状态 */
+        .btn-disabled,
+        button:disabled {
+            background: #475569 !important;
+            color: #94a3b8 !important;
+            box-shadow: none !important;
+            transform: none !important;
+            cursor: not-allowed !important;
+            opacity: 0.6 !important;
+        }
+
+        /* 加载状态 */
+        .btn-loading {
+            position: relative !important;
+            color: transparent !important;
+            pointer-events: none !important;
+        }
+
+        .btn-loading::after {
+            content: '' !important;
+            position: absolute !important;
+            width: 1rem !important;
+            height: 1rem !important;
+            top: 50% !important;
+            left: 50% !important;
+            margin-left: -0.5rem !important;
+            margin-top: -0.5rem !important;
+            border: 2px solid #ffffff !important;
+            border-radius: 50% !important;
+            border-right-color: transparent !important;
+            animation: spin 0.75s linear infinite !important;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 快捷按钮区域增强 */
+        .quick-action-btn {
+            min-height: 64px !important;
+            min-width: 64px !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .quick-action-btn:hover {
+            transform: translateY(-2px) !important;
+        }
+
+        .quick-action-btn:active {
+            transform: translateY(0) !important;
+        }
+
+        /* ============================================
+           UI/UX 改进：表单输入框样式
+           深色背景确保白色文字可见
+           ============================================ */
+
+        /* 输入框和选择框样式 */
+        input:not([type="checkbox"]):not([type="radio"]),
+        select {
+            background: rgba(30, 41, 59, 0.9) !important;
+            border: 2px solid rgba(148, 163, 184, 0.5) !important;
+            color: #f1f5f9 !important;
+        }
+
+        input:not([type="checkbox"]):not([type="radio"])::placeholder,
+        select::placeholder {
+            color: #94a3b8 !important;
+            opacity: 1 !important;
+        }
+
+        /* 输入框图标颜色 */
+        input + .fa-phone,
+        input + .fa-lock {
+            color: #cbd5e1 !important;
+        }
+
+        /* 输入框聚焦状态 */
+        input:focus,
+        select:focus {
+            background: rgba(30, 41, 59, 0.95) !important;
+            border-color: #60a5fa !important;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2) !important;
+            color: #ffffff !important;
+        }
+
+        /* select 选项样式 */
+        select option {
+            background: #1e293b !important;
+            color: #f1f5f9 !important;
+        }
+
+        /* 标签文字颜色 - 更亮 */
+        label {
+            color: #e2e8f0 !important;
+        }
+
+        /* 帮助提示文字颜色 */
+        .text-white\/50,
+        .text-white\/60,
+        .text-white\/80 {
+            color: #cbd5e1 !important;
+        }
+
+        /* 密码显示/隐藏按钮图标 */
+        button .fa-eye,
+        button .fa-eye-slash {
+            color: #cbd5e1 !important;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
+
+        /* 无障碍支持 */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* 高对比度模式支持 */
+        @media (prefers-contrast: high) {
+            .glass-morphism {
+                background: rgba(0, 0, 0, 0.8);
+                border: 2px solid white;
+            }
+        }
+
+        /* 强制覆盖模态框中所有Tailwind样式 */
+        #forgotPasswordModal,
+        #helpModal {
+            background: rgba(0, 0, 0, 0.7) !important;
+        }
+
+        #forgotPasswordModal .bg-white\/10,
+        #helpModal .bg-white\/10 {
+            background: rgba(0, 0, 0, 0.6) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        }
+
+        #forgotPasswordModal .text-white\/80,
+        #helpModal .text-white\/80 {
+            color: #e5e7eb !important;
+            text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8) !important;
+        }
+
+        #forgotPasswordModal .border-white\/20,
+        #helpModal .border-white\/20 {
+            border-color: rgba(255, 255, 255, 0.4) !important;
+        }
+
+        #forgotPasswordModal .placeholder-white\/50,
+        #helpModal .placeholder-white\/50 {
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+
+        #forgotPasswordModal .focus\:ring-white\/50:focus,
+        #helpModal .focus\:ring-white\/50:focus {
+            --tw-ring-color: rgba(255, 255, 255, 0.6) !important;
+        }
+
+        #forgotPasswordModal .text-white\/60,
+        #helpModal .text-white\/60 {
+            color: #d1d5db !important;
+        }
+
+        #helpModal .bg-white\/10 {
+            background: rgba(31, 41, 55, 0.8) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        }
+
+        #helpModal .text-white {
+            color: #ffffff !important;
+        }
+
+        /* 强制所有模态框按钮使用深色背景 */
+        .modal-content button {
+            background: linear-gradient(135deg, #4a7c7e, #2d5f5f) !important;
+            color: #ffffff !important;
+            font-weight: 600 !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        }
+
+        .modal-content button:hover {
+            background: linear-gradient(135deg, #3d6a6c, #244e4e) !important;
+        }
+
+        /* 特殊处理取消按钮 */
+        .modal-content button.btn-outline {
+            background: rgba(107, 114, 128, 0.8) !important;
+            color: #ffffff !important;
+            border: 2px solid rgba(255, 255, 255, 0.5) !important;
+        }
+
+        .modal-content button.btn-outline:hover {
+            background: rgba(107, 114, 128, 0.9) !important;
+        }
+
+        /* 减少动画模式支持 */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen gradient-bg flex items-center justify-center p-4 font-chinese">
+
+    <!-- 主登录容器 -->
+    <div class="w-full max-w-md mx-auto">
+
+        <!-- Logo 和标题区域 -->
+        <div class="text-center mb-8 animate-fade-in">
+            <div class="inline-block relative">
+                <div class="w-24 h-24 mx-auto mb-6 bg-white rounded-3xl shadow-2xl flex items-center justify-center relative overflow-hidden group hover-scale">
+                    <div class="absolute inset-0 bg-gradient-to-br from-village-primary to-village-purple opacity-10 group-hover:opacity-20 transition-opacity"></div>
+                    <i class="fas fa-home text-4xl text-village-primary relative z-10"></i>
+                    <div class="absolute -top-2 -right-2 w-6 h-6 bg-village-accent rounded-full animate-pulse-glow"></div>
+                </div>
+            </div>
+
+            <h1 class="text-3xl md:text-4xl font-bold text-white mb-2 text-shadow">智慧乡村综合服务平台</h1>
+            <p class="text-lg text-white/80 mb-4">数字化村务管理 · 便民服务 · 村务公开</p>
+            <div class="flex justify-center gap-2 flex-wrap">
+                <span class="px-3 py-1 bg-white/20 rounded-full text-xs text-white glass-morphism">
+                    <i class="fas fa-users mr-1"></i> 1,234+ 用户
+                </span>
+                <span class="px-3 py-1 bg-white/20 rounded-full text-xs text-white glass-morphism">
+                    <i class="fas fa-map-marker-alt mr-1"></i> 56+ 村庄
+                </span>
+                <span class="px-3 py-1 bg-white/20 rounded-full text-xs text-white glass-morphism">
+                    <i class="fas fa-star mr-1"></i> 98% 满意度
+                </span>
+            </div>
+        </div>
+
+        <!-- 登录方式选择 -->
+        <div class="glass-morphism rounded-3xl p-8 shadow-2xl animate-slide-up">
+
+            <!-- 登录方式切换标签 -->
+            <div class="flex mb-6 bg-white/10 rounded-2xl p-1" role="tablist" aria-label="选择登录方式">
+                <button onclick="switchLoginMode('password')" id="passwordTab"
+                        class="flex-1 py-3 px-4 rounded-xl text-white font-medium transition-all duration-300 bg-white/20"
+                        role="tab" aria-selected="true" aria-controls="passwordForm"
+                        aria-label="使用账号密码登录">
+                    <i class="fas fa-key mr-2"></i>密码登录
+                </button>
+                <button onclick="switchLoginMode('face')" id="faceTab"
+                        class="flex-1 py-3 px-4 rounded-xl text-white/70 font-medium transition-all duration-300 hover:text-white"
+                        role="tab" aria-selected="false" aria-controls="faceForm"
+                        aria-label="使用人脸识别登录">
+                    <i class="fas fa-smile mr-2"></i>人脸登录
+                </button>
+                <button onclick="switchLoginMode('voice')" id="voiceTab"
+                        class="flex-1 py-3 px-4 rounded-xl text-white/70 font-medium transition-all duration-300 hover:text-white"
+                        role="tab" aria-selected="false" aria-controls="voiceForm"
+                        aria-label="使用语音识别登录">
+                    <i class="fas fa-microphone mr-2"></i>语音登录
+                </button>
+            </div>
+
+            <!-- 密码登录表单 -->
+            <div id="passwordForm" class="space-y-5" role="tabpanel" aria-labelledby="passwordTab">
+                <!-- 用户类型选择 -->
+                <div class="mb-6">
+                    <fieldset class="border-0 p-0 m-0">
+                        <legend class="block text-white/80 text-sm font-medium mb-3">
+                            <i class="fas fa-id-card mr-1"></i>请选择您的登录身份
+                        </legend>
+                        <div class="grid grid-cols-3 gap-3">
+                            <label class="cursor-pointer group">
+                                <input type="radio" name="userType" value="villager" class="sr-only peer" checked>
+                                <div class="p-3 rounded-xl text-center peer-checked:bg-white/20 peer-checked:bg-village-primary/30 peer-checked:ring-2 peer-checked:ring-white/50 bg-white/10 text-white transition-all group-hover:bg-white/15" role="button" tabindex="0">
+                                    <i class="fas fa-user text-lg mb-1"></i>
+                                    <div class="text-xs font-medium">村民</div>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer group">
+                                <input type="radio" name="userType" value="committee" class="sr-only peer">
+                                <div class="p-3 rounded-xl text-center peer-checked:bg-white/20 peer-checked:bg-village-primary/30 peer-checked:ring-2 peer-checked:ring-white/50 bg-white/10 text-white transition-all group-hover:bg-white/15" role="button" tabindex="0">
+                                    <i class="fas fa-user-tie text-lg mb-1"></i>
+                                    <div class="text-xs font-medium">村委</div>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer group">
+                                <input type="radio" name="userType" value="admin" class="sr-only peer">
+                                <div class="p-3 rounded-xl text-center peer-checked:bg-white/20 peer-checked:bg-village-primary/30 peer-checked:ring-2 peer-checked:ring-white/50 bg-white/10 text-white transition-all group-hover:bg-white/15" role="button" tabindex="0">
+                                    <i class="fas fa-user-shield text-lg mb-1"></i>
+                                    <div class="text-xs font-medium">管理员</div>
+                                </div>
+                            </label>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <!-- 村庄选择（如果有多个村庄） -->
+                <div id="villageSelector" class="mb-5">
+                    <label for="villageSelect" class="block text-slate-200 text-sm font-medium mb-2">
+                        <i class="fas fa-map-marker-alt mr-1"></i>请选择您所属的村庄
+                    </label>
+                    <select id="villageSelect" class="w-full px-4 py-3 rounded-xl bg-slate-800/90 border-2 border-slate-400/50 text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent">
+                        <option value="">-- 请选择村庄 --</option>
+                        <option value="xf001">幸福村</option>
+                        <option value="mz002">民主村</option>
+                        <option value="wm003">文明村</option>
+                        <option value="fh004">繁荣村</option>
+                        <option value="xy005">希望村</option>
+                    </select>
+                </div>
+
+                <!-- 手机号输入 -->
+                <div>
+                    <label for="phone" class="block text-white/80 text-sm font-medium mb-2">
+                        <i class="fas fa-mobile-alt mr-1"></i>请输入注册手机号
+                    </label>
+                    <div class="relative">
+                        <input type="tel" id="phone" name="phone" maxlength="11" placeholder="例如：13800138000"
+                               class="w-full px-4 py-3 pl-12 rounded-xl bg-slate-800/90 border-2 border-slate-400/50 text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                               aria-required="true" aria-describedby="phone-hint">
+                        <i class="fas fa-phone absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-300"></i>
+                    </div>
+                    <p id="phone-hint" class="text-slate-300 text-xs mt-1">请输入11位中国大陆手机号码</p>
+                </div>
+
+                <!-- 密码输入 -->
+                <div>
+                    <label for="password" class="block text-white/80 text-sm font-medium mb-2">
+                        <i class="fas fa-key mr-1"></i>请输入登录密码
+                    </label>
+                    <div class="relative">
+                        <input type="password" id="password" name="password" placeholder="首次登录为手机号后6位"
+                               class="w-full px-4 py-3 pl-12 pr-12 rounded-xl bg-slate-800/90 border-2 border-slate-400/50 text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                               aria-required="true" aria-describedby="password-hint">
+                        <i class="fas fa-lock absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-300"></i>
+                        <button type="button" onclick="togglePassword()"
+                                class="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/50 rounded"
+                                aria-label="显示或隐藏密码">
+                            <i id="passwordToggle" class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <p id="password-hint" class="text-slate-300 text-xs mt-1">
+                        <i class="fas fa-info-circle mr-1"></i>首次登录密码默认为手机号后6位数字
+                    </p>
+                </div>
+
+                <!-- 记住登录和忘记密码 -->
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center text-white/90 cursor-pointer hover:text-white transition-colors">
+                        <input type="checkbox" id="remember" class="mr-2 rounded border-white/30 bg-white/10 focus:ring-2 focus:ring-white/50 cursor-pointer">
+                        <span class="text-sm font-medium">记住登录</span>
+                    </label>
+                    <a href="#" onclick="showForgotPassword()" class="text-sm font-semibold text-yellow-300 hover:text-yellow-200 transition-colors underline decoration-dashed underline-offset-2">
+                        <i class="fas fa-key mr-1"></i>忘记密码？
+                    </a>
+                </div>
+
+                <!-- 登录按钮 -->
+                <button onclick="handlePasswordLogin()" type="button" id="loginBtn"
+                        class="w-full py-4 btn-primary rounded-xl transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-white/30"
+                        aria-label="点击登录到系统">
+                    <i class="fas fa-sign-in-alt mr-2"></i>
+                    <span id="loginBtnText">立即登录</span>
+                </button>
+
+                <!-- 安全提示 -->
+                <div class="flex items-center justify-center text-white/60 text-xs">
+                    <i class="fas fa-shield-alt mr-2"></i>
+                    <span>安全加密传输，保护您的隐私</span>
+                </div>
+            </div>
+
+            <!-- 人脸登录区域 -->
+            <div id="faceForm" class="hidden space-y-5">
+                <div class="text-center py-8">
+                    <div class="w-64 h-64 mx-auto mb-6 relative">
+                        <video id="faceVideo" class="w-full h-full rounded-2xl bg-gray-900 object-cover" autoplay></video>
+                        <canvas id="faceCanvas" class="hidden"></canvas>
+                        <div id="faceOverlay" class="absolute inset-0 flex items-center justify-center">
+                            <div class="text-center text-white">
+                                <div class="w-32 h-32 mx-auto mb-4 border-4 border-dashed border-white/50 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-4xl text-white/50"></i>
+                                </div>
+                                <p class="text-lg font-medium">请将面部对准摄像头</p>
+                                <p class="text-sm text-white/60 mt-2">保持光线充足，面部清晰可见</p>
+                            </div>
+                        </div>
+                        <div id="faceScanning" class="hidden absolute inset-0 bg-black/60 rounded-2xl flex items-center justify-center">
+                            <div class="text-center text-white">
+                                <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-white mx-auto mb-4"></div>
+                                <p class="text-lg">正在识别中<span class="loading-dots"></span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 justify-center">
+                        <button onclick="startFaceScan()" class="px-6 py-3 btn-primary rounded-xl transition-all duration-300">
+                            <i class="fas fa-camera mr-2"></i>开始扫描
+                        </button>
+                        <button onclick="switchLoginMode('password')" class="px-6 py-3 btn-outline rounded-xl transition-all duration-300">
+                            <i class="fas fa-arrow-left mr-2"></i>返回
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 语音登录区域 -->
+            <div id="voiceForm" class="hidden space-y-5">
+                <div class="text-center py-8">
+                    <div class="w-32 h-32 mx-auto mb-6 relative">
+                        <div id="voiceButton" onclick="toggleVoiceRecording()" class="w-full h-full bg-gradient-to-r from-village-pink to-village-purple rounded-full flex items-center justify-center cursor-pointer hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                            <i id="voiceIcon" class="fas fa-microphone text-4xl text-white"></i>
+                        </div>
+                        <div id="voiceWave" class="hidden absolute inset-0 rounded-full border-4 border-village-pink animate-pulse"></div>
+                    </div>
+
+                    <div class="mb-6">
+                        <h3 class="text-white text-lg font-medium mb-2">语音登录</h3>
+                        <p class="text-white/60 text-sm">请说出您的手机号和姓名</p>
+                        <p class="text-white/60 text-xs mt-1">支持方言识别：<span class="text-village-accent">普通话、粤语、闽南语、四川话</span></p>
+                    </div>
+
+                    <div id="voiceResult" class="hidden mb-6 p-4 bg-white/10 rounded-xl">
+                        <p class="text-white text-sm">识别结果：<span id="voiceText" class="font-medium"></span></p>
+                    </div>
+
+                    <div class="flex gap-4 justify-center">
+                        <button onclick="processVoiceLogin()" class="px-6 py-3 btn-accent rounded-xl transition-all duration-300">
+                            <i class="fas fa-check mr-2"></i>确认登录
+                        </button>
+                        <button onclick="switchLoginMode('password')" class="px-6 py-3 btn-outline rounded-xl transition-all duration-300">
+                            <i class="fas fa-arrow-left mr-2"></i>返回
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 快速功能 -->
+            <div class="mt-8 pt-6 border-t border-white/20">
+                <div class="flex justify-around">
+                    <button onclick="showRegister()" class="quick-action-btn flex flex-col items-center text-village-primary hover:text-village-secondary transition-colors group"
+                            aria-label="注册新账号" title="点击注册新用户账号">
+                        <div class="w-14 h-14 bg-white/90 rounded-xl flex items-center justify-center mb-2 hover:bg-white transition-all group-hover:scale-110 shadow-lg">
+                            <i class="fas fa-user-plus text-lg text-village-primary"></i>
+                        </div>
+                        <span class="text-sm font-semibold text-white">注册账号</span>
+                    </button>
+                    <button onclick="showHelp()" class="quick-action-btn flex flex-col items-center text-village-primary hover:text-village-secondary transition-colors group"
+                            aria-label="查看使用帮助" title="查看登录和使用帮助">
+                        <div class="w-14 h-14 bg-white/90 rounded-xl flex items-center justify-center mb-2 hover:bg-white transition-all group-hover:scale-110 shadow-lg">
+                            <i class="fas fa-question-circle text-lg text-village-primary"></i>
+                        </div>
+                        <span class="text-sm font-semibold text-white">使用帮助</span>
+                    </button>
+                    <button onclick="switchLanguage()" class="quick-action-btn flex flex-col items-center text-village-primary hover:text-village-secondary transition-colors group"
+                            aria-label="切换方言语言" title="点击切换语音识别方言">
+                        <div class="w-14 h-14 bg-white/90 rounded-xl flex items-center justify-center mb-2 hover:bg-white transition-all group-hover:scale-110 shadow-lg">
+                            <i id="langIcon" class="fas fa-language text-lg text-village-primary"></i>
+                        </div>
+                        <span id="langText" class="text-sm font-semibold text-white">普通话</span>
+                    </button>
+                    <button onclick="toggleAccessibility()" class="quick-action-btn flex flex-col items-center text-village-primary hover:text-village-secondary transition-colors group"
+                            aria-label="开启无障碍模式" title="点击切换大字模式和高对比度">
+                        <div class="w-14 h-14 bg-white/90 rounded-xl flex items-center justify-center mb-2 hover:bg-white transition-all group-hover:scale-110 shadow-lg">
+                            <i class="fas fa-universal-access text-lg text-village-primary"></i>
+                        </div>
+                        <span class="text-sm font-semibold text-white">无障碍</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部信息 -->
+        <div class="text-center mt-8 text-white/60 text-sm">
+            <p>© 2024 智慧乡村综合服务平台 v2.0</p>
+            <div class="mt-2 flex justify-center gap-4">
+                <a href="#" class="hover:text-white transition-colors">隐私政策</a>
+                <a href="#" class="hover:text-white transition-colors">服务条款</a>
+                <a href="#" class="hover:text-white transition-colors">技术支持</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 忘记密码弹窗 -->
+    <div id="forgotPasswordModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+        <div class="modal-content rounded-2xl p-6 w-full max-w-md">
+            <h3 class="text-xl font-bold modal-title mb-4">找回密码</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block label-text text-sm font-medium mb-2">手机号码</label>
+                    <input type="tel" id="resetPhone" placeholder="请输入注册手机号" class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50">
+                </div>
+                <div>
+                    <label class="block label-text text-sm font-medium mb-2">验证码</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="verifyCode" placeholder="请输入验证码" class="flex-1 px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50">
+                        <button onclick="sendVerifyCode()" id="codeBtn" class="px-4 py-3 btn-secondary rounded-xl transition-all duration-300"
+                                aria-label="获取手机验证码">
+                            <i class="fas fa-paper-plane mr-1"></i>
+                            <span>获取验证码</span>
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block label-text text-sm font-medium mb-2">新密码</label>
+                    <input type="password" id="newPassword" placeholder="请输入新密码" class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50">
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeForgotPassword()" class="flex-1 py-3 btn-outline rounded-xl transition-all duration-300"
+                        aria-label="取消重置密码，关闭弹窗">
+                    取消
+                </button>
+                <button onclick="handleResetPassword()" class="flex-1 py-3 btn-primary rounded-xl transition-all duration-300"
+                        aria-label="确认重置密码">
+                    确认重置
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 帮助弹窗 -->
+    <div id="helpModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+        <div class="modal-content rounded-2xl p-6 w-full max-w-md max-h-[80vh] overflow-y-auto">
+            <h3 class="text-xl font-bold modal-title mb-4">使用帮助</h3>
+            <div class="space-y-4 text-white/80">
+                <div class="bg-white/10 rounded-xl p-4">
+                    <h4 class="help-item-title"><i class="fas fa-key mr-2 text-village-primary"></i>默认密码</h4>
+                    <p class="text-sm">首次登录密码为手机号后6位数字</p>
+                </div>
+                <div class="bg-white/10 rounded-xl p-4">
+                    <h4 class="help-item-title"><i class="fas fa-smile mr-2 text-village-pink"></i>人脸登录</h4>
+                    <p class="text-sm">请先注册人脸信息，确保光线充足，面部清晰可见</p>
+                </div>
+                <div class="bg-white/10 rounded-xl p-4">
+                    <h4 class="help-item-title"><i class="fas fa-microphone mr-2 text-village-purple"></i>语音登录</h4>
+                    <p class="text-sm">支持多种方言识别，请清晰说出手机号和姓名</p>
+                </div>
+                <div class="bg-white/10 rounded-xl p-4">
+                    <h4 class="help-item-title"><i class="fas fa-users mr-2 text-village-secondary"></i>功能介绍</h4>
+                    <p class="text-sm">提供村务管理、便民服务、资料收集、数据统计等功能</p>
+                </div>
+                <div class="bg-white/10 rounded-xl p-4">
+                    <h4 class="help-item-title"><i class="fas fa-headset mr-2 text-village-accent"></i>技术支持</h4>
+                    <p class="text-sm">如遇问题请联系村委管理员或拨打客服热线：400-888-8888</p>
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeHelp()" class="flex-1 py-3 btn-primary rounded-xl transition-all duration-300"
+                        aria-label="关闭帮助弹窗">
+                    <i class="fas fa-check mr-2"></i>我知道了
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="login.js"></script>
+</body>
+</html>

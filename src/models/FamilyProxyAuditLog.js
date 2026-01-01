@@ -402,11 +402,11 @@ FamilyProxyAuditLogSchema.methods.addRiskFactor = function(type, severity, descr
 FamilyProxyAuditLogSchema.methods.updateRiskLevel = function() {
   const severities = this.riskAssessment.riskFactors.map(f => {
     switch (f.severity) {
-      case 'critical': return 4;
-      case 'high': return 3;
-      case 'medium': return 2;
-      case 'low': return 1;
-      default: return 0;
+    case 'critical': return 4;
+    case 'high': return 3;
+    case 'medium': return 2;
+    case 'low': return 1;
+    default: return 0;
     }
   });
 
@@ -482,19 +482,19 @@ FamilyProxyAuditLogSchema.statics.getUserActivityPattern = function(userId, days
     {
       $group: {
         _id: {
-          date: { $dateToString: { format: "%Y-%m-%d", date: "$timestamp" } },
-          hour: { $hour: "$timestamp" },
-          action: "$action"
+          date: { $dateToString: { format: '%Y-%m-%d', date: '$timestamp' } },
+          hour: { $hour: '$timestamp' },
+          action: '$action'
         },
         count: { $sum: 1 },
         successCount: {
-          $sum: { $cond: ["$result.success", 1, 0] }
+          $sum: { $cond: ['$result.success', 1, 0] }
         },
-        avgRiskScore: { $avg: "$riskAssessment.riskScore" }
+        avgRiskScore: { $avg: '$riskAssessment.riskScore' }
       }
     },
     {
-      $sort: { "_id.date": 1, "_id.hour": 1 }
+      $sort: { '_id.date': 1, '_id.hour': 1 }
     }
   ]);
 };
@@ -511,20 +511,20 @@ FamilyProxyAuditLogSchema.statics.getDataAccessStats = function(days = 7) {
       }
     },
     {
-      $unwind: "$dataAccess.dataTypes"
+      $unwind: '$dataAccess.dataTypes'
     },
     {
       $group: {
-        _id: "$dataAccess.dataTypes",
+        _id: '$dataAccess.dataTypes',
         accessCount: { $sum: 1 },
-        totalRecords: { $sum: "$dataAccess.recordsAccessed" },
-        uniqueUsers: { $addToSet: "$userId" },
-        avgRiskScore: { $avg: "$riskAssessment.riskScore" }
+        totalRecords: { $sum: '$dataAccess.recordsAccessed' },
+        uniqueUsers: { $addToSet: '$userId' },
+        avgRiskScore: { $avg: '$riskAssessment.riskScore' }
       }
     },
     {
       $addFields: {
-        uniqueUserCount: { $size: "$uniqueUsers" }
+        uniqueUserCount: { $size: '$uniqueUsers' }
       }
     },
     {

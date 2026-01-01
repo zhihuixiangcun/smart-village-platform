@@ -629,7 +629,7 @@ faceFeatureSchema.statics = {
     const authTag = cipher.getAuthTag();
 
     return {
-      encryptedFeatures: encrypted + ':' + authTag.toString('hex') + ':' + iv.toString('hex'),
+      encryptedFeatures: `${encrypted  }:${  authTag.toString('hex')  }:${  iv.toString('hex')}`,
       keyId: keyId || crypto.randomUUID()
     };
   },

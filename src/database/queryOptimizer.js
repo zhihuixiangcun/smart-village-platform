@@ -112,7 +112,7 @@ class QueryOptimizer extends EventEmitter {
     const coll = db.collection(collection);
 
     // 构建查询管道
-    let pipeline = [{ $match: query }];
+    const pipeline = [{ $match: query }];
 
     // 添加排序
     if (options.sort) {
@@ -312,7 +312,7 @@ class QueryOptimizer extends EventEmitter {
       type: 'compound',
       fields: indexDef,
       options: { background: true },
-      reason: `复合索引可优化多字段查询性能`,
+      reason: '复合索引可优化多字段查询性能',
       fieldOrder
     };
   }

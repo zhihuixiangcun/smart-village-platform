@@ -249,7 +249,7 @@ class MessageQueueManager extends EventEmitter {
       Logger.info(`队列 ${queueName} 绑定到交换机 ${exchangeName} (routingKey: ${routingKey})`);
       return true;
     } catch (error) {
-      Logger.error(`绑定队列失败:`, error);
+      Logger.error('绑定队列失败:', error);
       throw error;
     }
   }
@@ -510,7 +510,7 @@ class MessageQueueManager extends EventEmitter {
       Logger.info(`消费者 ${consumerTag} 已取消`);
       return true;
     } catch (error) {
-      Logger.error(`取消消费者失败:`, error);
+      Logger.error('取消消费者失败:', error);
       throw error;
     }
   }
@@ -539,7 +539,7 @@ class MessageQueueManager extends EventEmitter {
         consumerCount: info.consumerCount
       };
     } catch (error) {
-      Logger.error(`获取队列信息失败:`, error);
+      Logger.error('获取队列信息失败:', error);
       throw error;
     }
   }
@@ -564,7 +564,7 @@ class MessageQueueManager extends EventEmitter {
       Logger.info(`队列 ${queueName} 已清空`);
       return true;
     } catch (error) {
-      Logger.error(`清空队列失败:`, error);
+      Logger.error('清空队列失败:', error);
       throw error;
     }
   }
@@ -591,7 +591,7 @@ class MessageQueueManager extends EventEmitter {
       Logger.info(`队列 ${queueName} 已删除`);
       return true;
     } catch (error) {
-      Logger.error(`删除队列失败:`, error);
+      Logger.error('删除队列失败:', error);
       throw error;
     }
   }

@@ -1,0 +1,145 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: smart-village-config
+  namespace: smart-village
+  labels:
+    app: smart-village
+data:
+  # Application Configuration
+  NODE_ENV: "production"
+  LOG_LEVEL: "info"
+
+  # Multi-Region Configuration
+  REGION_CODE: "cn-north-1"
+  REGION_NAME: "beijing"
+  ENABLE_MULTI_REGION: "true"
+
+  # Database Configuration (MongoDB Sharded Cluster)
+  MONGO_SHARDED_ENABLED: "true"
+  MONGO_SHARD_COUNT: "3"
+  MONGO_REPLICA_SET_COUNT: "3"
+
+  # Redis Cluster Configuration
+  REDIS_CLUSTER_ENABLED: "true"
+  REDIS_CLUSTER_NODES: "redis-cluster-0.redis-cluster:6379,redis-cluster-1.redis-cluster:6379,redis-cluster-2.redis-cluster:6379,redis-cluster-3.redis-cluster:6379,redis-cluster-4.redis-cluster:6379,redis-cluster-5.redis-cluster:6379"
+
+  # Multi-Tenant Configuration
+  MULTI_TENANT_ENABLED: "true"
+  TENANT_STRICT_MODE: "true"
+  TENANT_CACHE_TTL: "300000"
+
+  # CORS Configuration
+  CLIENT_URL: "https://app.smartvillage.example.com"
+
+  # External Services
+  ENABLE_BAIDU_TTS: "true"
+  ENABLE_TENCENT_OCR: "true"
+  ENABLE_SMS: "true"
+
+  # Monitoring
+  ENABLE_MONITORING: "true"
+  METRICS_PORT: "9090"
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: smart-village-region-config
+  namespace: smart-village
+  labels:
+    app: smart-village
+    type: region-config
+data:
+  # Beijing Region (Primary)
+  cn-north-1.region.name: "beijing"
+  cn-north-1.region.code: "cn-north-1"
+  cn-north-1.region.location: "Beijing, China"
+  cn-north-1.region.mongo.role: "primary"
+  cn-north-1.region.priority: "1"
+
+  # Shanghai Region (Secondary)
+  cn-east-1.region.name: "shanghai"
+  cn-east-1.region.code: "cn-east-1"
+  cn-east-1.region.location: "Shanghai, China"
+  cn-east-1.region.mongo.role: "secondary"
+  cn-east-1.region.priority: "2"
+
+  # Guangzhou Region (Secondary)
+  cn-south-1.region.name: "guangzhou"
+  cn-south-1.region.code: "cn-south-1"
+  cn-south-1.region.location: "Guangzhou, China"
+  cn-south-1.region.mongo.role: "secondary"
+  cn-south-1.region.priority: "3"
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: smart-village-secrets
+  namespace: smart-village
+  labels:
+    app: smart-village
+type: Opaque
+stringData:
+  # JWT Secret (change in production)
+  JWT_SECRET: "your-production-jwt-secret-key-min-32-chars"
+
+  # MongoDB Connection String
+  MONGO_URI: "mongodb://smart-village:password123@mongodb-shard-0-0.mongodb-shard-0:27017,mongodb-shard-1-0.mongodb-shard-1:27017,mongodb-shard-2-0.mongodb-shard-2:27017/smart-village?replicaSet=smart-village-shard-0&authSource=admin"
+
+  # Redis Password
+  REDIS_PASSWORD: "your-redis-password-here"
+
+  # Encryption Keys
+  ENCRYPTION_KEY: "your-32-char-encryption-key-here"
+  ENCRYPTION_IV: "your-16-char-iv-here"
+
+  # Baidu AI API
+  BAIDU_APP_ID: "your-baidu-app-id"
+  BAIDU_API_KEY: "your-baidu-api-key"
+  BAIDU_SECRET_KEY: "your-baidu-secret-key"
+
+  # Tencent OCR API
+  TENCENT_SECRET_ID: "your-tencent-secret-id"
+  TENCENT_SECRET_KEY: "your-tencent-secret-key"
+
+  # SMS Service
+  SMS_ACCESS_KEY: "your-sms-access-key"
+  SMS_SECRET_KEY: "your-sms-secret-key"
+
+  # Database Encryption
+  DB_ENCRYPTION_KEY: "your-db-encryption-key-min-32"
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongodb-data-pvc
+  namespace: smart-village
+  labels:
+    app: mongodb
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: fast-ssd
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-data-pvc
+  namespace: smart-village
+  labels:
+    app: redis
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+  storageClassName: fast-ssd

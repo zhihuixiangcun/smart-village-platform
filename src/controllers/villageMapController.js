@@ -483,7 +483,7 @@ class VillageMapController {
               }
             } else if (file.mimetype === 'application/zip') {
               // 处理 ZIP 文件（可能包含多个文件）
-              const extractedPath = path.join(__dirname, '../uploads/maps', 'extracted_' + Date.now());
+              const extractedPath = path.join(__dirname, '../uploads/maps', `extracted_${  Date.now()}`);
               fs.mkdirSync(extractedPath, { recursive: true });
 
               // 这里应该解压ZIP文件并处理内容

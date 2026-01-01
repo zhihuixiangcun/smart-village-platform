@@ -3,8 +3,8 @@
  * 提供全面的反馈收集、分析、处理和跟进机制
  */
 
-const mongoose = require('mongoose')
-const EventEmitter = require('events')
+const mongoose = require('mongoose');
+const EventEmitter = require('events');
 const logger = require('../utils/logger');
 
 // 反馈 Schema
@@ -114,22 +114,22 @@ const feedbackSchema = new mongoose.Schema({
   resolutionTime: { type: Number } // 解决时间（分钟）
 }, {
   timestamps: true
-})
+});
 
 // 索引
-feedbackSchema.index({ userId: 1, createdAt: -1 })
-feedbackSchema.index({ category: 1, status: 1 })
-feedbackSchema.index({ priority: 1, status: 1 })
-feedbackSchema.index({ tags: 1 })
-feedbackSchema.index({ 'aiCategory.mainCategory': 1 })
+feedbackSchema.index({ userId: 1, createdAt: -1 });
+feedbackSchema.index({ category: 1, status: 1 });
+feedbackSchema.index({ priority: 1, status: 1 });
+feedbackSchema.index({ tags: 1 });
+feedbackSchema.index({ 'aiCategory.mainCategory': 1 });
 
 class UserFeedbackService extends EventEmitter {
   constructor() {
-    super()
-    this.Feedback = mongoose.model('Feedback', feedbackSchema)
-    this.aiCategorizer = null // AI分类器
-    this.notificationService = null // 通知服务
-    this.analyticsService = null // 分析服务
+    super();
+    this.Feedback = mongoose.model('Feedback', feedbackSchema);
+    this.aiCategorizer = null; // AI分类器
+    this.notificationService = null; // 通知服务
+    this.analyticsService = null; // 分析服务
   }
 
   /**
@@ -140,13 +140,13 @@ class UserFeedbackService extends EventEmitter {
   async submitFeedback(feedbackData) {
     try {
       // 生成反馈ID
-      const feedbackId = this.generateFeedbackId()
+      const feedbackId = this.generateFeedbackId();
 
       // 添加上下文信息
-      const context = await this.captureContext(feedbackData.context || {})
+      const context = await this.captureContext(feedbackData.context || {});
 
       // AI自动分类
-      const aiCategory = await this.categorizeFeedback(feedbackData)
+      const aiCategory = await this.categorizeFeedback(feedbackData);
 
       // 创建反馈记录
       const feedback = new this.Feedback({
@@ -154,23 +154,23 @@ class UserFeedbackService extends EventEmitter {
         feedbackId,
         context: { ...context, ...feedbackData.context },
         aiCategory
-      })
+      });
 
-      await feedback.save()
+      await feedback.save();
 
       // 自动分配处理人
-      const assignment = await this.autoAssignFeedback(feedback)
+      const assignment = await this.autoAssignFeedback(feedback);
       if (assignment.assignedTo) {
-        feedback.assignedTo = assignment.assignedTo
-        feedback.assignedTeam = assignment.team
-        await feedback.save()
+        feedback.assignedTo = assignment.assignedTo;
+        feedback.assignedTeam = assignment.team;
+        await feedback.save();
       }
 
       // 发送通知
-      await this.sendFeedbackNotifications(feedback)
+      await this.sendFeedbackNotifications(feedback);
 
       // 触发事件
-      this.emit('feedback:submitted', feedback)
+      this.emit('feedback:submitted', feedback);
 
       return {
         success: true,
@@ -179,11 +179,11 @@ class UserFeedbackService extends EventEmitter {
           status: feedback.status,
           estimatedResponseTime: this.calculateResponseTime(feedback)
         }
-      }
+      };
 
     } catch (error) {
       logger.error('提交反馈失败:', error);
-      throw error
+      throw error;
     }
   }
 
@@ -204,23 +204,23 @@ class UserFeedbackService extends EventEmitter {
         dateRange,
         page = 1,
         limit = 20
-      } = filters
+      } = filters;
 
       // 构建查询条件
-      const query = {}
+      const query = {};
 
-      if (userId) query.userId = userId
-      if (category) query.category = category
-      if (status) query.status = status
-      if (priority) query.priority = priority
-      if (assignedTeam) query.assignedTeam = assignedTeam
-      if (tags && tags.length > 0) query.tags = { $in: tags }
+      if (userId) query.userId = userId;
+      if (category) query.category = category;
+      if (status) query.status = status;
+      if (priority) query.priority = priority;
+      if (assignedTeam) query.assignedTeam = assignedTeam;
+      if (tags && tags.length > 0) query.tags = { $in: tags };
 
       if (dateRange) {
         query.createdAt = {
           $gte: new Date(dateRange.start),
           $lte: new Date(dateRange.end)
-        }
+        };
       }
 
       // 查询反馈
@@ -230,10 +230,10 @@ class UserFeedbackService extends EventEmitter {
         .populate('assignedTo', 'username profile.displayName')
         .sort({ createdAt: -1 })
         .skip((page - 1) * limit)
-        .limit(limit)
+        .limit(limit);
 
       // 统计总数
-      const total = await this.Feedback.countDocuments(query)
+      const total = await this.Feedback.countDocuments(query);
 
       return {
         success: true,
@@ -246,11 +246,11 @@ class UserFeedbackService extends EventEmitter {
             pages: Math.ceil(total / limit)
           }
         }
-      }
+      };
 
     } catch (error) {
       logger.error('获取反馈列表失败:', error);
-      throw error
+      throw error;
     }
   }
 
@@ -262,9 +262,9 @@ class UserFeedbackService extends EventEmitter {
    */
   async processFeedback(feedbackId, processData) {
     try {
-      const feedback = await this.Feedback.findOne({ feedbackId })
+      const feedback = await this.Feedback.findOne({ feedbackId });
       if (!feedback) {
-        throw new Error('反馈不存在')
+        throw new Error('反馈不存在');
       }
 
       const {
@@ -274,13 +274,13 @@ class UserFeedbackService extends EventEmitter {
         response,
         isInternal = false,
         tags
-      } = processData
+      } = processData;
 
       // 更新状态
-      if (status) feedback.status = status
-      if (assignedTo) feedback.assignedTo = assignedTo
-      if (assignedTeam) feedback.assignedTeam = assignedTeam
-      if (tags) feedback.tags = [...new Set([...feedback.tags, ...tags])]
+      if (status) feedback.status = status;
+      if (assignedTo) feedback.assignedTo = assignedTo;
+      if (assignedTeam) feedback.assignedTeam = assignedTeam;
+      if (tags) feedback.tags = [...new Set([...feedback.tags, ...tags])];
 
       // 添加处理记录
       if (response) {
@@ -289,36 +289,36 @@ class UserFeedbackService extends EventEmitter {
           response,
           attachments: processData.attachments || [],
           isInternal
-        })
+        });
       }
 
       // 计算响应时间
       if (status === 'in_review' && !feedback.responseTime) {
-        feedback.responseTime = this.calculateResponseTime(feedback)
+        feedback.responseTime = this.calculateResponseTime(feedback);
       }
 
       // 计算解决时间
       if (status === 'resolved' && !feedback.resolutionTime) {
-        feedback.resolutionTime = this.calculateResolutionTime(feedback)
-        feedback.resolvedAt = new Date()
+        feedback.resolutionTime = this.calculateResolutionTime(feedback);
+        feedback.resolvedAt = new Date();
       }
 
-      await feedback.save()
+      await feedback.save();
 
       // 发送通知
-      await this.sendProcessNotifications(feedback, processData)
+      await this.sendProcessNotifications(feedback, processData);
 
       // 触发事件
-      this.emit('feedback:processed', feedback)
+      this.emit('feedback:processed', feedback);
 
       return {
         success: true,
         data: feedback
-      }
+      };
 
     } catch (error) {
       logger.error('处理反馈失败:', error);
-      throw error
+      throw error;
     }
   }
 
@@ -330,34 +330,34 @@ class UserFeedbackService extends EventEmitter {
    */
   async addSatisfactionRating(feedbackId, satisfactionData) {
     try {
-      const feedback = await this.Feedback.findOne({ feedbackId })
+      const feedback = await this.Feedback.findOne({ feedbackId });
       if (!feedback) {
-        throw new Error('反馈不存在')
+        throw new Error('反馈不存在');
       }
 
       if (feedback.status !== 'resolved') {
-        throw new Error('只能对已解决的反馈进行评价')
+        throw new Error('只能对已解决的反馈进行评价');
       }
 
       feedback.satisfaction = {
         rating: satisfactionData.rating,
         comment: satisfactionData.comment,
         timestamp: new Date()
-      }
+      };
 
-      await feedback.save()
+      await feedback.save();
 
       // 触发满意度分析
-      this.emit('feedback:satisfaction_rated', feedback)
+      this.emit('feedback:satisfaction_rated', feedback);
 
       return {
         success: true,
         data: feedback.satisfaction
-      }
+      };
 
     } catch (error) {
       logger.error('添加满意度评价失败:', error);
-      throw error
+      throw error;
     }
   }
 
@@ -368,7 +368,7 @@ class UserFeedbackService extends EventEmitter {
    */
   async getFeedbackStats(filters = {}) {
     try {
-      const { dateRange, team } = filters
+      const { dateRange, team } = filters;
 
       // 构建时间过滤
       const dateFilter = dateRange ? {
@@ -376,9 +376,9 @@ class UserFeedbackService extends EventEmitter {
           $gte: new Date(dateRange.start),
           $lte: new Date(dateRange.end)
         }
-      } : {}
+      } : {};
 
-      const teamFilter = team ? { assignedTeam: team } : {}
+      const teamFilter = team ? { assignedTeam: team } : {};
 
       // 基础统计
       const [
@@ -395,7 +395,7 @@ class UserFeedbackService extends EventEmitter {
         this.Feedback.countDocuments({ ...dateFilter, status: 'resolved' }),
         this.getAverageResolutionTime(dateFilter),
         this.getSatisfactionStats(dateFilter)
-      ])
+      ]);
 
       // 分类统计
       const categoryStats = await this.Feedback.aggregate([
@@ -408,7 +408,7 @@ class UserFeedbackService extends EventEmitter {
           }
         },
         { $sort: { count: -1 } }
-      ])
+      ]);
 
       // 严重程度统计
       const severityStats = await this.Feedback.aggregate([
@@ -419,7 +419,7 @@ class UserFeedbackService extends EventEmitter {
             count: { $sum: 1 }
           }
         }
-      ])
+      ]);
 
       // 团队统计
       const teamStats = await this.Feedback.aggregate([
@@ -431,10 +431,10 @@ class UserFeedbackService extends EventEmitter {
             avgResolutionTime: { $avg: '$resolutionTime' }
           }
         }
-      ])
+      ]);
 
       // 趋势分析
-      const trendData = await this.getFeedbackTrends(dateFilter)
+      const trendData = await this.getFeedbackTrends(dateFilter);
 
       return {
         success: true,
@@ -445,7 +445,7 @@ class UserFeedbackService extends EventEmitter {
             inProgress: inProgressCount,
             resolved: resolvedCount,
             resolutionRate: totalFeedbacks > 0 ? (resolvedCount / totalFeedbacks * 100).toFixed(2) : 0,
-            avgResolutionTime: avgResolutionTime
+            avgResolutionTime
           },
           category: categoryStats,
           severity: severityStats,
@@ -453,11 +453,11 @@ class UserFeedbackService extends EventEmitter {
           satisfaction: satisfactionStats,
           trends: trendData
         }
-      }
+      };
 
     } catch (error) {
       logger.error('获取反馈统计失败:', error);
-      throw error
+      throw error;
     }
   }
 
@@ -470,26 +470,26 @@ class UserFeedbackService extends EventEmitter {
       // 获取最近的反馈数据
       const recentFeedbacks = await this.Feedback
         .find({ createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } })
-        .populate('userId', 'profile.userType')
+        .populate('userId', 'profile.userType');
 
       // 问题类型分析
-      const problemTypes = this.analyzeProblemTypes(recentFeedbacks)
+      const problemTypes = this.analyzeProblemTypes(recentFeedbacks);
 
       // 用户群体分析
-      const userGroupAnalysis = this.analyzeUserGroups(recentFeedbacks)
+      const userGroupAnalysis = this.analyzeUserGroups(recentFeedbacks);
 
       // 功能热点分析
-      const featureHotspots = this.analyzeFeatureHotspots(recentFeedbacks)
+      const featureHotspots = this.analyzeFeatureHotspots(recentFeedbacks);
 
       // 情感分析
-      const sentimentAnalysis = await this.performSentimentAnalysis(recentFeedbacks)
+      const sentimentAnalysis = await this.performSentimentAnalysis(recentFeedbacks);
 
       // 改进建议
       const improvementSuggestions = this.generateImprovementSuggestions(
         problemTypes,
         userGroupAnalysis,
         featureHotspots
-      )
+      );
 
       return {
         success: true,
@@ -501,11 +501,11 @@ class UserFeedbackService extends EventEmitter {
           improvementSuggestions,
           analyzedAt: new Date()
         }
-      }
+      };
 
     } catch (error) {
       logger.error('AI分析反馈趋势失败:', error);
-      throw error
+      throw error;
     }
   }
 
@@ -524,13 +524,13 @@ class UserFeedbackService extends EventEmitter {
           { 'aiCategory.subCategory': problemArea }
         ],
         status: 'resolved'
-      }).sort({ resolvedAt: -1 }).limit(100)
+      }).sort({ resolvedAt: -1 }).limit(100);
 
       // 分析成功解决方案
-      const successfulSolutions = this.analyzeSuccessfulSolutions(relatedFeedbacks)
+      const successfulSolutions = this.analyzeSuccessfulSolutions(relatedFeedbacks);
 
       // 查找类似问题
-      const similarIssues = await this.findSimilarIssues(problemArea)
+      const similarIssues = await this.findSimilarIssues(problemArea);
 
       // 生成改进建议
       const suggestions = [
@@ -555,16 +555,16 @@ class UserFeedbackService extends EventEmitter {
           description: '改进用户体验流程',
           actions: this.generateProcessActions(problemArea, successfulSolutions)
         }
-      ]
+      ];
 
       return {
         success: true,
         data: suggestions
-      }
+      };
 
     } catch (error) {
       logger.error('推荐改进方案失败:', error);
-      throw error
+      throw error;
     }
   }
 
@@ -581,25 +581,25 @@ class UserFeedbackService extends EventEmitter {
         categories,
         status,
         includeAttachments = false
-      } = options
+      } = options;
 
       // 构建查询条件
-      const query = {}
+      const query = {};
       if (dateRange) {
         query.createdAt = {
           $gte: new Date(dateRange.start),
           $lte: new Date(dateRange.end)
-        }
+        };
       }
-      if (categories) query.category = { $in: categories }
-      if (status) query.status = { $in: status }
+      if (categories) query.category = { $in: categories };
+      if (status) query.status = { $in: status };
 
       // 查询数据
       const feedbacks = await this.Feedback
         .find(query)
         .populate('userId', 'username profile.displayName profile.userType')
         .populate('assignedTo', 'username profile.displayName')
-        .lean()
+        .lean();
 
       // 数据脱敏
       const sanitizedData = feedbacks.map(feedback => ({
@@ -623,19 +623,19 @@ class UserFeedbackService extends EventEmitter {
           page: feedback.context?.page,
           action: feedback.context?.action
         }
-      }))
+      }));
 
       // 格式化导出
-      let exportData
+      let exportData;
       switch (format.toLowerCase()) {
-        case 'csv':
-          exportData = this.convertToCSV(sanitizedData)
-          break
-        case 'excel':
-          exportData = await this.convertToExcel(sanitizedData)
-          break
-        default:
-          exportData = JSON.stringify(sanitizedData, null, 2)
+      case 'csv':
+        exportData = this.convertToCSV(sanitizedData);
+        break;
+      case 'excel':
+        exportData = await this.convertToExcel(sanitizedData);
+        break;
+      default:
+        exportData = JSON.stringify(sanitizedData, null, 2);
       }
 
       // 记录导出操作
@@ -643,7 +643,7 @@ class UserFeedbackService extends EventEmitter {
         count: sanitizedData.length,
         format,
         exportedBy: options.exportedBy
-      })
+      });
 
       return {
         success: true,
@@ -652,11 +652,11 @@ class UserFeedbackService extends EventEmitter {
           filename: `feedback_export_${Date.now()}.${format}`,
           mimeType: this.getMimeType(format)
         }
-      }
+      };
 
     } catch (error) {
       logger.error('导出反馈数据失败:', error);
-      throw error
+      throw error;
     }
   }
 
@@ -667,9 +667,9 @@ class UserFeedbackService extends EventEmitter {
    * @returns {String} 反馈ID
    */
   generateFeedbackId() {
-    const timestamp = Date.now().toString(36)
-    const random = Math.random().toString(36).substr(2, 6)
-    return `FB${timestamp}${random}`.toUpperCase()
+    const timestamp = Date.now().toString(36);
+    const random = Math.random().toString(36).substr(2, 6);
+    return `FB${timestamp}${random}`.toUpperCase();
   }
 
   /**
@@ -687,7 +687,7 @@ class UserFeedbackService extends EventEmitter {
       location: context.location || null,
       page: context.page || '',
       action: context.action || ''
-    }
+    };
   }
 
   /**
@@ -697,8 +697,8 @@ class UserFeedbackService extends EventEmitter {
    */
   async categorizeFeedback(feedbackData) {
     // 简化的AI分类逻辑
-    const text = `${feedbackData.title} ${feedbackData.description}`.toLowerCase()
-    const keywords = this.extractKeywords(text)
+    const text = `${feedbackData.title} ${feedbackData.description}`.toLowerCase();
+    const keywords = this.extractKeywords(text);
 
     // 基于关键词的分类规则
     const categoryRules = {
@@ -708,16 +708,16 @@ class UserFeedbackService extends EventEmitter {
       'security': ['安全', '权限', '登录', '密码', '验证'],
       'content': ['内容', '信息', '文字', '错误', '提示'],
       'compatibility': ['兼容', '浏览器', '手机', '电脑', '系统']
-    }
+    };
 
-    let mainCategory = 'general'
-    let confidence = 0
+    let mainCategory = 'general';
+    let confidence = 0;
 
     for (const [category, words] of Object.entries(categoryRules)) {
-      const matchCount = words.filter(word => text.includes(word)).length
+      const matchCount = words.filter(word => text.includes(word)).length;
       if (matchCount > confidence) {
-        confidence = matchCount
-        mainCategory = category
+        confidence = matchCount;
+        mainCategory = category;
       }
     }
 
@@ -726,7 +726,7 @@ class UserFeedbackService extends EventEmitter {
       subCategory: feedbackData.category,
       confidence: Math.min(confidence / keywords.length, 1),
       keywords: keywords.slice(0, 5)
-    }
+    };
   }
 
   /**
@@ -736,8 +736,8 @@ class UserFeedbackService extends EventEmitter {
    */
   extractKeywords(text) {
     // 简化的关键词提取
-    const words = text.split(/\s+/).filter(word => word.length > 1)
-    return [...new Set(words)]
+    const words = text.split(/\s+/).filter(word => word.length > 1);
+    return [...new Set(words)];
   }
 
   /**
@@ -753,21 +753,21 @@ class UserFeedbackService extends EventEmitter {
       'ui_issue': { team: 'ui', priority: 'medium' },
       'feature_request': { team: 'product', priority: 'medium' },
       'complaint': { team: 'support', priority: 'high' }
-    }
+    };
 
-    const rule = assignmentRules[feedback.category] || { team: 'support', priority: 'medium' }
+    const rule = assignmentRules[feedback.category] || { team: 'support', priority: 'medium' };
 
     // 根据严重程度调整
     if (feedback.severity === 'critical') {
-      rule.priority = 'urgent'
-      rule.team = 'dev'
+      rule.priority = 'urgent';
+      rule.team = 'dev';
     }
 
     return {
       team: rule.team,
       priority: rule.priority,
       assignedTo: await this.findAvailableAssignee(rule.team)
-    }
+    };
   }
 
   /**
@@ -778,7 +778,7 @@ class UserFeedbackService extends EventEmitter {
   async findAvailableAssignee(team) {
     // 这里应该实现根据团队查找可用人员的逻辑
     // 暂时返回null，需要实际的用户管理系统支持
-    return null
+    return null;
   }
 
   /**
@@ -786,7 +786,7 @@ class UserFeedbackService extends EventEmitter {
    * @param {Object} feedback - 反馈对象
    */
   async sendFeedbackNotifications(feedback) {
-    if (!this.notificationService) return
+    if (!this.notificationService) return;
 
     const notifications = [
       {
@@ -796,19 +796,19 @@ class UserFeedbackService extends EventEmitter {
         content: `用户提交了新的${feedback.category}反馈`,
         data: { feedbackId: feedback.feedbackId }
       }
-    ]
+    ];
 
     if (feedback.assignedTo) {
       notifications.push({
         type: 'feedback_assigned',
         recipients: [feedback.assignedTo],
         title: '反馈已分配',
-        content: `您有新的反馈需要处理`,
+        content: '您有新的反馈需要处理',
         data: { feedbackId: feedback.feedbackId }
-      })
+      });
     }
 
-    await this.notificationService.sendBatchNotifications(notifications)
+    await this.notificationService.sendBatchNotifications(notifications);
   }
 
   /**
@@ -817,7 +817,7 @@ class UserFeedbackService extends EventEmitter {
    * @param {Object} processData - 处理数据
    */
   async sendProcessNotifications(feedback, processData) {
-    if (!this.notificationService) return
+    if (!this.notificationService) return;
 
     // 通知用户
     await this.notificationService.sendNotification({
@@ -826,7 +826,7 @@ class UserFeedbackService extends EventEmitter {
       title: '反馈处理更新',
       content: `您的反馈已更新状态为：${this.getStatusText(processData.status)}`,
       data: { feedbackId: feedback.feedbackId }
-    })
+    });
   }
 
   /**
@@ -835,9 +835,9 @@ class UserFeedbackService extends EventEmitter {
    * @returns {Number} 响应时间（分钟）
    */
   calculateResponseTime(feedback) {
-    const created = new Date(feedback.createdAt)
-    const now = new Date()
-    return Math.round((now - created) / (1000 * 60))
+    const created = new Date(feedback.createdAt);
+    const now = new Date();
+    return Math.round((now - created) / (1000 * 60));
   }
 
   /**
@@ -846,9 +846,9 @@ class UserFeedbackService extends EventEmitter {
    * @returns {Number} 解决时间（分钟）
    */
   calculateResolutionTime(feedback) {
-    const created = new Date(feedback.createdAt)
-    const now = new Date()
-    return Math.round((now - created) / (1000 * 60))
+    const created = new Date(feedback.createdAt);
+    const now = new Date();
+    return Math.round((now - created) / (1000 * 60));
   }
 
   /**
@@ -860,9 +860,9 @@ class UserFeedbackService extends EventEmitter {
     const result = await this.Feedback.aggregate([
       { $match: { ...dateFilter, resolutionTime: { $exists: true } } },
       { $group: { _id: null, avgTime: { $avg: '$resolutionTime' } } }
-    ])
+    ]);
 
-    return result.length > 0 ? Math.round(result[0].avgTime) : 0
+    return result.length > 0 ? Math.round(result[0].avgTime) : 0;
   }
 
   /**
@@ -883,23 +883,23 @@ class UserFeedbackService extends EventEmitter {
           }
         }
       }
-    ])
+    ]);
 
     if (result.length === 0) {
-      return { avgRating: 0, totalRatings: 0, distribution: {} }
+      return { avgRating: 0, totalRatings: 0, distribution: {} };
     }
 
-    const data = result[0]
-    const distribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+    const data = result[0];
+    const distribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
     data.ratingDistribution.forEach(rating => {
-      distribution[rating]++
-    })
+      distribution[rating]++;
+    });
 
     return {
       avgRating: Math.round(data.avgRating * 100) / 100,
       totalRatings: data.totalRatings,
       distribution
-    }
+    };
   }
 
   /**
@@ -922,12 +922,12 @@ class UserFeedbackService extends EventEmitter {
         }
       },
       { $sort: { '_id.year': 1, '_id.month': 1, '_id.day': 1 } }
-    ])
+    ]);
 
     return dailyStats.map(stat => ({
       date: `${stat._id.year}-${stat._id.month.toString().padStart(2, '0')}-${stat._id.day.toString().padStart(2, '0')}`,
       count: stat.count
-    }))
+    }));
   }
 
   /**
@@ -936,22 +936,22 @@ class UserFeedbackService extends EventEmitter {
    * @returns {Object} 分析结果
    */
   analyzeProblemTypes(feedbacks) {
-    const problemTypes = {}
+    const problemTypes = {};
 
     feedbacks.forEach(feedback => {
-      const category = feedback.aiCategory?.mainCategory || feedback.category
+      const category = feedback.aiCategory?.mainCategory || feedback.category;
       if (!problemTypes[category]) {
-        problemTypes[category] = { count: 0, severity: {} }
+        problemTypes[category] = { count: 0, severity: {} };
       }
-      problemTypes[category].count++
+      problemTypes[category].count++;
 
       if (!problemTypes[category].severity[feedback.severity]) {
-        problemTypes[category].severity[feedback.severity] = 0
+        problemTypes[category].severity[feedback.severity] = 0;
       }
-      problemTypes[category].severity[feedback.severity]++
-    })
+      problemTypes[category].severity[feedback.severity]++;
+    });
 
-    return problemTypes
+    return problemTypes;
   }
 
   /**
@@ -960,24 +960,24 @@ class UserFeedbackService extends EventEmitter {
    * @returns {Object} 分析结果
    */
   analyzeUserGroups(feedbacks) {
-    const userGroups = {}
+    const userGroups = {};
 
     feedbacks.forEach(feedback => {
-      const userType = feedback.userId?.profile?.userType || 'unknown'
+      const userType = feedback.userId?.profile?.userType || 'unknown';
       if (!userGroups[userType]) {
-        userGroups[userType] = { count: 0, avgSatisfaction: 0, categories: {} }
+        userGroups[userType] = { count: 0, avgSatisfaction: 0, categories: {} };
       }
-      userGroups[userType].count++
+      userGroups[userType].count++;
 
       // 分析类别偏好
-      const category = feedback.category
+      const category = feedback.category;
       if (!userGroups[userType].categories[category]) {
-        userGroups[userType].categories[category] = 0
+        userGroups[userType].categories[category] = 0;
       }
-      userGroups[userType].categories[category]++
-    })
+      userGroups[userType].categories[category]++;
+    });
 
-    return userGroups
+    return userGroups;
   }
 
   /**
@@ -986,23 +986,23 @@ class UserFeedbackService extends EventEmitter {
    * @returns {Object} 分析结果
    */
   analyzeFeatureHotspots(feedbacks) {
-    const hotspots = {}
+    const hotspots = {};
 
     feedbacks.forEach(feedback => {
-      const page = feedback.context?.page || 'unknown'
+      const page = feedback.context?.page || 'unknown';
       if (!hotspots[page]) {
-        hotspots[page] = { count: 0, issues: {} }
+        hotspots[page] = { count: 0, issues: {} };
       }
-      hotspots[page].count++
+      hotspots[page].count++;
 
-      const issue = feedback.aiCategory?.subCategory || feedback.category
+      const issue = feedback.aiCategory?.subCategory || feedback.category;
       if (!hotspots[page].issues[issue]) {
-        hotspots[page].issues[issue] = 0
+        hotspots[page].issues[issue] = 0;
       }
-      hotspots[page].issues[issue]++
-    })
+      hotspots[page].issues[issue]++;
+    });
 
-    return hotspots
+    return hotspots;
   }
 
   /**
@@ -1012,30 +1012,30 @@ class UserFeedbackService extends EventEmitter {
    */
   async performSentimentAnalysis(feedbacks) {
     // 简化的情感分析
-    const sentiments = { positive: 0, negative: 0, neutral: 0 }
+    const sentiments = { positive: 0, negative: 0, neutral: 0 };
     const sentimentKeywords = {
       positive: ['好', '满意', '喜欢', '方便', '快速', '棒', '优秀'],
       negative: ['差', '不满', '问题', '困难', '慢', '糟糕', '错误'],
       neutral: ['一般', '还行', '普通', '正常']
-    }
+    };
 
     feedbacks.forEach(feedback => {
-      const text = `${feedback.title} ${feedback.description}`.toLowerCase()
-      let sentiment = 'neutral'
+      const text = `${feedback.title} ${feedback.description}`.toLowerCase();
+      let sentiment = 'neutral';
 
-      const positiveCount = sentimentKeywords.positive.filter(word => text.includes(word)).length
-      const negativeCount = sentimentKeywords.negative.filter(word => text.includes(word)).length
+      const positiveCount = sentimentKeywords.positive.filter(word => text.includes(word)).length;
+      const negativeCount = sentimentKeywords.negative.filter(word => text.includes(word)).length;
 
       if (positiveCount > negativeCount) {
-        sentiment = 'positive'
+        sentiment = 'positive';
       } else if (negativeCount > positiveCount) {
-        sentiment = 'negative'
+        sentiment = 'negative';
       }
 
-      sentiments[sentiment]++
-    })
+      sentiments[sentiment]++;
+    });
 
-    return sentiments
+    return sentiments;
   }
 
   /**
@@ -1046,7 +1046,7 @@ class UserFeedbackService extends EventEmitter {
    * @returns {Array} 改进建议
    */
   generateImprovementSuggestions(problemTypes, userGroupAnalysis, featureHotspots) {
-    const suggestions = []
+    const suggestions = [];
 
     // 基于问题类型的建议
     if (problemTypes.ui_issue && problemTypes.ui_issue.count > 10) {
@@ -1055,7 +1055,7 @@ class UserFeedbackService extends EventEmitter {
         category: 'UI优化',
         description: 'UI相关问题较多，建议进行界面优化',
         actionItems: ['重新设计高频问题页面', '优化交互流程', '改善视觉设计']
-      })
+      });
     }
 
     // 基于用户群体的建议
@@ -1065,7 +1065,7 @@ class UserFeedbackService extends EventEmitter {
         category: '用户体验优化',
         description: '村民用户反馈较多，建议优化用户体验',
         actionItems: ['简化操作流程', '增加语音指导', '优化移动端体验']
-      })
+      });
     }
 
     // 基于功能热点的建议
@@ -1076,11 +1076,11 @@ class UserFeedbackService extends EventEmitter {
           category: '功能优化',
           description: `${page}页面问题集中，建议重点优化`,
           actionItems: ['修复页面bug', '优化页面性能', '改进功能设计']
-        })
+        });
       }
-    })
+    });
 
-    return suggestions
+    return suggestions;
   }
 
   /**
@@ -1089,7 +1089,7 @@ class UserFeedbackService extends EventEmitter {
    * @returns {Array} 成功方案
    */
   analyzeSuccessfulSolutions(feedbacks) {
-    const solutions = []
+    const solutions = [];
 
     feedbacks.forEach(feedback => {
       if (feedback.satisfaction && feedback.satisfaction.rating >= 4) {
@@ -1099,13 +1099,13 @@ class UserFeedbackService extends EventEmitter {
               problem: feedback.category,
               solution: response.response,
               rating: feedback.satisfaction.rating
-            })
+            });
           }
-        })
+        });
       }
-    })
+    });
 
-    return solutions
+    return solutions;
   }
 
   /**
@@ -1121,7 +1121,7 @@ class UserFeedbackService extends EventEmitter {
         { 'aiCategory.mainCategory': problemArea }
       ],
       status: { $in: ['pending', 'in_progress'] }
-    }).limit(10)
+    }).limit(10);
   }
 
   /**
@@ -1131,19 +1131,19 @@ class UserFeedbackService extends EventEmitter {
    * @returns {Array} 修复动作
    */
   generateFixActions(problemArea, relatedFeedbacks) {
-    const actions = []
+    const actions = [];
 
-    const commonIssues = this.extractCommonIssues(relatedFeedbacks)
+    const commonIssues = this.extractCommonIssues(relatedFeedbacks);
     commonIssues.forEach(issue => {
       actions.push({
         type: 'fix',
         description: `修复${issue.description}`,
         priority: issue.severity === 'high' ? 'urgent' : 'high',
         estimatedTime: issue.estimatedTime
-      })
-    })
+      });
+    });
 
-    return actions
+    return actions;
   }
 
   /**
@@ -1160,7 +1160,7 @@ class UserFeedbackService extends EventEmitter {
         priority: 'medium',
         estimatedTime: '2-3 days'
       }
-    ]
+    ];
   }
 
   /**
@@ -1177,7 +1177,7 @@ class UserFeedbackService extends EventEmitter {
         priority: 'medium',
         estimatedTime: '1-2 days'
       }
-    ]
+    ];
   }
 
   /**
@@ -1186,24 +1186,24 @@ class UserFeedbackService extends EventEmitter {
    * @returns {Array} 常见问题
    */
   extractCommonIssues(feedbacks) {
-    const issues = {}
+    const issues = {};
 
     feedbacks.forEach(feedback => {
-      const key = `${feedback.category}_${feedback.aiCategory?.mainCategory}`
+      const key = `${feedback.category}_${feedback.aiCategory?.mainCategory}`;
       if (!issues[key]) {
         issues[key] = {
           description: feedback.title,
           count: 0,
           severity: feedback.severity,
           estimatedTime: '2-4 hours'
-        }
+        };
       }
-      issues[key].count++
-    })
+      issues[key].count++;
+    });
 
     return Object.values(issues)
       .sort((a, b) => b.count - a.count)
-      .slice(0, 5)
+      .slice(0, 5);
   }
 
   /**
@@ -1212,15 +1212,15 @@ class UserFeedbackService extends EventEmitter {
    * @returns {String} CSV字符串
    */
   convertToCSV(data) {
-    if (data.length === 0) return ''
+    if (data.length === 0) return '';
 
-    const headers = Object.keys(data[0])
+    const headers = Object.keys(data[0]);
     const csvContent = [
       headers.join(','),
       ...data.map(row => headers.map(header => `"${row[header] || ''}"`).join(','))
-    ].join('\n')
+    ].join('\n');
 
-    return csvContent
+    return csvContent;
   }
 
   /**
@@ -1231,7 +1231,7 @@ class UserFeedbackService extends EventEmitter {
   async convertToExcel(data) {
     // 这里需要实现Excel转换逻辑
     // 可以使用 xlsx 库
-    throw new Error('Excel export not implemented yet')
+    throw new Error('Excel export not implemented yet');
   }
 
   /**
@@ -1244,8 +1244,8 @@ class UserFeedbackService extends EventEmitter {
       json: 'application/json',
       csv: 'text/csv',
       excel: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    }
-    return mimeTypes[format.toLowerCase()] || 'application/octet-stream'
+    };
+    return mimeTypes[format.toLowerCase()] || 'application/octet-stream';
   }
 
   /**
@@ -1261,8 +1261,8 @@ class UserFeedbackService extends EventEmitter {
       resolved: '已解决',
       closed: '已关闭',
       rejected: '已拒绝'
-    }
-    return statusTexts[status] || status
+    };
+    return statusTexts[status] || status;
   }
 
   /**
@@ -1270,8 +1270,8 @@ class UserFeedbackService extends EventEmitter {
    * @returns {String} 会话ID
    */
   generateSessionId() {
-    return 'sess_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
+    return `sess_${  Date.now()  }_${  Math.random().toString(36).substr(2, 9)}`;
   }
 }
 
-module.exports = UserFeedbackService
+module.exports = UserFeedbackService;

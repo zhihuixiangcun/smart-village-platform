@@ -1,0 +1,66 @@
+# 智慧乡村系统 村务服务器 - 多阶段构建优化
+# Stage 1: 构建阶段
+FROM node:18-alpine AS builder
+
+# 设置工作目录
+WORKDIR /app
+
+# 安装构建依赖
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    git
+
+# 复制 package 文件
+COPY package*.json ./
+
+# 配置 npm 镜像源和依赖优化
+RUN npm config set registry https://registry.npmmirror.com && \
+    npm ci --only=production --no-optional --prefer-offline --cache=/tmp/.npm
+
+# Stage 2: 生产镜像
+FROM node:18-alpine AS production
+
+# 安装运行时依赖
+RUN apk add --no-cache \
+    dumb-init \
+    curl \
+    && rm -rf /var/cache/apk/*
+
+# 创建非 root 用户
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S smartvillage -u 1001
+
+# 设置工作目录
+WORKDIR /app
+
+# 复制 node_modules 和应用代码
+COPY --from=builder --chown=smartvillage:nodejs /app/node_modules ./node_modules
+COPY --chown=smartvillage:nodejs ./server .
+
+# 创建必要的目录
+RUN mkdir -p /app/uploads /app/logs /app/temp && \
+    chown -R smartvillage:nodejs /app/uploads /app/logs /app/temp
+
+# 设置环境变量
+ENV NODE_ENV=production \
+    PORT=5000 \
+    UV_THREADPOOL_SIZE=16 \
+    NODE_OPTIONS="--max-old-space-size=2048 --enable-source-maps"
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:5000/api/health || exit 1
+
+# 暴露端口
+EXPOSE 5000
+
+# 切换到非 root 用户
+USER smartvillage
+
+# 使用 dumb-init 作为 PID 1
+ENTRYPOINT ["dumb-init", "--"]
+
+# 启动命令
+CMD ["node", "app.js"]

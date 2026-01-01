@@ -534,7 +534,7 @@ class MultiLevelCacheSystem {
   async decompress(compressedData) {
     try {
       const zlib = require('zlib');
-const logger = require('../utils/logger');
+      const logger = require('../utils/logger');
       return JSON.parse(zlib.gunzipSync(Buffer.from(compressedData, 'base64')).toString());
     } catch (error) {
       logger.error('解压缩失败:', error);

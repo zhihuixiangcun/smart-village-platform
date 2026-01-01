@@ -226,3 +226,34 @@ api-docs/
 *.msm
 *.msp
 mongodb-installer.msi
+# Temporary and cache files
+.npm-cache/
+.node_repl_history/
+.npm-cache/
+.ssh/
+.config/
+.bash_history
+.bash_profile
+.bashrc
+.zshrc
+.git-for-windows-updater
+
+# Build artifacts
+npm/
+claude code/
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test outputs
+coverage/
+reports/
+
+# Environment files
+.env.*
+!.env.example

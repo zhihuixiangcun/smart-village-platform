@@ -267,7 +267,7 @@ class KafkaManager extends EventEmitter {
     try {
       const consumerConfig = {
         ...this.config.consumer,
-        groupId: groupId
+        groupId
       };
 
       const consumer = this.kafka.consumer(consumerConfig);

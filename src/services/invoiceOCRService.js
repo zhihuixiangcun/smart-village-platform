@@ -444,7 +444,7 @@ class InvoiceOCRService {
     try {
       const { exec } = require('child_process');
       const path = require('path');
-const logger = require('../utils/logger');
+      const logger = require('../utils/logger');
 
       const outputPath = path.join(
         path.dirname(imagePath),

@@ -3,12 +3,12 @@
  * 提供RBAC权限管理、动态权限策略、权限继承等功能
  */
 
-const EnhancedPermissionService = require('../services/enhancedPermissionService')
-const logger = require('../config/logger')
-const auditMiddleware = require('../middleware/auditMiddleware')
+const EnhancedPermissionService = require('../services/enhancedPermissionService');
+const logger = require('../config/logger');
+const auditMiddleware = require('../middleware/auditMiddleware');
 
 // 初始化增强权限服务
-const enhancedPermissionService = new EnhancedPermissionService()
+const enhancedPermissionService = new EnhancedPermissionService();
 
 class EnhancedPermissionController {
   /**
@@ -24,7 +24,7 @@ class EnhancedPermissionController {
         deviceId,
         deviceFingerprint,
         mfaToken
-      } = req.body
+      } = req.body;
 
       const authData = {
         username,
@@ -35,9 +35,9 @@ class EnhancedPermissionController {
         userAgent: req.get('User-Agent'),
         location: req.body.location,
         mfaToken
-      }
+      };
 
-      const result = await enhancedPermissionService.enhancedAuthenticate(authData)
+      const result = await enhancedPermissionService.enhancedAuthenticate(authData);
 
       if (result.success) {
         res.json({
@@ -59,22 +59,22 @@ class EnhancedPermissionController {
             deviceTrust: result.deviceTrust
           },
           message: '认证成功'
-        })
+        });
       } else if (result.requiresMFA) {
         res.status(200).json({
           success: false,
           requiresMFA: true,
           mfaMethods: result.mfaMethods,
           message: '需要多因素认证'
-        })
+        });
       }
 
     } catch (error) {
-      logger.error('增强认证失败:', error)
+      logger.error('增强认证失败:', error);
       res.status(401).json({
         success: false,
         message: error.message || '认证失败'
-      })
+      });
     }
   }
 
@@ -85,14 +85,14 @@ class EnhancedPermissionController {
    */
   async checkPermission(req, res) {
     try {
-      const { resource, action, context = {} } = req.body
-      const user = req.user
+      const { resource, action, context = {} } = req.body;
+      const user = req.user;
 
       if (!resource || !action) {
         return res.status(400).json({
           success: false,
           message: '缺少必要参数: resource 和 action'
-        })
+        });
       }
 
       // 添加请求上下文
@@ -103,28 +103,28 @@ class EnhancedPermissionController {
         ipAddress: req.ip,
         userAgent: req.get('User-Agent'),
         location: req.body.location
-      }
+      };
 
       const result = await enhancedPermissionService.enhancedPermissionCheck(
         user,
         resource,
         action,
         enhancedContext
-      )
+      );
 
       res.json({
         success: true,
         data: result,
         message: result.allowed ? '权限验证通过' : '权限验证失败'
-      })
+      });
 
     } catch (error) {
-      logger.error('权限检查失败:', error)
+      logger.error('权限检查失败:', error);
       res.status(500).json({
         success: false,
         message: '权限检查失败',
         error: error.message
-      })
+      });
     }
   }
 
@@ -135,8 +135,8 @@ class EnhancedPermissionController {
    */
   async getUserPermissions(req, res) {
     try {
-      const user = req.user
-      const permissions = await enhancedPermissionService.getEnhancedUserPermissions(user)
+      const user = req.user;
+      const permissions = await enhancedPermissionService.getEnhancedUserPermissions(user);
 
       res.json({
         success: true,
@@ -147,15 +147,15 @@ class EnhancedPermissionController {
           count: permissions.length
         },
         message: '获取用户权限成功'
-      })
+      });
 
     } catch (error) {
-      logger.error('获取用户权限失败:', error)
+      logger.error('获取用户权限失败:', error);
       res.status(500).json({
         success: false,
         message: '获取用户权限失败',
         error: error.message
-      })
+      });
     }
   }
 
@@ -171,7 +171,7 @@ class EnhancedPermissionController {
         return res.status(403).json({
           success: false,
           message: '权限不足'
-        })
+        });
       }
 
       const {
@@ -182,13 +182,13 @@ class EnhancedPermissionController {
         targetRoles,
         priority,
         enabled
-      } = req.body
+      } = req.body;
 
       if (!name || !rules || !Array.isArray(rules)) {
         return res.status(400).json({
           success: false,
           message: '缺少必要参数: name 和 rules'
-        })
+        });
       }
 
       const result = await enhancedPermissionService.createPermissionPolicy({
@@ -199,21 +199,21 @@ class EnhancedPermissionController {
         targetRoles,
         priority,
         enabled
-      })
+      });
 
       res.json({
         success: result.success,
         data: result.policy,
         message: result.success ? '权限策略创建成功' : '权限策略创建失败'
-      })
+      });
 
     } catch (error) {
-      logger.error('创建权限策略失败:', error)
+      logger.error('创建权限策略失败:', error);
       res.status(500).json({
         success: false,
         message: '创建权限策略失败',
         error: error.message
-      })
+      });
     }
   }
 
@@ -229,7 +229,7 @@ class EnhancedPermissionController {
         return res.status(403).json({
           success: false,
           message: '权限不足'
-        })
+        });
       }
 
       const {
@@ -237,13 +237,13 @@ class EnhancedPermissionController {
         inheritsFrom,
         additionalPermissions,
         conditions
-      } = req.body
+      } = req.body;
 
       if (!role || !inheritsFrom) {
         return res.status(400).json({
           success: false,
           message: '缺少必要参数: role 和 inheritsFrom'
-        })
+        });
       }
 
       const result = await enhancedPermissionService.configurePermissionInheritance({
@@ -251,20 +251,20 @@ class EnhancedPermissionController {
         inheritsFrom,
         additionalPermissions,
         conditions
-      })
+      });
 
       res.json({
         success: result.success,
         message: result.message
-      })
+      });
 
     } catch (error) {
-      logger.error('配置权限继承失败:', error)
+      logger.error('配置权限继承失败:', error);
       res.status(500).json({
         success: false,
         message: '配置权限继承失败',
         error: error.message
-      })
+      });
     }
   }
 
@@ -275,17 +275,17 @@ class EnhancedPermissionController {
    */
   async manageSession(req, res) {
     try {
-      const sessionId = req.get('X-Session-Id') || req.body.sessionId
-      const sessionData = req.body.sessionData || {}
+      const sessionId = req.get('X-Session-Id') || req.body.sessionId;
+      const sessionData = req.body.sessionData || {};
 
       if (!sessionId) {
         return res.status(400).json({
           success: false,
           message: '缺少会话ID'
-        })
+        });
       }
 
-      const result = await enhancedPermissionService.manageSession(sessionId, sessionData)
+      const result = await enhancedPermissionService.manageSession(sessionId, sessionData);
 
       if (result.valid) {
         res.json({
@@ -296,21 +296,21 @@ class EnhancedPermissionController {
             lastActivity: result.session.lastActivity
           },
           message: '会话有效'
-        })
+        });
       } else {
         res.status(401).json({
           success: false,
           message: '会话无效或已过期'
-        })
+        });
       }
 
     } catch (error) {
-      logger.error('会话管理失败:', error)
+      logger.error('会话管理失败:', error);
       res.status(500).json({
         success: false,
         message: '会话管理失败',
         error: error.message
-      })
+      });
     }
   }
 
@@ -326,32 +326,32 @@ class EnhancedPermissionController {
         return res.status(403).json({
           success: false,
           message: '权限不足'
-        })
+        });
       }
 
-      const { userId, permissions } = req.body
+      const { userId, permissions } = req.body;
 
       if (!userId || !permissions) {
         return res.status(400).json({
           success: false,
           message: '缺少必要参数: userId 和 permissions'
-        })
+        });
       }
 
-      const result = await enhancedPermissionService.updatePermissionsRealtime(userId, permissions)
+      const result = await enhancedPermissionService.updatePermissionsRealtime(userId, permissions);
 
       res.json({
         success: result.success,
         message: result.message
-      })
+      });
 
     } catch (error) {
-      logger.error('实时更新权限失败:', error)
+      logger.error('实时更新权限失败:', error);
       res.status(500).json({
         success: false,
         message: '实时更新权限失败',
         error: error.message
-      })
+      });
     }
   }
 
@@ -367,7 +367,7 @@ class EnhancedPermissionController {
         return res.status(403).json({
           success: false,
           message: '权限不足'
-        })
+        });
       }
 
       const {
@@ -377,7 +377,7 @@ class EnhancedPermissionController {
         resource,
         action,
         result
-      } = req.query
+      } = req.query;
 
       const filters = {
         startDate: startDate ? new Date(startDate) : undefined,
@@ -386,24 +386,24 @@ class EnhancedPermissionController {
         resource,
         action,
         result
-      }
+      };
 
-      const reportResult = await enhancedPermissionService.generatePermissionAuditReport(filters)
+      const reportResult = await enhancedPermissionService.generatePermissionAuditReport(filters);
 
       res.json({
         success: reportResult.success,
         data: reportResult.report,
         generatedAt: reportResult.generatedAt,
         message: '审计报告生成成功'
-      })
+      });
 
     } catch (error) {
-      logger.error('生成权限审计报告失败:', error)
+      logger.error('生成权限审计报告失败:', error);
       res.status(500).json({
         success: false,
         message: '生成权限审计报告失败',
         error: error.message
-      })
+      });
     }
   }
 
@@ -422,21 +422,21 @@ class EnhancedPermissionController {
         description: policy.description,
         enabled: true,
         type: 'dynamic'
-      }))
+      }));
 
       res.json({
         success: true,
         data: policies,
         message: '获取权限策略成功'
-      })
+      });
 
     } catch (error) {
-      logger.error('获取权限策略失败:', error)
+      logger.error('获取权限策略失败:', error);
       res.status(500).json({
         success: false,
         message: '获取权限策略失败',
         error: error.message
-      })
+      });
     }
   }
 
@@ -451,15 +451,15 @@ class EnhancedPermissionController {
         success: true,
         data: enhancedPermissionService.inheritanceRules,
         message: '获取权限继承配置成功'
-      })
+      });
 
     } catch (error) {
-      logger.error('获取权限继承配置失败:', error)
+      logger.error('获取权限继承配置失败:', error);
       res.status(500).json({
         success: false,
         message: '获取权限继承配置失败',
         error: error.message
-      })
+      });
     }
   }
 
@@ -475,23 +475,23 @@ class EnhancedPermissionController {
         return res.status(403).json({
           success: false,
           message: '权限不足'
-        })
+        });
       }
 
-      enhancedPermissionService.clearPermissionCache()
+      enhancedPermissionService.clearPermissionCache();
 
       res.json({
         success: true,
         message: '权限缓存清理成功'
-      })
+      });
 
     } catch (error) {
-      logger.error('清理权限缓存失败:', error)
+      logger.error('清理权限缓存失败:', error);
       res.status(500).json({
         success: false,
         message: '清理权限缓存失败',
         error: error.message
-      })
+      });
     }
   }
 
@@ -502,30 +502,30 @@ class EnhancedPermissionController {
    */
   async batchCheckPermissions(req, res) {
     try {
-      const { permissions } = req.body
-      const user = req.user
+      const { permissions } = req.body;
+      const user = req.user;
 
       if (!permissions || !Array.isArray(permissions)) {
         return res.status(400).json({
           success: false,
           message: '缺少权限列表参数'
-        })
+        });
       }
 
       if (permissions.length > 100) {
         return res.status(400).json({
           success: false,
           message: '批量检查最多支持100个权限'
-        })
+        });
       }
 
-      const results = []
+      const results = [];
       const enhancedContext = {
         deviceId: req.get('X-Device-Id'),
         deviceFingerprint: req.get('X-Device-Fingerprint'),
         ipAddress: req.ip,
         userAgent: req.get('User-Agent')
-      }
+      };
 
       for (const perm of permissions) {
         try {
@@ -534,7 +534,7 @@ class EnhancedPermissionController {
             perm.resource,
             perm.action,
             { ...enhancedContext, ...perm.context }
-          )
+          );
 
           results.push({
             resource: perm.resource,
@@ -542,14 +542,14 @@ class EnhancedPermissionController {
             allowed: result.allowed,
             reason: result.reason,
             policyApplied: result.policyApplied
-          })
+          });
         } catch (error) {
           results.push({
             resource: perm.resource,
             action: perm.action,
             allowed: false,
             error: error.message
-          })
+          });
         }
       }
 
@@ -560,15 +560,15 @@ class EnhancedPermissionController {
           results
         },
         message: '批量权限检查完成'
-      })
+      });
 
     } catch (error) {
-      logger.error('批量权限检查失败:', error)
+      logger.error('批量权限检查失败:', error);
       res.status(500).json({
         success: false,
         message: '批量权限检查失败',
         error: error.message
-      })
+      });
     }
   }
 
@@ -584,7 +584,7 @@ class EnhancedPermissionController {
         return res.status(403).json({
           success: false,
           message: '权限不足'
-        })
+        });
       }
 
       // 这里应该从数据库获取真实统计数据
@@ -609,23 +609,23 @@ class EnhancedPermissionController {
           { resource: 'finance', checks: 1876, denials: 67 },
           { resource: 'household', checks: 1654, denials: 12 }
         ]
-      }
+      };
 
       res.json({
         success: true,
         data: stats,
         message: '获取权限统计成功'
-      })
+      });
 
     } catch (error) {
-      logger.error('获取权限统计失败:', error)
+      logger.error('获取权限统计失败:', error);
       res.status(500).json({
         success: false,
         message: '获取权限统计失败',
         error: error.message
-      })
+      });
     }
   }
 }
 
-module.exports = new EnhancedPermissionController()
+module.exports = new EnhancedPermissionController();

@@ -415,8 +415,8 @@ async function approveTransaction(req, res) {
       details: {
         recordNumber: finance.recordNumber,
         amount: finance.amount,
-        status: status,
-        comment: comment
+        status,
+        comment
       }
     });
 
@@ -576,25 +576,25 @@ async function generateFinancialReport(req, res) {
     } else {
       const now = new Date();
       switch (type) {
-        case 'monthly':
-          dateRange = {
-            $gte: new Date(now.getFullYear(), now.getMonth(), 1),
-            $lt: new Date(now.getFullYear(), now.getMonth() + 1, 1)
-          };
-          break;
-        case 'quarterly':
-          const quarter = Math.floor(now.getMonth() / 3);
-          dateRange = {
-            $gte: new Date(now.getFullYear(), quarter * 3, 1),
-            $lt: new Date(now.getFullYear(), (quarter + 1) * 3, 1)
-          };
-          break;
-        case 'yearly':
-          dateRange = {
-            $gte: new Date(now.getFullYear(), 0, 1),
-            $lt: new Date(now.getFullYear() + 1, 0, 1)
-          };
-          break;
+      case 'monthly':
+        dateRange = {
+          $gte: new Date(now.getFullYear(), now.getMonth(), 1),
+          $lt: new Date(now.getFullYear(), now.getMonth() + 1, 1)
+        };
+        break;
+      case 'quarterly':
+        const quarter = Math.floor(now.getMonth() / 3);
+        dateRange = {
+          $gte: new Date(now.getFullYear(), quarter * 3, 1),
+          $lt: new Date(now.getFullYear(), (quarter + 1) * 3, 1)
+        };
+        break;
+      case 'yearly':
+        dateRange = {
+          $gte: new Date(now.getFullYear(), 0, 1),
+          $lt: new Date(now.getFullYear() + 1, 0, 1)
+        };
+        break;
       }
     }
 

@@ -1,0 +1,38 @@
+# ServiceMonitor for API Server
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: api-server-monitor
+  namespace: smartvillage
+  labels:
+    app: smartvillage
+    component: api-server
+spec:
+  selector:
+    matchLabels:
+      app: smartvillage
+      component: api-server
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
+
+---
+# ServiceMonitor for Village Server
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: village-server-monitor
+  namespace: smartvillage
+  labels:
+    app: smartvillage
+    component: village-server
+spec:
+  selector:
+    matchLabels:
+      app: smartvillage
+      component: village-server
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s

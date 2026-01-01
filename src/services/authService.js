@@ -186,7 +186,7 @@ class AuthService {
           },
           result: 'FAILED',
           details: {
-            description: `登录失败: 密码错误`,
+            description: '登录失败: 密码错误',
             ip: deviceInfo.ipAddress
           },
           riskLevel: 'MEDIUM',
@@ -442,7 +442,7 @@ class AuthService {
         },
         result: 'SUCCESS',
         details: {
-          description: `用户登出`
+          description: '用户登出'
         },
         riskLevel: 'LOW'
       });
@@ -518,7 +518,7 @@ class AuthService {
         },
         result: 'SUCCESS',
         details: {
-          description: `用户修改密码`
+          description: '用户修改密码'
         },
         riskLevel: 'MEDIUM',
         villageId: user.villageId
@@ -781,48 +781,48 @@ class AuthService {
     const basePermissions = ['profile:view', 'profile:edit'];
 
     switch (user.role) {
-      case 'admin':
-        return [
-          ...basePermissions,
-          'system:manage',
-          'user:create',
-          'user:edit',
-          'user:delete',
-          'village:create',
-          'village:edit',
-          'village:delete',
-          'audit:view',
-          'system:monitor'
-        ];
+    case 'admin':
+      return [
+        ...basePermissions,
+        'system:manage',
+        'user:create',
+        'user:edit',
+        'user:delete',
+        'village:create',
+        'village:edit',
+        'village:delete',
+        'audit:view',
+        'system:monitor'
+      ];
 
-      case 'village_admin':
-        return [
-          ...basePermissions,
-          'resident:create',
-          'resident:edit',
-          'resident:view',
-          'governance:manage',
-          'finance:view',
-          'finance:create',
-          'finance:edit',
-          'emergency:manage',
-          'ecommerce:manage'
-        ];
+    case 'village_admin':
+      return [
+        ...basePermissions,
+        'resident:create',
+        'resident:edit',
+        'resident:view',
+        'governance:manage',
+        'finance:view',
+        'finance:create',
+        'finance:edit',
+        'emergency:manage',
+        'ecommerce:manage'
+      ];
 
-      case 'village_official':
-        return [
-          ...basePermissions,
-          'resident:view',
-          'governance:create',
-          'governance:edit',
-          'finance:view',
-          'emergency:create',
-          'emergency:edit',
-          'ecommerce:view'
-        ];
+    case 'village_official':
+      return [
+        ...basePermissions,
+        'resident:view',
+        'governance:create',
+        'governance:edit',
+        'finance:view',
+        'emergency:create',
+        'emergency:edit',
+        'ecommerce:view'
+      ];
 
-      default:
-        return basePermissions;
+    default:
+      return basePermissions;
     }
   }
 }

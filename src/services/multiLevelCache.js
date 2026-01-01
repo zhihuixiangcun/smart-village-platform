@@ -605,7 +605,7 @@ class MultiLevelCache {
     // 检查L3缓存
     try {
       const mongoose = require('mongoose');
-const logger = require('../utils/logger');
+      const logger = require('../utils/logger');
       if (mongoose.connection.readyState === 1) {
         health.components.l3 = {
           status: 'healthy',

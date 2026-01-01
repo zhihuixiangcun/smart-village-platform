@@ -1,0 +1,99 @@
+# Multi-stage build for API Server with security best practices
+# Base image: Use official Node.js LTS Alpine for smaller attack surface
+FROM node:18-alpine AS base
+
+# Security: Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S smartvillage -u 1001
+
+# Set working directory
+WORKDIR /app
+
+# Security: Install dumb-init for proper signal handling
+RUN apk add --no-cache dumb-init
+
+# Copy package files
+COPY package*.json ./
+COPY src/package*.json ./src/
+
+# ===== DEPENDENCIES STAGE =====
+FROM base AS deps
+
+# Install dependencies with security audit
+RUN npm ci --only=production --audit --audit-level=moderate && \
+    npm cache clean --force
+
+# Install dev dependencies for build
+RUN npm ci --only=development
+
+# ===== BUILD STAGE =====
+FROM base AS builder
+
+# Copy source code
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Build arguments for metadata
+ARG NODE_ENV=production
+ARG BUILD_DATE
+ARG VCS_REF
+
+# Security: Remove dev dependencies and run security checks
+RUN npm run build && \
+    npm prune --production && \
+    npm audit --audit-level=moderate
+
+# Clean up unnecessary files
+RUN rm -rf .git .gitignore .dockerignore README.md docs/ tests/ *.md
+
+# ===== RUNTIME STAGE =====
+FROM node:18-alpine AS runtime
+
+# Security labels
+LABEL maintainer="Smart Village Team <team@smartvillage.com>" \
+      org.opencontainers.image.title="Smart Village API Server" \
+      org.opencontainers.image.description="Main API server for Smart Village platform" \
+      org.opencontainers.image.source="https://github.com/smartvillage/platform" \
+      org.opencontainers.image.created="${BUILD_DATE}" \
+      org.opencontainers.image.revision="${VCS_REF}" \
+      org.opencontainers.image.version="2.0.0"
+
+# Security: Install only necessary packages
+RUN apk add --no-cache \
+    dumb-init \
+    curl \
+    ca-certificates \
+    && rm -rf /var/cache/apk/*
+
+# Security: Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S smartvillage -u 1001
+
+# Create app directory with proper permissions
+WORKDIR /app
+RUN chown -R smartvillage:nodejs /app
+
+# Copy built application from builder stage
+COPY --from=builder --chown=smartvillage:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=smartvillage:nodejs /app/src ./src
+COPY --from=builder --chown=smartvillage:nodejs /app/package.json ./package.json
+
+# Create necessary directories
+RUN mkdir -p logs uploads data && \
+    chown -R smartvillage:nodejs logs uploads data
+
+# Security: Switch to non-root user
+USER smartvillage
+
+# Expose port
+EXPOSE 3001 3002
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:3001/health || exit 1
+
+# Security: Use dumb-init as PID 1 for proper signal handling
+ENTRYPOINT ["dumb-init", "--"]
+
+# Start the application
+CMD ["node", "src/app.js"]

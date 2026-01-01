@@ -909,7 +909,7 @@ async function notifyTargetUsers(announcement) {
       await sendNotification({
         type: 'ANNOUNCEMENT',
         title: announcement.title,
-        content: announcement.content.substring(0, 100) + '...',
+        content: `${announcement.content.substring(0, 100)  }...`,
         recipientId,
         data: {
           announcementId: announcement._id,
@@ -955,7 +955,7 @@ async function sendTaskNotifications(task) {
       await sendNotification({
         type: 'TASK_ASSIGNED',
         title: `新任务: ${task.title}`,
-        content: task.description.substring(0, 100) + '...',
+        content: `${task.description.substring(0, 100)  }...`,
         recipientId: assignee.residentId,
         data: {
           taskId: task._id,
@@ -977,7 +977,7 @@ async function sendTaskStatusNotification(task) {
     for (const assignee of task.assignedTo) {
       await sendNotification({
         type: 'TASK_STATUS_UPDATE',
-        title: `任务状态更新`,
+        title: '任务状态更新',
         content: `任务"${task.title}"已更新为${task.status}`,
         recipientId: assignee.residentId,
         data: {
@@ -1006,7 +1006,7 @@ async function notifyVillageAdmins(feedback) {
       await sendNotification({
         type: 'NEW_FEEDBACK',
         title: '新村民反馈',
-        content: feedback.content.substring(0, 100) + '...',
+        content: `${feedback.content.substring(0, 100)  }...`,
         recipientId: official._id,
         data: {
           feedbackId: feedback._id,
@@ -1027,7 +1027,7 @@ async function sendFeedbackResponseNotification(feedback) {
     await sendNotification({
       type: 'FEEDBACK_RESPONSE',
       title: '反馈回复',
-      content: feedback.response?.substring(0, 100) + '...',
+      content: `${feedback.response?.substring(0, 100)  }...`,
       recipientId: feedback.residentId,
       data: {
         feedbackId: feedback._id
