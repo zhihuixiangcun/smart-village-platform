@@ -165,7 +165,7 @@
                       <h4>{{ module.name }}</h4>
                       <el-checkbox
                         :indeterminate="getModuleIndeterminate(module)"
-                        v-model="getModuleChecked(module)"
+                        :model-value="getModuleChecked(module)"
                         @change="handleModuleCheck(module, $event)"
                       >
                         全选

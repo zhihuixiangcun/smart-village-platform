@@ -236,6 +236,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { UploadFilled } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
 import userFeedbackService from '@/services/userFeedbackService'
+import { validateInput, sanitizeHtml, escapeHtml } from '@/utils/xssProtection'
 
 const router = useRouter()
 
@@ -416,9 +417,32 @@ const submitFeedback = async () => {
 
     submitting.value = true
 
+    // XSS安全验证
+    const titleValidation = validateInput(feedbackForm.title)
+    if (!titleValidation.valid) {
+      ElMessage.error('标题包含不安全内容，请修改后重试')
+      return
+    }
+
+    const descriptionValidation = validateInput(feedbackForm.description)
+    if (!descriptionValidation.valid) {
+      ElMessage.error('描述包含不安全内容，请修改后重试')
+      return
+    }
+
+    // 准备安全的数据
+    const safeFeedbackData = {
+      ...feedbackForm,
+      title: escapeHtml(feedbackForm.title),
+      description: sanitizeHtml(feedbackForm.description, {
+        allowedTags: ['p', 'br', 'strong', 'em', 'u'],
+        allowedAttributes: []
+      })
+    }
+
     // 提交反馈
     const result = await userFeedbackService.submitFeedback(
-      feedbackForm,
+      safeFeedbackData,
       feedbackForm.attachments.map(item => item.file)
     )
 

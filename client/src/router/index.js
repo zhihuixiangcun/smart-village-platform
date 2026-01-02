@@ -781,6 +781,80 @@ const router = createRouter({
       ]
     },
 
+    // 值班管理模块
+    {
+      path: '/duty',
+      name: 'duty',
+      redirect: '/duty/overview',
+      meta: {
+        requiresAuth: true,
+        title: '值班管理',
+        icon: 'Timer',
+        permissions: ['duty:read']
+      },
+      children: [
+        {
+          path: 'overview',
+          name: 'duty-overview',
+          component: () => import('@/views/duty/DutyManagement.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '值班管理',
+            permissions: ['duty:read'],
+            breadcrumb: [
+              { title: '首页', path: '/dashboard' },
+              { title: '值班管理', path: '/duty' }
+            ]
+          }
+        },
+        {
+          path: 'schedule',
+          name: 'duty-schedule',
+          component: () => import('@/views/duty/DutySchedule.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '值班安排',
+            permissions: ['duty:schedule'],
+            breadcrumb: [
+              { title: '首页', path: '/dashboard' },
+              { title: '值班管理', path: '/duty' },
+              { title: '值班安排', path: '/duty/schedule' }
+            ]
+          }
+        },
+        {
+          path: 'emergency',
+          name: 'duty-emergency',
+          component: () => import('@/views/duty/EmergencyCall.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '紧急呼叫',
+            permissions: ['duty:emergency'],
+            breadcrumb: [
+              { title: '首页', path: '/dashboard' },
+              { title: '值班管理', path: '/duty' },
+              { title: '紧急呼叫', path: '/duty/emergency' }
+            ]
+          }
+        },
+        {
+          path: 'personnel',
+          name: 'duty-personnel',
+          component: () => import('@/views/duty/PersonnelManagement.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '人员管理',
+            permissions: ['duty:personnel'],
+            breadcrumb: [
+              { title: '首页', path: '/dashboard' },
+              { title: '值班管理', path: '/duty' },
+              { title: '人员管理', path: '/duty/personnel' }
+            ]
+          }
+        }
+      ]
+    },
+
     // 个人中心
     {
       path: '/profile',

@@ -237,6 +237,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Clock, Close, Refresh, House, Phone, More, Microphone, Plus } from '@element-plus/icons-vue'
 import { VanList, VanActionSheet, VanPopup } from 'vant'
 import ResidentQuickForm from './ResidentQuickForm.vue'
+import { debounce, throttle, runWhenIdle } from '@/utils/performanceOptimizer'
 
 // 路由
 const router = useRouter()
@@ -265,6 +266,10 @@ const touchStartY = ref(0)
 const touchStartTime = ref(0)
 const swipeAmount = ref(0)
 const swipeResident = ref(null)
+
+// 定时器变量
+let voiceSearchTimer = null
+let swipeTimer = null
 
 // 快速筛选选项
 const quickFilters = ref([
@@ -360,7 +365,8 @@ const generateRandomTags = () => {
   return tags
 }
 
-const handleSearch = (value) => {
+// 使用防抖优化搜索
+const handleSearch = debounce((value) => {
   if (!value) {
     loadResidents(true)
     return
@@ -371,7 +377,7 @@ const handleSearch = (value) => {
   finished.value = false
   residentList.value = []
   loadResidents()
-}
+}, 300)
 
 const toggleFilter = (filterKey) => {
   const index = activeFilters.value.indexOf(filterKey)
@@ -480,9 +486,13 @@ const toggleVoiceRecording = () => {
     // 开始录音
     isRecording.value = true
     // 模拟语音识别
-    setTimeout(() => {
+    if (voiceSearchTimer) {
+      clearTimeout(voiceSearchTimer)
+    }
+    voiceSearchTimer = setTimeout(() => {
       voiceText.value = '张三'
       isRecording.value = false
+      voiceSearchTimer = null
     }, 2000)
   }
 }
@@ -502,7 +512,8 @@ const handleTouchStart = (e, resident) => {
   swipeAmount.value = 0
 }
 
-const handleTouchMove = (e) => {
+// 使用节流优化触摸移动处理
+const handleTouchMove = throttle((e) => {
   if (!touchStartX.value) return
 
   const currentX = e.touches[0].clientX
@@ -516,7 +527,7 @@ const handleTouchMove = (e) => {
   } else {
     swipeAmount.value = deltaX
   }
-}
+}, 16) // 约60fps
 
 const handleTouchEnd = () => {
   if (Math.abs(swipeAmount.value) < 50) {
@@ -536,8 +547,12 @@ const handleTouchEnd = () => {
   touchStartY.value = 0
   swipeResident.value = null
 
-  setTimeout(() => {
+  if (swipeTimer) {
+    clearTimeout(swipeTimer)
+  }
+  swipeTimer = setTimeout(() => {
     swipeAmount.value = 0
+    swipeTimer = null
   }, 3000)
 }
 
@@ -553,18 +568,18 @@ const loadMore = () => {
 // 下拉刷新
 const setupPullRefresh = () => {
   const listContainer = document.querySelector('.resident-list')
-  if (!listContainer) return
+  if (!listContainer) return null
 
   let startY = 0
   let currentY = 0
 
-  listContainer.addEventListener('touchstart', (e) => {
+  const handleTouchStart = (e) => {
     if (listContainer.scrollTop === 0) {
       startY = e.touches[0].clientY
     }
-  })
+  }
 
-  listContainer.addEventListener('touchmove', (e) => {
+  const handleTouchMove = (e) => {
     if (listContainer.scrollTop === 0) {
       currentY = e.touches[0].clientY
       const distance = currentY - startY
@@ -574,9 +589,9 @@ const setupPullRefresh = () => {
         listContainer.style.transform = `translateY(${distance * 0.5}px)`
       }
     }
-  })
+  }
 
-  listContainer.addEventListener('touchend', () => {
+  const handleTouchEnd = () => {
     listContainer.style.transform = ''
     listContainer.style.transition = 'transform 0.3s'
 
@@ -588,7 +603,19 @@ const setupPullRefresh = () => {
       isRefreshing.value = true
       loadResidents(true)
     }
-  })
+  }
+
+  // 添加事件监听器
+  listContainer.addEventListener('touchstart', handleTouchStart, { passive: true })
+  listContainer.addEventListener('touchmove', handleTouchMove, { passive: false })
+  listContainer.addEventListener('touchend', handleTouchEnd)
+
+  // 返回清理函数
+  return () => {
+    listContainer.removeEventListener('touchstart', handleTouchStart)
+    listContainer.removeEventListener('touchmove', handleTouchMove)
+    listContainer.removeEventListener('touchend', handleTouchEnd)
+  }
 }
 
 // 搜索历史
@@ -609,21 +636,49 @@ const clearHistory = () => {
   searchHistory.value = []
 }
 
+// 下拉刷新清理函数
+let pullRefreshCleanup = null
+
 // 生命周期
 onMounted(() => {
   loadResidents()
-  setupPullRefresh()
+  pullRefreshCleanup = setupPullRefresh()
 
   // 加载搜索历史
   const saved = localStorage.getItem('resident-search-history')
   if (saved) {
-    searchHistory.value = JSON.parse(saved)
+    try {
+      searchHistory.value = JSON.parse(saved)
+    } catch (error) {
+      console.error('解析搜索历史失败:', error)
+      searchHistory.value = []
+    }
   }
 })
 
 onUnmounted(() => {
+  // 清理下拉刷新事件监听器
+  if (pullRefreshCleanup) {
+    pullRefreshCleanup()
+    pullRefreshCleanup = null
+  }
+
   // 保存搜索历史
-  localStorage.setItem('resident-search-history', JSON.stringify(searchHistory.value))
+  try {
+    localStorage.setItem('resident-search-history', JSON.stringify(searchHistory.value))
+  } catch (error) {
+    console.error('保存搜索历史失败:', error)
+  }
+
+  // 清理定时器
+  if (voiceSearchTimer) {
+    clearTimeout(voiceSearchTimer)
+    voiceSearchTimer = null
+  }
+  if (swipeTimer) {
+    clearTimeout(swipeTimer)
+    swipeTimer = null
+  }
 })
 </script>
 
