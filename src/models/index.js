@@ -64,6 +64,10 @@ require('./Conversation');
 require('./Message');
 require('./FriendRequest');
 
+// 注册审批和采购商模型（新增）
+require('./RegistrationApplication');
+require('./Purchaser');
+
 // 收集所有单模型导出（来自 modules）
 const singleModels = {
   User,
@@ -95,7 +99,10 @@ const singleModels = {
   // 聊天和社交模型
   Conversation: mongoose.model('Conversation'),
   Message: mongoose.model('Message'),
-  FriendRequest: mongoose.model('FriendRequest')
+  FriendRequest: mongoose.model('FriendRequest'),
+  // 注册审批和采购商模型
+  RegistrationApplication: mongoose.model('RegistrationApplication'),
+  Purchaser: mongoose.model('Purchaser')
 };
 
 // 添加别名以支持旧的测试文件

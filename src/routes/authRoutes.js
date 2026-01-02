@@ -95,6 +95,30 @@ router.post('/verify-code',
 );
 
 /**
+ * @route   POST /api/v1/auth/send-code
+ * @desc    发送验证码 (前端兼容接口)
+ * @access  Public
+ * @body    {string} phone - 手机号
+ */
+router.post('/send-code',
+  verifyCodeRateLimit,
+  [
+    body('phone').isMobilePhone('zh-CN').withMessage('请输入有效的手机号')
+  ],
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        error: errors.array()[0].msg
+      });
+    }
+    next();
+  },
+  sendVerifyCode
+);
+
+/**
  * @route   POST /api/v1/auth/register
  * @desc    用户注册
  * @access  Public

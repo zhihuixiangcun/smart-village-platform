@@ -66,6 +66,71 @@ const router = createRouter({
         layout: 'auth'
       }
     },
+    {
+      path: '/auth/registration-wizard',
+      name: 'registration-wizard',
+      component: () => import('@/views/auth/RegistrationWizard.vue'),
+      meta: {
+        requiresAuth: false,
+        title: '采购商注册',
+        layout: 'auth'
+      }
+    },
+    {
+      path: '/auth/common-registration',
+      name: 'common-registration',
+      component: () => import('@/views/auth/CommonRegistrationWizard.vue'),
+      meta: {
+        requiresAuth: false,
+        title: '用户注册',
+        layout: 'auth'
+      }
+    },
+    {
+      path: '/auth/registration-review',
+      name: 'registration-review',
+      component: () => import('@/views/admin/RegistrationReview.vue'),
+      meta: {
+        requiresAuth: true,
+        title: '注册申请审批',
+        permissions: ['admin:manage'],
+        breadcrumb: [
+          { title: '首页', path: '/dashboard' },
+          { title: '注册申请审批', path: '/auth/registration-review' }
+        ]
+      }
+    },
+
+    // 采购商仪表盘
+    {
+      path: '/purchaser/dashboard',
+      name: 'purchaser-dashboard',
+      component: () => import('@/views/purchasers/PurchaserDashboard.vue'),
+      meta: {
+        requiresAuth: true,
+        title: '采购商工作台',
+        icon: 'ShoppingCart',
+        permissions: ['purchaser:access'],
+        breadcrumb: [
+          { title: '首页', path: '/dashboard' },
+          { title: '采购商工作台', path: '/purchaser/dashboard' }
+        ]
+      }
+    },
+    {
+      path: '/purchaser/recommendations',
+      name: 'purchaser-recommendations',
+      component: () => import('@/views/purchasers/PurchaserRecommendations.vue'),
+      meta: {
+        requiresAuth: true,
+        title: '智能推荐',
+        permissions: ['purchaser:access'],
+        breadcrumb: [
+          { title: '首页', path: '/dashboard' },
+          { title: '智能推荐', path: '/purchaser/recommendations' }
+        ]
+      }
+    },
 
     // 主要应用路由
     {

@@ -82,9 +82,9 @@
               </div>
             </div>
 
-            <!-- 密码登录表单 -->
+<!-- 密码登录 -->
             <el-form
-              v-if="loginMethod === 'password'"
+              v-if="loginMethod === 'password' && selectedRole !== 'purchaser'"
               ref="loginFormRef"
               :model="loginForm"
               :rules="loginRules"
@@ -139,7 +139,62 @@
               </el-form-item>
             </el-form>
 
-            <!-- 人脸识别登录 -->
+            <!-- 采购商专用登录表单 -->
+            <el-form
+              v-if="loginMethod === 'password' && selectedRole === 'purchaser'"
+              ref="purchaserLoginFormRef"
+              :model="purchaserLoginForm"
+              :rules="purchaserLoginRules"
+              class="login-form"
+              @submit.prevent="handlePurchaserLogin"
+            >
+              <el-form-item prop="phone">
+                <el-input
+                  v-model="purchaserLoginForm.phone"
+                  placeholder="请输入手机号"
+                  size="large"
+                  clearable
+                >
+                  <template #prefix>
+                    <el-icon><Phone /></el-icon>
+                  </template>
+                </el-input>
+              </el-form-item>
+
+              <el-form-item prop="idCard">
+                <el-input
+                  v-model="purchaserLoginForm.idCard"
+                  placeholder="请输入身份证号"
+                  size="large"
+                  maxlength="18"
+                  clearable
+                  @keyup.enter="handlePurchaserLogin"
+                >
+                  <template #prefix>
+                    <el-icon><Postcard /></el-icon>
+                  </template>
+                </el-input>
+              </el-form-item>
+
+              <el-form-item>
+                <el-button
+                  type="primary"
+                  size="large"
+                  :loading="loading"
+                  @click="handlePurchaserLogin"
+                  class="login-button"
+                >
+                  登录
+                </el-button>
+              </el-form-item>
+
+              <el-form-item>
+                <el-link type="primary" @click="router.push('/auth/registration-wizard')">
+                  还没有账号？去注册采购商
+                </el-link>
+              </el-form-item>
+            </el-form>
+<!-- 人脸识别登录 -->
             <div v-else-if="loginMethod === 'face'" class="face-login">
               <div class="face-scanner" :class="{ scanning: faceScanning }">
                 <video
@@ -358,11 +413,10 @@
                 <el-button
                   type="primary"
                   size="large"
-                  :loading="loading"
-                  @click="handleRegister"
+                  @click="goToRegistrationWizard"
                   class="login-button"
                 >
-                  注册
+                  开始注册
                 </el-button>
               </el-form-item>
 
@@ -417,9 +471,10 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   User, Lock, Phone, Key, Postcard, Camera, Check, InfoFilled,
   Loading, SuccessFilled, ChatDotRound, UserFilled, OfficeBuilding,
-  Plus, ChatDotSquare
+  Plus, ChatDotSquare, ShoppingCart
 } from '@element-plus/icons-vue'
 import { authApi } from '@/api'
+import api from '@/api'
 
 const router = useRouter()
 
@@ -428,6 +483,7 @@ const roles = ref([
   { label: '村民', value: 'resident', icon: UserFilled },
   { label: '村干部', value: 'cadre', icon: ChatDotSquare },
   { label: '乡镇官员', value: 'official', icon: OfficeBuilding },
+  { label: '采购商', value: 'purchaser', icon: ShoppingCart },
   { label: '管理员', value: 'admin', icon: User }
 ])
 
@@ -452,6 +508,12 @@ const loginForm = reactive({
   password: ''
 })
 
+// 采购商登录表单
+const purchaserLoginForm = reactive({
+  phone: '',
+  idCard: ''
+})
+
 const loginRules = {
   username: [
     { required: true, message: '请输入用户名/手机号', trigger: 'blur' }
@@ -459,6 +521,17 @@ const loginRules = {
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
     { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
+  ]
+}
+
+const purchaserLoginRules = {
+  phone: [
+    { required: true, message: '请输入手机号', trigger: 'blur' },
+    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
+  ],
+  idCard: [
+    { required: true, message: '请输入身份证号', trigger: 'blur' },
+    { pattern: /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/, message: '请输入正确的身份证号', trigger: 'blur' }
   ]
 }
 
@@ -576,12 +649,36 @@ const handlePasswordLogin = async () => {
         resident: '/resident/dashboard',
         cadre: '/cadre/dashboard',
         official: '/official/dashboard',
+        purchaser: '/purchaser/dashboard',
         admin: '/admin/dashboard'
       }
       router.push(redirectMap[selectedRole.value] || '/')
     }
   } catch (error) {
     ElMessage.error(error.message || '登录失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+// 采购商登录
+const handlePurchaserLogin = async () => {
+  loading.value = true
+  try {
+    const res = await api.post('/api/v1/purchaser/login', {
+      phone: purchaserLoginForm.phone,
+      idCard: purchaserLoginForm.idCard
+    })
+
+    if (res.success) {
+      localStorage.setItem('token', res.data.token)
+      localStorage.setItem('user', JSON.stringify(res.data.purchaser))
+
+      ElMessage.success('登录成功')
+      router.push('/purchaser/dashboard')
+    }
+  } catch (error) {
+    ElMessage.error(error.response?.data?.message || error.message || '登录失败')
   } finally {
     loading.value = false
   }
@@ -773,6 +870,30 @@ const handleResetPassword = async () => {
   } catch (error) {
     ElMessage.error(error.message || '重置失败')
   }
+}
+
+// 跳转到注册向导
+const goToRegistrationWizard = () => {
+  if (selectedRole.value === 'purchaser') {
+    router.push('/auth/registration-wizard')
+  } else {
+    router.push({
+      name: 'common-registration',
+      query: { role: selectedRole.value }
+    })
+  }
+}
+
+// 获取角色标题
+const getRoleTitle = () => {
+  const titles = {
+    resident: '村民',
+    cadre: '村干部',
+    official: '乡镇官员',
+    admin: '管理员',
+    purchaser: '采购商'
+  }
+  return titles[selectedRole.value] || '用户'
 }
 
 // 监听登录方式切换

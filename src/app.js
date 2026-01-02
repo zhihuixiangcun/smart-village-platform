@@ -96,6 +96,14 @@ const contentReviewRoutes = require('./routes/contentReviewRoutes');
 console.log('[DEBUG] contentReviewRoutes loaded');
 const authRoutes = require('./routes/authRoutes');
 console.log('[DEBUG] authRoutes loaded');
+// 用户注册审批系统路由
+const registrationRoutes = require('./routes/registrationRoutes');
+console.log('[DEBUG] registrationRoutes loaded');
+const idCardOCRRoutes = require('./routes/idCardOCRRoutes');
+console.log('[DEBUG] idCardOCRRoutes loaded');
+// 采购商路由
+const purchaserRoutes = require('./routes/purchaserRoutes');
+console.log('[DEBUG] purchaserRoutes loaded');
 
 // 导入村务管理路由
 // const villageManagementRoutes = require('./routes/villageManagement');
@@ -525,6 +533,22 @@ if (contentReviewRoutes) {
 if (authRoutes) {
   app.use('/api/v1/auth', authRoutes);
   console.log('[DEBUG] authRoutes registered');
+}
+
+// 用户注册审批系统路由
+if (registrationRoutes) {
+  app.use('/api/v1/registration', registrationRoutes);
+  console.log('[DEBUG] registrationRoutes registered at /api/v1/registration');
+}
+if (idCardOCRRoutes) {
+  app.use('/api/v1/ocr', idCardOCRRoutes);
+  console.log('[DEBUG] idCardOCRRoutes registered at /api/v1/ocr');
+}
+
+// 采购商路由
+if (purchaserRoutes) {
+  app.use('/api/v1/purchaser', purchaserRoutes);
+  console.log('[DEBUG] purchaserRoutes registered at /api/v1/purchaser');
 }
 
 // 安全中间件集成 - Temporarily disabled to debug startup issue

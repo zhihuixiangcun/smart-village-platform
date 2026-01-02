@@ -354,6 +354,302 @@ class RecommendationService {
   getWeights() {
     return { ...this.weights };
   }
+
+  /**
+   * 为采购商获取推荐信息（农产品、公告、村庄）
+   * @param {Object} query - 推荐查询参数
+   * @returns {Promise<Object>} 推荐结果
+   */
+  async getRecommendationsForPurchaser(query) {
+    const FarmProductSupply = require('../models/FarmProductSupply');
+    const Announcement = require('../models/Announcement');
+    const Village = require('../models/Village');
+    const logger = require('../utils/logger');
+
+    try {
+      const { categories, location, radius, purchaserType } = query;
+
+      // 如果没有位置信息，返回全局推荐
+      if (!location) {
+        return this._getGlobalRecommendations(categories);
+      }
+
+      // 1. 查询附近的农产品供应
+      const nearbyProducts = await this._findNearbyProducts(location, radius, categories);
+
+      // 2. 查询附近的公告信息
+      const nearbyAnnouncements = await this._findNearbyAnnouncements(location, radius, categories);
+
+      // 3. 查询附近的村庄信息（用于商家采购商）
+      const nearbyVillages = purchaserType === 'business'
+        ? await this._findNearbyVillages(location, radius)
+        : [];
+
+      // 4. 综合评分和排序
+      const rankedResults = this._rankResults([
+        ...nearbyProducts.map(p => ({ ...p, type: 'product' })),
+        ...nearbyAnnouncements.map(a => ({ ...a, type: 'announcement' }))
+      ]);
+
+      return {
+        success: true,
+        data: {
+          recommendations: rankedResults,
+          nearbyVillages,
+          summary: {
+            total: rankedResults.length,
+            products: nearbyProducts.length,
+            announcements: nearbyAnnouncements.length,
+            villages: nearbyVillages.length
+          }
+        }
+      };
+
+    } catch (error) {
+      logger.error('获取推荐失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 查找附近的农产品
+   * @private
+   */
+  async _findNearbyProducts(location, radius, categories) {
+    const FarmProductSupply = require('../models/FarmProductSupply');
+
+    try {
+      const query = {
+        status: 'available',
+        'location.coordinates': {
+          $near: {
+            $geometry: {
+              type: 'Point',
+              coordinates: location
+            },
+            $maxDistance: radius
+          }
+        }
+      };
+
+      // 如果有类目筛选，添加类目条件
+      if (categories && categories.length > 0) {
+        query.$or = categories.map(cat => ({
+          productName: { $regex: cat, $options: 'i' }
+        }));
+      }
+
+      const products = await FarmProductSupply.find(query)
+        .populate('supplierId', 'name phone')
+        .sort({ createdAt: -1 })
+        .limit(50);
+
+      return products.map(p => ({
+        id: p._id,
+        productName: p.productName,
+        category: p.category,
+        price: p.pricePerUnit,
+        unit: p.unit,
+        quantity: p.quantity,
+        supplier: p.supplierId,
+        location: p.location,
+        distance: this._calculateDistance(location, p.location.coordinates),
+        matchScore: this._calculateMatchScore(categories, p.category),
+        createdAt: p.createdAt
+      }));
+
+    } catch (error) {
+      console.error('查找附近产品失败:', error);
+      return [];
+    }
+  }
+
+  /**
+   * 查找附近的公告
+   * @private
+   */
+  async _findNearbyAnnouncements(location, radius, categories) {
+    const Announcement = require('../models/Announcement');
+
+    try {
+      const query = {
+        status: 'published',
+        publishDate: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
+      };
+
+      const announcements = await Announcement.find(query)
+        .populate('villageId', 'name location')
+        .sort({ publishDate: -1 })
+        .limit(30);
+
+      // 过滤在半径内的公告
+      const filtered = announcements.filter(a => {
+        if (!a.villageId?.location?.coordinates) return false;
+        const distance = this._calculateDistance(location, a.villageId.location.coordinates);
+        return distance <= radius / 1000;
+      });
+
+      return filtered.map(a => ({
+        id: a._id,
+        title: a.title,
+        content: a.content,
+        category: a.category,
+        village: a.villageId,
+        distance: this._calculateDistance(location, a.villageId.location.coordinates),
+        matchScore: this._calculateMatchScore(categories, a.category),
+        publishDate: a.publishDate
+      }));
+
+    } catch (error) {
+      console.error('查找附近公告失败:', error);
+      return [];
+    }
+  }
+
+  /**
+   * 查找附近的村庄
+   * @private
+   */
+  async _findNearbyVillages(location, radius) {
+    const Village = require('../models/Village');
+
+    try {
+      const villages = await Village.find({
+        'location.coordinates': {
+          $near: {
+            $geometry: {
+              type: 'Point',
+              coordinates: location
+            },
+            $maxDistance: radius
+          }
+        }
+      })
+        .select('name location population contactInfo')
+        .limit(20);
+
+      return villages.map(v => ({
+        id: v._id,
+        name: v.name,
+        population: v.population,
+        contactPhone: v.contactInfo?.phone,
+        distance: this._calculateDistance(location, v.location.coordinates)
+      }));
+
+    } catch (error) {
+      console.error('查找附近村庄失败:', error);
+      return [];
+    }
+  }
+
+  /**
+   * 获取全局推荐（无位置信息时）
+   * @private
+   */
+  async _getGlobalRecommendations(categories) {
+    const FarmProductSupply = require('../models/FarmProductSupply');
+
+    try {
+      const query = { status: 'available' };
+
+      if (categories && categories.length > 0) {
+        query.$or = categories.map(cat => ({
+          category: { $regex: cat, $options: 'i' }
+        }));
+      }
+
+      const products = await FarmProductSupply.find(query)
+        .populate('supplierId', 'name phone')
+        .sort({ createdAt: -1 })
+        .limit(20);
+
+      return {
+        success: true,
+        data: {
+          recommendations: products.map(p => ({
+            ...p.toObject(),
+            type: 'product'
+          })),
+          nearbyVillages: [],
+          summary: {
+            total: products.length,
+            products: products.length,
+            announcements: 0,
+            villages: 0
+          }
+        }
+      };
+
+    } catch (error) {
+      console.error('获取全局推荐失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 计算两点之间的距离（公里）
+   * @private
+   */
+  _calculateDistance(coord1, coord2) {
+    if (!coord1 || !coord2 || coord1.length !== 2 || coord2.length !== 2) {
+      return Infinity;
+    }
+
+    const R = 6371;
+    const [lng1, lat1] = coord1;
+    const [lng2, lat2] = coord2;
+
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+
+    const a = Math.sin(dLat / 2) ** 2 +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLng / 2) ** 2;
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  /**
+   * 计算匹配分数
+   * @private
+   */
+  _calculateMatchScore(purchaserCategories, itemCategory) {
+    if (!purchaserCategories || purchaserCategories.length === 0) {
+      return 0.5;
+    }
+
+    if (!itemCategory) {
+      return 0.3;
+    }
+
+    for (const cat of purchaserCategories) {
+      if (itemCategory.toLowerCase().includes(cat.toLowerCase()) ||
+          cat.toLowerCase().includes(itemCategory.toLowerCase())) {
+        return 1.0;
+      }
+    }
+
+    return 0.5;
+  }
+
+  /**
+   * 综合评分排序
+   * @private
+   */
+  _rankResults(results) {
+    return results.sort((a, b) => {
+      const scoreA = (a.matchScore || 0) * 0.5 +
+                     (1 / (a.distance + 1)) * 0.3 +
+                     (a.createdAt ? Math.max(0, 1 - (Date.now() - a.createdAt.getTime()) / (30 * 24 * 60 * 60 * 1000)) * 0.2 : 0);
+
+      const scoreB = (b.matchScore || 0) * 0.5 +
+                     (1 / (b.distance + 1)) * 0.3 +
+                     (b.createdAt ? Math.max(0, 1 - (Date.now() - b.createdAt.getTime()) / (30 * 24 * 60 * 60 * 1000)) * 0.2 : 0);
+
+      return scoreB - scoreA;
+    }).slice(0, 50);
+  }
 }
 
 // 创建单例
