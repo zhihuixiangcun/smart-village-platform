@@ -3,12 +3,17 @@
  * 集成实时计算引擎的核心服务
  */
 
+// ============================================
+// 首先加载环境变量 - 必须在任何其他模块之前
+// ============================================
+const dotenv = require('dotenv');
+dotenv.config();
+
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
-const dotenv = require('dotenv');
 const path = require('path');
 const mongoose = require('mongoose');
 
@@ -94,8 +99,6 @@ const cadreTaskRoutes = require('./routes/cadreTaskRoutes');
 console.log('[DEBUG] cadreTaskRoutes loaded');
 const contentReviewRoutes = require('./routes/contentReviewRoutes');
 console.log('[DEBUG] contentReviewRoutes loaded');
-const authRoutes = require('./routes/authRoutes');
-console.log('[DEBUG] authRoutes loaded');
 // 用户注册审批系统路由
 const registrationRoutes = require('./routes/registrationRoutes');
 console.log('[DEBUG] registrationRoutes loaded');
@@ -123,8 +126,6 @@ console.log('[DEBUG] apiDocumentation loaded');
 // 导入工具
 const logger = require('./utils/logger');
 const { errorHandler } = require('./middleware/errorHandler');
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.MAIN_PORT || 3001;

@@ -10,7 +10,9 @@
     "allow": [
       "Bash(chmod:*)",
       "Bash(./deployment/scripts/manage-issue-templates.sh:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ]
   },
   "statusLine": {

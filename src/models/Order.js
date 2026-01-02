@@ -346,7 +346,6 @@ const orderSchema = new mongoose.Schema({
 });
 
 // 索引
-orderSchema.index({ orderNo: 1 });
 orderSchema.index({ buyerId: 1, status: 1, createdAt: -1 });
 orderSchema.index({ sellerId: 1, status: 1, createdAt: -1 });
 orderSchema.index({ type: 1, status: 1, createdAt: -1 });

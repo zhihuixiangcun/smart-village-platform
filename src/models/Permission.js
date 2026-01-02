@@ -551,7 +551,6 @@ AuditLogSchema.index({ operation: 1, timestamp: -1 });
 AuditLogSchema.index({ resource: 1, timestamp: -1 });
 AuditLogSchema.index({ 'system.ipAddress': 1, timestamp: -1 });
 AuditLogSchema.index({ 'privacy.sensitiveLevel': 1, timestamp: -1 });
-AuditLogSchema.index({ logId: 1 }, { unique: true });
 
 // 虚拟字段
 VillageAdminAuthSchema.virtual('isActive').get(function() {

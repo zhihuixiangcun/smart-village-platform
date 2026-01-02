@@ -53,7 +53,7 @@ const conversationSchema = new Schema({
       default: 500,
       min: 3,
       max: 1000
-    }],
+    },
     // 入群验证: none(不需要) | approve(需要审批) | question(需要回答问题)
     joinApproval: {
       type: String,

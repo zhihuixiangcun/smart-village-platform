@@ -267,7 +267,6 @@ const villageSchema = new mongoose.Schema({
 villageSchema.index({ province: 1, city: 1, district: 1 });
 villageSchema.index({ isActive: 1, createdAt: -1 });
 villageSchema.index({ 'economy.mainIndustry': 1 });
-villageSchema.index({ adcode: 1 });
 
 // 虚拟字段
 villageSchema.virtual('householdAverageSize').get(function() {

@@ -875,7 +875,7 @@ const router = createRouter({
         {
           path: 'schedule',
           name: 'duty-schedule',
-          component: () => import('@/views/duty/DutySchedule.vue'),
+          component: () => import('@/views/villageCommittee/DutySchedule.vue'),
           meta: {
             requiresAuth: true,
             title: '值班安排',
@@ -890,7 +890,7 @@ const router = createRouter({
         {
           path: 'emergency',
           name: 'duty-emergency',
-          component: () => import('@/views/duty/EmergencyCall.vue'),
+          component: () => import('@/components/emergency/EmergencyCall.vue'),
           meta: {
             requiresAuth: true,
             title: '紧急呼叫',
