@@ -905,7 +905,7 @@ const router = createRouter({
         {
           path: 'personnel',
           name: 'duty-personnel',
-          component: () => import('@/views/duty/PersonnelManagement.vue'),
+          component: () => import('@/views/villageCommittee/Members.vue'),
           meta: {
             requiresAuth: true,
             title: '人员管理',
