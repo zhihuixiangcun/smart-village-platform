@@ -7,7 +7,7 @@
 const axios = require('axios');
 const crypto = require('crypto');
 const EventEmitter = require('events');
-const logger = require('../config/logger');
+const logger = require('../utils/logger');
 
 class AIQuestionAnswerService extends EventEmitter {
   constructor() {

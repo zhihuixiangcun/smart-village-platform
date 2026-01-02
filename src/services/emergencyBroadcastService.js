@@ -3,7 +3,7 @@
  * 支持多种广播方式：短信、电话、微信、村广播系统、户外喇叭等
  */
 
-const logger = require('./logger');
+const logger = require('../utils/logger');
 
 class EmergencyBroadcastService {
   constructor() {

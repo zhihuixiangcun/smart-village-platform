@@ -1,0 +1,71 @@
+[DEBUG] Loading models...
+[DEBUG] Models loaded
+[DEBUG] Loading realtime components...
+00:06:02 [34mdebug[39m: ⚠️ Redis已禁用，使用内存模式运行实时引擎
+00:06:02 [34mdebug[39m: 📊 注册指标: active_users
+00:06:02 [34mdebug[39m: 📊 注册指标: behavior_count
+00:06:02 [34mdebug[39m: 📊 注册指标: transaction_amount
+00:06:02 [34mdebug[39m: 📊 注册指标: response_time
+00:06:02 [34mdebug[39m: ⚠️ 设置阈值: active_users
+00:06:02 [34mdebug[39m: ⚠️ 设置阈值: response_time
+00:06:02 [34mdebug[39m: 🚀 实时计算引擎初始化完成
+00:06:02 [34mdebug[39m: 📊 注册指标: response_time
+00:06:02 [34mdebug[39m: 📊 注册指标: throughput
+00:06:02 [34mdebug[39m: 📊 注册指标: error_count
+00:06:02 [34mdebug[39m: 📊 注册指标: error_rate
+00:06:02 [34mdebug[39m: 📊 注册指标: active_users
+00:06:02 [34mdebug[39m: 📊 注册指标: page_views
+00:06:02 [34mdebug[39m: 📊 注册指标: user_interactions
+00:06:02 [34mdebug[39m: 📊 注册指标: business_operations
+00:06:02 [34mdebug[39m: ⚠️ 设置阈值: response_time
+00:06:02 [34mdebug[39m: ⚠️ 设置阈值: error_rate
+00:06:02 [34mdebug[39m: ⚠️ 设置阈值: active_users
+[DEBUG] realtimeIntegrator loaded
+[DEBUG] realtimeTracker loaded
+[DEBUG] behaviorTracker loaded
+[DEBUG] Loading routes...
+00:06:02 [32minfo[39m: AuthMiddleware initialized with secure JWT configuration
+[DEBUG] realtimeRoutes loaded
+[DEBUG] dataIntegrationRoutes loaded
+[DEBUG] massiveDataRoutes loaded
+[DEBUG] authRoutes loaded
+00:06:03 [32minfo[39m: 通知服务队列处理已启动
+[DEBUG] residentsRoutes loaded
+[DEBUG] enhancedResidentsRoutes loaded
+[DEBUG] governanceRoutes loaded
+[DEBUG] enhancedGovernanceRoutes loaded
+00:06:03 [32minfo[39m: 财务管理模块已启用
+[DEBUG] financeRoutes loaded
+[DEBUG] emergencyManagementRoutes loaded
+[DEBUG] enhancedEmergencyRoutes loaded
+[DEBUG] ecommerceRoutes loaded
+[DEBUG] aiChatRoutes loaded
+[DEBUG] familyRoutes loaded
+[DEBUG] residentProfileRoutes loaded
+[DEBUG] batchImportRoutes loaded
+[DEBUG] pointsRoutes temporarily skipped
+[DEBUG] documentRoutes loaded
+[DEBUG] All committee and village management routes temporarily skipped
+[DEBUG] chatRoutes loaded
+[DEBUG] productPublicationRoutes loaded
+[DEBUG] committeeCollaborationRoutes loaded
+[DEBUG] collabChatRoutes loaded
+[DEBUG] announcementInteractionRoutes loaded
+[DEBUG] villageEventRoutes loaded
+[DEBUG] enhancedEcommerceRoutes loaded
+[DEBUG] governmentRoutes loaded
+[DEBUG] publicServiceRoutes loaded
+[DEBUG] paymentManagementRoutes loaded
+[DEBUG] socialRoutes loaded
+[DEBUG] documentPackageRoutes loaded
+[DEBUG] offlineRoutes loaded
+[DEBUG] collaborationScheduler loaded
+[DEBUG] Loading apiDocumentation...
+[DEBUG] apiDocumentation loaded
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+[DEBUG] ledgerProofRoutes loaded
+[DEBUG] ledgerProofRoutes registered with app
+[DEBUG] About to exit for testing after route definitions...
+[DEBUG] Defining realtime/status route...
+[DEBUG] realtime/status route defined
+[DEBUG] About to define 404 handler...

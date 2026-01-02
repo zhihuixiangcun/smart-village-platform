@@ -1,0 +1,50 @@
+# 智慧乡村平台 - 简化版 Docker Compose 配置
+# 适合技术小白快速部署
+
+services:
+  # MongoDB 数据库
+  mongodb:
+    image: mongo:5.0
+    container_name: smart-village-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: secure_password_123
+      MONGO_INITDB_DATABASE: smart-village
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - smart-village-network
+
+  # 主 API 服务器
+  api-server:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.node
+    container_name: smart-village-api
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: development
+      MONGO_URI: mongodb://admin:secure_password_123@mongodb:27017/smart-village?authSource=admin
+      PORT: 3001
+      JWT_SECRET: your-super-secret-jwt-key-for-development
+      LOG_LEVEL: info
+    volumes:
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+    depends_on:
+      - mongodb
+    networks:
+      - smart-village-network
+
+volumes:
+  mongodb_data:
+    driver: local
+
+networks:
+  smart-village-network:
+    driver: bridge

@@ -57,6 +57,7 @@ require('./PendingOperation');
 require('./SyncLog');
 require('./DataVersion');
 require('./DataConflict');
+require('./SyncOperation');
 
 // 收集所有单模型导出（来自 modules）
 const singleModels = {

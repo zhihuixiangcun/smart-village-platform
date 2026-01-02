@@ -16,19 +16,33 @@ class AIChatService {
     this.contextCache = new Map();
     this.policyCalculator = new PolicyCalculator();
     this.formAssistant = new AIFormAssistant();
+    this._initialized = false;
+    this._initializing = false;
 
-    // 初始化服务
-    this.initializeServices();
+    // 异步初始化服务，不阻塞构造函数
+    this.initializeServices().catch(err => {
+      logger.error('AI服务初始化失败(后台):', err.message);
+    });
   }
 
   /**
    * 初始化服务
    */
   async initializeServices() {
+    // 防止重复初始化
+    if (this._initialized || this._initializing) {
+      return;
+    }
+
+    this._initializing = true;
+
     try {
       logger.debug('🤖 初始化AI智能问答服务...');
-      // 加载知识图谱
-      await this.loadKnowledgeGraph();
+
+      // 加载知识图谱 - 不阻塞启动
+      this.loadKnowledgeGraph().catch(err => {
+        logger.warn('知识图谱加载失败(后台):', err.message);
+      });
 
       // 初始化NLP模型
       await this.initializeNLPModel();
@@ -36,9 +50,12 @@ class AIChatService {
       // 加载政策数据
       await this.loadPolicyData();
 
+      this._initialized = true;
       logger.debug('✅ AI智能问答服务初始化完成');
     } catch (error) {
       logger.error('❌ AI智能问答服务初始化失败:', error);
+    } finally {
+      this._initializing = false;
     }
   }
 
@@ -48,33 +65,37 @@ class AIChatService {
   async loadKnowledgeGraph() {
     try {
       // 加载农业问答对
-      const qaData = await AgriQA.find({}).lean();
+      const qaData = await AgriQA.find({}).lean().maxTimeMS(5000).exec();
       qaData.forEach(qa => {
         this.knowledgeGraph.set(qa._id.toString(), qa);
       });
 
       // 加载作物品种信息
-      const crops = await CropVariety.find({}).lean();
+      const crops = await CropVariety.find({}).lean().maxTimeMS(5000).exec();
       crops.forEach(crop => {
         this.knowledgeGraph.set(`crop_${crop._id}`, crop);
       });
 
       // 加载病虫害信息
-      const pests = await PestDisease.find({}).lean();
+      const pests = await PestDisease.find({}).lean().maxTimeMS(5000).exec();
       pests.forEach(pest => {
         this.knowledgeGraph.set(`pest_${pest._id}`, pest);
       });
 
       // 加载农业技术知识
-      const techKnowledge = await AgriTechKnowledge.find({}).lean();
+      const techKnowledge = await AgriTechKnowledge.find({}).lean().maxTimeMS(5000).exec();
       techKnowledge.forEach(tech => {
         this.knowledgeGraph.set(`tech_${tech._id}`, tech);
       });
 
       logger.debug(`📚 知识图谱加载完成: ${this.knowledgeGraph.size} 条记录`);
     } catch (error) {
-      logger.error('加载知识图谱失败:', error);
-      throw error;
+      // 不抛出错误，仅记录警告
+      if (error.name === 'MongooseTimeoutError') {
+        logger.warn('知识图谱加载超时，将在后台重试');
+      } else {
+        logger.warn('知识图谱加载失败(非致命):', error.message);
+      }
     }
   }
 

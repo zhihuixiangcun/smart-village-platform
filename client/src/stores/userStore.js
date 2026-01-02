@@ -8,6 +8,10 @@ import { authApi } from '@/api/authApi'
 import router from '@/router'
 
 export const useUserStore = defineStore('user', () => {
+  // 🔧 版本标识 - 用于验证新代码是否加载
+  const STORE_VERSION = '2025-12-30-v2' // 修复 token 恢复问题
+  console.log('🚀 userStore.js 已加载 - 版本:', STORE_VERSION, Date.now())
+
   // 状态数据
   const token = ref(localStorage.getItem('token') || '')
   const refreshToken = ref(localStorage.getItem('refreshToken') || '')
@@ -338,6 +342,17 @@ export const useUserStore = defineStore('user', () => {
    */
   const initUserState = () => {
     try {
+      // 【关键修复】恢复 token - 这是之前缺失的
+      const storedToken = localStorage.getItem('token')
+      if (storedToken) {
+        token.value = storedToken
+      }
+
+      const storedRefreshToken = localStorage.getItem('refreshToken')
+      if (storedRefreshToken) {
+        refreshToken.value = storedRefreshToken
+      }
+
       // 从本地存储恢复用户信息
       const storedUserInfo = localStorage.getItem('userInfo')
       if (storedUserInfo) {
@@ -355,9 +370,17 @@ export const useUserStore = defineStore('user', () => {
       if (storedRoles) {
         roles.value = JSON.parse(storedRoles)
       }
+
+      console.log('✅ 用户状态恢复完成:', {
+        hasToken: !!token.value,
+        hasUserInfo: !!userInfo.value,
+        isLoggedIn: !!token.value && !!userInfo.value
+      })
     } catch (error) {
       console.error('初始化用户状态失败:', error)
       // 清除异常数据
+      localStorage.removeItem('token')
+      localStorage.removeItem('refreshToken')
       localStorage.removeItem('userInfo')
       localStorage.removeItem('permissions')
       localStorage.removeItem('roles')

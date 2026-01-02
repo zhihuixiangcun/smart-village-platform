@@ -1,0 +1,42 @@
+[DEBUG] Loading realtime components...
+20:45:15 [34mdebug[39m: ⚠️ Redis已禁用，使用内存模式运行实时引擎
+20:45:15 [34mdebug[39m: 📊 注册指标: active_users
+20:45:15 [34mdebug[39m: 📊 注册指标: behavior_count
+20:45:15 [34mdebug[39m: 📊 注册指标: transaction_amount
+20:45:15 [34mdebug[39m: 📊 注册指标: response_time
+20:45:15 [34mdebug[39m: ⚠️ 设置阈值: active_users
+20:45:15 [34mdebug[39m: ⚠️ 设置阈值: response_time
+20:45:15 [34mdebug[39m: 🚀 实时计算引擎初始化完成
+20:45:15 [34mdebug[39m: 📊 注册指标: response_time
+20:45:15 [34mdebug[39m: 📊 注册指标: throughput
+20:45:15 [34mdebug[39m: 📊 注册指标: error_count
+20:45:15 [34mdebug[39m: 📊 注册指标: error_rate
+20:45:15 [34mdebug[39m: 📊 注册指标: active_users
+20:45:15 [34mdebug[39m: 📊 注册指标: page_views
+20:45:15 [34mdebug[39m: 📊 注册指标: user_interactions
+20:45:15 [34mdebug[39m: 📊 注册指标: business_operations
+20:45:15 [34mdebug[39m: ⚠️ 设置阈值: response_time
+20:45:15 [34mdebug[39m: ⚠️ 设置阈值: error_rate
+20:45:15 [34mdebug[39m: ⚠️ 设置阈值: active_users
+[DEBUG] realtimeIntegrator loaded
+[DEBUG] realtimeTracker loaded
+[DEBUG] behaviorTracker loaded
+[DEBUG] Loading routes...
+20:45:16 [32minfo[39m: AuthMiddleware initialized with secure JWT configuration
+[DEBUG] realtimeRoutes loaded
+[DEBUG] dataIntegrationRoutes loaded
+[DEBUG] massiveDataRoutes loaded
+[DEBUG] authRoutes loaded
+20:45:16 [32minfo[39m: 通知服务队列处理已启动
+[DEBUG] residentsRoutes loaded
+[DEBUG] enhancedResidentsRoutes loaded
+[DEBUG] governanceRoutes loaded
+[DEBUG] enhancedGovernanceRoutes loaded
+20:45:16 [32minfo[39m: 财务管理模块已启用
+[DEBUG] financeRoutes loaded
+[DEBUG] emergencyManagementRoutes loaded
+[DEBUG] enhancedEmergencyRoutes loaded
+[DEBUG] ecommerceRoutes loaded
+[DEBUG] aiChatRoutes loaded
+[DEBUG] familyRoutes loaded
+[DEBUG] residentProfileRoutes loaded

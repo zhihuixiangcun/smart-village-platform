@@ -883,8 +883,20 @@ router.beforeEach(async (to, from, next) => {
   // 检查是否需要认证
   if (to.meta.requiresAuth) {
     try {
-      // 检查用户是否已登录
-      if (!userStore.isLoggedIn) {
+      // 【修复】直接从 localStorage 读取状态
+      const token = localStorage.getItem('token')
+      const userInfoStr = localStorage.getItem('userInfo')
+
+      // 如果 store 中没有状态，但从 localStorage 中有，恢复 store 状态
+      if (token && userInfoStr && !userStore.token) {
+        console.log('🔄 恢复 store 状态...')
+        userStore.initUserState()
+      }
+
+      // 检查用户是否已登录 - 同时检查 store 和 localStorage
+      const hasValidAuth = userStore.isLoggedIn || (token && userInfoStr)
+
+      if (!hasValidAuth) {
         console.log('路由守卫: 用户未登录，重定向到登录页')
         next({
           name: 'login',
@@ -918,6 +930,7 @@ router.beforeEach(async (to, from, next) => {
   } else {
     // 如果已登录用户访问登录页面，重定向到仪表板
     if (to.name === 'login' && userStore.isLoggedIn) {
+      console.log('路由守卫: 用户已登录，重定向到仪表板')
       next({ name: 'dashboard' })
       return
     }

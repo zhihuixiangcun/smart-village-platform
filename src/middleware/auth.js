@@ -559,3 +559,68 @@ module.exports.requireMFA = authMiddleware.requireMFA;
 module.exports.requireTrustedDevice = authMiddleware.requireTrustedDevice;
 module.exports.generateTokens = authMiddleware.generateTokens.bind(authMiddleware);
 module.exports.revokeSession = authMiddleware.revokeSession.bind(authMiddleware);
+
+/**
+ * 可选认证中间件
+ * 允许未认证用户访问，但如果提供了token则尝试验证
+ */
+const optional = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      // 没有token，继续处理但不设置req.user
+      return next();
+    }
+
+    const token = authHeader.substring(7);
+
+    // 验证token
+    const decoded = jwt.verify(token, authMiddleware.jwtSecret, {
+      algorithm: authMiddleware.jwtAlgorithm
+    });
+
+    // 检查会话是否有效
+    const session = authMiddleware.activeSessions.get(decoded.sessionId);
+    if (!session || session.status !== 'active') {
+      // 会话无效，继续处理但不设置req.user
+      return next();
+    }
+
+    // 获取用户信息
+    const user = await User.findById(decoded.userId).select('-password');
+    if (!user || user.status !== 'active') {
+      // 用户不存在或已禁用，继续处理但不设置req.user
+      return next();
+    }
+
+    // 检查用户权限是否变更
+    if (JSON.stringify(user.permissions) !== JSON.stringify(decoded.permissions)) {
+      authMiddleware.revokeSession(decoded.sessionId);
+      return next();
+    }
+
+    // 更新会话活动时间
+    session.lastActivity = new Date();
+    authMiddleware.activeSessions.set(decoded.sessionId, session);
+
+    // 将用户信息添加到请求对象
+    req.user = user;
+    req.session = {
+      sessionId: decoded.sessionId,
+      loginTime: session.loginTime,
+      lastActivity: session.lastActivity,
+      deviceInfo: session.deviceInfo
+    };
+
+    next();
+
+  } catch (error) {
+    // 忽略认证错误，继续处理但不设置req.user
+    if (error.name !== 'TokenExpiredError' && error.name !== 'JsonWebTokenError') {
+      logger.warn('Optional authentication warning:', error.message);
+    }
+    next();
+  }
+};
+
+module.exports.optional = optional;

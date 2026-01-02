@@ -607,3 +607,25 @@ module.exports = {
   requirePermission,
   dataMasking
 };
+
+/**
+ * 便捷权限检查函数
+ * 解析权限字符串格式 "resource:action" 并返回权限检查中间件
+ * @param {string} permissionString - 格式: "resource:action"
+ * @param {string} scope - 权限作用域: 'own', 'village', 'all'
+ * @returns {Function} Express中间件
+ */
+const checkPermission = (permissionString, scope = 'own') => {
+  // 解析权限字符串 "resource:action"
+  const [resource, action] = permissionString.split(':');
+
+  if (!resource || !action) {
+    throw new Error(`Invalid permission string format: ${permissionString}. Expected format: "resource:action"`);
+  }
+
+  // 返回标准的权限检查中间件
+  return requirePermission(resource, action, scope);
+};
+
+// 导出便捷函数
+module.exports.checkPermission = checkPermission;

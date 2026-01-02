@@ -1,0 +1,125 @@
+[DEBUG] Loading realtime components...
+16:41:51 [34mdebug[39m: ⚠️ Redis已禁用，使用内存模式运行实时引擎
+16:41:51 [34mdebug[39m: 📊 注册指标: active_users
+16:41:51 [34mdebug[39m: 📊 注册指标: behavior_count
+16:41:51 [34mdebug[39m: 📊 注册指标: transaction_amount
+16:41:51 [34mdebug[39m: 📊 注册指标: response_time
+16:41:51 [34mdebug[39m: ⚠️ 设置阈值: active_users
+16:41:51 [34mdebug[39m: ⚠️ 设置阈值: response_time
+16:41:51 [34mdebug[39m: 🚀 实时计算引擎初始化完成
+16:41:51 [34mdebug[39m: 📊 注册指标: response_time
+16:41:51 [34mdebug[39m: 📊 注册指标: throughput
+16:41:51 [34mdebug[39m: 📊 注册指标: error_count
+16:41:51 [34mdebug[39m: 📊 注册指标: error_rate
+16:41:51 [34mdebug[39m: 📊 注册指标: active_users
+16:41:51 [34mdebug[39m: 📊 注册指标: page_views
+16:41:51 [34mdebug[39m: 📊 注册指标: user_interactions
+16:41:51 [34mdebug[39m: 📊 注册指标: business_operations
+16:41:51 [34mdebug[39m: ⚠️ 设置阈值: response_time
+16:41:51 [34mdebug[39m: ⚠️ 设置阈值: error_rate
+16:41:51 [34mdebug[39m: ⚠️ 设置阈值: active_users
+[DEBUG] realtimeIntegrator loaded
+[DEBUG] realtimeTracker loaded
+[DEBUG] behaviorTracker loaded
+[DEBUG] Loading routes...
+16:41:52 [32minfo[39m: AuthMiddleware initialized with secure JWT configuration
+[DEBUG] realtimeRoutes loaded
+[DEBUG] dataIntegrationRoutes loaded
+[DEBUG] massiveDataRoutes loaded
+[DEBUG] authRoutes loaded
+16:41:52 [32minfo[39m: 通知服务队列处理已启动
+[DEBUG] residentsRoutes loaded
+[DEBUG] ecommerceRoutes loaded
+[DEBUG] residentProfileRoutes loaded
+[DEBUG] batchImportRoutes loaded
+[DEBUG] documentRoutes loaded
+[DEBUG] villageManagementRoutes loaded
+[DEBUG] villageUserRoutes loaded
+[DEBUG] Loading apiDocumentation...
+[DEBUG] apiDocumentation loaded
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[DEBUG] Loading monitoring modules...
+[DEBUG] realtimeMonitor loaded
+16:41:53 [32minfo[39m: 告警检查已启动
+[DEBUG] alertSystem loaded
+[DEBUG] Setting up API routes...
+[DEBUG] realtimeRoutes registered
+[DEBUG] dataIntegrationRoutes registered
+[DEBUG] massiveDataRoutes registered
+[DEBUG] authRoutes registered
+[DEBUG] residentsRoutes registered
+[DEBUG] ecommerceRoutes registered
+[DEBUG] batchImportRoutes registered
+[DEBUG] residentProfileRoutes registered
+[DEBUG] documentRoutes registered
+[DEBUG] villageManagementRoutes registered
+[DEBUG] villageUserRoutes registered
+[DEBUG] Skipping security middleware for now...
+[DEBUG] After skipping security middleware
+[DEBUG] About to continue with API endpoints...
+[DEBUG] Before 404 handler
+[DEBUG] After 404 handler
+[DEBUG] After error handler
+[DEBUG] Before checking if main module
+[DEBUG] Checking if main module: true
+[DEBUG] About to call startServer()
+16:41:53 [32minfo[39m: 🚀 启动智慧村庄平台主服务...
+16:41:53 [32minfo[39m: 🚀 正在初始化实时计算系统...
+🚀 初始化实时计算集成系统...
+(node:32924) [MONGOOSE] Warning: Duplicate schema index on {"adcode":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:32924) [MONGOOSE] Warning: Duplicate schema index on {"orderNo":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:32924) [MONGOOSE] Warning: Duplicate schema index on {"logId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:32924) [MONGOOSE] Warning: `errors` is a reserved schema pathname and may break some functionality. You are allowed to use it, but use at your own risk. To disable this warning pass `suppressReservedKeysWarning` as a schema option.
+(node:32924) [MONGOOSE] Warning: Duplicate schema index on {"scheduledDate":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:32924) [MONGOOSE] Warning: Duplicate schema index on {"taskId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:32924) [MONGOOSE] Warning: Duplicate schema index on {"requestId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:32924) [MONGOOSE] Warning: Duplicate schema index on {"userId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:32924) [MONGOOSE] Warning: Duplicate schema index on {"personalInfo.idCard":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:32924) [MONGOOSE] Warning: Duplicate schema index on {"phone":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+❌ 实时计算集成系统初始化失败: TypeError: this.components.engine.configureRedis is not a function
+    at RealtimeIntegrator.initializeEngine (G:\claude code\src\integrator\realtimeIntegrator.js:360:36)
+    at RealtimeIntegrator.initialize (G:\claude code\src\integrator\realtimeIntegrator.js:48:18)
+    at initializeRealtimeSystem (G:\claude code\src\app.js:194:30)
+    at startServer (G:\claude code\src\app.js:861:11)
+    at Object.<anonymous> (G:\claude code\src\app.js:943:3)
+    at Module._compile (node:internal/modules/cjs/loader:1761:14)
+    at Object..js (node:internal/modules/cjs/loader:1893:10)
+    at Module.load (node:internal/modules/cjs/loader:1481:32)
+    at Module._load (node:internal/modules/cjs/loader:1300:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+16:41:53 [31merror[39m: ❌ 实时计算系统初始化失败: this.components.engine.configureRedis is not a function
+TypeError: this.components.engine.configureRedis is not a function
+    at RealtimeIntegrator.initializeEngine (G:\claude code\src\integrator\realtimeIntegrator.js:360:36)
+    at RealtimeIntegrator.initialize (G:\claude code\src\integrator\realtimeIntegrator.js:48:18)
+    at initializeRealtimeSystem (G:\claude code\src\app.js:194:30)
+    at startServer (G:\claude code\src\app.js:861:11)
+    at Object.<anonymous> (G:\claude code\src\app.js:943:3)
+    at Module._compile (node:internal/modules/cjs/loader:1761:14)
+    at Object..js (node:internal/modules/cjs/loader:1893:10)
+    at Module.load (node:internal/modules/cjs/loader:1481:32)
+    at Module._load (node:internal/modules/cjs/loader:1300:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+16:41:53 [33mwarn[39m: ⚠️ 实时计算功能已禁用，应用将继续运行
+16:41:53 [32minfo[39m: ✅ 智慧村庄平台主服务启动成功
+16:41:53 [32minfo[39m: 🌐 服务地址: http://localhost:3001
+16:41:53 [32minfo[39m: 🏥 健康检查: http://localhost:3001/health
+16:41:53 [32minfo[39m: 📊 实时状态: http://localhost:3001/api/v1/realtime/status
+16:41:53 [32minfo[39m: 🔗 实时订阅: http://localhost:3001/api/v1/realtime/subscribe
+16:41:53 [32minfo[39m: 📋 API信息: http://localhost:3001/api/v1/info
+16:41:53 [32minfo[39m: 📈 性能监控: http://localhost:3001/api/v1/performance
+16:41:53 [32minfo[39m: 🔄 实时计算引擎: 已禁用
+16:41:53 [32minfo[39m: 🌟 服务特性:
+16:41:53 [32minfo[39m:    - 实时数据流处理: ❌
+16:41:53 [32minfo[39m:    - 多源数据整合: ✅
+16:41:53 [32minfo[39m:    - 海量数据处理: ✅
+16:41:53 [32minfo[39m:    - 动态阈值监控: ❌
+16:41:53 [32minfo[39m:    - 智能预警系统: ❌
+[0mGET /health [32m200[0m 8.262 ms - 354[0m
+[0mGET /health [32m200[0m 0.959 ms - 354[0m
+[0mGET /health [32m200[0m 0.624 ms - 352[0m
+16:42:23 [33mwarn[39m: 检测到告警
+[0mGET /health [32m200[0m 1.228 ms - 353[0m
+[0mGET /health [32m200[0m 0.594 ms - 353[0m
+[0mGET /health [32m200[0m 1.548 ms - 354[0m
+[0mGET /health [32m200[0m 0.697 ms - 354[0m

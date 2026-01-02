@@ -5,6 +5,10 @@
         <div class="auth-header">
           <h1>用户登录</h1>
           <p>智慧村庄综合服务平台</p>
+          <!-- 代码版本标识 - 用于调试 -->
+          <div style="font-size: 11px; color: #909399; margin-top: 8px;">
+            代码版本: {{ CODE_VERSION }}
+          </div>
         </div>
         <div class="auth-content">
           <el-form
@@ -76,7 +80,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { useUserStore } from '@/stores/userStore'
@@ -84,6 +88,10 @@ import { useUserStore } from '@/stores/userStore'
 const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
+
+// 🔧 版本标识 - 用于验证新代码是否加载
+const CODE_VERSION = '2025-12-30-v2' // 修复 token 恢复问题
+console.log('🚀 LoginView.vue 已加载 - 版本:', CODE_VERSION, Date.now())
 
 // 表单引用
 const loginFormRef = ref()
@@ -114,6 +122,13 @@ const handleLogin = async () => {
   if (!loginFormRef.value) return
 
   try {
+    // 🔍 缓存检测 - 确保新代码已加载
+    console.log('🔍 缓存检测 - 版本:', CODE_VERSION)
+    console.log('🔍 localStorage 状态:', {
+      hasToken: !!localStorage.getItem('token'),
+      hasUserInfo: !!localStorage.getItem('userInfo')
+    })
+
     // 表单验证
     await loginFormRef.value.validate()
 
@@ -155,9 +170,23 @@ const handleLogin = async () => {
 
     ElMessage.success(`欢迎回来，${account.name}！`)
 
+    // 等待 Vue 响应式状态更新
+    await nextTick()
+
+    // 强制等待确保状态完全保存到 localStorage
+    await new Promise(resolve => setTimeout(resolve, 300))
+
+    // 验证状态已保存
+    console.log('登录完成，准备跳转。localStorage状态:', {
+      hasToken: !!localStorage.getItem('token'),
+      hasUserInfo: !!localStorage.getItem('userInfo')
+    })
+
     // 跳转到目标页面
     const redirect = route.query.redirect || '/dashboard'
-    router.push(redirect)
+
+    // 使用 replace 而不是 push，避免浏览器后退按钮导致问题
+    await router.replace(redirect)
 
   } catch (error) {
     console.error('登录失败:', error)

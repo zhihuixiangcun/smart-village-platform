@@ -257,3 +257,4 @@ reports/
 # Environment files
 .env.*
 !.env.example
+/nul

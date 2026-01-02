@@ -4,7 +4,7 @@
  */
 
 const AIQuestionAnswerService = require('../services/aiQuestionAnswerService');
-const logger = require('../config/logger');
+const logger = require('../utils/logger');
 const auditMiddleware = require('../middleware/auditMiddleware');
 
 // 初始化AI服务

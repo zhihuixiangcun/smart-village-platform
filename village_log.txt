@@ -1,0 +1,44 @@
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+16:41:49 [32minfo[39m: AuthMiddleware initialized with secure JWT configuration
+16:41:51 [32minfo[39m: 通知服务队列处理已启动
+🚀 启动智慧乡村村务服务...
+(node:32928) [MONGOOSE] Warning: Duplicate schema index on {"adcode":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:32928) [MONGOOSE] Warning: Duplicate schema index on {"orderNo":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:32928) [MONGOOSE] Warning: Duplicate schema index on {"logId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:32928) [MONGOOSE] Warning: `errors` is a reserved schema pathname and may break some functionality. You are allowed to use it, but use at your own risk. To disable this warning pass `suppressReservedKeysWarning` as a schema option.
+(node:32928) [MONGOOSE] Warning: Duplicate schema index on {"scheduledDate":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:32928) [MONGOOSE] Warning: Duplicate schema index on {"taskId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(node:32928) [MONGOOSE] Warning: Duplicate schema index on {"requestId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+✅ MongoDB connected
+✅ 智慧乡村村务服务启动成功
+🌐 服务地址: http://localhost:5000
+🏥 健康检查: http://localhost:5000/health
+🔌 Socket.IO: ws://localhost:5000
+📡 可用端点:
+   - GET  /health
+   - GET  /api/info
+   - GET  /api/announcements
+   - POST /api/announcements
+   - GET  /api/suggestions
+   - POST /api/suggestions
+   - GET  /api/residents
+   - POST /api/auth/login
+🔌 Socket.IO 事件:
+   - join-village
+   - leave-village
+   - send-announcement
+   - emergency-broadcast
+   - submit-suggestion
+   - village-message
+Socket.IO client connected: W8KEUS6wxOlsM6PyAAAB
+User undefined joined village undefined, room: village-undefined
+Socket.IO client connected: PGw_lpOW6aVLsBkKAAAD
+User undefined joined village undefined, room: village-undefined
+[0mGET /health [32m200[0m 7.550 ms - 376[0m
+[0mGET /health [32m200[0m 0.708 ms - 377[0m
+[0mGET /health [32m200[0m 0.322 ms - 375[0m
+[0mGET /health [32m200[0m 1.105 ms - 375[0m
+[0mGET /health [32m200[0m 0.599 ms - 375[0m
+[0mGET /health [32m200[0m 0.746 ms - 376[0m
+[0mGET /health [32m200[0m 0.553 ms - 376[0m

@@ -149,7 +149,7 @@ const EmergencyResourceSchema = new mongoose.Schema({
   allocationHistory: [{
     emergencyId: { type: mongoose.Schema.Types.ObjectId, ref: 'Emergency' },
     allocatedAt: { type: Date, required: true },
-    allocatedBy: { type: mongoose.Schema.Types.ObjectId, // ref: 'User', required: true },
+    allocatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // required: true
     quantity: { type: Number, required: true },
     purpose: { type: String },
     returnedAt: { type: Date },

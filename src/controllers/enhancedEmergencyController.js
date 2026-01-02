@@ -584,69 +584,53 @@ async function getEmergencyStats(req, res) {
       if (dateRange.end) matchQuery.occurredAt.$lte = new Date(dateRange.end);
     }
 
-    const stats = await Emergency.aggregate([
+    // 第一阶段：按状态分组统计
+    const statusStats = await Emergency.aggregate([
+      { $match: matchQuery },
+      {
+        $group: {
+          _id: '$status',
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    // 第二阶段：获取总体统计
+    const overallStats = await Emergency.aggregate([
       { $match: matchQuery },
       {
         $group: {
           _id: null,
           total: { $sum: 1 },
-          byStatus: {
-            $push: '$status'
-          },
-          byType: {
-            $push: '$type'
-          },
-          bySeverity: {
-            $push: '$severity'
-          },
           totalAffected: { $sum: '$affectedPeople' },
           totalInjuries: { $sum: '$injuries' },
           totalDeaths: { $sum: '$deaths' },
           totalLoss: { $sum: '$estimatedLoss.total' },
           avgResponseTime: { $avg: '$evaluation.responseTime' }
         }
-      },
-      {
-        $project: {
-          _id: 0,
-          total: '$total',
-          statusDistribution: {
-            $reduce: {
-              input: '$byStatus',
-              initialValue: {},
-              in: {
-                $mergeObjects: [
-                  '$$value',
-                  {
-                    $arrayToObject: [
-                    [{
-                      k: '$$this',
-                      v: {
-                        $add: [
-                          { $ifNull: [{ $getField: { field: '$$this', input: '$$value' } }, 0] },
-                          1
-                        ]
-                      }
-                    }]
-                  ]
-                }
-              ]
-            }
-          }
-        }
       }
     ]);
 
+    // 构建状态分布对象
+    const statusDistribution = {};
+    statusStats.forEach(item => {
+      statusDistribution[item._id] = item.count;
+    });
+
+    const stats = overallStats[0] || {
+      total: 0,
+      totalAffected: 0,
+      totalInjuries: 0,
+      totalDeaths: 0,
+      totalLoss: 0,
+      avgResponseTime: 0
+    };
+
+    stats.statusDistribution = statusDistribution;
+
     res.json({
       success: true,
-      data: stats[0] || {
-        total: 0,
-        statusDistribution: {},
-        totalAffected: 0,
-        totalInjuries: 0,
-        totalDeaths: 0,
-        totalLoss: 0
-      }
+      data: stats
     });
 
   } catch (error) {

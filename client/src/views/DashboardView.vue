@@ -100,15 +100,17 @@
     <div class="stats-section">
       <div class="stat-item">
         <h3>系统状态</h3>
-        <div class="status-indicator online">🟢 正常运行</div>
+        <div :class="['status-indicator', statusClass]">{{ statusText }}</div>
       </div>
       <div class="stat-item">
         <h3>在线用户</h3>
-        <div class="user-count">{{ onlineUsers }}</div>
+        <div class="user-count" v-if="!loading">{{ onlineUsers }}</div>
+        <div v-else class="skeleton">--</div>
       </div>
       <div class="stat-item">
         <h3>今日访问</h3>
-        <div class="visit-count">{{ dailyVisits }}</div>
+        <div class="visit-count" v-if="!loading">{{ dailyVisits }}</div>
+        <div v-else class="skeleton">--</div>
       </div>
     </div>
   </div>
@@ -118,22 +120,116 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/userStore'
+import { dashboardApi } from '@/api'
+import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 const userStore = useUserStore()
-const onlineUsers = ref(12)
-const dailyVisits = ref(156)
+
+// 数据状态
+const loading = ref(true)
+const onlineUsers = ref(0)
+const dailyVisits = ref(0)
+const systemStatus = ref({ status: 'unknown' })
+
+// 统计数据
+const stats = ref({
+  residents: { total: 0, online: 0 },
+  announcements: { total: 0, unread: 0 },
+  services: { total: 0, pending: 0 },
+  finance: { balance: 0, transactions: 0 },
+  emergency: { active: 0, resolved: 0 }
+})
 
 // 根据用户角色显示不同的功能卡片
 const userRole = computed(() => userStore.userInfo?.role || 'villager')
 const isAdmin = computed(() => userRole.value === 'admin')
 
+// 系统状态显示
+const statusText = computed(() => {
+  switch (systemStatus.value.status) {
+    case 'healthy': return '🟢 正常运行'
+    case 'degraded': return '🟡 部分服务异常'
+    case 'error': return '🔴 系统异常'
+    default: return '⚪ 检测中...'
+  }
+})
+
+const statusClass = computed(() => {
+  switch (systemStatus.value.status) {
+    case 'healthy': return 'online'
+    case 'degraded': return 'warning'
+    case 'error': return 'offline'
+    default: return 'checking'
+  }
+})
+
+// 获取系统状态
+const fetchSystemStatus = async () => {
+  try {
+    const health = await dashboardApi.getHealthStatus()
+    systemStatus.value = health
+  } catch (error) {
+    console.warn('系统健康检查失败:', error)
+    systemStatus.value = { status: 'error' }
+  }
+}
+
+// 获取统计数据
+const fetchStatistics = async () => {
+  try {
+    loading.value = true
+
+    // 并行请求所有统计数据
+    const results = await Promise.allSettled([
+      dashboardApi.getResidentStats().catch(() => ({ data: { total: 0, online: 0 } })),
+      dashboardApi.getAnnouncementStats().catch(() => ({ data: { total: 0, unread: 0 } })),
+      dashboardApi.getServiceStats().catch(() => ({ data: { total: 0, pending: 0 } })),
+      dashboardApi.getFinanceStats().catch(() => ({ data: { balance: 0, transactions: 0 } })),
+      dashboardApi.getEmergencyStats().catch(() => ({ data: { active: 0, resolved: 0 } }))
+    ])
+
+    // 处理结果
+    if (results[0].status === 'fulfilled') {
+      stats.value.residents = results[0].value.data || { total: 0, online: 0 }
+    }
+    if (results[1].status === 'fulfilled') {
+      stats.value.announcements = results[1].value.data || { total: 0, unread: 0 }
+    }
+    if (results[2].status === 'fulfilled') {
+      stats.value.services = results[2].value.data || { total: 0, pending: 0 }
+    }
+    if (results[3].status === 'fulfilled') {
+      stats.value.finance = results[3].value.data || { balance: 0, transactions: 0 }
+    }
+    if (results[4].status === 'fulfilled') {
+      stats.value.emergency = results[4].value.data || { active: 0, resolved: 0 }
+    }
+
+    // 模拟在线用户和访问数据（实际项目中需要从监控API获取）
+    onlineUsers.value = Math.floor(Math.random() * 20) + 5
+    dailyVisits.value = Math.floor(Math.random() * 200) + 100
+
+  } catch (error) {
+    console.error('获取统计数据失败:', error)
+    ElMessage.warning('部分数据加载失败，显示默认值')
+  } finally {
+    loading.value = false
+  }
+}
+
 const openMonitoring = () => {
   window.open('http://localhost:3001/monitoring', '_blank')
 }
 
-onMounted(() => {
+onMounted(async () => {
   console.log('智慧村庄仪表板加载完成，用户角色:', userRole.value)
+
+  // 获取数据
+  await Promise.all([
+    fetchSystemStatus(),
+    fetchStatistics()
+  ])
 })
 </script>
 
@@ -243,6 +339,36 @@ onMounted(() => {
 
 .status-indicator.online {
   color: #28a745;
+}
+
+.status-indicator.warning {
+  color: #ffc107;
+}
+
+.status-indicator.offline {
+  color: #dc3545;
+}
+
+.status-indicator.checking {
+  color: #6c757d;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.skeleton {
+  font-size: 2em;
+  font-weight: bold;
+  color: #ccc;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-loading {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.8; }
 }
 
 .user-count, .visit-count {

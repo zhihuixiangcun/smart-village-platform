@@ -45,15 +45,17 @@ const realtimeRoutes = require('./routes/realtimeRoutes');
 console.log('[DEBUG] realtimeRoutes loaded');
 const dataIntegrationRoutes = require('./routes/dataIntegrationRoutes');
 console.log('[DEBUG] dataIntegrationRoutes loaded');
-const massiveDataRoutes = require('./routes/massiveDataRoutes');
-console.log('[DEBUG] massiveDataRoutes loaded');
+// TEMPORARILY DISABLED - causes startup hang
+// const massiveDataRoutes = require('./routes/massiveDataRoutes');
+// console.log('[DEBUG] massiveDataRoutes loaded');
+console.log('[DEBUG] massiveDataRoutes DISABLED (causes startup hang)');
 // const apiV1Routes = require('./routes/apiV1'); // Temporarily disabled - missing userController and villageController
 
 // 导入模块路由
 const authRoutes = require('./routes/auth');
 console.log('[DEBUG] authRoutes loaded');
-const residentsRoutes = require('./routes/residents');
-console.log('[DEBUG] residentsRoutes loaded');
+// const residentsRoutes = require('./routes/residents');
+// console.log('[DEBUG] residentsRoutes loaded');
 // Temporarily disabled - missing residentValidator dependency
 // const enhancedResidentsRoutes = require('./routes/enhancedResidents');
 // console.log('[DEBUG] enhancedResidentsRoutes loaded');
@@ -66,38 +68,36 @@ console.log('[DEBUG] residentsRoutes loaded');
 // Temporarily disabled - has undefined callback issue
 // const financeRoutes = require('./routes/finance');
 // console.log('[DEBUG] financeRoutes loaded');
-// Temporarily disabled - dependency issues
+// Emergency management routes - TEMPORARILY DISABLED due to loading issue
+console.log('[DEBUG] emergencyManagementRoutes DISABLED (investigating loading issue)');
 // const emergencyManagementRoutes = require('./routes/emergencyManagement');
-// console.log('[DEBUG] emergencyManagementRoutes loaded');
-// Temporarily disabled - dependency issues
 // const enhancedEmergencyRoutes = require('./routes/enhancedEmergency');
-// console.log('[DEBUG] enhancedEmergencyRoutes loaded');
-const ecommerceRoutes = require('./routes/ecommerce');
-console.log('[DEBUG] ecommerceRoutes loaded');
-// TODO: AI routes causing startup crash - temporarily disabled
+// const ecommerceRoutes = require('./routes/ecommerce');
+console.log('[DEBUG] ecommerceRoutes DISABLED (has undefined callbacks)');
+// AI chat routes - TEMPORARILY DISABLED
+console.log('[DEBUG] aiChatRoutes DISABLED (investigating loading issue)');
 // const aiChatRoutes = require('./routes/aiChat');
-// console.log('[DEBUG] aiChatRoutes loaded');
-const aiChatRoutes = null;
 
 // 导入村民管理路由
 // TODO: familyRoutes causing startup crash - temporarily disabled
 // const familyRoutes = require('./routes/familyRoutes');
 // console.log('[DEBUG] familyRoutes loaded');
 const familyRoutes = null;
-const residentProfileRoutes = require('./routes/residentProfileRoutes');
-console.log('[DEBUG] residentProfileRoutes loaded');
-const documentRoutes = require('./routes/documentRoutes');
-const batchImportRoutes = require('./routes/batchImport');
-console.log('[DEBUG] batchImportRoutes loaded');
-console.log('[DEBUG] documentRoutes loaded');
+console.log('[DEBUG] About to load residentProfileRoutes...');
+// const residentProfileRoutes = require('./routes/residentProfileRoutes');
+console.log('[DEBUG] residentProfileRoutes temporarily disabled');
+// const documentRoutes = require('./routes/documentRoutes');
+console.log('[DEBUG] documentRoutes temporarily disabled');
+// const batchImportRoutes = require('./routes/batchImport');
+console.log('[DEBUG] batchImportRoutes temporarily disabled');
 
 // 导入村务管理路由
-const villageManagementRoutes = require('./routes/villageManagement');
-console.log('[DEBUG] villageManagementRoutes loaded');
-const villageUserRoutes = require('./routes/villageUser');
-console.log('[DEBUG] villageUserRoutes loaded');
+// const villageManagementRoutes = require('./routes/villageManagement');
+console.log('[DEBUG] villageManagementRoutes temporarily disabled');
+// const villageUserRoutes = require('./routes/villageUser');
+console.log('[DEBUG] villageUserRoutes temporarily disabled');
 
-// 导入离线数据同步路由
+// 导入离线数据同步路由 - RE-ENABLED
 const syncRoutes = require('./routes/sync.routes');
 console.log('[DEBUG] syncRoutes loaded');
 
@@ -419,50 +419,54 @@ app.use('/api/v1/realtime', realtimeRoutes);
 console.log('[DEBUG] realtimeRoutes registered');
 app.use('/api/v1/data-integration', dataIntegrationRoutes);
 console.log('[DEBUG] dataIntegrationRoutes registered');
-app.use('/api/v1/massive-data', massiveDataRoutes);
-console.log('[DEBUG] massiveDataRoutes registered');
+// app.use('/api/v1/massive-data', massiveDataRoutes);
+console.log('[DEBUG] massiveDataRoutes DISABLED (causes startup hang)');
 // app.use('/api/v1', apiV1Routes); // Temporarily disabled - missing userController and villageController
 
 // 认证路由（无需token验证）
 app.use('/api/v1/auth', authRoutes);
 console.log('[DEBUG] authRoutes registered');
 
-// 智慧村庄模块路由
-app.use('/api/v1/residents', residentsRoutes);
-console.log('[DEBUG] residentsRoutes registered');
+// 智慧村庄模块路由 - TEMPORARILY DISABLED to debug startup
+console.log('[DEBUG] About to load residentsRoutes...');
+// app.use('/api/v1/residents', residentsRoutes);
+console.log('[DEBUG] residentsRoutes TEMPORARILY DISABLED - causing server to hang');
 // app.use('/api/v1/residents/enhanced', enhancedResidentsRoutes); // Temporarily disabled
-app.use('/api/v1/governance', governanceRoutes);
-console.log('[DEBUG] governanceRoutes registered');
-app.use('/api/v1/governance/enhanced', enhancedGovernanceRoutes);
-console.log('[DEBUG] enhancedGovernanceRoutes registered');
+// app.use('/api/v1/governance', governanceRoutes); // Temporarily disabled - TaskSchedule model dependency issue
+// console.log('[DEBUG] governanceRoutes registered');
+// app.use('/api/v1/governance/enhanced', enhancedGovernanceRoutes); // Temporarily disabled - dependency issues
+// console.log('[DEBUG] enhancedGovernanceRoutes registered');
 // app.use('/api/v1/finance', financeRoutes); // Temporarily disabled - syntax error in route
-// app.use('/api/v1/emergency', emergencyManagementRoutes); // Temporarily disabled - syntax error
-// app.use('/api/v1/emergency/enhanced', enhancedEmergencyRoutes); // Temporarily disabled
-app.use('/api/v1/ecommerce', ecommerceRoutes);
-console.log('[DEBUG] ecommerceRoutes registered');
-if (aiChatRoutes) {
-  app.use('/api/v1/ai', aiChatRoutes);
-  console.log('[DEBUG] aiChatRoutes registered');
-}
+// Emergency management routes - TEMPORARILY DISABLED due to loading issue
+console.log('[DEBUG] emergencyManagementRoutes DISABLED (investigating loading issue)');
+// app.use('/api/v1/emergency', emergencyManagementRoutes);
+// app.use('/api/v1/emergency/enhanced', enhancedEmergencyRoutes);
+// app.use('/api/v1/ecommerce', ecommerceRoutes);
+console.log('[DEBUG] ecommerceRoutes DISABLED (has undefined callbacks)');
+// if (aiChatRoutes) {
+//   app.use('/api/v1/ai', aiChatRoutes);
+//   console.log('[DEBUG] aiChatRoutes registered');
+// }
+console.log('[DEBUG] aiChatRoutes DISABLED (investigating loading issue)');
 
 // 村民管理系统路由 - Temporarily disabled (familyRoutes is null)
 // app.use('/api/v1/families', familyRoutes);
 
-// 批量导入路由
-app.use('/api/v1/batch-import', batchImportRoutes);
-console.log('[DEBUG] batchImportRoutes registered');
-app.use('/api/v1/resident-profiles', residentProfileRoutes);
-console.log('[DEBUG] residentProfileRoutes registered');
-app.use('/api/v1/documents', documentRoutes);
-console.log('[DEBUG] documentRoutes registered');
+// 批量导入路由 - TEMPORARILY DISABLED
+// app.use('/api/v1/batch-import', batchImportRoutes);
+console.log('[DEBUG] batchImportRoutes temporarily disabled');
+// app.use('/api/v1/resident-profiles', residentProfileRoutes);
+console.log('[DEBUG] residentProfileRoutes temporarily disabled');
+// app.use('/api/v1/documents', documentRoutes);
+console.log('[DEBUG] documentRoutes temporarily disabled');
 
-// 村务管理系统路由
-app.use('/api/village-management', villageManagementRoutes);
-console.log('[DEBUG] villageManagementRoutes registered');
+// 村务管理系统路由 - TEMPORARILY DISABLED
+// app.use('/api/village-management', villageManagementRoutes);
+console.log('[DEBUG] villageManagementRoutes temporarily disabled');
 
-// 村民用户系统路由
-app.use('/api/village-users', villageUserRoutes);
-console.log('[DEBUG] villageUserRoutes registered');
+// 村民用户系统路由 - TEMPORARILY DISABLED
+// app.use('/api/village-users', villageUserRoutes);
+console.log('[DEBUG] villageUserRoutes temporarily disabled');
 
 // 政策计算器系统路由 - Temporarily disabled due to missing pdfkit module
 // app.use('/api/v1/policy-calculator', require('./routes/policyCalculator'));
@@ -475,6 +479,12 @@ console.log('[DEBUG] villageUserRoutes registered');
 
 // 实时计算引擎路由 - Temporarily disabled due to undefined callback error
 // app.use('/api/v1/realtime-computation', require('./routes/realtimeComputation'));
+
+// 离线数据同步路由 - RE-ENABLED
+if (syncRoutes) {
+  app.use('/api/v1/sync', syncRoutes);
+  console.log('[DEBUG] syncRoutes registered');
+}
 
 // 安全中间件集成 - Temporarily disabled to debug startup issue
 console.log('[DEBUG] Skipping security middleware for now...');
