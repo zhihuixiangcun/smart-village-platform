@@ -72,25 +72,27 @@ export const useElderlyStore = defineStore('elderly', () => {
    */
   const loadSettings = () => {
     return new Promise((resolve) => {
-      uni.getStorage({
-        key: 'elderly_settings',
-        success: (res) => {
-          const settings = res.data
-          mode.value = settings.mode || 'standard'
-          voiceEnabled.value = settings.voiceEnabled || false
-          voiceLanguage.value = settings.voiceLanguage || 'zh-CN'
-          voiceRate.value = settings.voiceRate || 1.0
-          voicePitch.value = settings.voicePitch || 1.0
-          highContrast.value = settings.highContrast || false
-          hapticFeedback.value = settings.hapticFeedback !== false
-          console.log('适老化设置加载成功:', settings)
-          resolve(settings)
-        },
-        fail: () => {
+      try {
+        const settings = localStorage.getItem('elderly_settings')
+        if (settings) {
+          const parsed = JSON.parse(settings)
+          mode.value = parsed.mode || 'standard'
+          voiceEnabled.value = parsed.voiceEnabled || false
+          voiceLanguage.value = parsed.voiceLanguage || 'zh-CN'
+          voiceRate.value = parsed.voiceRate || 1.0
+          voicePitch.value = parsed.voicePitch || 1.0
+          highContrast.value = parsed.highContrast || false
+          hapticFeedback.value = parsed.hapticFeedback !== false
+          console.log('适老化设置加载成功:', parsed)
+          resolve(parsed)
+        } else {
           console.log('未找到本地适老化设置，使用默认值')
           resolve(null)
         }
-      })
+      } catch (error) {
+        console.error('加载适老化设置失败:', error)
+        resolve(null)
+      }
     })
   }
 
@@ -108,16 +110,12 @@ export const useElderlyStore = defineStore('elderly', () => {
       hapticFeedback: hapticFeedback.value
     }
 
-    uni.setStorage({
-      key: 'elderly_settings',
-      data: settings,
-      success: () => {
-        console.log('适老化设置保存成功')
-      },
-      fail: (error) => {
-        console.error('适老化设置保存失败:', error)
-      }
-    })
+    try {
+      localStorage.setItem('elderly_settings', JSON.stringify(settings))
+      console.log('适老化设置保存成功')
+    } catch (error) {
+      console.error('适老化设置保存失败:', error)
+    }
   }
 
   /**
@@ -133,7 +131,7 @@ export const useElderlyStore = defineStore('elderly', () => {
 
       // 震动反馈
       if (hapticFeedback.value) {
-        uni.vibrateShort()
+        vibrate('short')
       }
 
       console.log('适老化模式切换为:', newMode)
@@ -144,18 +142,17 @@ export const useElderlyStore = defineStore('elderly', () => {
    * 应用模式样式
    */
   const applyModeStyles = () => {
-    const page = getCurrentPages()[0]
-    if (!page) return
+    const rootElement = document.documentElement
+    rootElement.setAttribute('data-elderly-mode', mode.value)
 
-    // 设置页面根元素class
-    const rootElement = page.$el || page.$page
-    if (rootElement) {
-      rootElement.classList.remove('elderly-mode-large', 'elderly-mode-xl')
-      if (mode.value === 'large') {
-        rootElement.classList.add('elderly-mode-large')
-      } else if (mode.value === 'xl') {
-        rootElement.classList.add('elderly-mode-xl')
-      }
+    // 移除旧的class
+    rootElement.classList.remove('elderly-mode-large', 'elderly-mode-xl')
+
+    // 添加新的class
+    if (mode.value === 'large') {
+      rootElement.classList.add('elderly-mode-large')
+    } else if (mode.value === 'xl') {
+      rootElement.classList.add('elderly-mode-xl')
     }
   }
 
@@ -200,10 +197,8 @@ export const useElderlyStore = defineStore('elderly', () => {
     saveSettings()
 
     // 应用高对比度样式
-    const page = getCurrentPages()[0]
-    if (page && page.$el) {
-      page.$el.classList.toggle('high-contrast', enabled)
-    }
+    const rootElement = document.documentElement
+    rootElement.classList.toggle('high-contrast', enabled)
 
     console.log('高对比度模式已', enabled ? '启用' : '禁用')
   }
@@ -221,36 +216,6 @@ export const useElderlyStore = defineStore('elderly', () => {
    */
   const startRecording = () => {
     return new Promise((resolve, reject) => {
-      // #ifdef MP-WEIXIN
-      const recorderManager = uni.getRecorderManager()
-      recorderManager.onStart(() => {
-        recording.value = true
-        console.log('开始录音')
-        resolve()
-      })
-
-      recorderManager.onStop((res) => {
-        recording.value = false
-        recordingResult.value = res.tempFilePath
-        console.log('录音结束:', res)
-        resolve(res)
-      })
-
-      recorderManager.onError((error) => {
-        recording.value = false
-        console.error('录音失败:', error)
-        reject(error)
-      })
-
-      recorderManager.start({
-        format: 'mp3',
-        sampleRate: 16000,
-        numberOfChannels: 1
-      })
-      // #endif
-
-      // #ifdef H5
-      // H5环境使用Web Speech API
       if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
         const recognition = new SpeechRecognition()
@@ -284,21 +249,6 @@ export const useElderlyStore = defineStore('elderly', () => {
       } else {
         reject(new Error('浏览器不支持语音识别'))
       }
-      // #endif
-
-      // #ifdef APP-PLUS
-      // APP环境使用原生语音识别
-      const main = plus.android.runtimeMainActivity()
-      const speech = plus.speech.createSpeech(1, 'zh-CN')
-      speech.startRecognize((result) => {
-        recordingResult.value = result
-        recording.value = false
-        resolve({ transcript: result })
-      }, (error) => {
-        recording.value = false
-        reject(error)
-      })
-      // #endif
     })
   }
 
@@ -307,19 +257,6 @@ export const useElderlyStore = defineStore('elderly', () => {
    */
   const stopRecording = () => {
     return new Promise((resolve) => {
-      // #ifdef MP-WEIXIN
-      const recorderManager = uni.getRecorderManager()
-      recorderManager.stop()
-      // #endif
-
-      // #ifdef H5
-      // H5环境会自动停止
-      // #endif
-
-      // #ifdef APP-PLUS
-      plus.speech.stopRecognize()
-      // #endif
-
       recording.value = false
       resolve()
     })
@@ -336,12 +273,6 @@ export const useElderlyStore = defineStore('elderly', () => {
       volume = 1.0
     } = options
 
-    // #ifdef MP-WEIXIN
-    // 微信小程序使用createInnerAudioContext
-    // 需要先调用语音合成API获取音频文件
-    // #endif
-
-    // #ifdef H5
     if ('speechSynthesis' in window) {
       const utterance = new SpeechSynthesisUtterance(text)
       utterance.lang = lang
@@ -353,17 +284,6 @@ export const useElderlyStore = defineStore('elderly', () => {
     } else {
       console.warn('浏览器不支持语音播报')
     }
-    // #endif
-
-    // #ifdef APP-PLUS
-    plus.speech.speak({
-      content: text,
-      speed: rate,
-      pitch: pitch,
-      volume: volume,
-      lang: lang
-    })
-    // #endif
   }
 
   /**
@@ -372,14 +292,17 @@ export const useElderlyStore = defineStore('elderly', () => {
   const vibrate = (type = 'short') => {
     if (!hapticFeedback.value) return
 
-    if (type === 'short') {
-      uni.vibrateShort({
-        success: () => console.log('短震动')
-      })
-    } else if (type === 'long') {
-      uni.vibrateLong({
-        success: () => console.log('长震动')
-      })
+    // 使用标准的 Vibration API
+    if ('vibrate' in navigator) {
+      if (type === 'short') {
+        navigator.vibrate(15) // 短震动 15ms
+        console.log('短震动')
+      } else if (type === 'long') {
+        navigator.vibrate([30, 50, 30]) // 长震动模式
+        console.log('长震动')
+      }
+    } else {
+      console.log('设备不支持震动反馈')
     }
   }
 

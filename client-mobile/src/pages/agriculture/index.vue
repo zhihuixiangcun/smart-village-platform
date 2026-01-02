@@ -1,183 +1,184 @@
 <template>
-  <view class="agriculture-page">
+  <div class="agriculture-page">
     <!-- 自定义导航栏 -->
-    <view class="custom-navbar">
-      <view class="navbar-content">
-        <view class="navbar-title">农技社区</view>
-        <view class="navbar-icon" @click="handleSearch">
-          <text class="icon">🔍</text>
-        </view>
-      </view>
-    </view>
+    <div class="custom-navbar">
+      <div class="navbar-content">
+        <div class="navbar-title">农技社区</div>
+        <div class="navbar-icon" @click="handleSearch">
+          <span class="icon">🔍</span>
+        </div>
+      </div>
+    </div>
 
     <!-- 页面内容 -->
-    <scroll-view class="page-content" scroll-y>
+    <div class="page-content">
       <!-- 快捷入口 -->
-      <view class="quick-entry">
-        <view class="entry-item" @click="handleEntryClick('knowledge')">
-          <text class="entry-icon">📚</text>
-          <text class="entry-name">知识库</text>
-        </view>
-        <view class="entry-item" @click="handleEntryClick('ask')">
-          <text class="entry-icon">👨‍🌾</text>
-          <text class="entry-name">专家问答</text>
-        </view>
-        <view class="entry-item" @click="handleEntryClick('disease')">
-          <text class="entry-icon">🐛</text>
-          <text class="entry-name">病虫害识别</text>
-        </view>
-        <view class="entry-item" @click="handleEntryClick('community')">
-          <text class="entry-icon">👥</text>
-          <text class="entry-name">农友圈</text>
-        </view>
-      </view>
+      <div class="quick-entry">
+        <div class="entry-item" @click="handleEntryClick('knowledge')">
+          <span class="entry-icon">📚</span>
+          <span class="entry-name">知识库</span>
+        </div>
+        <div class="entry-item" @click="handleEntryClick('ask')">
+          <span class="entry-icon">👨‍🌾</span>
+          <span class="entry-name">专家问答</span>
+        </div>
+        <div class="entry-item" @click="handleEntryClick('disease')">
+          <span class="entry-icon">🐛</span>
+          <span class="entry-name">病虫害识别</span>
+        </div>
+        <div class="entry-item" @click="handleEntryClick('community')">
+          <span class="entry-icon">👥</span>
+          <span class="entry-name">农友圈</span>
+        </div>
+      </div>
 
       <!-- 今日推荐 -->
-      <view class="section">
-        <view class="section-header">
-          <text class="section-title">🌟 今日推荐</text>
-        </view>
-        <scroll-view class="recommend-scroll" scroll-x>
-          <view
+      <div class="section">
+        <div class="section-header">
+          <span class="section-title">🌟 今日推荐</span>
+        </div>
+        <div class="recommend-scroll">
+          <div
             v-for="item in recommendList"
             :key="item.id"
             class="recommend-item"
             @click="handleRecommendClick(item)"
           >
-            <view class="recommend-image">{{ item.image }}</view>
-            <view class="recommend-title">{{ item.title }}</view>
-          </view>
-        </scroll-view>
-      </view>
+            <div class="recommend-image">{{ item.image }}</div>
+            <div class="recommend-title">{{ item.title }}</div>
+          </div>
+        </div>
+      </div>
 
       <!-- 农技知识 -->
-      <view class="section">
-        <view class="section-header">
-          <text class="section-title">📖 农技知识</text>
-          <text class="section-more" @click="handleMore('knowledge')">更多 ></text>
-        </view>
-        <view class="knowledge-list">
-          <view
+      <div class="section">
+        <div class="section-header">
+          <span class="section-title">📖 农技知识</span>
+          <span class="section-more" @click="handleMore('knowledge')">更多 ></span>
+        </div>
+        <div class="knowledge-list">
+          <div
             v-for="knowledge in knowledgeList"
             :key="knowledge.id"
             class="knowledge-item"
             @click="handleKnowledgeClick(knowledge)"
           >
-            <view class="knowledge-icon">{{ knowledge.icon }}</view>
-            <view class="knowledge-content">
-              <view class="knowledge-title">{{ knowledge.title }}</view>
-              <view class="knowledge-desc">{{ knowledge.description }}</view>
-              <view class="knowledge-meta">
-                <text class="meta-item">👁️ {{ knowledge.viewCount }}</text>
-                <text class="meta-item">👍 {{ knowledge.likeCount }}</text>
-                <text class="meta-item">💬 {{ knowledge.commentCount }}</text>
-              </view>
-            </view>
-          </view>
-        </view>
-      </view>
+            <div class="knowledge-icon">{{ knowledge.icon }}</div>
+            <div class="knowledge-content">
+              <div class="knowledge-title">{{ knowledge.title }}</div>
+              <div class="knowledge-desc">{{ knowledge.description }}</div>
+              <div class="knowledge-meta">
+                <span class="meta-item">👁️ {{ knowledge.viewCount }}</span>
+                <span class="meta-item">👍 {{ knowledge.likeCount }}</span>
+                <span class="meta-item">💬 {{ knowledge.commentCount }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- 专家问答 -->
-      <view class="section">
-        <view class="section-header">
-          <text class="section-title">💬 专家问答</text>
-          <text class="section-more" @click="handleMore('ask')">更多 ></text>
-        </view>
-        <view class="ask-list">
-          <view
+      <div class="section">
+        <div class="section-header">
+          <span class="section-title">💬 专家问答</span>
+          <span class="section-more" @click="handleMore('ask')">更多 ></span>
+        </div>
+        <div class="ask-list">
+          <div
             v-for="question in questionList"
             :key="question.id"
             class="question-item"
             @click="handleQuestionClick(question)"
           >
-            <view class="question-header">
-              <view class="question-icon">Q</view>
-              <view class="question-title">{{ question.title }}</view>
-              <view v-if="question.solved" class="solved-badge">已解决</view>
-            </view>
-            <view class="question-content">
+            <div class="question-header">
+              <div class="question-icon">Q</div>
+              <div class="question-title">{{ question.title }}</div>
+              <div v-if="question.solved" class="solved-badge">已解决</div>
+            </div>
+            <div class="question-content">
               {{ question.content }}
-            </view>
-            <view class="question-footer">
-              <view class="expert-info">
-                <text class="expert-icon">👨‍🌾</text>
-                <text class="expert-name">{{ question.expertName }}</text>
-                <text class="expert-title">{{ question.expertTitle }}</text>
-              </view>
-              <text class="question-time">{{ question.publishTime }}</text>
-            </view>
-          </view>
-        </view>
-      </view>
+            </div>
+            <div class="question-footer">
+              <div class="expert-info">
+                <span class="expert-icon">👨‍🌾</span>
+                <span class="expert-name">{{ question.expertName }}</span>
+                <span class="expert-title">{{ question.expertTitle }}</span>
+              </div>
+              <span class="question-time">{{ question.publishTime }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- 农友圈动态 -->
-      <view class="section">
-        <view class="section-header">
-          <text class="section-title">🌾 农友圈</text>
-          <view class="publish-btn" @click="handlePublishPost">
-            <text>+ 发布</text>
-          </view>
-        </view>
-        <view class="post-list">
-          <view
+      <div class="section">
+        <div class="section-header">
+          <span class="section-title">🌾 农友圈</span>
+          <div class="publish-btn" @click="handlePublishPost">
+            <span>+ 发布</span>
+          </div>
+        </div>
+        <div class="post-list">
+          <div
             v-for="post in postList"
             :key="post.id"
             class="post-item"
             @click="handlePostClick(post)"
           >
             <!-- 用户信息 -->
-            <view class="post-user">
-              <view class="user-avatar">{{ post.avatar }}</view>
-              <view class="user-info">
-                <view class="user-name">{{ post.userName }}</view>
-                <view class="post-time">{{ post.publishTime }}</view>
-              </view>
-              <view class="user-location">{{ post.location }}</view>
-            </view>
+            <div class="post-user">
+              <div class="user-avatar">{{ post.avatar }}</div>
+              <div class="user-info">
+                <div class="user-name">{{ post.userName }}</div>
+                <div class="post-time">{{ post.publishTime }}</div>
+              </div>
+              <div class="user-location">{{ post.location }}</div>
+            </div>
 
             <!-- 内容 -->
-            <view class="post-content">
-              <text class="post-text">{{ post.content }}</text>
-            </view>
+            <div class="post-content">
+              <span class="post-text">{{ post.content }}</span>
+            </div>
 
             <!-- 图片 -->
-            <view v-if="post.images && post.images.length > 0" class="post-images">
-              <view
+            <div v-if="post.images && post.images.length > 0" class="post-images">
+              <div
                 v-for="(image, index) in post.images"
                 :key="index"
                 class="post-image"
               >
                 {{ image }}
-              </view>
-            </view>
+              </div>
+            </div>
 
             <!-- 互动 -->
-            <view class="post-actions">
-              <view class="action-item" @click.stop="handleLikePost(post)">
-                <text class="action-icon">{{ post.liked ? '❤️' : '🤍' }}</text>
-                <text class="action-text">{{ post.likeCount }}</text>
-              </view>
-              <view class="action-item" @click.stop="handleCommentPost(post)">
-                <text class="action-icon">💬</text>
-                <text class="action-text">{{ post.commentCount }}</text>
-              </view>
-              <view class="action-item" @click.stop="handleSharePost(post)">
-                <text class="action-icon">🔄</text>
-                <text class="action-text">分享</text>
-              </view>
-            </view>
-          </view>
-        </view>
-      </view>
-    </scroll-view>
+            <div class="post-actions">
+              <div class="action-item" @click.stop="handleLikePost(post)">
+                <span class="action-icon">{{ post.liked ? '❤️' : '🤍' }}</span>
+                <span class="action-text">{{ post.likeCount }}</span>
+              </div>
+              <div class="action-item" @click.stop="handleCommentPost(post)">
+                <span class="action-icon">💬</span>
+                <span class="action-text">{{ post.commentCount }}</span>
+              </div>
+              <div class="action-item" @click.stop="handleSharePost(post)">
+                <span class="action-icon">🔄</span>
+                <span class="action-text">分享</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- 底部导航 -->
     <TabBar :current="3" />
-  </view>
+  </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useElderlyStore } from '@/store/elderly'
 import TabBar from '@/components/common/TabBar.vue'
 
@@ -185,6 +186,7 @@ import TabBar from '@/components/common/TabBar.vue'
  * 农技社区首页
  */
 
+const router = useRouter()
 const elderlyStore = useElderlyStore()
 
 // 今日推荐
@@ -279,49 +281,37 @@ const postList = ref([
 // 搜索
 const handleSearch = () => {
   elderlyStore.vibrate('short')
-  uni.navigateTo({
-    url: '/pages/agriculture/search'
-  })
+  router.push('/agriculture/search')
 }
 
 // 快捷入口点击
 const handleEntryClick = (type) => {
   elderlyStore.vibrate('short')
-  uni.navigateTo({
-    url: `/pages/agriculture/${type}/index`
-  })
+  console.log('快捷入口:', type)
 }
 
 // 推荐点击
 const handleRecommendClick = (item) => {
   elderlyStore.vibrate('short')
-  uni.navigateTo({
-    url: `/pages/agriculture/knowledge/detail?id=${item.id}`
-  })
+  console.log('推荐点击:', item.title)
 }
 
 // 知识点击
 const handleKnowledgeClick = (knowledge) => {
   elderlyStore.vibrate('short')
-  uni.navigateTo({
-    url: `/pages/agriculture/knowledge/detail?id=${knowledge.id}`
-  })
+  console.log('知识点击:', knowledge.title)
 }
 
 // 问题点击
 const handleQuestionClick = (question) => {
   elderlyStore.vibrate('short')
-  uni.navigateTo({
-    url: `/pages/agriculture/ask/detail?id=${question.id}`
-  })
+  console.log('问题点击:', question.title)
 }
 
 // 动态点击
 const handlePostClick = (post) => {
   elderlyStore.vibrate('short')
-  uni.navigateTo({
-    url: `/pages/agriculture/community/detail?id=${post.id}`
-  })
+  console.log('动态点击:', post.content)
 }
 
 // 点赞动态
@@ -331,52 +321,32 @@ const handleLikePost = (post) => {
   post.likeCount += post.liked ? 1 : -1
 
   if (post.liked) {
-    uni.showToast({
-      title: '点赞成功',
-      icon: 'success',
-      duration: 1000
-    })
+    alert('点赞成功')
   }
 }
 
 // 评论动态
 const handleCommentPost = (post) => {
   elderlyStore.vibrate('short')
-  uni.navigateTo({
-    url: `/pages/agriculture/community/detail?id=${post.id}&focus=comment`
-  })
+  console.log('评论动态:', post.id)
 }
 
 // 分享动态
 const handleSharePost = (post) => {
   elderlyStore.vibrate('short')
-  uni.showActionSheet({
-    itemList: ['分享给好友', '生成海报'],
-    success: (res) => {
-      if (res.tapIndex === 0) {
-        uni.showToast({
-          title: '分享成功',
-          icon: 'success'
-        })
-      }
-    }
-  })
+  alert('分享功能开发中')
 }
 
 // 发布动态
 const handlePublishPost = () => {
   elderlyStore.vibrate('short')
-  uni.navigateTo({
-    url: '/pages/agriculture/community/publish'
-  })
+  console.log('发布动态')
 }
 
 // 查看更多
 const handleMore = (type) => {
   elderlyStore.vibrate('short')
-  uni.navigateTo({
-    url: `/pages/agriculture/${type}/list`
-  })
+  console.log('查看更多:', type)
 }
 
 // 页面加载
@@ -388,7 +358,7 @@ onMounted(() => {
 <style lang="scss" scoped>
 .agriculture-page {
   min-height: 100vh;
-  background-color: var(--color-bg-page, #F7FAFC);
+  background-color: #F7FAFC;
 }
 
 .custom-navbar {
@@ -404,44 +374,45 @@ onMounted(() => {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 88rpx;
-    padding: 0 32rpx;
+    height: 44px;
+    padding: 0 16px;
   }
 
   .navbar-title {
-    font-size: 36rpx;
+    font-size: 18px;
     font-weight: 700;
     color: #FFFFFF;
   }
 
   .navbar-icon {
-    font-size: 48rpx;
+    font-size: 24px;
   }
 }
 
 .page-content {
   height: 100vh;
-  padding-top: calc(88rpx + env(safe-area-inset-top, 0));
-  padding-bottom: calc(100rpx + env(safe-area-inset-bottom, 0));
+  padding-top: calc(44px + env(safe-area-inset-top, 0));
+  padding-bottom: calc(50px + env(safe-area-inset-bottom, 0));
+  overflow-y: auto;
 }
 
 .quick-entry {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16rpx;
-  padding: 32rpx;
+  gap: 8px;
+  padding: 16px;
   background-color: #FFFFFF;
-  margin-bottom: 16rpx;
+  margin-bottom: 8px;
 }
 
 .entry-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12rpx;
-  padding: 24rpx 16rpx;
+  gap: 6px;
+  padding: 12px 8px;
   background: linear-gradient(135deg, rgba(72, 187, 120, 0.1) 0%, rgba(56, 161, 105, 0.1) 100%);
-  border-radius: 16rpx;
+  border-radius: 8px;
 
   &:active {
     transform: scale(0.95);
@@ -449,87 +420,90 @@ onMounted(() => {
 }
 
 .entry-icon {
-  font-size: 56rpx;
+  font-size: 28px;
 }
 
 .entry-name {
-  font-size: 24rpx;
-  color: var(--color-text-primary, #1A202C);
+  font-size: 12px;
+  color: #1A202C;
 }
 
 .section {
-  padding: 32rpx;
+  padding: 16px;
 }
 
 .section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 24rpx;
+  margin-bottom: 12px;
 }
 
 .section-title {
-  font-size: 36rpx;
+  font-size: 18px;
   font-weight: 700;
-  color: var(--color-text-primary, #1A202C);
+  color: #1A202C;
 }
 
 .section-more {
-  font-size: 28rpx;
-  color: var(--color-text-tertiary, #718096);
+  font-size: 14px;
+  color: #718096;
+  cursor: pointer;
 }
 
 .publish-btn {
-  padding: 12rpx 24rpx;
+  padding: 6px 12px;
   background: linear-gradient(135deg, #48BB78 0%, #38A169 100%);
   color: #FFFFFF;
-  border-radius: 24rpx;
-  font-size: 28rpx;
+  border-radius: 12px;
+  font-size: 14px;
 }
 
 .recommend-scroll {
-  white-space: nowrap;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
 }
 
 .recommend-item {
-  display: inline-flex;
+  display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12rpx;
-  margin-right: 16rpx;
-  padding: 24rpx;
+  gap: 6px;
+  padding: 12px;
   background-color: #FFFFFF;
-  border-radius: 16rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  flex-shrink: 0;
 }
 
 .recommend-image {
-  font-size: 80rpx;
+  font-size: 40px;
 }
 
 .recommend-title {
-  font-size: 28rpx;
-  color: var(--color-text-primary, #1A202C);
+  font-size: 14px;
+  color: #1A202C;
   text-align: center;
 }
 
 .knowledge-list {
   display: flex;
   flex-direction: column;
-  gap: 16rpx;
+  gap: 8px;
 }
 
 .knowledge-item {
   display: flex;
-  gap: 16rpx;
-  padding: 24rpx;
+  gap: 8px;
+  padding: 12px;
   background-color: #FFFFFF;
-  border-radius: 16rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
 .knowledge-icon {
-  font-size: 64rpx;
+  font-size: 32px;
   flex-shrink: 0;
 }
 
@@ -539,17 +513,17 @@ onMounted(() => {
 }
 
 .knowledge-title {
-  font-size: 32rpx;
+  font-size: 16px;
   font-weight: 600;
-  color: var(--color-text-primary, #1A202C);
-  margin-bottom: 8rpx;
+  color: #1A202C;
+  margin-bottom: 4px;
 }
 
 .knowledge-desc {
-  font-size: 28rpx;
-  color: var(--color-text-secondary, #4A5568);
+  font-size: 14px;
+  color: #4A5568;
   line-height: 1.6;
-  margin-bottom: 12rpx;
+  margin-bottom: 6px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -557,132 +531,132 @@ onMounted(() => {
 
 .knowledge-meta {
   display: flex;
-  gap: 16rpx;
+  gap: 8px;
 }
 
 .meta-item {
-  font-size: 24rpx;
-  color: var(--color-text-tertiary, #718096);
+  font-size: 12px;
+  color: #718096;
 }
 
 .ask-list {
   display: flex;
   flex-direction: column;
-  gap: 16rpx;
+  gap: 8px;
 }
 
 .question-item {
-  padding: 24rpx;
+  padding: 12px;
   background-color: #FFFFFF;
-  border-radius: 16rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
 .question-header {
   display: flex;
   align-items: flex-start;
-  gap: 12rpx;
-  margin-bottom: 12rpx;
+  gap: 6px;
+  margin-bottom: 6px;
 }
 
 .question-icon {
-  width: 48rpx;
-  height: 48rpx;
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #4299E1 0%, #3182CE 100%);
   color: #FFFFFF;
   border-radius: 50%;
-  font-size: 28rpx;
+  font-size: 14px;
   font-weight: 700;
   flex-shrink: 0;
 }
 
 .question-title {
   flex: 1;
-  font-size: 32rpx;
+  font-size: 16px;
   font-weight: 600;
-  color: var(--color-text-primary, #1A202C);
+  color: #1A202C;
 }
 
 .solved-badge {
-  padding: 4rpx 12rpx;
+  padding: 2px 6px;
   background-color: rgba(72, 187, 120, 0.1);
   color: #48BB78;
-  border-radius: 8rpx;
-  font-size: 24rpx;
+  border-radius: 4px;
+  font-size: 12px;
 }
 
 .question-content {
-  font-size: 28rpx;
-  color: var(--color-text-secondary, #4A5568);
+  font-size: 14px;
+  color: #4A5568;
   line-height: 1.6;
-  margin-bottom: 16rpx;
+  margin-bottom: 8px;
 }
 
 .question-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 12rpx;
-  border-top: 1rpx solid var(--color-border-primary, #E2E8F0);
+  padding-top: 6px;
+  border-top: 1px solid #E2E8F0;
 }
 
 .expert-info {
   display: flex;
   align-items: center;
-  gap: 8rpx;
+  gap: 4px;
 }
 
 .expert-icon {
-  font-size: 32rpx;
+  font-size: 16px;
 }
 
 .expert-name {
-  font-size: 28rpx;
-  color: var(--color-text-primary, #1A202C);
+  font-size: 14px;
+  color: #1A202C;
 }
 
 .expert-title {
-  font-size: 24rpx;
-  color: var(--color-text-tertiary, #718096);
+  font-size: 12px;
+  color: #718096;
 }
 
 .question-time {
-  font-size: 24rpx;
-  color: var(--color-text-tertiary, #718096);
+  font-size: 12px;
+  color: #718096;
 }
 
 .post-list {
   display: flex;
   flex-direction: column;
-  gap: 16rpx;
+  gap: 8px;
 }
 
 .post-item {
-  padding: 24rpx;
+  padding: 12px;
   background-color: #FFFFFF;
-  border-radius: 16rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
 .post-user {
   display: flex;
   align-items: center;
-  gap: 12rpx;
-  margin-bottom: 16rpx;
+  gap: 6px;
+  margin-bottom: 8px;
 }
 
 .user-avatar {
-  width: 80rpx;
-  height: 80rpx;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--color-bg-card, #F7FAFC);
+  background-color: #F7FAFC;
   border-radius: 50%;
-  font-size: 48rpx;
+  font-size: 24px;
   flex-shrink: 0;
 }
 
@@ -690,40 +664,40 @@ onMounted(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4rpx;
+  gap: 2px;
 }
 
 .user-name {
-  font-size: 28rpx;
+  font-size: 14px;
   font-weight: 600;
-  color: var(--color-text-primary, #1A202C);
+  color: #1A202C;
 }
 
 .post-time {
-  font-size: 24rpx;
-  color: var(--color-text-tertiary, #718096);
+  font-size: 12px;
+  color: #718096;
 }
 
 .user-location {
-  font-size: 24rpx;
-  color: var(--color-text-tertiary, #718096);
+  font-size: 12px;
+  color: #718096;
 }
 
 .post-content {
-  margin-bottom: 16rpx;
+  margin-bottom: 8px;
 }
 
 .post-text {
-  font-size: 28rpx;
-  color: var(--color-text-primary, #1A202C);
+  font-size: 14px;
+  color: #1A202C;
   line-height: 1.8;
 }
 
 .post-images {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8rpx;
-  margin-bottom: 16rpx;
+  gap: 4px;
+  margin-bottom: 8px;
 }
 
 .post-image {
@@ -731,76 +705,76 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--color-bg-card, #F7FAFC);
-  border-radius: 8rpx;
-  font-size: 64rpx;
+  background-color: #F7FAFC;
+  border-radius: 4px;
+  font-size: 32px;
 }
 
 .post-actions {
   display: flex;
   align-items: center;
   justify-content: space-around;
-  padding-top: 12rpx;
-  border-top: 1rpx solid var(--color-border-primary, #E2E8F0);
+  padding-top: 6px;
+  border-top: 1px solid #E2E8F0;
 }
 
 .action-item {
   display: flex;
   align-items: center;
-  gap: 8rpx;
+  gap: 4px;
 }
 
 .action-icon {
-  font-size: 32rpx;
+  font-size: 16px;
 }
 
 .action-text {
-  font-size: 28rpx;
-  color: var(--color-text-secondary, #4A5568);
+  font-size: 14px;
+  color: #4A5568;
 }
 
 // 适老化模式
-:global(.elderly-mode-large) {
+[data-elderly-mode="large"] {
   .entry-name {
-    font-size: 28rpx;
+    font-size: 14px;
   }
 
   .knowledge-title {
-    font-size: 36rpx;
+    font-size: 18px;
   }
 
   .question-title {
-    font-size: 36rpx;
+    font-size: 18px;
   }
 
   .post-text {
-    font-size: 32rpx;
+    font-size: 16px;
   }
 }
 
-:global(.elderly-mode-xl) {
+[data-elderly-mode="xl"] {
   .quick-entry {
     grid-template-columns: repeat(2, 1fr);
   }
 
   .entry-name {
-    font-size: 32rpx;
+    font-size: 16px;
   }
 
   .knowledge-title {
-    font-size: 44rpx;
+    font-size: 22px;
   }
 
   .knowledge-desc {
-    font-size: 36rpx;
+    font-size: 18px;
   }
 
   .question-title {
-    font-size: 44rpx;
+    font-size: 22px;
   }
 
   .post-text {
-    font-size: 40rpx;
+    font-size: 20px;
   }
 }
 </style>

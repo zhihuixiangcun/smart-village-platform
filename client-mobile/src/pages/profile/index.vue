@@ -1,184 +1,205 @@
 <template>
-  <view class="profile-page">
+  <div class="profile-page">
     <!-- 自定义导航栏 -->
-    <view class="custom-navbar">
-      <view class="navbar-content">
-        <view class="navbar-title">我的</view>
-        <view class="navbar-icon" @click="handleSettings">
-          <text class="icon">⚙️</text>
-        </view>
-      </view>
-    </view>
+    <div class="custom-navbar">
+      <div class="navbar-content">
+        <div class="navbar-title">我的</div>
+        <div class="navbar-icon" @click="handleSettings">
+          <span class="icon">⚙️</span>
+        </div>
+      </div>
+    </div>
 
     <!-- 页面内容 -->
-    <scroll-view class="page-content" scroll-y>
+    <div class="page-content">
       <!-- 用户信息卡片 -->
-      <view class="user-card">
-        <view class="user-avatar" @click="handleAvatarClick">
-          <image v-if="userInfo.avatar" :src="userInfo.avatar" class="avatar-image" mode="aspectFill" />
-          <text v-else class="avatar-placeholder">👤</text>
-        </view>
-        <view class="user-info">
-          <view class="user-name">{{ userInfo.name || '村民' }}</view>
-          <view class="user-village">{{ userInfo.villageName || '东村' }}</view>
-          <view v-if="userInfo.verified" class="user-verified">
-            <text class="verified-icon">✓</text>
-            <text class="verified-text">已实名认证</text>
-          </view>
-        </view>
-        <view class="user-edit" @click="handleEditProfile">
-          <text class="edit-icon">✏️</text>
-        </view>
-      </view>
+      <div class="user-card">
+        <div class="user-avatar" @click="handleAvatarClick">
+          <img v-if="userInfo.avatar" :src="userInfo.avatar" class="avatar-image" alt="avatar" />
+          <span v-else class="avatar-placeholder">👤</span>
+        </div>
+        <div class="user-info">
+          <div class="user-name">{{ userInfo.name || '村民' }}</div>
+          <div class="user-village">{{ userInfo.villageName || '东村' }}</div>
+          <div v-if="userInfo.verified" class="user-verified">
+            <span class="verified-icon">✓</span>
+            <span class="verified-text">已实名认证</span>
+          </div>
+        </div>
+        <div class="user-edit" @click="handleEditProfile">
+          <span class="edit-icon">✏️</span>
+        </div>
+      </div>
 
       <!-- 积分卡片 -->
-      <view class="points-card">
-        <view class="points-item">
-          <text class="points-icon">⭐</text>
-          <view class="points-info">
-            <text class="points-value">{{ userPoints }}</text>
-            <text class="points-label">我的积分</text>
-          </view>
-        </view>
-        <view class="points-divider" />
-        <view class="points-item" @click="handlePointsHistory">
-          <text class="points-icon">📜</text>
-          <view class="points-info">
-            <text class="points-label">积分明细</text>
-            <text class="points-arrow">→</text>
-          </view>
-        </view>
-      </view>
+      <div class="points-card">
+        <div class="points-item">
+          <span class="points-icon">⭐</span>
+          <div class="points-info">
+            <span class="points-value">{{ userPoints }}</span>
+            <span class="points-label">我的积分</span>
+          </div>
+        </div>
+        <div class="points-divider" />
+        <div class="points-item" @click="handlePointsHistory">
+          <span class="points-icon">📜</span>
+          <div class="points-info">
+            <span class="points-label">积分明细</span>
+            <span class="points-arrow">→</span>
+          </div>
+        </div>
+      </div>
 
       <!-- 功能菜单 -->
-      <view class="menu-section">
-        <view class="menu-title">我的服务</view>
-        <view class="menu-list">
-          <view class="menu-item" @click="handleMenuClick('household')">
-            <view class="menu-left">
-              <text class="menu-icon">🏠</text>
-              <text class="menu-name">我的家庭</text>
-            </view>
-            <text class="menu-arrow">→</text>
-          </view>
-          <view class="menu-item" @click="handleMenuClick('application')">
-            <view class="menu-left">
-              <text class="menu-icon">📝</text>
-              <text class="menu-name">我的办事</text>
-            </view>
-            <view class="menu-right">
-              <text v-if="pendingCount > 0" class="menu-badge">{{ pendingCount }}</text>
-              <text class="menu-arrow">→</text>
-            </view>
-          </view>
-          <view class="menu-item" @click="handleMenuClick('certificate')">
-            <view class="menu-left">
-              <text class="menu-icon">🪪</text>
-              <text class="menu-name">我的证件</text>
-            </view>
-            <text class="menu-arrow">→</text>
-          </view>
-          <view class="menu-item" @click="handleMenuClick('welfare')">
-            <view class="menu-left">
-              <text class="menu-icon">💰</text>
-              <text class="menu-name">福利申请</text>
-            </view>
-            <text class="menu-arrow">→</text>
-          </view>
-        </view>
-      </view>
+      <div class="menu-section">
+        <div class="menu-title">我的服务</div>
+        <div class="menu-list">
+          <div class="menu-item" @click="handleMenuClick('household')">
+            <div class="menu-left">
+              <span class="menu-icon">🏠</span>
+              <span class="menu-name">我的家庭</span>
+            </div>
+            <span class="menu-arrow">→</span>
+          </div>
+          <div class="menu-item" @click="handleMenuClick('application')">
+            <div class="menu-left">
+              <span class="menu-icon">📝</span>
+              <span class="menu-name">我的办事</span>
+            </div>
+            <div class="menu-right">
+              <span v-if="pendingCount > 0" class="menu-badge">{{ pendingCount }}</span>
+              <span class="menu-arrow">→</span>
+            </div>
+          </div>
+          <div class="menu-item" @click="handleMenuClick('certificate')">
+            <div class="menu-left">
+              <span class="menu-icon">🪪</span>
+              <span class="menu-name">我的证件</span>
+            </div>
+            <span class="menu-arrow">→</span>
+          </div>
+          <div class="menu-item" @click="handleMenuClick('welfare')">
+            <div class="menu-left">
+              <span class="menu-icon">💰</span>
+              <span class="menu-name">福利申请</span>
+            </div>
+            <span class="menu-arrow">→</span>
+          </div>
+          <!-- 村干部专属：四象限工作台 -->
+          <div v-if="userStore.isOfficial" class="menu-item" @click="handleMenuClick('quadrant')">
+            <div class="menu-left">
+              <span class="menu-icon">📊</span>
+              <span class="menu-name">四象限工作台</span>
+            </div>
+            <span class="menu-badge">4</span>
+            <span class="menu-arrow">→</span>
+          </div>
+          <!-- 管理员专属：村干部审核 -->
+          <div v-if="canApprove" class="menu-item" @click="handleMenuClick('approvals')">
+            <div class="menu-left">
+              <span class="menu-icon">✅</span>
+              <span class="menu-name">村干部审核</span>
+            </div>
+            <div class="menu-right">
+              <span v-if="pendingApprovals > 0" class="menu-badge">{{ pendingApprovals }}</span>
+              <span class="menu-arrow">→</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      <view class="menu-section">
-        <view class="menu-title">应用设置</view>
-        <view class="menu-list">
-          <view class="menu-item" @click="handleMenuClick('elderly')">
-            <view class="menu-left">
-              <text class="menu-icon">Aa</text>
-              <text class="menu-name">适老化设置</text>
-            </view>
-            <view class="menu-right">
-              <text class="menu-value">{{ modeLabel }}</text>
-              <text class="menu-arrow">→</text>
-            </view>
-          </view>
-          <view class="menu-item" @click="handleMenuClick('voice')">
-            <view class="menu-left">
-              <text class="menu-icon">🎤</text>
-              <text class="menu-name">语音设置</text>
-            </view>
-            <view class="menu-right">
-              <text class="menu-value">{{ voiceEnabled ? '已开启' : '已关闭' }}</text>
-              <text class="menu-arrow">→</text>
-            </view>
-          </view>
-          <view class="menu-item" @click="handleMenuClick('notification')">
-            <view class="menu-left">
-              <text class="menu-icon">🔔</text>
-              <text class="menu-name">消息通知</text>
-            </view>
-            <view class="menu-right">
-              <text v-if="notificationEnabled" class="menu-badge">开</text>
-              <text class="menu-value">{{ notificationEnabled ? '已开启' : '已关闭' }}</text>
-              <text class="menu-arrow">→</text>
-            </view>
-          </view>
-          <view class="menu-item" @click="handleMenuClick('privacy')">
-            <view class="menu-left">
-              <text class="menu-icon">🔒</text>
-              <text class="menu-name">隐私设置</text>
-            </view>
-            <text class="menu-arrow">→</text>
-          </view>
-        </view>
-      </view>
+      <div class="menu-section">
+        <div class="menu-title">应用设置</div>
+        <div class="menu-list">
+          <div class="menu-item" @click="handleMenuClick('elderly')">
+            <div class="menu-left">
+              <span class="menu-icon">Aa</span>
+              <span class="menu-name">适老化设置</span>
+            </div>
+            <div class="menu-right">
+              <span class="menu-value">{{ modeLabel }}</span>
+              <span class="menu-arrow">→</span>
+            </div>
+          </div>
+          <div class="menu-item" @click="handleMenuClick('voice')">
+            <div class="menu-left">
+              <span class="menu-icon">🎤</span>
+              <span class="menu-name">语音设置</span>
+            </div>
+            <div class="menu-right">
+              <span class="menu-value">{{ voiceEnabled ? '已开启' : '已关闭' }}</span>
+              <span class="menu-arrow">→</span>
+            </div>
+          </div>
+          <div class="menu-item" @click="handleMenuClick('notification')">
+            <div class="menu-left">
+              <span class="menu-icon">🔔</span>
+              <span class="menu-name">消息通知</span>
+            </div>
+            <div class="menu-right">
+              <span v-if="notificationEnabled" class="menu-badge">开</span>
+              <span class="menu-value">{{ notificationEnabled ? '已开启' : '已关闭' }}</span>
+              <span class="menu-arrow">→</span>
+            </div>
+          </div>
+          <div class="menu-item" @click="handleMenuClick('privacy')">
+            <div class="menu-left">
+              <span class="menu-icon">🔒</span>
+              <span class="menu-name">隐私设置</span>
+            </div>
+            <span class="menu-arrow">→</span>
+          </div>
+        </div>
+      </div>
 
-      <view class="menu-section">
-        <view class="menu-title">其他</view>
-        <view class="menu-list">
-          <view class="menu-item" @click="handleMenuClick('help')">
-            <view class="menu-left">
-              <text class="menu-icon">❓</text>
-              <text class="menu-name">帮助中心</text>
-            </view>
-            <text class="menu-arrow">→</text>
-          </view>
-          <view class="menu-item" @click="handleMenuClick('about')">
-            <view class="menu-left">
-              <text class="menu-icon">ℹ️</text>
-              <text class="menu-name">关于我们</text>
-            </view>
-            <text class="menu-arrow">→</text>
-          </view>
-          <view class="menu-item" @click="handleMenuClick('feedback')">
-            <view class="menu-left">
-              <text class="menu-icon">💬</text>
-              <text class="menu-name">意见反馈</text>
-            </view>
-            <text class="menu-arrow">→</text>
-          </view>
-        </view>
-      </view>
+      <div class="menu-section">
+        <div class="menu-title">其他</div>
+        <div class="menu-list">
+          <div class="menu-item" @click="handleMenuClick('help')">
+            <div class="menu-left">
+              <span class="menu-icon">❓</span>
+              <span class="menu-name">帮助中心</span>
+            </div>
+            <span class="menu-arrow">→</span>
+          </div>
+          <div class="menu-item" @click="handleMenuClick('about')">
+            <div class="menu-left">
+              <span class="menu-icon">ℹ️</span>
+              <span class="menu-name">关于我们</span>
+            </div>
+            <span class="menu-arrow">→</span>
+          </div>
+          <div class="menu-item" @click="handleMenuClick('feedback')">
+            <div class="menu-left">
+              <span class="menu-icon">💬</span>
+              <span class="menu-name">意见反馈</span>
+            </div>
+            <span class="menu-arrow">→</span>
+          </div>
+        </div>
+      </div>
 
       <!-- 退出登录 -->
-      <view class="logout-section">
-        <view class="logout-btn" @click="handleLogout">
-          <text>退出登录</text>
-        </view>
-      </view>
+      <div class="logout-section">
+        <div class="logout-btn" @click="handleLogout">
+          <span>退出登录</span>
+        </div>
+      </div>
 
       <!-- 版本信息 -->
-      <view class="version-info">
-        <text>智慧乡村 v1.0.0</text>
-      </view>
-    </scroll-view>
+      <div class="version-info">
+        <span>智慧乡村 v1.0.0</span>
+      </div>
+    </div>
 
     <!-- 底部导航 -->
     <TabBar :current="4" />
-  </view>
+  </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useUserStore } from '@/store/user'
 import { useElderlyStore } from '@/store/elderly'
 import TabBar from '@/components/common/TabBar.vue'
@@ -187,6 +208,7 @@ import TabBar from '@/components/common/TabBar.vue'
  * 个人中心页面
  */
 
+const router = useRouter()
 const userStore = useUserStore()
 const elderlyStore = useElderlyStore()
 
@@ -203,6 +225,29 @@ const userPoints = ref(126)
 
 // 待办数量
 const pendingCount = ref(2)
+
+// 待审核村干部数量
+const pendingApprovals = computed(() => {
+  try {
+    const pendingData = localStorage.getItem('pending_registrations')
+    if (pendingData) {
+      const registrations = JSON.parse(pendingData)
+      return registrations.filter(r => r.status === 'pending').length
+    }
+    return 0
+  } catch (error) {
+    console.error('获取待审核数量失败:', error)
+    return 0
+  }
+})
+
+// 是否有审核权限（村支书和管理员）
+const canApprove = computed(() => {
+  if (!userStore.userInfo) return false
+  const role = userStore.userRole
+  const position = userStore.userInfo.position
+  return role === 'admin' || position === '村支书'
+})
 
 // 通知状态
 const notificationEnabled = ref(true)
@@ -223,39 +268,25 @@ const voiceEnabled = computed(() => elderlyStore.voiceEnabled)
 // 头像点击
 const handleAvatarClick = () => {
   elderlyStore.vibrate('short')
-  uni.chooseImage({
-    count: 1,
-    sizeType: ['compressed'],
-    sourceType: ['album', 'camera'],
-    success: (res) => {
-      // 上传头像
-      userStore.uploadAvatar(res.tempFilePaths[0])
-    }
-  })
+  alert('上传头像功能开发中')
 }
 
 // 编辑资料
 const handleEditProfile = () => {
   elderlyStore.vibrate('short')
-  uni.navigateTo({
-    url: '/pages/profile/edit'
-  })
+  router.push('/profile/edit')
 }
 
 // 积分明细
 const handlePointsHistory = () => {
   elderlyStore.vibrate('short')
-  uni.navigateTo({
-    url: '/pages/profile/points'
-  })
+  router.push('/profile/points')
 }
 
 // 设置
 const handleSettings = () => {
   elderlyStore.vibrate('short')
-  uni.navigateTo({
-    url: '/pages/profile/settings'
-  })
+  router.push('/profile/settings')
 }
 
 // 菜单点击
@@ -269,6 +300,8 @@ const handleMenuClick = (type) => {
       application: '我的办事',
       certificate: '我的证件',
       welfare: '福利申请',
+      quadrant: '四象限工作台',
+      approvals: '村干部审核',
       elderly: '适老化设置',
       voice: '语音设置',
       notification: '消息通知',
@@ -281,37 +314,51 @@ const handleMenuClick = (type) => {
   }
 
   const urlMap = {
-    household: '/pages/profile/household',
-    application: '/pages/profile/application',
-    certificate: '/pages/profile/certificate',
-    welfare: '/pages/profile/welfare',
-    elderly: '/pages/profile/elderly',
-    voice: '/pages/profile/voice',
-    notification: '/pages/profile/notification',
-    privacy: '/pages/profile/privacy',
-    help: '/pages/profile/help',
-    about: '/pages/profile/about',
-    feedback: '/pages/profile/feedback'
+    household: '/profile/household',
+    application: '/profile/application',
+    certificate: '/services/documents',
+    welfare: '/profile/welfare',
+    quadrant: '/profile/quadrant',
+    approvals: '/profile/approvals',
+    elderly: '/profile/elderly',
+    voice: '/profile/voice',
+    notification: '/profile/notification',
+    privacy: '/profile/privacy',
+    help: '/profile/help',
+    about: '/profile/about',
+    feedback: '/profile/feedback'
   }
 
-  uni.navigateTo({
-    url: urlMap[type]
-  })
+  // 特殊处理
+  if (type === 'quadrant') {
+    router.push('/profile/quadrant')
+    return
+  }
+
+  if (type === 'approvals') {
+    router.push('/profile/approvals')
+    return
+  }
+
+  if (type === 'certificate') {
+    router.push('/services/documents')
+    return
+  }
+
+  const url = urlMap[type]
+  if (url) {
+    router.push(url)
+  }
 }
 
 // 退出登录
 const handleLogout = () => {
   elderlyStore.vibrate('long')
 
-  uni.showModal({
-    title: '确认退出',
-    content: '确定要退出登录吗？',
-    success: (res) => {
-      if (res.confirm) {
-        userStore.logout()
-      }
-    }
-  })
+  if (confirm('确定要退出登录吗？')) {
+    userStore.logout()
+    alert('已退出登录')
+  }
 }
 
 // 页面加载
@@ -323,7 +370,7 @@ onMounted(() => {
 <style lang="scss" scoped>
 .profile-page {
   min-height: 100vh;
-  background-color: var(--color-bg-page, #F7FAFC);
+  background-color: #F7FAFC;
 }
 
 .custom-navbar {
@@ -333,57 +380,60 @@ onMounted(() => {
   right: 0;
   z-index: 100;
   background-color: #FFFFFF;
-  border-bottom: 1rpx solid var(--color-border-primary, #E2E8F0);
+  border-bottom: 1px solid #E2E8F0;
   padding-top: env(safe-area-inset-top, 0);
 
   .navbar-content {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 88rpx;
-    padding: 0 32rpx;
+    height: 44px;
+    padding: 0 16px;
   }
 
   .navbar-title {
     flex: 1;
     text-align: center;
-    font-size: 36rpx;
+    font-size: 18px;
     font-weight: 700;
-    color: var(--color-text-primary, #1A202C);
+    color: #1A202C;
   }
 
   .navbar-icon {
-    font-size: 48rpx;
+    font-size: 24px;
   }
 }
 
 .page-content {
   height: 100vh;
-  padding-top: calc(88rpx + env(safe-area-inset-top, 0));
-  padding-bottom: calc(100rpx + env(safe-area-inset-bottom, 0));
+  padding-top: calc(44px + env(safe-area-inset-top, 0));
+  padding-bottom: calc(50px + env(safe-area-inset-bottom, 0));
+  overflow-y: auto;
 }
 
 .user-card {
   display: flex;
   align-items: center;
-  gap: 24rpx;
-  margin: 32rpx;
-  padding: 40rpx 32rpx;
+  gap: 12px;
+  margin: 16px;
+  padding: 20px 16px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 24rpx;
+  border-radius: 12px;
 }
 
 .user-avatar {
-  width: 120rpx;
-  height: 120rpx;
+  width: 60px;
+  height: 60px;
   flex-shrink: 0;
+  cursor: pointer;
 }
 
 .avatar-image {
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  border: 4rpx solid rgba(255, 255, 255, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  object-fit: cover;
 }
 
 .avatar-placeholder {
@@ -394,98 +444,100 @@ onMounted(() => {
   justify-content: center;
   background-color: rgba(255, 255, 255, 0.2);
   border-radius: 50%;
-  font-size: 64rpx;
+  font-size: 32px;
 }
 
 .user-info {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 8rpx;
+  gap: 4px;
 }
 
 .user-name {
-  font-size: 40rpx;
+  font-size: 20px;
   font-weight: 700;
   color: #FFFFFF;
 }
 
 .user-village {
-  font-size: 28rpx;
+  font-size: 14px;
   color: rgba(255, 255, 255, 0.8);
 }
 
 .user-verified {
   display: flex;
   align-items: center;
-  gap: 8rpx;
-  padding: 8rpx 16rpx;
+  gap: 4px;
+  padding: 4px 8px;
   background-color: rgba(72, 187, 120, 0.2);
-  border-radius: 16rpx;
+  border-radius: 8px;
   align-self: flex-start;
 }
 
 .verified-icon {
-  width: 32rpx;
-  height: 32rpx;
+  width: 16px;
+  height: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: #48BB78;
   color: #FFFFFF;
   border-radius: 50%;
-  font-size: 20rpx;
+  font-size: 10px;
   font-weight: 700;
 }
 
 .verified-text {
-  font-size: 24rpx;
+  font-size: 12px;
   color: #FFFFFF;
 }
 
 .user-edit {
-  width: 64rpx;
-  height: 64rpx;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: rgba(255, 255, 255, 0.2);
   border-radius: 50%;
+  cursor: pointer;
 }
 
 .edit-icon {
-  font-size: 32rpx;
+  font-size: 16px;
 }
 
 .points-card {
   display: flex;
   align-items: center;
-  margin: 0 32rpx 32rpx;
-  padding: 32rpx;
+  margin: 0 16px 16px;
+  padding: 16px;
   background-color: #FFFFFF;
-  border-radius: 20rpx;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .points-item {
   flex: 1;
   display: flex;
   align-items: center;
-  gap: 16rpx;
+  gap: 8px;
+  cursor: pointer;
 }
 
 .points-icon {
-  font-size: 48rpx;
+  font-size: 24px;
 }
 
 .points-info {
   display: flex;
   flex-direction: column;
-  gap: 4rpx;
+  gap: 2px;
 }
 
 .points-value {
-  font-size: 48rpx;
+  font-size: 24px;
   font-weight: 700;
   background: linear-gradient(135deg, #F6E05E 0%, #ECC94B 100%);
   -webkit-background-clip: text;
@@ -493,35 +545,35 @@ onMounted(() => {
 }
 
 .points-label {
-  font-size: 24rpx;
-  color: var(--color-text-tertiary, #718096);
+  font-size: 12px;
+  color: #718096;
 }
 
 .points-arrow {
-  font-size: 24rpx;
-  color: var(--color-text-tertiary, #718096);
+  font-size: 12px;
+  color: #718096;
 }
 
 .points-divider {
-  width: 1rpx;
-  height: 60rpx;
-  background-color: var(--color-border-primary, #E2E8F0);
+  width: 1px;
+  height: 30px;
+  background-color: #E2E8F0;
 }
 
 .menu-section {
-  margin: 0 32rpx 32rpx;
+  margin: 0 16px 16px;
 }
 
 .menu-title {
-  font-size: 28rpx;
-  color: var(--color-text-tertiary, #718096);
-  margin-bottom: 16rpx;
-  padding-left: 8rpx;
+  font-size: 14px;
+  color: #718096;
+  margin-bottom: 8px;
+  padding-left: 4px;
 }
 
 .menu-list {
   background-color: #FFFFFF;
-  border-radius: 16rpx;
+  border-radius: 8px;
   overflow: hidden;
 }
 
@@ -529,110 +581,112 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 24rpx 32rpx;
-  border-bottom: 1rpx solid var(--color-border-primary, #E2E8F0);
+  padding: 12px 16px;
+  border-bottom: 1px solid #E2E8F0;
+  cursor: pointer;
 
   &:last-child {
     border-bottom: none;
   }
 
   &:active {
-    background-color: var(--color-bg-hover, #EDF2F7);
+    background-color: #EDF2F7;
   }
 }
 
 .menu-left {
   display: flex;
   align-items: center;
-  gap: 16rpx;
+  gap: 8px;
 }
 
 .menu-icon {
-  font-size: 40rpx;
+  font-size: 20px;
 }
 
 .menu-name {
-  font-size: 32rpx;
-  color: var(--color-text-primary, #1A202C);
+  font-size: 16px;
+  color: #1A202C;
 }
 
 .menu-right {
   display: flex;
   align-items: center;
-  gap: 8rpx;
+  gap: 4px;
 }
 
 .menu-value {
-  font-size: 28rpx;
-  color: var(--color-text-tertiary, #718096);
+  font-size: 14px;
+  color: #718096;
 }
 
 .menu-badge {
-  min-width: 36rpx;
-  height: 36rpx;
-  padding: 0 8rpx;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
   background-color: #F56565;
   color: #FFFFFF;
-  border-radius: 18rpx;
-  font-size: 20rpx;
+  border-radius: 9px;
+  font-size: 10px;
   text-align: center;
-  line-height: 36rpx;
+  line-height: 18px;
 }
 
 .menu-arrow {
-  font-size: 24rpx;
-  color: var(--color-text-tertiary, #718096);
+  font-size: 12px;
+  color: #718096;
 }
 
 .logout-section {
-  margin: 32rpx;
+  margin: 16px;
 }
 
 .logout-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 32rpx;
+  padding: 16px;
   background-color: #FFFFFF;
-  border-radius: 16rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
-  font-size: 32rpx;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  font-size: 16px;
   color: #F56565;
+  cursor: pointer;
 
   &:active {
-    background-color: var(--color-bg-hover, #EDF2F7);
+    background-color: #EDF2F7;
   }
 }
 
 .version-info {
-  padding: 32rpx;
+  padding: 16px;
   text-align: center;
-  font-size: 24rpx;
-  color: var(--color-text-tertiary, #718096);
+  font-size: 12px;
+  color: #718096;
 }
 
 // 适老化模式
-:global(.elderly-mode-large) {
+[data-elderly-mode="large"] {
   .user-name {
-    font-size: 44rpx;
+    font-size: 22px;
   }
 
   .menu-name {
-    font-size: 36rpx;
+    font-size: 18px;
   }
 }
 
-:global(.elderly-mode-xl) {
+[data-elderly-mode="xl"] {
   .user-name {
-    font-size: 52rpx;
+    font-size: 26px;
   }
 
   .menu-name {
-    font-size: 44rpx;
+    font-size: 22px;
   }
 
   .points-value {
-    font-size: 56rpx;
+    font-size: 28px;
   }
 }
 </style>

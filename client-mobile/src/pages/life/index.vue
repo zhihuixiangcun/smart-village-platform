@@ -1,203 +1,183 @@
 <template>
-  <view class="life-page">
+  <div class="life-page">
     <!-- 自定义导航栏 -->
-    <view class="custom-navbar">
-      <view class="navbar-content">
-        <view class="navbar-title">生活服务</view>
-        <view class="navbar-icon" @click="handleNotification">
-          <text class="icon">🔔</text>
-          <view v-if="unreadCount > 0" class="badge">{{ unreadCount }}</view>
-        </view>
-      </view>
-    </view>
+    <div class="custom-navbar">
+      <div class="navbar-content">
+        <div class="navbar-title">生活服务</div>
+        <div class="navbar-icon" @click="handleNotification">
+          <span class="icon">🔔</span>
+          <div v-if="unreadCount > 0" class="badge">{{ unreadCount }}</div>
+        </div>
+      </div>
+    </div>
 
     <!-- 页面内容 -->
     <scroll-view class="page-content" scroll-y>
-      <!-- 轮播图 -->
-      <view class="banner-swiper">
-        <swiper
-          :indicator-dots="true"
-          :autoplay="true"
-          :interval="5000"
-          :duration="500"
-          indicator-color="rgba(255,255,255,0.5)"
-          indicator-active-color="#FFFFFF"
-        >
-          <swiper-item v-for="(banner, index) in banners" :key="index">
-            <view class="banner-item" :style="{ background: banner.gradient }">
-              <view class="banner-content">
-                <text class="banner-title">{{ banner.title }}</text>
-                <text class="banner-desc">{{ banner.desc }}</text>
-              </view>
-            </view>
-          </swiper-item>
-        </swiper>
-      </view>
-
       <!-- 服务分类 -->
-      <view class="service-categories">
-        <view
+      <div class="service-categories">
+        <div
           v-for="category in categories"
           :key="category.id"
           :class="['category-item', { 'category-item--active': currentCategory === category.id }]"
           @click="handleCategoryChange(category.id)"
         >
-          <text class="category-icon">{{ category.icon }}</text>
-          <text class="category-name">{{ category.name }}</text>
-        </view>
-      </view>
+          <span class="category-icon">{{ category.icon }}</span>
+          <span class="category-name">{{ category.name }}</span>
+        </div>
+      </div>
 
       <!-- 乡村电商 -->
-      <view v-show="currentCategory === 'ecommerce'" class="section">
-        <view class="section-header">
-          <text class="section-title">🛒 乡村电商</text>
-          <text class="section-more" @click="handleMore('ecommerce')">更多 ></text>
-        </view>
-        <view class="product-grid">
-          <view
+      <div v-show="currentCategory === 'ecommerce'" class="section">
+        <div class="section-header">
+          <span class="section-title">🛒 乡村电商</span>
+          <span class="section-more" @click="handleMore('ecommerce')">更多 ></span>
+        </div>
+        <div class="product-grid">
+          <div
             v-for="product in products"
             :key="product.id"
             class="product-item"
             @click="handleProductClick(product)"
           >
-            <view class="product-image">{{ product.image }}</view>
-            <view class="product-info">
-              <view class="product-name">{{ product.name }}</view>
-              <view class="product-origin">{{ product.origin }}</view>
-              <view class="product-price-row">
-                <text class="product-price">¥{{ product.price }}</text>
-                <text class="product-sales">{{ product.sales }}已售</text>
-              </view>
-            </view>
-          </view>
-        </view>
-      </view>
+            <div class="product-image">{{ product.image }}</div>
+            <div class="product-info">
+              <div class="product-name">{{ product.name }}</div>
+              <div class="product-origin">{{ product.origin }}</div>
+              <div class="product-price-row">
+                <span class="product-price">¥{{ product.price }}</span>
+                <span class="product-sales">{{ product.sales }}已售</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- 邻里拼车 -->
-      <view v-show="currentCategory === 'carpooling'" class="section">
-        <view class="section-header">
-          <text class="section-title">🚗 邻里拼车</text>
-          <view class="publish-btn" @click="handlePublishCarpool">
-            <text>+ 我要拼车</text>
-          </view>
-        </view>
-        <view class="carpool-list">
-          <view
+      <div v-show="currentCategory === 'carpooling'" class="section">
+        <div class="section-header">
+          <span class="section-title">🚗 邻里拼车</span>
+          <div class="publish-btn" @click="handlePublishCarpool">
+            <span>+ 我要拼车</span>
+          </div>
+        </div>
+        <div class="carpool-list">
+          <div
             v-for="carpool in carpools"
             :key="carpool.id"
             class="carpool-item"
             @click="handleCarpoolClick(carpool)"
           >
-            <view class="carpool-header">
-              <view class="route-info">
-                <text class="origin">{{ carpool.origin }}</text>
-                <text class="arrow">→</text>
-                <text class="destination">{{ carpool.destination }}</text>
-              </view>
-              <view :class="['status-badge', `status-${carpool.status}`]">
+            <div class="carpool-header">
+              <div class="route-info">
+                <span class="origin">{{ carpool.origin }}</span>
+                <span class="arrow">→</span>
+                <span class="destination">{{ carpool.destination }}</span>
+              </div>
+              <div :class="['status-badge', `status-${carpool.status}`]">
                 {{ carpool.statusText }}
-              </view>
-            </view>
-            <view class="carpool-info">
-              <text class="info-item">📅 {{ carpool.date }}</text>
-              <text class="info-item">🕐 {{ carpool.time }}</text>
-              <text class="info-item">👥 {{ carpool.seats }}座</text>
-              <text class="info-item">💰 ¥{{ carpool.price }}/人</text>
-            </view>
-            <view class="carpool-user">
-              <text class="user-icon">👤</text>
-              <text class="user-name">{{ carpool.userName }}</text>
-              <text class="publish-time">{{ carpool.publishTime }}</text>
-            </view>
-          </view>
-        </view>
-      </view>
+              </div>
+            </div>
+            <div class="carpool-info">
+              <span class="info-item">📅 {{ carpool.date }}</span>
+              <span class="info-item">🕐 {{ carpool.time }}</span>
+              <span class="info-item">👥 {{ carpool.seats }}座</span>
+              <span class="info-item">💰 ¥{{ carpool.price }}/人</span>
+            </div>
+            <div class="carpool-user">
+              <span class="user-icon">👤</span>
+              <span class="user-name">{{ carpool.userName }}</span>
+              <span class="publish-time">{{ carpool.publishTime }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- 邻里互助 -->
-      <view v-show="currentCategory === 'help'" class="section">
-        <view class="section-header">
-          <text class="section-title">🤝 邻里互助</text>
-          <view class="publish-btn" @click="handlePublishHelp">
-            <text>+ 我要求助</text>
-          </view>
-        </view>
-        <view class="help-list">
-          <view
+      <div v-show="currentCategory === 'help'" class="section">
+        <div class="section-header">
+          <span class="section-title">🤝 邻里互助</span>
+          <div class="publish-btn" @click="handlePublishHelp">
+            <span>+ 我要求助</span>
+          </div>
+        </div>
+        <div class="help-list">
+          <div
             v-for="help in helpList"
             :key="help.id"
             class="help-item"
             @click="handleHelpClick(help)"
           >
-            <view class="help-icon">{{ help.icon }}</view>
-            <view class="help-content">
-              <view class="help-title">{{ help.title }}</view>
-              <view class="help-desc">{{ help.description }}</view>
-              <view class="help-meta">
-                <text class="meta-item">📍 {{ help.location }}</text>
-                <text class="meta-item">⏰ {{ help.publishTime }}</text>
-                <view class="help-reward" v-if="help.reward">
-                  <text class="reward-icon">💝</text>
-                  <text>{{ help.reward }}</text>
-                </view>
-              </view>
-            </view>
-            <view class="help-status">
-              <text class="status-text">{{ help.statusText }}</text>
-              <text class="response-count">{{ help.responseCount }}人响应</text>
-            </view>
-          </view>
-        </view>
-      </view>
+            <div class="help-icon">{{ help.icon }}</div>
+            <div class="help-content">
+              <div class="help-title">{{ help.title }}</div>
+              <div class="help-desc">{{ help.description }}</div>
+              <div class="help-meta">
+                <span class="meta-item">📍 {{ help.location }}</span>
+                <span class="meta-item">⏰ {{ help.publishTime }}</span>
+                <div class="help-reward" v-if="help.reward">
+                  <span class="reward-icon">💝</span>
+                  <span>{{ help.reward }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="help-status">
+              <span class="status-text">{{ help.statusText }}</span>
+              <span class="response-count">{{ help.responseCount }}人响应</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- 农资集采 -->
-      <view v-show="currentCategory === 'supply'" class="section">
-        <view class="section-header">
-          <text class="section-title">🌾 农资集采</text>
-          <text class="section-more" @click="handleMore('supply')">更多 ></text>
-        </view>
-        <view class="supply-list">
-          <view
+      <div v-show="currentCategory === 'supply'" class="section">
+        <div class="section-header">
+          <span class="section-title">🌾 农资集采</span>
+          <span class="section-more" @click="handleMore('supply')">更多 ></span>
+        </div>
+        <div class="supply-list">
+          <div
             v-for="supply in supplies"
             :key="supply.id"
             class="supply-item"
             @click="handleSupplyClick(supply)"
           >
-            <view class="supply-header">
-              <view class="supply-name">{{ supply.name }}</view>
-              <view class="supply-tag">集采中</view>
-            </view>
-            <view class="supply-info">
-              <text class="info-item">📦 数量: {{ supply.currentCount }}/{{ supply.targetCount }}</text>
-              <text class="info-item">💰 原价: ¥{{ supply.originalPrice }}</text>
-              <text class="info-item price-highlight">🎉 集采价: ¥{{ supply.groupPrice }}</text>
-            </view>
-            <view class="supply-progress">
-              <view class="progress-bar">
-                <view
+            <div class="supply-header">
+              <div class="supply-name">{{ supply.name }}</div>
+              <div class="supply-tag">集采中</div>
+            </div>
+            <div class="supply-info">
+              <span class="info-item">📦 数量: {{ supply.currentCount }}/{{ supply.targetCount }}</span>
+              <span class="info-item">💰 原价: ¥{{ supply.originalPrice }}</span>
+              <span class="info-item price-highlight">🎉 集采价: ¥{{ supply.groupPrice }}</span>
+            </div>
+            <div class="supply-progress">
+              <div class="progress-bar">
+                <div
                   class="progress-fill"
                   :style="{ width: (supply.currentCount / supply.targetCount * 100) + '%' }"
                 />
-              </view>
-              <text class="progress-text">{{ supply.currentCount }}/{{ supply.targetCount }}</text>
-            </view>
-            <view class="supply-footer">
-              <text class="deadline">⏰ 截止: {{ supply.deadline }}</text>
-              <view class="join-btn" @click.stop="handleJoinSupply(supply)">
-                <text>参与集采</text>
-              </view>
-            </view>
-          </view>
-        </view>
-      </view>
+              </div>
+              <span class="progress-text">{{ supply.currentCount }}/{{ supply.targetCount }}</span>
+            </div>
+            <div class="supply-footer">
+              <span class="deadline">⏰ 截止: {{ supply.deadline }}</span>
+              <div class="join-btn" @click.stop="handleJoinSupply(supply)">
+                <span>参与集采</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </scroll-view>
 
     <!-- 底部导航 -->
     <TabBar :current="2" />
-  </view>
+  </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useElderlyStore } from '@/store/elderly'
 import TabBar from '@/components/common/TabBar.vue'
 
@@ -205,6 +185,7 @@ import TabBar from '@/components/common/TabBar.vue'
  * 生活服务首页
  */
 
+const router = useRouter()
 const elderlyStore = useElderlyStore()
 
 // 未读数量
@@ -219,25 +200,6 @@ const categories = [
   { id: 'carpooling', icon: '🚗', name: '拼车' },
   { id: 'help', icon: '🤝', name: '互助' },
   { id: 'supply', icon: '🌾', name: '集采' }
-]
-
-// 轮播图
-const banners = [
-  {
-    title: '农产品直通车',
-    desc: '新鲜直达，优惠多多',
-    gradient: 'linear-gradient(135deg, #F6E05E 0%, #ECC94B 100%)'
-  },
-  {
-    title: '邻里拼车',
-    desc: '绿色出行，共享便利',
-    gradient: 'linear-gradient(135deg, #4299E1 0%, #3182CE 100%)'
-  },
-  {
-    title: '农资集采',
-    desc: '集体采购，省钱实惠',
-    gradient: 'linear-gradient(135deg, #48BB78 0%, #38A169 100%)'
-  }
 ]
 
 // 商品列表
@@ -290,7 +252,6 @@ const helpList = ref([
     location: '东村三组',
     publishTime: '1小时前',
     reward: '50元',
-    status: 'pending',
     statusText: '进行中',
     responseCount: 2
   },
@@ -302,7 +263,6 @@ const helpList = ref([
     location: '西村二组',
     publishTime: '3小时前',
     reward: '',
-    status: 'completed',
     statusText: '已完成',
     responseCount: 5
   }
@@ -317,8 +277,7 @@ const supplies = ref([
     targetCount: 50,
     originalPrice: 180,
     groupPrice: 150,
-    deadline: '2024-12-31',
-    discount: 17
+    deadline: '2024-12-31'
   },
   {
     id: 2,
@@ -327,17 +286,14 @@ const supplies = ref([
     targetCount: 100,
     originalPrice: 280,
     groupPrice: 220,
-    deadline: '2025-01-15',
-    discount: 21
+    deadline: '2025-01-15'
   }
 ])
 
 // 通知点击
 const handleNotification = () => {
   elderlyStore.vibrate('short')
-  uni.navigateTo({
-    url: '/pages/profile/notification'
-  })
+  router.push('/profile/notification')
 }
 
 // 分类切换
@@ -355,112 +311,53 @@ const handleCategoryChange = (id) => {
 // 商品点击
 const handleProductClick = (product) => {
   elderlyStore.vibrate('short')
-  uni.navigateTo({
-    url: `/pages/life/ecommerce/detail?id=${product.id}`
-  })
+  console.log('点击商品:', product.name)
 }
 
 // 拼车点击
 const handleCarpoolClick = (carpool) => {
   elderlyStore.vibrate('short')
-  uni.showModal({
-    title: '拼车详情',
-    content: `从${carpool.origin}到${carpool.destination}\n时间: ${carpool.date} ${carpool.time}\n座位: ${carpool.seats}座\n价格: ¥${carpool.price}/人\n联系人: ${carpool.userName}`,
-    confirmText: '参与拼车',
-    cancelText: '联系',
-    success: (res) => {
-      if (res.confirm) {
-        // 参与拼车
-        elderlyStore.vibrate('long')
-        uni.showToast({
-          title: '已申请参与',
-          icon: 'success'
-        })
-      } else {
-        // 联系
-        uni.makePhoneCall({
-          phoneNumber: '13800138000'
-        })
-      }
-    }
-  })
+  alert(`拼车详情\n从${carpool.origin}到${carpool.destination}\n时间: ${carpool.date} ${carpool.time}\n座位: ${carpool.seats}座\n价格: ¥${carpool.price}/人`)
 }
 
 // 发布拼车
 const handlePublishCarpool = () => {
   elderlyStore.vibrate('short')
-  uni.navigateTo({
-    url: '/pages/life/carpooling/publish'
-  })
+  console.log('发布拼车')
 }
 
 // 互助点击
 const handleHelpClick = (help) => {
   elderlyStore.vibrate('short')
-  uni.showModal({
-    title: help.title,
-    content: `${help.description}\n地点: ${help.location}\n发布时间: ${help.publishTime}\n${help.reward ? '酬谢: ' + help.reward : ''}`,
-    confirmText: '响应',
-    success: (res) => {
-      if (res.confirm) {
-        elderlyStore.vibrate('long')
-        uni.showToast({
-          title: '已响应',
-          icon: 'success'
-        })
-      }
-    }
-  })
+  console.log('点击互助:', help.title)
 }
 
 // 发布求助
 const handlePublishHelp = () => {
   elderlyStore.vibrate('short')
-  uni.navigateTo({
-    url: '/pages/life/neighborhood/publish'
-  })
+  console.log('发布求助')
 }
 
 // 集采点击
 const handleSupplyClick = (supply) => {
   elderlyStore.vibrate('short')
-  uni.showModal({
-    title: supply.name,
-    content: `目标数量: ${supply.targetCount}\n当前数量: ${supply.currentCount}\n原价: ¥${supply.originalPrice}\n集采价: ¥${supply.groupPrice}\n截止时间: ${supply.deadline}`,
-    showCancel: false
-  })
+  console.log('点击集采:', supply.name)
 }
 
 // 参与集采
 const handleJoinSupply = (supply) => {
   elderlyStore.vibrate('short')
-  uni.showModal({
-    title: '参与集采',
-    content: `确定要参与${supply.name}的集采吗？`,
-    success: (res) => {
-      if (res.confirm) {
-        elderlyStore.vibrate('long')
-        supply.currentCount += 1
-        uni.showToast({
-          title: '参与成功',
-          icon: 'success'
-        })
-
-        // 语音播报
-        if (elderlyStore.isElderlyMode) {
-          elderlyStore.speak('参与成功')
-        }
-      }
-    }
-  })
+  if (confirm(`确定要参与${supply.name}的集采吗？`)) {
+    elderlyStore.vibrate('long')
+    supply.currentCount += 1
+    alert('参与成功')
+  }
 }
 
 // 查看更多
 const handleMore = (type) => {
   elderlyStore.vibrate('short')
-  uni.navigateTo({
-    url: `/pages/life/${type}/list`
-  })
+  console.log('查看更多:', type)
 }
 
 // 页面加载
@@ -472,7 +369,7 @@ onMounted(() => {
 <style lang="scss" scoped>
 .life-page {
   min-height: 100vh;
-  background-color: var(--color-bg-page, #F7FAFC);
+  background-color: #F7FAFC;
 }
 
 .custom-navbar {
@@ -488,89 +385,61 @@ onMounted(() => {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 88rpx;
-    padding: 0 32rpx;
+    height: 44px;
+    padding: 0 16px;
   }
 
   .navbar-title {
-    font-size: 36rpx;
+    font-size: 18px;
     font-weight: 700;
     color: #1A202C;
   }
 
   .navbar-icon {
     position: relative;
-    font-size: 48rpx;
+    font-size: 24px;
 
     .badge {
       position: absolute;
-      top: -4rpx;
-      right: -4rpx;
-      min-width: 32rpx;
-      height: 32rpx;
-      padding: 0 8rpx;
+      top: -2px;
+      right: -2px;
+      min-width: 16px;
+      height: 16px;
+      padding: 0 4px;
       background-color: #F56565;
-      border-radius: 16rpx;
-      font-size: 20rpx;
+      border-radius: 8px;
+      font-size: 10px;
       color: #FFFFFF;
       text-align: center;
-      line-height: 32rpx;
+      line-height: 16px;
     }
   }
 }
 
 .page-content {
   height: 100vh;
-  padding-top: calc(88rpx + env(safe-area-inset-top, 0));
-  padding-bottom: calc(100rpx + env(safe-area-inset-bottom, 0));
-}
-
-.banner-swiper {
-  height: 360rpx;
-}
-
-.banner-item {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 60rpx 32rpx;
-}
-
-.banner-content {
-  display: flex;
-  flex-direction: column;
-  gap: 16rpx;
-}
-
-.banner-title {
-  font-size: 48rpx;
-  font-weight: 700;
-  color: #1A202C;
-}
-
-.banner-desc {
-  font-size: 32rpx;
-  color: rgba(26, 32, 44, 0.8);
+  padding-top: calc(44px + env(safe-area-inset-top, 0));
+  padding-bottom: calc(50px + env(safe-area-inset-bottom, 0));
 }
 
 .service-categories {
   display: flex;
   align-items: center;
   justify-content: space-around;
-  padding: 32rpx;
+  padding: 16px;
   background-color: #FFFFFF;
-  margin-bottom: 16rpx;
+  margin-bottom: 8px;
 }
 
 .category-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12rpx;
-  padding: 24rpx;
-  border-radius: 16rpx;
+  gap: 6px;
+  padding: 12px;
+  border-radius: 8px;
   transition: all 0.3s ease;
+  cursor: pointer;
 
   &--active {
     background-color: rgba(246, 224, 94, 0.2);
@@ -578,55 +447,58 @@ onMounted(() => {
 }
 
 .category-icon {
-  font-size: 56rpx;
+  font-size: 28px;
 }
 
 .category-name {
-  font-size: 28rpx;
-  color: var(--color-text-primary, #1A202C);
+  font-size: 14px;
+  color: #1A202C;
 }
 
 .section {
-  padding: 32rpx;
+  padding: 16px;
 }
 
 .section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 24rpx;
+  margin-bottom: 12px;
 }
 
 .section-title {
-  font-size: 36rpx;
+  font-size: 18px;
   font-weight: 700;
-  color: var(--color-text-primary, #1A202C);
+  color: #1A202C;
 }
 
 .section-more {
-  font-size: 28rpx;
-  color: var(--color-text-tertiary, #718096);
+  font-size: 14px;
+  color: #718096;
+  cursor: pointer;
 }
 
 .publish-btn {
-  padding: 12rpx 24rpx;
+  padding: 6px 12px;
   background: linear-gradient(135deg, #4299E1 0%, #3182CE 100%);
   color: #FFFFFF;
-  border-radius: 24rpx;
-  font-size: 28rpx;
+  border-radius: 12px;
+  font-size: 14px;
+  cursor: pointer;
 }
 
 .product-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16rpx;
+  gap: 8px;
 }
 
 .product-item {
-  padding: 16rpx;
+  padding: 8px;
   background-color: #FFFFFF;
-  border-radius: 16rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
 
   &:active {
     transform: scale(0.98);
@@ -635,34 +507,34 @@ onMounted(() => {
 
 .product-image {
   width: 100%;
-  height: 280rpx;
+  height: 140px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--color-bg-card, #F7FAFC);
-  border-radius: 12rpx;
-  margin-bottom: 16rpx;
-  font-size: 120rpx;
+  background-color: #F7FAFC;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  font-size: 60px;
 }
 
 .product-info {
   display: flex;
   flex-direction: column;
-  gap: 8rpx;
+  gap: 4px;
 }
 
 .product-name {
-  font-size: 28rpx;
+  font-size: 14px;
   font-weight: 600;
-  color: var(--color-text-primary, #1A202C);
+  color: #1A202C;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .product-origin {
-  font-size: 24rpx;
-  color: var(--color-text-tertiary, #718096);
+  font-size: 12px;
+  color: #718096;
 }
 
 .product-price-row {
@@ -672,57 +544,58 @@ onMounted(() => {
 }
 
 .product-price {
-  font-size: 32rpx;
+  font-size: 16px;
   font-weight: 700;
   color: #F56565;
 }
 
 .product-sales {
-  font-size: 24rpx;
-  color: var(--color-text-tertiary, #718096);
+  font-size: 12px;
+  color: #718096;
 }
 
 .carpool-list {
   display: flex;
   flex-direction: column;
-  gap: 16rpx;
+  gap: 8px;
 }
 
 .carpool-item {
-  padding: 24rpx;
+  padding: 12px;
   background-color: #FFFFFF;
-  border-radius: 16rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
 }
 
 .carpool-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16rpx;
+  margin-bottom: 8px;
 }
 
 .route-info {
   display: flex;
   align-items: center;
-  gap: 12rpx;
-  font-size: 32rpx;
+  gap: 6px;
+  font-size: 16px;
   font-weight: 600;
 }
 
 .origin,
 .destination {
-  color: var(--color-text-primary, #1A202C);
+  color: #1A202C;
 }
 
 .arrow {
-  color: var(--color-text-tertiary, #718096);
+  color: #718096;
 }
 
 .status-badge {
-  padding: 8rpx 16rpx;
-  border-radius: 8rpx;
-  font-size: 24rpx;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
 
   &.status-available {
     background-color: rgba(72, 187, 120, 0.1);
@@ -738,55 +611,56 @@ onMounted(() => {
 .carpool-info {
   display: flex;
   flex-wrap: wrap;
-  gap: 16rpx;
-  margin-bottom: 12rpx;
+  gap: 8px;
+  margin-bottom: 6px;
 }
 
 .info-item {
-  font-size: 24rpx;
-  color: var(--color-text-secondary, #4A5568);
+  font-size: 12px;
+  color: #4A5568;
 }
 
 .carpool-user {
   display: flex;
   align-items: center;
-  gap: 8rpx;
-  padding-top: 12rpx;
-  border-top: 1rpx solid var(--color-border-primary, #E2E8F0);
+  gap: 4px;
+  padding-top: 6px;
+  border-top: 1px solid #E2E8F0;
 }
 
 .user-icon {
-  font-size: 32rpx;
+  font-size: 16px;
 }
 
 .user-name {
-  font-size: 28rpx;
-  color: var(--color-text-primary, #1A202C);
+  font-size: 14px;
+  color: #1A202C;
 }
 
 .publish-time {
   margin-left: auto;
-  font-size: 24rpx;
-  color: var(--color-text-tertiary, #718096);
+  font-size: 12px;
+  color: #718096;
 }
 
 .help-list {
   display: flex;
   flex-direction: column;
-  gap: 16rpx;
+  gap: 8px;
 }
 
 .help-item {
   display: flex;
-  gap: 16rpx;
-  padding: 24rpx;
+  gap: 8px;
+  padding: 12px;
   background-color: #FFFFFF;
-  border-radius: 16rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
 }
 
 .help-icon {
-  font-size: 64rpx;
+  font-size: 32px;
   flex-shrink: 0;
 }
 
@@ -796,35 +670,35 @@ onMounted(() => {
 }
 
 .help-title {
-  font-size: 32rpx;
+  font-size: 16px;
   font-weight: 600;
-  color: var(--color-text-primary, #1A202C);
-  margin-bottom: 8rpx;
+  color: #1A202C;
+  margin-bottom: 4px;
 }
 
 .help-desc {
-  font-size: 28rpx;
-  color: var(--color-text-secondary, #4A5568);
+  font-size: 14px;
+  color: #4A5568;
   line-height: 1.6;
-  margin-bottom: 12rpx;
+  margin-bottom: 6px;
 }
 
 .help-meta {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 16rpx;
+  gap: 8px;
 }
 
 .help-reward {
   margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 4rpx;
-  padding: 4rpx 12rpx;
+  gap: 2px;
+  padding: 2px 6px;
   background-color: rgba(246, 224, 94, 0.2);
-  border-radius: 12rpx;
-  font-size: 24rpx;
+  border-radius: 6px;
+  font-size: 12px;
   color: #D69E2E;
 }
 
@@ -833,59 +707,60 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 4rpx;
+  gap: 2px;
 }
 
 .status-text {
-  font-size: 24rpx;
-  color: var(--color-text-tertiary, #718096);
+  font-size: 12px;
+  color: #718096;
 }
 
 .response-count {
-  font-size: 28rpx;
+  font-size: 14px;
   font-weight: 600;
-  color: var(--color-primary, #2F855A);
+  color: #2F855A;
 }
 
 .supply-list {
   display: flex;
   flex-direction: column;
-  gap: 16rpx;
+  gap: 8px;
 }
 
 .supply-item {
-  padding: 24rpx;
+  padding: 12px;
   background-color: #FFFFFF;
-  border-radius: 16rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
 }
 
 .supply-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16rpx;
+  margin-bottom: 8px;
 }
 
 .supply-name {
-  font-size: 32rpx;
+  font-size: 16px;
   font-weight: 700;
-  color: var(--color-text-primary, #1A202C);
+  color: #1A202C;
 }
 
 .supply-tag {
-  padding: 8rpx 16rpx;
+  padding: 4px 8px;
   background-color: rgba(72, 187, 120, 0.1);
   color: #48BB78;
-  border-radius: 8rpx;
-  font-size: 24rpx;
+  border-radius: 4px;
+  font-size: 12px;
 }
 
 .supply-info {
   display: flex;
   flex-direction: column;
-  gap: 8rpx;
-  margin-bottom: 16rpx;
+  gap: 4px;
+  margin-bottom: 8px;
 }
 
 .price-highlight {
@@ -896,29 +771,29 @@ onMounted(() => {
 .supply-progress {
   display: flex;
   align-items: center;
-  gap: 12rpx;
-  margin-bottom: 16rpx;
+  gap: 6px;
+  margin-bottom: 8px;
 }
 
 .progress-bar {
   flex: 1;
-  height: 16rpx;
-  background-color: var(--color-bg-disabled, #F1F5F9);
-  border-radius: 8rpx;
+  height: 8px;
+  background-color: #F1F5F9;
+  border-radius: 4px;
   overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
   background: linear-gradient(90deg, #48BB78 0%, #38A169 100%);
-  border-radius: 8rpx;
+  border-radius: 4px;
   transition: width 0.3s ease;
 }
 
 .progress-text {
-  font-size: 24rpx;
-  color: var(--color-text-secondary, #4A5568);
-  min-width: 80rpx;
+  font-size: 12px;
+  color: #4A5568;
+  min-width: 40px;
   text-align: right;
 }
 
@@ -926,53 +801,46 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 16rpx;
-  border-top: 1rpx solid var(--color-border-primary, #E2E8F0);
+  padding-top: 8px;
+  border-top: 1px solid #E2E8F0;
 }
 
 .deadline {
-  font-size: 24rpx;
-  color: var(--color-text-tertiary, #718096);
+  font-size: 12px;
+  color: #718096;
 }
 
 .join-btn {
-  padding: 12rpx 24rpx;
-  background-color: var(--color-primary, #2F855A);
+  padding: 6px 12px;
+  background-color: #2F855A;
   color: #FFFFFF;
-  border-radius: 8rpx;
-  font-size: 28rpx;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
 }
 
 // 适老化模式
-:global(.elderly-mode-large) {
-  .banner-title {
-    font-size: 56rpx;
-  }
-
+[data-elderly-mode="large"] {
   .product-name {
-    font-size: 32rpx;
+    font-size: 16px;
   }
 
   .help-title {
-    font-size: 36rpx;
+    font-size: 18px;
   }
 }
 
-:global(.elderly-mode-xl) {
-  .banner-title {
-    font-size: 64rpx;
-  }
-
+[data-elderly-mode="xl"] {
   .product-name {
-    font-size: 40rpx;
+    font-size: 20px;
   }
 
   .help-title {
-    font-size: 44rpx;
+    font-size: 22px;
   }
 
   .help-desc {
-    font-size: 36rpx;
+    font-size: 18px;
   }
 }
 </style>

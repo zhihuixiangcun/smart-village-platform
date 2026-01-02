@@ -35,48 +35,68 @@ export const useNetworkStore = defineStore('network', () => {
    * 初始化网络监听
    */
   const initNetworkListener = () => {
-    // 监听网络状态变化
-    uni.onNetworkStatusChange((result) => {
-      networkType.value = result.networkType
-      isOnline.value = result.isConnected
+    // 监听网络状态变化（标准Web API）
+    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline)
 
-      if (result.isConnected) {
-        console.log('网络已连接:', result.networkType)
-        lastOnlineTime.value = new Date().toISOString()
-        // 网络恢复时自动同步
-        autoSync()
-      } else {
-        console.log('网络已断开')
-        // 网络断开时的处理
-        onNetworkOffline()
-      }
-    })
+    // 初始化网络状态
+    updateNetworkStatus()
 
-    // 获取初始网络状态
-    uni.getNetworkType({
-      success: (res) => {
-        networkType.value = res.networkType
-        isOnline.value = res.networkType !== 'none'
-        if (isOnline.value) {
-          lastOnlineTime.value = new Date().toISOString()
-        }
-      }
-    })
+    console.log('网络监听已初始化')
   }
 
   /**
-   * 网络断开时的处理
+   * 处理网络连接
    */
-  const onNetworkOffline = () => {
-    // 保存当前时间作为断开时间
-    uni.setStorageSync('network_offline_time', new Date().toISOString())
+  const handleOnline = () => {
+    networkType.value = navigator.connection?.effectiveType || 'unknown'
+    isOnline.value = true
+    lastOnlineTime.value = new Date().toISOString()
+
+    console.log('网络已连接:', networkType.value)
+
+    // 网络恢复时自动同步
+    autoSync()
+  }
+
+  /**
+   * 处理网络断开
+   */
+  const handleOffline = () => {
+    networkType.value = 'none'
+    isOnline.value = false
+
+    console.log('网络已断开')
+
+    // 保存断开时间
+    localStorage.setItem('network_offline_time', new Date().toISOString())
 
     // 提示用户
-    uni.showToast({
-      title: '网络已断开，部分功能可能受限',
-      icon: 'none',
-      duration: 2000
-    })
+    alert('网络已断开，部分功能可能受限')
+  }
+
+  /**
+   * 更新网络状态
+   */
+  const updateNetworkStatus = () => {
+    if (navigator.onLine) {
+      handleOnline()
+    } else {
+      handleOffline()
+    }
+
+    // 如果支持 Network Information API
+    if (navigator.connection) {
+      networkType.value = navigator.connection.effectiveType || 'unknown'
+    }
+  }
+
+  /**
+   * 移除网络监听
+   */
+  const removeNetworkListener = () => {
+    window.removeEventListener('online', handleOnline)
+    window.removeEventListener('offline', handleOffline)
   }
 
   // ===== 离线数据管理 =====
@@ -120,7 +140,11 @@ export const useNetworkStore = defineStore('network', () => {
    * 保存离线队列到本地存储
    */
   const saveOfflineQueue = () => {
-    uni.setStorageSync('offline_queue', offlineQueue.value)
+    try {
+      localStorage.setItem('offline_queue', JSON.stringify(offlineQueue.value))
+    } catch (error) {
+      console.error('保存离线队列失败:', error)
+    }
   }
 
   /**
@@ -128,10 +152,13 @@ export const useNetworkStore = defineStore('network', () => {
    */
   const loadOfflineQueue = () => {
     try {
-      const queue = uni.getStorageSync('offline_queue')
-      if (queue && Array.isArray(queue)) {
-        offlineQueue.value = queue
-        console.log('离线队列加载成功，共', queue.length, '条')
+      const queueStr = localStorage.getItem('offline_queue')
+      if (queueStr) {
+        const queue = JSON.parse(queueStr)
+        if (Array.isArray(queue)) {
+          offlineQueue.value = queue
+          console.log('离线队列加载成功，共', queue.length, '条')
+        }
       }
     } catch (error) {
       console.error('离线队列加载失败:', error)
@@ -219,7 +246,7 @@ export const useNetworkStore = defineStore('network', () => {
           }
 
           // 如果是网络错误，暂停同步
-          if (error.message.includes('network') || error.message.includes('timeout')) {
+          if (error.message?.includes('network') || error.message?.includes('timeout')) {
             syncStatus.value = 'failed'
             syncError.value = error.message
             break
@@ -238,10 +265,7 @@ export const useNetworkStore = defineStore('network', () => {
 
       // 提示用户
       if (synced > 0) {
-        uni.showToast({
-          title: `已同步${synced}条数据`,
-          icon: 'success'
-        })
+        alert(`已同步${synced}条数据`)
       }
 
       return { success: failed === 0, synced, failed }
@@ -260,9 +284,6 @@ export const useNetworkStore = defineStore('network', () => {
   const syncItem = async (item) => {
     // 根据item.type调用不同的API
     const { type, data } = item
-
-    // 这里需要导入实际的API函数
-    // const api = await import('@/api/index.js')
 
     switch (type) {
       case 'announcement_read':
@@ -293,31 +314,16 @@ export const useNetworkStore = defineStore('network', () => {
    */
   const manualSync = async () => {
     if (!isOnline.value) {
-      uni.showToast({
-        title: '网络未连接',
-        icon: 'none'
-      })
+      alert('网络未连接')
       return
     }
 
-    uni.showLoading({
-      title: '正在同步...'
-    })
-
     const result = await syncOfflineData()
 
-    uni.hideLoading()
-
     if (result.success) {
-      uni.showToast({
-        title: `同步完成，成功${result.synced}条`,
-        icon: 'success'
-      })
+      alert(`同步完成，成功${result.synced}条`)
     } else {
-      uni.showToast({
-        title: result.error || `同步完成，成功${result.synced}条，失败${result.failed}条`,
-        icon: failed === 0 ? 'success' : 'none'
-      })
+      alert(result.error || `同步完成，成功${result.synced}条，失败${result.failed}条`)
     }
   }
 
@@ -333,8 +339,12 @@ export const useNetworkStore = defineStore('network', () => {
       expire: expireSeconds * 1000
     }
 
-    uni.setStorageSync(`cache_${key}`, cacheItem)
-    console.log('数据已缓存:', key)
+    try {
+      localStorage.setItem(`cache_${key}`, JSON.stringify(cacheItem))
+      console.log('数据已缓存:', key)
+    } catch (error) {
+      console.error('缓存数据失败:', error)
+    }
   }
 
   /**
@@ -342,17 +352,19 @@ export const useNetworkStore = defineStore('network', () => {
    */
   const getCachedData = (key) => {
     try {
-      const cacheItem = uni.getStorageSync(`cache_${key}`)
+      const cacheStr = localStorage.getItem(`cache_${key}`)
 
-      if (!cacheItem) {
+      if (!cacheStr) {
         return null
       }
+
+      const cacheItem = JSON.parse(cacheStr)
 
       // 检查是否过期
       const now = Date.now()
       if (now - cacheItem.timestamp > cacheItem.expire) {
         // 缓存已过期，删除
-        uni.removeStorageSync(`cache_${key}`)
+        localStorage.removeItem(`cache_${key}`)
         console.log('缓存已过期:', key)
         return null
       }
@@ -370,7 +382,7 @@ export const useNetworkStore = defineStore('network', () => {
    * 清除指定缓存
    */
   const clearCache = (key) => {
-    uni.removeStorageSync(`cache_${key}`)
+    localStorage.removeItem(`cache_${key}`)
     console.log('缓存已清除:', key)
   }
 
@@ -378,12 +390,11 @@ export const useNetworkStore = defineStore('network', () => {
    * 清除所有缓存
    */
   const clearAllCache = () => {
-    const storage = uni.getStorageInfoSync()
-    const keys = storage.keys || []
+    const keys = Object.keys(localStorage)
 
     keys.forEach(key => {
       if (key.startsWith('cache_')) {
-        uni.removeStorageSync(key)
+        localStorage.removeItem(key)
       }
     })
 
@@ -424,7 +435,7 @@ export const useNetworkStore = defineStore('network', () => {
   const checkOfflineWarning = () => {
     if (isOnline.value) return false
 
-    const offlineTime = uni.getStorageSync('network_offline_time')
+    const offlineTime = localStorage.getItem('network_offline_time')
     if (!offlineTime) return false
 
     const offlineDuration = Date.now() - new Date(offlineTime).getTime()
@@ -448,6 +459,7 @@ export const useNetworkStore = defineStore('network', () => {
 
     // 初始化
     initNetworkListener,
+    removeNetworkListener,
     loadOfflineQueue,
 
     // 网络状态

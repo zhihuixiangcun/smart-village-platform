@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { api } from '@/api'
 
 /**
  * 用户Store
@@ -45,138 +44,64 @@ export const useUserStore = defineStore('user', () => {
    */
   const checkAuth = async () => {
     try {
-      const token = uni.getStorageSync('access_token')
-      const refresh = uni.getStorageSync('refresh_token')
-      const user = uni.getStorageSync('user_info')
+      const token = localStorage.getItem('access_token')
+      const refresh = localStorage.getItem('refresh_token')
+      const userStr = localStorage.getItem('user_info')
 
-      if (token && user) {
+      if (token && userStr) {
         accessToken.value = token
         refreshToken.value = refresh
-        userInfo.value = user
+        userInfo.value = JSON.parse(userStr)
 
-        console.log('用户已登录:', user.name)
+        console.log('用户已登录:', userInfo.value.name)
 
-        // 验证token是否有效
-        await validateToken()
+        // TODO: 验证token是否有效
+        // await validateToken()
       } else {
         console.log('未找到登录信息')
-        logout()
       }
     } catch (error) {
       console.error('检查登录状态失败:', error)
-      logout()
     }
   }
 
   /**
-   * 验证Token有效性
-   */
-  const validateToken = async () => {
-    try {
-      // 调用API验证token
-      const result = await api.auth.validateToken()
-
-      if (result.success) {
-        // Token有效，更新用户信息
-        userInfo.value = result.data
-        await saveUserInfo()
-        return true
-      } else {
-        // Token无效，尝试刷新
-        return await refreshAccessToken()
-      }
-    } catch (error) {
-      console.error('Token验证失败:', error)
-      return await refreshAccessToken()
-    }
-  }
-
-  /**
-   * 刷新访问令牌
-   */
-  const refreshAccessToken = async () => {
-    if (!refreshToken.value) {
-      logout()
-      return false
-    }
-
-    try {
-      const result = await api.auth.refreshToken(refreshToken.value)
-
-      if (result.success) {
-        accessToken.value = result.data.accessToken
-        refreshToken.value = result.data.refreshToken
-
-        // 保存到本地存储
-        uni.setStorageSync('access_token', result.data.accessToken)
-        uni.setStorageSync('refresh_token', result.data.refreshToken)
-
-        console.log('Token刷新成功')
-        return true
-      } else {
-        console.error('Token刷新失败')
-        logout()
-        return false
-      }
-    } catch (error) {
-      console.error('Token刷新出错:', error)
-      logout()
-      return false
-    }
-  }
-
-  /**
-   * 用户登录
+   * 用户登录（简化版，仅做本地模拟）
    */
   const login = async (credentials) => {
     try {
-      // 显示加载提示
-      uni.showLoading({
-        title: '登录中...',
-        mask: true
-      })
-
-      // 调用登录API
-      const result = await api.auth.login(credentials)
-
-      uni.hideLoading()
-
-      if (result.success) {
-        const { accessToken, refreshToken, user } = result.data
-
-        // 保存到状态
-        accessToken.value = accessToken
-        refreshToken.value = refreshToken
-        userInfo.value = user
-
-        // 保存到本地存储
-        await saveUserInfo()
-        uni.setStorageSync('access_token', accessToken)
-        uni.setStorageSync('refresh_token', refreshToken)
-
-        console.log('登录成功:', user.name)
-
-        // 提示用户
-        uni.showToast({
-          title: '登录成功',
-          icon: 'success'
-        })
-
-        return { success: true }
-      } else {
-        uni.showToast({
-          title: result.message || '登录失败',
-          icon: 'none'
-        })
-        return { success: false, message: result.message }
+      // 模拟登录成功
+      const mockUser = {
+        id: '1',
+        name: '张大山',
+        phone: credentials.phone,
+        villageName: '东村',
+        villageId: 'village_001',
+        villagerId: 'villager_001',
+        role: 'villager',
+        verified: true,
+        avatar: '',
+        points: 126
       }
+
+      const mockAccessToken = 'mock_access_token_' + Date.now()
+      const mockRefreshToken = 'mock_refresh_token_' + Date.now()
+
+      // 保存到状态
+      accessToken.value = mockAccessToken
+      refreshToken.value = mockRefreshToken
+      userInfo.value = mockUser
+
+      // 保存到本地存储
+      localStorage.setItem('access_token', mockAccessToken)
+      localStorage.setItem('refresh_token', mockRefreshToken)
+      localStorage.setItem('user_info', JSON.stringify(mockUser))
+
+      console.log('登录成功:', mockUser.name)
+
+      return { success: true }
     } catch (error) {
-      uni.hideLoading()
       console.error('登录失败:', error)
-      uni.showToast({
-        title: error.message || '登录失败，请重试',
-        icon: 'none'
-      })
       return { success: false, message: error.message }
     }
   }
@@ -185,54 +110,23 @@ export const useUserStore = defineStore('user', () => {
    * 用户登出
    */
   const logout = async () => {
-    try {
-      // 调用登出API
-      if (accessToken.value) {
-        await api.auth.logout()
-      }
-    } catch (error) {
-      console.error('登出API调用失败:', error)
-    } finally {
-      // 清除状态
-      userInfo.value = null
-      accessToken.value = ''
-      refreshToken.value = ''
+    // 清除状态
+    userInfo.value = null
+    accessToken.value = ''
+    refreshToken.value = ''
 
-      // 清除本地存储
-      uni.removeStorageSync('access_token')
-      uni.removeStorageSync('refresh_token')
-      uni.removeStorageSync('user_info')
+    // 清除本地存储
+    localStorage.removeItem('access_token')
+    localStorage.removeItem('refresh_token')
+    localStorage.removeItem('user_info')
 
-      // 清除其他缓存
-      clearAllUserData()
+    // 清除其他缓存
+    clearAllUserData()
 
-      console.log('用户已登出')
+    console.log('用户已登出')
 
-      // 跳转到登录页
-      uni.reLaunch({
-        url: '/pages/auth/login'
-      })
-    }
-  }
-
-  /**
-   * 保存用户信息到本地存储
-   */
-  const saveUserInfo = () => {
-    return new Promise((resolve) => {
-      uni.setStorage({
-        key: 'user_info',
-        data: userInfo.value,
-        success: () => {
-          console.log('用户信息已保存')
-          resolve()
-        },
-        fail: (error) => {
-          console.error('用户信息保存失败:', error)
-          resolve()
-        }
-      })
-    })
+    // 使用window.location跳转到登录页
+    window.location.href = '/login'
   }
 
   /**
@@ -249,7 +143,7 @@ export const useUserStore = defineStore('user', () => {
     ]
 
     keys.forEach(key => {
-      uni.removeStorageSync(key)
+      localStorage.removeItem(key)
     })
   }
 
@@ -258,24 +152,15 @@ export const useUserStore = defineStore('user', () => {
    */
   const updateUserInfo = async (data) => {
     try {
-      const result = await api.user.updateProfile(data)
-
-      if (result.success) {
-        userInfo.value = {
-          ...userInfo.value,
-          ...result.data
-        }
-        await saveUserInfo()
-
-        uni.showToast({
-          title: '更新成功',
-          icon: 'success'
-        })
-
-        return { success: true }
-      } else {
-        return { success: false, message: result.message }
+      userInfo.value = {
+        ...userInfo.value,
+        ...data
       }
+
+      // 保存到本地存储
+      localStorage.setItem('user_info', JSON.stringify(userInfo.value))
+
+      return { success: true }
     } catch (error) {
       console.error('更新用户信息失败:', error)
       return { success: false, message: error.message }
@@ -283,26 +168,23 @@ export const useUserStore = defineStore('user', () => {
   }
 
   /**
-   * 获取用户详细信息
+   * 更新个人资料
    */
-  const fetchUserDetail = async () => {
-    if (!accessToken.value) {
-      return null
-    }
-
+  const updateProfile = async (profileData) => {
     try {
-      const result = await api.user.getUserDetail()
-
-      if (result.success) {
-        userInfo.value = result.data
-        await saveUserInfo()
-        return result.data
+      // 更新用户信息
+      userInfo.value = {
+        ...userInfo.value,
+        ...profileData
       }
 
-      return null
+      // 保存到本地存储
+      localStorage.setItem('user_info', JSON.stringify(userInfo.value))
+
+      return { success: true }
     } catch (error) {
-      console.error('获取用户详情失败:', error)
-      return null
+      console.error('更新个人资料失败:', error)
+      return { success: false, message: error.message }
     }
   }
 
@@ -311,29 +193,12 @@ export const useUserStore = defineStore('user', () => {
    */
   const uploadAvatar = async (filePath) => {
     try {
-      uni.showLoading({
-        title: '上传中...'
-      })
+      // 模拟上传成功
+      userInfo.value.avatar = filePath
+      localStorage.setItem('user_info', JSON.stringify(userInfo.value))
 
-      const result = await api.user.uploadAvatar(filePath)
-
-      uni.hideLoading()
-
-      if (result.success) {
-        userInfo.value.avatar = result.data.url
-        await saveUserInfo()
-
-        uni.showToast({
-          title: '上传成功',
-          icon: 'success'
-        })
-
-        return { success: true, url: result.data.url }
-      } else {
-        return { success: false, message: result.message }
-      }
+      return { success: true, url: filePath }
     } catch (error) {
-      uni.hideLoading()
       console.error('上传头像失败:', error)
       return { success: false, message: error.message }
     }
@@ -344,27 +209,15 @@ export const useUserStore = defineStore('user', () => {
    */
   const changePassword = async (oldPassword, newPassword) => {
     try {
-      const result = await api.user.changePassword({
-        oldPassword,
-        newPassword
-      })
+      // 模拟修改成功
+      console.log('密码修改成功')
 
-      if (result.success) {
-        uni.showToast({
-          title: '密码修改成功，请重新登录',
-          icon: 'success',
-          duration: 2000
-        })
+      // 延迟后登出
+      setTimeout(() => {
+        logout()
+      }, 2000)
 
-        // 延迟后登出
-        setTimeout(() => {
-          logout()
-        }, 2000)
-
-        return { success: true }
-      } else {
-        return { success: false, message: result.message }
-      }
+      return { success: true }
     } catch (error) {
       console.error('修改密码失败:', error)
       return { success: false, message: error.message }
@@ -376,24 +229,10 @@ export const useUserStore = defineStore('user', () => {
    */
   const bindPhone = async (phone, code) => {
     try {
-      const result = await api.user.bindPhone({
-        phone,
-        code
-      })
+      userInfo.value.phone = phone
+      localStorage.setItem('user_info', JSON.stringify(userInfo.value))
 
-      if (result.success) {
-        userInfo.value.phone = phone
-        await saveUserInfo()
-
-        uni.showToast({
-          title: '绑定成功',
-          icon: 'success'
-        })
-
-        return { success: true }
-      } else {
-        return { success: false, message: result.message }
-      }
+      return { success: true }
     } catch (error) {
       console.error('绑定手机失败:', error)
       return { success: false, message: error.message }
@@ -405,26 +244,12 @@ export const useUserStore = defineStore('user', () => {
    */
   const realNameVerify = async (realName, idCard) => {
     try {
-      const result = await api.user.realNameVerify({
-        realName,
-        idCard
-      })
+      userInfo.value.realName = realName
+      userInfo.value.idCard = idCard
+      userInfo.value.verified = true
+      localStorage.setItem('user_info', JSON.stringify(userInfo.value))
 
-      if (result.success) {
-        userInfo.value.realName = realName
-        userInfo.value.idCard = idCard
-        userInfo.value.verified = true
-        await saveUserInfo()
-
-        uni.showToast({
-          title: '认证成功',
-          icon: 'success'
-        })
-
-        return { success: true }
-      } else {
-        return { success: false, message: result.message }
-      }
+      return { success: true }
     } catch (error) {
       console.error('实名认证失败:', error)
       return { success: false, message: error.message }
@@ -440,8 +265,8 @@ export const useUserStore = defineStore('user', () => {
     }
 
     try {
-      const result = await api.user.getPoints()
-      return result.success ? result.data.points : 0
+      // 模拟返回积分
+      return userInfo.value?.points || 126
     } catch (error) {
       console.error('获取积分失败:', error)
       return 0
@@ -457,8 +282,13 @@ export const useUserStore = defineStore('user', () => {
     }
 
     try {
-      const result = await api.user.getStats()
-      return result.success ? result.data : null
+      // 模拟返回统计数据
+      return {
+        announcements: 12,
+        services: 8,
+        points: 126,
+        rank: 15
+      }
     } catch (error) {
       console.error('获取统计数据失败:', error)
       return null
@@ -480,14 +310,13 @@ export const useUserStore = defineStore('user', () => {
 
     // 认证相关
     checkAuth,
-    validateToken,
     login,
     logout,
-    refreshAccessToken,
 
     // 用户信息
     updateUserInfo,
-    fetchUserDetail,
+    updateProfile,
+    fetchUserDetail: updateUserInfo,
     uploadAvatar,
     changePassword,
     bindPhone,

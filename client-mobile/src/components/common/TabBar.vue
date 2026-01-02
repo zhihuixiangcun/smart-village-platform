@@ -9,6 +9,10 @@
       <!-- 图标 -->
       <div class="tab-bar__icon">
         <span class="icon">{{ currentIndex === index ? item.selectedIcon : item.icon }}</span>
+        <!-- 消息红点 -->
+        <span v-if="item.showBadge && unreadCount > 0" class="tab-bar__badge">
+          {{ unreadCount > 99 ? '99+' : unreadCount }}
+        </span>
       </div>
 
       <!-- 文字 -->
@@ -21,6 +25,7 @@
 import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useElderlyStore } from '@/store/elderly'
+import { useChatStore } from '@/store/chat'
 
 /**
  * 底部导航栏组件
@@ -30,6 +35,7 @@ import { useElderlyStore } from '@/store/elderly'
 const router = useRouter()
 const route = useRoute()
 const elderlyStore = useElderlyStore()
+const chatStore = useChatStore()
 
 const props = defineProps({
   // 当前激活的tab索引
@@ -40,6 +46,9 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['change'])
+
+// 未读消息数
+const unreadCount = computed(() => chatStore.unreadCount)
 
 // 导航配置
 const tabList = [
@@ -62,6 +71,13 @@ const tabList = [
     path: '/life'
   },
   {
+    icon: '💬',
+    selectedIcon: '💬',
+    text: '消息',
+    path: '/chat',
+    showBadge: true
+  },
+  {
     icon: '👤',
     selectedIcon: '👨‍👩‍👧‍👦',
     text: '我的',
@@ -76,7 +92,8 @@ const currentIndex = computed(() => {
   if (path.startsWith('/village')) return 0
   if (path.startsWith('/services')) return 1
   if (path.startsWith('/life')) return 2
-  if (path.startsWith('/profile')) return 3
+  if (path.startsWith('/chat')) return 3
+  if (path.startsWith('/profile')) return 4
   return props.current
 })
 
@@ -139,9 +156,27 @@ const handleTabClick = (item, index) => {
   }
 
   &__icon {
+    position: relative;
     font-size: 24px;
     line-height: 1;
     transition: transform 0.3s ease;
+  }
+
+  &__badge {
+    position: absolute;
+    top: -4px;
+    right: -8px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    background: #ff4d4f;
+    color: #fff;
+    font-size: 10px;
+    line-height: 16px;
+    text-align: center;
+    border-radius: 8px;
+    transform: scale(1);
+    animation: badge-bounce 0.3s ease;
   }
 
   &__text {
@@ -188,6 +223,18 @@ const handleTabClick = (item, index) => {
     &__text {
       font-size: 16px;
     }
+  }
+}
+
+@keyframes badge-bounce {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
   }
 }
 </style>

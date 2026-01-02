@@ -6,10 +6,20 @@ const routes = [
     redirect: '/village'
   },
   {
-    path: '/login',
+    path: '/auth/login',
     name: 'Login',
     component: () => import('../pages/auth/login.vue'),
     meta: { title: '登录' }
+  },
+  {
+    path: '/auth/register',
+    name: 'Register',
+    component: () => import('../pages/auth/register.vue'),
+    meta: { title: '注册' }
+  },
+  {
+    path: '/login',
+    redirect: '/auth/login'
   },
   {
     path: '/village',
@@ -54,6 +64,24 @@ const routes = [
     meta: { title: '一户一码' }
   },
   {
+    path: '/services/documents',
+    name: 'Documents',
+    component: () => import('../pages/services/documents.vue'),
+    meta: { title: '我的证件' }
+  },
+  {
+    path: '/services/data-collection',
+    name: 'DataCollection',
+    component: () => import('../pages/services/data-collection.vue'),
+    meta: { title: '资料收集' }
+  },
+  {
+    path: '/services/publish',
+    name: 'Publish',
+    component: () => import('../pages/services/publish.vue'),
+    meta: { title: '发布公告' }
+  },
+  {
     path: '/life',
     name: 'Life',
     component: () => import('../pages/life/index.vue'),
@@ -70,6 +98,92 @@ const routes = [
     name: 'Profile',
     component: () => import('../pages/profile/index.vue'),
     meta: { title: '我的' }
+  },
+  {
+    path: '/profile/edit',
+    name: 'ProfileEdit',
+    component: () => import('../pages/profile/edit.vue'),
+    meta: { title: '个人资料' }
+  },
+  {
+    path: '/profile/quadrant',
+    name: 'QuadrantWork',
+    component: () => import('../pages/profile/quadrant.vue'),
+    meta: { title: '四象限工作台' }
+  },
+  {
+    path: '/profile/approvals',
+    name: 'Approvals',
+    component: () => import('../pages/profile/approvals.vue'),
+    meta: { title: '村干部审核' }
+  },
+  // 聊天相关路由
+  {
+    path: '/chat',
+    name: 'Chat',
+    component: () => import('../pages/chat/index.vue'),
+    meta: { title: '消息' }
+  },
+  {
+    path: '/chat/detail/:id',
+    name: 'ChatDetail',
+    component: () => import('../pages/chat/detail.vue'),
+    meta: { title: '聊天详情' }
+  },
+  {
+    path: '/chat/contacts',
+    name: 'Contacts',
+    component: () => import('../pages/chat/contacts.vue'),
+    meta: { title: '通讯录' }
+  },
+  {
+    path: '/chat/groups',
+    name: 'Groups',
+    component: () => import('../pages/chat/groups.vue'),
+    meta: { title: '群聊' }
+  },
+  {
+    path: '/chat/new',
+    name: 'NewChat',
+    component: () => import('../pages/chat/new.vue'),
+    meta: { title: '发起聊天' }
+  },
+  {
+    path: '/chat/add-friend',
+    name: 'AddFriend',
+    component: () => import('../pages/chat/add-friend.vue'),
+    meta: { title: '添加朋友' }
+  },
+  {
+    path: '/chat/friend-requests',
+    name: 'FriendRequests',
+    component: () => import('../pages/chat/friend-requests.vue'),
+    meta: { title: '好友申请' }
+  },
+  {
+    path: '/chat/import-contacts',
+    name: 'ImportContacts',
+    component: () => import('../pages/chat/import-contacts.vue'),
+    meta: { title: '导入通讯录' }
+  },
+  {
+    path: '/chat/group-info/:id',
+    name: 'GroupInfo',
+    component: () => import('../pages/chat/group-info.vue'),
+    meta: { title: '群聊信息' }
+  },
+  {
+    path: '/chat/invite-members/:id',
+    name: 'InviteMembers',
+    component: () => import('../pages/chat/invite-members.vue'),
+    meta: { title: '邀请成员' }
+  },
+  // AI问答
+  {
+    path: '/ai-assistant',
+    name: 'AIAssistant',
+    component: () => import('../pages/ai/index.vue'),
+    meta: { title: 'AI助手' }
   }
 ]
 
