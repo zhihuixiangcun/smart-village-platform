@@ -356,10 +356,128 @@ export const committeeApi = {
 }
 
 /**
+ * 批量导入API
+ */
+export const batchImportApi = {
+  // 批量导入村民
+  importResidents(file, options = {}) {
+    const formData = new FormData()
+    formData.append('file', file)
+    if (options.villageId) formData.append('villageId', options.villageId)
+    if (options.skipDuplicates !== undefined) formData.append('skipDuplicates', options.skipDuplicates)
+    if (options.updateExisting !== undefined) formData.append('updateExisting', options.updateExisting)
+
+    return api.post('/api/v1/batch-import/residents', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      onUploadProgress: options.onProgress
+    })
+  },
+
+  // 获取导入任务状态
+  getImportStatus(taskId) {
+    return api.get(`/api/v1/batch-import/status/${taskId}`)
+  },
+
+  // 获取导入历史
+  getImportHistory(params) {
+    return api.get('/api/v1/batch-import/history', { params })
+  },
+
+  // 获取导入模板
+  getImportTemplate(type) {
+    return api.get(`/api/v1/batch-import/template/${type}`, {
+      responseType: 'blob'
+    })
+  },
+
+  // 取消导入任务
+  cancelImport(taskId) {
+    return api.post(`/api/v1/batch-import/cancel/${taskId}`)
+  },
+
+  // 下载导入报告
+  downloadReport(taskId) {
+    return api.get(`/api/v1/batch-import/report/${taskId}`, {
+      responseType: 'blob'
+    })
+  },
+
+  // 验证数据
+  validateData(file, type) {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('type', type)
+
+    return api.post('/api/v1/batch-import/validate', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+  }
+}
+
+/**
+ * 证件包API
+ */
+export const documentApi = {
+  // 获取我的证件
+  getMyDocuments() {
+    return api.get('/api/v1/documents/my')
+  },
+
+  // 获取证件列表
+  getDocuments(params) {
+    return api.get('/api/v1/documents', { params })
+  },
+
+  // 上传证件
+  uploadDocument(formData) {
+    return api.post('/api/v1/documents', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+  },
+
+  // 获取证件详情
+  getDocumentById(id) {
+    return api.get(`/api/v1/documents/${id}`)
+  },
+
+  // 更新证件
+  updateDocument(id, data) {
+    return api.put(`/api/v1/documents/${id}`, data)
+  },
+
+  // 删除证件
+  deleteDocument(id) {
+    return api.delete(`/api/v1/documents/${id}`)
+  },
+
+  // 分享证件
+  shareDocument(id, data) {
+    return api.post(`/api/v1/documents/${id}/share`, data)
+  },
+
+  // 下载证件
+  downloadDocument(id) {
+    return api.get(`/api/v1/documents/${id}/download`, {
+      responseType: 'blob'
+    })
+  },
+
+  // 验证证件
+  verifyDocument(id, data) {
+    return api.post(`/api/v1/documents/${id}/verify`, data)
+  },
+
+  // 获取证件统计
+  getStatistics() {
+    return api.get('/api/v1/documents/statistics')
+  }
+}
+
+/**
  * Dashboard/工作台API
  */
 export const dashboardApi = {
-  // 获取统计数据
+  // 获取综合统计数据
   getStatistics(params) {
     return api.get('/api/v1/dashboard/statistics', { params })
   },
@@ -371,32 +489,449 @@ export const dashboardApi = {
 
   // 获取村民统计
   getResidentStats(params) {
-    return api.get('/api/v1/residents/statistics', { params })
+    return api.get('/api/v1/dashboard/residents', { params })
+  },
+
+  // 获取用户统计
+  getUserStats(params) {
+    return api.get('/api/v1/dashboard/users', { params })
   },
 
   // 获取公告统计
   getAnnouncementStats(params) {
-    return api.get('/api/v1/announcements/statistics', { params })
+    return api.get('/api/v1/dashboard/announcements', { params })
   },
 
   // 获取村务统计
   getGovernanceStats(params) {
-    return api.get('/api/v1/governance/statistics', { params })
+    return api.get('/api/v1/dashboard/governance', { params })
   },
 
   // 获取财务统计
   getFinanceStats(params) {
-    return api.get('/api/v1/finance/statistics', { params })
+    return api.get('/api/v1/dashboard/finance', { params })
   },
 
   // 获取应急事件统计
   getEmergencyStats(params) {
-    return api.get('/api/v1/emergency/statistics', { params })
+    return api.get('/api/v1/dashboard/emergency', { params })
   },
 
   // 获取服务统计
   getServiceStats(params) {
-    return api.get('/api/v1/services/statistics', { params })
+    return api.get('/api/v1/dashboard/services', { params })
+  }
+}
+
+/**
+ * 聊天API
+ */
+export const chatApi = {
+  // 获取会话列表
+  getConversations(params) {
+    return api.get('/api/v1/chat/conversations', { params })
+  },
+
+  // 获取会话详情
+  getConversation(id) {
+    return api.get(`/api/v1/chat/conversations/${id}`)
+  },
+
+  // 创建会话
+  createConversation(data) {
+    return api.post('/api/v1/chat/conversations', data)
+  },
+
+  // 获取消息列表
+  getMessages(conversationId, params) {
+    return api.get(`/api/v1/chat/conversations/${conversationId}/messages`, { params })
+  },
+
+  // 发送消息
+  sendMessage(conversationId, data) {
+    return api.post(`/api/v1/chat/conversations/${conversationId}/messages`, data)
+  },
+
+  // 撤回消息
+  recallMessage(conversationId, messageId) {
+    return api.post(`/api/v1/chat/conversations/${conversationId}/messages/${messageId}/recall`)
+  },
+
+  // 标记已读
+  markAsRead(conversationId, data) {
+    return api.post(`/api/v1/chat/conversations/${conversationId}/read`, data)
+  },
+
+  // 上传图片
+  uploadImage(conversationId, formData) {
+    return api.post(`/api/v1/chat/conversations/${conversationId}/upload-image`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+  },
+
+  // 上传语音
+  uploadVoice(conversationId, formData) {
+    return api.post(`/api/v1/chat/conversations/${conversationId}/upload-voice`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+  },
+
+  // 获取未读数
+  getUnreadCount() {
+    return api.get('/api/v1/chat/unread-count')
+  },
+
+  // 置顶/取消置顶
+  togglePin(conversationId) {
+    return api.post(`/api/v1/chat/conversations/${conversationId}/pin`)
+  },
+
+  // 静音/取消静音
+  toggleMute(conversationId) {
+    return api.post(`/api/v1/chat/conversations/${conversationId}/mute`)
+  }
+}
+
+/**
+ * 好友API
+ */
+export const friendApi = {
+  // 通过手机号搜索用户
+  searchByPhone(phone) {
+    return api.get(`/api/v1/friends/search/phone/${phone}`)
+  },
+
+  // 通过乡村号搜索用户
+  searchByQRCode(qrcode) {
+    return api.get(`/api/v1/friends/search/qrcode/${qrcode}`)
+  },
+
+  // 发送好友请求
+  sendFriendRequest(data) {
+    return api.post('/api/v1/friends/requests', data)
+  },
+
+  // 获取待处理的好友请求
+  getPendingRequests() {
+    return api.get('/api/v1/friends/requests/pending')
+  },
+
+  // 获取已发送的好友请求
+  getSentRequests() {
+    return api.get('/api/v1/friends/requests/sent')
+  },
+
+  // 接受好友请求
+  acceptFriendRequest(requestId, data) {
+    return api.put(`/api/v1/friends/requests/${requestId}/accept`, data)
+  },
+
+  // 拒绝好友请求
+  declineFriendRequest(requestId, data) {
+    return api.put(`/api/v1/friends/requests/${requestId}/decline`, data)
+  },
+
+  // 获取好友列表
+  getFriends(params) {
+    return api.get('/api/v1/friends', { params })
+  },
+
+  // 更新好友备注
+  updateFriendAlias(friendId, data) {
+    return api.put(`/api/v1/friends/${friendId}/alias`, data)
+  },
+
+  // 删除好友
+  deleteFriend(friendId) {
+    return api.delete(`/api/v1/friends/${friendId}`)
+  },
+
+  // 获取好友统计
+  getFriendStats() {
+    return api.get('/api/v1/friends/stats')
+  },
+
+  // 上传用户头像
+  uploadAvatar(file) {
+    const formData = new FormData()
+    formData.append('avatar', file)
+    return api.post('/api/v1/friends/avatar', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+  }
+}
+
+/**
+ * 村干部任务管理API
+ */
+export const cadreTaskApi = {
+  // 获取任务列表
+  getTasks(params) {
+    return api.get('/api/v1/cadre-tasks', { params })
+  },
+
+  // 获取单个任务详情
+  getTaskById(id) {
+    return api.get(`/api/v1/cadre-tasks/${id}`)
+  },
+
+  // 获取象限任务
+  getQuadrantTasks(villageId, quadrant, params = {}) {
+    return api.get(`/api/v1/cadre-tasks/quadrant/${quadrant}`, {
+      params: { villageId, ...params }
+    })
+  },
+
+  // 获取我的任务
+  getMyTasks(villageId, params = {}) {
+    return api.get('/api/v1/cadre-tasks/my-tasks', {
+      params: { villageId, ...params }
+    })
+  },
+
+  // 获取统计数据
+  getStatistics(params) {
+    return api.get('/api/v1/cadre-tasks/statistics', { params })
+  },
+
+  // 创建任务
+  createTask(data) {
+    return api.post('/api/v1/cadre-tasks', data)
+  },
+
+  // 更新任务
+  updateTask(id, data) {
+    return api.put(`/api/v1/cadre-tasks/${id}`, data)
+  },
+
+  // 更新任务状态
+  updateTaskStatus(id, data) {
+    return api.put(`/api/v1/cadre-tasks/${id}/status`, data)
+  },
+
+  // 添加子任务
+  addSubtask(id, data) {
+    return api.post(`/api/v1/cadre-tasks/${id}/subtasks`, data)
+  },
+
+  // 完成子任务
+  completeSubtask(taskId, subtaskId, data) {
+    return api.put(`/api/v1/cadre-tasks/${taskId}/subtasks/${subtaskId}/complete`, data)
+  },
+
+  // 添加评论
+  addComment(id, data) {
+    return api.post(`/api/v1/cadre-tasks/${id}/comments`, data)
+  },
+
+  // 删除任务
+  deleteTask(id) {
+    return api.delete(`/api/v1/cadre-tasks/${id}`)
+  }
+}
+
+/**
+ * 公告发布API
+ */
+export const announcementApi = {
+  // 获取公告列表
+  getAnnouncements(params) {
+    return api.get('/api/v1/governance/announcements', { params })
+  },
+
+  // 获取公告详情
+  getAnnouncementById(id) {
+    return api.get(`/api/v1/governance/announcements/${id}`)
+  },
+
+  // 创建公告
+  createAnnouncement(data) {
+    return api.post('/api/v1/governance/announcements', data)
+  },
+
+  // 更新公告
+  updateAnnouncement(id, data) {
+    return api.put(`/api/v1/governance/announcements/${id}`, data)
+  },
+
+  // 删除公告
+  deleteAnnouncement(id) {
+    return api.delete(`/api/v1/governance/announcements/${id}`)
+  },
+
+  // 发布公告
+  publishAnnouncement(id) {
+    return api.put(`/api/v1/governance/announcements/${id}/publish`)
+  },
+
+  // 获取公告分类
+  getCategories() {
+    return api.get('/api/v1/governance/announcements/categories')
+  }
+}
+
+/**
+ * 村务公开API
+ */
+export const governanceApi = {
+  // 获取村务列表
+  getGovernanceItems(params) {
+    return api.get('/api/v1/governance', { params })
+  },
+
+  // 获取村务详情
+  getGovernanceById(id) {
+    return api.get(`/api/v1/governance/${id}`)
+  },
+
+  // 创建村务
+  createGovernance(data) {
+    return api.post('/api/v1/governance', data)
+  },
+
+  // 更新村务
+  updateGovernance(id, data) {
+    return api.put(`/api/v1/governance/${id}`, data)
+  },
+
+  // 删除村务
+  deleteGovernance(id) {
+    return api.delete(`/api/v1/governance/${id}`)
+  },
+
+  // 发布村务
+  publishGovernance(id) {
+    return api.put(`/api/v1/governance/${id}/publish`)
+  },
+
+  // 获取统计数据
+  getStats(params) {
+    return api.get('/api/v1/governance/stats', { params })
+  }
+}
+
+/**
+ * 财务公开API
+ */
+export const financePublicApi = {
+  // 获取财务公开列表
+  getFinanceItems(params) {
+    return api.get('/api/v1/finance/public', { params })
+  },
+
+  // 获取财务公开详情
+  getFinanceById(id) {
+    return api.get(`/api/v1/finance/public/${id}`)
+  },
+
+  // 创建财务公开
+  createFinance(data) {
+    return api.post('/api/v1/finance/public', data)
+  },
+
+  // 更新财务公开
+  updateFinance(id, data) {
+    return api.put(`/api/v1/finance/public/${id}`, data)
+  },
+
+  // 删除财务公开
+  deleteFinance(id) {
+    return api.delete(`/api/v1/finance/public/${id}`)
+  },
+
+  // 发布财务公开
+  publishFinance(id) {
+    return api.put(`/api/v1/finance/public/${id}/publish`)
+  },
+
+  // 获取财务摘要
+  getFinanceSummary(params) {
+    return api.get('/api/v1/finance/village/summary', { params })
+  }
+}
+
+/**
+ * 内容审核API
+ */
+export const contentReviewApi = {
+  // 获取待审核列表
+  getPendingItems(params) {
+    return api.get('/api/v1/content-review/pending', { params })
+  },
+
+  // 审核通过
+  approveContent(type, id, data) {
+    return api.post(`/api/v1/content-review/${type}/${id}/approve`, data)
+  },
+
+  // 审核拒绝
+  rejectContent(type, id, data) {
+    return api.post(`/api/v1/content-review/${type}/${id}/reject`, data)
+  },
+
+  // 批量审核
+  batchReview(data) {
+    return api.post('/api/v1/content-review/batch', data)
+  },
+
+  // 获取审核统计
+  getReviewStats(params) {
+    return api.get('/api/v1/content-review/stats', { params })
+  },
+
+  // 获取审核历史
+  getReviewHistory(params) {
+    return api.get('/api/v1/content-review/history', { params })
+  }
+}
+
+/**
+ * 统一认证API - 支持多角色和多登录方式
+ */
+export const authApi = {
+  // 密码登录
+  passwordLogin(data) {
+    return api.post('/api/v1/auth/login', data)
+  },
+
+  // 发送验证码
+  sendVerifyCode(data) {
+    return api.post('/api/v1/auth/verify-code', data)
+  },
+
+  // 用户注册
+  register(data) {
+    return api.post('/api/v1/auth/register', data)
+  },
+
+  // 人脸识别登录
+  faceLogin(data) {
+    return api.post('/api/v1/auth/face-login', data)
+  },
+
+  // 获取微信登录二维码
+  getWechatQrCode(params) {
+    return api.get('/api/v1/auth/wechat/qrcode', { params })
+  },
+
+  // 检查微信扫码状态
+  checkWechatStatus(params) {
+    return api.get('/api/v1/auth/wechat/status', { params })
+  },
+
+  // 获取当前用户信息
+  getCurrentUser() {
+    return api.get('/api/v1/auth/me')
+  },
+
+  // 退出登录
+  logout() {
+    return api.post('/api/v1/auth/logout')
+  },
+
+  // 刷新Token
+  refreshToken() {
+    return api.post('/api/v1/auth/refresh')
   }
 }
 
@@ -405,5 +940,15 @@ export default {
   social: socialApi,
   carpool: carpoolApi,
   committee: committeeApi,
-  dashboard: dashboardApi
+  dashboard: dashboardApi,
+  batchImport: batchImportApi,
+  document: documentApi,
+  chat: chatApi,
+  friend: friendApi,
+  cadreTask: cadreTaskApi,
+  announcement: announcementApi,
+  governance: governanceApi,
+  financePublic: financePublicApi,
+  contentReview: contentReviewApi,
+  auth: authApi
 }

@@ -56,6 +56,16 @@ const router = createRouter({
         layout: 'auth'
       }
     },
+    {
+      path: '/unified-login',
+      name: 'unified-login',
+      component: () => import('@/views/auth/UnifiedLogin.vue'),
+      meta: {
+        requiresAuth: false,
+        title: '统一登录',
+        layout: 'auth'
+      }
+    },
 
     // 主要应用路由
     {
@@ -782,6 +792,72 @@ const router = createRouter({
         breadcrumb: [
           { title: '首页', path: '/dashboard' },
           { title: '个人中心', path: '/profile' }
+        ]
+      }
+    },
+
+    // 证件包
+    {
+      path: '/documents',
+      name: 'documents',
+      component: () => import('@/views/DocumentWallet.vue'),
+      meta: {
+        requiresAuth: true,
+        title: '我的证件包',
+        icon: 'Document',
+        breadcrumb: [
+          { title: '首页', path: '/dashboard' },
+          { title: '我的证件包', path: '/documents' }
+        ]
+      }
+    },
+
+    // 聊天
+    {
+      path: '/chat',
+      name: 'chat',
+      component: () => import('@/views/chat/ChatView.vue'),
+      meta: {
+        requiresAuth: true,
+        title: '聊天',
+        icon: 'ChatDotRound',
+        breadcrumb: [
+          { title: '首页', path: '/dashboard' },
+          { title: '聊天', path: '/chat' }
+        ]
+      }
+    },
+
+    // 村干部任务管理（四象限任务管理）
+    {
+      path: '/cadre-tasks',
+      name: 'cadre-tasks',
+      component: () => import('@/views/tasks/CadreTaskManagement.vue'),
+      meta: {
+        requiresAuth: true,
+        title: '任务管理',
+        icon: 'List',
+        permissions: ['task:read'],
+        breadcrumb: [
+          { title: '首页', path: '/dashboard' },
+          { title: '任务管理', path: '/cadre-tasks' }
+        ]
+      }
+    },
+
+    // 发布管理（统一发布入口）
+    {
+      path: '/publish-management',
+      name: 'publish-management',
+      component: () => import('@/views/publish/PublishManagement.vue'),
+      meta: {
+        requiresAuth: true,
+        title: '发布管理',
+        icon: 'Promotion',
+        permissions: ['publish:manage'],
+        breadcrumb: [
+          { title: '首页', path: '/dashboard' },
+          { title: '发布管理', path: '/publish-management' }
         ]
       }
     },

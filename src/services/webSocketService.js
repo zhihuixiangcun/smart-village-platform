@@ -205,6 +205,38 @@ class WebSocketService {
       this.handleUserMessage(userId, data);
     });
 
+    // ========== 聊天相关事件 ==========
+
+    // 处理加入会话房间
+    socket.on('join-conversation', (conversationId) => {
+      this.joinConversationRoom(userId, conversationId);
+      socket.emit('joined-conversation', { conversationId, success: true });
+    });
+
+    // 处理离开会话房间
+    socket.on('leave-conversation', (conversationId) => {
+      this.leaveConversationRoom(userId, conversationId);
+      socket.emit('left-conversation', { conversationId, success: true });
+    });
+
+    // 处理正在输入状态
+    socket.on('typing-status', (data) => {
+      const { conversationId, isTyping } = data;
+      if (conversationId) {
+        this.sendTypingStatus(conversationId, userId, isTyping);
+      }
+    });
+
+    // 处理消息已读
+    socket.on('messages-read', (data) => {
+      const { conversationId, messageIds } = data;
+      if (conversationId && messageIds && messageIds.length > 0) {
+        this.sendReadReceipt(conversationId, messageIds, userId);
+      }
+    });
+
+    // ========== 通知相关事件 ==========
+
     // 处理通知状态更新
     socket.on('mark-notification-read', (notificationId) => {
       this.markNotificationRead(userId, notificationId);
@@ -311,18 +343,248 @@ class WebSocketService {
    * @param {Object} message - 消息记录
    */
   async handleChatMessage(userId, message) {
-    // 这里可以集成聊天功能
     logger.info(`聊天消息 (用户: ${userId}):`, message.content);
 
-    // 示例：发送给管理员
-    this.broadcastToRole('admin', {
-      type: 'chat-message',
+    const { conversationId, type, content, replyTo, mentions, mentionAll } = message.data || {};
+
+    if (!conversationId) {
+      logger.warn('聊天消息缺少会话ID');
+      return;
+    }
+
+    // 发送消息到会话房间
+    this.sendChatMessage(conversationId, {
+      senderId: userId,
+      type: type || 'text',
+      content,
+      replyTo,
+      mentions: mentions || [],
+      mentionAll: mentionAll || false,
+      timestamp: new Date()
+    });
+  }
+
+  /**
+   * 加入会话房间
+   * @param {string} userId - 用户ID
+   * @param {string} conversationId - 会话ID
+   */
+  joinConversationRoom(userId, conversationId) {
+    const roomName = `conversation_${conversationId}`;
+    this.joinUserRoom(userId, roomName);
+    logger.debug(`用户 ${userId} 加入会话房间: ${roomName}`);
+
+    // 通知会话中的其他用户
+    this.broadcastToRoom(roomName, {
+      type: 'user_joined_conversation',
       data: {
-        senderId: userId,
-        content: message.content,
-        timestamp: message.timestamp
+        userId,
+        conversationId,
+        timestamp: new Date()
       }
     });
+  }
+
+  /**
+   * 离开会话房间
+   * @param {string} userId - 用户ID
+   * @param {string} conversationId - 会话ID
+   */
+  leaveConversationRoom(userId, conversationId) {
+    const roomName = `conversation_${conversationId}`;
+    this.leaveUserRoom(userId, roomName);
+    logger.debug(`用户 ${userId} 离开会话房间: ${roomName}`);
+
+    // 通知会话中的其他用户
+    this.broadcastToRoom(roomName, {
+      type: 'user_left_conversation',
+      data: {
+        userId,
+        conversationId,
+        timestamp: new Date()
+      }
+    });
+  }
+
+  /**
+   * 发送聊天消息到会话房间
+   * @param {string} conversationId - 会话ID
+   * @param {Object} message - 消息对象
+   */
+  sendChatMessage(conversationId, message) {
+    const roomName = `conversation_${conversationId}`;
+    this.broadcastToRoom(roomName, {
+      type: 'new_message',
+      data: {
+        ...message,
+        conversationId
+      }
+    }, 'high');
+  }
+
+  /**
+   * 发送正在输入状态
+   * @param {string} conversationId - 会话ID
+   * @param {string} userId - 用户ID
+   * @param {boolean} isTyping - 是否正在输入
+   */
+  sendTypingStatus(conversationId, userId, isTyping) {
+    const roomName = `conversation_${conversationId}`;
+    this.broadcastToRoom(roomName, {
+      type: 'typing_status',
+      data: {
+        userId,
+        conversationId,
+        isTyping,
+        timestamp: new Date()
+      }
+    });
+  }
+
+  /**
+   * 发送已读回执
+   * @param {string} conversationId - 会话ID
+   * @param {Array<string>} messageIds - 消息ID列表
+   * @param {string} userId - 阅读用户ID
+   */
+  sendReadReceipt(conversationId, messageIds, userId) {
+    const roomName = `conversation_${conversationId}`;
+    this.broadcastToRoom(roomName, {
+      type: 'messages_read',
+      data: {
+        conversationId,
+        messageIds,
+        userId,
+        timestamp: new Date()
+      }
+    }, 'medium');
+  }
+
+  /**
+   * 发送好友请求通知
+   * @param {string} toUserId - 目标用户ID
+   * @param {Object} request - 好友请求对象
+   */
+  sendFriendRequestNotification(toUserId, request) {
+    this.broadcastToUser(toUserId, {
+      type: 'new_friend_request',
+      data: {
+        requestId: request._id,
+        fromUser: request.from,
+        message: request.message,
+        source: request.source,
+        createdAt: request.createdAt
+      }
+    }, 'high');
+  }
+
+  /**
+   * 发送好友请求被接受通知
+   * @param {string} toUserId - 目标用户ID（请求发起者）
+   * @param {Object} friend - 新好友信息
+   */
+  sendFriendRequestAcceptedNotification(toUserId, friend) {
+    this.broadcastToUser(toUserId, {
+      type: 'friend_request_accepted',
+      data: {
+        friend,
+        timestamp: new Date()
+      }
+    }, 'high');
+  }
+
+  /**
+   * 发送好友请求被拒绝通知
+   * @param {string} toUserId - 目标用户ID（请求发起者）
+   * @param {string} reason - 拒绝原因
+   */
+  sendFriendRequestDeclinedNotification(toUserId, reason) {
+    this.broadcastToUser(toUserId, {
+      type: 'friend_request_declined',
+      data: {
+        reason,
+        timestamp: new Date()
+      }
+    }, 'medium');
+  }
+
+  /**
+   * 发送新好友添加通知
+   * @param {string} toUserId - 目标用户ID
+   * @param {Object} friend - 新好友信息
+   */
+  sendNewFriendAddedNotification(toUserId, friend) {
+    this.broadcastToUser(toUserId, {
+      type: 'new_friend_added',
+      data: {
+        friend,
+        timestamp: new Date()
+      }
+    }, 'high');
+  }
+
+  /**
+   * 发送好友删除通知
+   * @param {string} toUserId - 目标用户ID
+   * @param {string} userId - 删除者的用户ID
+   */
+  sendFriendDeletedNotification(toUserId, userId) {
+    this.broadcastToUser(toUserId, {
+      type: 'friend_deleted',
+      data: {
+        userId,
+        timestamp: new Date()
+      }
+    }, 'medium');
+  }
+
+  /**
+   * 发送消息撤回通知
+   * @param {string} conversationId - 会话ID
+   * @param {string} messageId - 消息ID
+   * @param {string} userId - 撤回者用户ID
+   */
+  sendMessageRecalledNotification(conversationId, messageId, userId) {
+    const roomName = `conversation_${conversationId}`;
+    this.broadcastToRoom(roomName, {
+      type: 'message_recalled',
+      data: {
+        conversationId,
+        messageId,
+        userId,
+        timestamp: new Date()
+      }
+    }, 'high');
+  }
+
+  /**
+   * 发送会话更新通知
+   * @param {string} userId - 目标用户ID
+   * @param {Object} conversationData - 会话数据
+   */
+  sendConversationUpdatedNotification(userId, conversationData) {
+    this.broadcastToUser(userId, {
+      type: 'conversation_updated',
+      data: {
+        ...conversationData,
+        timestamp: new Date()
+      }
+    }, 'high');
+  }
+
+  /**
+   * 发送新会话通知
+   * @param {string} userId - 目标用户ID
+   * @param {Object} conversation - 会话对象
+   */
+  sendNewConversationNotification(userId, conversation) {
+    this.broadcastToUser(userId, {
+      type: 'new_conversation',
+      data: {
+        conversation,
+        timestamp: new Date()
+      }
+    }, 'high');
   }
 
   /**

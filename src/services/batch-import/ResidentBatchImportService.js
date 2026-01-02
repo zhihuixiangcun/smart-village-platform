@@ -558,6 +558,206 @@ class ResidentBatchImportService extends EventEmitter {
 
     return true;
   }
+
+  /**
+   * 验证文件
+   */
+  async validateFile(file) {
+    try {
+      const data = await this.parseFile(file.path);
+
+      const validation = {
+        total: data.length,
+        valid: 0,
+        invalid: 0,
+        errors: []
+      };
+
+      // 简单验证每条记录
+      for (let i = 0; i < data.length; i++) {
+        const row = data[i];
+        let isValid = true;
+        const errors = [];
+
+        // 必填字段检查
+        if (!row['姓名'] || row['姓名'].trim() === '') {
+          errors.push('姓名不能为空');
+          isValid = false;
+        }
+        if (!row['身份证号'] || row['身份证号'].trim() === '') {
+          errors.push('身份证号不能为空');
+          isValid = false;
+        }
+        if (!row['手机号'] || row['手机号'].trim() === '') {
+          errors.push('手机号不能为空');
+          isValid = false;
+        }
+
+        // 格式验证
+        if (row['身份证号']) {
+          const idValidation = this.validateIdCard(row['身份证号'].trim());
+          if (!idValidation.valid) {
+            errors.push(idValidation.message);
+            isValid = false;
+          }
+        }
+
+        if (row['手机号']) {
+          const phoneValidation = this.validatePhone(row['手机号'].trim());
+          if (!phoneValidation.valid) {
+            errors.push(phoneValidation.message);
+            isValid = false;
+          }
+        }
+
+        if (isValid) {
+          validation.valid++;
+        } else {
+          validation.invalid++;
+          validation.errors.push({
+            row: i + 2,
+            name: row['姓名'] || '未知',
+            errors: errors
+          });
+        }
+      }
+
+      return validation;
+    } catch (error) {
+      throw new Error('验证文件失败: ' + error.message);
+    }
+  }
+
+  /**
+   * 生成导入报告
+   */
+  generateReport(taskId) {
+    const task = this.importTasks.get(taskId);
+    if (!task) {
+      throw new Error('任务不存在');
+    }
+
+    const report = [
+      {
+        '任务ID': task.id,
+        '文件名': task.fileName,
+        '状态': this.getStatusText(task.status),
+        '总数': task.total,
+        '成功': task.success,
+        '失败': task.failed,
+        '开始时间': task.startTime ? task.startTime.toISOString() : '-',
+        '结束时间': task.endTime ? task.endTime.toISOString() : '-'
+      }
+    ];
+
+    // 添加错误详情
+    if (task.errors && task.errors.length > 0) {
+      report.push({});
+      report.push({ '错误详情': '' });
+      task.errors.slice(0, 100).forEach((err, index) => {
+        report.push({
+          '错误序号': index + 1,
+          '行号': err.row || err.rowIndex || '-',
+          '姓名': err.name || '-',
+          '错误信息': err.error || err.message || '-'
+        });
+      });
+    }
+
+    const worksheet = XLSX.utils.json_to_sheet(report);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, '导入报告');
+
+    return XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+  }
+
+  /**
+   * 获取状态文本
+   */
+  getStatusText(status) {
+    const statusMap = {
+      'pending': '等待中',
+      'processing': '处理中',
+      'completed': '已完成',
+      'failed': '失败',
+      'cancelled': '已取消'
+    };
+    return statusMap[status] || status;
+  }
+
+  /**
+   * 同步导入村民数据
+   */
+  async importResidentsSync(options) {
+    const { userId, villageId, file, skipDuplicates = true, updateExisting = false } = options;
+
+    // 创建临时任务ID
+    const tempTaskId = 'sync_' + Date.now();
+    await this.createImportTask(userId, { originalname: file.originalname, path: file.path });
+    const tempTask = this.importTasks.get(tempTaskId);
+
+    try {
+      // 1. 解析文件
+      const data = await this.parseFile(file.path);
+
+      // 2. 验证数据
+      const validation = await this.validateData(data, tempTaskId);
+
+      if (validation.validCount === 0) {
+        throw new Error('没有有效数据可导入');
+      }
+
+      // 处理重复数据
+      let recordsToImport = validation.validRecords;
+      if (skipDuplicates) {
+        recordsToImport = recordsToImport.filter(record => !record._warnings || !record._warnings.some(w => w.includes('已存在')));
+      }
+
+      // 3. 导入数据
+      let successCount = 0;
+      let failedCount = 0;
+      let updatedCount = 0;
+
+      for (const record of recordsToImport) {
+        try {
+          const residentData = this.transformRecord(record);
+          if (villageId && villageId !== 'default') {
+            residentData.villageId = villageId;
+          }
+
+          // 检查是否更新已存在的记录
+          if (updateExisting) {
+            const existing = await Resident.findOne({ idCard: residentData.idCard });
+            if (existing) {
+              await Resident.findByIdAndUpdate(existing._id, residentData);
+              updatedCount++;
+              continue;
+            }
+          }
+
+          const resident = new Resident(residentData);
+          await resident.save();
+          successCount++;
+        } catch (error) {
+          failedCount++;
+          logger.error('导入记录失败:', { name: record['姓名'], error: error.message });
+        }
+      }
+
+      // 清理临时文件
+      this.cleanupFile(file.path);
+
+      return {
+        success: successCount,
+        failed: failedCount,
+        updated: updatedCount,
+        total: data.length
+      };
+    } catch (error) {
+      this.cleanupFile(file.path);
+      throw error;
+    }
+  }
 }
 
 module.exports = ResidentBatchImportService;

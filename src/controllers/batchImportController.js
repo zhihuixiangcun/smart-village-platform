@@ -3,11 +3,11 @@
  * 处理文件上传、导入任务管理和进度跟踪
  */
 
-const ResidentBatchImportService = require('../../services/batch-import/ResidentBatchImportService');
+const ResidentBatchImportService = require('../services/batch-import/ResidentBatchImportService');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const logger = require('../../utils/logger');
+const logger = require('../utils/logger');
 
 // 初始化批量导入服务
 const batchImportService = new ResidentBatchImportService();
@@ -211,6 +211,98 @@ async function getImportStats(req, res) {
   }
 }
 
+/**
+ * 下载导入报告
+ */
+async function downloadReport(req, res) {
+  try {
+    const { taskId } = req.params;
+    const report = batchImportService.generateReport(taskId);
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename=import-report-${taskId}.xlsx`);
+
+    res.send(report);
+
+  } catch (error) {
+    logger.error('下载报告失败', { error: error.message });
+    res.status(500).json({
+      success: false,
+      message: '下载报告失败: ' + error.message
+    });
+  }
+}
+
+/**
+ * 验证数据格式
+ */
+async function validateData(req, res) {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: '请选择要验证的文件'
+      });
+    }
+
+    const validation = await batchImportService.validateFile(req.file);
+
+    res.json({
+      success: true,
+      data: validation
+    });
+
+  } catch (error) {
+    logger.error('验证数据失败', { error: error.message });
+    res.status(500).json({
+      success: false,
+      message: '验证数据失败: ' + error.message
+    });
+  }
+}
+
+/**
+ * 批量导入村民数据（前端API调用）
+ * 直接返回导入结果，而非创建异步任务
+ */
+async function importResidents(req, res) {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: '请选择要上传的文件'
+      });
+    }
+
+    const userId = req.user ? req.user.id : 'system';
+    const villageId = req.body.villageId || 'default';
+    const skipDuplicates = req.body.skipDuplicates !== 'false';
+    const updateExisting = req.body.updateExisting === 'true';
+
+    // 执行同步导入
+    const result = await batchImportService.importResidentsSync({
+      userId,
+      villageId,
+      file: req.file,
+      skipDuplicates,
+      updateExisting
+    });
+
+    res.json({
+      success: true,
+      message: '导入完成',
+      data: result
+    });
+
+  } catch (error) {
+    logger.error('批量导入失败', { error: error.message });
+    res.status(500).json({
+      success: false,
+      message: '批量导入失败: ' + error.message
+    });
+  }
+}
+
 // 导出路由处理器
 module.exports = {
   upload: upload.single('file'),
@@ -220,5 +312,8 @@ module.exports = {
   cancelTask,
   downloadTemplate,
   getImportStats,
+  downloadReport,
+  validateData,
+  importResidents,
   batchImportService // 导出服务实例，用于WebSocket通知
 };

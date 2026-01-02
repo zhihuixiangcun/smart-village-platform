@@ -74,9 +74,9 @@ console.log('[DEBUG] emergencyManagementRoutes DISABLED (investigating loading i
 // const enhancedEmergencyRoutes = require('./routes/enhancedEmergency');
 // const ecommerceRoutes = require('./routes/ecommerce');
 console.log('[DEBUG] ecommerceRoutes DISABLED (has undefined callbacks)');
-// AI chat routes - TEMPORARILY DISABLED
-console.log('[DEBUG] aiChatRoutes DISABLED (investigating loading issue)');
-// const aiChatRoutes = require('./routes/aiChat');
+// AI chat routes
+const aiChatRoutes = require('./routes/aiChat');
+console.log('[DEBUG] aiChatRoutes loaded');
 
 // 导入村民管理路由
 // TODO: familyRoutes causing startup crash - temporarily disabled
@@ -86,10 +86,16 @@ const familyRoutes = null;
 console.log('[DEBUG] About to load residentProfileRoutes...');
 // const residentProfileRoutes = require('./routes/residentProfileRoutes');
 console.log('[DEBUG] residentProfileRoutes temporarily disabled');
-// const documentRoutes = require('./routes/documentRoutes');
-console.log('[DEBUG] documentRoutes temporarily disabled');
-// const batchImportRoutes = require('./routes/batchImport');
-console.log('[DEBUG] batchImportRoutes temporarily disabled');
+const documentRoutes = require('./routes/documentRoutes');
+console.log('[DEBUG] documentRoutes loaded');
+const batchImportRoutes = require('./routes/batchImport');
+console.log('[DEBUG] batchImportRoutes loaded');
+const cadreTaskRoutes = require('./routes/cadreTaskRoutes');
+console.log('[DEBUG] cadreTaskRoutes loaded');
+const contentReviewRoutes = require('./routes/contentReviewRoutes');
+console.log('[DEBUG] contentReviewRoutes loaded');
+const authRoutes = require('./routes/authRoutes');
+console.log('[DEBUG] authRoutes loaded');
 
 // 导入村务管理路由
 // const villageManagementRoutes = require('./routes/villageManagement');
@@ -443,22 +449,39 @@ console.log('[DEBUG] emergencyManagementRoutes DISABLED (investigating loading i
 // app.use('/api/v1/emergency/enhanced', enhancedEmergencyRoutes);
 // app.use('/api/v1/ecommerce', ecommerceRoutes);
 console.log('[DEBUG] ecommerceRoutes DISABLED (has undefined callbacks)');
-// if (aiChatRoutes) {
-//   app.use('/api/v1/ai', aiChatRoutes);
-//   console.log('[DEBUG] aiChatRoutes registered');
-// }
-console.log('[DEBUG] aiChatRoutes DISABLED (investigating loading issue)');
+// AI chat routes
+if (aiChatRoutes) {
+  app.use('/api/v1/ai', aiChatRoutes);
+  console.log('[DEBUG] aiChatRoutes registered at /api/v1/ai');
+}
 
 // 村民管理系统路由 - Temporarily disabled (familyRoutes is null)
 // app.use('/api/v1/families', familyRoutes);
 
-// 批量导入路由 - TEMPORARILY DISABLED
-// app.use('/api/v1/batch-import', batchImportRoutes);
-console.log('[DEBUG] batchImportRoutes temporarily disabled');
+// 批量导入路由
+app.use('/api/v1/batch-import', batchImportRoutes);
+console.log('[DEBUG] batchImportRoutes registered at /api/v1/batch-import');
+
+// Dashboard统计路由
+const dashboardRoutes = require('./routes/dashboard');
+console.log('[DEBUG] dashboardRoutes loaded');
+app.use('/api/v1/dashboard', dashboardRoutes);
+console.log('[DEBUG] dashboardRoutes registered at /api/v1/dashboard');
+
+// 聊天和好友路由
+const chatRoutes = require('./routes/chatRoutes');
+const friendRoutes = require('./routes/friendRoutes');
+console.log('[DEBUG] chatRoutes and friendRoutes loaded');
+app.use('/api/v1/chat', chatRoutes);
+console.log('[DEBUG] chatRoutes registered at /api/v1/chat');
+app.use('/api/v1/friends', friendRoutes);
+console.log('[DEBUG] friendRoutes registered at /api/v1/friends');
+
 // app.use('/api/v1/resident-profiles', residentProfileRoutes);
 console.log('[DEBUG] residentProfileRoutes temporarily disabled');
 // app.use('/api/v1/documents', documentRoutes);
-console.log('[DEBUG] documentRoutes temporarily disabled');
+app.use('/api/v1/documents', documentRoutes);
+console.log('[DEBUG] documentRoutes registered at /api/v1/documents');
 
 // 村务管理系统路由 - TEMPORARILY DISABLED
 // app.use('/api/village-management', villageManagementRoutes);
@@ -484,6 +507,24 @@ console.log('[DEBUG] villageUserRoutes temporarily disabled');
 if (syncRoutes) {
   app.use('/api/v1/sync', syncRoutes);
   console.log('[DEBUG] syncRoutes registered');
+}
+
+// 村干部任务管理路由 - 四象限任务管理
+if (cadreTaskRoutes) {
+  app.use('/api/v1/cadre-tasks', cadreTaskRoutes);
+  console.log('[DEBUG] cadreTaskRoutes registered');
+}
+
+// 内容审核路由 - 农业、朋友圈、公告、村务、财务审核
+if (contentReviewRoutes) {
+  app.use('/api/v1/content-review', contentReviewRoutes);
+  console.log('[DEBUG] contentReviewRoutes registered');
+}
+
+// 统一认证路由 - 密码登录、人脸识别、微信登录、注册
+if (authRoutes) {
+  app.use('/api/v1/auth', authRoutes);
+  console.log('[DEBUG] authRoutes registered');
 }
 
 // 安全中间件集成 - Temporarily disabled to debug startup issue

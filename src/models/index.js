@@ -59,6 +59,11 @@ require('./DataVersion');
 require('./DataConflict');
 require('./SyncOperation');
 
+// 聊天和社交模型（新增）
+require('./Conversation');
+require('./Message');
+require('./FriendRequest');
+
 // 收集所有单模型导出（来自 modules）
 const singleModels = {
   User,
@@ -86,7 +91,11 @@ const singleModels = {
   SyncLog: mongoose.model('SyncLog'),
   DataVersion: mongoose.model('DataVersion'),
   DataConflict: mongoose.model('DataConflict'),
-  SyncOperation: mongoose.model('SyncOperation')
+  SyncOperation: mongoose.model('SyncOperation'),
+  // 聊天和社交模型
+  Conversation: mongoose.model('Conversation'),
+  Message: mongoose.model('Message'),
+  FriendRequest: mongoose.model('FriendRequest')
 };
 
 // 添加别名以支持旧的测试文件
