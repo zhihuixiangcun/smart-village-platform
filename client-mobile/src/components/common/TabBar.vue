@@ -1,30 +1,35 @@
 <template>
-  <view class="tab-bar">
-    <view
+  <div class="tab-bar">
+    <div
       v-for="(item, index) in tabList"
       :key="index"
       :class="['tab-bar__item', { 'tab-bar__item--active': currentIndex === index }]"
       @click="handleTabClick(item, index)"
     >
       <!-- 图标 -->
-      <view class="tab-bar__icon">
-        <text class="icon">{{ currentIndex === index ? item.selectedIcon : item.icon }}</text>
-      </view>
+      <div class="tab-bar__icon">
+        <span class="icon">{{ currentIndex === index ? item.selectedIcon : item.icon }}</span>
+      </div>
 
       <!-- 文字 -->
-      <view class="tab-bar__text">{{ item.text }}</view>
-    </view>
-  </view>
+      <div class="tab-bar__text">{{ item.text }}</div>
+    </div>
+  </div>
 </template>
 
 <script setup>
 import { computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useElderlyStore } from '@/store/elderly'
 
 /**
  * 底部导航栏组件
  * 适老化设计，支持语音播报
  */
+
+const router = useRouter()
+const route = useRoute()
+const elderlyStore = useElderlyStore()
 
 const props = defineProps({
   // 当前激活的tab索引
@@ -36,38 +41,44 @@ const props = defineProps({
 
 const emit = defineEmits(['change'])
 
-const elderlyStore = useElderlyStore()
-
 // 导航配置
 const tabList = [
   {
     icon: '🏣',
     selectedIcon: '🏛️',
     text: '村务',
-    pagePath: '/pages/village/index'
+    path: '/village'
   },
   {
     icon: '📋',
     selectedIcon: '📝',
     text: '服务',
-    pagePath: '/pages/services/index'
+    path: '/services'
   },
   {
     icon: '🌾',
     selectedIcon: '🌱',
     text: '生活',
-    pagePath: '/pages/life/index'
+    path: '/life'
   },
   {
     icon: '👤',
     selectedIcon: '👨‍👩‍👧‍👦',
     text: '我的',
-    pagePath: '/pages/profile/index'
+    path: '/profile'
   }
 ]
 
 // 当前索引
-const currentIndex = computed(() => props.current)
+const currentIndex = computed(() => {
+  // 根据当前路由判断激活状态
+  const path = route.path
+  if (path.startsWith('/village')) return 0
+  if (path.startsWith('/services')) return 1
+  if (path.startsWith('/life')) return 2
+  if (path.startsWith('/profile')) return 3
+  return props.current
+})
 
 // 点击tab
 const handleTabClick = (item, index) => {
@@ -84,9 +95,7 @@ const handleTabClick = (item, index) => {
   emit('change', { index, item })
 
   // 跳转页面
-  uni.switchTab({
-    url: item.pagePath
-  })
+  router.push(item.path)
 }
 </script>
 
@@ -99,22 +108,12 @@ const handleTabClick = (item, index) => {
   display: flex;
   align-items: center;
   justify-content: space-around;
-  height: calc(100rpx + env(safe-area-inset-bottom, 0));
+  height: calc(50px + env(safe-area-inset-bottom, 0));
   padding-bottom: env(safe-area-inset-bottom, 0);
   background-color: #FFFFFF;
-  border-top: 1rpx solid var(--color-border-primary, #E2E8F0);
-  box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.05);
+  border-top: 1px solid #E2E8F0;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
   z-index: 1000;
-
-  // 适老化模式 - 大字版
-  :global(.elderly-mode-large) & {
-    height: calc(120rpx + env(safe-area-inset-bottom, 0));
-  }
-
-  // 适老化模式 - 超大字版
-  :global(.elderly-mode-xl) & {
-    height: calc(140rpx + env(safe-area-inset-bottom, 0));
-  }
 
   &__item {
     flex: 1;
@@ -122,20 +121,10 @@ const handleTabClick = (item, index) => {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 8rpx;
-    padding: 16rpx 0;
+    gap: 4px;
+    padding: 8px 0;
     transition: all 0.3s ease;
-
-    // 适老化模式
-    :global(.elderly-mode-large) & {
-      gap: 12rpx;
-      padding: 20rpx 0;
-    }
-
-    :global(.elderly-mode-xl) & {
-      gap: 16rpx;
-      padding: 24rpx 0;
-    }
+    cursor: pointer;
 
     &--active {
       .tab-bar__icon {
@@ -143,39 +132,61 @@ const handleTabClick = (item, index) => {
       }
 
       .tab-bar__text {
-        color: var(--color-primary, #2F855A);
+        color: #2F855A;
         font-weight: 600;
       }
     }
   }
 
   &__icon {
-    font-size: 48rpx;
+    font-size: 24px;
     line-height: 1;
     transition: transform 0.3s ease;
-
-    // 适老化模式
-    :global(.elderly-mode-large) & {
-      font-size: 56rpx;
-    }
-
-    :global(.elderly-mode-xl) & {
-      font-size: 64rpx;
-    }
   }
 
   &__text {
-    font-size: 24rpx;
-    color: var(--color-text-secondary, #4A5568);
+    font-size: 12px;
+    color: #4A5568;
     line-height: 1;
+  }
+}
 
-    // 适老化模式
-    :global(.elderly-mode-large) & {
-      font-size: 28rpx;
+// 适老化模式 - 大字版
+[data-elderly-mode="large"] {
+  .tab-bar {
+    height: calc(60px + env(safe-area-inset-bottom, 0));
+
+    &__item {
+      gap: 6px;
+      padding: 10px 0;
     }
 
-    :global(.elderly-mode-xl) & {
-      font-size: 32rpx;
+    &__icon {
+      font-size: 28px;
+    }
+
+    &__text {
+      font-size: 14px;
+    }
+  }
+}
+
+// 适老化模式 - 超大字版
+[data-elderly-mode="xl"] {
+  .tab-bar {
+    height: calc(70px + env(safe-area-inset-bottom, 0));
+
+    &__item {
+      gap: 8px;
+      padding: 12px 0;
+    }
+
+    &__icon {
+      font-size: 32px;
+    }
+
+    &__text {
+      font-size: 16px;
     }
   }
 }
