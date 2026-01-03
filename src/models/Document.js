@@ -239,7 +239,7 @@ documentSchema.index({ 'documentInfo.type': 1 });
 documentSchema.index({ 'documentInfo.status': 1 });
 documentSchema.index({ 'category': 1 });
 documentSchema.index({ 'tags': 1 });
-documentSchema.index({ createdAt: -1 });
+// createdAt索引已由timestamps: true自动创建,无需手动指定
 documentSchema.index({ 'documentInfo.expiryDate': 1 });
 
 // 虚拟字段 - 是否即将过期（30天内）

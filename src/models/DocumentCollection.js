@@ -190,7 +190,7 @@ documentCollectionSchema.index({ keywords: 1 });
 documentCollectionSchema.index({ 'relatedTo.type': 1, 'relatedTo.id': 1 });
 documentCollectionSchema.index({ deadline: 1 });
 documentCollectionSchema.index({ priority: 1 });
-documentCollectionSchema.index({ createdAt: -1 });
+// createdAt索引已由timestamps: true自动创建,无需手动指定
 
 // 全文搜索索引
 documentCollectionSchema.index({

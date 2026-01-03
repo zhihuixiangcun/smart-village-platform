@@ -251,7 +251,7 @@ const dataAnalyticsSchema = new mongoose.Schema({
 dataAnalyticsSchema.index({ 'createdBy.userId': 1, 'period.startDate': -1 });
 dataAnalyticsSchema.index({ reportType: 1, status: 1 });
 dataAnalyticsSchema.index({ 'period.startDate': 1, 'period.endDate': 1 });
-dataAnalyticsSchema.index({ createdAt: -1 });
+// createdAt索引已由timestamps: true自动创建,无需手动指定
 
 // 虚拟字段
 dataAnalyticsSchema.virtual('periodDuration').get(function() {

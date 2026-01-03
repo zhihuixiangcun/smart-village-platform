@@ -23,16 +23,13 @@ const mongoose = require('mongoose');
 mongoose.set('autoIndex', false);
 mongoose.set('strictQuery', false); // 宽松查询模式
 
-// 禁用Mongoose警告（临时）
+// 禁用Mongoose警告(临时)
 mongoose.set('strict', false);
 
 // ============================================
 // 模型初始化管理器 - 必须首先加载
 // 确保User模型先于其他模型加载，解决ref引用问题
 // ============================================
-require('./models');
-
-// 重要：首先加载所有Mongoose模型，确保正确的加载顺序
 require('./models');
 
 // 导入实时计算组件

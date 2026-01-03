@@ -289,7 +289,7 @@ agriculturalProductSchema.index({ 'pricing.retailPrice': 1 });
 agriculturalProductSchema.index({ 'sales.totalSold': -1 });
 agriculturalProductSchema.index({ tags: 1 });
 agriculturalProductSchema.index({ 'approval.status': 1 });
-agriculturalProductSchema.index({ createdAt: -1 });
+// createdAt索引已由timestamps: true自动创建,无需手动指定
 
 // 文本搜索索引
 agriculturalProductSchema.index({

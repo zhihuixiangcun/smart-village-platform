@@ -334,7 +334,7 @@ farmProductSupplySchema.index({ category: 1, quality: { grade: 1, status: 1, cre
 farmProductSupplySchema.index({ productName: 'text', description: 'text', tags: 'text' });
 farmProductSupplySchema.index({ 'price.minPrice': 1, 'price.maxPrice': 1 });
 farmProductSupplySchema.index({ 'availability.startDate': 1, 'availability.endDate': 1 });
-farmProductSupplySchema.index({ createdAt: -1 });
+// createdAt索引已由timestamps: true自动创建,无需手动指定
 
 // 虚拟字段
 farmProductSupplySchema.virtual('isAvailable').get(function() {

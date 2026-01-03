@@ -174,12 +174,11 @@ const purchaserSchema = new mongoose.Schema({
 });
 
 // 索引
-purchaserSchema.index({ 'basicInfo.phone': 1 });
+// basicInfo.phone 已有 unique: true，无需重复索引
 purchaserSchema.index({ status: 1 });
 purchaserSchema.index({ purchaserType: 1 });
-purchaserSchema.index({ 'individualInfo.location.coordinates': '2dsphere' });
-purchaserSchema.index({ 'businessInfo.location.coordinates': '2dsphere' });
-purchaserSchema.index({ createdAt: -1 });
+// coordinates 字段已有 index: '2dsphere'，无需重复
+// createdAt索引已由timestamps: true自动创建,无需手动指定
 
 // 虚拟字段：获取采购类目
 purchaserSchema.virtual('purchaseCategories').get(function() {

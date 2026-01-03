@@ -759,7 +759,7 @@ ProductSchema.index({ 'rating.average': -1 });
 OrderSchema.index({ userId: 1 });
 OrderSchema.index({ orderNumber: 1 });
 OrderSchema.index({ status: 1 });
-OrderSchema.index({ createdAt: -1 });
+// createdAt索引已由timestamps: true自动创建,无需手动指定
 
 GroupBuySchema.index({ productId: 1 });
 GroupBuySchema.index({ status: 1 });
@@ -767,7 +767,7 @@ GroupBuySchema.index({ endTime: 1 });
 
 ReviewSchema.index({ userId: 1, productId: 1 });
 ReviewSchema.index({ productId: 1, rating: -1 });
-ReviewSchema.index({ createdAt: -1 });
+// createdAt索引已由timestamps: true自动创建,无需手动指定
 
 // 静态方法 - 生成订单号
 OrderSchema.statics.generateOrderNumber = async function() {

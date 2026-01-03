@@ -6,12 +6,11 @@
 const mongoose = require('mongoose');
 
 const offlineSyncLogSchema = new mongoose.Schema({
-  // 同步会话ID（一次同步操作的唯一标识）
+  // 同步会话ID(一次同步操作的唯一标识)
   sessionId: {
     type: String,
     required: true,
-    unique: true,
-    index: true
+    unique: true // unique: true已经会创建索引,不需要index: true
   },
 
   // 用户ID
@@ -222,7 +221,7 @@ const offlineSyncLogSchema = new mongoose.Schema({
 // 索引
 offlineSyncLogSchema.index({ userId: 1, createdAt: -1 });
 offlineSyncLogSchema.index({ villageId: 1, status: 1, createdAt: -1 });
-offlineSyncLogSchema.index({ sessionId: 1 }, { unique: true });
+// sessionId索引已在字段定义中指定unique: true,无需重复
 offlineSyncLogSchema.index({ status: 1, createdAt: -1 });
 offlineSyncLogSchema.index({ 'timeStats.startedAt': -1 });
 

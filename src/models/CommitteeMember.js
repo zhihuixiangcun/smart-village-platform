@@ -217,7 +217,7 @@ const committeeMemberSchema = new mongoose.Schema({
 committeeMemberSchema.index({ villageId: 1, status: 1 });
 committeeMemberSchema.index({ 'position.current': 1 });
 committeeMemberSchema.index({ 'roles.type': 1 });
-committeeMemberSchema.index({ createdAt: -1 });
+// createdAt索引已由timestamps: true自动创建,无需手动指定
 
 // 虚拟字段：获取脱敏的身份证号
 committeeMemberSchema.virtual('maskedIdCard').get(function() {

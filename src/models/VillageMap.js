@@ -253,11 +253,7 @@ const villageMapSchema = new mongoose.Schema({
       name: String,
       capacity: Number,
       coordinates: {
-        type: {
-          type: String,
-          enum: ['Polygon', 'MultiPolygon'],
-          default: 'Polygon'
-        },
+        type: { type: String, enum: ['Polygon', 'MultiPolygon'], default: 'Polygon' },
         coordinates: [[[Number]]]
       },
       facilities: [String],
@@ -272,11 +268,7 @@ const villageMapSchema = new mongoose.Schema({
         default: 'secondary'
       },
       path: {
-        type: {
-          type: String,
-          enum: ['LineString', 'MultiLineString'],
-          default: 'LineString'
-        },
+        type: { type: String, enum: ['LineString', 'MultiLineString'], default: 'LineString' },
         coordinates: [[Number]]
       },
       capacity: Number,
@@ -287,8 +279,8 @@ const villageMapSchema = new mongoose.Schema({
       pointId: String,
       name: String,
       location: {
-        type: 'Point',
-        coordinates: [Number]
+        type: { type: String, enum: ['Point'], default: 'Point' },
+        coordinates: { type: [Number], required: true }
       },
       capacity: Number,
       facilities: [String],
@@ -330,15 +322,11 @@ const villageMapSchema = new mongoose.Schema({
       },
       description: String,
       affectedArea: {
-        type: {
-          type: String,
-          enum: ['Polygon', 'MultiPolygon', 'Circle'],
-          default: 'Polygon'
-        },
+        type: { type: String, enum: ['Polygon', 'MultiPolygon', 'Circle'], default: 'Polygon' },
         coordinates: mongoose.Schema.Types.Mixed
       },
       centerPoint: {
-        type: 'Point',
+        type: { type: String, enum: ['Point'], default: 'Point' },
         coordinates: [Number]
       },
       radius: Number, // 米
@@ -373,8 +361,8 @@ const villageMapSchema = new mongoose.Schema({
       stationId: String,
       name: String,
       location: {
-        type: 'Point',
-        coordinates: [Number]
+        type: { type: String, enum: ['Point'], default: 'Point' },
+        coordinates: { type: [Number], required: true }
       },
       stationType: {
         type: String,
@@ -465,7 +453,7 @@ const villageMapSchema = new mongoose.Schema({
       areaId: String,
       name: String,
       bounds: {
-        type: 'Polygon',
+        type: { type: String, enum: ['Polygon'], default: 'Polygon' },
         coordinates: [[[Number]]]
       },
       allowedRoles: [String],

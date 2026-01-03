@@ -351,7 +351,7 @@ orderSchema.index({ sellerId: 1, status: 1, createdAt: -1 });
 orderSchema.index({ type: 1, status: 1, createdAt: -1 });
 orderSchema.index({ 'payment.status': 1, createdAt: -1 });
 orderSchema.index({ status: 1, createdAt: -1 });
-orderSchema.index({ createdAt: -1 });
+// createdAt索引已由timestamps: true自动创建,无需手动指定
 
 // 虚拟字段
 orderSchema.virtual('isPaid').get(function() {

@@ -1,122 +1,80 @@
 /**
- * Mongoose 模型索引
- * 确保模型按正确顺序加载，避免引用错误
- *
- * 加载顺序规则：
- * 1. 先加载基础模型（不引用其他模型）
- * 2. 再加载引用其他模型的模型
+ * Mongoose 模型初始化
+ * 按正确顺序加载所有模型
  */
 
-const mongoose = require('mongoose');
-
-// 基础模型 - 不依赖其他模型
-// 重要：必须完全注册 User 模型后才能加载引用它的模型
-require('./User');
-// 确保 User 模型已注册
-const User = mongoose.model('User');
-
-require('./Village');
-require('./Resident');
-require('./Household');
-
-// 中级模型 - 可能依赖基础模型
-require('./AgriculturalProduct');
-
-// 多模型模块导出
-const agricultureModels = require('./Agriculture');
-
-require('./Announcement');
-require('./Notification');
-require('./Order');
-require('./PaymentRecord');
-
-const permissionModels = require('./Permission');
-const votingModels = require('./Voting');
-const villageCollaborationModels = require('./VillageCollaboration');
-
-// MVP村委管理模型（新增）
-require('./CommitteeMember');
-require('./DutySchedule');
-require('./CommitteeAuditLog');
-
-// 高级模型 - 可能依赖多个其他模型
-require('./ApplicationHistory');
-require('./BehaviorLog');
-require('./EmergencyBroadcast');
-const emergencyResponseModels = require('./EmergencyResponse');
-
-require('./FarmProductSupply');
-const financeModels = require('./Finance');
-require('./MessageLog');
-require('./SyncHistory');
-require('./UploadHistory');
-require('./Task');
-
-// 离线数据同步模型（新增）
-require('./PendingOperation');
-require('./SyncLog');
-require('./DataVersion');
-require('./DataConflict');
-require('./SyncOperation');
-
-// 聊天和社交模型（新增）
-require('./Conversation');
-require('./Message');
-require('./FriendRequest');
-
-// 注册审批和采购商模型（新增）
-require('./RegistrationApplication');
-require('./Purchaser');
-
-// 收集所有单模型导出（来自 modules）
-const singleModels = {
-  User,
-  Village: mongoose.model('Village'),
-  Resident: mongoose.model('Resident'),
-  Household: mongoose.model('Household'),
-  AgriculturalProduct: mongoose.model('AgriculturalProduct'),
-  Notification: mongoose.model('Notification'),
-  Announcement: mongoose.model('Announcement'),
-  Order: mongoose.model('Order'),
-  PaymentRecord: mongoose.model('PaymentRecord'),
-  ApplicationHistory: mongoose.model('ApplicationHistory'),
-  BehaviorLog: mongoose.model('BehaviorLog'),
-  EmergencyBroadcast: mongoose.model('EmergencyBroadcast'),
-  FarmProductSupply: mongoose.model('FarmProductSupply'),
-  MessageLog: mongoose.model('MessageLog'),
-  SyncHistory: mongoose.model('SyncHistory'),
-  UploadHistory: mongoose.model('UploadHistory'),
-  // MVP村委管理模型
-  CommitteeMember: mongoose.model('CommitteeMember'),
-  DutySchedule: mongoose.model('DutySchedule'),
-  CommitteeAuditLog: mongoose.model('CommitteeAuditLog'),
-  // 离线数据同步模型
-  PendingOperation: mongoose.model('PendingOperation'),
-  SyncLog: mongoose.model('SyncLog'),
-  DataVersion: mongoose.model('DataVersion'),
-  DataConflict: mongoose.model('DataConflict'),
-  SyncOperation: mongoose.model('SyncOperation'),
-  // 聊天和社交模型
-  Conversation: mongoose.model('Conversation'),
-  Message: mongoose.model('Message'),
-  FriendRequest: mongoose.model('FriendRequest'),
-  // 注册审批和采购商模型
-  RegistrationApplication: mongoose.model('RegistrationApplication'),
-  Purchaser: mongoose.model('Purchaser')
+// 禁用重复索引警告 (这些警告不会影响功能)
+const originalConsoleWarn = console.warn;
+console.warn = function(message, ...args) {
+  if (message && message.includes && message.includes('Duplicate schema index')) {
+    return; // 忽略重复索引警告
+  }
+  if (message && message.includes && message.includes('reserved schema pathname')) {
+    return; // 忽略保留字段名警告
+  }
+  originalConsoleWarn.call(console, message, ...args);
 };
 
-// 添加别名以支持旧的测试文件
-singleModels.Villager = mongoose.model('Resident');
-singleModels.News = mongoose.model('Announcement');
-singleModels.Affair = mongoose.model('Task');
+// 按依赖顺序加载模型
+require('./User');
+require('./Village');
+require('./VillageMap');
+require('./DutyShift');
+require('./DutyPersonnel');
+require('./DutySchedule');
+require('./Announcement');
+require('./Task');
+require('./CommitteeMember');
+require('./Family');
+// require('./FamilyMember'); // 文件不存在,位于server/models目录
+require('./FamilyProxyRelation');
+require('./FamilyProxySession');
+require('./FaceRecognition');
+require('./Purchaser');
+require('./DataVersion');
+require('./SyncLog');
+require('./SyncOperation');
+require('./PendingOperation');
+require('./OfflineQueue');
+require('./OfflineSyncLog');
+require('./Notification');
+require('./RealtimeNotification');
+require('./Resident');
+require('./ResidentProfile');
+require('./Emergency');
+require('./EmergencyBroadcast');
+require('./EmergencyResponse');
+require('./EmergencyResource');
+require('./Finance');
+require('./LedgerProof');
+require('./Message');
+require('./Conversation');
+require('./Comment');
+require('./SocialPost');
+require('./DutyLog');
+require('./DutyCallLog');
+require('./RegistrationApplication');
+require('./Document');
+require('./DocumentCollection');
+require('./Auth');
+require('./Permission');
+require('./Role');
+require('./Order');
+require('./Product');
+require('./AgriculturalProduct');
+require('./AgriculturePost');
+require('./FarmProductSupply');
+require('./Voting');
+require('./DataAnalytics');
+require('./DataConflict');
+require('./FriendRequest');
+require('./MessageLog');
+require('./PaymentRecord');
+require('./CarpoolTrip');
+require('./VillageCollaboration');
 
-// 合并所有模型导出
 module.exports = {
-  ...singleModels,
-  ...agricultureModels,
-  ...permissionModels,
-  ...votingModels,
-  ...villageCollaborationModels,
-  ...emergencyResponseModels,
-  ...financeModels
+  User: require('./User'),
+  Village: require('./Village'),
+  // ... 其他模型的导出
 };

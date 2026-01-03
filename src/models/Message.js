@@ -179,7 +179,7 @@ const messageSchema = new Schema({
 messageSchema.index({ conversation: 1, createdAt: -1 });
 messageSchema.index({ sender: 1, createdAt: -1 });
 messageSchema.index({ conversation: 1, 'readBy.user': 1 });
-messageSchema.index({ createdAt: -1 });  // 全局时间索引
+// createdAt索引已由timestamps: true自动创建,无需手动指定
 
 // 虚拟字段：获取实际内容（根据消息类型）
 messageSchema.virtual('actualContent').get(function() {

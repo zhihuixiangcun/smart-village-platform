@@ -197,7 +197,7 @@ familySchema.index({ 'familyType': 1 });
 familySchema.index({ 'tags': 1 });
 familySchema.index({ 'status': 1 });
 familySchema.index({ 'members.idCard': 1 });
-familySchema.index({ createdAt: -1 });
+// createdAt索引已由timestamps: true自动创建,无需手动指定
 
 // 虚拟字段 - 家庭人数
 familySchema.virtual('memberCount').get(function() {

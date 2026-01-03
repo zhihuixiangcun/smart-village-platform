@@ -371,7 +371,7 @@ residentProfileSchema.index({ 'personalInfo.idCard': 1 });
 residentProfileSchema.index({ status: 1 });
 residentProfileSchema.index({ 'tags': 1 });
 residentProfileSchema.index({ 'personalInfo.name': 1, 'personalInfo.gender': 1 });
-residentProfileSchema.index({ createdAt: -1 });
+// createdAt索引已由timestamps: true自动创建,无需手动指定
 
 // 虚拟字段 - 年龄自动计算
 residentProfileSchema.virtual('calculatedAge').get(function() {

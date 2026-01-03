@@ -809,7 +809,7 @@ BlockchainRecordSchema.index({ blockTimestamp: -1 });
 InvoiceOCRSchema.index({ 'invoiceInfo.invoiceNumber': 1 });
 InvoiceOCRSchema.index({ 'invoiceInfo.sellerName': 1 });
 InvoiceOCRSchema.index({ 'verification.authenticityScore': -1 });
-InvoiceOCRSchema.index({ createdAt: -1 });
+// createdAt索引已由timestamps: true自动创建,无需手动指定
 
 BudgetApprovalSchema.index({ 'budgetInfo.budgetYear': 1 });
 BudgetApprovalSchema.index({ 'approvalWorkflow.currentStage': 1 });

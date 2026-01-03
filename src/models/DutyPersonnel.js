@@ -249,8 +249,8 @@ const dutyPersonnelSchema = new mongoose.Schema({
 dutyPersonnelSchema.index({ villageId: 1, status: 1 });
 dutyPersonnelSchema.index({ personnelId: 1 }, { unique: true });
 dutyPersonnelSchema.index({ phone: 1 }, { unique: true, sparse: true });
-dutyPersonnelSchema.index({ employeeId: 1 }, { unique: true, sparse: true });
-dutyPersonnelSchema.index({ 'qrCode.content': 1 }, { unique: true, sparse: true });
+// employeeId索引已在字段定义中指定unique: true,无需重复
+// qrCode.content索引已在字段定义中指定unique: true,无需重复
 
 // 虚拟字段：是否可以排班
 dutyPersonnelSchema.virtual('isAvailableForScheduling').get(function() {

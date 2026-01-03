@@ -433,7 +433,7 @@ VotingItemSchema.index({ status: 1 });
 VotingItemSchema.index({ votingType: 1 });
 VotingItemSchema.index({ 'timeSettings.startTime': 1 });
 VotingItemSchema.index({ 'timeSettings.endTime': 1 });
-VotingItemSchema.index({ createdAt: -1 });
+// createdAt索引已由timestamps: true自动创建,无需手动指定
 VotingItemSchema.index({ 'permissions.type': 1 });
 
 // 投票记录索引

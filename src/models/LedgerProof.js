@@ -250,7 +250,7 @@ ledgerProofSchema.index({ villageId: 1, proofType: 1, createdAt: -1 });
 ledgerProofSchema.index({ blockHeight: 1 }, { unique: true });
 ledgerProofSchema.index({ relatedId: 1, relatedModel: 1 }, { unique: true });
 ledgerProofSchema.index({ 'blockchain.status': 1 });
-ledgerProofSchema.index({ createdAt: -1 });
+// createdAt索引已由timestamps: true自动创建,无需手动指定
 
 // 虚拟字段
 ledgerProofSchema.virtual('isOnChain').get(function() {

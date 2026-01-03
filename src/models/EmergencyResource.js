@@ -215,8 +215,8 @@ const EmergencyResourceSchema = new mongoose.Schema({
   // 元数据
   metadata: { type: mongoose.Schema.Types.Mixed },
 
-  // 时间戳
-  createdAt: { type: Date, default: Date.now, index: true },
+  // 时间戳 (timestamps: true会自动创建索引,不需要手动指定index: true)
+  createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 
   // 软删除

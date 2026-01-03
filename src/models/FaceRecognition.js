@@ -600,7 +600,7 @@ faceRecognitionAuditSchema.index({ userId: 1, timestamp: -1 });
 faceRecognitionAuditSchema.index({ villageId: 1, timestamp: -1 });
 faceRecognitionAuditSchema.index({ operationType: 1, timestamp: -1 });
 faceRecognitionAuditSchema.index({ 'security.isAnomalous': 1, timestamp: -1 });
-faceRecognitionAuditSchema.index({ requestId: 1 }, { unique: true });
+// requestId索引已在字段定义中指定unique: true,无需重复
 
 // 中间件
 faceFeatureSchema.pre('save', function(next) {

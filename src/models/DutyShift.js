@@ -153,7 +153,7 @@ const dutyShiftSchema = new mongoose.Schema({
 
 // 复合索引
 dutyShiftSchema.index({ villageId: 1, shiftType: 1, status: 1 });
-dutyShiftSchema.index({ code: 1 }, { unique: true });
+// code索引已在字段定义中指定unique: true,无需重复
 dutyShiftSchema.index({ 'effectivePeriod.startDate': 1, 'effectivePeriod.endDate': 1 });
 
 // 虚拟字段：时间范围描述

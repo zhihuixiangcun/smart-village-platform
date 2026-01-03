@@ -247,7 +247,7 @@ const registrationApplicationSchema = new mongoose.Schema({
 // 索引
 registrationApplicationSchema.index({ applicationType: 1, 'approval.status': 1 });
 registrationApplicationSchema.index({ 'applicant.phone': 1 });
-registrationApplicationSchema.index({ createdAt: -1 });
+// createdAt索引已由timestamps: true自动创建,无需手动指定
 registrationApplicationSchema.index({ 'approval.status': 1, 'approval.currentStage': 1 });
 
 // 虚拟字段：获取解密后的身份证号

@@ -202,7 +202,7 @@ dataVersionSchema.index({ villageId: 1, targetModel: 1, createdAt: -1 });
 dataVersionSchema.index({ targetModel: 1, targetId: 1, isDeleted: 1 });
 dataVersionSchema.index({ operator: 1, createdAt: -1 });
 dataVersionSchema.index({ version: 1, targetModel: 1 });
-dataVersionSchema.index({ checksum: 1 });
+// checksum索引已在字段定义中指定index: true,无需重复
 dataVersionSchema.index({ 'context.operationId': 1 });
 
 // 地理位置索引
@@ -654,10 +654,9 @@ dataVersionSchema.index(
   }
 );
 
-// 普通版本的TTL（可选，默认不删除）
-dataVersionSchema.index(
-  { expiresAt: 1 },
-  { expireAfterSeconds: 0, partialFilterExpression: { expiresAt: { $exists: true } } }
-);
+// 普通版本的TTL(可选,默认不删除)
+// expiresAt索引已在字段定义中指定index: true,无需重复
+// 如需TTL索引,可以取消注释下面这行:
+// dataVersionSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0, partialFilterExpression: { expiresAt: { $exists: true } } });
 
 module.exports = mongoose.model('DataVersion', dataVersionSchema);
