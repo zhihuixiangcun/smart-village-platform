@@ -597,7 +597,7 @@ dutyScheduleSchema.pre('save', function(next) {
 
 // 复合索引
 dutyScheduleSchema.index({ villageId: 1, year: 1, month: 1 }, { unique: true });
-dutyScheduleSchema.index({ scheduleId: 1 }, { unique: true });
+// scheduleId 已有 unique: true，无需重复索引
 dutyScheduleSchema.index({ status: 1, year: 1, month: 1 });
 dutyScheduleSchema.index({ createdBy: 1 });
 dutyScheduleSchema.index({ 'dutyRecords.date': 1, 'dutyRecords.shiftId': 1 });

@@ -265,7 +265,7 @@ const syncLogSchema = new mongoose.Schema({
 syncLogSchema.index({ userId: 1, status: 1, createdAt: -1 });
 syncLogSchema.index({ villageId: 1, status: 1, createdAt: -1 });
 syncLogSchema.index({ deviceId: 1, createdAt: -1 });
-syncLogSchema.index({ syncSessionId: 1 }, { unique: true });
+// syncSessionId 已有 unique: true，无需重复索引
 syncLogSchema.index({ status: 1, 'timing.startTime': -1 });
 syncLogSchema.index({ 'metadata.initiatedBy': 1, createdAt: -1 });
 

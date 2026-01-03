@@ -26,6 +26,9 @@ mongoose.set('strictQuery', false); // 宽松查询模式
 // 禁用Mongoose警告（临时）
 mongoose.set('strict', false);
 
+// 禁用重复索引警告（不会影响功能，只是警告）
+mongoose.set('suppressReservedKeysWarning', true);
+
 // ============================================
 // 模型初始化管理器 - 必须首先加载
 // 确保User模型先于其他模型加载，解决ref引用问题

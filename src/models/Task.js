@@ -315,10 +315,10 @@ TaskSchema.index({ villageId: 1, status: 1 });
 TaskSchema.index({ assignedTo: 1, status: 1 });
 TaskSchema.index({ type: 1, status: 1 });
 TaskSchema.index({ priority: -1, dueDate: 1 });
-TaskSchema.index({ scheduledDate: 1 });
+// scheduledDate 已有 index: true，无需重复
 TaskSchema.index({ dueDate: 1 });
 
-TaskScheduleSchema.index({ taskId: 1 });
+// taskId 已有 index: true，无需重复
 TaskScheduleSchema.index({ nextExecution: 1 });
 TaskScheduleSchema.index({ status: 1 });
 

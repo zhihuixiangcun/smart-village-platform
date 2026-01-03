@@ -234,7 +234,7 @@ pendingOperationSchema.index({ userId: 1, syncStatus: 1, priority: -1, createdAt
 pendingOperationSchema.index({ villageId: 1, syncStatus: 1, createdAt: 1 });
 pendingOperationSchema.index({ deviceId: 1, syncStatus: 1, createdAt: 1 });
 pendingOperationSchema.index({ targetModel: 1, targetId: 1, syncStatus: 1 });
-pendingOperationSchema.index({ operationId: 1 }, { unique: true });
+// operationId 已有 unique: true，无需重复索引
 pendingOperationSchema.index({ syncStatus: 1, 'syncStats.attemptCount': 1 });
 
 // 地理位置索引
