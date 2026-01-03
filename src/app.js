@@ -4,6 +4,29 @@
  */
 
 // ============================================
+// 全局错误处理 - 必须在任何代码之前设置
+// ============================================
+process.on('uncaughtException', (error) => {
+  console.error('\n========================================');
+  console.error('UNCAUGHT EXCEPTION - Server Crashing!');
+  console.error('========================================');
+  console.error('Error:', error.message);
+  console.error('Stack:', error.stack);
+  console.error('========================================\n');
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('\n========================================');
+  console.error('UNHANDLED PROMISE REJECTION');
+  console.error('========================================');
+  console.error('Reason:', reason);
+  console.error('Promise:', promise);
+  console.error('Stack:', reason?.stack || 'No stack trace');
+  console.error('========================================\n');
+});
+
+// ============================================
 // 首先加载环境变量 - 必须在任何其他模块之前
 // ============================================
 const dotenv = require('dotenv');
