@@ -449,4 +449,5 @@ EmergencyResourceSchema.pre('save', function(next) {
   next();
 });
 
-module.exports = mongoose.model('EmergencyResource', EmergencyResourceSchema);
+// 避免重复编译模型
+module.exports = mongoose.models.EmergencyResource || mongoose.model('EmergencyResource', EmergencyResourceSchema);
