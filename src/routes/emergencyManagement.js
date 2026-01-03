@@ -6,6 +6,7 @@
 const express = require('express');
 const router = express.Router();
 const logger = require('../utils/logger');
+const EmergencyResource = require('../models/EmergencyResource');
 const {
   createEmergencyReport,
   updateEmergencyStatus,
@@ -170,7 +171,6 @@ router.put('/resources/:id',
   checkPermission('emergency:resource:manage'),
   async (req, res) => {
     try {
-      const EmergencyResource = require('../models/EmergencyResource');
       const resource = await EmergencyResource.findByIdAndUpdate(
         req.params.id,
         { ...req.body, lastUpdated: new Date(), updatedBy: req.user.id },
@@ -359,7 +359,7 @@ router.get('/dashboard', async (req, res) => {
         .limit(5)
         .select('title type severity status createdAt incidentNumber'),
       // 资源状态
-      require('../models/EmergencyResource').aggregate([
+      EmergencyResource.aggregate([
         { $match: baseQuery },
         {
           $group: {
