@@ -54,8 +54,9 @@ console.log('[DEBUG] massiveDataRoutes DISABLED (causes startup hang)');
 // const apiV1Routes = require('./routes/apiV1'); // Temporarily disabled - missing userController and villageController
 
 // 导入模块路由
-const authRoutes = require('./routes/auth');
-console.log('[DEBUG] authRoutes loaded');
+// TEMPORARILY DISABLED - auth.js routes call functions that don't exist in authController
+// const authRoutes = require('./routes/auth');
+// console.log('[DEBUG] authRoutes loaded');
 // const residentsRoutes = require('./routes/residents');
 // console.log('[DEBUG] residentsRoutes loaded');
 // Temporarily disabled - missing residentValidator dependency
@@ -435,9 +436,9 @@ console.log('[DEBUG] dataIntegrationRoutes registered');
 console.log('[DEBUG] massiveDataRoutes DISABLED (causes startup hang)');
 // app.use('/api/v1', apiV1Routes); // Temporarily disabled - missing userController and villageController
 
-// 认证路由（无需token验证）
-app.use('/api/v1/auth', authRoutes);
-console.log('[DEBUG] authRoutes registered');
+// 认证路由（无需token验证）- TEMPORARILY DISABLED
+// app.use('/api/v1/auth', authRoutes);
+// console.log('[DEBUG] authRoutes registered');
 
 // 智慧村庄模块路由 - TEMPORARILY DISABLED to debug startup
 console.log('[DEBUG] About to load residentsRoutes...');
@@ -527,11 +528,11 @@ if (contentReviewRoutes) {
   console.log('[DEBUG] contentReviewRoutes registered');
 }
 
-// 统一认证路由 - 密码登录、人脸识别、微信登录、注册
-if (authRoutes) {
-  app.use('/api/v1/auth', authRoutes);
-  console.log('[DEBUG] authRoutes registered');
-}
+// 统一认证路由 - 密码登录、人脸识别、微信登录、注册 - TEMPORARILY DISABLED
+// if (authRoutes) {
+//   app.use('/api/v1/auth', authRoutes);
+//   console.log('[DEBUG] authRoutes registered');
+// }
 
 // 用户注册审批系统路由
 if (registrationRoutes) {
