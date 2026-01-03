@@ -89,8 +89,9 @@ const familyRoutes = null;
 console.log('[DEBUG] About to load residentProfileRoutes...');
 // const residentProfileRoutes = require('./routes/residentProfileRoutes');
 console.log('[DEBUG] residentProfileRoutes temporarily disabled');
-const documentRoutes = require('./routes/documentRoutes');
-console.log('[DEBUG] documentRoutes loaded');
+// TEMPORARILY DISABLED - documentController missing functions
+// const documentRoutes = require('./routes/documentRoutes');
+// console.log('[DEBUG] documentRoutes loaded');
 const batchImportRoutes = require('./routes/batchImport');
 console.log('[DEBUG] batchImportRoutes loaded');
 const cadreTaskRoutes = require('./routes/cadreTaskRoutes');
@@ -487,8 +488,8 @@ console.log('[DEBUG] friendRoutes registered at /api/v1/friends');
 // app.use('/api/v1/resident-profiles', residentProfileRoutes);
 console.log('[DEBUG] residentProfileRoutes temporarily disabled');
 // app.use('/api/v1/documents', documentRoutes);
-app.use('/api/v1/documents', documentRoutes);
-console.log('[DEBUG] documentRoutes registered at /api/v1/documents');
+// app.use('/api/v1/documents', documentRoutes);
+// console.log('[DEBUG] documentRoutes registered at /api/v1/documents');
 
 // 村务管理系统路由 - TEMPORARILY DISABLED
 // app.use('/api/village-management', villageManagementRoutes);
