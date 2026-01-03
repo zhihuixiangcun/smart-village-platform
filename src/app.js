@@ -471,11 +471,10 @@ if (aiChatRoutes) {
 app.use('/api/v1/batch-import', batchImportRoutes);
 console.log('[DEBUG] batchImportRoutes registered at /api/v1/batch-import');
 
-// Dashboard统计路由
-const dashboardRoutes = require('./routes/dashboard');
-console.log('[DEBUG] dashboardRoutes loaded');
-app.use('/api/v1/dashboard', dashboardRoutes);
-console.log('[DEBUG] dashboardRoutes registered at /api/v1/dashboard');
+// Dashboard统计路由 - TEMPORARILY DISABLED (missing Governance model)
+// const dashboardRoutes = require('./routes/dashboard');
+const dashboardRoutes = null;
+console.log('[DEBUG] dashboardRoutes DISABLED (missing Governance model)');
 
 // 聊天和好友路由
 const chatRoutes = require('./routes/chatRoutes');
