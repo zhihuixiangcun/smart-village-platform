@@ -96,8 +96,9 @@ const batchImportRoutes = require('./routes/batchImport');
 console.log('[DEBUG] batchImportRoutes loaded');
 const cadreTaskRoutes = require('./routes/cadreTaskRoutes');
 console.log('[DEBUG] cadreTaskRoutes loaded');
-const contentReviewRoutes = require('./routes/contentReviewRoutes');
-console.log('[DEBUG] contentReviewRoutes loaded');
+// TEMPORARILY DISABLED - missing FinancialTransaction model
+// const contentReviewRoutes = require('./routes/contentReviewRoutes');
+// console.log('[DEBUG] contentReviewRoutes loaded');
 // 用户注册审批系统路由
 const registrationRoutes = require('./routes/registrationRoutes');
 console.log('[DEBUG] registrationRoutes loaded');
@@ -523,11 +524,11 @@ if (cadreTaskRoutes) {
   console.log('[DEBUG] cadreTaskRoutes registered');
 }
 
-// 内容审核路由 - 农业、朋友圈、公告、村务、财务审核
-if (contentReviewRoutes) {
-  app.use('/api/v1/content-review', contentReviewRoutes);
-  console.log('[DEBUG] contentReviewRoutes registered');
-}
+// 内容审核路由 - 农业、朋友圈、公告、村务、财务审核 - TEMPORARILY DISABLED
+// if (contentReviewRoutes) {
+//   app.use('/api/v1/content-review', contentReviewRoutes);
+//   console.log('[DEBUG] contentReviewRoutes registered');
+// }
 
 // 统一认证路由 - 密码登录、人脸识别、微信登录、注册 - TEMPORARILY DISABLED
 // if (authRoutes) {
