@@ -810,7 +810,7 @@ module.exports = {
   ProductCategory: mongoose.model('ProductCategory', ProductCategorySchema),
   Shop: mongoose.model('Shop', ShopSchema),
   Cart: mongoose.model('Cart', CartSchema),
-  Order: mongoose.model('Order', OrderSchema),
+  Order: mongoose.models.Order || mongoose.model('Order', OrderSchema),
   GroupBuy: mongoose.model('GroupBuy', GroupBuySchema),
   Review: mongoose.model('Review', ReviewSchema),
   ProductStatus
