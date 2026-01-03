@@ -14,7 +14,7 @@ const logger = require('../utils/logger');
  * 获取实时系统状态
  * GET /api/v1/realtime/status
  */
-router.get('/status', auth, async (req, res) => {
+router.get('/status', auth.authenticate, async (req, res) => {
   try {
     const status = realtimeEngine.getSystemStatus();
 
@@ -38,7 +38,7 @@ router.get('/status', auth, async (req, res) => {
  * 获取所有实时指标
  * GET /api/v1/realtime/metrics
  */
-router.get('/metrics', auth, async (req, res) => {
+router.get('/metrics', auth.authenticate, async (req, res) => {
   try {
     const {
       types,
@@ -97,7 +97,7 @@ router.get('/metrics', auth, async (req, res) => {
  * 获取特定指标详情
  * GET /api/v1/realtime/metrics/:metricName
  */
-router.get('/metrics/:metricName', auth, async (req, res) => {
+router.get('/metrics/:metricName', auth.authenticate, async (req, res) => {
   try {
     const { metricName } = req.params;
     const {
@@ -149,7 +149,7 @@ router.get('/metrics/:metricName', auth, async (req, res) => {
  * 添加实时数据
  * POST /api/v1/realtime/data
  */
-router.post('/data', auth, async (req, res) => {
+router.post('/data', auth.authenticate, async (req, res) => {
   try {
     const { dataType, data } = req.body;
 
@@ -187,7 +187,7 @@ router.post('/data', auth, async (req, res) => {
  * 批量添加实时数据
  * POST /api/v1/realtime/data/batch
  */
-router.post('/data/batch', auth, async (req, res) => {
+router.post('/data/batch', auth.authenticate, async (req, res) => {
   try {
     const { dataList } = req.body;
 
@@ -251,7 +251,7 @@ router.post('/data/batch', auth, async (req, res) => {
  * 注册新指标
  * POST /api/v1/realtime/metrics
  */
-router.post('/metrics', auth, async (req, res) => {
+router.post('/metrics', auth.authenticate, async (req, res) => {
   try {
     const { name, definition } = req.body;
 
@@ -284,7 +284,7 @@ router.post('/metrics', auth, async (req, res) => {
  * 设置阈值规则
  * POST /api/v1/realtime/thresholds
  */
-router.post('/thresholds', auth, async (req, res) => {
+router.post('/thresholds', auth.authenticate, async (req, res) => {
   try {
     const { metricName, threshold } = req.body;
 
@@ -317,7 +317,7 @@ router.post('/thresholds', auth, async (req, res) => {
  * 注册警报规则
  * POST /api/v1/realtime/alerts
  */
-router.post('/alerts', auth, async (req, res) => {
+router.post('/alerts', auth.authenticate, async (req, res) => {
   try {
     const { ruleId, rule } = req.body;
 
@@ -350,7 +350,7 @@ router.post('/alerts', auth, async (req, res) => {
  * 创建数据流
  * POST /api/v1/realtime/streams
  */
-router.post('/streams', auth, async (req, res) => {
+router.post('/streams', auth.authenticate, async (req, res) => {
   try {
     const { streamId, options = {} } = req.body;
 
@@ -386,7 +386,7 @@ router.post('/streams', auth, async (req, res) => {
  * 向数据流添加数据
  * POST /api/v1/realtime/streams/:streamId/data
  */
-router.post('/streams/:streamId/data', auth, async (req, res) => {
+router.post('/streams/:streamId/data', auth.authenticate, async (req, res) => {
   try {
     const { streamId } = req.params;
     const { dataType, data } = req.body;
@@ -429,7 +429,7 @@ router.post('/streams/:streamId/data', auth, async (req, res) => {
  * 获取数据流统计
  * GET /api/v1/realtime/streams/:streamId/stats
  */
-router.get('/streams/:streamId/stats', auth, async (req, res) => {
+router.get('/streams/:streamId/stats', auth.authenticate, async (req, res) => {
   try {
     const { streamId } = req.params;
 
@@ -459,7 +459,7 @@ router.get('/streams/:streamId/stats', auth, async (req, res) => {
  * 实时分析村庄数据
  * GET /api/v1/realtime/analysis/:villageId
  */
-router.get('/analysis/:villageId', auth, async (req, res) => {
+router.get('/analysis/:villageId', auth.authenticate, async (req, res) => {
   try {
     const { villageId } = req.params;
     const {
@@ -515,7 +515,7 @@ router.get('/analysis/:villageId', auth, async (req, res) => {
  * 实时仪表板数据
  * GET /api/v1/realtime/dashboard/:villageId
  */
-router.get('/dashboard/:villageId', auth, async (req, res) => {
+router.get('/dashboard/:villageId', auth.authenticate, async (req, res) => {
   try {
     const { villageId } = req.params;
     const {
@@ -561,7 +561,7 @@ router.get('/dashboard/:villageId', auth, async (req, res) => {
  * 清理缓存
  * DELETE /api/v1/realtime/cache
  */
-router.delete('/cache', auth, async (req, res) => {
+router.delete('/cache', auth.authenticate, async (req, res) => {
   try {
     // 清理实时引擎缓存
     realtimeEngine.clearCache();

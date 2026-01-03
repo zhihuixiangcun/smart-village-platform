@@ -139,7 +139,7 @@ const handleValidationErrors = (req, res, next) => {
  *       500:
  *         description: 服务器错误
  */
-router.post('/', auth, [
+router.post('/', auth.authenticate, [
   body('scheduleName')
     .notEmpty()
     .withMessage('值班表名称不能为空')
@@ -224,7 +224,7 @@ router.post('/', auth, [
  *       500:
  *         description: 服务器错误
  */
-router.get('/', auth, [
+router.get('/', auth.authenticate, [
   query('page')
     .optional()
     .isInt({ min: 1 })
@@ -266,7 +266,7 @@ router.get('/', auth, [
  *       500:
  *         description: 服务器错误
  */
-router.get('/current', auth, dutyController.getCurrentDuty);
+router.get('/current', auth.authenticate,dutyController.getCurrentDuty);
 
 /**
  * @swagger
@@ -301,7 +301,7 @@ router.get('/current', auth, dutyController.getCurrentDuty);
  *       500:
  *         description: 服务器错误
  */
-router.get('/my', auth, dutyController.getMySchedule);
+router.get('/my', auth.authenticate,dutyController.getMySchedule);
 
 /**
  * @swagger
@@ -344,7 +344,7 @@ router.get('/my', auth, dutyController.getMySchedule);
  *       500:
  *         description: 服务器错误
  */
-router.post('/emergency-call', auth, emergencyCallLimit, [
+router.post('/emergency-call', auth.authenticate,emergencyCallLimit, [
   body('qrCodeData')
     .notEmpty()
     .withMessage('二维码数据不能为空')
@@ -397,7 +397,7 @@ router.post('/emergency-call', auth, emergencyCallLimit, [
  *       500:
  *         description: 服务器错误
  */
-router.post('/validate-qr', auth, [
+router.post('/validate-qr', auth.authenticate, [
   body('qrCodeData')
     .notEmpty()
     .withMessage('二维码数据不能为空')
@@ -444,7 +444,7 @@ router.post('/validate-qr', auth, [
  *       500:
  *         description: 服务器错误
  */
-router.get('/statistics', auth, [
+router.get('/statistics', auth.authenticate, [
   query('startDate')
     .notEmpty()
     .withMessage('开始日期不能为空')
@@ -500,7 +500,7 @@ router.get('/statistics', auth, [
  *       500:
  *         description: 服务器错误
  */
-router.get('/export', auth, dutyController.exportDutyReport);
+router.get('/export', auth.authenticate,dutyController.exportDutyReport);
 
 /**
  * @swagger
@@ -551,7 +551,7 @@ router.get('/export', auth, dutyController.exportDutyReport);
  *       500:
  *         description: 服务器错误
  */
-router.post('/:scheduleId/smart-schedule', auth, [
+router.post('/:scheduleId/smart-schedule', auth.authenticate, [
   param('scheduleId')
     .isMongoId()
     .withMessage('值班表ID格式错误'),
@@ -619,7 +619,7 @@ router.post('/:scheduleId/smart-schedule', auth, [
  *       500:
  *         description: 服务器错误
  */
-router.get('/:scheduleId', auth, [
+router.get('/:scheduleId', auth.authenticate, [
   param('scheduleId')
     .isMongoId()
     .withMessage('值班表ID格式错误'),
@@ -676,7 +676,7 @@ router.get('/:scheduleId', auth, [
  *       500:
  *         description: 服务器错误
  */
-router.put('/:scheduleId', auth, [
+router.put('/:scheduleId', auth.authenticate, [
   param('scheduleId')
     .isMongoId()
     .withMessage('值班表ID格式错误'),
@@ -718,7 +718,7 @@ router.put('/:scheduleId', auth, [
  *       500:
  *         description: 服务器错误
  */
-router.delete('/:scheduleId', auth, [
+router.delete('/:scheduleId', auth.authenticate, [
   param('scheduleId')
     .isMongoId()
     .withMessage('值班表ID格式错误'),
@@ -748,7 +748,7 @@ router.delete('/:scheduleId', auth, [
  *       500:
  *         description: 服务器错误
  */
-router.get('/:scheduleId/qrcode', auth, [
+router.get('/:scheduleId/qrcode', auth.authenticate, [
   param('scheduleId')
     .isMongoId()
     .withMessage('值班表ID格式错误'),
@@ -804,7 +804,7 @@ router.get('/:scheduleId/qrcode', auth, [
  *       500:
  *         description: 服务器错误
  */
-router.post('/:scheduleId/attendance', auth, attendanceLimit, [
+router.post('/:scheduleId/attendance', auth.authenticate,attendanceLimit, [
   param('scheduleId')
     .isMongoId()
     .withMessage('值班表ID格式错误'),
@@ -881,7 +881,7 @@ router.post('/:scheduleId/attendance', auth, attendanceLimit, [
  *       500:
  *         description: 服务器错误
  */
-router.post('/:scheduleId/work-record', auth, [
+router.post('/:scheduleId/work-record', auth.authenticate, [
   param('scheduleId')
     .isMongoId()
     .withMessage('值班表ID格式错误'),
@@ -951,7 +951,7 @@ router.post('/:scheduleId/work-record', auth, [
  *       500:
  *         description: 服务器错误
  */
-router.post('/:scheduleId/logs/:logId/attachment', auth, [
+router.post('/:scheduleId/logs/:logId/attachment', auth.authenticate, [
   param('scheduleId')
     .isMongoId()
     .withMessage('值班表ID格式错误'),
@@ -1020,7 +1020,7 @@ router.post('/:scheduleId/logs/:logId/attachment', auth, [
  *       500:
  *         description: 服务器错误
  */
-router.post('/:scheduleId/shift-change', auth, [
+router.post('/:scheduleId/shift-change', auth.authenticate, [
   param('scheduleId')
     .isMongoId()
     .withMessage('值班表ID格式错误'),
@@ -1080,7 +1080,7 @@ router.post('/:scheduleId/shift-change', auth, [
  *       500:
  *         description: 服务器错误
  */
-router.get('/history', auth, [
+router.get('/history', auth.authenticate, [
   query('page')
     .optional()
     .isInt({ min: 1 })
@@ -1137,7 +1137,7 @@ router.get('/history', auth, [
  *       400:
  *         description: 参数错误
  */
-router.get('/calendar', auth, dutyController.getCalendarData);
+router.get('/calendar', auth.authenticate,dutyController.getCalendarData);
 
 /**
  * @swagger

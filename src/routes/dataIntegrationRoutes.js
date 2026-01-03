@@ -15,7 +15,7 @@ const logger = require('../utils/logger');
  * 获取多源数据整合报告
  * GET /api/v1/data-integration/report/:villageId
  */
-router.get('/report/:villageId', auth, async (req, res) => {
+router.get('/report/:villageId', auth.authenticate, async (req, res) => {
   try {
     const { villageId } = req.params;
     const {
@@ -62,7 +62,7 @@ router.get('/report/:villageId', auth, async (req, res) => {
  * 记录村民行为数据
  * POST /api/v1/data-integration/behavior
  */
-router.post('/behavior', auth, async (req, res) => {
+router.post('/behavior', auth.authenticate, async (req, res) => {
   try {
     const {
       residentId,
@@ -118,7 +118,7 @@ router.post('/behavior', auth, async (req, res) => {
  * 批量记录行为数据
  * POST /api/v1/data-integration/behavior/batch
  */
-router.post('/behavior/batch', auth, async (req, res) => {
+router.post('/behavior/batch', auth.authenticate, async (req, res) => {
   try {
     const { behaviors } = req.body;
 
@@ -168,7 +168,7 @@ router.post('/behavior/batch', auth, async (req, res) => {
  * 获取村民行为统计
  * GET /api/v1/data-integration/behavior/stats/:residentId
  */
-router.get('/behavior/stats/:residentId', auth, async (req, res) => {
+router.get('/behavior/stats/:residentId', auth.authenticate, async (req, res) => {
   try {
     const { residentId } = req.params;
     const {
@@ -215,7 +215,7 @@ router.get('/behavior/stats/:residentId', auth, async (req, res) => {
  * 获取村庄行为热力图
  * GET /api/v1/data-integration/behavior/heatmap/:villageId
  */
-router.get('/behavior/heatmap/:villageId', auth, async (req, res) => {
+router.get('/behavior/heatmap/:villageId', auth.authenticate, async (req, res) => {
   try {
     const { villageId } = req.params;
     const {
@@ -255,7 +255,7 @@ router.get('/behavior/heatmap/:villageId', auth, async (req, res) => {
  * 分析行为模式
  * GET /api/v1/data-integration/behavior/patterns/:villageId
  */
-router.get('/behavior/patterns/:villageId', auth, async (req, res) => {
+router.get('/behavior/patterns/:villageId', auth.authenticate, async (req, res) => {
   try {
     const { villageId } = req.params;
     const {
@@ -296,7 +296,7 @@ router.get('/behavior/patterns/:villageId', auth, async (req, res) => {
  * 获取村民综合数据画像
  * GET /api/v1/data-integration/profile/:residentId
  */
-router.get('/profile/:residentId', auth, async (req, res) => {
+router.get('/profile/:residentId', auth.authenticate, async (req, res) => {
   try {
     const { residentId } = req.params;
     const {
@@ -372,7 +372,7 @@ router.get('/profile/:residentId', auth, async (req, res) => {
  * 获取数据源质量报告
  * GET /api/v1/data-integration/quality/:villageId
  */
-router.get('/quality/:villageId', auth, async (req, res) => {
+router.get('/quality/:villageId', auth.authenticate, async (req, res) => {
   try {
     const { villageId } = req.params;
 
@@ -419,7 +419,7 @@ router.get('/quality/:villageId', auth, async (req, res) => {
  * 清理数据整合缓存
  * DELETE /api/v1/data-integration/cache
  */
-router.delete('/cache', auth, async (req, res) => {
+router.delete('/cache', auth.authenticate, async (req, res) => {
   try {
     dataIntegrationService.clearCache();
 
