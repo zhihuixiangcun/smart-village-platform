@@ -56,9 +56,9 @@ require('./DutyCallLog');
 require('./RegistrationApplication');
 require('./Document');
 require('./DocumentCollection');
-require('./Auth');
+// require('./Auth'); // 文件不存在
 require('./Permission');
-require('./Role');
+// require('./Role'); // 文件不存在
 require('./Order');
 require('./Product');
 require('./AgriculturalProduct');
