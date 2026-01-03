@@ -154,7 +154,7 @@ const handleValidationErrors = (req, res, next) => {
  *       500:
  *         description: 服务器错误
  */
-router.post('/', auth, [
+router.post('/', auth.authenticate, [
   body('mapName')
     .notEmpty()
     .withMessage('地图名称不能为空')
@@ -225,7 +225,7 @@ router.post('/', auth, [
  *       500:
  *         description: 服务器错误
  */
-router.get('/:villageId', auth, mapDataLimit, [
+router.get('/:villageId', auth.authenticate, mapDataLimit, [
   param('villageId')
     .optional()
     .isMongoId()
@@ -344,7 +344,7 @@ router.get('/:villageId', auth, mapDataLimit, [
  *       500:
  *         description: 服务器错误
  */
-router.post('/location', auth, locationUpdateLimit, [
+router.post('/location', auth.authenticate, locationUpdateLimit, [
   body('latitude')
     .isFloat({ min: -90, max: 90 })
     .withMessage('纬度必须在-90到90之间'),
@@ -440,7 +440,7 @@ router.post('/location', auth, locationUpdateLimit, [
  *       500:
  *         description: 服务器错误
  */
-router.get('/:villageId/realtime-locations', auth, mapDataLimit, [
+router.get('/:villageId/realtime-locations', auth.authenticate, mapDataLimit, [
   param('villageId')
     .optional()
     .isMongoId()
@@ -533,7 +533,7 @@ router.get('/:villageId/realtime-locations', auth, mapDataLimit, [
  *       500:
  *         description: 服务器错误
  */
-router.post('/:villageId/disaster-warning', auth, [
+router.post('/:villageId/disaster-warning', auth.authenticate, [
   param('villageId')
     .optional()
     .isMongoId()
@@ -636,7 +636,7 @@ router.post('/:villageId/disaster-warning', auth, [
  *       500:
  *         description: 服务器错误
  */
-router.post('/:villageId/evacuation-routes', auth, [
+router.post('/:villageId/evacuation-routes', auth.authenticate, [
   param('villageId')
     .optional()
     .isMongoId()
@@ -691,7 +691,7 @@ router.post('/:villageId/evacuation-routes', auth, [
  *       500:
  *         description: 服务器错误
  */
-router.get('/:villageId/nearby-facilities', auth, mapDataLimit, [
+router.get('/:villageId/nearby-facilities', auth.authenticate, mapDataLimit, [
   param('villageId')
     .optional()
     .isMongoId()
@@ -744,7 +744,7 @@ router.get('/:villageId/nearby-facilities', auth, mapDataLimit, [
  *       500:
  *         description: 服务器错误
  */
-router.get('/:villageId/heatmap', auth, mapDataLimit, [
+router.get('/:villageId/heatmap', auth.authenticate, mapDataLimit, [
   param('villageId')
     .optional()
     .isMongoId()
@@ -842,7 +842,7 @@ router.get('/:villageId/heatmap', auth, mapDataLimit, [
  *       500:
  *         description: 服务器错误
  */
-router.post('/:mapId/features', auth, [
+router.post('/:mapId/features', auth.authenticate, [
   param('mapId')
     .isMongoId()
     .withMessage('地图ID格式错误'),
@@ -912,7 +912,7 @@ router.post('/:mapId/features', auth, [
  *       500:
  *         description: 服务器错误
  */
-router.post('/:villageId/upload', auth, [
+router.post('/:villageId/upload', auth.authenticate, [
   param('villageId')
     .optional()
     .isMongoId()
@@ -966,7 +966,7 @@ router.post('/:villageId/upload', auth, [
  *       500:
  *         description: 服务器错误
  */
-router.get('/users/:userId/trajectory', auth, mapDataLimit, [
+router.get('/users/:userId/trajectory', auth.authenticate, mapDataLimit, [
   param('userId')
     .isMongoId()
     .withMessage('用户ID格式错误'),
@@ -1016,7 +1016,7 @@ router.get('/users/:userId/trajectory', auth, mapDataLimit, [
  *       500:
  *         description: 服务器错误
  */
-router.get('/users/:userId/activity-pattern', auth, mapDataLimit, [
+router.get('/users/:userId/activity-pattern', auth.authenticate, mapDataLimit, [
   param('userId')
     .isMongoId()
     .withMessage('用户ID格式错误'),
@@ -1075,7 +1075,7 @@ router.get('/users/:userId/activity-pattern', auth, mapDataLimit, [
  *       500:
  *         description: 服务器错误
  */
-router.post('/:villageId/monitoring', auth, [
+router.post('/:villageId/monitoring', auth.authenticate, [
   param('villageId')
     .optional()
     .isMongoId()
@@ -1147,7 +1147,7 @@ router.post('/:villageId/monitoring', auth, [
  *       500:
  *         description: 服务器错误
  */
-router.get('/:villageId/export', auth, [
+router.get('/:villageId/export', auth.authenticate, [
   param('villageId')
     .optional()
     .isMongoId()

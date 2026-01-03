@@ -118,26 +118,21 @@ const documentRoutes = null;
 console.log('[DEBUG] documentRoutes DISABLED');
 const batchImportRoutes = require('./routes/batchImport');
 console.log('[DEBUG] batchImportRoutes loaded');
-// TEMPORARILY DISABLED - auth middleware issue
-// const cadreTaskRoutes = require('./routes/cadreTaskRoutes');
-const cadreTaskRoutes = null;
-console.log('[DEBUG] cadreTaskRoutes DISABLED (auth middleware)');
+// 村干部任务管理路由
+const cadreTaskRoutes = require('./routes/cadreTaskRoutes');
+console.log('[DEBUG] cadreTaskRoutes loaded');
 // TEMPORARILY DISABLED - missing FinancialTransaction model
 // const contentReviewRoutes = require('./routes/contentReviewRoutes');
 const contentReviewRoutes = null;
 console.log('[DEBUG] contentReviewRoutes DISABLED');
-// 用户注册审批系统路由 - TEMPORARILY DISABLED (auth middleware)
-// const registrationRoutes = require('./routes/registrationRoutes');
-const registrationRoutes = null;
-console.log('[DEBUG] registrationRoutes DISABLED (auth middleware)');
-// TEMPORARILY DISABLED (auth middleware)
-// const idCardOCRRoutes = require('./routes/idCardOCRRoutes');
-const idCardOCRRoutes = null;
-console.log('[DEBUG] idCardOCRRoutes DISABLED (auth middleware)');
-// 采购商路由 - TEMPORARILY DISABLED (auth middleware)
-// const purchaserRoutes = require('./routes/purchaserRoutes');
-const purchaserRoutes = null;
-console.log('[DEBUG] purchaserRoutes DISABLED (auth middleware)');
+// 用户注册审批系统路由
+const registrationRoutes = require('./routes/registrationRoutes');
+console.log('[DEBUG] registrationRoutes loaded');
+const idCardOCRRoutes = require('./routes/idCardOCRRoutes');
+console.log('[DEBUG] idCardOCRRoutes loaded');
+// 采购商路由
+const purchaserRoutes = require('./routes/purchaserRoutes');
+console.log('[DEBUG] purchaserRoutes loaded');
 
 // 导入村务管理路由
 // const villageManagementRoutes = require('./routes/villageManagement');
@@ -145,10 +140,9 @@ console.log('[DEBUG] villageManagementRoutes temporarily disabled');
 // const villageUserRoutes = require('./routes/villageUser');
 console.log('[DEBUG] villageUserRoutes temporarily disabled');
 
-// 导入离线数据同步路由 - TEMPORARILY DISABLED (auth middleware)
-// const syncRoutes = require('./routes/sync.routes');
-const syncRoutes = null;
-console.log('[DEBUG] syncRoutes DISABLED (auth middleware)');
+// 导入离线数据同步路由
+const syncRoutes = require('./routes/sync.routes');
+console.log('[DEBUG] syncRoutes loaded');
 
 // 导入API文档生成器
 console.log('[DEBUG] Loading apiDocumentation...');
@@ -509,21 +503,13 @@ const dashboardRoutes = null;
 console.log('[DEBUG] dashboardRoutes DISABLED (missing Governance model)');
 
 // 聊天和好友路由
-// TEMPORARILY DISABLED (auth middleware)
-// const chatRoutes = require('./routes/chatRoutes');
-const chatRoutes = null;
-// TEMPORARILY DISABLED (auth middleware)
-// const friendRoutes = require('./routes/friendRoutes');
-const friendRoutes = null;
-console.log('[DEBUG] chatRoutes and friendRoutes DISABLED (auth middleware)');
-if (chatRoutes) {
-  app.use('/api/v1/chat', chatRoutes);
-  console.log('[DEBUG] chatRoutes registered at /api/v1/chat');
-}
-if (friendRoutes) {
-  app.use('/api/v1/friends', friendRoutes);
-  console.log('[DEBUG] friendRoutes registered at /api/v1/friends');
-}
+const chatRoutes = require('./routes/chatRoutes');
+const friendRoutes = require('./routes/friendRoutes');
+console.log('[DEBUG] chatRoutes and friendRoutes loaded');
+app.use('/api/v1/chat', chatRoutes);
+console.log('[DEBUG] chatRoutes registered at /api/v1/chat');
+app.use('/api/v1/friends', friendRoutes);
+console.log('[DEBUG] friendRoutes registered at /api/v1/friends');
 
 // app.use('/api/v1/resident-profiles', residentProfileRoutes);
 console.log('[DEBUG] residentProfileRoutes temporarily disabled');

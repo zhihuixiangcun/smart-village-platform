@@ -36,7 +36,7 @@ const residentRateLimit = rateLimit({
  * 村民管理路由配置
  */
 router.use(residentRateLimit);
-router.use(auth);
+router.use(auth.authenticate);
 
 // 创建村民档案
 router.post('/', checkPermission('resident:create'), createResident);

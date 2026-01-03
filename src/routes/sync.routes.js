@@ -42,7 +42,7 @@ const batchSyncRateLimit = rateLimit({
 
 // 应用限流和认证中间件
 router.use(syncRateLimit);
-router.use(auth);
+router.use(auth.authenticate);
 
 /**
  * @route   POST /api/sync/batch

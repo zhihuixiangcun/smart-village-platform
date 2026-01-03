@@ -12,7 +12,8 @@
       "Bash(./deployment/scripts/manage-issue-templates.sh:*)",
       "Bash(cat:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(grep:*)"
     ]
   },
   "statusLine": {
