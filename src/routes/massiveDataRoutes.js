@@ -15,7 +15,7 @@ const logger = require('../utils/logger');
  * 高性能分页查询村民数据
  * GET /api/v1/massive-data/residents
  */
-router.get('/residents', auth, async (req, res) => {
+router.get('/residents', auth.authenticate, async (req, res) => {
   try {
     const {
       villageId,
@@ -116,7 +116,7 @@ router.get('/residents', auth, async (req, res) => {
  * 批量导出村民数据
  * POST /api/v1/massive-data/export/residents
  */
-router.post('/export/residents', auth, async (req, res) => {
+router.post('/export/residents', auth.authenticate, async (req, res) => {
   try {
     const {
       villageId,
@@ -213,7 +213,7 @@ router.post('/export/residents', auth, async (req, res) => {
  * 获取村庄统计大数据分析
  * GET /api/v1/massive-data/analytics/:villageId
  */
-router.get('/analytics/:villageId', auth, async (req, res) => {
+router.get('/analytics/:villageId', auth.authenticate, async (req, res) => {
   try {
     const { villageId } = req.params;
     const { forceRefresh = 'false' } = req.query;
@@ -245,7 +245,7 @@ router.get('/analytics/:villageId', auth, async (req, res) => {
  * 获取财务大数据分析
  * GET /api/v1/massive-data/financial-analytics/:villageId
  */
-router.get('/financial-analytics/:villageId', auth, async (req, res) => {
+router.get('/financial-analytics/:villageId', auth.authenticate, async (req, res) => {
   try {
     const { villageId } = req.params;
     const {
@@ -279,7 +279,7 @@ router.get('/financial-analytics/:villageId', auth, async (req, res) => {
  * 实时数据流 - 用于监控大屏
  * GET /api/v1/massive-data/realtime/:villageId
  */
-router.get('/realtime/:villageId', auth, async (req, res) => {
+router.get('/realtime/:villageId', auth.authenticate, async (req, res) => {
   try {
     const { villageId } = req.params;
     const realtimeData = await massiveDataService.getRealTimeDataStream(villageId);
@@ -304,7 +304,7 @@ router.get('/realtime/:villageId', auth, async (req, res) => {
  * 地理位置数据分析
  * GET /api/v1/massive-data/geospatial/:villageId
  */
-router.get('/geospatial/:villageId', auth, async (req, res) => {
+router.get('/geospatial/:villageId', auth.authenticate, async (req, res) => {
   try {
     const { villageId } = req.params;
     const {
@@ -343,7 +343,7 @@ router.get('/geospatial/:villageId', auth, async (req, res) => {
  * 批量数据处理任务
  * POST /api/v1/massive-data/batch-process
  */
-router.post('/batch-process', auth, async (req, res) => {
+router.post('/batch-process', auth.authenticate, async (req, res) => {
   try {
     const {
       taskType,
@@ -426,7 +426,7 @@ router.post('/batch-process', auth, async (req, res) => {
  * 缓存管理
  * GET /api/v1/massive-data/cache/stats
  */
-router.get('/cache/stats', auth, async (req, res) => {
+router.get('/cache/stats', auth.authenticate, async (req, res) => {
   try {
     const stats = massiveDataService.getCacheStats();
     res.json({
@@ -445,7 +445,7 @@ router.get('/cache/stats', auth, async (req, res) => {
  * 清理缓存
  * DELETE /api/v1/massive-data/cache
  */
-router.delete('/cache', auth, async (req, res) => {
+router.delete('/cache', auth.authenticate, async (req, res) => {
   try {
     massiveDataService.clearCache();
     res.json({

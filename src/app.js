@@ -90,20 +90,21 @@ const documentRoutes = require('./routes/documentRoutes');
 console.log('[DEBUG] documentRoutes loaded');
 const batchImportRoutes = require('./routes/batchImport');
 console.log('[DEBUG] batchImportRoutes loaded');
-const cadreTaskRoutes = require('./routes/cadreTaskRoutes');
-console.log('[DEBUG] cadreTaskRoutes loaded');
-const contentReviewRoutes = require('./routes/contentReviewRoutes');
-console.log('[DEBUG] contentReviewRoutes loaded');
-const authRoutes = require('./routes/authRoutes');
+// TEMPORARILY DISABLED - complex routes causing issues
+// const cadreTaskRoutes = require('./routes/cadreTaskRoutes');
+console.log('[DEBUG] cadreTaskRoutes DISABLED (troubleshooting)');
+// const contentReviewRoutes = require('./routes/contentReviewRoutes');
+console.log('[DEBUG] contentReviewRoutes DISABLED (troubleshooting)');
+// authRoutes already loaded above
 console.log('[DEBUG] authRoutes loaded');
 // 用户注册审批系统路由
-const registrationRoutes = require('./routes/registrationRoutes');
-console.log('[DEBUG] registrationRoutes loaded');
-const idCardOCRRoutes = require('./routes/idCardOCRRoutes');
-console.log('[DEBUG] idCardOCRRoutes loaded');
+// const registrationRoutes = require('./routes/registrationRoutes');
+console.log('[DEBUG] registrationRoutes temporarily disabled');
+// const idCardOCRRoutes = require('./routes/idCardOCRRoutes');
+console.log('[DEBUG] idCardOCRRoutes temporarily disabled');
 // 采购商路由
-const purchaserRoutes = require('./routes/purchaserRoutes');
-console.log('[DEBUG] purchaserRoutes loaded');
+// const purchaserRoutes = require('./routes/purchaserRoutes');
+console.log('[DEBUG] purchaserRoutes temporarily disabled');
 
 // 导入村务管理路由
 // const villageManagementRoutes = require('./routes/villageManagement');
@@ -111,9 +112,9 @@ console.log('[DEBUG] villageManagementRoutes temporarily disabled');
 // const villageUserRoutes = require('./routes/villageUser');
 console.log('[DEBUG] villageUserRoutes temporarily disabled');
 
-// 导入离线数据同步路由 - RE-ENABLED
-const syncRoutes = require('./routes/sync.routes');
-console.log('[DEBUG] syncRoutes loaded');
+// 导入离线数据同步路由 - temporarily disabled
+// const syncRoutes = require('./routes/sync.routes');
+console.log('[DEBUG] syncRoutes temporarily disabled');
 
 // 导入API文档生成器
 console.log('[DEBUG] Loading apiDocumentation...');
@@ -467,14 +468,18 @@ if (aiChatRoutes) {
 // app.use('/api/v1/families', familyRoutes);
 
 // 批量导入路由
-app.use('/api/v1/batch-import', batchImportRoutes);
-console.log('[DEBUG] batchImportRoutes registered at /api/v1/batch-import');
+if (batchImportRoutes) {
+  app.use('/api/v1/batch-import', batchImportRoutes);
+  console.log('[DEBUG] batchImportRoutes registered at /api/v1/batch-import');
+}
 
-// Dashboard统计路由
-const dashboardRoutes = require('./routes/dashboard');
-console.log('[DEBUG] dashboardRoutes loaded');
-app.use('/api/v1/dashboard', dashboardRoutes);
-console.log('[DEBUG] dashboardRoutes registered at /api/v1/dashboard');
+// Dashboard统计路由 - TEMPORARILY DISABLED (missing Governance model)
+// const dashboardRoutes = require('./routes/dashboard');
+console.log('[DEBUG] dashboardRoutes DISABLED (missing Governance model)');
+// if (dashboardRoutes) {
+//   app.use('/api/v1/dashboard', dashboardRoutes);
+//   console.log('[DEBUG] dashboardRoutes registered at /api/v1/dashboard');
+// }
 
 // 聊天和好友路由
 const chatRoutes = require('./routes/chatRoutes');

@@ -89,7 +89,7 @@
                 <el-button
                   type="text"
                   size="small"
-                  @click="previewInheritance(inheritance)"
+                  @click="openPreviewDialog(inheritance)"
                 >
                   预览
                 </el-button>
@@ -405,7 +405,7 @@ import { ref, reactive, computed, onMounted, nextTick } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   QuestionFilled, ArrowRight, Key, Refresh
-} from '@element-plus/icons-vite'
+} from '@element-plus/icons-vue'
 import * as echarts from 'echarts'
 import enhancedPermissionService from '@/services/enhancedPermissionService'
 
@@ -706,7 +706,7 @@ const editInheritance = (inheritance) => {
   inheritanceDialogVisible.value = true
 }
 
-const previewInheritance = (inheritance) => {
+const openPreviewDialog = (inheritance) => {
   previewInheritance.value = inheritance
   previewDialogVisible.value = true
 }

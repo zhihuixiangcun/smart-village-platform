@@ -355,8 +355,8 @@ import { ref, reactive, computed, onMounted, nextTick } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   Search, Refresh, Close, List, Location,
-  Monitor, Iphone, Tablet
-} from '@element-plus/icons-vite'
+  Monitor, Iphone
+} from '@element-plus/icons-vue'
 import * as echarts from 'echarts'
 import enhancedPermissionService from '@/services/enhancedPermissionService'
 

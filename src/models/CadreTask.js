@@ -108,7 +108,7 @@ cadreTaskSchema.statics.getTasksByQuadrant = function(villageId, quadrant, optio
 cadreTaskSchema.statics.getMyTasks = function(userId, villageId, options = {}) {
   const query = {
     villageId, isDeleted: false,
-    : [{ assignee: userId }, { 'collaborators.user': userId }, { createdBy: userId }]
+    $or: [{ assignee: userId }, { 'collaborators.user': userId }, { createdBy: userId }]
   };
   if (options.status) query.status = options.status;
   return this.find(query).populate('assignee', 'username profile.nickName profile.avatar');

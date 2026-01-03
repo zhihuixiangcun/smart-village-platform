@@ -1114,7 +1114,7 @@ router.beforeEach(async (to, from, next) => {
       if (!hasValidAuth) {
         console.log('路由守卫: 用户未登录，重定向到登录页')
         next({
-          name: 'login',
+          name: 'unified-login',
           query: { redirect: to.fullPath }
         })
         return
@@ -1138,13 +1138,13 @@ router.beforeEach(async (to, from, next) => {
       console.error('路由守卫错误:', error)
       ElMessage.error('身份验证失败，请重新登录')
       next({
-        name: 'login',
+        name: 'unified-login',
         query: { redirect: to.fullPath }
       })
     }
   } else {
     // 如果已登录用户访问登录页面，重定向到仪表板
-    if (to.name === 'login' && userStore.isLoggedIn) {
+    if ((to.name === 'login' || to.name === 'unified-login') && userStore.isLoggedIn) {
       console.log('路由守卫: 用户已登录，重定向到仪表板')
       next({ name: 'dashboard' })
       return

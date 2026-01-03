@@ -250,7 +250,7 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import {
   Download, Check
-} from '@element-plus/icons-vite'
+} from '@element-plus/icons-vue'
 import enhancedPermissionService from '@/services/enhancedPermissionService'
 
 // 定义emits

@@ -145,7 +145,7 @@ router.post('/logout',
  * GET /api/v1/auth/me
  */
 router.get('/me',
-  authMiddleware,
+  authMiddleware.authenticate,
   authController.getCurrentUser
 );
 
@@ -154,7 +154,7 @@ router.get('/me',
  * PUT /api/v1/auth/change-password
  */
 router.put('/change-password',
-  authMiddleware,
+  authMiddleware.authenticate,
   [
     body('oldPassword')
       .notEmpty()
@@ -183,7 +183,7 @@ router.put('/change-password',
  * POST /api/v1/auth/mfa/enable
  */
 router.post('/mfa/enable',
-  authMiddleware,
+  authMiddleware.authenticate,
   [
     body('phone')
       .trim()
@@ -204,7 +204,7 @@ router.post('/mfa/enable',
  * POST /api/v1/auth/mfa/verify
  */
 router.post('/mfa/verify',
-  authMiddleware,
+  authMiddleware.authenticate,
   [
     body('code')
       .isLength({ min: 6, max: 6 })
@@ -219,7 +219,7 @@ router.post('/mfa/verify',
  * POST /api/v1/auth/mfa/disable
  */
 router.post('/mfa/disable',
-  authMiddleware,
+  authMiddleware.authenticate,
   [
     body('password')
       .notEmpty()
@@ -324,7 +324,7 @@ router.post('/mfa/disable',
  * GET /api/v1/auth/sessions
  */
 router.get('/sessions',
-  authMiddleware,
+  authMiddleware.authenticate,
   authMiddleware.requireRoles(['admin', 'village_admin']),
   async (req, res) => {
     try {
@@ -364,7 +364,7 @@ router.get('/sessions',
  * DELETE /api/v1/auth/sessions/:sessionId
  */
 router.delete('/sessions/:sessionId',
-  authMiddleware,
+  authMiddleware.authenticate,
   authMiddleware.requireRoles(['admin', 'village_admin']),
   async (req, res) => {
     try {
@@ -402,9 +402,7 @@ router.delete('/sessions/:sessionId',
  * 撤销用户所有会话（除了当前会话）
  * POST /api/v1/auth/revoke-all-sessions
  */
-router.post('/revoke-all-sessions',
-  authMiddleware,
-  async (req, res) => {
+router.post('/revoke-all-sessions', authMiddleware.authenticate, async (req, res) => {
     try {
       const userId = req.user._id;
       const currentSessionId = req.session?.sessionId;
@@ -445,7 +443,7 @@ router.post('/revoke-all-sessions',
  * POST /api/v1/auth/verify
  */
 router.post('/verify',
-  authMiddleware,
+  authMiddleware.authenticate,
   (req, res) => {
     res.json({
       success: true,

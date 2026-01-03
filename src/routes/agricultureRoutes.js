@@ -35,7 +35,7 @@ const handleValidationErrors = (req, res, next) => {
  * @access  Private
  */
 router.post('/posts',
-  auth,
+  auth.authenticate,
   [
     body('title').trim().notEmpty().withMessage('标题不能为空'),
     body('villageId').isMongoId().withMessage('村庄ID格式不正确'),
@@ -58,7 +58,7 @@ router.post('/posts',
  * @access  Private
  */
 router.put('/posts/:id/publish',
-  auth,
+  auth.authenticate,
   [
     param('id').isMongoId().withMessage('帖子ID格式不正确')
   ],
@@ -106,7 +106,7 @@ router.get('/posts/:id',
  * @access  Private
  */
 router.put('/posts/:id',
-  auth,
+  auth.authenticate,
   [
     param('id').isMongoId().withMessage('帖子ID格式不正确')
   ],
@@ -120,7 +120,7 @@ router.put('/posts/:id',
  * @access  Private
  */
 router.delete('/posts/:id',
-  auth,
+  auth.authenticate,
   [
     param('id').isMongoId().withMessage('帖子ID格式不正确')
   ],
@@ -136,7 +136,7 @@ router.delete('/posts/:id',
  * @access  Private
  */
 router.post('/posts/:id/like',
-  auth,
+  auth.authenticate,
   [
     param('id').isMongoId().withMessage('帖子ID格式不正确')
   ],
@@ -150,7 +150,7 @@ router.post('/posts/:id/like',
  * @access  Private
  */
 router.post('/posts/:id/useful',
-  auth,
+  auth.authenticate,
   [
     param('id').isMongoId().withMessage('帖子ID格式不正确'),
     body('useful').optional().isBoolean()
@@ -167,7 +167,7 @@ router.post('/posts/:id/useful',
  * @access  Private (Expert only)
  */
 router.post('/posts/:id/verify',
-  auth,
+  auth.authenticate,
   [
     param('id').isMongoId().withMessage('帖子ID格式不正确'),
     body('comments').optional().trim()
@@ -244,7 +244,7 @@ router.get('/tags',
  * @access  Private
  */
 router.get('/statistics',
-  auth,
+  auth.authenticate,
   [
     query('villageId').isMongoId().withMessage('村庄ID格式不正确')
   ],

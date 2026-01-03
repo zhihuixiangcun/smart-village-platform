@@ -161,7 +161,7 @@
             <el-button
               type="success"
               size="small"
-              @click="testRule(row)"
+              @click="openTestRuleDialog(row)"
             >
               测试
             </el-button>
@@ -536,7 +536,7 @@ import {
   Search, Plus, Upload, Download,
   MoreFilled, Clock, Location,
   Iphone, Timer
-} from '@element-plus/icons-vite'
+} from '@element-plus/icons-vue'
 import enhancedPermissionService from '@/services/enhancedPermissionService'
 
 // 响应式数据
@@ -866,7 +866,7 @@ const submitRule = async () => {
   }
 }
 
-const testRule = (rule) => {
+const openTestRuleDialog = (rule) => {
   testRule.value = rule
   testResult.value = null
   Object.assign(testData, {

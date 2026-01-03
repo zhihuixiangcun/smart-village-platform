@@ -11,7 +11,7 @@ router.get('/duty/statistics/:villageId', auth, villageController.getDutyStatist
 // 文档收集路由
 router.post('/documents', auth, villageController.createDocumentCollection);
 router.post('/documents/:collectionId/files',
-  auth,
+  auth.authenticate,
   villageController.upload.array('files', 10),
   villageController.uploadDocumentFiles
 );
@@ -24,7 +24,7 @@ router.post('/analytics/reports', auth, villageController.generateAnalyticsRepor
 router.get('/analytics/reports', auth, villageController.getAnalyticsReports);
 
 // 获取文档文件（下载）
-router.get('/documents/:collectionId/files/:fileId', auth, async (req, res) => {
+router.get('/documents/:collectionId/files/:fileId', auth.authenticate, async (req, res) => {
   try {
     const DocumentCollection = require('../models/DocumentCollection');
     const collection = await DocumentCollection.findById(req.params.collectionId);
@@ -60,7 +60,7 @@ router.get('/documents/:collectionId/files/:fileId', auth, async (req, res) => {
 });
 
 // 更新文档收集状态
-router.put('/documents/:collectionId/status', auth, async (req, res) => {
+router.put('/documents/:collectionId/status', auth.authenticate, async (req, res) => {
   try {
     const DocumentCollection = require('../models/DocumentCollection');
     const { status, notes } = req.body;
@@ -97,7 +97,7 @@ router.put('/documents/:collectionId/status', auth, async (req, res) => {
 });
 
 // 删除文档文件
-router.delete('/documents/:collectionId/files/:fileId', auth, async (req, res) => {
+router.delete('/documents/:collectionId/files/:fileId', auth.authenticate, async (req, res) => {
   try {
     const DocumentCollection = require('../models/DocumentCollection');
     const fs = require('fs').promises;
@@ -141,7 +141,7 @@ router.delete('/documents/:collectionId/files/:fileId', auth, async (req, res) =
 });
 
 // 获取村庄工作总览（村委领导专用）
-router.get('/overview/:villageId', auth, async (req, res) => {
+router.get('/overview/:villageId', auth.authenticate, async (req, res) => {
   try {
     const DocumentCollection = require('../models/DocumentCollection');
     const DutySchedule = require('../models/DutySchedule');
@@ -240,7 +240,7 @@ router.get('/overview/:villageId', auth, async (req, res) => {
 });
 
 // 一键呼叫值班人员
-router.post('/duty/call/:villageId', auth, async (req, res) => {
+router.post('/duty/call/:villageId', auth.authenticate, async (req, res) => {
   try {
     const DutySchedule = require('../models/DutySchedule');
     const logger = require('../utils/logger');

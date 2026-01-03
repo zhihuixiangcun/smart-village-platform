@@ -475,16 +475,17 @@ import {
 } from '@element-plus/icons-vue'
 import { authApi } from '@/api'
 import api from '@/api'
+import { markRaw } from 'vue'
 
 const router = useRouter()
 
 // 角色定义
 const roles = ref([
-  { label: '村民', value: 'resident', icon: UserFilled },
-  { label: '村干部', value: 'cadre', icon: ChatDotSquare },
-  { label: '乡镇官员', value: 'official', icon: OfficeBuilding },
-  { label: '采购商', value: 'purchaser', icon: ShoppingCart },
-  { label: '管理员', value: 'admin', icon: User }
+  { label: '村民', value: 'resident', icon: markRaw(UserFilled) },
+  { label: '村干部', value: 'cadre', icon: markRaw(ChatDotSquare) },
+  { label: '乡镇官员', value: 'official', icon: markRaw(OfficeBuilding) },
+  { label: '采购商', value: 'purchaser', icon: markRaw(ShoppingCart) },
+  { label: '管理员', value: 'admin', icon: markRaw(User) }
 ])
 
 const selectedRole = ref('resident')
@@ -497,9 +498,9 @@ const showForgotDialog = ref(false)
 
 // 登录方式
 const loginMethods = ref([
-  { label: '密码登录', value: 'password', icon: Lock },
-  { label: '人脸识别', value: 'face', icon: Camera },
-  { label: '微信登录', value: 'wechat', icon: ChatDotRound }
+  { label: '密码登录', value: 'password', icon: markRaw(Lock) },
+  { label: '人脸识别', value: 'face', icon: markRaw(Camera) },
+  { label: '微信登录', value: 'wechat', icon: markRaw(ChatDotRound) }
 ])
 
 // 登录表单

@@ -76,19 +76,19 @@
         </el-col>
         <el-col :span="4">
           <el-button type="warning" size="large" @click="createEmergencyReport('fire')">
-            <el-icon><FireExtinguisher /></el-icon>
+            <el-icon><Warning /></el-icon>
             火灾报警
           </el-button>
         </el-col>
         <el-col :span="4">
           <el-button type="primary" size="large" @click="createEmergencyReport('security')">
-            <el-icon><Shield /></el-icon>
+            <el-icon><Select /></el-icon>
             安全事件
           </el-button>
         </el-col>
         <el-col :span="4">
           <el-button type="info" size="large" @click="createEmergencyReport('natural_disaster')">
-            <el-icon><CloudLightning /></el-icon>
+            <el-icon><InfoFilled /></el-icon>
             自然灾害
           </el-button>
         </el-col>
@@ -510,7 +510,7 @@ import { ref, reactive, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import {
   Plus, Warning, Loading, CircleCheck, Clock, FirstAidKit,
-  FireExtinguisher, Shield, CloudLightning, Bell, Download,
+  Select, InfoFilled, Bell, Download,
   Location
 } from '@element-plus/icons-vue';
 import apiService from '@/services/apiService';

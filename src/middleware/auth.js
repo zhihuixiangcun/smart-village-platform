@@ -547,18 +547,19 @@ class AuthMiddleware {
 // 创建单例实例
 const authMiddleware = new AuthMiddleware();
 
-// 导出主认证中间件（向后兼容）
-module.exports = authMiddleware.authenticate;
-
-// 导出其他中间件
-module.exports.authenticateToken = authMiddleware.authenticate;  // 别名
-module.exports.requirePermissions = authMiddleware.requirePermissions;
-module.exports.requireRoles = authMiddleware.requireRoles;
-module.exports.requireProxyPermission = authMiddleware.requireProxyPermission;
-module.exports.requireMFA = authMiddleware.requireMFA;
-module.exports.requireTrustedDevice = authMiddleware.requireTrustedDevice;
-module.exports.generateTokens = authMiddleware.generateTokens.bind(authMiddleware);
-module.exports.revokeSession = authMiddleware.revokeSession.bind(authMiddleware);
+// 导出所有中间件和工具
+module.exports = {
+  // 主认证中间件（向后兼容）
+  authenticate: authMiddleware.authenticate,
+  authenticateToken: authMiddleware.authenticate,  // 别名
+  requirePermissions: authMiddleware.requirePermissions,
+  requireRoles: authMiddleware.requireRoles,
+  requireProxyPermission: authMiddleware.requireProxyPermission,
+  requireMFA: authMiddleware.requireMFA,
+  requireTrustedDevice: authMiddleware.requireTrustedDevice,
+  generateTokens: authMiddleware.generateTokens.bind(authMiddleware),
+  revokeSession: authMiddleware.revokeSession.bind(authMiddleware)
+};
 
 /**
  * 可选认证中间件

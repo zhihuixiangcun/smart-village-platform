@@ -14,7 +14,7 @@ NProgress.configure({
 })
 
 // 白名单路由（不需要认证）
-const whiteList = ['/login', '/register', '/forgot-password', '/404', '/403']
+const whiteList = ['/unified-login', '/login', '/register', '/forgot-password', '/404', '/403']
 
 // 路由前置守卫
 router.beforeEach(async (to, from, next) => {
@@ -33,7 +33,7 @@ router.beforeEach(async (to, from, next) => {
     // 检查是否在白名单中
     if (whiteList.includes(to.path)) {
       // 如果已登录且访问登录页，重定向到首页
-      if (isLoggedIn && to.path === '/login') {
+      if (isLoggedIn && (to.path === '/login' || to.path === '/unified-login')) {
         next('/')
       } else {
         next()
@@ -44,7 +44,7 @@ router.beforeEach(async (to, from, next) => {
     // 检查是否有Token
     if (!token) {
       ElMessage.warning('请先登录')
-      next(`/login?redirect=${encodeURIComponent(to.fullPath)}`)
+      next(`/unified-login?redirect=${encodeURIComponent(to.fullPath)}`)
       return
     }
 
@@ -61,7 +61,7 @@ router.beforeEach(async (to, from, next) => {
         console.error('获取用户信息失败:', error)
         // Token可能已过期，清除并重定向到登录页
         await userStore.logout(false)
-        next(`/login?redirect=${encodeURIComponent(to.fullPath)}`)
+        next(`/unified-login?redirect=${encodeURIComponent(to.fullPath)}`)
         return
       }
     }

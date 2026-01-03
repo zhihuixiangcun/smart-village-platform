@@ -240,7 +240,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { showToast, showLoadingToast, closeToast, showConfirmDialog, showSuccessToast } from 'vant'
 import { useUserStore } from '@/stores/userStore'
 import faceRecognitionApi from '@/api/faceRecognition'
-import authApi from '@/api/auth'
+import { faceLogin, proxyLogin } from '@/api/auth'
 
 const router = useRouter()
 const route = useRoute()
@@ -496,7 +496,7 @@ const loginNow = async () => {
     const userId = identifyResult.value.data.user._id || identifyResult.value.data.user.id
 
     // 调用后端登录接口获取token
-    const loginResult = await authApi.faceLogin({
+    const loginResult = await faceLogin({
       userId: userId,
       villageId: route.query.villageId || userStore.userInfo?.villageId
     })
@@ -556,7 +556,7 @@ const handleProxyLogin = async (action, done) => {
     })
 
     // 调用代理登录API
-    const result = await authApi.proxyLogin({
+    const result = await proxyLogin({
       principalName: proxyForm.principalName,
       principalIdNumber: proxyForm.principalIdNumber,
       relationType: proxyForm.relationType,
