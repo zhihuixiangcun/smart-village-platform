@@ -139,6 +139,8 @@ app.get('/api/info', (req, res) => {
 const authRoutes = require('../src/routes/auth');
 const residentRoutes = require('../src/routes/residents');
 const governanceRoutes = require('../src/routes/governance');
+const speechRoutes = require('./api/speech');
+const syncRoutes = require('./api/sync');
 
 // Apply routes
 app.use('/api/auth', authRoutes);
@@ -146,6 +148,10 @@ app.use('/api/residents', residentRoutes);
 app.use('/api/announcements', governanceRoutes);
 app.use('/api/suggestions', governanceRoutes);
 app.use('/api/qrcode', require('../src/routes/villageMap'));
+
+// Mobile optimization routes
+app.use('/api/speech', speechRoutes);
+app.use('/api/sync', syncRoutes);
 
 // In-memory data for village operations
 const announcements = [];
