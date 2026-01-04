@@ -592,12 +592,20 @@ AgriculturePolicySchema.index({ region: 1 });
 
 AgricultureClimateSchema.index({ region: 1 });
 
-// 导出模型
+// 导出模型（检查是否已存在，避免重复定义）
+const getOrCreateModel = (name, schema) => {
+  try {
+    return mongoose.model(name);
+  } catch {
+    return mongoose.model(name, schema);
+  }
+};
+
 module.exports = {
-  CropVariety: mongoose.model('CropVariety', CropVarietySchema),
-  PestDisease: mongoose.model('PestDisease', PestDiseaseSchema),
-  AgriTechKnowledge: mongoose.model('AgriTechKnowledge', AgriTechKnowledgeSchema),
-  AgriQA: mongoose.model('AgriQA', AgriQASchema),
-  AgriculturePolicy: mongoose.model('AgriculturePolicy', AgriculturePolicySchema),
-  AgricultureClimate: mongoose.model('AgricultureClimate', AgricultureClimateSchema)
+  CropVariety: getOrCreateModel('CropVariety', CropVarietySchema),
+  PestDisease: getOrCreateModel('PestDisease', PestDiseaseSchema),
+  AgriTechKnowledge: getOrCreateModel('AgriTechKnowledge', AgriTechKnowledgeSchema),
+  AgriQA: getOrCreateModel('AgriQA', AgriQASchema),
+  AgriculturePolicy: getOrCreateModel('AgriculturePolicy', AgriculturePolicySchema),
+  AgricultureClimate: getOrCreateModel('AgricultureClimate', AgricultureClimateSchema)
 };

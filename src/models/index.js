@@ -22,12 +22,24 @@ require('./User');
 // 确保 User 模型已注册
 const User = mongoose.model('User');
 require('./Village');
+require('./Household');
 require('./VillageMap');
 require('./DutyShift');
 require('./DutyPersonnel');
 require('./DutySchedule');
 require('./Announcement');
 require('./Task');
+require('./ApplicationHistory');
+require('./BehaviorLog');
+require('./Order');
+require('./PaymentRecord');
+require('./EmergencyBroadcast');
+require('./FarmProductSupply');
+require('./MessageLog');
+require('./SyncHistory');
+require('./UploadHistory');
+require('./CommitteeMember');
+require('./CommitteeAuditLog');
 
 // 离线数据同步模型（新增）
 require('./PendingOperation');
@@ -81,8 +93,9 @@ require('./Order');
 require('./Product');
 require('./AgriculturalProduct');
 require('./AgriculturePost');
-require('./AgriQA');
-require('./AgriculturePolicy');
+// AgriQA and AgriculturePolicy are defined in Agriculture.js (loaded by controllers)
+// require('./AgriQA');
+// require('./AgriculturePolicy');
 require('./FarmProductSupply');
 require('./Voting');
 require('./DataAnalytics');
