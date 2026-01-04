@@ -460,7 +460,8 @@ import draggable from 'vuedraggable'
 import {
   Trophy, CircleCheck, Calendar, Phone, List, ArrowRight, Bell, Grid,
   Promotion, Download, Location, Notification, ChatDotRound, Clock,
-  DataAnalysis, ArrowUp, ArrowDown, Filter, Setting, Rank, User
+  DataAnalysis, ArrowUp, ArrowDown, Filter, Setting, Rank, User,
+  FolderOpened, Upload, ShoppingCart
 } from '@element-plus/icons-vue'
 import {
   getDashboardData,
@@ -601,7 +602,10 @@ const allQuickActions = ref([
   { id: 'add-schedule', label: '添加值班', icon: 'Calendar', route: '/village-committee/duty-schedule', default: true },
   { id: 'publish-notice', label: '发布公告', icon: 'Promotion', route: '/announcements/create', default: true },
   { id: 'export-report', label: '导出报表', icon: 'Download', action: 'export', default: true },
-  { id: 'view-map', label: '村情地图', icon: 'Location', route: '/village-committee/village-map', default: true }
+  { id: 'view-map', label: '村情地图', icon: 'Location', route: '/village-committee/village-map', default: true },
+  { id: 'data-collection', label: '资料收集', icon: 'FolderOpened', route: '/village-committee/data-collection', default: true },
+  { id: 'data-submission', label: '资料上交', icon: 'Upload', route: '/village-committee/data-submission', default: true },
+  { id: 'product-publish', label: '产品发布', icon: 'ShoppingCart', route: '/village-committee/product-management', default: true }
 ])
 
 // 选中的快捷操作ID

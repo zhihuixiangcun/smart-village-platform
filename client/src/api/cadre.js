@@ -173,6 +173,279 @@ export function getUserPoints(params = {}) {
   return request.get('/api/v1/cadre/points', params)
 }
 
+// ==================== 资料收集相关 API ====================
+
+/**
+ * 获取收集任务列表
+ * @param {Object} params 查询参数
+ * @returns {Promise} 任务列表
+ */
+export function getCollectionTasks(params = {}) {
+  return request.get('/api/v1/cadre/collection/tasks', params)
+}
+
+/**
+ * 获取收集任务统计
+ * @returns {Promise} 统计数据
+ */
+export function getCollectionStats() {
+  return request.get('/api/v1/cadre/collection/stats')
+}
+
+/**
+ * 创建收集任务
+ * @param {Object} data 任务数据
+ * @returns {Promise} 创建的任务
+ */
+export function createCollectionTask(data) {
+  return request.post('/api/v1/cadre/collection/tasks', data)
+}
+
+/**
+ * 更新收集任务
+ * @param {string} id 任务ID
+ * @param {Object} data 更新数据
+ * @returns {Promise} 更新后的任务
+ */
+export function updateCollectionTask(id, data) {
+  return request.put(`/api/v1/cadre/collection/tasks/${id}`, data)
+}
+
+/**
+ * 删除收集任务
+ * @param {string} id 任务ID
+ * @returns {Promise} 删除结果
+ */
+export function deleteCollectionTask(id) {
+  return request.delete(`/api/v1/cadre/collection/tasks/${id}`)
+}
+
+/**
+ * 获取已收集文件
+ * @param {string} taskId 任务ID
+ * @returns {Promise} 文件列表
+ */
+export function getCollectedFiles(taskId) {
+  return request.get(`/api/v1/cadre/collection/tasks/${taskId}/files`)
+}
+
+/**
+ * 提交收集文件
+ * @param {Object} data 文件数据
+ * @returns {Promise} 提交结果
+ */
+export function submitCollectedFile(data) {
+  return request.post('/api/v1/cadre/collection/files', data)
+}
+
+/**
+ * 删除收集文件
+ * @param {string} fileId 文件ID
+ * @returns {Promise} 删除结果
+ */
+export function deleteCollectedFile(fileId) {
+  return request.delete(`/api/v1/cadre/collection/files/${fileId}`)
+}
+
+/**
+ * 搜索村民
+ * @param {string} query 搜索关键词
+ * @returns {Promise} 村民列表
+ */
+export function searchResidents(query) {
+  return request.get('/api/v1/cadre/collection/residents/search', { query })
+}
+
+/**
+ * 批量提醒
+ * @param {Array<string>} ids 任务ID数组
+ * @returns {Promise} 提醒结果
+ */
+export function batchRemind(ids) {
+  return request.post('/api/v1/cadre/collection/batch/remind', { ids })
+}
+
+/**
+ * 批量延长截止日期
+ * @param {Array<string>} ids 任务ID数组
+ * @param {number} days 延长天数
+ * @returns {Promise} 操作结果
+ */
+export function batchExtendDeadline(ids, days) {
+  return request.post('/api/v1/cadre/collection/batch/extend', { ids, days })
+}
+
+// ==================== 资料上交相关 API ====================
+
+/**
+ * 获取上交任务列表
+ * @param {Object} params 查询参数
+ * @returns {Promise} 任务列表
+ */
+export function getSubmissionTasks(params = {}) {
+  return request.get('/api/v1/cadre/submission/tasks', params)
+}
+
+/**
+ * 获取上交任务统计
+ * @returns {Promise} 统计数据
+ */
+export function getSubmissionStats() {
+  return request.get('/api/v1/cadre/submission/stats')
+}
+
+/**
+ * 创建上交任务
+ * @param {Object} data 任务数据
+ * @returns {Promise} 创建的任务
+ */
+export function createSubmissionTask(data) {
+  return request.post('/api/v1/cadre/submission/tasks', data)
+}
+
+/**
+ * 更新上交任务
+ * @param {string} id 任务ID
+ * @param {Object} data 更新数据
+ * @returns {Promise} 更新后的任务
+ */
+export function updateSubmissionTask(id, data) {
+  return request.put(`/api/v1/cadre/submission/tasks/${id}`, data)
+}
+
+/**
+ * 删除上交任务
+ * @param {string} id 任务ID
+ * @returns {Promise} 删除结果
+ */
+export function deleteSubmissionTask(id) {
+  return request.delete(`/api/v1/cadre/submission/tasks/${id}`)
+}
+
+/**
+ * 提交任务
+ * @param {string} id 任务ID
+ * @returns {Promise} 提交结果
+ */
+export function submitTask(id) {
+  return request.post(`/api/v1/cadre/submission/tasks/${id}/submit`)
+}
+
+/**
+ * 获取已上传文件
+ * @param {string} taskId 任务ID
+ * @returns {Promise} 文件列表
+ */
+export function getUploadedFiles(taskId) {
+  return request.get(`/api/v1/cadre/submission/tasks/${taskId}/files`)
+}
+
+/**
+ * 删除上传文件
+ * @param {string} fileId 文件ID
+ * @returns {Promise} 删除结果
+ */
+export function deleteUploadedFile(fileId) {
+  return request.delete(`/api/v1/cadre/submission/files/${fileId}`)
+}
+
+/**
+ * 下载提交回执
+ * @param {string} id 任务ID
+ * @returns {Promise} 文件流
+ */
+export function downloadSubmissionProof(id) {
+  return request.get(`/api/v1/cadre/submission/tasks/${id}/proof`, {}, {
+    responseType: 'blob'
+  })
+}
+
+/**
+ * 批量提交
+ * @param {Array<string>} ids 任务ID数组
+ * @returns {Promise} 提交结果
+ */
+export function batchSubmit(ids) {
+  return request.post('/api/v1/cadre/submission/batch/submit', { ids })
+}
+
+/**
+ * 批量导出
+ * @param {Array<string>} ids 任务ID数组
+ * @returns {Promise} 导出结果
+ */
+export function batchExport(ids) {
+  return request.post('/api/v1/cadre/submission/batch/export', { ids })
+}
+
+// ==================== 产品管理相关 API ====================
+
+/**
+ * 获取村干部产品列表
+ * @param {Object} params 查询参数
+ * @returns {Promise} 产品列表
+ */
+export function getCadreProducts(params = {}) {
+  return request.get('/api/v1/cadre/products', params)
+}
+
+/**
+ * 获取村干部产品统计
+ * @returns {Promise} 统计数据
+ */
+export function getCadreProductStats() {
+  return request.get('/api/v1/cadre/products/stats')
+}
+
+/**
+ * 创建产品
+ * @param {Object} data 产品数据
+ * @returns {Promise} 创建的产品
+ */
+export function createProduct(data) {
+  return request.post('/api/v1/cadre/products', data)
+}
+
+/**
+ * 更新产品
+ * @param {string} id 产品ID
+ * @param {Object} data 更新数据
+ * @returns {Promise} 更新后的产品
+ */
+export function updateProduct(id, data) {
+  return request.put(`/api/v1/cadre/products/${id}`, data)
+}
+
+/**
+ * 删除产品
+ * @param {string} id 产品ID
+ * @returns {Promise} 删除结果
+ */
+export function deleteProduct(id) {
+  return request.delete(`/api/v1/cadre/products/${id}`)
+}
+
+/**
+ * 切换产品状态
+ * @param {string} id 产品ID
+ * @param {string} status 新状态
+ * @returns {Promise} 操作结果
+ */
+export function toggleProductStatus(id, status) {
+  return request.put(`/api/v1/cadre/products/${id}/status`, { status })
+}
+
+/**
+ * 批量上架产品
+ * @param {Array<string>} ids 产品ID数组
+ * @returns {Promise} 操作结果
+ */
+export function batchPublish(ids) {
+  return request.post('/api/v1/cadre/products/batch/publish', { ids })
+}
+
+// ==================== 导出API对象 ====================
+
 // 导出所有API作为对象
 export const cadreApi = {
   getDashboardData,
@@ -192,7 +465,39 @@ export const cadreApi = {
   getQuickActions,
   saveQuickActions,
   downloadNoticeAttachment,
-  getUserPoints
+  getUserPoints,
+  // 资料收集
+  getCollectionTasks,
+  getCollectionStats,
+  createCollectionTask,
+  updateCollectionTask,
+  deleteCollectionTask,
+  getCollectedFiles,
+  submitCollectedFile,
+  deleteCollectedFile,
+  searchResidents,
+  batchRemind,
+  batchExtendDeadline,
+  // 资料上交
+  getSubmissionTasks,
+  getSubmissionStats,
+  createSubmissionTask,
+  updateSubmissionTask,
+  deleteSubmissionTask,
+  submitTask,
+  getUploadedFiles,
+  deleteUploadedFile,
+  downloadSubmissionProof,
+  batchSubmit,
+  batchExport,
+  // 产品管理
+  getCadreProducts,
+  getCadreProductStats,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  toggleProductStatus,
+  batchPublish
 }
 
 export default cadreApi
