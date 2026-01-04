@@ -32,6 +32,18 @@ process.on('unhandledRejection', (reason, promise) => {
 const dotenv = require('dotenv');
 dotenv.config();
 
+// ============================================
+// 初始化数据库连接 - 必须在加载模型之前
+// ============================================
+const database = require('./config/database');
+console.log('[DEBUG] Initializing database connection...');
+database.connect().then(() => {
+  console.log('[DEBUG] ✅ Database connected successfully');
+}).catch(err => {
+  console.error('[DEBUG] ❌ Database connection failed:', err.message);
+  // 继续执行，因为模型会在需要时自动连接
+});
+
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -77,9 +89,9 @@ console.log('[DEBUG] massiveDataRoutes DISABLED (causes startup hang)');
 // const apiV1Routes = require('./routes/apiV1'); // Temporarily disabled - missing userController and villageController
 
 // 导入模块路由
-// TEMPORARILY DISABLED - auth.js routes call functions that don't exist in authController
-// const authRoutes = require('./routes/auth');
-// console.log('[DEBUG] authRoutes loaded');
+// Load minimal auth routes (full auth.js has missing controller methods)
+const authRoutes = require('./routes/authMinimal');
+console.log('[DEBUG] authMinimalRoutes loaded');
 // const residentsRoutes = require('./routes/residents');
 // console.log('[DEBUG] residentsRoutes loaded');
 // Temporarily disabled - missing residentValidator dependency
@@ -464,9 +476,9 @@ console.log('[DEBUG] dataIntegrationRoutes registered');
 console.log('[DEBUG] massiveDataRoutes DISABLED (causes startup hang)');
 // app.use('/api/v1', apiV1Routes); // Temporarily disabled - missing userController and villageController
 
-// 认证路由（无需token验证）- TEMPORARILY DISABLED
-// app.use('/api/v1/auth', authRoutes);
-// console.log('[DEBUG] authRoutes registered');
+// 认证路由（无需token验证）
+app.use('/api/v1/auth', authRoutes);
+console.log('[DEBUG] authRoutes registered');
 
 // 智慧村庄模块路由 - TEMPORARILY DISABLED to debug startup
 console.log('[DEBUG] About to load residentsRoutes...');

@@ -23,8 +23,7 @@ const config = {
     socketTimeoutMS: 45000,
 
     // 其他选项
-    bufferCommands: false,
-    bufferMaxEntries: 0,
+    bufferCommands: true,  // 启用命令缓冲，允许在连接前排队查询
 
     // 临时禁用自动索引创建以加快启动速度
     // 生产环境中应该手动创建索引或在首次启动时启用

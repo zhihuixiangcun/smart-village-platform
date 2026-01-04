@@ -4,7 +4,7 @@
  */
 
 const jwt = require('jsonwebtoken');
-const { User } = require('../models/User');
+const User = require('../models/User');
 const { FamilyRelation } = require('../models/FaceRecognition');
 const crypto = require('crypto');
 const logger = require('../utils/logger');
@@ -94,8 +94,10 @@ class AuthMiddleware {
         });
       }
 
-      // 检查用户权限是否变更
-      if (JSON.stringify(user.permissions) !== JSON.stringify(decoded.permissions)) {
+      // 检查用户权限是否变更（兼容 undefined 和空数组）
+      const userPerms = user.permissions || [];
+      const decodedPerms = decoded.permissions || [];
+      if (JSON.stringify(userPerms) !== JSON.stringify(decodedPerms)) {
         // 权限变更，需要重新登录
         this.revokeSession(decoded.sessionId);
         return res.status(401).json({
@@ -549,6 +551,9 @@ const authMiddleware = new AuthMiddleware();
 
 // 导出所有中间件和工具
 module.exports = {
+  // 导出单例实例，以便访问 activeSessions
+  instance: authMiddleware,
+
   // 主认证中间件（向后兼容）
   authenticate: authMiddleware.authenticate,
   authenticateToken: authMiddleware.authenticate,  // 别名
@@ -560,6 +565,20 @@ module.exports = {
   generateTokens: authMiddleware.generateTokens.bind(authMiddleware),
   revokeSession: authMiddleware.revokeSession.bind(authMiddleware)
 };
+
+// 为了向后兼容，添加属性访问器
+Object.defineProperty(module.exports, 'activeSessions', {
+  get() { return authMiddleware.activeSessions; },
+  set(value) { authMiddleware.activeSessions = value; }
+});
+
+Object.defineProperty(module.exports, 'jwtSecret', {
+  get() { return authMiddleware.jwtSecret; }
+});
+
+Object.defineProperty(module.exports, 'jwtAlgorithm', {
+  get() { return authMiddleware.jwtAlgorithm; }
+});
 
 /**
  * 可选认证中间件
@@ -594,8 +613,10 @@ const optional = async (req, res, next) => {
       return next();
     }
 
-    // 检查用户权限是否变更
-    if (JSON.stringify(user.permissions) !== JSON.stringify(decoded.permissions)) {
+    // 检查用户权限是否变更（兼容 undefined 和空数组）
+    const userPerms = user.permissions || [];
+    const decodedPerms = decoded.permissions || [];
+    if (JSON.stringify(userPerms) !== JSON.stringify(decodedPerms)) {
       authMiddleware.revokeSession(decoded.sessionId);
       return next();
     }
