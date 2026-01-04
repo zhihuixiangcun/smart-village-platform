@@ -366,6 +366,23 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { axiosInstance as api } from '@/api'
+import { useUserStore } from '@/stores/userStore'
+
+const userStore = useUserStore()
+
+// 从数据库加载公告数据
+const loadAnnouncements = async () => {
+  try {
+    const response = await api.get('/api/v1/announcements')
+    if (response.success) {
+      announcements.value = response.data || []
+    }
+  } catch (error) {
+    console.error('加载公告数据失败:', error)
+    ElMessage.warning('加载数据失败，显示模拟数据')
+  }
+}
 
 // 响应式数据
 const activeTab = ref('announcements')
@@ -683,23 +700,24 @@ const publishAnnouncement = async () => {
     await announcementFormRef.value.validate()
     saving.value = true
 
-    // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 1000))
-
-    const newAnnouncement = {
+    // 调用API发布公告
+    const response = await api.post('/api/v1/announcements', {
       ...announcementForm,
-      id: Date.now(),
-      author: '当前用户',
-      status: 'published',
-      views: 0,
-      publishTime: announcementForm.publishTime || new Date().toISOString()
-    }
+      publisher: userStore.userInfo?.name || '系统管理员',
+      villageId: userStore.userInfo?.villageId || null
+    })
 
-    announcements.value.push(newAnnouncement)
-    ElMessage.success('公告发布成功')
-    publishDialogVisible.value = false
+    if (response.success) {
+      announcements.value.unshift(response.data)
+      ElMessage.success('公告发布成功')
+      publishDialogVisible.value = false
+      resetAnnouncementForm()
+    } else {
+      ElMessage.error(response.message || '发布失败')
+    }
   } catch (error) {
-    ElMessage.error('发布失败：' + (error.message || '未知错误'))
+    console.error('发布公告失败:', error)
+    ElMessage.error(error.response?.data?.error || error.message || '发布失败')
   } finally {
     saving.value = false
   }
@@ -726,10 +744,19 @@ const withdrawAnnouncement = async (announcement) => {
       { type: 'warning' }
     )
 
-    announcement.status = 'withdrawn'
-    ElMessage.success('公告已撤回')
-  } catch {
-    // 用户取消
+    // 调用API撤回公告
+    const response = await api.put(`/api/v1/announcements/${announcement.id}/withdraw`)
+    if (response.success) {
+      announcement.status = 'withdrawn'
+      ElMessage.success('公告已撤回')
+    } else {
+      ElMessage.error(response.message || '撤回失败')
+    }
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('撤回公告失败:', error)
+      ElMessage.error(error.response?.data?.error || error.message || '撤回失败')
+    }
   }
 }
 
@@ -802,6 +829,8 @@ const publishVote = (vote) => {
 
 onMounted(() => {
   console.log('村务协同管理模块加载完成')
+  // 加载公告数据
+  loadAnnouncements()
 })
 </script>
 

@@ -334,8 +334,28 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
+import { axiosInstance as api } from '@/api'
+import { useUserStore } from '@/stores/userStore'
 
 const router = useRouter()
+const userStore = useUserStore()
+
+// 从数据库加载数据
+const loadResidents = async () => {
+  try {
+    const response = await api.get('/api/v1/residents')
+    if (response.success) {
+      residents.value = response.data || []
+      stats.value.total = residents.value.length
+      stats.value.households = new Set(residents.value.map(r => r.householdCode)).size
+      stats.value.elderly = residents.value.filter(r => calculateAge(r.birthDate) >= 60).length
+      stats.value.withHealthRecord = residents.value.filter(r => r.hasHealthRecord).length
+    }
+  } catch (error) {
+    console.error('加载村民数据失败:', error)
+    ElMessage.warning('加载数据失败，显示模拟数据')
+  }
+}
 
 // 响应式数据
 const currentPage = ref(1)
@@ -584,29 +604,34 @@ const saveResident = async () => {
       residentForm.householdCode = 'VILLAGE' + String(residents.value.length + 1).padStart(3, '0') + '001'
     }
 
-    // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 1000))
-
     if (dialogMode.value === 'add') {
-      const newResident = {
-        ...residentForm,
-        id: Date.now(),
-        avatar: ''
+      // 调用API创建村民
+      const response = await api.post('/api/v1/residents', residentForm)
+      if (response.success) {
+        residents.value.push(response.data)
+        stats.value.total++
+        ElMessage.success('新增村民成功')
+        addDialogVisible.value = false
+      } else {
+        ElMessage.error(response.message || '新增失败')
       }
-      residents.value.push(newResident)
-      stats.value.total++
-      ElMessage.success('新增村民成功')
     } else {
-      const index = residents.value.findIndex(r => r.id === residentForm.id)
-      if (index !== -1) {
-        Object.assign(residents.value[index], residentForm)
+      // 调用API更新村民
+      const response = await api.put(`/api/v1/residents/${residentForm.id}`, residentForm)
+      if (response.success) {
+        const index = residents.value.findIndex(r => r.id === residentForm.id)
+        if (index !== -1) {
+          Object.assign(residents.value[index], response.data)
+        }
         ElMessage.success('更新村民信息成功')
+        addDialogVisible.value = false
+      } else {
+        ElMessage.error(response.message || '更新失败')
       }
     }
-
-    addDialogVisible.value = false
   } catch (error) {
-    ElMessage.error('保存失败：' + (error.message || '未知错误'))
+    console.error('保存村民失败:', error)
+    ElMessage.error(error.response?.data?.error || error.message || '保存失败')
   } finally {
     saving.value = false
   }
@@ -630,14 +655,23 @@ const deleteResident = async (resident) => {
       { type: 'warning' }
     )
 
-    const index = residents.value.findIndex(r => r.id === resident.id)
-    if (index !== -1) {
-      residents.value.splice(index, 1)
-      stats.value.total--
+    // 调用API删除村民
+    const response = await api.delete(`/api/v1/residents/${resident.id}`)
+    if (response.success) {
+      const index = residents.value.findIndex(r => r.id === resident.id)
+      if (index !== -1) {
+        residents.value.splice(index, 1)
+        stats.value.total--
+      }
       ElMessage.success('删除成功')
+    } else {
+      ElMessage.error(response.message || '删除失败')
     }
-  } catch {
-    // 用户取消
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('删除村民失败:', error)
+      ElMessage.error(error.response?.data?.error || error.message || '删除失败')
+    }
   }
 }
 
@@ -676,6 +710,8 @@ const exportResidents = () => {
 
 onMounted(() => {
   console.log('村民管理模块加载完成')
+  // 加载数据
+  loadResidents()
 })
 </script>
 

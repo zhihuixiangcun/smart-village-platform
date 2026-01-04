@@ -460,6 +460,27 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Edit, Calendar, Plus, More, Star, View, Refresh, Download, UploadFilled } from '@element-plus/icons-vue'
+import { axiosInstance as api } from '@/api'
+import { useUserStore } from '@/stores/userStore'
+
+const userStore = useUserStore()
+
+// 从数据库加载数据
+const loadMembers = async () => {
+  try {
+    const response = await api.get('/api/v1/committee/members')
+    if (response.success) {
+      members.value = response.data || []
+      // 更新统计
+      stats.value.total = members.value.length
+      stats.value.partyMembers = members.value.filter(m => m.isPartyMember).length
+      stats.value.onDuty = members.value.filter(m => m.dutyStatus === 'onduty').length
+    }
+  } catch (error) {
+    console.error('加载村委数据失败:', error)
+    ElMessage.warning('加载数据失败，显示模拟数据')
+  }
+}
 
 // 响应式数据
 const activeTab = ref('members')
@@ -857,32 +878,41 @@ const handleDialogClose = (done) => {
 }
 
 const submitAddForm = () => {
-  addFormRef.value.validate((valid) => {
+  addFormRef.value.validate(async (valid) => {
     if (valid) {
       submitting.value = true
 
-      // 模拟API调用
-      setTimeout(() => {
-        members.value.push({
-          id: members.value.length + 1,
+      try {
+        // 调用API添加村委成员
+        const response = await api.post('/api/v1/committee/members', {
           name: addForm.name,
           position: addForm.position,
           phone: addForm.phone,
-          phoneVisible: false,
           isPartyMember: addForm.isPartyMember,
-          dutyStatus: 'free',
-          status: 'active',
-          joinDate: new Date().toISOString().split('T')[0]
+          villageId: userStore.userInfo?.villageId || null
         })
 
-        submitting.value = false
-        addDialogVisible.value = false
-        ElMessage.success('添加成功')
+        if (response.success) {
+          members.value.push(response.data)
+          stats.value.total++
+          if (response.data.isPartyMember) {
+            stats.value.partyMembers++
+          }
+          ElMessage.success('添加成功')
+          addDialogVisible.value = false
 
-        // 重置表单
-        addFormRef.value.resetFields()
-        addForm.fileList = []
-      }, 1000)
+          // 重置表单
+          addFormRef.value.resetFields()
+          addForm.fileList = []
+        } else {
+          ElMessage.error(response.message || '添加失败')
+        }
+      } catch (error) {
+        console.error('添加村委成员失败:', error)
+        ElMessage.error(error.response?.data?.error || error.message || '添加失败')
+      } finally {
+        submitting.value = false
+      }
     }
   })
 }
@@ -911,7 +941,8 @@ const beforeUpload = (file) => {
 // 生命周期
 onMounted(() => {
   console.log('村委管理模块已加载')
-  totalMembers.value = members.value.length
+  // 加载数据
+  loadMembers()
 })
 </script>
 
