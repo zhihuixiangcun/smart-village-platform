@@ -623,7 +623,7 @@ const handleDialectChange = (value) => {
  */
 const onVoiceConfirm = ({ selectedOptions }) => {
   ttsSettings.voice = selectedOptions[0].value
-  showVoicePicker = false
+  showVoicePicker.value = false
 }
 
 /**
