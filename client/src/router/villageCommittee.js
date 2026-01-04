@@ -50,6 +50,24 @@ export default {
       name: 'PersonnelTransfer',
       component: () => import('@/views/villageCommittee/Transfer.vue'),
       meta: { title: '人员调任管理' }
+    },
+    {
+      path: 'data-collection',
+      name: 'DataCollection',
+      component: () => import('@/views/villageCommittee/DataCollection.vue'),
+      meta: { title: '资料收集管理' }
+    },
+    {
+      path: 'data-submission',
+      name: 'DataSubmission',
+      component: () => import('@/views/villageCommittee/DataSubmission.vue'),
+      meta: { title: '资料上交管理' }
+    },
+    {
+      path: 'product-management',
+      name: 'CadreProductManagement',
+      component: () => import('@/views/villageCommittee/CadreProductManagement.vue'),
+      meta: { title: '产品发布管理' }
     }
   ]
 }

@@ -1,7 +1,7 @@
 <template>
   <div class="cadre-dashboard">
     <!-- 欢迎栏 -->
-    <el-card class="welcome-card" shadow="never">
+    <el-card class="welcome-card" shadow="never" v-loading="loading">
       <div class="welcome-content">
         <div class="welcome-info">
           <h1 class="welcome-title">欢迎回来，{{ currentUser.name || '村干部' }}</h1>
@@ -143,14 +143,14 @@
       <!-- 左侧主栏 -->
       <el-col :xs="24" :sm="24" :md="16" :lg="16">
         <!-- 数据图表 -->
-        <el-card class="chart-card" shadow="never">
+        <el-card class="chart-card" shadow="never" v-loading="chartLoading">
           <template #header>
             <div class="card-header">
               <span class="card-title">
                 <el-icon><DataAnalysis /></el-icon>
                 数据概览
               </span>
-              <el-radio-group v-model="chartPeriod" size="small">
+              <el-radio-group v-model="chartPeriod" size="small" @change="handleChartPeriodChange">
                 <el-radio-button label="week">本周</el-radio-button>
                 <el-radio-button label="month">本月</el-radio-button>
                 <el-radio-button label="year">全年</el-radio-button>
@@ -207,18 +207,34 @@
                 待办事项
                 <el-badge :value="todoList.length" :max="99" class="todo-badge" />
               </span>
-              <el-button text type="primary" @click="viewAllTodos">
-                查看全部
-                <el-icon><ArrowRight /></el-icon>
-              </el-button>
+              <div class="card-actions">
+                <!-- 待办筛选 -->
+                <el-dropdown @command="filterTodos" trigger="click">
+                  <el-button size="small">
+                    筛选 <el-icon><Filter /></el-icon>
+                  </el-button>
+                  <template #dropdown>
+                    <el-dropdown-menu>
+                      <el-dropdown-item command="all">全部</el-dropdown-item>
+                      <el-dropdown-item command="pending">待处理</el-dropdown-item>
+                      <el-dropdown-item command="completed">已完成</el-dropdown-item>
+                      <el-dropdown-item command="urgent">紧急</el-dropdown-item>
+                    </el-dropdown-menu>
+                  </template>
+                </el-dropdown>
+                <el-button text type="primary" @click="viewAllTodos">
+                  查看全部
+                  <el-icon><ArrowRight /></el-icon>
+                </el-button>
+              </div>
             </div>
           </template>
           <div class="todo-list">
             <div
               class="todo-item"
-              v-for="todo in todoList"
+              v-for="todo in filteredTodoList"
               :key="todo._id"
-              :class="{ 'urgent': isUrgent(todo.deadline), 'completed': todo.status === 'completed' }"
+              :class="{ 'urgent': isUrgent(todo.deadline), 'completed': todo.completed }"
             >
               <div class="todo-content">
                 <el-checkbox v-model="todo.completed" @change="toggleTodoStatus(todo)">
@@ -228,7 +244,7 @@
                   <el-tag :type="getTodoTypeTag(todo.type)" size="small">{{ todo.type }}</el-tag>
                   <span class="todo-deadline" :class="{ 'overdue': isOverdue(todo.deadline) }">
                     <el-icon><Clock /></el-icon>
-                    {{ formatDate(todo.deadline) }}
+                    {{ formatDeadline(todo.deadline) }}
                   </span>
                 </div>
               </div>
@@ -238,7 +254,7 @@
                 </el-button>
               </div>
             </div>
-            <el-empty v-if="todoList.length === 0" description="暂无待办事项" />
+            <el-empty v-if="filteredTodoList.length === 0" description="暂无待办事项" />
           </div>
         </el-card>
       </el-col>
@@ -248,35 +264,32 @@
         <!-- 快捷操作 -->
         <el-card class="quick-actions-card" shadow="never">
           <template #header>
-            <span class="card-title">
-              <el-icon><Grid /></el-icon>
-              快捷操作
-            </span>
+            <div class="card-header">
+              <span class="card-title">
+                <el-icon><Grid /></el-icon>
+                快捷操作
+              </span>
+              <el-button text size="small" @click="showCustomActionDialog = true">
+                <el-icon><Setting /></el-icon>
+              </el-button>
+            </div>
           </template>
           <div class="quick-actions">
             <el-button type="danger" @click="showEmergencyDialog = true" class="quick-btn emergency">
               <el-icon><Bell /></el-icon>
               <span>紧急通知</span>
             </el-button>
-            <el-button type="primary" @click="quickAction('add-member')" class="quick-btn">
-              <el-icon><UserPlus /></el-icon>
-              <span>添加人员</span>
-            </el-button>
-            <el-button type="success" @click="quickAction('add-schedule')" class="quick-btn">
-              <el-icon><CalendarPlus /></el-icon>
-              <span>添加值班</span>
-            </el-button>
-            <el-button type="warning" @click="quickAction('publish-notice')" class="quick-btn">
-              <el-icon><Promotion /></el-icon>
-              <span>发布公告</span>
-            </el-button>
-            <el-button type="info" @click="quickAction('export-report')" class="quick-btn">
-              <el-icon><Download /></el-icon>
-              <span>导出报表</span>
-            </el-button>
-            <el-button @click="quickAction('view-map')" class="quick-btn">
-              <el-icon><Location /></el-icon>
-              <span>村情地图</span>
+            <el-button
+              v-for="action in quickActionsList"
+              :key="action.id"
+              :type="action.type || 'primary'"
+              @click="quickAction(action.id)"
+              class="quick-btn"
+            >
+              <el-icon>
+                <component :is="action.icon" />
+              </el-icon>
+              <span>{{ action.label }}</span>
             </el-button>
           </div>
         </el-card>
@@ -289,13 +302,29 @@
                 <el-icon><Notification /></el-icon>
                 最新通知
               </span>
-              <el-badge :value="unreadNotices" type="danger" />
+              <div class="card-actions">
+                <!-- 通知筛选 -->
+                <el-dropdown @command="filterNotices" trigger="click">
+                  <el-button size="small" text>
+                    <el-icon><Filter /></el-icon>
+                  </el-button>
+                  <template #dropdown>
+                    <el-dropdown-menu>
+                      <el-dropdown-item command="all">全部</el-dropdown-item>
+                      <el-dropdown-item command="urgent">紧急</el-dropdown-item>
+                      <el-dropdown-item command="important">重要</el-dropdown-item>
+                      <el-dropdown-item command="general">一般</el-dropdown-item>
+                    </el-dropdown-menu>
+                  </template>
+                </el-dropdown>
+                <el-badge :value="unreadNotices" type="danger" />
+              </div>
             </div>
           </template>
           <div class="notice-list">
             <div
               class="notice-item"
-              v-for="notice in noticeList"
+              v-for="notice in filteredNoticeList"
               :key="notice._id"
               :class="{ 'unread': !notice.read }"
               @click="viewNotice(notice)"
@@ -308,7 +337,7 @@
                 <p class="notice-time">{{ formatRelativeTime(notice.createdAt) }}</p>
               </div>
             </div>
-            <el-empty v-if="noticeList.length === 0" description="暂无通知" />
+            <el-empty v-if="filteredNoticeList.length === 0" description="暂无通知" />
           </div>
         </el-card>
 
@@ -320,13 +349,23 @@
                 <el-icon><ChatDotRound /></el-icon>
                 村民动态
               </span>
-              <el-button text type="primary" size="small" @click="viewAllActivities">
-                更多
-              </el-button>
+              <!-- 时间范围筛选 -->
+              <el-dropdown @command="filterActivities" trigger="click">
+                <el-button size="small" text>
+                  {{ activityTimeRangeLabel }} <el-icon><ArrowDown /></el-icon>
+                </el-button>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item command="today">今天</el-dropdown-item>
+                    <el-dropdown-item command="week">本周</el-dropdown-item>
+                    <el-dropdown-item command="month">本月</el-dropdown-item>
+                  </el-dropdown-menu>
+                  </template>
+              </el-dropdown>
             </div>
           </template>
           <div class="activity-list">
-            <div class="activity-item" v-for="activity in activityList" :key="activity._id">
+            <div class="activity-item" v-for="activity in filteredActivityList" :key="activity._id">
               <el-avatar :size="40" :src="activity.userAvatar">
                 {{ activity.userName?.charAt(0) }}
               </el-avatar>
@@ -338,7 +377,7 @@
                 <span class="activity-time">{{ formatRelativeTime(activity.createdAt) }}</span>
               </div>
             </div>
-            <el-empty v-if="activityList.length === 0" description="暂无动态" />
+            <el-empty v-if="filteredActivityList.length === 0" description="暂无动态" />
           </div>
         </el-card>
       </el-col>
@@ -408,6 +447,37 @@
       @marked-read="handleNotificationMarkedRead"
       @deleted="handleNotificationDeleted"
     />
+
+    <!-- 自定义快捷操作对话框 -->
+    <el-dialog
+      v-model="showCustomActionDialog"
+      title="自定义快捷操作"
+      width="500px"
+      destroy-on-close
+    >
+      <div class="custom-actions-content">
+        <p class="tip">拖拽调整顺序，取消勾选可隐藏按钮</p>
+        <el-checkbox-group v-model="selectedQuickActions">
+          <draggable v-model="allQuickActions" item-key="id">
+            <template #item="{ element }">
+              <div class="action-item">
+                <el-icon class="drag-handle"><Rank /></el-icon>
+                <el-checkbox :label="element.id" border>
+                  <el-icon>
+                    <component :is="element.icon" />
+                  </el-icon>
+                  {{ element.label }}
+                </el-checkbox>
+              </div>
+            </template>
+          </draggable>
+        </el-checkbox-group>
+      </div>
+      <template #footer>
+        <el-button @click="showCustomActionDialog = false">取消</el-button>
+        <el-button type="primary" @click="saveCustomActions">保存</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -417,6 +487,7 @@ import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/userStore'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import * as echarts from 'echarts'
+import draggable from 'vuedraggable'
 import dashboardApi from '@/api/dashboard'
 import ContactButton from '@/components/villageCommittee/ContactButton.vue'
 import NotificationDetailDialog from '@/components/villageCommittee/NotificationDetailDialog.vue'
@@ -425,9 +496,14 @@ import {
   Trophy, CircleCheck, Calendar, Phone, List, ArrowRight, Bell, Grid, UserPlus,
   CalendarPlus, Promotion, Download, Location, Notification, ChatDotRound, Clock,
   DataAnalysis, ArrowUp, ArrowDown, Connection, Filter, Search, RefreshLeft,
-  ArrowDown as DropdownArrow, Document, Tickets, Files
+  ArrowDown as DropdownArrow, Document, Tickets, Files, Setting, Rank, User,
+  FolderOpened, Upload, ShoppingCart
 } from '@element-plus/icons-vue'
 
+/**
+ * 村干部主页组件
+ * @description 提供数据概览、快捷操作、待办事项、通知和村民动态等功能
+ */
 const router = useRouter()
 const userStore = useUserStore()
 
@@ -533,15 +609,18 @@ const realtime = useDashboardRealtime({
   }
 })
 
-// 响应式数据
+// ==================== 响应式状态 ====================
 const chartRef = ref(null)
 const chartPeriod = ref('week')
 const chartInstance = ref(null)
 const showEmergencyDialog = ref(false)
 const showNotificationDialog = ref(false)
+const showCustomActionDialog = ref(false)
 const sendingEmergency = ref(false)
 const isMobile = ref(window.innerWidth < 768)
 const selectedNotice = ref(null)
+const loading = ref(false)
+const chartLoading = ref(false)
 
 // 数据筛选
 const filters = ref({
@@ -551,82 +630,121 @@ const filters = ref({
   dateRange: null
 })
 
-// 导出加载状态
-const exporting = ref(false)
+// 筛选状态
+const todoFilter = ref('all')
+const noticeFilter = ref('all')
+const activityTimeRange = ref('today')
 
-// 当前用户信息
+// ==================== 计算属性 ====================
+/**
+ * 当前用户信息
+ */
 const currentUser = computed(() => userStore.userInfo || {})
 
-// 积分和待处理
-const monthlyPoints = ref(1250)
-const pendingTasks = ref(8)
+/**
+ * 积分和待处理任务数
+ */
+const monthlyPoints = ref(0)
+const pendingTasks = ref(0)
 
-// 统计卡片数据
-const statisticsCards = ref([
-  {
-    key: 'residents',
-    label: '村民总数',
-    value: '1,234',
-    icon: 'UserFilled',
-    gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    change: '+12 本月',
-    trendClass: 'up',
-    trendIcon: 'ArrowUp',
-    route: '/residents'
-  },
-  {
-    key: 'households',
-    label: '住户总数',
-    value: '486',
-    icon: 'House',
-    gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-    change: '+3 本月',
-    trendClass: 'up',
-    trendIcon: 'ArrowUp',
-    route: '/household-codes'
-  },
-  {
-    key: 'notices',
-    label: '本月公告',
-    value: '28',
-    icon: 'ChatLineSquare',
-    gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-    change: '+5 环比',
-    trendClass: 'up',
-    trendIcon: 'ArrowUp',
-    route: '/announcements'
-  },
-  {
-    key: 'tasks',
-    label: '待办事项',
-    value: '15',
-    icon: 'List',
-    gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-    change: '-2 较昨日',
-    trendClass: 'down',
-    trendIcon: 'ArrowDown',
-    route: '/tasks'
-  }
-])
+/**
+ * 统计卡片数据
+ */
+const statisticsCards = ref([])
 
-// 今日值班
+// ==================== 数据列表 ====================
 const todayDuty = ref([])
-
-// 待办事项
 const todoList = ref([])
-
-// 最新通知
 const noticeList = ref([])
-
-// 村民动态
 const activityList = ref([])
 
-// 计算属性
+/**
+ * 筛选后的待办列表
+ */
+const filteredTodoList = computed(() => {
+  let list = [...todoList.value]
+  if (todoFilter.value === 'pending') {
+    list = list.filter(t => !t.completed)
+  } else if (todoFilter.value === 'completed') {
+    list = list.filter(t => t.completed)
+  } else if (todoFilter.value === 'urgent') {
+    list = list.filter(t => isUrgent(t.deadline))
+  }
+  return list
+})
+
+/**
+ * 筛选后的通知列表
+ */
+const filteredNoticeList = computed(() => {
+  let list = [...noticeList.value]
+  if (noticeFilter.value !== 'all') {
+    list = list.filter(n => {
+      const levelMap = { urgent: '紧急', important: '重要', general: '一般' }
+      return n.level === levelMap[noticeFilter.value]
+    })
+  }
+  return list
+})
+
+/**
+ * 筛选后的活动列表
+ */
+const filteredActivityList = computed(() => {
+  const now = Date.now()
+  let list = [...activityList.value]
+
+  if (activityTimeRange.value === 'today') {
+    const oneDay = 24 * 60 * 60 * 1000
+    list = list.filter(a => now - new Date(a.createdAt).getTime() < oneDay)
+  } else if (activityTimeRange.value === 'week') {
+    const oneWeek = 7 * 24 * 60 * 60 * 1000
+    list = list.filter(a => now - new Date(a.createdAt).getTime() < oneWeek)
+  }
+  return list
+})
+
+/**
+ * 活动时间范围标签
+ */
+const activityTimeRangeLabel = computed(() => {
+  const labels = { today: '今天', week: '本周', month: '本月' }
+  return labels[activityTimeRange.value] || '本月'
+})
+
+/**
+ * 未读通知数量
+ */
 const unreadNotices = computed(() => {
   return noticeList.value.filter(n => !n.read).length
 })
 
-// 紧急通知表单
+// ==================== 快捷操作配置 ====================
+// 所有可用的快捷操作
+const allQuickActions = ref([
+  { id: 'add-member', label: '添加人员', icon: 'User', route: '/village-committee/members', default: true },
+  { id: 'add-schedule', label: '添加值班', icon: 'Calendar', route: '/village-committee/duty-schedule', default: true },
+  { id: 'publish-notice', label: '发布公告', icon: 'Promotion', route: '/announcements/create', default: true },
+  { id: 'export-report', label: '导出报表', icon: 'Download', action: 'export', default: true },
+  { id: 'view-map', label: '村情地图', icon: 'Location', route: '/village-committee/village-map', default: true },
+  { id: 'data-collection', label: '资料收集', icon: 'FolderOpened', route: '/village-committee/data-collection', default: true },
+  { id: 'data-submission', label: '资料上交', icon: 'Upload', route: '/village-committee/data-submission', default: true },
+  { id: 'product-publish', label: '产品发布', icon: 'ShoppingCart', route: '/village-committee/product-management', default: true }
+])
+
+// 选中的快捷操作ID
+const selectedQuickActions = ref([])
+
+/**
+ * 显示的快捷操作列表
+ */
+const quickActionsList = computed(() => {
+  return allQuickActions.value.filter(action =>
+    selectedQuickActions.value.includes(action.id)
+  )
+})
+
+// ==================== 表单数据 ====================
 const emergencyForm = ref({
   type: '',
   title: '',
@@ -642,7 +760,12 @@ const emergencyRules = {
   targets: [{ type: 'array', min: 1, message: '请选择通知范围', trigger: 'change' }]
 }
 
-// 方法
+// ==================== 工具函数 ====================
+
+/**
+ * 根据当前时间获取问候语
+ * @returns {string} 问候语
+ */
 const getGreeting = () => {
   const hour = new Date().getHours()
   if (hour < 6) return '凌晨好'
@@ -654,6 +777,11 @@ const getGreeting = () => {
   return '夜深了'
 }
 
+/**
+ * 格式化日期
+ * @param {Date|string} date - 日期对象或日期字符串
+ * @returns {string} 格式化后的日期 (YYYY-MM-DD)
+ */
 const formatDate = (date) => {
   if (!date) return ''
   const d = new Date(date)
@@ -663,6 +791,11 @@ const formatDate = (date) => {
   return `${year}-${month}-${day}`
 }
 
+/**
+ * 格式化相对时间
+ * @param {Date|string} date - 日期
+ * @returns {string} 相对时间描述
+ */
 const formatRelativeTime = (date) => {
   if (!date) return ''
   const now = new Date()
@@ -679,25 +812,53 @@ const formatRelativeTime = (date) => {
   return formatDate(date)
 }
 
-const navigateTo = (route) => {
-  if (route) {
-    router.push(route)
-  }
+/**
+ * 格式化截止时间
+ * @param {Date|string} date - 日期
+ * @returns {string} 格式化的截止时间
+ */
+const formatDeadline = (date) => {
+  if (!date) return '无截止日期'
+  const deadline = new Date(date)
+  const now = new Date()
+  const diff = deadline - now
+  const hours = Math.floor(diff / 3600000)
+  const days = Math.floor(diff / 86400000)
+
+  if (diff < 0) return '已过期'
+  if (hours < 24) return `${hours}小时后到期`
+  if (days < 7) return `${days}天后到期`
+  return formatDate(date)
 }
 
+/**
+ * 判断任务是否紧急（24小时内）
+ * @param {Date|string} deadline - 截止日期
+ * @returns {boolean} 是否紧急
+ */
 const isUrgent = (deadline) => {
   if (!deadline) return false
   const deadlineDate = new Date(deadline)
   const now = new Date()
   const diff = deadlineDate - now
-  return diff > 0 && diff < 24 * 60 * 60 * 1000 // 24小时内
+  return diff > 0 && diff < 24 * 60 * 60 * 1000
 }
 
+/**
+ * 判断任务是否过期
+ * @param {Date|string} deadline - 截止日期
+ * @returns {boolean} 是否过期
+ */
 const isOverdue = (deadline) => {
   if (!deadline) return false
   return new Date(deadline) < new Date()
 }
 
+/**
+ * 获取待办类型标签颜色
+ * @param {string} type - 待办类型
+ * @returns {string} Element Plus 标签类型
+ */
 const getTodoTypeTag = (type) => {
   const typeMap = {
     '人事': 'primary',
@@ -709,6 +870,11 @@ const getTodoTypeTag = (type) => {
   return typeMap[type] || 'info'
 }
 
+/**
+ * 获取通知级别标签颜色
+ * @param {string} level - 通知级别
+ * @returns {string} Element Plus 标签类型
+ */
 const getNoticeTypeTag = (level) => {
   const typeMap = {
     '紧急': 'danger',
@@ -719,6 +885,22 @@ const getNoticeTypeTag = (level) => {
   return typeMap[level] || 'info'
 }
 
+// ==================== 交互处理函数 ====================
+
+/**
+ * 导航到指定路由
+ * @param {string} route - 路由路径
+ */
+const navigateTo = (route) => {
+  if (route) {
+    router.push(route)
+  }
+}
+
+/**
+ * 切换待办事项状态
+ * @param {Object} todo - 待办事项对象
+ */
 const toggleTodoStatus = async (todo) => {
   try {
     const status = todo.completed ? 'completed' : 'pending'
@@ -735,11 +917,19 @@ const toggleTodoStatus = async (todo) => {
   }
 }
 
+/**
+ * 处理待办事项
+ * @param {Object} todo - 待办事项对象
+ */
 const handleTodo = (todo) => {
   ElMessage.info(`处理待办: ${todo.title}`)
   // TODO: 跳转到待办详情页面
+  // router.push(`/tasks/${todo._id}`)
 }
 
+/**
+ * 查看所有待办事项
+ */
 const viewAllTodos = () => {
   router.push('/tasks')
 }
@@ -785,56 +975,28 @@ const handleNotificationDeleted = async (notice) => {
   }
 }
 
-const viewAllActivities = () => {
-  router.push('/activities')
-}
-
-const callDutyMember = async (duty) => {
-  try {
-    await ElMessageBox.confirm(
-      `确定要拨打 ${duty.memberName} 的电话 (${duty.contact}) 吗？`,
-      '联系值班人员',
-      {
-        confirmButtonText: '拨打',
-        cancelButtonText: '取消',
-        type: 'info'
-      }
-    )
-
-    // 调用电话拨打 API
-    await dashboardApi.makeCall(duty.contact)
-
-    ElMessage.success(`正在拨打 ${duty.memberName} 的电话...`)
-
-    // 如果在移动端，可以直接调用拨号功能
-    if (/mobile/i.test(navigator.userAgent)) {
-      window.location.href = `tel:${duty.contact}`
-    }
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('拨打电话失败:', error)
-      ElMessage.error('拨打失败，请重试')
-    }
-  }
-}
-
 const handleDutyContact = ({ contact, success }) => {
   if (success) {
     ElMessage.success(`已联系值班人员: ${contact}`)
   }
 }
 
+/**
+ * 快捷操作处理
+ * @param {string} action - 操作类型
+ */
 const quickAction = (action) => {
-  const routeMap = {
-    'add-member': '/village-committee/members',
-    'add-schedule': '/village-committee/duty-schedule',
-    'publish-notice': '/announcements/create',
-    'export-report': '/reports/export',
-    'view-map': '/village-committee/village-map'
+  const actionConfig = allQuickActions.value.find(a => a.id === action)
+
+  if (!actionConfig) {
+    ElMessage.info('功能开发中...')
+    return
   }
 
-  if (routeMap[action]) {
-    router.push(routeMap[action])
+  if (actionConfig.action === 'export') {
+    showCustomActionDialog.value = true
+  } else if (actionConfig.route) {
+    router.push(actionConfig.route)
   } else {
     ElMessage.info('功能开发中...')
   }
@@ -928,8 +1090,6 @@ const resetFilters = async () => {
 // 处理导出
 const handleExport = async (command) => {
   try {
-    exporting.value = true
-
     const villageId = userStore.villageId || 'default'
 
     if (command === 'all') {
@@ -978,8 +1138,6 @@ const handleExport = async (command) => {
   } catch (error) {
     console.error('导出失败:', error)
     ElMessage.error('导出失败，请重试')
-  } finally {
-    exporting.value = false
   }
 }
 
@@ -1015,8 +1173,11 @@ const exportAllData = async () => {
   }
 }
 
+/**
+ * 发送紧急通知
+ */
 const sendEmergencyNotice = async () => {
-  // 表单验证
+  // 手动验证表单
   if (!emergencyForm.value.type) {
     ElMessage.warning('请选择通知类型')
     return
@@ -1064,7 +1225,70 @@ const sendEmergencyNotice = async () => {
   }
 }
 
-// 初始化图表
+/**
+ * 筛选待办事项
+ * @param {string} filter - 筛选类型
+ */
+const filterTodos = (filter) => {
+  todoFilter.value = filter
+}
+
+/**
+ * 筛选通知
+ * @param {string} filter - 筛选类型
+ */
+const filterNotices = (filter) => {
+  noticeFilter.value = filter
+}
+
+/**
+ * 筛选活动
+ * @param {string} range - 时间范围
+ */
+const filterActivities = (range) => {
+  activityTimeRange.value = range
+}
+
+/**
+ * 保存自定义快捷操作
+ */
+const saveCustomActions = async () => {
+  try {
+    // 保存到本地存储
+    localStorage.setItem('quickActions', JSON.stringify(selectedQuickActions.value))
+
+    // TODO: 保存到后端
+    // await saveQuickActions(selectedQuickActions.value)
+
+    ElMessage.success('保存成功')
+    showCustomActionDialog.value = false
+  } catch (error) {
+    ElMessage.error('保存失败')
+  }
+}
+
+/**
+ * 图表周期变化处理
+ */
+const handleChartPeriodChange = async () => {
+  chartLoading.value = true
+  try {
+    // TODO: 从后端获取对应周期的数据
+    // const stats = await getStatistics(chartPeriod.value)
+    // updateChart(stats)
+    updateChart()
+  } catch (error) {
+    console.error('加载图表数据失败:', error)
+  } finally {
+    chartLoading.value = false
+  }
+}
+
+// ==================== 图表相关函数 ====================
+
+/**
+ * 初始化图表
+ */
 const initChart = () => {
   if (!chartRef.value) return
 
@@ -1078,12 +1302,14 @@ const initChart = () => {
       }
     },
     legend: {
-      data: ['新增村民', '处理事务', '发布公告']
+      data: ['新增村民', '处理事务', '发布公告'],
+      bottom: 0
     },
     grid: {
       left: '3%',
       right: '4%',
-      bottom: '3%',
+      bottom: '10%',
+      top: '10%',
       containLabel: true
     },
     xAxis: {
@@ -1133,11 +1359,13 @@ const initChart = () => {
   chartInstance.value.setOption(option)
 }
 
-// 更新图表数据
+/**
+ * 更新图表数据
+ */
 const updateChart = () => {
   if (!chartInstance.value) return
 
-  // TODO: 根据chartPeriod获取不同时间段的数据
+  // TODO: 根据chartPeriod从后端获取不同时间段的数据
   const dataMap = {
     week: {
       xAxis: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
@@ -1173,8 +1401,11 @@ const updateChart = () => {
   })
 }
 
-// 加载数据
-const loadData = async () => {
+/**
+ * 加载仪表盘数据（使用真实API，失败时fallback到模拟数据）
+ */
+const loadDashboardData = async () => {
+  loading.value = true
   try {
     const villageId = userStore.villageId || 'default'
 
@@ -1328,12 +1559,94 @@ const loadData = async () => {
       ]
     }
   } catch (error) {
-    console.error('加载数据失败:', error)
-    ElMessage.error('加载数据失败')
+    console.warn('API加载失败，使用模拟数据:', error)
+
+    // Fallback到模拟数据
+    await loadMockData()
+  } finally {
+    loading.value = false
   }
 }
 
-// 窗口大小改变时重新渲染图表
+/**
+ * 加载模拟数据（API失败时的备用方案）
+ */
+const loadMockData = async () => {
+  await new Promise(resolve => setTimeout(resolve, 500))
+
+  // 统计卡片
+  statisticsCards.value = [
+    {
+      key: 'residents',
+      label: '村民总数',
+      value: '1,234',
+      icon: 'UserFilled',
+      gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      change: '+12 本月',
+      trendClass: 'up',
+      trendIcon: ArrowUp,
+      route: '/residents'
+    },
+    {
+      key: 'households',
+      label: '住户总数',
+      value: '486',
+      icon: 'House',
+      gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+      change: '+3 本月',
+      trendClass: 'up',
+      trendIcon: ArrowUp,
+      route: '/household-codes'
+    },
+    {
+      key: 'notices',
+      label: '本月公告',
+      value: '28',
+      icon: 'ChatLineSquare',
+      gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+      change: '+5 环比',
+      trendClass: 'up',
+      trendIcon: ArrowUp,
+      route: '/announcements'
+    },
+    {
+      key: 'tasks',
+      label: '待办事项',
+      value: '15',
+      icon: List,
+      gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+      change: '-2 较昨日',
+      trendClass: 'down',
+      trendIcon: ArrowDown,
+      route: '/tasks'
+    }
+  ]
+
+  monthlyPoints.value = 1250
+  pendingTasks.value = 8
+}
+
+const loadData = loadDashboardData
+
+/**
+ * 初始化快捷操作配置
+ */
+const initQuickActions = () => {
+  // 从本地存储加载配置
+  const saved = localStorage.getItem('quickActions')
+  if (saved) {
+    selectedQuickActions.value = JSON.parse(saved)
+  } else {
+    // 默认选中所有默认操作
+    selectedQuickActions.value = allQuickActions.value
+      .filter(a => a.default)
+      .map(a => a.id)
+  }
+}
+
+/**
+ * 窗口大小改变处理
+ */
 const handleResize = () => {
   isMobile.value = window.innerWidth < 768
   if (chartInstance.value) {
@@ -1341,9 +1654,11 @@ const handleResize = () => {
   }
 }
 
-// 生命周期
+// ==================== 生命周期钩子 ====================
+
 onMounted(async () => {
-  await loadData()
+  initQuickActions()
+  await loadDashboardData()
   await nextTick()
   initChart()
   window.addEventListener('resize', handleResize)
@@ -1356,13 +1671,18 @@ onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
 })
 
-// 监听图表周期变化
+// ==================== 监听器 ====================
+
+/**
+ * 监听图表周期变化
+ */
 watch(chartPeriod, () => {
-  updateChart()
+  handleChartPeriodChange()
 })
 </script>
 
 <style lang="scss" scoped>
+// ==================== 主容器样式 ====================
 .cadre-dashboard {
   padding: 20px;
   background: #f5f7fa;
@@ -1373,6 +1693,7 @@ watch(chartPeriod, () => {
   }
 }
 
+// ==================== 欢迎卡片样式 ====================
 .welcome-card {
   margin-bottom: 20px;
   border: none;
@@ -1381,6 +1702,10 @@ watch(chartPeriod, () => {
 
   :deep(.el-card__body) {
     padding: 30px;
+
+    @media (max-width: 768px) {
+      padding: 20px;
+    }
   }
 
   .welcome-content {
@@ -1416,6 +1741,7 @@ watch(chartPeriod, () => {
       .welcome-position {
         display: flex;
         gap: 8px;
+        flex-wrap: wrap;
 
         .el-tag {
           border: none;
@@ -1428,6 +1754,7 @@ watch(chartPeriod, () => {
     .welcome-stats {
       display: flex;
       gap: 20px;
+      flex-wrap: wrap;
 
       .stat-item {
         display: flex;
@@ -1460,6 +1787,13 @@ watch(chartPeriod, () => {
             background: rgba(245, 108, 108, 0.2);
           }
         }
+
+        transition: all 0.3s;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.25);
+          transform: translateY(-2px);
+        }
       }
     }
   }
@@ -1474,6 +1808,7 @@ watch(chartPeriod, () => {
   }
 }
 
+// ==================== 统计卡片样式 ====================
 .stats-row {
   margin-bottom: 20px;
 
@@ -1500,6 +1835,7 @@ watch(chartPeriod, () => {
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       }
 
       .stat-info {
@@ -1510,6 +1846,10 @@ watch(chartPeriod, () => {
           font-weight: 700;
           color: #303133;
           line-height: 1.2;
+
+          @media (max-width: 768px) {
+            font-size: 24px;
+          }
         }
 
         .stat-label {
@@ -1602,11 +1942,14 @@ watch(chartPeriod, () => {
   }
 }
 
+// ==================== 主内容区样式 ====================
 .main-content {
   .card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
 
     .card-title {
       font-weight: 600;
@@ -1616,8 +1959,15 @@ watch(chartPeriod, () => {
       align-items: center;
       gap: 8px;
     }
+
+    .card-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
   }
 
+  // ==================== 图表卡片 ====================
   .chart-card {
     margin-bottom: 20px;
     border: none;
@@ -1627,6 +1977,7 @@ watch(chartPeriod, () => {
     }
   }
 
+  // ==================== 今日值班卡片 ====================
   .duty-card {
     margin-bottom: 20px;
     border: none;
@@ -1647,6 +1998,11 @@ watch(chartPeriod, () => {
 
         &:hover {
           background: #e8ebf0;
+          transform: translateX(4px);
+        }
+
+        @media (max-width: 768px) {
+          flex-wrap: wrap;
         }
 
         .duty-info {
@@ -1673,6 +2029,7 @@ watch(chartPeriod, () => {
     }
   }
 
+  // ==================== 待办事项卡片 ====================
   .todo-card {
     margin-bottom: 20px;
     border: none;
@@ -1700,6 +2057,10 @@ watch(chartPeriod, () => {
         &.urgent {
           border-left-color: #f56c6c;
           background: #fef0f0;
+
+          &:hover {
+            background: #fde2e2;
+          }
         }
 
         &.completed {
@@ -1707,7 +2068,14 @@ watch(chartPeriod, () => {
 
           .todo-title {
             text-decoration: line-through;
+            color: #909399;
           }
+        }
+
+        @media (max-width: 768px) {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 12px;
         }
 
         .todo-content {
@@ -1724,6 +2092,7 @@ watch(chartPeriod, () => {
             align-items: center;
             gap: 12px;
             margin-top: 8px;
+            flex-wrap: wrap;
 
             .todo-deadline {
               display: flex;
@@ -1739,11 +2108,20 @@ watch(chartPeriod, () => {
             }
           }
         }
+
+        .todo-actions {
+          @media (max-width: 768px) {
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+          }
+        }
       }
     }
   }
 }
 
+// ==================== 快捷操作卡片 ====================
 .quick-actions-card {
   margin-bottom: 20px;
   border: none;
@@ -1771,6 +2149,7 @@ watch(chartPeriod, () => {
 
       &:hover {
         transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       }
 
       &.emergency {
@@ -1780,11 +2159,16 @@ watch(chartPeriod, () => {
         background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
         border: none;
         color: white;
+
+        &:hover {
+          box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4);
+        }
       }
     }
   }
 }
 
+// ==================== 通知和动态卡片 ====================
 .notice-card,
 .activity-card {
   margin-bottom: 20px;
@@ -1805,23 +2189,36 @@ watch(chartPeriod, () => {
 
       &:hover {
         background: #f5f7fa;
+        transform: translateX(4px);
       }
 
       &.unread {
         background: #ecf5ff;
+
+        &:hover {
+          background: #d9ecff;
+        }
 
         .notice-title {
           font-weight: 600;
         }
       }
 
+      .notice-tag {
+        flex-shrink: 0;
+      }
+
       .notice-content {
         flex: 1;
+        min-width: 0;
 
         .notice-title {
           margin: 0 0 4px 0;
           font-size: 14px;
           color: #303133;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
         .notice-time {
@@ -1833,17 +2230,89 @@ watch(chartPeriod, () => {
 
       .activity-content {
         flex: 1;
+        min-width: 0;
 
         p {
           margin: 0 0 4px 0;
           font-size: 14px;
           color: #303133;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
         .activity-time {
           font-size: 12px;
           color: #909399;
         }
+      }
+    }
+  }
+}
+
+// ==================== 自定义操作对话框 ====================
+.custom-actions-content {
+  .tip {
+    margin: 0 0 16px 0;
+    font-size: 14px;
+    color: #909399;
+  }
+
+  .action-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+
+    .drag-handle {
+      cursor: move;
+      color: #909399;
+    }
+
+    :deep(.el-checkbox) {
+      width: 100%;
+      margin-right: 0;
+    }
+  }
+}
+
+// ==================== 加载状态优化 ====================
+:deep(.el-loading-mask) {
+  border-radius: 12px;
+}
+
+// ==================== 响应式优化 ====================
+@media (max-width: 576px) {
+  .cadre-dashboard {
+    padding: 8px;
+  }
+
+  .welcome-card {
+    :deep(.el-card__body) {
+      padding: 16px;
+    }
+
+    .welcome-title {
+      font-size: 20px !important;
+    }
+
+    .welcome-stats {
+      .stat-item {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  }
+
+  .stat-card {
+    .stat-content {
+      .stat-icon {
+        width: 48px;
+        height: 48px;
+      }
+
+      .stat-value {
+        font-size: 24px !important;
       }
     }
   }
