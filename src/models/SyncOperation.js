@@ -128,7 +128,7 @@ const syncOperationSchema = new mongoose.Schema({
   },
 
   // 错误信息
-  errors: [{
+  errorLog: [{
     timestamp: {
       type: Date,
       default: Date.now
@@ -204,7 +204,7 @@ syncOperationSchema.virtual('canRetry').get(function() {
   if (this.syncStats.attemptCount >= 5) {
     return false;
   }
-  const lastError = this.errors[this.errors.length - 1];
+  const lastError = this.errorLog[this.errorLog.length - 1];
   return !lastError || lastError.retryable;
 });
 
@@ -237,7 +237,7 @@ syncOperationSchema.methods.markSynced = function(serverVersion) {
 syncOperationSchema.methods.markFailed = function(error) {
   this.syncStatus = 'failed';
   this.syncStats.errorCount += 1;
-  this.errors.push({
+  this.errorLog.push({
     timestamp: new Date(),
     code: error.code || 'SYNC_ERROR',
     message: error.message,
@@ -288,7 +288,7 @@ syncOperationSchema.methods.cancel = function() {
  * 添加错误日志
  */
 syncOperationSchema.methods.addError = function(error) {
-  this.errors.push({
+  this.errorLog.push({
     timestamp: new Date(),
     code: error.code || 'ERROR',
     message: error.message,
@@ -302,7 +302,7 @@ syncOperationSchema.methods.addError = function(error) {
  * 获取最新错误
  */
 syncOperationSchema.methods.getLastError = function() {
-  return this.errors[this.errors.length - 1];
+  return this.errorLog[this.errorLog.length - 1];
 };
 
 // 静态方法
@@ -415,7 +415,7 @@ syncOperationSchema.statics.resetFailedOperations = function(userId) {
     {
       $set: { syncStatus: 'pending' },
       $push: {
-        errors: {
+        errorLog: {
           timestamp: new Date(),
           code: 'MANUAL_RETRY',
           message: 'Operation manually reset for retry',

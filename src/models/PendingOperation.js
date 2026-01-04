@@ -146,7 +146,7 @@ const pendingOperationSchema = new mongoose.Schema({
   },
 
   // 错误记录
-  errors: [{
+  errorLog: [{
     timestamp: {
       type: Date,
       default: Date.now
@@ -260,7 +260,7 @@ pendingOperationSchema.virtual('canRetry').get(function() {
   if (this.syncStats.attemptCount >= this.syncStats.maxAttempts) {
     return false;
   }
-  const lastError = this.errors[this.errors.length - 1];
+  const lastError = this.errorLog[this.errorLog.length - 1];
   return !lastError || lastError.retryable;
 });
 
@@ -302,7 +302,7 @@ pendingOperationSchema.methods.markSynced = function(serverVersion, serverData =
 pendingOperationSchema.methods.markFailed = function(error) {
   this.syncStatus = 'failed';
   this.syncStats.errorCount += 1;
-  this.errors.push({
+  this.errorLog.push({
     timestamp: new Date(),
     code: error.code || 'SYNC_ERROR',
     message: error.message,
@@ -350,7 +350,7 @@ pendingOperationSchema.methods.resolveConflict = function(resolution, mergedData
  */
 pendingOperationSchema.methods.cancel = function(reason) {
   this.syncStatus = 'cancelled';
-  this.errors.push({
+  this.errorLog.push({
     timestamp: new Date(),
     code: 'CANCELLED',
     message: reason || 'Operation cancelled by user',
@@ -363,7 +363,7 @@ pendingOperationSchema.methods.cancel = function(reason) {
  * 添加错误日志
  */
 pendingOperationSchema.methods.addError = function(error) {
-  this.errors.push({
+  this.errorLog.push({
     timestamp: new Date(),
     code: error.code || 'ERROR',
     message: error.message,
@@ -377,7 +377,7 @@ pendingOperationSchema.methods.addError = function(error) {
  * 获取最新错误
  */
 pendingOperationSchema.methods.getLastError = function() {
-  return this.errors.length > 0 ? this.errors[this.errors.length - 1] : null;
+  return this.errorLog.length > 0 ? this.errorLog[this.errorLog.length - 1] : null;
 };
 
 /**

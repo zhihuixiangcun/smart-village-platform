@@ -77,6 +77,8 @@ require('./Order');
 require('./Product');
 require('./AgriculturalProduct');
 require('./AgriculturePost');
+require('./AgriQA');
+require('./AgriculturePolicy');
 require('./FarmProductSupply');
 require('./Voting');
 require('./DataAnalytics');
