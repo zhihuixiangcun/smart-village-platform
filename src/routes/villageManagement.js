@@ -11,7 +11,7 @@ router.get('/duty/statistics/:villageId', auth.authenticate, villageController.g
 // 文档收集路由
 router.post('/documents', auth.authenticate, villageController.createDocumentCollection);
 router.post('/documents/:collectionId/files',
-  auth,
+  auth.authenticate,
   villageController.upload.array('files', 10),
   villageController.uploadDocumentFiles
 );

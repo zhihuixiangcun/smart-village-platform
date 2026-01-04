@@ -498,7 +498,7 @@ import {
   Search, Refresh, Download,
   List, Clock, ArrowUp, ArrowDown,
   DataAnalysis, Warning, Shield
-} from '@element-plus/icons-vite'
+} from '@element-plus/icons-vue'
 import enhancedPermissionService from '@/services/enhancedPermissionService'
 
 // 响应式数据

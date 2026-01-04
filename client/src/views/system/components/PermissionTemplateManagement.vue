@@ -115,7 +115,7 @@
               </h3>
               <h3 v-else>模板详情</h3>
               <div class="template-actions" v-if="selectedTemplate">
-                <el-button type="primary" size="small" @click="applyTemplate">
+                <el-button type="primary" size="small" @click="handleApplyTemplate">
                   应用模板
                 </el-button>
                 <el-button size="small" @click="previewTemplate">
@@ -283,8 +283,8 @@
                   <div class="category-header">
                     <el-checkbox
                       :indeterminate="getCategoryIndeterminate(category)"
-                      v-model="getCategoryChecked(category)"
-                      @change="handleCategoryCheck(category, $event)"
+                      :model-value="getCategoryChecked(category)"
+                      @update:model-value="(val) => handleCategoryCheck(category, val)"
                     >
                       全选
                     </el-checkbox>
@@ -398,7 +398,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   Search, Plus, Upload, Download,
   MoreFilled, Document
-} from '@element-plus/icons-vite'
+} from '@element-plus/icons-vue'
 import * as echarts from 'echarts'
 import enhancedPermissionService from '@/services/enhancedPermissionService'
 
@@ -825,7 +825,7 @@ const submitTemplate = async () => {
   }
 }
 
-const applyTemplate = () => {
+const handleApplyTemplate = () => {
   showApplyTemplateDialog(selectedTemplate.value)
 }
 

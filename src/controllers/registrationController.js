@@ -536,3 +536,14 @@ exports.cancelApplication = async (req, res) => {
     });
   }
 };
+
+module.exports = {
+  submitApplication,
+  getApplicationStatus,
+  getMyApplications,
+  getPendingApplications,
+  getApplicationDetails,
+  reviewApplication,
+  supplementApplication,
+  cancelApplication
+};

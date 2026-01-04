@@ -551,9 +551,6 @@ const authMiddleware = new AuthMiddleware();
 
 // 导出所有中间件和工具
 module.exports = {
-  // 导出单例实例，以便访问 activeSessions
-  instance: authMiddleware,
-
   // 主认证中间件（向后兼容）
   authenticate: authMiddleware.authenticate,
   authenticateToken: authMiddleware.authenticate,  // 别名
@@ -565,20 +562,6 @@ module.exports = {
   generateTokens: authMiddleware.generateTokens.bind(authMiddleware),
   revokeSession: authMiddleware.revokeSession.bind(authMiddleware)
 };
-
-// 为了向后兼容，添加属性访问器
-Object.defineProperty(module.exports, 'activeSessions', {
-  get() { return authMiddleware.activeSessions; },
-  set(value) { authMiddleware.activeSessions = value; }
-});
-
-Object.defineProperty(module.exports, 'jwtSecret', {
-  get() { return authMiddleware.jwtSecret; }
-});
-
-Object.defineProperty(module.exports, 'jwtAlgorithm', {
-  get() { return authMiddleware.jwtAlgorithm; }
-});
 
 /**
  * 可选认证中间件

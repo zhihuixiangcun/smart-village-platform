@@ -40,7 +40,7 @@ const villageIdValidation = [
 
 // 人脸检测
 router.post('/detect',
-  authMiddleware,
+  authMiddleware.authenticate,
   rateLimitMiddleware.faceDetection,
   imageValidation,
   villageIdValidation,
@@ -50,7 +50,7 @@ router.post('/detect',
 
 // 人脸注册
 router.post('/register',
-  authMiddleware,
+  authMiddleware.authenticate,
   rateLimitMiddleware.faceRegister,
   [
     ...imageValidation,
@@ -71,7 +71,7 @@ router.post('/register',
 
 // 人脸验证 (1:1)
 router.post('/verify',
-  authMiddleware,
+  authMiddleware.authenticate,
   rateLimitMiddleware.faceVerify,
   [
     ...imageValidation,
@@ -92,7 +92,7 @@ router.post('/verify',
 
 // 人脸识别 (1:N)
 router.post('/identify',
-  authMiddleware,
+  authMiddleware.authenticate,
   rateLimitMiddleware.faceIdentify,
   [
     ...imageValidation,
@@ -112,7 +112,7 @@ router.post('/identify',
 
 // 活体检测
 router.post('/liveness/detect',
-  authMiddleware,
+  authMiddleware.authenticate,
   rateLimitMiddleware.livenessDetection,
   [
     body('frames')
@@ -137,7 +137,7 @@ router.post('/liveness/detect',
 
 // 创建亲属代理关系
 router.post('/family-relation/create',
-  authMiddleware,
+  authMiddleware.authenticate,
   rateLimitMiddleware.familyRelation,
   [
     body('principalUserId')
@@ -174,7 +174,7 @@ router.post('/family-relation/create',
 
 // 获取用户人脸注册状态
 router.get('/user/:userId/status',
-  authMiddleware,
+  authMiddleware.authenticate,
   rateLimitMiddleware.general,
   [
     param('userId')
@@ -194,7 +194,7 @@ router.get('/user/:userId/status',
 
 // 删除用户人脸数据
 router.delete('/user/:userId',
-  authMiddleware,
+  authMiddleware.authenticate,
   rateLimitMiddleware.faceDelete,
   [
     param('userId')
@@ -214,7 +214,7 @@ router.delete('/user/:userId',
 
 // 人脸比较
 router.post('/compare',
-  authMiddleware,
+  authMiddleware.authenticate,
   rateLimitMiddleware.faceVerify,
   [
     body('image1')
@@ -262,7 +262,7 @@ router.post('/compare',
 
 // 批量人脸验证
 router.post('/batch/verify',
-  authMiddleware,
+  authMiddleware.authenticate,
   rateLimitMiddleware.batchOperation,
   [
     body('requests')
@@ -353,7 +353,7 @@ router.post('/batch/verify',
 
 // 获取人脸识别配置
 router.get('/config',
-  authMiddleware,
+  authMiddleware.authenticate,
   rateLimitMiddleware.general,
   villageIdValidation,
   async (req, res) => {
@@ -394,7 +394,7 @@ router.get('/config',
 
 // 更新人脸识别配置
 router.put('/config',
-  authMiddleware,
+  authMiddleware.authenticate,
   rateLimitMiddleware.general,
   [
     body('villageId')
@@ -462,7 +462,7 @@ router.put('/config',
 
 // 获取审计日志
 router.get('/audit/logs',
-  authMiddleware,
+  authMiddleware.authenticate,
   rateLimitMiddleware.general,
   [
     query('villageId')

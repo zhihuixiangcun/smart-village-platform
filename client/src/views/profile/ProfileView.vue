@@ -117,7 +117,7 @@
                 >
                   <template #error>
                     <div class="qrcode-placeholder">
-                      <el-icon size="40"><QRCode /></el-icon>
+                      <el-icon size="40"><Grid /></el-icon>
                       <span>点击查看</span>
                     </div>
                   </template>
@@ -244,7 +244,7 @@
 
             <div class="tools-grid">
               <div class="tool-item" @click="openTool('calculator')">
-                <el-icon><TrendCharts /></el-icon>
+                <el-icon><DataLine /></el-icon>
                 <span>政策计算器</span>
               </div>
 
@@ -405,9 +405,9 @@ import {
   CircleCheck,
   UserFilled,
   Star,
-  QRCode,
+  Grid,
   ArrowRight,
-  TrendCharts,
+  DataLine,
   Calendar,
   Phone,
   Microphone,

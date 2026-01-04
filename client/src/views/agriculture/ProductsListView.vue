@@ -39,7 +39,7 @@
             <el-col :xs="24" :sm="12" :md="6">
               <div class="stat-card stock">
                 <div class="stat-icon">
-                  <el-icon><Warehouse /></el-icon>
+                  <el-icon><OfficeBuilding /></el-icon>
                 </div>
                 <div class="stat-content">
                   <div class="stat-number">{{ productStats.totalStock.toLocaleString() }}</div>
@@ -50,7 +50,7 @@
             <el-col :xs="24" :sm="12" :md="6">
               <div class="stat-card sold">
                 <div class="stat-icon">
-                  <el-icon><ShoppingCartFull /></el-icon>
+                  <el-icon><ShoppingCart /></el-icon>
                 </div>
                 <div class="stat-content">
                   <div class="stat-number">{{ productStats.totalSold.toLocaleString() }}</div>
@@ -61,7 +61,7 @@
             <el-col :xs="24" :sm="12" :md="6">
               <div class="stat-card revenue">
                 <div class="stat-icon">
-                  <el-icon><Money /></el-icon>
+                  <el-icon><Coin /></el-icon>
                 </div>
                 <div class="stat-content">
                   <div class="stat-number">¥{{ productStats.totalValue.toLocaleString() }}</div>
@@ -272,9 +272,9 @@ import {
   Apple,
   Plus,
   Box,
-  Warehouse,
-  ShoppingCartFull,
-  Money,
+  OfficeBuilding,
+  ShoppingCart,
+  Coin,
   Search,
   View,
   Edit,

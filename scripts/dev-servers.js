@@ -11,15 +11,17 @@ const path = require('path');
 console.log('🚀 启动智慧乡村平台开发服务器...\n');
 
 // 启动主服务器
-const mainServer = spawn('nodemon', ['src/app.js'], {
+const mainServer = spawn('node', ['src/app.js'], {
   cwd: path.join(__dirname, '..'),
-  stdio: 'inherit'
+  stdio: 'inherit',
+  env: { ...process.env, NODE_ENV: 'development' }
 });
 
 // 启动村务服务器
-const villageServer = spawn('nodemon', ['server/app.js'], {
+const villageServer = spawn('node', ['server/app.js'], {
   cwd: path.join(__dirname, '..'),
-  stdio: 'inherit'
+  stdio: 'inherit',
+  env: { ...process.env, NODE_ENV: 'development' }
 });
 
 mainServer.on('close', (code) => {

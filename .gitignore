@@ -258,3 +258,4 @@ reports/
 .env.*
 !.env.example
 /nul
+client/src/nul

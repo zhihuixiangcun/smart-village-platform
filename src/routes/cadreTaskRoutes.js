@@ -14,7 +14,7 @@ const auth = require('../middleware/auth');
  */
 
 // 应用认证中间件到所有路由
-router.use(auth.authenticate);
+router.use(auth.authenticateToken);
 
 /**
  * @route   GET /api/v1/cadre-tasks

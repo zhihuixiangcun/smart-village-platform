@@ -38,7 +38,7 @@
       <div class="login-section">
         <div class="login-content">
           <!-- 角色选择 -->
-          <div class="role-selector" v-if="!showRegister">
+          <div class="role-selector">
             <div
               v-for="role in roles"
               :key="role.value"
@@ -53,20 +53,18 @@
             </div>
           </div>
 
-          <!-- 登录/注册切换 -->
-          <div class="auth-toggle">
-            <span
-              :class="{ active: !showRegister }"
-              @click="showRegister = false"
-            >登录</span>
-            <span
-              :class="{ active: showRegister }"
-              @click="showRegister = true"
-            >注册</span>
+          <!-- 登录标题和注册入口 -->
+          <div class="login-header">
+            <h2>欢迎登录</h2>
+            <p class="login-subtitle">请选择您的身份登录</p>
+            <div class="register-link">
+              <span>还没有账号？</span>
+              <el-link type="primary" @click="goToRegister">立即注册</el-link>
+            </div>
           </div>
 
           <!-- 登录方式选择 -->
-          <div class="login-methods" v-if="!showRegister">
+          <div class="login-methods">
             <div class="method-tabs">
               <div
                 v-for="method in loginMethods"
@@ -121,8 +119,10 @@
 
               <el-form-item>
                 <div class="form-footer">
-                  <el-checkbox v-model="rememberMe">记住密码</el-checkbox>
-                  <el-link type="primary" @click="showForgotPassword">忘记密码？</el-link>
+                  <el-checkbox v-model="agreeTerms">我已阅读并同意</el-checkbox>
+                  <el-link type="primary" @click="showTermsDialog">《用户协议》</el-link>
+                  <span>和</span>
+                  <el-link type="primary" @click="showPrivacyDialog">《隐私政策》</el-link>
                 </div>
               </el-form-item>
 
@@ -283,154 +283,6 @@
               </div>
             </div>
           </div>
-
-          <!-- 注册表单 -->
-          <div class="register-form" v-else>
-            <el-form
-              ref="registerFormRef"
-              :model="registerForm"
-              :rules="registerRules"
-              class="login-form"
-            >
-              <el-form-item prop="phone">
-                <el-input
-                  v-model="registerForm.phone"
-                  placeholder="请输入手机号"
-                  size="large"
-                >
-                  <template #prefix>
-                    <el-icon><Phone /></el-icon>
-                  </template>
-                </el-input>
-              </el-form-item>
-
-              <el-form-item prop="verifyCode">
-                <el-input
-                  v-model="registerForm.verifyCode"
-                  placeholder="请输入验证码"
-                  size="large"
-                >
-                  <template #prefix>
-                    <el-icon><Key /></el-icon>
-                  </template>
-                  <template #append>
-                    <el-button
-                      :disabled="codeCountdown > 0"
-                      @click="sendVerifyCode"
-                      type="primary"
-                      link
-                    >
-                      {{ codeCountdown > 0 ? `${codeCountdown}秒` : '获取验证码' }}
-                    </el-button>
-                  </template>
-                </el-input>
-              </el-form-item>
-
-              <el-form-item prop="username">
-                <el-input
-                  v-model="registerForm.username"
-                  placeholder="请输入姓名"
-                  size="large"
-                >
-                  <template #prefix>
-                    <el-icon><User /></el-icon>
-                  </template>
-                </el-input>
-              </el-form-item>
-
-              <el-form-item prop="password">
-                <el-input
-                  v-model="registerForm.password"
-                  type="password"
-                  placeholder="设置密码"
-                  size="large"
-                  show-password
-                >
-                  <template #prefix>
-                    <el-icon><Lock /></el-icon>
-                  </template>
-                </el-input>
-              </el-form-item>
-
-              <el-form-item prop="confirmPassword">
-                <el-input
-                  v-model="registerForm.confirmPassword"
-                  type="password"
-                  placeholder="确认密码"
-                  size="large"
-                  show-password
-                >
-                  <template #prefix>
-                    <el-icon><Lock /></el-icon>
-                  </template>
-                </el-input>
-              </el-form-item>
-
-              <!-- 村民专属：身份证号 -->
-              <template v-if="selectedRole === 'resident'">
-                <el-form-item prop="idCard">
-                  <el-input
-                    v-model="registerForm.idCard"
-                    placeholder="请输入身份证号"
-                    size="large"
-                    maxlength="18"
-                  >
-                    <template #prefix>
-                      <el-icon><Postcard /></el-icon>
-                    </template>
-                  </el-input>
-                </el-form-item>
-              </template>
-
-              <!-- 村干部专属：任职证明 -->
-              <template v-if="selectedRole === 'cadre'">
-                <el-form-item prop="appointmentProof">
-                  <el-upload
-                    v-model:file-list="appointmentProofList"
-                    :auto-upload="false"
-                    :limit="1"
-                    accept="image/*,.pdf"
-                    list-type="picture-card"
-                  >
-                    <el-icon><Plus /></el-icon>
-                    <template #tip>
-                      <div class="upload-tip">上传任职证明文件</div>
-                    </template>
-                  </el-upload>
-                </el-form-item>
-              </template>
-
-              <el-form-item>
-                <el-checkbox v-model="agreeTerms">
-                  我已阅读并同意
-                  <el-link type="primary">《用户协议》</el-link>
-                  和
-                  <el-link type="primary">《隐私政策》</el-link>
-                </el-checkbox>
-              </el-form-item>
-
-              <el-form-item>
-                <el-button
-                  type="primary"
-                  size="large"
-                  @click="goToRegistrationWizard"
-                  class="login-button"
-                >
-                  开始注册
-                </el-button>
-              </el-form-item>
-
-              <el-form-item>
-                <el-button
-                  size="large"
-                  @click="showRegister = false"
-                  class="login-button"
-                >
-                  返回登录
-                </el-button>
-              </el-form-item>
-            </el-form>
-          </div>
         </div>
       </div>
     </div>
@@ -448,7 +300,15 @@
         <el-form-item label="验证码">
           <el-input v-model="forgotForm.code">
             <template #append>
-              <el-button type="primary" link>获取验证码</el-button>
+              <el-button
+                type="primary"
+                link
+                :disabled="codeCountdown > 0 || codeSending"
+                :loading="codeSending"
+                @click="sendForgotCode"
+              >
+                {{ codeCountdown > 0 ? `${codeCountdown}秒后重试` : '获取验证码' }}
+              </el-button>
             </template>
           </el-input>
         </el-form-item>
@@ -459,6 +319,97 @@
       <template #footer>
         <el-button @click="showForgotDialog = false">取消</el-button>
         <el-button type="primary" @click="handleResetPassword">确定</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 用户协议弹窗 -->
+    <el-dialog
+      v-model="showTermsDialogFlag"
+      title="用户协议"
+      width="700px"
+      :close-on-click-modal="false"
+    >
+      <div class="terms-content">
+        <h3>智慧乡村综合服务平台用户协议</h3>
+        <p><strong>欢迎使用智慧乡村综合服务平台！</strong></p>
+        <p>为使用本平台服务，您应当阅读并遵守《用户协议》和《隐私政策》。请您务必审慎阅读、充分理解各条款内容，特别是免除或者限制责任的条款。</p>
+
+        <h4>一、服务说明</h4>
+        <p>1.1 本平台为智慧乡村综合服务平台，提供村民管理、村务治理、信息公示、生活服务等综合功能。</p>
+        <p>1.2 您注册成功后，将成为本平台用户，可以使用本平台提供的各项服务。</p>
+
+        <h4>二、用户注册与账号</h4>
+        <p>2.1 您承诺以真实身份注册，并保证所提供的个人信息真实、准确、完整。</p>
+        <p>2.2 您应对您的账号和密码的安全负全部责任，因您保管不善可能导致账号被盗用，责任由您自行承担。</p>
+
+        <h4>三、用户行为规范</h4>
+        <p>3.1 您在使用本平台服务过程中，必须遵守相关法律法规，不得利用本平台从事违法违规活动。</p>
+        <p>3.2 禁止发布虚假信息、侮辱诽谤他人、侵犯他人隐私等行为。</p>
+
+        <h4>四、隐私保护</h4>
+        <p>4.1 我们重视您的隐私保护，关于您个人信息的收集、使用、存储等规定，请参阅《隐私政策》。</p>
+
+        <h4>五、免责条款</h4>
+        <p>5.1 本平台不保证服务一定能满足您的要求，也不保证服务不会中断。</p>
+        <p>5.2 因不可抗力、网络故障、系统维护等原因导致服务中断，本平台不承担责任。</p>
+
+        <h4>六、协议修改</h4>
+        <p>6.1 我们有权根据需要修改本协议条款，修改后的协议一旦公布即代替原协议。</p>
+
+        <h4>七、法律适用</h4>
+        <p>7.1 本协议之订立、生效、解释、修订、终止、执行与争议解决均适用中华人民共和国法律。</p>
+      </div>
+      <template #footer>
+        <el-button type="primary" @click="agreeTermsAndClose">我已阅读并同意</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 隐私政策弹窗 -->
+    <el-dialog
+      v-model="showPrivacyDialogFlag"
+      title="隐私政策"
+      width="700px"
+      :close-on-click-modal="false"
+    >
+      <div class="terms-content">
+        <h3>智慧乡村综合服务平台隐私政策</h3>
+        <p><strong>更新日期：2025年1月</strong></p>
+        <p>我们非常重视用户的隐私保护。本隐私政策说明了我们如何收集、使用、存储和保护您的个人信息。</p>
+
+        <h4>一、信息收集</h4>
+        <p>1.1 我们收集您主动提供的信息，包括：注册信息（手机号、姓名、身份证号等）、个人资料等。</p>
+        <p>1.2 我们收集自动生成的信息，包括：IP地址、设备信息、日志信息等。</p>
+
+        <h4>二、信息使用</h4>
+        <p>2.1 我们使用您的个人信息来：提供、维护和改进我们的服务。</p>
+        <p>2.2 向您发送重要通知，如系统更新、政策变更等。</p>
+        <p>2.3 经您同意的其他用途。</p>
+
+        <h4>三、信息存储</h4>
+        <p>3.1 我们在中华人民共和国境内收集和产生的个人信息，将存储在中华人民共和国境内。</p>
+        <p>3.2 我们会采取合理的技术手段和管理措施保护您的个人信息安全。</p>
+
+        <h4>四、信息共享</h4>
+        <p>4.1 除以下情况外，未经您同意，我们不会与任何第三方共享您的个人信息：</p>
+        <p>（1）获得您的明确同意；</p>
+        <p>（2）根据法律法规或政府主管部门要求；</p>
+        <p>（3）为维护我们的合法权益。</p>
+
+        <h4>五、您的权利</h4>
+        <p>5.1 您有权访问、更正、删除您的个人信息。</p>
+        <p>5.2 您有权撤回之前给予我们的同意。</p>
+        <p>5.3 您有权注销您的账号。</p>
+
+        <h4>六、政策更新</h4>
+        <p>6.1 我们可能适时修订本隐私政策的条款，该等修订构成本隐私政策的一部分。</p>
+
+        <h4>七、联系我们</h4>
+        <p>7.1 如您对本隐私政策有任何疑问，请通过以下方式联系我们：</p>
+        <p>邮箱：support@smartvillage.com</p>
+        <p>电话：400-XXX-XXXX</p>
+      </div>
+      <template #footer>
+        <el-button type="primary" @click="agreePrivacyAndClose">我已阅读并同意</el-button>
       </template>
     </el-dialog>
   </div>
@@ -475,31 +426,35 @@ import {
 } from '@element-plus/icons-vue'
 import { authApi } from '@/api'
 import api from '@/api'
+import { markRaw } from 'vue'
+import { useUserStore } from '@/stores/userStore'
 
 const router = useRouter()
+const userStore = useUserStore()
 
 // 角色定义
 const roles = ref([
-  { label: '村民', value: 'resident', icon: UserFilled },
-  { label: '村干部', value: 'cadre', icon: ChatDotSquare },
-  { label: '乡镇官员', value: 'official', icon: OfficeBuilding },
-  { label: '采购商', value: 'purchaser', icon: ShoppingCart },
-  { label: '管理员', value: 'admin', icon: User }
+  { label: '村民', value: 'resident', icon: markRaw(UserFilled) },
+  { label: '村干部', value: 'cadre', icon: markRaw(ChatDotSquare) },
+  { label: '乡镇官员', value: 'official', icon: markRaw(OfficeBuilding) },
+  { label: '采购商', value: 'purchaser', icon: markRaw(ShoppingCart) },
+  { label: '管理员', value: 'admin', icon: markRaw(User) }
 ])
 
 const selectedRole = ref('resident')
-const showRegister = ref(false)
 const loginMethod = ref('password')
 const loading = ref(false)
 const rememberMe = ref(false)
 const hasLogo = ref(false)
 const showForgotDialog = ref(false)
+const showTermsDialogFlag = ref(false)
+const showPrivacyDialogFlag = ref(false)
 
 // 登录方式
 const loginMethods = ref([
-  { label: '密码登录', value: 'password', icon: Lock },
-  { label: '人脸识别', value: 'face', icon: Camera },
-  { label: '微信登录', value: 'wechat', icon: ChatDotRound }
+  { label: '密码登录', value: 'password', icon: markRaw(Lock) },
+  { label: '人脸识别', value: 'face', icon: markRaw(Camera) },
+  { label: '微信登录', value: 'wechat', icon: markRaw(ChatDotRound) }
 ])
 
 // 登录表单
@@ -535,58 +490,8 @@ const purchaserLoginRules = {
   ]
 }
 
-// 注册表单
-const registerForm = reactive({
-  phone: '',
-  verifyCode: '',
-  username: '',
-  password: '',
-  confirmPassword: '',
-  idCard: '',
-  role: 'resident'
-})
-
-const registerRules = {
-  phone: [
-    { required: true, message: '请输入手机号', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
-  ],
-  verifyCode: [
-    { required: true, message: '请输入验证码', trigger: 'blur' },
-    { pattern: /^\d{6}$/, message: '验证码为6位数字', trigger: 'blur' }
-  ],
-  username: [
-    { required: true, message: '请输入姓名', trigger: 'blur' }
-  ],
-  password: [
-    { required: true, message: '请设置密码', trigger: 'blur' },
-    { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
-  ],
-  confirmPassword: [
-    { required: true, message: '请确认密码', trigger: 'blur' },
-    {
-      validator: (rule, value, callback) => {
-        if (value !== registerForm.password) {
-          callback(new Error('两次输入的密码不一致'))
-        } else {
-          callback()
-        }
-      },
-      trigger: 'blur'
-    }
-  ],
-  idCard: [
-    {
-      pattern: /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/,
-      message: '请输入正确的身份证号',
-      trigger: 'blur'
-    }
-  ]
-}
-
 const agreeTerms = ref(false)
 const codeCountdown = ref(0)
-const appointmentProofList = ref([])
 
 // 忘记密码表单
 const forgotForm = reactive({
@@ -594,6 +499,44 @@ const forgotForm = reactive({
   code: '',
   newPassword: ''
 })
+
+// 忘记密码验证码相关
+const codeSending = ref(false)
+// codeCountdown 已在上面声明 (第492行)
+
+// 发送忘记密码验证码
+const sendForgotCode = async () => {
+  if (!forgotForm.phone) {
+    ElMessage.warning('请输入手机号')
+    return
+  }
+
+  if (!/^1[3-9]\d{9}$/.test(forgotForm.phone)) {
+    ElMessage.warning('请输入正确的手机号')
+    return
+  }
+
+  codeSending.value = true
+  try {
+    const res = await authApi.sendVerifyCode({ phone: forgotForm.phone, type: 'reset' })
+    if (res.success) {
+      ElMessage.success('验证码已发送，请查收短信')
+      codeCountdown.value = 60
+      const timer = setInterval(() => {
+        codeCountdown.value--
+        if (codeCountdown.value <= 0) {
+          clearInterval(timer)
+        }
+      }, 1000)
+    } else {
+      ElMessage.error(res.message || '发送失败')
+    }
+  } catch (error) {
+    ElMessage.error(error.message || '发送失败，请稍后重试')
+  } finally {
+    codeSending.value = false
+  }
+}
 
 // 人脸识别
 const videoRef = ref(null)
@@ -610,7 +553,6 @@ let wechatCheckTimer = null
 // 选择角色
 const selectRole = (role) => {
   selectedRole.value = role
-  registerForm.role = role
 }
 
 // 获取用户名占位符
@@ -626,7 +568,7 @@ const getUsernamePlaceholder = () => {
 
 // 密码登录
 const handlePasswordLogin = async () => {
-  if (!agreeTerms.value && !showRegister.value) {
+  if (!agreeTerms.value) {
     ElMessage.warning('请先阅读并同意用户协议')
     return
   }
@@ -640,22 +582,31 @@ const handlePasswordLogin = async () => {
     })
 
     if (res.success) {
-      localStorage.setItem('token', res.data.token)
-      localStorage.setItem('user', JSON.stringify(res.data.user))
+      // 使用 userStore 正确存储用户数据
+      userStore.setToken(res.data.token)
+      userStore.setUserInfo(res.data.user)
 
       ElMessage.success('登录成功')
-      // 根据角色跳转到不同页面
-      const redirectMap = {
-        resident: '/resident/dashboard',
-        cadre: '/cadre/dashboard',
-        official: '/official/dashboard',
-        purchaser: '/purchaser/dashboard',
-        admin: '/admin/dashboard'
+
+      // 检查是否有重定向地址
+      const redirect = router.currentRoute.value.query.redirect
+      if (redirect) {
+        router.push(redirect)
+      } else {
+        // 根据角色跳转到不同页面
+        const redirectMap = {
+          resident: '/village-affairs',     // 村民 → 村务公开
+          cadre: '/dashboard',               // 村干部 → 工作台
+          official: '/dashboard',            // 乡镇官员 → 工作台
+          purchaser: '/purchaser/dashboard', // 采购商 → 采购商工作台
+          admin: '/dashboard'                // 管理员 → 工作台
+        }
+        const redirectPath = redirectMap[selectedRole.value] || '/dashboard'
+        router.push(redirectPath)
       }
-      router.push(redirectMap[selectedRole.value] || '/')
     }
   } catch (error) {
-    ElMessage.error(error.message || '登录失败')
+    ElMessage.error(error.response?.data?.error || error.message || '登录失败')
   } finally {
     loading.value = false
   }
@@ -679,69 +630,6 @@ const handlePurchaserLogin = async () => {
     }
   } catch (error) {
     ElMessage.error(error.response?.data?.message || error.message || '登录失败')
-  } finally {
-    loading.value = false
-  }
-}
-
-// 发送验证码
-const sendVerifyCode = async () => {
-  if (!registerForm.phone) {
-    ElMessage.warning('请先输入手机号')
-    return
-  }
-
-  try {
-    await authApi.sendVerifyCode({
-      phone: registerForm.phone,
-      type: 'register'
-    })
-
-    ElMessage.success('验证码已发送')
-    codeCountdown.value = 60
-    const timer = setInterval(() => {
-      codeCountdown.value--
-      if (codeCountdown.value <= 0) {
-        clearInterval(timer)
-      }
-    }, 1000)
-  } catch (error) {
-    ElMessage.error(error.message || '发送失败')
-  }
-}
-
-// 注册
-const handleRegister = async () => {
-  if (!agreeTerms.value) {
-    ElMessage.warning('请先阅读并同意用户协议和隐私政策')
-    return
-  }
-
-  loading.value = true
-  try {
-    const formData = new FormData()
-    Object.keys(registerForm).forEach(key => {
-      if (key !== 'confirmPassword') {
-        formData.append(key, registerForm[key])
-      }
-    })
-
-    // 添加任职证明文件
-    if (appointmentProofList.value.length > 0) {
-      formData.append('appointmentProof', appointmentProofList.value[0].raw)
-    }
-
-    const res = await authApi.register(formData)
-
-    if (res.success) {
-      ElMessage.success('注册成功，请登录')
-      showRegister.value = false
-      // 自动填充登录表单
-      loginForm.username = registerForm.phone
-      loginForm.password = registerForm.password
-    }
-  } catch (error) {
-    ElMessage.error(error.message || '注册失败')
   } finally {
     loading.value = false
   }
@@ -872,16 +760,9 @@ const handleResetPassword = async () => {
   }
 }
 
-// 跳转到注册向导
-const goToRegistrationWizard = () => {
-  if (selectedRole.value === 'purchaser') {
-    router.push('/auth/registration-wizard')
-  } else {
-    router.push({
-      name: 'common-registration',
-      query: { role: selectedRole.value }
-    })
-  }
+// 跳转到注册页面
+const goToRegister = () => {
+  router.push('/register')
 }
 
 // 获取角色标题
@@ -894,6 +775,28 @@ const getRoleTitle = () => {
     purchaser: '采购商'
   }
   return titles[selectedRole.value] || '用户'
+}
+
+// 显示用户协议
+const showTermsDialog = () => {
+  showTermsDialogFlag.value = true
+}
+
+// 显示隐私政策
+const showPrivacyDialog = () => {
+  showPrivacyDialogFlag.value = true
+}
+
+// 同意用户协议并关闭
+const agreeTermsAndClose = () => {
+  agreeTerms.value = true
+  showTermsDialogFlag.value = false
+}
+
+// 同意隐私政策并关闭
+const agreePrivacyAndClose = () => {
+  agreeTerms.value = true
+  showPrivacyDialogFlag.value = false
 }
 
 // 监听登录方式切换
@@ -1115,6 +1018,37 @@ onUnmounted(() => {
     .login-content {
       max-width: 420px;
       margin: 0 auto;
+    }
+
+    .login-header {
+      text-align: center;
+      margin-bottom: 30px;
+
+      h2 {
+        font-size: 26px;
+        font-weight: 700;
+        color: #303133;
+        margin-bottom: 8px;
+      }
+
+      .login-subtitle {
+        font-size: 14px;
+        color: #909399;
+        margin-bottom: 20px;
+      }
+
+      .register-link {
+        font-size: 14px;
+        color: #606266;
+
+        span {
+          margin-right: 6px;
+        }
+
+        :deep(.el-link) {
+          font-weight: 600;
+        }
+      }
     }
 
     .role-selector {
@@ -1670,6 +1604,77 @@ onUnmounted(() => {
         }
       }
     }
+  }
+}
+
+// 用户协议和隐私政策内容样式
+.terms-content {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 0 10px;
+
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: #303133;
+  }
+
+  h4 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: #606266;
+  }
+
+  p {
+    margin-bottom: 12px;
+    line-height: 1.8;
+    color: #606266;
+    font-size: 14px;
+    text-align: justify;
+  }
+
+  strong {
+    color: #303133;
+    font-weight: 600;
+  }
+
+  ul {
+    margin-left: 20px;
+    margin-bottom: 12px;
+
+    li {
+      margin-bottom: 8px;
+      line-height: 1.6;
+      color: #606266;
+      font-size: 14px;
+    }
+  }
+}
+
+// 用户协议复选框区域样式
+.form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #909399;
+
+  :deep(.el-checkbox__label) {
+    font-size: 13px;
+    color: #909399;
+  }
+
+  :deep(.el-checkbox__input.is-checked + .el-checkbox__label) {
+    color: #667eea;
+  }
+
+  :deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
+    background-color: #667eea;
+    border-color: #667eea;
   }
 }
 </style>
