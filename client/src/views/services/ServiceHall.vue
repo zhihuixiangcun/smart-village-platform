@@ -213,10 +213,14 @@ import {
   FirstAid,
   Money,
   Calendar,
-  Bell
+  Bell,
+  OfficeBuilding,
+  Van,
+  BabyCarriage
 } from '@element-plus/icons-vue'
 import { useLargeText } from '@/composables/useLargeText'
 import { useVoiceInput } from '@/composables/useVoiceInput'
+import { serviceApi } from '@/api/service'
 
 const router = useRouter()
 
@@ -233,11 +237,12 @@ const applicationCount = ref(3)
 
 // 服务列表数据
 const services = ref([
+  // 证件办理类
   {
     id: 'id-card',
     name: '身份证补办/换领',
     description: '身份证丢失、损坏或到期,可在线申请补办或换领',
-    icon: 'User',
+    icon: User,
     color: '#409eff',
     type: 'document',
     typeName: '证件办理',
@@ -248,7 +253,7 @@ const services = ref([
     id: 'household',
     name: '户口本办理',
     description: '户口本补办、换领、变更登记等业务',
-    icon: 'House',
+    icon: House,
     color: '#67c23a',
     type: 'document',
     typeName: '证件办理',
@@ -259,18 +264,19 @@ const services = ref([
     id: 'marriage',
     name: '结婚登记预约',
     description: '在线预约结婚登记,减少现场等待时间',
-    icon: 'Promotion',
+    icon: Promotion,
     color: '#e6a23c',
     type: 'document',
     typeName: '证件办理',
     processTime: '1-3个工作日',
-    component: 'MarriageApplication'
+    component: 'MarriageRegistration'
   },
+  // 福利申请类
   {
     id: 'subsistence',
     name: '低保申请',
     description: '家庭经济困难可申请最低生活保障',
-    icon: 'Money',
+    icon: Money,
     color: '#f56c6c',
     type: 'welfare',
     typeName: '福利申请',
@@ -281,7 +287,7 @@ const services = ref([
     id: 'disability',
     name: '残疾补贴申请',
     description: '残疾人可申请生活补贴和护理补贴',
-    icon: 'FirstAid',
+    icon: FirstAid,
     color: '#909399',
     type: 'welfare',
     typeName: '福利申请',
@@ -291,8 +297,8 @@ const services = ref([
   {
     id: 'elderly',
     name: '老年补贴申请',
-    description: '60岁以上老人可申请高龄补贴',
-    icon: 'Calendar',
+    description: '60岁以上老人可申请高龄津贴',
+    icon: Calendar,
     color: '#00bcd4',
     type: 'welfare',
     typeName: '福利申请',
@@ -300,10 +306,55 @@ const services = ref([
     component: 'ElderlyApplication'
   },
   {
+    id: 'birth',
+    name: '生育补贴申请',
+    description: '符合生育政策可申请生育津贴和育儿假津贴',
+    icon: BabyCarriage,
+    color: '#ff7675',
+    type: 'welfare',
+    typeName: '福利申请',
+    processTime: '10-20个工作日',
+    component: 'BirthApplication'
+  },
+  {
+    id: 'transport',
+    name: '交通补贴申请',
+    description: '特殊群体可申请公交、铁路等交通优惠',
+    icon: Van,
+    color: '#74b9ff',
+    type: 'welfare',
+    typeName: '福利申请',
+    processTime: '5-10个工作日',
+    component: 'TransportApplication'
+  },
+  // 其他服务类
+  {
+    id: 'house-building',
+    name: '建房申请',
+    description: '新建、改建、扩建房屋需申请审批',
+    icon: OfficeBuilding,
+    color: '#fd79a8',
+    type: 'other',
+    typeName: '其他服务',
+    processTime: '15-30个工作日',
+    component: 'HouseBuildingApplication'
+  },
+  {
+    id: 'event',
+    name: '红白喜事申请',
+    description: '婚庆、丧葬等大型活动申请备案',
+    icon: Bell,
+    color: '#a29bfe',
+    type: 'other',
+    typeName: '其他服务',
+    processTime: '1-3个工作日',
+    component: 'EventApplication'
+  },
+  {
     id: 'residence',
     name: '居住证明',
     description: '开具居住证明,用于办理各项业务',
-    icon: 'Stamp',
+    icon: Stamp,
     color: '#ff6b6b',
     type: 'certificate',
     typeName: '证明开具',
@@ -314,7 +365,7 @@ const services = ref([
     id: 'income',
     name: '收入证明',
     description: '开具收入证明,用于贷款、签证等',
-    icon: 'Document',
+    icon: Document,
     color: '#4ecdc4',
     type: 'certificate',
     typeName: '证明开具',
@@ -325,7 +376,7 @@ const services = ref([
     id: 'health',
     name: '健康证明',
     description: '开具健康证明,用于体检、入职等',
-    icon: 'Bell',
+    icon: Bell,
     color: '#95e1d3',
     type: 'certificate',
     typeName: '证明开具',
@@ -435,7 +486,7 @@ const goToServices = () => {
 }
 
 // 申请提交成功处理
-const handleSubmitted = (data) => {
+const handleSubmitted = () => {
   ElMessage.success('申请已提交')
   showServiceDialog.value = false
 
@@ -466,6 +517,10 @@ const getServiceIcon = (type) => {
     'subsistence': Money,
     'disability': FirstAid,
     'elderly': Calendar,
+    'birth': BabyCarriage,
+    'transport': Van,
+    'house-building': OfficeBuilding,
+    'event': Bell,
     'residence': Stamp,
     'income': Document,
     'health': Bell
@@ -482,6 +537,10 @@ const getServiceColor = (type) => {
     'subsistence': '#f56c6c',
     'disability': '#909399',
     'elderly': '#00bcd4',
+    'birth': '#ff7675',
+    'transport': '#74b9ff',
+    'house-building': '#fd79a8',
+    'event': '#a29bfe',
     'residence': '#ff6b6b',
     'income': '#4ecdc4',
     'health': '#95e1d3'
