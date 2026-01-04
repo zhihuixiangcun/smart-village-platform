@@ -20,6 +20,12 @@
             <el-icon color="#67c23a"><CircleCheck /></el-icon>
             <span>待处理: {{ pendingTasks }}</span>
           </div>
+          <div class="stat-item connection-status" :class="realtime.connectionStatus">
+            <el-icon :color="realtime.isConnected ? '#67c23a' : '#f56c6c'">
+              <Connection />
+            </el-icon>
+            <span>{{ realtime.isConnected ? '实时连接' : '连接断开' }}</span>
+          </div>
         </div>
       </div>
     </el-card>
@@ -48,6 +54,89 @@
         </el-card>
       </el-col>
     </el-row>
+
+    <!-- 数据筛选和导出工具栏 -->
+    <el-card class="toolbar-card" shadow="never">
+      <div class="toolbar-content">
+        <!-- 筛选区域 -->
+        <div class="filter-section">
+          <span class="filter-label">
+            <el-icon><Filter /></el-icon>
+            数据筛选
+          </span>
+          <el-select v-model="filters.todoStatus" placeholder="待办状态" clearable size="small" style="width: 120px">
+            <el-option label="全部" value="" />
+            <el-option label="待处理" value="pending" />
+            <el-option label="进行中" value="in_progress" />
+            <el-option label="已完成" value="completed" />
+          </el-select>
+          <el-select v-model="filters.todoType" placeholder="待办类型" clearable size="small" style="width: 120px">
+            <el-option label="全部" value="" />
+            <el-option label="人事" value="人事" />
+            <el-option label="党务" value="党务" />
+            <el-option label="行政" value="行政" />
+            <el-option label="财务" value="财务" />
+            <el-option label="应急" value="应急" />
+          </el-select>
+          <el-select v-model="filters.noticeLevel" placeholder="通知级别" clearable size="small" style="width: 120px">
+            <el-option label="全部" value="" />
+            <el-option label="紧急" value="紧急" />
+            <el-option label="重要" value="重要" />
+            <el-option label="一般" value="一般" />
+            <el-option label="通知" value="通知" />
+          </el-select>
+          <el-date-picker
+            v-model="filters.dateRange"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            size="small"
+            style="width: 240px"
+            :clearable="true"
+          />
+          <el-button type="primary" size="small" @click="applyFilters">
+            <el-icon><Search /></el-icon>
+            筛选
+          </el-button>
+          <el-button size="small" @click="resetFilters">
+            <el-icon><RefreshLeft /></el-icon>
+            重置
+          </el-button>
+        </div>
+
+        <!-- 导出区域 -->
+        <div class="export-section">
+          <el-dropdown @command="handleExport" trigger="click">
+            <el-button type="success" size="small">
+              <el-icon><Download /></el-icon>
+              导出报表
+              <el-icon class="el-icon--right"><ArrowDown /></el-icon>
+            </el-button>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="excel">
+                  <el-icon><Document /></el-icon>
+                  导出为 Excel
+                </el-dropdown-item>
+                <el-dropdown-item command="pdf">
+                  <el-icon><Document /></el-icon>
+                  导出为 PDF
+                </el-dropdown-item>
+                <el-dropdown-item command="csv">
+                  <el-icon><Tickets /></el-icon>
+                  导出为 CSV
+                </el-dropdown-item>
+                <el-dropdown-item divided command="all">
+                  <el-icon><Files /></el-icon>
+                  导出全部数据
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </div>
+      </div>
+    </el-card>
 
     <!-- 主内容区 -->
     <el-row :gutter="20" class="main-content">
@@ -95,10 +184,15 @@
                 <p class="duty-period">{{ duty.period }}</p>
               </div>
               <div class="duty-actions">
-                <el-button type="primary" size="small" @click="callDutyMember(duty)">
-                  <el-icon><Phone /></el-icon>
-                  联系
-                </el-button>
+                <ContactButton
+                  :phone="duty.contact"
+                  button-text="联系"
+                  type="primary"
+                  size="small"
+                  :custom-name="duty.memberName"
+                  :confirm-before-call="true"
+                  @contact="handleDutyContact"
+                />
               </div>
             </div>
           </div>
@@ -306,31 +400,159 @@
         </el-button>
       </template>
     </el-dialog>
+
+    <!-- 通知详情对话框 -->
+    <NotificationDetailDialog
+      v-model="showNotificationDialog"
+      :notice="selectedNotice"
+      @marked-read="handleNotificationMarkedRead"
+      @deleted="handleNotificationDeleted"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/userStore'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import * as echarts from 'echarts'
+import dashboardApi from '@/api/dashboard'
+import ContactButton from '@/components/villageCommittee/ContactButton.vue'
+import NotificationDetailDialog from '@/components/villageCommittee/NotificationDetailDialog.vue'
+import { useDashboardRealtime } from '@/composables/useDashboardRealtime'
 import {
   Trophy, CircleCheck, Calendar, Phone, List, ArrowRight, Bell, Grid, UserPlus,
   CalendarPlus, Promotion, Download, Location, Notification, ChatDotRound, Clock,
-  DataAnalysis, ArrowUp, ArrowDown
+  DataAnalysis, ArrowUp, ArrowDown, Connection, Filter, Search, RefreshLeft,
+  ArrowDown as DropdownArrow, Document, Tickets, Files
 } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const userStore = useUserStore()
+
+// 实时更新连接
+const realtime = useDashboardRealtime({
+  // 新通知或通知状态变化时
+  onNotificationUpdate: async (data) => {
+    console.log('[Dashboard] 收到通知更新:', data)
+
+    // 如果是新通知，添加到列表
+    if (data.action === 'created' || !data.action) {
+      const villageId = userStore.villageId || 'default'
+      try {
+        const response = await dashboardApi.getNotifications({ limit: 10 })
+        if (response.data?.notifications) {
+          noticeList.value = response.data.notifications.map(n => ({
+            _id: n._id || n.id,
+            title: n.title,
+            level: n.priority || n.level || '一般',
+            content: n.content,
+            createdAt: n.createdAt || n.created_at,
+            read: n.read || false
+          }))
+        }
+      } catch (error) {
+        console.error('刷新通知列表失败:', error)
+      }
+    }
+
+    // 如果是删除操作，从列表中移除
+    if (data.action === 'deleted' && data.notificationId) {
+      noticeList.value = noticeList.value.filter(n => n._id !== data.notificationId)
+    }
+
+    // 如果是已读操作，更新状态
+    if (data.action === 'read' && data.notificationId) {
+      const notice = noticeList.value.find(n => n._id === data.notificationId)
+      if (notice) {
+        notice.read = true
+      }
+    }
+  },
+
+  // 待办事项更新时
+  onTodoUpdate: async (data) => {
+    console.log('[Dashboard] 收到待办更新:', data)
+
+    // 刷新待办列表
+    try {
+      const response = await dashboardApi.getTodos({ limit: 10, status: 'pending' })
+      if (response.data?.tasks) {
+        todoList.value = response.data.tasks.map(task => ({
+          _id: task._id || task.id,
+          title: task.title,
+          type: task.category || task.type || '待办',
+          deadline: task.dueDate || task.deadline,
+          completed: task.status === 'completed',
+          status: task.status || 'pending'
+        }))
+      }
+    } catch (error) {
+      console.error('刷新待办列表失败:', error)
+    }
+  },
+
+  // 值班表更新时
+  onDutyUpdate: async (data) => {
+    console.log('[Dashboard] 收到值班表更新:', data)
+
+    // 刷新值班数据
+    try {
+      const villageId = userStore.villageId || 'default'
+      const response = await dashboardApi.getTodayDuty(villageId)
+      if (response.data?.schedule) {
+        todayDuty.value = response.data.schedule
+      }
+    } catch (error) {
+      console.error('刷新值班表失败:', error)
+    }
+  },
+
+  // 统计数据更新时
+  onStatisticsUpdate: (data) => {
+    console.log('[Dashboard] 收到统计数据更新:', data)
+    // 可以更新统计卡片数据
+    if (data.statistics) {
+      statisticsCards.value.forEach(card => {
+        if (data.statistics[card.key] !== undefined) {
+          card.value = data.statistics[card.key]
+        }
+      })
+    }
+  },
+
+  // 紧急通知时
+  onEmergencyAlert: (data) => {
+    console.log('[Dashboard] 收到紧急通知:', data)
+    ElMessage.error({
+      message: data.message || '收到紧急通知',
+      duration: 0,
+      showClose: true
+    })
+  }
+})
 
 // 响应式数据
 const chartRef = ref(null)
 const chartPeriod = ref('week')
 const chartInstance = ref(null)
 const showEmergencyDialog = ref(false)
+const showNotificationDialog = ref(false)
 const sendingEmergency = ref(false)
 const isMobile = ref(window.innerWidth < 768)
+const selectedNotice = ref(null)
+
+// 数据筛选
+const filters = ref({
+  todoStatus: '',
+  todoType: '',
+  noticeLevel: '',
+  dateRange: null
+})
+
+// 导出加载状态
+const exporting = ref(false)
 
 // 当前用户信息
 const currentUser = computed(() => userStore.userInfo || {})
@@ -499,10 +721,17 @@ const getNoticeTypeTag = (level) => {
 
 const toggleTodoStatus = async (todo) => {
   try {
-    // TODO: 调用API更新待办状态
+    const status = todo.completed ? 'completed' : 'pending'
+    await dashboardApi.updateTodoStatus(todo._id, {
+      status,
+      progress: todo.completed ? 100 : 0
+    })
     ElMessage.success(todo.completed ? '已标记为完成' : '已标记为未完成')
   } catch (error) {
+    console.error('更新待办状态失败:', error)
     ElMessage.error('操作失败')
+    // 回滚状态
+    todo.completed = !todo.completed
   }
 }
 
@@ -515,31 +744,84 @@ const viewAllTodos = () => {
   router.push('/tasks')
 }
 
-const viewNotice = (notice) => {
-  notice.read = true
-  ElMessage.info(`查看通知: ${notice.title}`)
-  // TODO: 打开通知详情对话框
+const viewNotice = async (notice) => {
+  try {
+    // 设置选中的通知
+    selectedNotice.value = notice
+
+    // 打开通知详情对话框
+    showNotificationDialog.value = true
+
+    // 标记为已读
+    if (!notice.read) {
+      await dashboardApi.markNotificationRead(notice._id)
+      notice.read = true
+    }
+  } catch (error) {
+    console.error('标记通知已读失败:', error)
+  }
+}
+
+const handleNotificationMarkedRead = async (notice) => {
+  try {
+    await dashboardApi.markNotificationRead(notice._id)
+    // 更新列表中的通知状态
+    const targetNotice = noticeList.value.find(n => n._id === notice._id)
+    if (targetNotice) {
+      targetNotice.read = true
+    }
+  } catch (error) {
+    console.error('标记通知已读失败:', error)
+  }
+}
+
+const handleNotificationDeleted = async (notice) => {
+  try {
+    await dashboardApi.deleteNotification(notice._id)
+    // 从列表中移除通知
+    noticeList.value = noticeList.value.filter(n => n._id !== notice._id)
+  } catch (error) {
+    console.error('删除通知失败:', error)
+  }
 }
 
 const viewAllActivities = () => {
   router.push('/activities')
 }
 
-const callDutyMember = (duty) => {
-  ElMessageBox.confirm(
-    `确定要拨打 ${duty.memberName} 的电话吗？`,
-    '联系值班人员',
-    {
-      confirmButtonText: '拨打',
-      cancelButtonText: '取消',
-      type: 'info'
-    }
-  ).then(() => {
-    // TODO: 实现拨打电话功能
+const callDutyMember = async (duty) => {
+  try {
+    await ElMessageBox.confirm(
+      `确定要拨打 ${duty.memberName} 的电话 (${duty.contact}) 吗？`,
+      '联系值班人员',
+      {
+        confirmButtonText: '拨打',
+        cancelButtonText: '取消',
+        type: 'info'
+      }
+    )
+
+    // 调用电话拨打 API
+    await dashboardApi.makeCall(duty.contact)
+
     ElMessage.success(`正在拨打 ${duty.memberName} 的电话...`)
-  }).catch(() => {
-    // 用户取消
-  })
+
+    // 如果在移动端，可以直接调用拨号功能
+    if (/mobile/i.test(navigator.userAgent)) {
+      window.location.href = `tel:${duty.contact}`
+    }
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('拨打电话失败:', error)
+      ElMessage.error('拨打失败，请重试')
+    }
+  }
+}
+
+const handleDutyContact = ({ contact, success }) => {
+  if (success) {
+    ElMessage.success(`已联系值班人员: ${contact}`)
+  }
 }
 
 const quickAction = (action) => {
@@ -555,6 +837,181 @@ const quickAction = (action) => {
     router.push(routeMap[action])
   } else {
     ElMessage.info('功能开发中...')
+  }
+}
+
+// ========== 数据筛选功能 ==========
+
+// 应用筛选
+const applyFilters = async () => {
+  try {
+    ElMessage.info('正在应用筛选条件...')
+
+    const villageId = userStore.villageId || 'default'
+
+    // 构建查询参数
+    const params = {
+      villageId,
+      limit: 50
+    }
+
+    // 添加筛选条件
+    if (filters.value.todoStatus) {
+      params.status = filters.value.todoStatus
+    }
+    if (filters.value.todoType) {
+      params.type = filters.value.todoType
+    }
+    if (filters.value.noticeLevel) {
+      params.level = filters.value.noticeLevel
+    }
+    if (filters.value.dateRange && filters.value.dateRange.length === 2) {
+      params.startDate = formatDate(filters.value.dateRange[0])
+      params.endDate = formatDate(filters.value.dateRange[1])
+    }
+
+    // 并行加载筛选后的数据
+    const [todosResponse, noticesResponse] = await Promise.allSettled([
+      dashboardApi.getTodos(params),
+      dashboardApi.getNotifications(params)
+    ])
+
+    // 更新待办事项
+    if (todosResponse.status === 'fulfilled' && todosResponse.value?.data) {
+      const tasksData = todosResponse.value.data.tasks || todosResponse.value.data
+      todoList.value = Array.isArray(tasksData) ? tasksData.map(task => ({
+        _id: task._id || task.id,
+        title: task.title,
+        type: task.category || task.type || '待办',
+        deadline: task.dueDate || task.deadline,
+        completed: task.status === 'completed',
+        status: task.status || 'pending'
+      })) : []
+    }
+
+    // 更新通知列表
+    if (noticesResponse.status === 'fulfilled' && noticesResponse.value?.data) {
+      const noticesData = noticesResponse.value.data.notifications || noticesResponse.value.data
+      noticeList.value = Array.isArray(noticesData) ? noticesData.map(notice => ({
+        _id: notice._id || notice.id,
+        title: notice.title,
+        level: notice.priority || notice.level || '一般',
+        content: notice.content,
+        createdAt: notice.createdAt || notice.created_at,
+        read: notice.read || false
+      })) : []
+    }
+
+    ElMessage.success('筛选完成')
+  } catch (error) {
+    console.error('应用筛选失败:', error)
+    ElMessage.error('筛选失败，请重试')
+  }
+}
+
+// 重置筛选
+const resetFilters = async () => {
+  filters.value = {
+    todoStatus: '',
+    todoType: '',
+    noticeLevel: '',
+    dateRange: null
+  }
+
+  // 重新加载所有数据
+  await loadData()
+  ElMessage.success('筛选已重置')
+}
+
+// ========== 数据导出功能 ==========
+
+// 处理导出
+const handleExport = async (command) => {
+  try {
+    exporting.value = true
+
+    const villageId = userStore.villageId || 'default'
+
+    if (command === 'all') {
+      // 导出全部数据
+      ElMessage.info('正在准备全部数据导出...')
+      await exportAllData()
+    } else {
+      // 导出特定格式
+      const formatMap = {
+        'excel': 'Excel',
+        'pdf': 'PDF',
+        'csv': 'CSV'
+      }
+
+      ElMessage.info(`正在生成 ${formatMap[command]} 报表...`)
+
+      // 调用导出 API
+      const response = await dashboardApi.exportReport({
+        type: command,
+        filters: {
+          todoStatus: filters.value.todoStatus,
+          todoType: filters.value.todoType,
+          noticeLevel: filters.value.noticeLevel,
+          dateRange: filters.value.dateRange ? [
+            formatDate(filters.value.dateRange[0]),
+            formatDate(filters.value.dateRange[1])
+          ] : null
+        },
+        villageId
+      })
+
+      // 创建下载链接
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', `村委仪表板报表_${formatDate(new Date())}.${command}`)
+      document.body.appendChild(link)
+      link.click()
+
+      // 清理
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(link)
+
+      ElMessage.success(`${formatMap[command]} 报表导出成功！`)
+    }
+  } catch (error) {
+    console.error('导出失败:', error)
+    ElMessage.error('导出失败，请重试')
+  } finally {
+    exporting.value = false
+  }
+}
+
+// 导出全部数据
+const exportAllData = async () => {
+  try {
+    // 生成 JSON 格式的完整数据
+    const data = {
+      exportDate: new Date().toISOString(),
+      villageId: userStore.villageId,
+      statistics: statisticsCards.value,
+      todos: todoList.value,
+      notices: noticeList.value,
+      dutySchedule: todayDuty.value,
+      activities: activityList.value
+    }
+
+    // 创建 Blob 并下载
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', `仪表板完整数据_${formatDate(new Date())}.json`)
+    document.body.appendChild(link)
+    link.click()
+    window.URL.revokeObjectURL(url)
+    document.body.removeChild(link)
+
+    ElMessage.success('完整数据导出成功！')
+  } catch (error) {
+    console.error('导出全部数据失败:', error)
+    throw error
   }
 }
 
@@ -580,8 +1037,13 @@ const sendEmergencyNotice = async () => {
   sendingEmergency.value = true
 
   try {
-    // TODO: 调用后端API发送紧急通知
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await dashboardApi.sendEmergencyNotification({
+      type: emergencyForm.value.type,
+      title: emergencyForm.value.title,
+      content: emergencyForm.value.content,
+      targets: emergencyForm.value.targets,
+      channels: emergencyForm.value.channels
+    })
 
     ElMessage.success('紧急通知发送成功！')
     showEmergencyDialog.value = false
@@ -595,7 +1057,8 @@ const sendEmergencyNotice = async () => {
       channels: ['app']
     }
   } catch (error) {
-    ElMessage.error('发送失败，请重试')
+    console.error('发送紧急通知失败:', error)
+    ElMessage.error(error.response?.data?.message || '发送失败，请重试')
   } finally {
     sendingEmergency.value = false
   }
@@ -713,104 +1176,157 @@ const updateChart = () => {
 // 加载数据
 const loadData = async () => {
   try {
-    // TODO: 从后端API加载数据
-    // const response = await fetch('http://localhost:3001/api/v1/cadre/dashboard')
-    // const data = await response.json()
+    const villageId = userStore.villageId || 'default'
 
-    // 模拟数据
-    todayDuty.value = [
-      {
-        _id: '1',
-        memberName: '张三',
-        position: '村支书',
-        period: '上午 08:00-12:00',
-        contact: '13800138000',
-        avatar: ''
-      },
-      {
-        _id: '2',
-        memberName: '李四',
-        position: '村主任',
-        period: '下午 14:00-18:00',
-        contact: '13800138001',
-        avatar: ''
-      }
-    ]
+    // 并行加载所有数据
+    const [dutyResponse, todosResponse, noticesResponse, activitiesResponse] = await Promise.allSettled([
+      dashboardApi.getTodayDuty(villageId),
+      dashboardApi.getTodos({ limit: 10, status: 'pending' }),
+      dashboardApi.getNotifications({ limit: 10 }),
+      dashboardApi.getActivities({ limit: 10, villageId })
+    ])
 
-    todoList.value = [
-      {
-        _id: '1',
-        title: '审批张三的调任申请',
-        type: '人事',
-        deadline: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
-        completed: false,
-        status: 'pending'
-      },
-      {
-        _id: '2',
-        title: '完善党员档案信息',
-        type: '党务',
-        deadline: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-        completed: false,
-        status: 'pending'
-      },
-      {
-        _id: '3',
-        title: '提交本月工作总结',
-        type: '行政',
-        deadline: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-        completed: false,
-        status: 'pending'
-      }
-    ]
+    // 处理今日值班数据
+    if (dutyResponse.status === 'fulfilled' && dutyResponse.value?.data) {
+      const dutyData = dutyResponse.value.data
+      todayDuty.value = dutyData.schedule || dutyData || []
+    } else {
+      // 使用模拟数据作为后备
+      todayDuty.value = [
+        {
+          _id: '1',
+          memberName: '张三',
+          position: '村支书',
+          period: '上午 08:00-12:00',
+          contact: '13800138000',
+          avatar: ''
+        },
+        {
+          _id: '2',
+          memberName: '李四',
+          position: '村主任',
+          period: '下午 14:00-18:00',
+          contact: '13800138001',
+          avatar: ''
+        }
+      ]
+    }
 
-    noticeList.value = [
-      {
-        _id: '1',
-        title: '关于召开村委会议的通知',
-        level: '重要',
-        createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-        read: false
-      },
-      {
-        _id: '2',
-        title: '冬季防火安全提示',
-        level: '一般',
-        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-        read: false
-      },
-      {
-        _id: '3',
-        title: '关于开展主题党日活动的通知',
-        level: '通知',
-        createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-        read: true
-      }
-    ]
+    // 处理待办事项数据
+    if (todosResponse.status === 'fulfilled' && todosResponse.value?.data) {
+      const tasksData = todosResponse.value.data.tasks || todosResponse.value.data
+      todoList.value = Array.isArray(tasksData) ? tasksData.map(task => ({
+        _id: task._id || task.id,
+        title: task.title,
+        type: task.category || task.type || '待办',
+        deadline: task.dueDate || task.deadline,
+        completed: task.status === 'completed',
+        status: task.status || 'pending'
+      })) : []
+    } else {
+      // 使用模拟数据作为后备
+      todoList.value = [
+        {
+          _id: '1',
+          title: '审批张三的调任申请',
+          type: '人事',
+          deadline: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+          completed: false,
+          status: 'pending'
+        },
+        {
+          _id: '2',
+          title: '完善党员档案信息',
+          type: '党务',
+          deadline: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+          completed: false,
+          status: 'pending'
+        },
+        {
+          _id: '3',
+          title: '提交本月工作总结',
+          type: '行政',
+          deadline: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+          completed: false,
+          status: 'pending'
+        }
+      ]
+    }
 
-    activityList.value = [
-      {
-        _id: '1',
-        userName: '王五',
-        userAvatar: '',
-        action: '提交了低保申请',
-        createdAt: new Date(Date.now() - 10 * 60 * 1000).toISOString()
-      },
-      {
-        _id: '2',
-        userName: '赵六',
-        userAvatar: '',
-        action: '咨询了医保政策',
-        createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString()
-      },
-      {
-        _id: '3',
-        userName: '孙七',
-        userAvatar: '',
-        action: '反馈了道路问题',
-        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
-      }
-    ]
+    // 处理通知数据
+    if (noticesResponse.status === 'fulfilled' && noticesResponse.value?.data) {
+      const noticesData = noticesResponse.value.data.notifications || noticesResponse.value.data
+      noticeList.value = Array.isArray(noticesData) ? noticesData.map(notice => ({
+        _id: notice._id || notice.id,
+        title: notice.title,
+        level: notice.priority || notice.level || '一般',
+        content: notice.content,
+        createdAt: notice.createdAt || notice.created_at,
+        read: notice.read || false
+      })) : []
+    } else {
+      // 使用模拟数据作为后备
+      noticeList.value = [
+        {
+          _id: '1',
+          title: '关于召开村委会议的通知',
+          level: '重要',
+          createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+          read: false
+        },
+        {
+          _id: '2',
+          title: '冬季防火安全提示',
+          level: '一般',
+          createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+          read: false
+        },
+        {
+          _id: '3',
+          title: '关于开展主题党日活动的通知',
+          level: '通知',
+          createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+          read: true
+        }
+      ]
+    }
+
+    // 处理村民动态数据
+    if (activitiesResponse.status === 'fulfilled' && activitiesResponse.value?.data) {
+      const activitiesData = activitiesResponse.value.data.activities || activitiesResponse.value.data
+      activityList.value = Array.isArray(activitiesData) ? activitiesData.map(activity => ({
+        _id: activity._id || activity.id,
+        userName: activity.userName || activity.user_name,
+        userAvatar: activity.userAvatar || activity.avatar,
+        action: activity.action || activity.description,
+        createdAt: activity.createdAt || activity.created_at
+      })) : []
+    } else {
+      // 使用模拟数据作为后备
+      activityList.value = [
+        {
+          _id: '1',
+          userName: '王五',
+          userAvatar: '',
+          action: '提交了低保申请',
+          createdAt: new Date(Date.now() - 10 * 60 * 1000).toISOString()
+        },
+        {
+          _id: '2',
+          userName: '赵六',
+          userAvatar: '',
+          action: '咨询了医保政策',
+          createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString()
+        },
+        {
+          _id: '3',
+          userName: '孙七',
+          userAvatar: '',
+          action: '反馈了道路问题',
+          createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+        }
+      ]
+    }
   } catch (error) {
     console.error('加载数据失败:', error)
     ElMessage.error('加载数据失败')
@@ -841,7 +1357,6 @@ onUnmounted(() => {
 })
 
 // 监听图表周期变化
-import { watch } from 'vue'
 watch(chartPeriod, () => {
   updateChart()
 })
@@ -924,8 +1439,38 @@ watch(chartPeriod, () => {
         padding: 12px 20px;
         border-radius: 12px;
         backdrop-filter: blur(10px);
+
+        &.connection-status {
+          transition: all 0.3s ease;
+
+          &.connected {
+            background: rgba(103, 194, 58, 0.2);
+          }
+
+          &.disconnected {
+            background: rgba(245, 108, 108, 0.2);
+          }
+
+          &.connecting {
+            background: rgba(230, 162, 60, 0.2);
+            animation: pulse 1.5s infinite;
+          }
+
+          &.error {
+            background: rgba(245, 108, 108, 0.2);
+          }
+        }
       }
     }
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
   }
 }
 
@@ -987,6 +1532,70 @@ watch(chartPeriod, () => {
           &.down {
             color: #f56c6c;
           }
+        }
+      }
+    }
+  }
+}
+
+// 筛选和导出工具栏
+.toolbar-card {
+  margin-bottom: 20px;
+  border: none;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+
+  :deep(.el-card__body) {
+    padding: 16px 20px;
+  }
+
+  .toolbar-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .filter-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      flex-wrap: wrap;
+
+      @media (max-width: 768px) {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .filter-label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #606266;
+        white-space: nowrap;
+      }
+
+      :deep(.el-select),
+      :deep(.el-date-picker) {
+        flex-shrink: 0;
+      }
+    }
+
+    .export-section {
+      flex-shrink: 0;
+
+      @media (max-width: 768px) {
+        width: 100%;
+
+        .el-button {
+          width: 100%;
         }
       }
     }
