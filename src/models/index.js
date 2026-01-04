@@ -17,6 +17,8 @@ console.warn = function(message, ...args) {
 
 // 按依赖顺序加载模型
 require('./User');
+// 确保 User 模型已注册
+const User = mongoose.model('User');
 require('./Village');
 require('./VillageMap');
 require('./DutyShift');
