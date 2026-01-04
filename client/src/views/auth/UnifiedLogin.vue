@@ -139,6 +139,70 @@
               </el-form-item>
             </el-form>
 
+            <!-- 快速测试登录 -->
+            <div class="quick-test-login" v-if="selectedRole !== 'purchaser'">
+              <el-divider>
+                <el-icon><MagicStick /></el-icon>
+                快速测试登录
+              </el-divider>
+              <div class="quick-test-buttons">
+                <el-button
+                  type="success"
+                  size="default"
+                  @click="quickTestLogin('admin')"
+                  :disabled="selectedRole !== 'admin'"
+                  :class="{ 'test-btn-active': selectedRole === 'admin' }"
+                  class="test-button"
+                >
+                  <el-icon><User /></el-icon>
+                  <span>管理员</span>
+                  <small>testadmin</small>
+                </el-button>
+                <el-button
+                  type="warning"
+                  size="default"
+                  @click="quickTestLogin('cadre')"
+                  :disabled="selectedRole !== 'cadre'"
+                  :class="{ 'test-btn-active': selectedRole === 'cadre' }"
+                  class="test-button"
+                >
+                  <el-icon><ChatDotSquare /></el-icon>
+                  <span>村委</span>
+                  <small>testcadre</small>
+                </el-button>
+                <el-button
+                  type="primary"
+                  size="default"
+                  @click="quickTestLogin('resident')"
+                  :disabled="selectedRole !== 'resident'"
+                  :class="{ 'test-btn-active': selectedRole === 'resident' }"
+                  class="test-button"
+                >
+                  <el-icon><UserFilled /></el-icon>
+                  <span>村民</span>
+                  <small>testresident</small>
+                </el-button>
+              </div>
+              <div class="test-accounts-info">
+                <el-alert
+                  type="info"
+                  :closable="false"
+                  show-icon
+                >
+                  <template #title>
+                    <div class="test-info-content">
+                      <p><strong>测试账户信息：</strong></p>
+                      <ul>
+                        <li>管理员: testadmin / Test123456! / 角色: admin</li>
+                        <li>村委: testcadre / Cadre123456! / 角色: village_admin</li>
+                        <li>村民: testresident / Resident123456! / 角色: resident</li>
+                      </ul>
+                    </div>
+                  </template>
+                </el-alert>
+              </div>
+            </div>
+
             <!-- 采购商专用登录表单 -->
             <el-form
               v-if="loginMethod === 'password' && selectedRole === 'purchaser'"
@@ -422,7 +486,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   User, Lock, Phone, Key, Postcard, Camera, Check, InfoFilled,
   Loading, SuccessFilled, ChatDotRound, UserFilled, OfficeBuilding,
-  Plus, ChatDotSquare, ShoppingCart
+  Plus, ChatDotSquare, ShoppingCart, MagicStick
 } from '@element-plus/icons-vue'
 import { authApi } from '@/api'
 import api from '@/api'
@@ -575,32 +639,46 @@ const handlePasswordLogin = async () => {
 
   loading.value = true
   try {
-    const res = await authApi.passwordLogin({
-      username: loginForm.username,
-      password: loginForm.password,
-      role: selectedRole.value
+    // 调用真实的后端登录API
+    const response = await fetch('http://localhost:3001/api/v1/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username: loginForm.username,
+        password: loginForm.password,
+        role: selectedRole.value
+      })
     })
 
-    if (res.success) {
-      // 使用 userStore 正确存储用户数据
-      userStore.setToken(res.data.token)
-      userStore.setUserInfo(res.data.user)
+    const data = await response.json()
 
-      ElMessage.success('登录成功')
-
-      // 根据角色跳转到不同页面（优先级高于 redirect 参数）
-      const redirectMap = {
-        resident: '/village-affairs',     // 村民 → 村务公开
-        cadre: '/dashboard',               // 村干部 → 工作台
-        official: '/dashboard',            // 乡镇官员 → 工作台
-        purchaser: '/purchaser/dashboard', // 采购商 → 采购商工作台
-        admin: '/dashboard'                // 管理员 → 工作台
-      }
-      const redirectPath = redirectMap[selectedRole.value] || '/dashboard'
-      router.push(redirectPath)
+    if (!data.success) {
+      ElMessage.error(data.message || '登录失败，请检查用户名、密码和角色')
+      return
     }
+
+    // 保存token和用户信息
+    userStore.setToken(data.data.token)
+    userStore.setUserInfo(data.data.user)
+    userStore.setPermissions(data.data.user.permissions || ['*'])
+    userStore.setRoles([data.data.user.role])
+
+    ElMessage.success(`欢迎回来，${data.data.user.username || data.data.user.name}！`)
+
+    // 检查是否有重定向地址
+    const redirect = router.currentRoute.value.query.redirect || '/dashboard'
+
+    // 等待状态更新完成
+    await new Promise(resolve => setTimeout(resolve, 300))
+
+    // 跳转
+    await router.push(redirect)
+
   } catch (error) {
-    ElMessage.error(error.response?.data?.error || error.message || '登录失败')
+    console.error('登录失败:', error)
+    ElMessage.error(error.message || '登录失败，请检查网络连接或联系管理员')
   } finally {
     loading.value = false
   }
@@ -815,6 +893,37 @@ const agreeTermsAndClose = () => {
 const agreePrivacyAndClose = () => {
   agreeTerms.value = true
   showPrivacyDialogFlag.value = false
+}
+
+// 快速测试登录
+const quickTestLogin = (type) => {
+  const testAccounts = {
+    'admin': { username: 'testadmin', password: 'Test123456!', role: 'admin' },
+    'cadre': { username: 'testcadre', password: 'Cadre123456!', role: 'village_admin' },
+    'resident': { username: 'testresident', password: 'Resident123456!', role: 'resident' }
+  }
+
+  const account = testAccounts[type]
+  if (account) {
+    // 自动切换到对应角色
+    if (selectedRole.value !== account.role) {
+      selectedRole.value = account.role
+    }
+
+    // 自动填充用户名和密码
+    loginForm.username = account.username
+    loginForm.password = account.password
+
+    // 自动同意协议
+    agreeTerms.value = true
+
+    // 自动登录
+    setTimeout(() => {
+      handlePasswordLogin()
+    }, 300)
+  } else {
+    ElMessage.warning('该角色暂无测试账户')
+  }
 }
 
 // 监听登录方式切换
@@ -1520,6 +1629,168 @@ onUnmounted(() => {
           }
         }
       }
+
+      // 快速测试登录样式
+      .quick-test-login {
+        margin-top: 30px;
+        padding: 20px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+        border-radius: 16px;
+        border: 2px dashed rgba(102, 126, 234, 0.2);
+
+        :deep(.el-divider) {
+          margin: 0 0 20px 0;
+          font-size: 14px;
+          font-weight: 600;
+          color: #667eea;
+
+          .el-divider__text {
+            background: transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0;
+          }
+
+          .el-icon {
+            color: #667eea;
+          }
+        }
+
+        .quick-test-buttons {
+          display: flex;
+          gap: 12px;
+          margin-bottom: 16px;
+          flex-wrap: wrap;
+
+          .test-button {
+            flex: 1;
+            min-width: 120px;
+            height: auto;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+
+            &::before {
+              content: '';
+              position: absolute;
+              top: 0;
+              left: 0;
+              right: 0;
+              bottom: 0;
+              background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
+              opacity: 0;
+              transition: opacity 0.3s ease;
+            }
+
+            &:hover:not(:disabled) {
+              transform: translateY(-3px);
+              box-shadow: 0 8px 20px rgba(102, 126, 234, 0.25);
+
+              &::before {
+                opacity: 1;
+              }
+            }
+
+            &:disabled {
+              opacity: 0.4;
+              cursor: not-allowed;
+              filter: grayscale(0.5);
+            }
+
+            &.test-btn-active:not(:disabled) {
+              transform: scale(1.05);
+              box-shadow: 0 10px 30px rgba(102, 126, 234, 0.35);
+
+              &::after {
+                content: '';
+                position: absolute;
+                top: -2px;
+                left: -2px;
+                right: -2px;
+                bottom: -2px;
+                border-radius: 14px;
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                z-index: -1;
+                animation: borderGlow 2s ease infinite;
+              }
+            }
+
+            .el-icon {
+              font-size: 24px;
+              margin-bottom: 4px;
+            }
+
+            span {
+              font-size: 15px;
+              font-weight: 600;
+              line-height: 1.2;
+            }
+
+            small {
+              font-size: 11px;
+              opacity: 0.85;
+              margin-top: 2px;
+            }
+          }
+        }
+
+        .test-accounts-info {
+          :deep(.el-alert) {
+            border-radius: 12px;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+
+            .el-alert__content {
+              .el-alert__title {
+                color: #606266;
+              }
+            }
+          }
+
+          .test-info-content {
+            font-size: 13px;
+            line-height: 1.8;
+
+            p {
+              margin: 0 0 8px 0;
+              color: #303133;
+            }
+
+            ul {
+              margin: 0;
+              padding-left: 20px;
+              list-style: none;
+
+              li {
+                margin-bottom: 6px;
+                color: #606266;
+                position: relative;
+                padding-left: 16px;
+
+                &::before {
+                  content: '▸';
+                  position: absolute;
+                  left: 0;
+                  color: #667eea;
+                  font-weight: bold;
+                }
+
+                &:last-child {
+                  margin-bottom: 0;
+                }
+              }
+            }
+          }
+        }
+      }
     }
 
     .register-form {
@@ -1585,6 +1856,15 @@ onUnmounted(() => {
   }
   100% {
     transform: translate(30px, 30px);
+  }
+}
+
+@keyframes borderGlow {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
   }
 }
 

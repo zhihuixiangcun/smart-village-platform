@@ -1,39 +1,47 @@
 <template>
-  <div class="dashboard-container">
+  <div class="cadre-dashboard">
     <!-- 欢迎栏 -->
     <el-card class="welcome-card" shadow="never">
       <div class="welcome-content">
         <div class="welcome-info">
-          <h1 class="welcome-title">欢迎回来，{{ userInfo.name }}</h1>
-          <p class="welcome-subtitle">{{ getCurrentTime() }}，今天是 {{ formatDate(new Date()) }}</p>
+          <h1 class="welcome-title">欢迎回来，{{ currentUser.name || '村干部' }}</h1>
+          <p class="welcome-subtitle">{{ getGreeting() }}，今天是 {{ formatDate(new Date()) }}</p>
+          <p class="welcome-position">
+            <el-tag type="primary">{{ currentUser.position || '村干部' }}</el-tag>
+            <el-tag type="success" v-if="currentUser.village">{{ currentUser.village }}</el-tag>
+          </p>
         </div>
-        <div class="welcome-weather" v-if="weather">
-          <el-icon class="weather-icon" :size="30">
-            <component :is="weatherIcon" />
-          </el-icon>
-          <span class="weather-text">{{ weather.temperature }}°C {{ weather.condition }}</span>
+        <div class="welcome-stats">
+          <div class="stat-item">
+            <el-icon color="#409eff"><Trophy /></el-icon>
+            <span>本月积分: {{ monthlyPoints }}</span>
+          </div>
+          <div class="stat-item">
+            <el-icon color="#67c23a"><CircleCheck /></el-icon>
+            <span>待处理: {{ pendingTasks }}</span>
+          </div>
         </div>
       </div>
     </el-card>
 
-    <!-- 数据概览卡片 -->
-    <el-row :gutter="20" class="overview-row">
-      <el-col :xs="12" :sm="6" :md="4" v-for="item in overviewData" :key="item.key">
-        <el-card class="overview-card" shadow="hover" @click="navigateToModule(item.route)">
-          <div class="overview-content">
-            <div class="overview-icon" :style="{ backgroundColor: item.bgColor }">
-              <el-icon :size="30" :color="item.color">
-                <component :is="item.icon" />
+    <!-- 数据统计卡片 -->
+    <el-row :gutter="20" class="stats-row">
+      <el-col :xs="24" :sm="12" :md="6" v-for="stat in statisticsCards" :key="stat.key">
+        <el-card class="stat-card" shadow="hover" @click="navigateTo(stat.route)">
+          <div class="stat-content">
+            <div class="stat-icon" :style="{ background: stat.gradient }">
+              <el-icon :size="32" color="white">
+                <component :is="stat.icon" />
               </el-icon>
             </div>
-            <div class="overview-info">
-              <div class="overview-value">{{ item.value }}</div>
-              <div class="overview-label">{{ item.label }}</div>
-              <div class="overview-trend" :class="item.trend">
-                <el-icon size="12">
-                  <component :is="item.trendIcon" />
+            <div class="stat-info">
+              <div class="stat-value">{{ stat.value }}</div>
+              <div class="stat-label">{{ stat.label }}</div>
+              <div class="stat-trend" :class="stat.trendClass">
+                <el-icon size="14">
+                  <component :is="stat.trendIcon" />
                 </el-icon>
-                <span>{{ item.change }}</span>
+                <span>{{ stat.change }}</span>
               </div>
             </div>
           </div>
@@ -41,169 +49,202 @@
       </el-col>
     </el-row>
 
-    <!-- 主要内容区域 -->
-    <el-row :gutter="20" class="content-row">
-      <!-- 左侧内容 -->
-      <el-col :xs="24" :sm="24" :md="16" :lg="16" :xl="16">
-        <!-- 今日值班 -->
-        <el-card class="duty-card" shadow="never" v-if="onDutyToday.length">
+    <!-- 主内容区 -->
+    <el-row :gutter="20" class="main-content">
+      <!-- 左侧主栏 -->
+      <el-col :xs="24" :sm="24" :md="16" :lg="16">
+        <!-- 数据图表 -->
+        <el-card class="chart-card" shadow="never">
           <template #header>
             <div class="card-header">
-              <span class="card-title">今日值班</span>
+              <span class="card-title">
+                <el-icon><DataAnalysis /></el-icon>
+                数据概览
+              </span>
+              <el-radio-group v-model="chartPeriod" size="small">
+                <el-radio-button label="week">本周</el-radio-button>
+                <el-radio-button label="month">本月</el-radio-button>
+                <el-radio-button label="year">全年</el-radio-button>
+              </el-radio-group>
+            </div>
+          </template>
+          <div class="chart-container">
+            <div ref="chartRef" style="height: 300px;"></div>
+          </div>
+        </el-card>
+
+        <!-- 今日值班 -->
+        <el-card class="duty-card" shadow="never" v-if="todayDuty.length > 0">
+          <template #header>
+            <div class="card-header">
+              <span class="card-title">
+                <el-icon><Calendar /></el-icon>
+                今日值班
+              </span>
               <el-tag type="success">{{ formatDate(new Date()) }}</el-tag>
             </div>
           </template>
-          <el-carousel :interval="0" arrow="hover" height="120px">
-            <el-carousel-item v-for="duty in onDutyToday" :key="duty.id">
-              <div class="duty-item">
-                <el-avatar :size="60" :src="duty.avatar">
-                  {{ duty.memberName?.charAt(0) }}
-                </el-avatar>
-                <div class="duty-info">
-                  <h4>{{ duty.memberName }} - {{ duty.period }}</h4>
-                  <p>{{ duty.position }}</p>
-                  <ContactButton
-                    :phone-number="duty.contact"
-                    contact-type="phone"
-                    size="small"
-                    :confirm-before-call="true"
-                  />
-                </div>
+          <div class="duty-list">
+            <div class="duty-item" v-for="duty in todayDuty" :key="duty._id">
+              <el-avatar :size="60" :src="duty.avatar">
+                {{ duty.memberName?.charAt(0) || '值' }}
+              </el-avatar>
+              <div class="duty-info">
+                <h4>{{ duty.memberName }}</h4>
+                <p>{{ duty.position }}</p>
+                <p class="duty-period">{{ duty.period }}</p>
               </div>
-            </el-carousel-item>
-          </el-carousel>
-        </el-card>
-
-        <!-- 工作台快捷入口 -->
-        <el-card class="workspace-card" shadow="never">
-          <template #header>
-            <span class="card-title">工作台</span>
-          </template>
-          <el-row :gutter="20">
-            <el-col :xs="12" :sm="8" :md="6" v-for="tool in workspaceTools" :key="tool.key">
-              <div class="tool-item" @click="handleToolClick(tool)">
-                <el-icon class="tool-icon" :size="40" :color="tool.color">
-                  <component :is="tool.icon" />
-                </el-icon>
-                <span class="tool-label">{{ tool.label }}</span>
-                <el-badge v-if="tool.badge" :value="tool.badge" type="danger" />
+              <div class="duty-actions">
+                <el-button type="primary" size="small" @click="callDutyMember(duty)">
+                  <el-icon><Phone /></el-icon>
+                  联系
+                </el-button>
               </div>
-            </el-col>
-          </el-row>
+            </div>
+          </div>
         </el-card>
 
         <!-- 待办事项 -->
         <el-card class="todo-card" shadow="never">
           <template #header>
             <div class="card-header">
-              <span class="card-title">待办事项</span>
-              <el-button text @click="viewAllTodos">查看全部</el-button>
+              <span class="card-title">
+                <el-icon><List /></el-icon>
+                待办事项
+                <el-badge :value="todoList.length" :max="99" class="todo-badge" />
+              </span>
+              <el-button text type="primary" @click="viewAllTodos">
+                查看全部
+                <el-icon><ArrowRight /></el-icon>
+              </el-button>
             </div>
           </template>
-          <el-table :data="todoList" style="width: 100%">
-            <el-table-column prop="title" label="事项" />
-            <el-table-column prop="type" label="类型" width="100">
-              <template #default="scope">
-                <el-tag :type="getTodoTypeTagType(scope.row.type)" size="small">
-                  {{ scope.row.type }}
-                </el-tag>
-              </template>
-            </el-table-column>
-            <el-table-column prop="deadline" label="截止时间" width="150">
-              <template #default="scope">
-                <span :class="{ 'text-danger': isOverdue(scope.row.deadline) }">
-                  {{ formatDate(scope.row.deadline) }}
-                </span>
-              </template>
-            </el-table-column>
-            <el-table-column label="操作" width="100">
-              <template #default="scope">
-                <el-button type="primary" size="small" @click="handleTodo(scope.row)">
+          <div class="todo-list">
+            <div
+              class="todo-item"
+              v-for="todo in todoList"
+              :key="todo._id"
+              :class="{ 'urgent': isUrgent(todo.deadline), 'completed': todo.status === 'completed' }"
+            >
+              <div class="todo-content">
+                <el-checkbox v-model="todo.completed" @change="toggleTodoStatus(todo)">
+                  <span class="todo-title">{{ todo.title }}</span>
+                </el-checkbox>
+                <div class="todo-meta">
+                  <el-tag :type="getTodoTypeTag(todo.type)" size="small">{{ todo.type }}</el-tag>
+                  <span class="todo-deadline" :class="{ 'overdue': isOverdue(todo.deadline) }">
+                    <el-icon><Clock /></el-icon>
+                    {{ formatDate(todo.deadline) }}
+                  </span>
+                </div>
+              </div>
+              <div class="todo-actions">
+                <el-button type="primary" size="small" @click="handleTodo(todo)">
                   处理
                 </el-button>
-              </template>
-            </el-table-column>
-          </el-table>
+              </div>
+            </div>
+            <el-empty v-if="todoList.length === 0" description="暂无待办事项" />
+          </div>
         </el-card>
       </el-col>
 
-      <!-- 右侧内容 -->
-      <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
-        <!-- 公告通知 -->
+      <!-- 右侧边栏 -->
+      <el-col :xs="24" :sm="24" :md="8" :lg="8">
+        <!-- 快捷操作 -->
+        <el-card class="quick-actions-card" shadow="never">
+          <template #header>
+            <span class="card-title">
+              <el-icon><Grid /></el-icon>
+              快捷操作
+            </span>
+          </template>
+          <div class="quick-actions">
+            <el-button type="danger" @click="showEmergencyDialog = true" class="quick-btn emergency">
+              <el-icon><Bell /></el-icon>
+              <span>紧急通知</span>
+            </el-button>
+            <el-button type="primary" @click="quickAction('add-member')" class="quick-btn">
+              <el-icon><UserPlus /></el-icon>
+              <span>添加人员</span>
+            </el-button>
+            <el-button type="success" @click="quickAction('add-schedule')" class="quick-btn">
+              <el-icon><CalendarPlus /></el-icon>
+              <span>添加值班</span>
+            </el-button>
+            <el-button type="warning" @click="quickAction('publish-notice')" class="quick-btn">
+              <el-icon><Promotion /></el-icon>
+              <span>发布公告</span>
+            </el-button>
+            <el-button type="info" @click="quickAction('export-report')" class="quick-btn">
+              <el-icon><Download /></el-icon>
+              <span>导出报表</span>
+            </el-button>
+            <el-button @click="quickAction('view-map')" class="quick-btn">
+              <el-icon><Location /></el-icon>
+              <span>村情地图</span>
+            </el-button>
+          </div>
+        </el-card>
+
+        <!-- 最新通知 -->
         <el-card class="notice-card" shadow="never">
           <template #header>
             <div class="card-header">
-              <span class="card-title">公告通知</span>
-              <el-button text @click="viewAllNotices">更多</el-button>
+              <span class="card-title">
+                <el-icon><Notification /></el-icon>
+                最新通知
+              </span>
+              <el-badge :value="unreadNotices" type="danger" />
             </div>
           </template>
           <div class="notice-list">
             <div
               class="notice-item"
               v-for="notice in noticeList"
-              :key="notice.id"
+              :key="notice._id"
+              :class="{ 'unread': !notice.read }"
               @click="viewNotice(notice)"
             >
-              <el-tag :type="getNoticeTagType(notice.level)" size="small">
+              <el-tag :type="getNoticeTypeTag(notice.level)" size="small" class="notice-tag">
                 {{ notice.level }}
               </el-tag>
               <div class="notice-content">
-                <h4>{{ notice.title }}</h4>
-                <p>{{ formatDate(notice.createdAt) }}</p>
+                <h4 class="notice-title">{{ notice.title }}</h4>
+                <p class="notice-time">{{ formatRelativeTime(notice.createdAt) }}</p>
               </div>
             </div>
+            <el-empty v-if="noticeList.length === 0" description="暂无通知" />
           </div>
         </el-card>
 
-        <!-- 快速操作 -->
-        <el-card class="quick-action-card" shadow="never">
-          <template #header>
-            <span class="card-title">快速操作</span>
-          </template>
-          <div class="quick-actions">
-            <el-button type="primary" @click="showEmergencyDialog = true" class="quick-btn">
-              <el-icon><Bell /></el-icon>
-              紧急通知
-            </el-button>
-            <el-button type="success" @click="handleQuickAdd('member')" class="quick-btn">
-              <el-icon><Plus /></el-icon>
-              添加人员
-            </el-button>
-            <el-button type="warning" @click="handleQuickAdd('schedule')" class="quick-btn">
-              <el-icon><Calendar /></el-icon>
-              添加值班
-            </el-button>
-            <el-button type="info" @click="handleExportReport" class="quick-btn">
-              <el-icon><Download /></el-icon>
-              导出报表
-            </el-button>
-          </div>
-        </el-card>
-
-        <!-- 系统消息 -->
-        <el-card class="message-card" shadow="never">
+        <!-- 村民动态 -->
+        <el-card class="activity-card" shadow="never">
           <template #header>
             <div class="card-header">
-              <span class="card-title">系统消息</span>
-              <el-badge :value="unreadMessages" type="danger" />
+              <span class="card-title">
+                <el-icon><ChatDotRound /></el-icon>
+                村民动态
+              </span>
+              <el-button text type="primary" size="small" @click="viewAllActivities">
+                更多
+              </el-button>
             </div>
           </template>
-          <div class="message-list">
-            <div
-              class="message-item"
-              v-for="message in messageList"
-              :key="message.id"
-              :class="{ 'unread': !message.read }"
-              @click="viewMessage(message)"
-            >
-              <el-icon class="message-icon" :color="message.color">
-                <component :is="message.icon" />
-              </el-icon>
-              <div class="message-content">
-                <p>{{ message.content }}</p>
-                <span>{{ formatRelativeTime(message.createdAt) }}</span>
+          <div class="activity-list">
+            <div class="activity-item" v-for="activity in activityList" :key="activity._id">
+              <el-avatar :size="40" :src="activity.userAvatar">
+                {{ activity.userName?.charAt(0) }}
+              </el-avatar>
+              <div class="activity-content">
+                <p>
+                  <strong>{{ activity.userName }}</strong>
+                  {{ activity.action }}
+                </p>
+                <span class="activity-time">{{ formatRelativeTime(activity.createdAt) }}</span>
               </div>
             </div>
+            <el-empty v-if="activityList.length === 0" description="暂无动态" />
           </div>
         </el-card>
       </el-col>
@@ -213,377 +254,604 @@
     <el-dialog
       v-model="showEmergencyDialog"
       title="发送紧急通知"
-      width="500px"
+      width="600px"
       :fullscreen="isMobile"
+      destroy-on-close
     >
-      <el-form :model="emergencyForm" label-width="100px">
-        <el-form-item label="通知类型">
-          <el-select v-model="emergencyForm.type" placeholder="请选择通知类型">
-            <el-option label="紧急事件" value="emergency" />
-            <el-option label="自然灾害" value="disaster" />
-            <el-option label="公共卫生" value="health" />
-            <el-option label="安全事故" value="safety" />
+      <el-form :model="emergencyForm" :rules="emergencyRules" ref="emergencyFormRef" label-width="100px">
+        <el-form-item label="通知类型" prop="type">
+          <el-select v-model="emergencyForm.type" placeholder="请选择通知类型" style="width: 100%">
+            <el-option label="🚨 紧急事件" value="emergency" />
+            <el-option label="🌪️ 自然灾害" value="disaster" />
+            <el-option label="🏥 公共卫生" value="health" />
+            <el-option label="⚠️ 安全事故" value="safety" />
+            <el-option label="📢 重要通知" value="important" />
           </el-select>
         </el-form-item>
-        <el-form-item label="通知标题">
-          <el-input v-model="emergencyForm.title" placeholder="请输入通知标题" />
+        <el-form-item label="通知标题" prop="title">
+          <el-input v-model="emergencyForm.title" placeholder="请输入通知标题" maxlength="100" show-word-limit />
         </el-form-item>
-        <el-form-item label="通知内容">
+        <el-form-item label="通知内容" prop="content">
           <el-input
             v-model="emergencyForm.content"
             type="textarea"
-            :rows="4"
+            :rows="5"
             placeholder="请输入通知内容"
+            maxlength="500"
+            show-word-limit
           />
         </el-form-item>
-        <el-form-item label="通知范围">
+        <el-form-item label="通知范围" prop="targets">
           <el-checkbox-group v-model="emergencyForm.targets">
             <el-checkbox label="all">全体村民</el-checkbox>
             <el-checkbox label="members">村委人员</el-checkbox>
             <el-checkbox label="party">党员同志</el-checkbox>
             <el-checkbox label="volunteers">志愿者</el-checkbox>
+            <el-checkbox label="special">特殊群体</el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
+        <el-form-item label="发送方式">
+          <el-checkbox-group v-model="emergencyForm.channels">
+            <el-checkbox label="app">APP推送</el-checkbox>
+            <el-checkbox label="sms">短信通知</el-checkbox>
+            <el-checkbox label="wechat">微信通知</el-checkbox>
+            <el-checkbox label="call">电话通知</el-checkbox>
           </el-checkbox-group>
         </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="showEmergencyDialog = false">取消</el-button>
-        <el-button type="primary" @click="sendEmergencyNotification">发送</el-button>
+        <el-button type="primary" :loading="sendingEmergency" @click="sendEmergencyNotice">
+          发送通知
+        </el-button>
       </template>
     </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
-import { useCommitteeStore } from '@/stores/villageCommittee/committeeStore'
-import { useResponsive } from '@/composables/useResponsive'
-import { ContactButton } from '@/components/villageCommittee/ContactButton.vue'
+import { useUserStore } from '@/stores/userStore'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import * as echarts from 'echarts'
 import {
-  formatDate,
-  formatRelativeTime
-} from '@/utils/format'
-import {
-  Bell,
-  Plus,
-  Calendar,
-  Download,
-  User,
-  UserFilled,
-  House,
-  MapLocation,
-  DataAnalysis,
-  Setting,
-  Warning,
-  Sunny,
-  Cloudy
+  Trophy, CircleCheck, Calendar, Phone, List, ArrowRight, Bell, Grid, UserPlus,
+  CalendarPlus, Promotion, Download, Location, Notification, ChatDotRound, Clock,
+  DataAnalysis, ArrowUp, ArrowDown
 } from '@element-plus/icons-vue'
 
 const router = useRouter()
-const committeeStore = useCommitteeStore()
-const { isMobile } = useResponsive()
+const userStore = useUserStore()
 
 // 响应式数据
+const chartRef = ref(null)
+const chartPeriod = ref('week')
+const chartInstance = ref(null)
 const showEmergencyDialog = ref(false)
-const emergencyForm = ref({
-  type: '',
-  title: '',
-  content: '',
-  targets: []
-})
+const sendingEmergency = ref(false)
+const isMobile = ref(window.innerWidth < 768)
 
-const userInfo = ref({
-  name: '张三',
-  position: '村支书'
-})
+// 当前用户信息
+const currentUser = computed(() => userStore.userInfo || {})
 
-const weather = ref({
-  temperature: 25,
-  condition: '晴朗',
-  icon: 'Sunny'
-})
+// 积分和待处理
+const monthlyPoints = ref(1250)
+const pendingTasks = ref(8)
 
-// 概览数据
-const overviewData = ref([
+// 统计卡片数据
+const statisticsCards = ref([
   {
-    key: 'members',
-    label: '村委人员',
-    value: '12',
-    icon: 'User',
-    color: '#409eff',
-    bgColor: '#ecf5ff',
-    change: '+2',
-    trend: 'up',
-    trendIcon: 'ArrowUp',
-    route: '/village-committee/members'
-  },
-  {
-    key: 'party',
-    label: '党员人数',
-    value: '156',
+    key: 'residents',
+    label: '村民总数',
+    value: '1,234',
     icon: 'UserFilled',
-    color: '#f56c6c',
-    bgColor: '#fef0f0',
-    change: '+5',
-    trend: 'up',
+    gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    change: '+12 本月',
+    trendClass: 'up',
     trendIcon: 'ArrowUp',
-    route: '/village-committee/party-members'
+    route: '/residents'
   },
   {
     key: 'households',
     label: '住户总数',
     value: '486',
     icon: 'House',
-    color: '#67c23a',
-    bgColor: '#f0f9ff',
-    change: '+3',
-    trend: 'up',
+    gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+    change: '+3 本月',
+    trendClass: 'up',
     trendIcon: 'ArrowUp',
-    route: '/village-committee/household-code'
+    route: '/household-codes'
   },
   {
-    key: 'events',
-    label: '本月事件',
-    value: '8',
-    icon: 'Warning',
-    color: '#e6a23c',
-    bgColor: '#fdf6ec',
-    change: '-2',
-    trend: 'down',
+    key: 'notices',
+    label: '本月公告',
+    value: '28',
+    icon: 'ChatLineSquare',
+    gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+    change: '+5 环比',
+    trendClass: 'up',
+    trendIcon: 'ArrowUp',
+    route: '/announcements'
+  },
+  {
+    key: 'tasks',
+    label: '待办事项',
+    value: '15',
+    icon: 'List',
+    gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+    change: '-2 较昨日',
+    trendClass: 'down',
     trendIcon: 'ArrowDown',
-    route: '/village-committee/village-map'
+    route: '/tasks'
   }
 ])
 
-// 工作台工具
-const workspaceTools = ref([
-  {
-    key: 'member',
-    label: '人员管理',
-    icon: 'User',
-    color: '#409eff',
-    route: '/village-committee/members'
-  },
-  {
-    key: 'party',
-    label: '党员信息',
-    icon: 'UserFilled',
-    color: '#f56c6c',
-    route: '/village-committee/party-members'
-  },
-  {
-    key: 'schedule',
-    label: '值班表',
-    icon: 'Calendar',
-    color: '#67c23a',
-    route: '/village-committee/duty-schedule'
-  },
-  {
-    key: 'map',
-    label: '村情地图',
-    icon: 'MapLocation',
-    color: '#e6a23c',
-    route: '/village-committee/village-map'
-  },
-  {
-    key: 'code',
-    label: '一户一码',
-    icon: 'House',
-    color: '#909399',
-    route: '/village-committee/household-code'
-  },
-  {
-    key: 'transfer',
-    label: '人员调任',
-    icon: 'Setting',
-    color: '#606266',
-    route: '/village-committee/transfer'
-  }
-])
+// 今日值班
+const todayDuty = ref([])
 
 // 待办事项
-const todoList = ref([
-  {
-    id: 1,
-    title: '审批张三的调任申请',
-    type: '人事',
-    deadline: '2024-12-20'
-  },
-  {
-    id: 2,
-    title: '完善党员档案信息',
-    type: '党务',
-    deadline: '2024-12-22'
-  },
-  {
-    id: 3,
-    title: '提交本月工作总结',
-    type: '行政',
-    deadline: '2024-12-25'
-  }
-])
+const todoList = ref([])
 
-// 公告通知
-const noticeList = ref([
-  {
-    id: 1,
-    title: '关于召开村委会议的通知',
-    level: '重要',
-    createdAt: '2024-12-18'
-  },
-  {
-    id: 2,
-    title: '冬季防火安全提示',
-    level: '一般',
-    createdAt: '2024-12-17'
-  },
-  {
-    id: 3,
-    title: '关于开展主题党日活动的通知',
-    level: '通知',
-    createdAt: '2024-12-16'
-  }
-])
+// 最新通知
+const noticeList = ref([])
 
-// 系统消息
-const messageList = ref([
-  {
-    id: 1,
-    content: '您有一个新的调任申请需要审批',
-    icon: 'Bell',
-    color: '#e6a23c',
-    createdAt: '2024-12-19 09:00',
-    read: false
-  },
-  {
-    id: 2,
-    content: '系统将在今晚进行维护升级',
-    icon: 'Warning',
-    color: '#f56c6c',
-    createdAt: '2024-12-18 18:00',
-    read: true
-  }
-])
+// 村民动态
+const activityList = ref([])
 
 // 计算属性
-const onDutyToday = computed(() => committeeStore.onDutyToday)
-
-const unreadMessages = computed(() => {
-  return messageList.value.filter(m => !m.read).length
+const unreadNotices = computed(() => {
+  return noticeList.value.filter(n => !n.read).length
 })
 
-const weatherIcon = computed(() => {
-  const iconMap = {
-    '晴朗': 'Sunny',
-    '多云': 'Cloudy'
-  }
-  return iconMap[weather.value.icon] || 'Sunny'
+// 紧急通知表单
+const emergencyForm = ref({
+  type: '',
+  title: '',
+  content: '',
+  targets: [],
+  channels: ['app']
 })
+
+const emergencyRules = {
+  type: [{ required: true, message: '请选择通知类型', trigger: 'change' }],
+  title: [{ required: true, message: '请输入通知标题', trigger: 'blur' }],
+  content: [{ required: true, message: '请输入通知内容', trigger: 'blur' }],
+  targets: [{ type: 'array', min: 1, message: '请选择通知范围', trigger: 'change' }]
+}
 
 // 方法
-const getCurrentTime = () => {
+const getGreeting = () => {
   const hour = new Date().getHours()
-  if (hour < 12) return '早上好'
+  if (hour < 6) return '凌晨好'
+  if (hour < 9) return '早上好'
+  if (hour < 12) return '上午好'
+  if (hour < 14) return '中午好'
   if (hour < 18) return '下午好'
-  return '晚上好'
+  if (hour < 22) return '晚上好'
+  return '夜深了'
 }
 
-const navigateToModule = (route) => {
-  router.push(route)
+const formatDate = (date) => {
+  if (!date) return ''
+  const d = new Date(date)
+  const year = d.getFullYear()
+  const month = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
 }
 
-const handleToolClick = (tool) => {
-  if (tool.route) {
-    router.push(tool.route)
-  } else {
-    // 处理其他工具点击
-    ElMessage.info(`${tool.label}功能开发中...`)
+const formatRelativeTime = (date) => {
+  if (!date) return ''
+  const now = new Date()
+  const target = new Date(date)
+  const diff = now - target
+  const minutes = Math.floor(diff / 60000)
+  const hours = Math.floor(diff / 3600000)
+  const days = Math.floor(diff / 86400000)
+
+  if (minutes < 1) return '刚刚'
+  if (minutes < 60) return `${minutes}分钟前`
+  if (hours < 24) return `${hours}小时前`
+  if (days < 7) return `${days}天前`
+  return formatDate(date)
+}
+
+const navigateTo = (route) => {
+  if (route) {
+    router.push(route)
   }
 }
 
-const viewAllTodos = () => {
-  ElMessage.info('查看全部待办事项')
+const isUrgent = (deadline) => {
+  if (!deadline) return false
+  const deadlineDate = new Date(deadline)
+  const now = new Date()
+  const diff = deadlineDate - now
+  return diff > 0 && diff < 24 * 60 * 60 * 1000 // 24小时内
 }
 
-const handleTodo = (todo) => {
-  ElMessage.info(`处理: ${todo.title}`)
+const isOverdue = (deadline) => {
+  if (!deadline) return false
+  return new Date(deadline) < new Date()
 }
 
-const viewAllNotices = () => {
-  ElMessage.info('查看全部公告通知')
-}
-
-const viewNotice = (notice) => {
-  ElMessage.info(`查看公告: ${notice.title}`)
-}
-
-const handleQuickAdd = (type) => {
-  const routeMap = {
-    member: '/village-committee/members',
-    schedule: '/village-committee/duty-schedule'
-  }
-
-  if (routeMap[type]) {
-    router.push(routeMap[type])
-  }
-}
-
-const handleExportReport = () => {
-  ElMessage.success('报表导出中...')
-}
-
-const viewMessage = (message) => {
-  message.read = true
-  ElMessage.info(message.content)
-}
-
-const sendEmergencyNotification = () => {
-  ElMessage.success('紧急通知发送成功')
-  showEmergencyDialog.value = false
-}
-
-// 辅助函数
-const getTodoTypeTagType = (type) => {
+const getTodoTypeTag = (type) => {
   const typeMap = {
     '人事': 'primary',
     '党务': 'danger',
     '行政': 'warning',
-    '财务': 'success'
+    '财务': 'success',
+    '应急': 'danger'
   }
-  return typeMap[type] || ''
+  return typeMap[type] || 'info'
 }
 
-const getNoticeTagType = (level) => {
+const getNoticeTypeTag = (level) => {
   const typeMap = {
-    '重要': 'danger',
     '紧急': 'danger',
+    '重要': 'warning',
     '一般': 'info',
     '通知': 'primary'
   }
-  return typeMap[level] || ''
+  return typeMap[level] || 'info'
 }
 
-const isOverdue = (deadline) => {
-  return new Date(deadline) < new Date()
+const toggleTodoStatus = async (todo) => {
+  try {
+    // TODO: 调用API更新待办状态
+    ElMessage.success(todo.completed ? '已标记为完成' : '已标记为未完成')
+  } catch (error) {
+    ElMessage.error('操作失败')
+  }
+}
+
+const handleTodo = (todo) => {
+  ElMessage.info(`处理待办: ${todo.title}`)
+  // TODO: 跳转到待办详情页面
+}
+
+const viewAllTodos = () => {
+  router.push('/tasks')
+}
+
+const viewNotice = (notice) => {
+  notice.read = true
+  ElMessage.info(`查看通知: ${notice.title}`)
+  // TODO: 打开通知详情对话框
+}
+
+const viewAllActivities = () => {
+  router.push('/activities')
+}
+
+const callDutyMember = (duty) => {
+  ElMessageBox.confirm(
+    `确定要拨打 ${duty.memberName} 的电话吗？`,
+    '联系值班人员',
+    {
+      confirmButtonText: '拨打',
+      cancelButtonText: '取消',
+      type: 'info'
+    }
+  ).then(() => {
+    // TODO: 实现拨打电话功能
+    ElMessage.success(`正在拨打 ${duty.memberName} 的电话...`)
+  }).catch(() => {
+    // 用户取消
+  })
+}
+
+const quickAction = (action) => {
+  const routeMap = {
+    'add-member': '/village-committee/members',
+    'add-schedule': '/village-committee/duty-schedule',
+    'publish-notice': '/announcements/create',
+    'export-report': '/reports/export',
+    'view-map': '/village-committee/village-map'
+  }
+
+  if (routeMap[action]) {
+    router.push(routeMap[action])
+  } else {
+    ElMessage.info('功能开发中...')
+  }
+}
+
+const sendEmergencyNotice = async () => {
+  // 表单验证
+  if (!emergencyForm.value.type) {
+    ElMessage.warning('请选择通知类型')
+    return
+  }
+  if (!emergencyForm.value.title) {
+    ElMessage.warning('请输入通知标题')
+    return
+  }
+  if (!emergencyForm.value.content) {
+    ElMessage.warning('请输入通知内容')
+    return
+  }
+  if (emergencyForm.value.targets.length === 0) {
+    ElMessage.warning('请选择通知范围')
+    return
+  }
+
+  sendingEmergency.value = true
+
+  try {
+    // TODO: 调用后端API发送紧急通知
+    await new Promise(resolve => setTimeout(resolve, 1000))
+
+    ElMessage.success('紧急通知发送成功！')
+    showEmergencyDialog.value = false
+
+    // 重置表单
+    emergencyForm.value = {
+      type: '',
+      title: '',
+      content: '',
+      targets: [],
+      channels: ['app']
+    }
+  } catch (error) {
+    ElMessage.error('发送失败，请重试')
+  } finally {
+    sendingEmergency.value = false
+  }
+}
+
+// 初始化图表
+const initChart = () => {
+  if (!chartRef.value) return
+
+  chartInstance.value = echarts.init(chartRef.value)
+
+  const option = {
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'shadow'
+      }
+    },
+    legend: {
+      data: ['新增村民', '处理事务', '发布公告']
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+    },
+    yAxis: {
+      type: 'value'
+    },
+    series: [
+      {
+        name: '新增村民',
+        type: 'bar',
+        data: [2, 4, 6, 3, 5, 8, 4],
+        itemStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: '#667eea' },
+            { offset: 1, color: '#764ba2' }
+          ])
+        }
+      },
+      {
+        name: '处理事务',
+        type: 'bar',
+        data: [8, 12, 15, 10, 14, 18, 12],
+        itemStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: '#4facfe' },
+            { offset: 1, color: '#00f2fe' }
+          ])
+        }
+      },
+      {
+        name: '发布公告',
+        type: 'bar',
+        data: [3, 5, 4, 6, 5, 8, 6],
+        itemStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: '#43e97b' },
+            { offset: 1, color: '#38f9d7' }
+          ])
+        }
+      }
+    ]
+  }
+
+  chartInstance.value.setOption(option)
+}
+
+// 更新图表数据
+const updateChart = () => {
+  if (!chartInstance.value) return
+
+  // TODO: 根据chartPeriod获取不同时间段的数据
+  const dataMap = {
+    week: {
+      xAxis: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+      series1: [2, 4, 6, 3, 5, 8, 4],
+      series2: [8, 12, 15, 10, 14, 18, 12],
+      series3: [3, 5, 4, 6, 5, 8, 6]
+    },
+    month: {
+      xAxis: ['第一周', '第二周', '第三周', '第四周'],
+      series1: [15, 22, 18, 25],
+      series2: [45, 52, 48, 55],
+      series3: [12, 18, 15, 20]
+    },
+    year: {
+      xAxis: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+      series1: [20, 25, 30, 28, 35, 40, 38, 42, 45, 50, 48, 55],
+      series2: [50, 55, 60, 58, 65, 70, 68, 72, 75, 80, 78, 85],
+      series3: [15, 18, 20, 22, 25, 28, 26, 30, 32, 35, 33, 38]
+    }
+  }
+
+  const data = dataMap[chartPeriod.value]
+
+  chartInstance.value.setOption({
+    xAxis: {
+      data: data.xAxis
+    },
+    series: [
+      { data: data.series1 },
+      { data: data.series2 },
+      { data: data.series3 }
+    ]
+  })
+}
+
+// 加载数据
+const loadData = async () => {
+  try {
+    // TODO: 从后端API加载数据
+    // const response = await fetch('http://localhost:3001/api/v1/cadre/dashboard')
+    // const data = await response.json()
+
+    // 模拟数据
+    todayDuty.value = [
+      {
+        _id: '1',
+        memberName: '张三',
+        position: '村支书',
+        period: '上午 08:00-12:00',
+        contact: '13800138000',
+        avatar: ''
+      },
+      {
+        _id: '2',
+        memberName: '李四',
+        position: '村主任',
+        period: '下午 14:00-18:00',
+        contact: '13800138001',
+        avatar: ''
+      }
+    ]
+
+    todoList.value = [
+      {
+        _id: '1',
+        title: '审批张三的调任申请',
+        type: '人事',
+        deadline: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+        completed: false,
+        status: 'pending'
+      },
+      {
+        _id: '2',
+        title: '完善党员档案信息',
+        type: '党务',
+        deadline: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        completed: false,
+        status: 'pending'
+      },
+      {
+        _id: '3',
+        title: '提交本月工作总结',
+        type: '行政',
+        deadline: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+        completed: false,
+        status: 'pending'
+      }
+    ]
+
+    noticeList.value = [
+      {
+        _id: '1',
+        title: '关于召开村委会议的通知',
+        level: '重要',
+        createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+        read: false
+      },
+      {
+        _id: '2',
+        title: '冬季防火安全提示',
+        level: '一般',
+        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+        read: false
+      },
+      {
+        _id: '3',
+        title: '关于开展主题党日活动的通知',
+        level: '通知',
+        createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+        read: true
+      }
+    ]
+
+    activityList.value = [
+      {
+        _id: '1',
+        userName: '王五',
+        userAvatar: '',
+        action: '提交了低保申请',
+        createdAt: new Date(Date.now() - 10 * 60 * 1000).toISOString()
+      },
+      {
+        _id: '2',
+        userName: '赵六',
+        userAvatar: '',
+        action: '咨询了医保政策',
+        createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString()
+      },
+      {
+        _id: '3',
+        userName: '孙七',
+        userAvatar: '',
+        action: '反馈了道路问题',
+        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+      }
+    ]
+  } catch (error) {
+    console.error('加载数据失败:', error)
+    ElMessage.error('加载数据失败')
+  }
+}
+
+// 窗口大小改变时重新渲染图表
+const handleResize = () => {
+  isMobile.value = window.innerWidth < 768
+  if (chartInstance.value) {
+    chartInstance.value.resize()
+  }
 }
 
 // 生命周期
 onMounted(async () => {
-  try {
-    // 加载必要的数据
-    await Promise.all([
-      committeeStore.fetchDutySchedule(),
-      committeeStore.fetchMembers()
-    ])
-  } catch (error) {
-    console.error('加载仪表盘数据失败:', error)
+  await loadData()
+  await nextTick()
+  initChart()
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  if (chartInstance.value) {
+    chartInstance.value.dispose()
   }
+  window.removeEventListener('resize', handleResize)
+})
+
+// 监听图表周期变化
+import { watch } from 'vue'
+watch(chartPeriod, () => {
+  updateChart()
 })
 </script>
 
 <style lang="scss" scoped>
-.dashboard-container {
+.cadre-dashboard {
   padding: 20px;
+  background: #f5f7fa;
+  min-height: 100vh;
 
   @media (max-width: 768px) {
     padding: 10px;
@@ -592,6 +860,13 @@ onMounted(async () => {
 
 .welcome-card {
   margin-bottom: 20px;
+  border: none;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+
+  :deep(.el-card__body) {
+    padding: 30px;
+  }
 
   .welcome-content {
     display: flex;
@@ -607,84 +882,103 @@ onMounted(async () => {
 
     .welcome-info {
       .welcome-title {
-        margin: 0;
-        font-size: 24px;
-        color: #303133;
-        font-weight: 600;
+        margin: 0 0 8px 0;
+        font-size: 28px;
+        font-weight: 700;
+        color: white;
 
         @media (max-width: 768px) {
-          font-size: 20px;
+          font-size: 22px;
         }
       }
 
       .welcome-subtitle {
-        margin: 5px 0 0 0;
-        color: #909399;
-        font-size: 14px;
+        margin: 0 0 12px 0;
+        font-size: 16px;
+        opacity: 0.9;
+      }
+
+      .welcome-position {
+        display: flex;
+        gap: 8px;
+
+        .el-tag {
+          border: none;
+          background: rgba(255, 255, 255, 0.2);
+          color: white;
+        }
       }
     }
 
-    .welcome-weather {
+    .welcome-stats {
       display: flex;
-      align-items: center;
-      gap: 10px;
-      color: #606266;
+      gap: 20px;
 
-      .weather-text {
+      .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
         font-size: 16px;
-        font-weight: 500;
+        font-weight: 600;
+        background: rgba(255, 255, 255, 0.15);
+        padding: 12px 20px;
+        border-radius: 12px;
+        backdrop-filter: blur(10px);
       }
     }
   }
 }
 
-.overview-row {
+.stats-row {
   margin-bottom: 20px;
 
-  .overview-card {
+  .stat-card {
+    border: none;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     &:hover {
       transform: translateY(-5px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
     }
 
-    .overview-content {
+    .stat-content {
       display: flex;
       align-items: center;
-      gap: 15px;
+      gap: 16px;
 
-      .overview-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: 10px;
+      .stat-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 16px;
         display: flex;
         align-items: center;
         justify-content: center;
+        flex-shrink: 0;
       }
 
-      .overview-info {
+      .stat-info {
         flex: 1;
 
-        .overview-value {
-          font-size: 28px;
-          font-weight: 600;
+        .stat-value {
+          font-size: 32px;
+          font-weight: 700;
           color: #303133;
-          line-height: 1;
+          line-height: 1.2;
         }
 
-        .overview-label {
+        .stat-label {
           font-size: 14px;
           color: #909399;
-          margin: 5px 0;
+          margin: 4px 0;
         }
 
-        .overview-trend {
+        .stat-trend {
           display: flex;
           align-items: center;
           gap: 4px;
           font-size: 12px;
+          font-weight: 600;
 
           &.up {
             color: #67c23a;
@@ -699,7 +993,7 @@ onMounted(async () => {
   }
 }
 
-.content-row {
+.main-content {
   .card-header {
     display: flex;
     justify-content: space-between;
@@ -707,175 +1001,242 @@ onMounted(async () => {
 
     .card-title {
       font-weight: 600;
+      font-size: 16px;
       color: #303133;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+
+  .chart-card {
+    margin-bottom: 20px;
+    border: none;
+
+    .chart-container {
+      padding: 10px 0;
+    }
+  }
+
+  .duty-card {
+    margin-bottom: 20px;
+    border: none;
+
+    .duty-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+
+      .duty-item {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 16px;
+        background: #f5f7fa;
+        border-radius: 12px;
+        transition: all 0.3s;
+
+        &:hover {
+          background: #e8ebf0;
+        }
+
+        .duty-info {
+          flex: 1;
+
+          h4 {
+            margin: 0 0 4px 0;
+            font-size: 16px;
+            color: #303133;
+          }
+
+          p {
+            margin: 0;
+            font-size: 14px;
+            color: #909399;
+
+            &.duty-period {
+              color: #409eff;
+              font-weight: 600;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .todo-card {
+    margin-bottom: 20px;
+    border: none;
+
+    .todo-badge {
+      margin-left: 8px;
+    }
+
+    .todo-list {
+      .todo-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px;
+        background: #f5f7fa;
+        border-radius: 12px;
+        margin-bottom: 12px;
+        transition: all 0.3s;
+        border-left: 3px solid transparent;
+
+        &:hover {
+          background: #e8ebf0;
+        }
+
+        &.urgent {
+          border-left-color: #f56c6c;
+          background: #fef0f0;
+        }
+
+        &.completed {
+          opacity: 0.6;
+
+          .todo-title {
+            text-decoration: line-through;
+          }
+        }
+
+        .todo-content {
+          flex: 1;
+
+          .todo-title {
+            font-size: 15px;
+            color: #303133;
+            font-weight: 500;
+          }
+
+          .todo-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 8px;
+
+            .todo-deadline {
+              display: flex;
+              align-items: center;
+              gap: 4px;
+              font-size: 13px;
+              color: #909399;
+
+              &.overdue {
+                color: #f56c6c;
+                font-weight: 600;
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
 
-.duty-card {
+.quick-actions-card {
   margin-bottom: 20px;
+  border: none;
 
-  .duty-item {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    padding: 20px;
+  .quick-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
 
-    .duty-info {
-      flex: 1;
-
-      h4 {
-        margin: 0 0 5px 0;
-        color: #303133;
-      }
-
-      p {
-        margin: 0 0 10px 0;
-        color: #909399;
-        font-size: 14px;
-      }
-    }
-  }
-}
-
-.workspace-card {
-  margin-bottom: 20px;
-
-  .tool-item {
-    text-align: center;
-    padding: 20px;
-    cursor: pointer;
-    transition: all 0.3s;
-    position: relative;
-
-    &:hover {
-      background: #f5f7fa;
-      border-radius: 8px;
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
     }
 
-    .tool-icon {
-      margin-bottom: 10px;
-    }
-
-    .tool-label {
-      display: block;
-      color: #606266;
+    .quick-btn {
+      height: 80px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      border-radius: 12px;
       font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s;
+
+      &:hover {
+        transform: translateY(-2px);
+      }
+
+      &.emergency {
+        grid-column: 1 / -1;
+        height: 60px;
+        flex-direction: row;
+        background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+        border: none;
+        color: white;
+      }
     }
-  }
-}
-
-.todo-card {
-  margin-bottom: 20px;
-
-  .text-danger {
-    color: #f56c6c;
   }
 }
 
 .notice-card,
-.message-card {
+.activity-card {
   margin-bottom: 20px;
+  border: none;
 
   .notice-list,
-  .message-list {
+  .activity-list {
     .notice-item,
-    .message-item {
-      padding: 12px 0;
-      border-bottom: 1px solid #ebeef5;
+    .activity-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 8px;
       cursor: pointer;
       transition: all 0.3s;
-
-      &:last-child {
-        border-bottom: none;
-      }
+      margin-bottom: 8px;
 
       &:hover {
         background: #f5f7fa;
-        margin: 0 -20px;
-        padding: 12px 20px;
+      }
+
+      &.unread {
+        background: #ecf5ff;
+
+        .notice-title {
+          font-weight: 600;
+        }
       }
 
       .notice-content {
-        display: inline-block;
-        margin-left: 10px;
+        flex: 1;
 
-        h4 {
-          margin: 0 0 5px 0;
+        .notice-title {
+          margin: 0 0 4px 0;
           font-size: 14px;
           color: #303133;
         }
 
-        p {
+        .notice-time {
           margin: 0;
           font-size: 12px;
           color: #909399;
         }
       }
 
-      &.unread {
-        font-weight: 600;
-      }
-    }
-
-    .message-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-
-      .message-content {
+      .activity-content {
         flex: 1;
 
         p {
-          margin: 0 0 5px 0;
-          color: #303133;
+          margin: 0 0 4px 0;
           font-size: 14px;
+          color: #303133;
         }
 
-        span {
+        .activity-time {
           font-size: 12px;
           color: #909399;
         }
       }
     }
-  }
-}
-
-.quick-action-card {
-  margin-bottom: 20px;
-
-  .quick-actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-
-    .quick-btn {
-      height: 60px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 5px;
-    }
-  }
-}
-
-// 响应式调整
-@media (max-width: 768px) {
-  .overview-row {
-    .el-col {
-      margin-bottom: 10px;
-    }
-  }
-
-  .workspace-row {
-    .el-col {
-      margin-bottom: 10px;
-    }
-  }
-
-  .quick-actions {
-    grid-template-columns: 1fr;
   }
 }
 </style>

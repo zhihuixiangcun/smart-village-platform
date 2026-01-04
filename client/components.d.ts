@@ -28,6 +28,7 @@ declare module 'vue' {
     DutyCalendar: typeof import('./src/components/duty/DutyCalendar.vue')['default']
     DutyPersonnelForm: typeof import('./src/components/duty/DutyPersonnelForm.vue')['default']
     DutyStatistics: typeof import('./src/components/duty/DutyStatistics.vue')['default']
+    ElAlert: typeof import('element-plus/es')['ElAlert']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElCard: typeof import('element-plus/es')['ElCard']
     ElCheckbox: typeof import('element-plus/es')['ElCheckbox']

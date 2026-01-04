@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useUserStore } from '@/stores/userStore'
 import { ElMessage } from 'element-plus'
+import villageCommitteeRoutes from './villageCommittee.js'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -209,22 +210,8 @@ const router = createRouter({
       }
     },
 
-    // 村委管理模块
-    {
-      path: '/committee',
-      name: 'committee',
-      component: () => import('@/views/CommitteeView.vue'),
-      meta: {
-        requiresAuth: true,
-        title: '村委管理',
-        icon: 'UserFilled',
-        permissions: ['committee:read'],
-        breadcrumb: [
-          { title: '首页', path: '/dashboard' },
-          { title: '村委管理', path: '/committee' }
-        ]
-      }
-    },
+    // 村委管理模块（导入独立路由模块）
+    villageCommitteeRoutes,
 
     // 财务管理模块
     {

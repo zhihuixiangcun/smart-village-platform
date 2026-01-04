@@ -26,6 +26,19 @@
                 clearable
               />
             </el-form-item>
+            <el-form-item prop="role">
+              <el-select
+                v-model="loginForm.role"
+                placeholder="请选择角色"
+                size="large"
+                style="width: 100%"
+              >
+                <el-option label="管理员" value="admin" />
+                <el-option label="村委" value="village_admin" />
+                <el-option label="村务官员" value="village_official" />
+                <el-option label="村民" value="resident" />
+              </el-select>
+            </el-form-item>
             <el-form-item prop="password">
               <el-input
                 v-model="loginForm.password"
@@ -55,22 +68,28 @@
 
           <!-- 快速登录 -->
           <div class="quick-login">
-            <el-divider>快速登录</el-divider>
+            <el-divider>快速登录 (测试账户)</el-divider>
             <div class="quick-accounts">
               <el-button
                 type="success"
                 size="small"
                 @click="quickLogin('admin')"
               >
-                管理员登录
+                管理员 (testadmin)
               </el-button>
               <el-button
                 type="warning"
                 size="small"
                 @click="quickLogin('villager')"
               >
-                村民登录
+                村民 (testresident)
               </el-button>
+            </div>
+            <div class="test-accounts-info">
+              <p style="font-size: 12px; color: #909399; margin-top: 10px;">
+                管理员: testadmin / admin / Test123456!<br>
+                村民: testresident / resident / Resident123456!
+              </p>
             </div>
           </div>
         </div>
@@ -100,6 +119,7 @@ const loginFormRef = ref()
 const loginForm = reactive({
   username: '',
   password: '',
+  role: 'admin',
   remember: false
 })
 
@@ -107,6 +127,9 @@ const loginForm = reactive({
 const loginRules = {
   username: [
     { required: true, message: '请输入用户名', trigger: 'blur' }
+  ],
+  role: [
+    { required: true, message: '请选择角色', trigger: 'change' }
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
@@ -122,53 +145,38 @@ const handleLogin = async () => {
   if (!loginFormRef.value) return
 
   try {
-    // 🔍 缓存检测 - 确保新代码已加载
-    console.log('🔍 缓存检测 - 版本:', CODE_VERSION)
-    console.log('🔍 localStorage 状态:', {
-      hasToken: !!localStorage.getItem('token'),
-      hasUserInfo: !!localStorage.getItem('userInfo')
-    })
-
     // 表单验证
     await loginFormRef.value.validate()
 
     loading.value = true
 
-    // 模拟登录API调用
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    // 调用真实登录API
+    const response = await fetch('http://localhost:3001/api/v1/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username: loginForm.username,
+        password: loginForm.password,
+        role: loginForm.role
+      })
+    })
 
-    // 预定义的账号验证
-    const accounts = {
-      'admin': { password: 'admin123', name: '系统管理员', role: 'admin' },
-      'test_villager': { password: '123456', name: '测试村民', role: 'villager' },
-      '凤凰村_01': { password: '123456', name: '凤凰村民', role: 'villager' },
-      '绿水村_01': { password: '123456', name: '绿水村民', role: 'villager' }
-    }
+    const data = await response.json()
 
-    const account = accounts[loginForm.username]
-
-    if (!account || account.password !== loginForm.password) {
-      ElMessage.error('用户名或密码错误')
+    if (!data.success) {
+      ElMessage.error(data.message || '登录失败，请检查用户名和密码')
       return
     }
 
-    // 设置用户信息
-    const userInfo = {
-      id: loginForm.username,
-      username: loginForm.username,
-      name: account.name,
-      role: account.role,
-      avatar: '',
-      email: `${loginForm.username}@smartvillage.com`
-    }
-
     // 保存token和用户信息
-    userStore.setToken('demo-token-' + Date.now())
-    userStore.setUserInfo(userInfo)
-    userStore.setPermissions(['*']) // 临时给予所有权限
-    userStore.setRoles([account.role])
+    userStore.setToken(data.data.token)
+    userStore.setUserInfo(data.data.user)
+    userStore.setPermissions(data.data.user.permissions || ['*'])
+    userStore.setRoles([data.data.user.role])
 
-    ElMessage.success(`欢迎回来，${account.name}！`)
+    ElMessage.success(`欢迎回来，${data.data.user.name || data.data.user.username}！`)
 
     // 等待 Vue 响应式状态更新
     await nextTick()
@@ -176,43 +184,36 @@ const handleLogin = async () => {
     // 强制等待确保状态完全保存到 localStorage
     await new Promise(resolve => setTimeout(resolve, 300))
 
-    // 验证状态已保存
-    console.log('登录完成，准备跳转。localStorage状态:', {
-      hasToken: !!localStorage.getItem('token'),
-      hasUserInfo: !!localStorage.getItem('userInfo')
-    })
-
     // 跳转到目标页面
     const redirect = route.query.redirect || '/dashboard'
-
-    // 使用 replace 而不是 push，避免浏览器后退按钮导致问题
     await router.replace(redirect)
 
   } catch (error) {
     console.error('登录失败:', error)
-    ElMessage.error('登录失败，请重试')
+    ElMessage.error('登录失败，请检查网络连接或联系管理员')
   } finally {
     loading.value = false
   }
 }
 
 // 快速登录
-const quickLogin = (type) => {
+const quickLogin = async (type) => {
   const quickAccounts = {
-    'admin': { username: 'admin', password: 'admin123' },
-    'villager': { username: 'test_villager', password: '123456' }
+    'admin': { username: 'testadmin', password: 'Test123456!', role: 'admin' },
+    'villager': { username: 'testresident', password: 'Resident123456!', role: 'resident' }
   }
 
   const account = quickAccounts[type]
   if (account) {
     loginForm.username = account.username
     loginForm.password = account.password
+    loginForm.role = account.role
     loginForm.remember = true
 
     // 自动登录
     setTimeout(() => {
       handleLogin()
-    }, 500)
+    }, 300)
   }
 }
 </script>
@@ -268,6 +269,14 @@ const quickLogin = (type) => {
     display: flex;
     gap: 10px;
     justify-content: center;
+  }
+
+  .test-accounts-info {
+    text-align: center;
+    padding: 10px;
+    background: #f5f7fa;
+    border-radius: 8px;
+    margin-top: 10px;
   }
 }
 
