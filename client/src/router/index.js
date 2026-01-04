@@ -1143,10 +1143,20 @@ router.beforeEach(async (to, from, next) => {
       })
     }
   } else {
-    // 如果已登录用户访问登录页面，重定向到仪表板
+    // 如果已登录用户访问登录页面，根据角色重定向到对应主页
     if ((to.name === 'login' || to.name === 'unified-login') && userStore.isLoggedIn) {
-      console.log('路由守卫: 用户已登录，重定向到仪表板')
-      next({ name: 'dashboard' })
+      console.log('路由守卫: 用户已登录，根据角色重定向到对应主页')
+      // 根据用户角色跳转到不同的主页
+      const userRole = userStore.userInfo?.role || userStore.userRole
+      const roleRedirectMap = {
+        'resident': '/village-affairs',
+        'village_admin': '/dashboard',  // 数据库中的村干部角色
+        'village_official': '/dashboard',  // 数据库中的乡镇官员角色
+        'admin': '/dashboard',
+        'purchaser': '/purchaser/dashboard'
+      }
+      const redirectPath = roleRedirectMap[userRole] || '/dashboard'
+      next(redirectPath)
       return
     }
 

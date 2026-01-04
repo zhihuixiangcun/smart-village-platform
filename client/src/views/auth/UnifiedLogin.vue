@@ -838,11 +838,8 @@ onMounted(() => {
   // 检查是否有logo
   hasLogo.value = true
 
-  // 检查是否已登录
-  const token = localStorage.getItem('token')
-  if (token) {
-    router.push('/')
-  }
+  // 移除了自动跳转逻辑 - 让路由守卫处理已登录用户的重定向
+  // 这样可以确保根据用户角色跳转到正确的页面
 })
 
 onUnmounted(() => {

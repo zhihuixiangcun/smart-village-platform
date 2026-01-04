@@ -32,9 +32,19 @@ router.beforeEach(async (to, from, next) => {
 
     // 检查是否在白名单中
     if (whiteList.includes(to.path)) {
-      // 如果已登录且访问登录页，重定向到首页
+      // 如果已登录且访问登录页，根据角色重定向到对应主页
       if (isLoggedIn && (to.path === '/login' || to.path === '/unified-login')) {
-        next('/')
+        // 根据用户角色跳转到不同的主页
+        const userRole = userStore.userInfo?.role || userStore.userRole
+        const roleRedirectMap = {
+          'resident': '/village-affairs',
+          'village_admin': '/dashboard',  // 数据库中的村干部角色
+          'village_official': '/dashboard',  // 数据库中的乡镇官员角色
+          'admin': '/dashboard',
+          'purchaser': '/purchaser/dashboard'
+        }
+        const redirectPath = roleRedirectMap[userRole] || '/dashboard'
+        next(redirectPath)
       } else {
         next()
       }
