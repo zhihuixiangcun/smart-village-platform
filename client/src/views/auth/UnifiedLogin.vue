@@ -588,22 +588,16 @@ const handlePasswordLogin = async () => {
 
       ElMessage.success('登录成功')
 
-      // 检查是否有重定向地址
-      const redirect = router.currentRoute.value.query.redirect
-      if (redirect) {
-        router.push(redirect)
-      } else {
-        // 根据角色跳转到不同页面
-        const redirectMap = {
-          resident: '/village-affairs',     // 村民 → 村务公开
-          cadre: '/dashboard',               // 村干部 → 工作台
-          official: '/dashboard',            // 乡镇官员 → 工作台
-          purchaser: '/purchaser/dashboard', // 采购商 → 采购商工作台
-          admin: '/dashboard'                // 管理员 → 工作台
-        }
-        const redirectPath = redirectMap[selectedRole.value] || '/dashboard'
-        router.push(redirectPath)
+      // 根据角色跳转到不同页面（优先级高于 redirect 参数）
+      const redirectMap = {
+        resident: '/village-affairs',     // 村民 → 村务公开
+        cadre: '/dashboard',               // 村干部 → 工作台
+        official: '/dashboard',            // 乡镇官员 → 工作台
+        purchaser: '/purchaser/dashboard', // 采购商 → 采购商工作台
+        admin: '/dashboard'                // 管理员 → 工作台
       }
+      const redirectPath = redirectMap[selectedRole.value] || '/dashboard'
+      router.push(redirectPath)
     }
   } catch (error) {
     ElMessage.error(error.response?.data?.error || error.message || '登录失败')
@@ -668,10 +662,22 @@ const startFaceRecognition = async () => {
           })
 
           if (res.success) {
-            localStorage.setItem('token', res.data.token)
-            localStorage.setItem('user', JSON.stringify(res.data.user))
+            // 使用 userStore 正确存储用户数据
+            userStore.setToken(res.data.token)
+            userStore.setUserInfo(res.data.user)
+
             ElMessage.success('人脸识别成功')
-            router.push('/')
+
+            // 根据角色跳转到不同页面
+            const redirectMap = {
+              resident: '/village-affairs',
+              cadre: '/dashboard',
+              official: '/dashboard',
+              purchaser: '/purchaser/dashboard',
+              admin: '/dashboard'
+            }
+            const redirectPath = redirectMap[selectedRole.value] || '/dashboard'
+            router.push(redirectPath)
           }
         } catch (error) {
           ElMessage.error('人脸识别失败，请重试')
@@ -721,10 +727,22 @@ const checkWechatStatus = async () => {
       } else if (res.data.status === 'confirmed') {
         // 登录成功
         clearInterval(wechatCheckTimer)
-        localStorage.setItem('token', res.data.token)
-        localStorage.setItem('user', JSON.stringify(res.data.user))
+        // 使用 userStore 正确存储用户数据
+        userStore.setToken(res.data.token)
+        userStore.setUserInfo(res.data.user)
         ElMessage.success('微信登录成功')
-        router.push('/')
+
+        // 根据用户角色跳转到不同页面
+        const userRole = res.data.user?.role || selectedRole.value
+        const redirectMap = {
+          resident: '/village-affairs',
+          cadre: '/dashboard',
+          official: '/dashboard',
+          purchaser: '/purchaser/dashboard',
+          admin: '/dashboard'
+        }
+        const redirectPath = redirectMap[userRole] || '/dashboard'
+        router.push(redirectPath)
       } else if (res.data.status === 'expired') {
         wechatExpired.value = true
         clearInterval(wechatCheckTimer)
