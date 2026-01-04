@@ -896,7 +896,17 @@ export const authApi = {
 
   // 发送验证码
   sendVerifyCode(data) {
-    return api.post('/api/v1/auth/verify-code', data)
+    return api.post('/api/v1/auth/send-code', data)
+  },
+
+  // 重置密码 - 发送验证码
+  sendResetCode(data) {
+    return api.post('/api/v1/auth/reset-password/send-code', data)
+  },
+
+  // 重置密码 - 确认
+  resetPassword(data) {
+    return api.post('/api/v1/auth/reset-password/confirm', data)
   },
 
   // 用户注册
@@ -934,6 +944,9 @@ export const authApi = {
     return api.post('/api/v1/auth/refresh')
   }
 }
+
+// Export the axios instance as a named export for direct access
+export { api as axiosInstance }
 
 export default {
   agriculture: agricultureApi,

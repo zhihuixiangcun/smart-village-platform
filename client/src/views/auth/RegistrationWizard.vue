@@ -302,7 +302,7 @@ const submitRegistration = async () => {
   }
 }
 
-const goToLogin = () => { router.push('/login') }
+const goToLogin = () => { router.push('/unified-login') }
 </script>
 
 <style scoped>

@@ -484,6 +484,27 @@ router.post('/send-sms',
 );
 
 /**
+ * 发送验证码（前端兼容路由）
+ * POST /api/v1/auth/send-code
+ * 与 /send-sms 功能相同，用于前端兼容
+ */
+router.post('/send-code',
+  [
+    body('phone')
+      .trim()
+      .matches(/^1[3-9]\d{9}$/)
+      .withMessage('手机号格式不正确'),
+
+    body('type')
+      .optional()
+      .isIn(['login', 'register', 'reset'])
+      .withMessage('类型必须是 login、register 或 reset 之一')
+  ],
+  handleValidationErrors,
+  authController.sendSmsCode
+);
+
+/**
  * 短信验证码登录
  * POST /api/v1/auth/login-sms
  */

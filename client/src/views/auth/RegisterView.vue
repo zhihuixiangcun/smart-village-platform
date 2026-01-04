@@ -148,7 +148,7 @@ const selectRegisterType = (type) => {
 
 // 跳转到登录页
 const goToLogin = () => {
-  router.push({ name: 'unified-login' })
+  router.push('/unified-login')
 }
 </script>
 

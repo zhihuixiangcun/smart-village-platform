@@ -272,10 +272,12 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Plus, User, Document, CircleCheck } from '@element-plus/icons-vue'
-import api from '@/api'
+import { axiosInstance as api } from '@/api'
+import { useUserStore } from '@/stores/userStore'
 
 const router = useRouter()
 const route = useRoute()
+const userStore = useUserStore()
 
 const props = defineProps({
   role: {
@@ -460,17 +462,21 @@ const sendVerifyCode = async () => {
 
   codeSending.value = true
   try {
-    await api.post('/api/v1/auth/send-code', { phone: formData.phone })
-    ElMessage.success('验证码已发送')
-    codeCountdown.value = 60
-    const timer = setInterval(() => {
-      codeCountdown.value--
-      if (codeCountdown.value <= 0) {
-        clearInterval(timer)
-      }
-    }, 1000)
+    const response = await api.post('/api/v1/auth/send-code', { phone: formData.phone })
+    if (response.success) {
+      ElMessage.success('验证码已发送，请查收短信')
+      codeCountdown.value = 60
+      const timer = setInterval(() => {
+        codeCountdown.value--
+        if (codeCountdown.value <= 0) {
+          clearInterval(timer)
+        }
+      }, 1000)
+    } else {
+      ElMessage.error(response.message || '发送失败')
+    }
   } catch (error) {
-    ElMessage.error(error.message || '发送失败')
+    ElMessage.error(error.response?.data?.error || error.message || '发送失败')
   } finally {
     codeSending.value = false
   }
@@ -529,8 +535,10 @@ const submitRegistration = async () => {
     const submitData = {
       role: role.value,
       phone: formData.phone,
+      verifyCode: formData.verifyCode,
       password: formData.password,
       name: formData.name,
+      username: formData.name, // 后端需要 username 字段
       idCard: formData.idCard,
       gender: formData.gender,
       birthDate: formData.birthDate,
@@ -551,14 +559,19 @@ const submitRegistration = async () => {
 
     const response = await api.post('/api/v1/auth/register', submitData)
     if (response.success) {
+      // 注册成功，保存 token 和用户信息
+      if (response.data.token) {
+        userStore.setToken(response.data.token)
+        userStore.setUserInfo(response.data.user)
+      }
       applicationId.value = response.data.applicationId
       currentStep.value = 4
-      ElMessage.success('注册申请提交成功')
+      ElMessage.success('注册成功！')
     } else {
       ElMessage.error(response.message || '注册失败')
     }
   } catch (error) {
-    ElMessage.error(error.message || '注册失败，请稍后重试')
+    ElMessage.error(error.response?.data?.error || error.message || '注册失败，请稍后重试')
   } finally {
     submitting.value = false
   }

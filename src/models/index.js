@@ -60,15 +60,30 @@ require('./DataConflict');
 require('./SyncOperation');
 
 // 聊天和社交模型（新增）
+console.log('[MODELS] Loading Conversation...');
 require('./Conversation');
+console.log('[MODELS] Loading Message...');
 require('./Message');
+console.log('[MODELS] Loading FriendRequest...');
 require('./FriendRequest');
 
 // 注册审批和采购商模型（新增）
+console.log('[MODELS] Loading RegistrationApplication...');
 require('./RegistrationApplication');
+console.log('[MODELS] Loading Purchaser...');
 require('./Purchaser');
 
+// 新增的 Dashboard 控制器所需的模型
+console.log('[MODELS] Loading Governance...');
+require('./Governance');
+// ServiceRequest 和 CadreTask 模型临时禁用 - 导致服务器启动挂起
+console.log('[MODELS] Skipping ServiceRequest and CadreTask (temporarily disabled)...');
+// require('./ServiceRequest');
+// require('./CadreTask');
+console.log('[MODELS] All models loaded');
+
 // 收集所有单模型导出（来自 modules）
+console.log('[MODELS] Building singleModels object...');
 const singleModels = {
   User,
   Village: mongoose.model('Village'),
@@ -102,15 +117,25 @@ const singleModels = {
   FriendRequest: mongoose.model('FriendRequest'),
   // 注册审批和采购商模型
   RegistrationApplication: mongoose.model('RegistrationApplication'),
-  Purchaser: mongoose.model('Purchaser')
+  Purchaser: mongoose.model('Purchaser'),
+  // Dashboard 控制器所需的模型
+  Governance: mongoose.model('Governance')
+  // ServiceRequest 已禁用
+  // ServiceRequest: mongoose.model('ServiceRequest')
+  // CadreTask 已禁用
+  // CadreTask: mongoose.model('CadreTask')
 };
+console.log('[MODELS] singleModels object built');
 
 // 添加别名以支持旧的测试文件
 singleModels.Villager = mongoose.model('Resident');
 singleModels.News = mongoose.model('Announcement');
-singleModels.Affair = mongoose.model('Task');
+// Task 模型未定义，暂时注释掉
+// singleModels.Affair = mongoose.model('Task');
+console.log('[MODELS] Aliases added');
 
 // 合并所有模型导出
+console.log('[MODELS] Building module exports...');
 module.exports = {
   ...singleModels,
   ...agricultureModels,
@@ -120,3 +145,4 @@ module.exports = {
   ...emergencyResponseModels,
   ...financeModels
 };
+console.log('[MODELS] Module exports complete');

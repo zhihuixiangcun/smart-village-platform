@@ -30,11 +30,10 @@ const sendVerifyCode = async (req, res) => {
     const result = await smsService.sendVerificationCode(phone);
 
     if (result.success) {
+      // 不再返回验证码，只在控制台打印
       res.json({
         success: true,
-        message: result.message,
-        // 开发环境返回验证码
-        ...(process.env.NODE_ENV === 'development' && { code: result.code })
+        message: '验证码已发送'
       });
     } else {
       res.status(400).json({

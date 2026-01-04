@@ -25,10 +25,9 @@ mongoose.set('strict', false);
 // 模型初始化管理器 - 必须首先加载
 // 确保User模型先于其他模型加载，解决ref引用问题
 // ============================================
+console.log('[DEBUG] About to load models...');
 require('./models');
-
-// 重要：首先加载所有Mongoose模型，确保正确的加载顺序
-require('./models');
+console.log('[DEBUG] Models loaded successfully');
 
 // 导入实时计算组件
 console.log('[DEBUG] Loading realtime components...');
@@ -127,9 +126,58 @@ const { errorHandler } = require('./middleware/errorHandler');
 
 dotenv.config();
 
+// MongoDB 连接配置
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/smart_village';
+console.log('[DEBUG] Attempting to connect to MongoDB...');
+console.log('[DEBUG] MongoDB URI:', MONGO_URI.replace(/\/\/([^:]+):([^@]+)@/, '//***:***@')); // 隐藏密码
+
+mongoose.connect(MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 10000, // 10 second timeout
+  socketTimeoutMS: 45000,
+})
+.then(() => {
+  console.log('[DEBUG] MongoDB connected successfully');
+  console.log('[DEBUG] Database name:', mongoose.connection.name);
+  console.log('[DEBUG] Database host:', mongoose.connection.host);
+  console.log('[DEBUG] Database port:', mongoose.connection.port);
+})
+.catch((err) => {
+  console.error('[DEBUG] MongoDB connection error:', err.message);
+  console.log('[DEBUG] Application will continue without database connection');
+  // Don't exit - allow app to run without DB for development
+});
+
+// 监听连接事件
+mongoose.connection.on('connected', () => {
+  console.log('✅ Mongoose 已连接到 MongoDB');
+});
+
+mongoose.connection.on('error', (err) => {
+  console.error('❌ Mongoose 连接错误:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.warn('⚠️ Mongoose 已断开连接');
+});
+
 const app = express();
 const PORT = process.env.MAIN_PORT || 3001;
 const NODE_ENV = process.env.NODE_ENV || 'development';
+
+// 添加全局错误处理来捕获进程退出原因
+process.on('uncaughtException', (err) => {
+  console.error('[FATAL] 未捕获的异常:', err);
+  console.error('[FATAL] 堆栈:', err.stack);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('[FATAL] 未处理的Promise拒绝:', reason);
+  console.error('[FATAL] Promise:', promise);
+  process.exit(1);
+});
 
 // 信任代理（用于负载均衡器）
 app.set('trust proxy', 1);
@@ -154,8 +202,12 @@ app.use(cors({
   origin: [
     process.env.CLIENT_URL || 'http://localhost:3000',
     'http://localhost:3006',
+    'http://localhost:3007',
+    'http://localhost:3008',
     'http://localhost:3012',
     'http://127.0.0.1:3006',
+    'http://127.0.0.1:3007',
+    'http://127.0.0.1:3008',
     'http://127.0.0.1:3012'
   ],
   credentials: true,
@@ -473,9 +525,10 @@ if (batchImportRoutes) {
   console.log('[DEBUG] batchImportRoutes registered at /api/v1/batch-import');
 }
 
-// Dashboard统计路由 - TEMPORARILY DISABLED (missing Governance model)
+// Dashboard统计路由 - TEMPORARILY DISABLED
+console.log('[DEBUG] dashboardRoutes DISABLED (troubleshooting)');
 // const dashboardRoutes = require('./routes/dashboard');
-console.log('[DEBUG] dashboardRoutes DISABLED (missing Governance model)');
+// console.log('[DEBUG] dashboardRoutes loaded');
 // if (dashboardRoutes) {
 //   app.use('/api/v1/dashboard', dashboardRoutes);
 //   console.log('[DEBUG] dashboardRoutes registered at /api/v1/dashboard');
@@ -517,44 +570,36 @@ console.log('[DEBUG] villageUserRoutes temporarily disabled');
 // app.use('/api/v1/realtime-computation', require('./routes/realtimeComputation'));
 
 // 离线数据同步路由 - RE-ENABLED
-if (syncRoutes) {
-  app.use('/api/v1/sync', syncRoutes);
-  console.log('[DEBUG] syncRoutes registered');
-}
+// console.log('[DEBUG] syncRoutes temporarily disabled');
 
-// 村干部任务管理路由 - 四象限任务管理
-if (cadreTaskRoutes) {
-  app.use('/api/v1/cadre-tasks', cadreTaskRoutes);
-  console.log('[DEBUG] cadreTaskRoutes registered');
-}
+// 村干部任务管理路由 - 四象限任务管理 - DISABLED (variable not defined)
+// console.log('[DEBUG] cadreTaskRoutes DISABLED (troubleshooting)');
 
-// 内容审核路由 - 农业、朋友圈、公告、村务、财务审核
-if (contentReviewRoutes) {
-  app.use('/api/v1/content-review', contentReviewRoutes);
-  console.log('[DEBUG] contentReviewRoutes registered');
-}
+// 内容审核路由 - DISABLED (variable not defined)
+// console.log('[DEBUG] contentReviewRoutes DISABLED (troubleshooting)');
 
 // 统一认证路由 - 密码登录、人脸识别、微信登录、注册
 if (authRoutes) {
   app.use('/api/v1/auth', authRoutes);
-  console.log('[DEBUG] authRoutes registered');
+  console.log('[DEBUG] authRoutes registered at /api/v1/auth');
 }
 
-// 用户注册审批系统路由
-if (registrationRoutes) {
-  app.use('/api/v1/registration', registrationRoutes);
-  console.log('[DEBUG] registrationRoutes registered at /api/v1/registration');
-}
-if (idCardOCRRoutes) {
-  app.use('/api/v1/ocr', idCardOCRRoutes);
-  console.log('[DEBUG] idCardOCRRoutes registered at /api/v1/ocr');
-}
+// 用户注册审批系统路由 - DISABLED (variable not defined)
+// if (registrationRoutes) {
+//   app.use('/api/v1/registration', registrationRoutes);
+//   console.log('[DEBUG] registrationRoutes registered at /api/v1/registration');
+// }
+// if (idCardOCRRoutes) {
+//   app.use('/api/v1/ocr', idCardOCRRoutes);
+//   console.log('[DEBUG] idCardOCRRoutes registered at /api/v1/ocr');
+// }
 
-// 采购商路由
-if (purchaserRoutes) {
-  app.use('/api/v1/purchaser', purchaserRoutes);
-  console.log('[DEBUG] purchaserRoutes registered at /api/v1/purchaser');
-}
+// 采购商路由 - DISABLED (variable not defined)
+// if (purchaserRoutes) {
+//   app.use('/api/v1/purchaser', purchaserRoutes);
+//   console.log('[DEBUG] purchaserRoutes registered at /api/v1/purchaser');
+// }
+console.log('[DEBUG] registrationRoutes, idCardOCRRoutes, purchaserRoutes DISABLED (troubleshooting)');
 
 // 安全中间件集成 - Temporarily disabled to debug startup issue
 console.log('[DEBUG] Skipping security middleware for now...');
