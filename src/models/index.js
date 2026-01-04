@@ -3,6 +3,8 @@
  * 按正确顺序加载所有模型
  */
 
+const mongoose = require('mongoose');
+
 // 禁用重复索引警告 (这些警告不会影响功能)
 const originalConsoleWarn = console.warn;
 console.warn = function(message, ...args) {
