@@ -54,7 +54,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Coin, ArrowRight, Calendar, FirstAid, Medal, Wallet, Operation } from '@element-plus/icons-vue'
+import { Coin, ArrowRight, Calendar, Suitcase, Medal, Wallet, Operation } from '@element-plus/icons-vue'
 
 interface Subsidy {
   id: string
@@ -87,7 +87,7 @@ const subsidies = ref<Subsidy[]>([
     id: 'medical',
     name: '医疗补贴',
     type: 'medical',
-    icon: FirstAid,
+    icon: Suitcase,
     amount: '¥0',
     status: 'pending',
     badge: '待申请',
