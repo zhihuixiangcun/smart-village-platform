@@ -446,6 +446,47 @@ export function batchPublish(ids) {
 
 // ==================== 导出API对象 ====================
 
+// 导出产品管理API
+export const productApi = {
+  getCadreProducts,
+  getCadreProductStats,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  toggleProductStatus,
+  batchPublish
+};
+
+// 导出资料收集API
+export const collectionApi = {
+  getCollectionTasks,
+  getCollectionStats,
+  createCollectionTask,
+  updateCollectionTask,
+  deleteCollectionTask,
+  getCollectedFiles,
+  submitCollectedFile,
+  deleteCollectedFile,
+  searchResidents,
+  batchRemind,
+  batchExtendDeadline
+};
+
+// 导出资料上交API
+export const submissionApi = {
+  getSubmissionTasks,
+  getSubmissionStats,
+  createSubmissionTask,
+  updateSubmissionTask,
+  deleteSubmissionTask,
+  submitTask,
+  getUploadedFiles,
+  deleteUploadedFile,
+  downloadSubmissionProof,
+  batchSubmit,
+  batchExport
+};
+
 // 导出所有API作为对象
 export const cadreApi = {
   getDashboardData,
