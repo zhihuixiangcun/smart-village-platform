@@ -216,7 +216,7 @@ import {
   Bell,
   OfficeBuilding,
   Van,
-  BabyCarriage
+  Cherry  // 替代 BabyCarriage（生育相关）
 } from '@element-plus/icons-vue'
 import { useLargeText } from '@/composables/useLargeText'
 import { useVoiceInput } from '@/composables/useVoiceInput'
@@ -309,7 +309,7 @@ const services = ref([
     id: 'birth',
     name: '生育补贴申请',
     description: '符合生育政策可申请生育津贴和育儿假津贴',
-    icon: BabyCarriage,
+    icon: Cherry,
     color: '#ff7675',
     type: 'welfare',
     typeName: '福利申请',
@@ -517,7 +517,7 @@ const getServiceIcon = (type) => {
     'subsistence': Money,
     'disability': FirstAid,
     'elderly': Calendar,
-    'birth': BabyCarriage,
+    'birth': Cherry,
     'transport': Van,
     'house-building': OfficeBuilding,
     'event': Bell,
