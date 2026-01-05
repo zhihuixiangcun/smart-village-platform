@@ -145,8 +145,8 @@ console.log('[DEBUG] registrationRoutes temporarily disabled');
 // const idCardOCRRoutes = require('./routes/idCardOCRRoutes');
 console.log('[DEBUG] idCardOCRRoutes temporarily disabled');
 // 采购商路由
-// const purchaserRoutes = require('./routes/purchaserRoutes');
-console.log('[DEBUG] purchaserRoutes temporarily disabled');
+const purchaserRoutes = require('./routes/purchaserRoutes');
+console.log('[DEBUG] purchaserRoutes loaded');
 
 // 导入村务管理路由
 // const villageManagementRoutes = require('./routes/villageManagement');
@@ -637,12 +637,12 @@ if (authRoutes) {
 //   console.log('[DEBUG] idCardOCRRoutes registered at /api/v1/ocr');
 // }
 
-// 采购商路由 - DISABLED (variable not defined)
-// if (purchaserRoutes) {
-//   app.use('/api/v1/purchaser', purchaserRoutes);
-//   console.log('[DEBUG] purchaserRoutes registered at /api/v1/purchaser');
-// }
-console.log('[DEBUG] registrationRoutes, idCardOCRRoutes, purchaserRoutes DISABLED (troubleshooting)');
+// 采购商路由
+if (purchaserRoutes) {
+  app.use('/api/v1/purchaser', purchaserRoutes);
+  console.log('[DEBUG] purchaserRoutes registered at /api/v1/purchaser');
+}
+console.log('[DEBUG] registrationRoutes, idCardOCRRoutes DISABLED (troubleshooting)');
 
 // 安全中间件集成 - Temporarily disabled to debug startup issue
 console.log('[DEBUG] Skipping security middleware for now...');
