@@ -335,7 +335,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import {
   Compass, Refresh, MapLocation, Location, Search, Loading,
-  Star, Telephone, Clock, ShoppingCart, House,
+  Star, Phone, Clock, ShoppingCart, House,
   Football, Ticket, Grid, Food, Burger, IceCream
 } from '@element-plus/icons-vue'
 import api from '@/api'

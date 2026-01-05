@@ -140,6 +140,44 @@
             </el-form>
 
             <!-- 快速测试登录 -->
+            <div class="quick-test-login" v-if="selectedRole === 'purchaser'">
+              <el-divider>
+                <el-icon><MagicStick /></el-icon>
+                快速测试登录
+              </el-divider>
+              <div class="quick-test-buttons">
+                <el-button
+                  type="primary"
+                  size="default"
+                  @click="quickPurchaserTestLogin"
+                  class="test-button"
+                >
+                  <el-icon><ShoppingCart /></el-icon>
+                  <span>测试采购商</span>
+                  <small>13800138000</small>
+                </el-button>
+              </div>
+              <div class="test-accounts-info">
+                <el-alert
+                  type="info"
+                  :closable="false"
+                  show-icon
+                >
+                  <template #title>
+                    <div class="test-info-content">
+                      <p><strong>采购商测试账户：</strong></p>
+                      <ul>
+                        <li>手机号: 13800138000</li>
+                        <li>密码: 123456</li>
+                        <li>角色: purchaser</li>
+                      </ul>
+                    </div>
+                  </template>
+                </el-alert>
+              </div>
+            </div>
+
+            <!-- 其他角色快速测试登录 -->
             <div class="quick-test-login" v-if="selectedRole !== 'purchaser'">
               <el-divider>
                 <el-icon><MagicStick /></el-icon>
@@ -203,14 +241,14 @@
               </div>
             </div>
 
-            <!-- 采购商专用登录表单 -->
+            <!-- 采购商专用登录表单（支持密码登录） -->
             <el-form
               v-if="loginMethod === 'password' && selectedRole === 'purchaser'"
               ref="purchaserLoginFormRef"
               :model="purchaserLoginForm"
               :rules="purchaserLoginRules"
               class="login-form"
-              @submit.prevent="handlePurchaserLogin"
+              @submit.prevent="handlePurchaserPasswordLogin"
             >
               <el-form-item prop="phone">
                 <el-input
@@ -225,19 +263,28 @@
                 </el-input>
               </el-form-item>
 
-              <el-form-item prop="idCard">
+              <el-form-item prop="password">
                 <el-input
-                  v-model="purchaserLoginForm.idCard"
-                  placeholder="请输入身份证号"
+                  v-model="purchaserLoginForm.password"
+                  type="password"
+                  placeholder="请输入密码"
                   size="large"
-                  maxlength="18"
-                  clearable
-                  @keyup.enter="handlePurchaserLogin"
+                  show-password
+                  @keyup.enter="handlePurchaserPasswordLogin"
                 >
                   <template #prefix>
-                    <el-icon><Postcard /></el-icon>
+                    <el-icon><Lock /></el-icon>
                   </template>
                 </el-input>
+              </el-form-item>
+
+              <el-form-item>
+                <div class="form-footer">
+                  <el-checkbox v-model="agreeTerms">我已阅读并同意</el-checkbox>
+                  <el-link type="primary" @click="showTermsDialog">《用户协议》</el-link>
+                  <span>和</span>
+                  <el-link type="primary" @click="showPrivacyDialog">《隐私政策》</el-link>
+                </div>
               </el-form-item>
 
               <el-form-item>
@@ -245,7 +292,7 @@
                   type="primary"
                   size="large"
                   :loading="loading"
-                  @click="handlePurchaserLogin"
+                  @click="handlePurchaserPasswordLogin"
                   class="login-button"
                 >
                   登录
@@ -530,7 +577,7 @@ const loginForm = reactive({
 // 采购商登录表单
 const purchaserLoginForm = reactive({
   phone: '',
-  idCard: ''
+  password: ''
 })
 
 const loginRules = {
@@ -548,9 +595,9 @@ const purchaserLoginRules = {
     { required: true, message: '请输入手机号', trigger: 'blur' },
     { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
   ],
-  idCard: [
-    { required: true, message: '请输入身份证号', trigger: 'blur' },
-    { pattern: /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/, message: '请输入正确的身份证号', trigger: 'blur' }
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
   ]
 }
 
@@ -684,7 +731,58 @@ const handlePasswordLogin = async () => {
   }
 }
 
-// 采购商登录
+// 采购商密码登录
+const handlePurchaserPasswordLogin = async () => {
+  if (!agreeTerms.value) {
+    ElMessage.warning('请先阅读并同意用户协议')
+    return
+  }
+
+  loading.value = true
+  try {
+    // 使用统一的auth登录API
+    const response = await fetch('http://localhost:3001/api/v1/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username: purchaserLoginForm.phone,
+        password: purchaserLoginForm.password,
+        role: 'purchaser'
+      })
+    })
+
+    const data = await response.json()
+
+    if (!data.success) {
+      ElMessage.error(data.message || '登录失败，请检查手机号和密码')
+      return
+    }
+
+    // 保存token和用户信息
+    userStore.setToken(data.data.token)
+    userStore.setUserInfo(data.data.user)
+    userStore.setPermissions(data.data.user.permissions || ['*'])
+    userStore.setRoles([data.data.user.role])
+
+    ElMessage.success(`欢迎回来，${data.data.user.username || data.data.user.name}！`)
+
+    // 等待状态更新完成
+    await new Promise(resolve => setTimeout(resolve, 300))
+
+    // 跳转到采购商仪表板
+    router.push('/purchaser/dashboard')
+
+  } catch (error) {
+    console.error('采购商登录失败:', error)
+    ElMessage.error(error.message || '登录失败，请检查网络连接或联系管理员')
+  } finally {
+    loading.value = false
+  }
+}
+
+// 采购商登录（身份证登录，保留备用）
 const handlePurchaserLogin = async () => {
   loading.value = true
   try {
@@ -924,6 +1022,21 @@ const quickTestLogin = (type) => {
   } else {
     ElMessage.warning('该角色暂无测试账户')
   }
+}
+
+// 采购商快速测试登录
+const quickPurchaserTestLogin = () => {
+  // 自动填充手机号和密码
+  purchaserLoginForm.phone = '13800138000'
+  purchaserLoginForm.password = '123456'
+
+  // 自动同意协议
+  agreeTerms.value = true
+
+  // 自动登录
+  setTimeout(() => {
+    handlePurchaserPasswordLogin()
+  }, 300)
 }
 
 // 监听登录方式切换

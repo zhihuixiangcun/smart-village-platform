@@ -47,8 +47,22 @@
             <el-form-item label="手机号" prop="basicInfo.phone">
               <el-input v-model="formData.basicInfo.phone" placeholder="请输入手机号" maxlength="11" />
             </el-form-item>
+            <el-form-item label="验证码" prop="basicInfo.verifyCode">
+              <div style="display: flex; gap: 10px;">
+                <el-input v-model="formData.basicInfo.verifyCode" placeholder="请输入6位验证码" maxlength="6" style="flex: 1;" />
+                <el-button type="primary" :disabled="codeSending || countdown > 0" @click="sendVerifyCode" :loading="codeSending">
+                  {{ countdown > 0 ? `${countdown}秒后重试` : '发送验证码' }}
+                </el-button>
+              </div>
+            </el-form-item>
             <el-form-item label="身份证号" prop="basicInfo.idCard">
               <el-input v-model="formData.basicInfo.idCard" placeholder="请输入18位身份证号" maxlength="18" />
+            </el-form-item>
+            <el-form-item label="登录密码" prop="basicInfo.password">
+              <el-input v-model="formData.basicInfo.password" type="password" placeholder="请设置登录密码（至少6位）" show-password />
+            </el-form-item>
+            <el-form-item label="确认密码" prop="basicInfo.confirmPassword">
+              <el-input v-model="formData.basicInfo.confirmPassword" type="password" placeholder="请再次输入密码" show-password />
             </el-form-item>
             <el-form-item v-if="formData.purchaserType === 'business'" label="企业名称" prop="businessInfo.companyName">
               <el-input v-model="formData.businessInfo.companyName" placeholder="请输入企业全称" />
@@ -63,6 +77,7 @@
             <div class="upload-item">
               <div class="upload-label">身份证正面</div>
               <el-upload class="id-card-uploader" :action="uploadUrl" :headers="uploadHeaders"
+                         name="idCardFront"
                          :on-success="(res) => handleUploadSuccess(res, 'idCardFront')"
                          :before-upload="beforeUpload" :show-file-list="false" accept="image/*">
                 <img v-if="formData.files.idCardFront" :src="formData.files.idCardFront" class="id-card-image" />
@@ -75,6 +90,7 @@
             <div class="upload-item">
               <div class="upload-label">身份证反面</div>
               <el-upload class="id-card-uploader" :action="uploadUrl" :headers="uploadHeaders"
+                         name="idCardBack"
                          :on-success="(res) => handleUploadSuccess(res, 'idCardBack')"
                          :before-upload="beforeUpload" :show-file-list="false" accept="image/*">
                 <img v-if="formData.files.idCardBack" :src="formData.files.idCardBack" class="id-card-image" />
@@ -105,15 +121,24 @@
         <div v-if="currentStep === 3" class="wizard-step">
           <h3>采购信息</h3>
           <el-form ref="purchaseFormRef" :model="formData" :rules="purchaseRules" label-width="100px">
-            <el-form-item label="采购类目" prop="purchaseCategories">
-              <el-checkbox-group v-model="formData.purchaseCategories">
-                <el-checkbox label="谷物">谷物</el-checkbox>
-                <el-checkbox label="蔬菜">蔬菜</el-checkbox>
-                <el-checkbox label="水果">水果</el-checkbox>
-                <el-checkbox label="畜禽">畜禽</el-checkbox>
-                <el-checkbox label="水产">水产</el-checkbox>
-                <el-checkbox label="其他">其他</el-checkbox>
-              </el-checkbox-group>
+            <el-form-item label="采购类目" prop="purchaseCategories" required>
+              <div class="category-grid">
+                <div
+                  v-for="category in categoryOptions"
+                  :key="category.value"
+                  :class="['category-item', { 'selected': formData.purchaseCategories.includes(category.value) }]"
+                  @click="toggleCategory(category.value)"
+                >
+                  <div class="category-icon">{{ category.icon }}</div>
+                  <div class="category-label">{{ category.label }}</div>
+                  <div v-if="formData.purchaseCategories.includes(category.value)" class="category-check">
+                    <el-icon><CircleCheck /></el-icon>
+                  </div>
+                </div>
+              </div>
+              <div v-if="formData.purchaseCategories.length > 0" class="selected-hint">
+                已选择 {{ formData.purchaseCategories.length }} 个类目
+              </div>
             </el-form-item>
             <el-form-item label="所在位置" prop="location">
               <el-button @click="getLocation" :loading="locationLoading">
@@ -171,6 +196,9 @@ const currentStep = ref(0)
 const submitting = ref(false)
 const locationLoading = ref(false)
 const applicationId = ref('')
+const codeSending = ref(false)
+const countdown = ref(0)
+const codeTimer = ref(null)
 
 const steps = [
   { label: '选择类型' },
@@ -182,7 +210,7 @@ const steps = [
 
 const formData = reactive({
   purchaserType: '',
-  basicInfo: { name: '', phone: '', idCard: '' },
+  basicInfo: { name: '', phone: '', idCard: '', password: '', confirmPassword: '' },
   businessInfo: { companyName: '', position: '' },
   individualInfo: { location: null },
   purchaseCategories: [],
@@ -208,9 +236,30 @@ const basicRules = {
     { required: true, message: '请输入手机号', trigger: 'blur' },
     { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
   ],
+  'basicInfo.verifyCode': [
+    { required: true, message: '请输入验证码', trigger: 'blur' },
+    { pattern: /^\d{6}$/, message: '请输入6位验证码', trigger: 'blur' }
+  ],
   'basicInfo.idCard': [
     { required: true, message: '请输入身份证号', trigger: 'blur' },
     { pattern: /^\d{17}[\dXx]$/, message: '请输入正确的身份证号', trigger: 'blur' }
+  ],
+  'basicInfo.password': [
+    { required: true, message: '请设置登录密码', trigger: 'blur' },
+    { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
+  ],
+  'basicInfo.confirmPassword': [
+    { required: true, message: '请确认登录密码', trigger: 'blur' },
+    {
+      validator: (rule, value, callback) => {
+        if (value !== formData.basicInfo.password) {
+          callback(new Error('两次输入的密码不一致'))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'blur'
+    }
   ],
   'businessInfo.companyName': [{ required: true, message: '请输入企业名称', trigger: 'blur' }]
 }
@@ -222,7 +271,14 @@ const purchaseRules = {
 const canProceed = computed(() => {
   switch (currentStep.value) {
     case 0: return !!formData.purchaserType
-    case 1: return formData.basicInfo.name && formData.basicInfo.phone && formData.basicInfo.idCard
+    case 1:
+      return formData.basicInfo.name &&
+             formData.basicInfo.phone &&
+             formData.basicInfo.verifyCode &&
+             formData.basicInfo.idCard &&
+             formData.basicInfo.password &&
+             formData.basicInfo.confirmPassword &&
+             formData.basicInfo.password === formData.basicInfo.confirmPassword
     case 2: return formData.files.idCardFront && formData.files.idCardBack
     case 3: return formData.purchaseCategories.length > 0
     default: return false
@@ -256,6 +312,43 @@ const getLocation = () => {
   }
 }
 
+const sendVerifyCode = async () => {
+  // 验证手机号
+  if (!formData.basicInfo.phone) {
+    ElMessage.warning('请先输入手机号')
+    return
+  }
+  if (!/^1[3-9]\d{9}$/.test(formData.basicInfo.phone)) {
+    ElMessage.warning('请输入正确的手机号')
+    return
+  }
+
+  try {
+    codeSending.value = true
+    const response = await api.post('/api/v1/auth/send-code', {
+      phone: formData.basicInfo.phone
+    })
+    if (response.success) {
+      ElMessage.success('验证码已发送')
+      // 开始倒计时
+      countdown.value = 60
+      codeTimer.value = setInterval(() => {
+        countdown.value--
+        if (countdown.value <= 0) {
+          clearInterval(codeTimer.value)
+          codeTimer.value = null
+        }
+      }, 1000)
+    } else {
+      ElMessage.error(response.message || '发送失败')
+    }
+  } catch (error) {
+    ElMessage.error('发送失败，请稍后重试')
+  } finally {
+    codeSending.value = false
+  }
+}
+
 const beforeUpload = (file) => {
   const isImage = file.type.startsWith('image/') || file.type === 'application/pdf'
   const isLt10M = file.size / 1024 / 1024 < 10
@@ -278,7 +371,13 @@ const submitRegistration = async () => {
   try {
     const submitData = {
       purchaserType: formData.purchaserType,
-      basicInfo: { ...formData.basicInfo, idCardFront: formData.files.idCardFront, idCardBack: formData.files.idCardBack },
+      basicInfo: {
+        ...formData.basicInfo,
+        idCardFront: formData.files.idCardFront,
+        idCardBack: formData.files.idCardBack
+      },
+      password: formData.basicInfo.password,
+      verifyCode: formData.basicInfo.verifyCode,
       purchaseCategories: formData.purchaseCategories,
       individualInfo: { location: formData.individualInfo.location },
       metadata: { userAgent: navigator.userAgent }
@@ -303,6 +402,29 @@ const submitRegistration = async () => {
 }
 
 const goToLogin = () => { router.push('/unified-login') }
+
+// 采购品类选项
+const categoryOptions = [
+  { value: '谷物', label: '谷物', icon: '🌾' },
+  { value: '蔬菜', label: '蔬菜', icon: '🥬' },
+  { value: '水果', label: '水果', icon: '🍎' },
+  { value: '畜禽', label: '畜禽', icon: '🐄' },
+  { value: '水产', label: '水产', icon: '🐟' },
+  { value: '茶叶', label: '茶叶', icon: '🍵' },
+  { value: '药材', label: '药材', icon: '🌿' },
+  { value: '花卉', label: '花卉', icon: '🌸' },
+  { value: '其他', label: '其他', icon: '📦' }
+]
+
+// 切换采购品类
+const toggleCategory = (category) => {
+  const index = formData.purchaseCategories.indexOf(category)
+  if (index > -1) {
+    formData.purchaseCategories.splice(index, 1)
+  } else {
+    formData.purchaseCategories.push(category)
+  }
+}
 </script>
 
 <style scoped>
@@ -335,5 +457,16 @@ const goToLogin = () => { router.push('/unified-login') }
 .result-info p { margin: 10px 0; color: #333; }
 .wizard-footer { display: flex; justify-content: center; gap: 20px; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e0e0e0; }
 .location-text { margin-left: 15px; color: #67C23A; }
+
+/* 采购品类卡片样式 */
+.category-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; margin-top: 15px; }
+.category-item { position: relative; border: 2px solid #e0e0e0; border-radius: 12px; padding: 20px 15px; text-align: center; cursor: pointer; transition: all 0.3s; background: white; }
+.category-item:hover { border-color: #667eea; transform: translateY(-3px); box-shadow: 0 4px 12px rgba(102,126,234,0.15); }
+.category-item.selected { border-color: #667eea; background: linear-gradient(135deg, rgba(102,126,234,0.08) 0%, rgba(118,75,162,0.08) 100%); }
+.category-icon { font-size: 32px; margin-bottom: 8px; }
+.category-label { font-size: 14px; font-weight: 500; color: #333; }
+.category-check { position: absolute; top: 5px; right: 5px; color: #67C23A; }
+.selected-hint { margin-top: 15px; padding: 10px 15px; background: #f0f9ff; border-radius: 6px; color: #1976d2; font-size: 14px; text-align: center; }
+
 .mt-4 { margin-top: 16px; }
 </style>

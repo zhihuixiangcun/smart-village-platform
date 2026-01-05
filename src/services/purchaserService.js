@@ -36,6 +36,15 @@ class PurchaserService {
         throw new Error('该手机号已注册');
       }
 
+      // 3. 验证验证码
+      if (registrationData.verifyCode) {
+        const smsService = require('./smsService');
+        const isValidCode = smsService.verifyCode(registrationData.basicInfo.phone, registrationData.verifyCode);
+        if (!isValidCode) {
+          throw new Error('验证码不正确或已过期');
+        }
+      }
+
       // 3. 执行OCR识别（如果提供了身份证图片）
       let ocrResults = { verified: false };
       if (files.idCardFront && files.idCardBack) {
@@ -86,7 +95,7 @@ class PurchaserService {
       });
 
       // 5. 创建对应的User账号用于登录
-      const userData = await this._createUserAccount(purchaser);
+      const userData = await this._createUserAccount(purchaser, registrationData.password);
 
       return {
         success: true,
@@ -1186,11 +1195,15 @@ class PurchaserService {
    * 创建User账号
    * @private
    */
-  async _createUserAccount(purchaser) {
+  async _createUserAccount(purchaser, password = null) {
     try {
+      // 如果没有提供密码，使用默认密码（手机号后6位）
+      const userPassword = password || purchaser.basicInfo.phone.slice(-6);
+
       const user = await User.create({
         username: purchaser.basicInfo.phone,
         phone: purchaser.basicInfo.phone,
+        password: userPassword,
         name: purchaser.basicInfo.name,
         role: 'purchaser',
         status: purchaser.status === 'active' ? 'active' : 'pending',

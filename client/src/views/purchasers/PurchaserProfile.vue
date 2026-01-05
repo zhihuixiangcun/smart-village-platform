@@ -74,6 +74,18 @@
               <el-icon><Compass /></el-icon>
               <span>吃喝玩乐</span>
             </el-menu-item>
+            <el-menu-item index="transportation">
+              <el-icon><Van /></el-icon>
+              <span>交通出行</span>
+            </el-menu-item>
+            <el-menu-item index="carpooling">
+              <el-icon><Share /></el-icon>
+              <span>拼车服务</span>
+            </el-menu-item>
+            <el-menu-item index="products">
+              <el-icon><ShoppingBag /></el-icon>
+              <span>附近商品</span>
+            </el-menu-item>
             <el-menu-item index="orders">
               <el-icon><ShoppingCart /></el-icon>
               <span>我的订单</span>
@@ -135,6 +147,21 @@
           <LifestyleServices />
         </div>
 
+        <!-- 交通出行 -->
+        <div v-show="activeTab === 'transportation'" class="content-panel">
+          <TransportationServices />
+        </div>
+
+        <!-- 拼车服务 -->
+        <div v-show="activeTab === 'carpooling'" class="content-panel">
+          <CarpoolingService />
+        </div>
+
+        <!-- 附近商品 -->
+        <div v-show="activeTab === 'products'" class="content-panel">
+          <NearbyProducts />
+        </div>
+
         <!-- 我的订单 -->
         <div v-show="activeTab === 'orders'" class="content-panel">
           <OrdersPanel @view-order="handleViewOrder" />
@@ -172,7 +199,7 @@
       </div>
     </div>
 
-    <!-- 编辑资料对话框 -->
+    <!-- 编辑资料对话框 - 生活服务集成 -->
     <EditProfileDialog
       v-model="editDialogVisible"
       :purchaser-info="purchaserInfo"
@@ -187,7 +214,8 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import {
   User, CircleCheck, Edit, Refresh, DataBoard, ShoppingCart, Document,
-  UserFilled, Star, ChatDotRound, Setting, Phone, Message, Clock, Location, Compass
+  UserFilled, Star, ChatDotRound, Setting, Phone, Message, Clock, Location, Compass,
+  Van, Share, ShoppingBag
 } from '@element-plus/icons-vue'
 import api from '@/api'
 import OverviewPanel from '@/components/purchaser/OverviewPanel.vue'
@@ -200,6 +228,9 @@ import SettingsPanel from '@/components/purchaser/SettingsPanel.vue'
 import EditProfileDialog from '@/components/purchaser/EditProfileDialog.vue'
 import NearbySuppliers from '@/components/purchaser/NearbySuppliers.vue'
 import LifestyleServices from '@/components/purchaser/LifestyleServices.vue'
+import TransportationServices from '@/components/purchaser/TransportationServices.vue'
+import CarpoolingService from '@/components/purchaser/CarpoolingService.vue'
+import NearbyProducts from '@/components/purchaser/NearbyProducts.vue'
 
 const router = useRouter()
 const activeTab = ref('overview')
