@@ -748,7 +748,8 @@ const startFaceRecognition = async () => {
 
             // 根据角色跳转到不同页面
             const redirectMap = {
-              resident: '/village-affairs',
+              resident: '/dashboard',  // 村民现在访问dashboard查看优化后的个人主页
+              villager: '/dashboard',  // 兼容villager角色
               cadre: '/dashboard',
               official: '/dashboard',
               purchaser: '/purchaser/dashboard',

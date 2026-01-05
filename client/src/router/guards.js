@@ -37,7 +37,8 @@ router.beforeEach(async (to, from, next) => {
         // 根据用户角色跳转到不同的主页
         const userRole = userStore.userInfo?.role || userStore.userRole;
         const roleRedirectMap = {
-          'resident': '/village-affairs',
+          'resident': '/dashboard',  // 村民现在访问dashboard查看优化后的个人主页
+          'villager': '/dashboard',  // 兼容villager角色
           'village_admin': '/dashboard',  // 数据库中的村干部角色
           'village_official': '/dashboard',  // 数据库中的乡镇官员角色
           'admin': '/dashboard',
