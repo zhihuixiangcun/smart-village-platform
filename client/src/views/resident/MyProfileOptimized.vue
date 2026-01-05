@@ -12,6 +12,21 @@
     <!-- 在线办事大厅 -->
     <ServiceHallSection />
 
+    <!-- 附近好货 -->
+    <NearbyProductsSection />
+
+    <!-- 附近吃喝玩乐 -->
+    <NearbyServicesSection />
+
+    <!-- 附近招聘信息 -->
+    <NearbyJobsSection />
+
+    <!-- 交通出行 -->
+    <TravelSection />
+
+    <!-- 商品发布按钮 -->
+    <MarketplacePublishSection />
+
     <!-- 政策公告区 -->
     <AnnouncementSection />
 
@@ -37,19 +52,56 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, defineAsyncComponent } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useFontSize } from '@/composables/useFontSize'
+
+// 核心组件同步加载(首屏必需)
 import WelcomeSection from '@/components/resident/WelcomeSection.vue'
 import CoreFeatureSection from '@/components/resident/CoreFeatureSection.vue'
 import SubsidySection from '@/components/resident/SubsidySection.vue'
 import ServiceHallSection from '@/components/resident/ServiceHallSection.vue'
-import AnnouncementSection from '@/components/resident/AnnouncementSection.vue'
-import FamilySection from '@/components/resident/FamilySection.vue'
+
+// 新功能组件异步懒加载(提升首屏性能)
+const NearbyProductsSection = defineAsyncComponent({
+  loader: () => import('@/components/resident/NearbyProductsSection.vue'),
+  delay: 200,
+  timeout: 10000
+})
+const NearbyServicesSection = defineAsyncComponent({
+  loader: () => import('@/components/resident/NearbyServicesSection.vue'),
+  delay: 200,
+  timeout: 10000
+})
+const NearbyJobsSection = defineAsyncComponent({
+  loader: () => import('@/components/resident/NearbyJobsSection.vue'),
+  delay: 200,
+  timeout: 10000
+})
+const TravelSection = defineAsyncComponent({
+  loader: () => import('@/components/resident/TravelSection.vue'),
+  delay: 200,
+  timeout: 10000
+})
+const MarketplacePublishSection = defineAsyncComponent({
+  loader: () => import('@/components/resident/MarketplacePublishSection.vue'),
+  delay: 200,
+  timeout: 10000
+})
+const AnnouncementSection = defineAsyncComponent({
+  loader: () => import('@/components/resident/AnnouncementSection.vue'),
+  delay: 200,
+  timeout: 10000
+})
+const FamilySection = defineAsyncComponent({
+  loader: () => import('@/components/resident/FamilySection.vue'),
+  delay: 200,
+  timeout: 10000
+})
+
 import {
   House,
   Document,
-  Service,
   User,
   ChatDotSquare
 } from '@element-plus/icons-vue'
