@@ -59,7 +59,7 @@ import {
   User,
   Coin,
   House,
-  Baby,
+  Avatar,
   Wallet,
   Grid
 } from '@element-plus/icons-vue'
@@ -109,7 +109,7 @@ const services = ref<ServiceItem[]>([
     id: 'birth',
     name: '生育证',
     type: 'birth',
-    icon: Baby,
+    icon: Avatar,
     route: '/services/birth',
     pending: 2
   },
