@@ -384,7 +384,7 @@ const router = createRouter({
     {
       path: '/services',
       name: 'services',
-      redirect: '/services/applications',
+      redirect: '/services/hall',
       meta: {
         requiresAuth: true,
         title: '生活服务',
@@ -392,6 +392,21 @@ const router = createRouter({
         permissions: ['service:read']
       },
       children: [
+        {
+          path: 'hall',
+          name: 'services-hall',
+          component: () => import('@/views/services/ServiceHall.vue'),
+          meta: {
+            requiresAuth: true,
+            title: '办事大厅',
+            permissions: ['service:application'],
+            breadcrumb: [
+              { title: '首页', path: '/dashboard' },
+              { title: '生活服务', path: '/services' },
+              { title: '办事大厅', path: '/services/hall' }
+            ]
+          }
+        },
         {
           path: 'applications',
           name: 'services-applications',
