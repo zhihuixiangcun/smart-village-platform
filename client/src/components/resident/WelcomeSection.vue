@@ -10,7 +10,7 @@
         <!-- 字体大小控制 -->
         <el-dropdown trigger="click" @command="handleFontSizeCommand">
           <el-button class="control-btn" :aria-label="`当前字体: ${currentLevelLabel}`">
-            <el-icon><FontSize /></el-icon>
+            <el-icon><Edit /></el-icon>
             <span class="btn-label">{{ currentLevelLabel }}</span>
           </el-button>
           <template #dropdown>
@@ -101,10 +101,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import {
-  FontSize,
+  Edit,
   Microphone,
   Setting,
   Bell,
@@ -114,7 +114,6 @@ import {
   Close
 } from '@element-plus/icons-vue'
 import { useFontSize, type FontSizeLevel } from '@/composables/useFontSize'
-import { useVoiceInput } from '@/composables/useVoiceInput'
 import { useRouter } from 'vue-router'
 
 interface Props {
@@ -132,13 +131,19 @@ const router = useRouter()
 
 // Composables
 const { config, isCustomMode, currentLevelLabel, setFontSizeLevel, increaseFontSize, decreaseFontSize } = useFontSize()
-const {
-  isListening,
-  recognizedText,
-  startListening,
-  stopListening: stopVoiceListening,
-  parseVoiceIntent
-} = useVoiceInput()
+
+// 语音功能占位符（待实现）
+const isListening = ref(false)
+const recognizedText = ref('')
+const startListening = () => {
+  ElMessage.info('语音识别功能开发中...')
+}
+const stopVoiceListening = () => {
+  isListening.value = false
+}
+const parseVoiceIntent = (text: string) => {
+  console.log('解析语音指令:', text)
+}
 
 // 响应式数据
 const showSettings = ref(false)
