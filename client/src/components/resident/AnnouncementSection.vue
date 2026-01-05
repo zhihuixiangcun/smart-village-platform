@@ -98,9 +98,9 @@ import {
   View,
   Microphone,
   Document,
-  NotificationFilled,
+  Notification,
   InfoFilled,
-  WarningFilled
+  Warning
 } from '@element-plus/icons-vue'
 import { useFontSize } from '@/composables/useFontSize'
 
@@ -169,8 +169,8 @@ const displayedAnnouncements = computed(() => {
 const getAnnouncementIcon = (type: string) => {
   const iconMap: Record<string, any> = {
     policy: Document,
-    notice: NotificationFilled,
-    urgent: WarningFilled,
+    notice: Notification,
+    urgent: Warning,
     info: InfoFilled
   }
   return iconMap[type] || Document
