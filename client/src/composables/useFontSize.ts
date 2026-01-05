@@ -7,8 +7,6 @@ import type { FontSizeConfig } from '@/types/resident'
 
 export type FontSizeLevel = 'small' | 'normal' | 'large' | 'extra-large' | 'huge'
 
-export { FontSizeConfig } from '@/types/resident'
-
 const FONT_SIZE_SCALE: Record<FontSizeLevel, number> = {
   'small': 0.85,      // 小字模式 - 适合视力好的年轻用户
   'normal': 1.0,      // 正常模式 - 默认

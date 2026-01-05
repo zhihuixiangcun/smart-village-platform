@@ -6,8 +6,6 @@ import { ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { EmergencyContact } from '@/types/resident'
 
-export { EmergencyContact } from '@/types/resident'
-
 export function useEmergency() {
   const isCalling = ref(false)
   const countdown = ref(0)
