@@ -54,7 +54,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Coin, ArrowRight, Calendar, FirstAid, Medal, Wallet, Calculator } from '@element-plus/icons-vue'
+import { Coin, ArrowRight, Calendar, FirstAid, Medal, Wallet, Operation } from '@element-plus/icons-vue'
 
 interface Subsidy {
   id: string
@@ -108,7 +108,7 @@ const subsidies = ref<Subsidy[]>([
     id: 'calculator',
     name: '政策计算器',
     type: 'disability',
-    icon: Calculator,
+    icon: Operation,
     amount: '',
     status: 'available',
     badge: '试一试',
