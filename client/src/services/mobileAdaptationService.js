@@ -3,7 +3,7 @@
  * 提供响应式布局、触摸交互、离线支持等功能
  */
 
-import { ref, reactive, computed, watch } from 'vue'
+import { ref, reactive, computed, watch } from 'vue';
 // useStore not used in this file - removed invalid import
 
 class MobileAdaptationService {
@@ -23,7 +23,7 @@ class MobileAdaptationService {
       screenWidth: 0,
       screenHeight: 0,
       orientation: 'portrait'
-    })
+    });
 
     // 触控状态
     this.touchState = reactive({
@@ -35,7 +35,7 @@ class MobileAdaptationService {
       swipeDirection: null,
       longPressTimer: null,
       longPressActive: false
-    })
+    });
 
     // 响应式配置
     this.breakpoints = {
@@ -45,7 +45,7 @@ class MobileAdaptationService {
       small: 480,
       medium: 768,
       large: 1200
-    }
+    };
 
     // 主题配置
     this.theme = reactive({
@@ -53,13 +53,13 @@ class MobileAdaptationService {
       spacing: 'normal',
       touchTargetSize: 'normal',
       animation: 'normal'
-    })
+    });
 
     // 初始化
-    this.init()
+    this.init();
 
     // 创建全局样式
-    this.createGlobalStyles()
+    this.createGlobalStyles();
   }
 
   /**
@@ -67,59 +67,59 @@ class MobileAdaptationService {
    */
   init() {
     // 检测设备信息
-    this.detectDevice()
+    this.detectDevice();
 
     // 监听窗口变化
-    window.addEventListener('resize', this.handleResize.bind(this))
-    window.addEventListener('orientationchange', this.handleOrientationChange.bind(this))
+    window.addEventListener('resize', this.handleResize.bind(this));
+    window.addEventListener('orientationchange', this.handleOrientationChange.bind(this));
 
     // 监听触摸事件
-    this.setupTouchEvents()
+    this.setupTouchEvents();
 
     // 监听网络状态
-    this.setupNetworkEvents()
+    this.setupNetworkEvents();
 
     // 设置CSS变量
-    this.setCSSVariables()
+    this.setCSSVariables();
   }
 
   /**
    * 检测设备信息
    */
   detectDevice() {
-    const userAgent = navigator.userAgent.toLowerCase()
-    const width = window.innerWidth
-    const height = window.innerHeight
+    const userAgent = navigator.userAgent.toLowerCase();
+    const width = window.innerWidth;
+    const height = window.innerHeight;
 
     // 检测设备类型
-    this.deviceInfo.isMobile = width <= this.breakpoints.mobile
-    this.deviceInfo.isTablet = width > this.breakpoints.mobile && width <= this.breakpoints.tablet
-    this.deviceInfo.isDesktop = width > this.breakpoints.tablet
+    this.deviceInfo.isMobile = width <= this.breakpoints.mobile;
+    this.deviceInfo.isTablet = width > this.breakpoints.mobile && width <= this.breakpoints.tablet;
+    this.deviceInfo.isDesktop = width > this.breakpoints.tablet;
 
     // 检测屏幕尺寸
-    this.deviceInfo.isSmallScreen = width <= this.breakpoints.small
-    this.deviceInfo.isMediumScreen = width > this.breakpoints.small && width <= this.breakpoints.medium
-    this.deviceInfo.isLargeScreen = width > this.breakpoints.medium
+    this.deviceInfo.isSmallScreen = width <= this.breakpoints.small;
+    this.deviceInfo.isMediumScreen = width > this.breakpoints.small && width <= this.breakpoints.medium;
+    this.deviceInfo.isLargeScreen = width > this.breakpoints.medium;
 
     // 检测操作系统
-    this.deviceInfo.isIOS = /iphone|ipad|ipod/.test(userAgent)
-    this.deviceInfo.isAndroid = /android/.test(userAgent)
+    this.deviceInfo.isIOS = /iphone|ipad|ipod/.test(userAgent);
+    this.deviceInfo.isAndroid = /android/.test(userAgent);
 
     // 检测触摸支持
-    this.deviceInfo.touchSupported = 'ontouchstart' in window || navigator.maxTouchPoints > 0
+    this.deviceInfo.touchSupported = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
     // 检测像素比
-    this.deviceInfo.pixelRatio = window.devicePixelRatio || 1
+    this.deviceInfo.pixelRatio = window.devicePixelRatio || 1;
 
     // 检测屏幕尺寸
-    this.deviceInfo.screenWidth = width
-    this.deviceInfo.screenHeight = height
+    this.deviceInfo.screenWidth = width;
+    this.deviceInfo.screenHeight = height;
 
     // 检测屏幕方向
-    this.deviceInfo.orientation = width > height ? 'landscape' : 'portrait'
+    this.deviceInfo.orientation = width > height ? 'landscape' : 'portrait';
 
     // 更新主题设置
-    this.updateTheme()
+    this.updateTheme();
   }
 
   /**
@@ -127,20 +127,20 @@ class MobileAdaptationService {
    */
   updateTheme() {
     if (this.deviceInfo.isMobile) {
-      this.theme.fontSize = 'large'
-      this.theme.spacing = 'compact'
-      this.theme.touchTargetSize = 'large'
-      this.theme.animation = 'reduced'
+      this.theme.fontSize = 'large';
+      this.theme.spacing = 'compact';
+      this.theme.touchTargetSize = 'large';
+      this.theme.animation = 'reduced';
     } else if (this.deviceInfo.isTablet) {
-      this.theme.fontSize = 'medium'
-      this.theme.spacing = 'normal'
-      this.theme.touchTargetSize = 'medium'
-      this.theme.animation = 'normal'
+      this.theme.fontSize = 'medium';
+      this.theme.spacing = 'normal';
+      this.theme.touchTargetSize = 'medium';
+      this.theme.animation = 'normal';
     } else {
-      this.theme.fontSize = 'normal'
-      this.theme.spacing = 'normal'
-      this.theme.touchTargetSize = 'normal'
-      this.theme.animation = 'normal'
+      this.theme.fontSize = 'normal';
+      this.theme.spacing = 'normal';
+      this.theme.touchTargetSize = 'normal';
+      this.theme.animation = 'normal';
     }
   }
 
@@ -148,31 +148,31 @@ class MobileAdaptationService {
    * 设置CSS变量
    */
   setCSSVariables() {
-    const root = document.documentElement
+    const root = document.documentElement;
 
     // 设置断点变量
-    root.style.setProperty('--mobile-breakpoint', `${this.breakpoints.mobile}px`)
-    root.style.setProperty('--tablet-breakpoint', `${this.breakpoints.tablet}px`)
-    root.style.setProperty('--desktop-breakpoint', `${this.breakpoints.desktop}px`)
+    root.style.setProperty('--mobile-breakpoint', `${this.breakpoints.mobile}px`);
+    root.style.setProperty('--tablet-breakpoint', `${this.breakpoints.tablet}px`);
+    root.style.setProperty('--desktop-breakpoint', `${this.breakpoints.desktop}px`);
 
     // 设置设备类型变量
-    root.style.setProperty('--is-mobile', this.deviceInfo.isMobile ? '1' : '0')
-    root.style.setProperty('--is-tablet', this.deviceInfo.isTablet ? '1' : '0')
-    root.style.setProperty('--is-desktop', this.deviceInfo.isDesktop ? '1' : '0')
+    root.style.setProperty('--is-mobile', this.deviceInfo.isMobile ? '1' : '0');
+    root.style.setProperty('--is-tablet', this.deviceInfo.isTablet ? '1' : '0');
+    root.style.setProperty('--is-desktop', this.deviceInfo.isDesktop ? '1' : '0');
 
     // 设置屏幕尺寸变量
-    root.style.setProperty('--screen-width', `${this.deviceInfo.screenWidth}px`)
-    root.style.setProperty('--screen-height', `${this.deviceInfo.screenHeight}px`)
+    root.style.setProperty('--screen-width', `${this.deviceInfo.screenWidth}px`);
+    root.style.setProperty('--screen-height', `${this.deviceInfo.screenHeight}px`);
 
     // 设置触摸相关变量
-    root.style.setProperty('--touch-supported', this.deviceInfo.touchSupported ? '1' : '0')
-    root.style.setProperty('--pixel-ratio', this.deviceInfo.pixelRatio)
+    root.style.setProperty('--touch-supported', this.deviceInfo.touchSupported ? '1' : '0');
+    root.style.setProperty('--pixel-ratio', this.deviceInfo.pixelRatio);
 
     // 设置主题变量
-    root.style.setProperty('--font-size-scale', this.getFontSizeScale())
-    root.style.setProperty('--spacing-scale', this.getSpacingScale())
-    root.style.setProperty('--touch-target-size', this.getTouchTargetSize())
-    root.style.setProperty('--animation-duration', this.getAnimationDuration())
+    root.style.setProperty('--font-size-scale', this.getFontSizeScale());
+    root.style.setProperty('--spacing-scale', this.getSpacingScale());
+    root.style.setProperty('--touch-target-size', this.getTouchTargetSize());
+    root.style.setProperty('--animation-duration', this.getAnimationDuration());
   }
 
   /**
@@ -184,8 +184,8 @@ class MobileAdaptationService {
       normal: '1',
       medium: '1.125',
       large: '1.25'
-    }
-    return scales[this.theme.fontSize] || scales.normal
+    };
+    return scales[this.theme.fontSize] || scales.normal;
   }
 
   /**
@@ -196,8 +196,8 @@ class MobileAdaptationService {
       compact: '0.75',
       normal: '1',
       medium: '1.25'
-    }
-    return scales[this.theme.spacing] || scales.normal
+    };
+    return scales[this.theme.spacing] || scales.normal;
   }
 
   /**
@@ -208,8 +208,8 @@ class MobileAdaptationService {
       normal: '44px',
       medium: '48px',
       large: '56px'
-    }
-    return sizes[this.theme.touchTargetSize] || sizes.normal
+    };
+    return sizes[this.theme.touchTargetSize] || sizes.normal;
   }
 
   /**
@@ -219,17 +219,17 @@ class MobileAdaptationService {
     const durations = {
       reduced: '0.2s',
       normal: '0.3s'
-    }
-    return durations[this.theme.animation] || durations.normal
+    };
+    return durations[this.theme.animation] || durations.normal;
   }
 
   /**
    * 处理窗口大小变化
    */
   handleResize() {
-    this.detectDevice()
-    this.setCSSVariables()
-    this.emit('resize', this.deviceInfo)
+    this.detectDevice();
+    this.setCSSVariables();
+    this.emit('resize', this.deviceInfo);
   }
 
   /**
@@ -237,66 +237,66 @@ class MobileAdaptationService {
    */
   handleOrientationChange() {
     setTimeout(() => {
-      this.detectDevice()
-      this.setCSSVariables()
-      this.emit('orientationchange', this.deviceInfo)
-    }, 100)
+      this.detectDevice();
+      this.setCSSVariables();
+      this.emit('orientationchange', this.deviceInfo);
+    }, 100);
   }
 
   /**
    * 设置触摸事件
    */
   setupTouchEvents() {
-    if (!this.deviceInfo.touchSupported) return
+    if (!this.deviceInfo.touchSupported) return;
 
-    document.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: true })
-    document.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: true })
-    document.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: true })
-    document.addEventListener('touchcancel', this.handleTouchCancel.bind(this), { passive: true })
+    document.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: true });
+    document.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: true });
+    document.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: true });
+    document.addEventListener('touchcancel', this.handleTouchCancel.bind(this), { passive: true });
   }
 
   /**
    * 处理触摸开始
    */
   handleTouchStart(event) {
-    const touch = event.touches[0]
-    this.touchState.isTouching = true
-    this.touchState.touchStartX = touch.clientX
-    this.touchState.touchStartY = touch.clientY
-    this.touchState.longPressActive = false
+    const touch = event.touches[0];
+    this.touchState.isTouching = true;
+    this.touchState.touchStartX = touch.clientX;
+    this.touchState.touchStartY = touch.clientY;
+    this.touchState.longPressActive = false;
 
     // 设置长按定时器
     this.touchState.longPressTimer = setTimeout(() => {
-      this.touchState.longPressActive = true
+      this.touchState.longPressActive = true;
       this.emit('longpress', {
         x: touch.clientX,
         y: touch.clientY,
         target: event.target
-      })
-    }, 500)
+      });
+    }, 500);
 
     this.emit('touchstart', {
       x: touch.clientX,
       y: touch.clientY,
       target: event.target
-    })
+    });
   }
 
   /**
    * 处理触摸移动
    */
   handleTouchMove(event) {
-    if (!this.touchState.isTouching) return
+    if (!this.touchState.isTouching) return;
 
-    const touch = event.touches[0]
-    const deltaX = touch.clientX - this.touchState.touchStartX
-    const deltaY = touch.clientY - this.touchState.touchStartY
-    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
+    const touch = event.touches[0];
+    const deltaX = touch.clientX - this.touchState.touchStartX;
+    const deltaY = touch.clientY - this.touchState.touchStartY;
+    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
     // 如果移动距离超过阈值，取消长按
     if (distance > 10) {
-      clearTimeout(this.touchState.longPressTimer)
-      this.touchState.longPressActive = false
+      clearTimeout(this.touchState.longPressTimer);
+      this.touchState.longPressActive = false;
     }
 
     this.emit('touchmove', {
@@ -306,41 +306,41 @@ class MobileAdaptationService {
       deltaY,
       distance,
       target: event.target
-    })
+    });
   }
 
   /**
    * 处理触摸结束
    */
   handleTouchEnd(event) {
-    if (!this.touchState.isTouching) return
+    if (!this.touchState.isTouching) return;
 
-    const touch = event.changedTouches[0]
-    this.touchState.touchEndX = touch.clientX
-    this.touchState.touchEndY = touch.clientY
+    const touch = event.changedTouches[0];
+    this.touchState.touchEndX = touch.clientX;
+    this.touchState.touchEndY = touch.clientY;
 
     // 计算滑动方向
-    const deltaX = this.touchState.touchEndX - this.touchState.touchStartX
-    const deltaY = this.touchState.touchEndY - this.touchState.touchStartY
-    const absDeltaX = Math.abs(deltaX)
-    const absDeltaY = Math.abs(deltaY)
+    const deltaX = this.touchState.touchEndX - this.touchState.touchStartX;
+    const deltaY = this.touchState.touchEndY - this.touchState.touchStartY;
+    const absDeltaX = Math.abs(deltaX);
+    const absDeltaY = Math.abs(deltaY);
 
     if (absDeltaX > 50 || absDeltaY > 50) {
       if (absDeltaX > absDeltaY) {
-        this.touchState.swipeDirection = deltaX > 0 ? 'right' : 'left'
+        this.touchState.swipeDirection = deltaX > 0 ? 'right' : 'left';
       } else {
-        this.touchState.swipeDirection = deltaY > 0 ? 'down' : 'up'
+        this.touchState.swipeDirection = deltaY > 0 ? 'down' : 'up';
       }
     } else {
-      this.touchState.swipeDirection = null
+      this.touchState.swipeDirection = null;
     }
 
     // 清除长按定时器
     if (this.touchState.longPressTimer) {
-      clearTimeout(this.touchState.longPressTimer)
+      clearTimeout(this.touchState.longPressTimer);
     }
 
-    this.touchState.isTouching = false
+    this.touchState.isTouching = false;
 
     this.emit('touchend', {
       x: touch.clientX,
@@ -348,26 +348,26 @@ class MobileAdaptationService {
       swipeDirection: this.touchState.swipeDirection,
       longPress: this.touchState.longPressActive,
       target: event.target
-    })
+    });
 
     // 重置状态
-    this.touchState.swipeDirection = null
-    this.touchState.longPressActive = false
+    this.touchState.swipeDirection = null;
+    this.touchState.longPressActive = false;
   }
 
   /**
    * 处理触摸取消
    */
   handleTouchCancel(event) {
-    this.touchState.isTouching = false
+    this.touchState.isTouching = false;
 
     if (this.touchState.longPressTimer) {
-      clearTimeout(this.touchState.longPressTimer)
+      clearTimeout(this.touchState.longPressTimer);
     }
 
     this.emit('touchcancel', {
       target: event.target
-    })
+    });
   }
 
   /**
@@ -375,29 +375,29 @@ class MobileAdaptationService {
    */
   setupNetworkEvents() {
     window.addEventListener('online', () => {
-      this.emit('online', true)
-    })
+      this.emit('online', true);
+    });
 
     window.addEventListener('offline', () => {
-      this.emit('offline', false)
-    })
+      this.emit('offline', false);
+    });
 
     window.addEventListener('connectionchange', () => {
-      this.emit('connectionchange', navigator.connection)
-    })
+      this.emit('connectionchange', navigator.connection);
+    });
   }
 
   /**
    * 创建全局样式
    */
   createGlobalStyles() {
-    const styleId = 'mobile-adaptation-styles'
-    let styleElement = document.getElementById(styleId)
+    const styleId = 'mobile-adaptation-styles';
+    let styleElement = document.getElementById(styleId);
 
     if (!styleElement) {
-      styleElement = document.createElement('style')
-      styleElement.id = styleId
-      document.head.appendChild(styleElement)
+      styleElement = document.createElement('style');
+      styleElement.id = styleId;
+      document.head.appendChild(styleElement);
     }
 
     const css = `
@@ -559,9 +559,9 @@ class MobileAdaptationService {
           transition-duration: 0.01ms !important;
         }
       }
-    `
+    `;
 
-    styleElement.textContent = css
+    styleElement.textContent = css;
   }
 
   /**
@@ -577,12 +577,12 @@ class MobileAdaptationService {
         success: [10, 30, 10],
         error: [50, 50, 50],
         warning: [20, 20, 20]
-      }
+      };
 
       try {
-        navigator.vibrate(patterns[type] || patterns.light)
+        navigator.vibrate(patterns[type] || patterns.light);
       } catch (error) {
-        console.warn('触觉反馈不可用:', error)
+        console.warn('触觉反馈不可用:', error);
       }
     }
   }
@@ -592,10 +592,10 @@ class MobileAdaptationService {
    */
   addHapticClass(element, type = 'light') {
     if (element) {
-      element.classList.add('haptic-feedback', `feedback-${type}`)
+      element.classList.add('haptic-feedback', `feedback-${type}`);
       setTimeout(() => {
-        element.classList.remove('haptic-feedback', `feedback-${type}`)
-      }, 200)
+        element.classList.remove('haptic-feedback', `feedback-${type}`);
+      }, 200);
     }
   }
 
@@ -603,29 +603,29 @@ class MobileAdaptationService {
    * 检测是否为移动设备
    */
   isMobileDevice() {
-    return this.deviceInfo.isMobile || this.deviceInfo.isTablet
+    return this.deviceInfo.isMobile || this.deviceInfo.isTablet;
   }
 
   /**
    * 获取当前设备信息
    */
   getDeviceInfo() {
-    return { ...this.deviceInfo }
+    return { ...this.deviceInfo };
   }
 
   /**
    * 获取当前主题配置
    */
   getTheme() {
-    return { ...this.theme }
+    return { ...this.theme };
   }
 
   /**
    * 更新主题配置
    */
   updateThemeConfig(newTheme) {
-    Object.assign(this.theme, newTheme)
-    this.setCSSVariables()
+    Object.assign(this.theme, newTheme);
+    this.setCSSVariables();
   }
 
   /**
@@ -637,68 +637,68 @@ class MobileAdaptationService {
       breakpoints = null,
       spacing = null,
       typography = null
-    } = layoutConfig
+    } = layoutConfig;
 
     if (container) {
-      this.applyContainerAdaptation(container)
+      this.applyContainerAdaptation(container);
     }
 
     if (breakpoints) {
-      this.breakpoints = { ...this.breakpoints, ...breakpoints }
+      this.breakpoints = { ...this.breakpoints, ...breakpoints };
     }
 
     if (spacing) {
-      this.theme.spacing = spacing
+      this.theme.spacing = spacing;
     }
 
     if (typography) {
-      this.theme.fontSize = typography
+      this.theme.fontSize = typography;
     }
 
-    this.setCSSVariables()
+    this.setCSSVariables();
   }
 
   /**
    * 应用容器自适应
    */
   applyContainerAdaptation(container) {
-    if (!container) return
+    if (!container) return;
 
-    const { breakpoints } = this
+    const { breakpoints } = this;
 
     // 根据屏幕大小调整容器
     if (this.deviceInfo.screenWidth <= breakpoints.mobile) {
-      container.classList.add('mobile-layout')
-      container.classList.remove('tablet-layout', 'desktop-layout')
+      container.classList.add('mobile-layout');
+      container.classList.remove('tablet-layout', 'desktop-layout');
     } else if (this.deviceInfo.screenWidth <= breakpoints.tablet) {
-      container.classList.add('tablet-layout')
-      container.classList.remove('mobile-layout', 'desktop-layout')
+      container.classList.add('tablet-layout');
+      container.classList.remove('mobile-layout', 'desktop-layout');
     } else {
-      container.classList.add('desktop-layout')
-      container.classList.remove('mobile-layout', 'tablet-layout')
+      container.classList.add('desktop-layout');
+      container.classList.remove('mobile-layout', 'tablet-layout');
     }
 
     // 根据方向调整
     if (this.deviceInfo.orientation === 'landscape') {
-      container.classList.add('landscape')
+      container.classList.add('landscape');
     } else {
-      container.classList.remove('landscape')
+      container.classList.remove('landscape');
     }
   }
 
   /**
    * 事件监听器
    */
-  listeners = new Map()
+  listeners = new Map();
 
   /**
    * 添加事件监听器
    */
   on(event, callback) {
     if (!this.listeners.has(event)) {
-      this.listeners.set(event, [])
+      this.listeners.set(event, []);
     }
-    this.listeners.get(event).push(callback)
+    this.listeners.get(event).push(callback);
   }
 
   /**
@@ -706,10 +706,10 @@ class MobileAdaptationService {
    */
   off(event, callback) {
     if (this.listeners.has(event)) {
-      const callbacks = this.listeners.get(event)
-      const index = callbacks.indexOf(callback)
+      const callbacks = this.listeners.get(event);
+      const index = callbacks.indexOf(callback);
       if (index > -1) {
-        callbacks.splice(index, 1)
+        callbacks.splice(index, 1);
       }
     }
   }
@@ -721,19 +721,19 @@ class MobileAdaptationService {
     if (this.listeners.has(event)) {
       this.listeners.get(event).forEach(callback => {
         try {
-          callback(data)
+          callback(data);
         } catch (error) {
-          console.error(`事件处理错误 (${event}):`, error)
+          console.error(`事件处理错误 (${event}):`, error);
         }
-      })
+      });
     }
   }
 }
 
 // 创建单例实例
-const mobileAdaptationService = new MobileAdaptationService()
+const mobileAdaptationService = new MobileAdaptationService();
 
-export default mobileAdaptationService
+export default mobileAdaptationService;
 export {
   MobileAdaptationService
-}
+};

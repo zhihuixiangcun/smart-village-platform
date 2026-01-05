@@ -1,7 +1,7 @@
 /**
  * 认证相关API接口
  */
-import { get, post, put, del } from '@/utils/http'
+import { get, post, put, del } from '@/utils/http';
 
 /**
  * 用户登录
@@ -9,7 +9,7 @@ import { get, post, put, del } from '@/utils/http'
  * @returns {Promise} API响应
  */
 export function login(data) {
-  return post('/api/auth/login', data)
+  return post('/api/auth/login', data);
 }
 
 /**
@@ -18,7 +18,7 @@ export function login(data) {
  * @returns {Promise} API响应
  */
 export function register(data) {
-  return post('/api/auth/register', data)
+  return post('/api/auth/register', data);
 }
 
 /**
@@ -26,7 +26,7 @@ export function register(data) {
  * @returns {Promise} API响应
  */
 export function logout() {
-  return post('/api/auth/logout')
+  return post('/api/auth/logout');
 }
 
 /**
@@ -35,7 +35,7 @@ export function logout() {
  * @returns {Promise} API响应
  */
 export function refreshToken(refreshToken) {
-  return post('/api/auth/refresh', { refreshToken })
+  return post('/api/auth/refresh', { refreshToken });
 }
 
 /**
@@ -43,7 +43,7 @@ export function refreshToken(refreshToken) {
  * @returns {Promise} API响应
  */
 export function getUserInfo() {
-  return get('/api/auth/user')
+  return get('/api/auth/user');
 }
 
 /**
@@ -52,7 +52,7 @@ export function getUserInfo() {
  * @returns {Promise} API响应
  */
 export function updateUserInfo(data) {
-  return put('/api/auth/user', data)
+  return put('/api/auth/user', data);
 }
 
 /**
@@ -61,7 +61,7 @@ export function updateUserInfo(data) {
  * @returns {Promise} API响应
  */
 export function changePassword(data) {
-  return put('/api/auth/password', data)
+  return put('/api/auth/password', data);
 }
 
 /**
@@ -70,7 +70,7 @@ export function changePassword(data) {
  * @returns {Promise} API响应
  */
 export function sendResetCode(phone) {
-  return post('/api/auth/forgot-password/send-code', { phone })
+  return post('/api/auth/forgot-password/send-code', { phone });
 }
 
 /**
@@ -79,7 +79,7 @@ export function sendResetCode(phone) {
  * @returns {Promise} API响应
  */
 export function verifyResetCode(data) {
-  return post('/api/auth/forgot-password/verify', data)
+  return post('/api/auth/forgot-password/verify', data);
 }
 
 /**
@@ -88,7 +88,7 @@ export function verifyResetCode(data) {
  * @returns {Promise} API响应
  */
 export function resetPassword(data) {
-  return post('/api/auth/forgot-password/reset', data)
+  return post('/api/auth/forgot-password/reset', data);
 }
 
 /**
@@ -98,7 +98,7 @@ export function resetPassword(data) {
  * @returns {Promise} API响应
  */
 export function sendSmsCode(phone, type = 'login') {
-  return post('/api/auth/sms/send', { phone, type })
+  return post('/api/auth/sms/send', { phone, type });
 }
 
 /**
@@ -109,7 +109,7 @@ export function sendSmsCode(phone, type = 'login') {
  * @returns {Promise} API响应
  */
 export function verifySmsCode(phone, code, type = 'login') {
-  return post('/api/auth/sms/verify', { phone, code, type })
+  return post('/api/auth/sms/verify', { phone, code, type });
 }
 
 /**
@@ -118,7 +118,7 @@ export function verifySmsCode(phone, code, type = 'login') {
  * @returns {Promise} API响应
  */
 export function phoneLogin(data) {
-  return post('/api/auth/phone-login', data)
+  return post('/api/auth/phone-login', data);
 }
 
 /**
@@ -127,7 +127,7 @@ export function phoneLogin(data) {
  * @returns {Promise} API响应
  */
 export function checkUsername(username) {
-  return get('/api/auth/check-username', { username })
+  return get('/api/auth/check-username', { username });
 }
 
 /**
@@ -136,7 +136,7 @@ export function checkUsername(username) {
  * @returns {Promise} API响应
  */
 export function checkPhone(phone) {
-  return get('/api/auth/check-phone', { phone })
+  return get('/api/auth/check-phone', { phone });
 }
 
 /**
@@ -144,7 +144,7 @@ export function checkPhone(phone) {
  * @returns {Promise} API响应
  */
 export function getUserPermissions() {
-  return get('/api/auth/permissions')
+  return get('/api/auth/permissions');
 }
 
 /**
@@ -152,7 +152,7 @@ export function getUserPermissions() {
  * @returns {Promise} API响应
  */
 export function getUserRoles() {
-  return get('/api/auth/roles')
+  return get('/api/auth/roles');
 }
 
 /**
@@ -165,7 +165,7 @@ export function uploadAvatar(formData) {
     headers: {
       'Content-Type': 'multipart/form-data'
     }
-  })
+  });
 }
 
 /**
@@ -174,7 +174,7 @@ export function uploadAvatar(formData) {
  * @returns {Promise} API响应
  */
 export function bindPhone(data) {
-  return post('/api/auth/bind-phone', data)
+  return post('/api/auth/bind-phone', data);
 }
 
 /**
@@ -183,7 +183,7 @@ export function bindPhone(data) {
  * @returns {Promise} API响应
  */
 export function unbindPhone(data) {
-  return post('/api/auth/unbind-phone', data)
+  return post('/api/auth/unbind-phone', data);
 }
 
 /**
@@ -192,7 +192,7 @@ export function unbindPhone(data) {
  * @returns {Promise} API响应
  */
 export function getLoginHistory(params = {}) {
-  return get('/api/auth/login-history', params)
+  return get('/api/auth/login-history', params);
 }
 
 /**
@@ -200,7 +200,7 @@ export function getLoginHistory(params = {}) {
  * @returns {Promise} API响应
  */
 export function clearLoginHistory() {
-  return del('/api/auth/login-history')
+  return del('/api/auth/login-history');
 }
 
 /**
@@ -208,7 +208,7 @@ export function clearLoginHistory() {
  * @returns {Promise} API响应
  */
 export function getOnlineUsers() {
-  return get('/api/auth/online-users')
+  return get('/api/auth/online-users');
 }
 
 /**
@@ -217,7 +217,7 @@ export function getOnlineUsers() {
  * @returns {Promise} API响应
  */
 export function forceLogout(userId) {
-  return post(`/api/auth/force-logout/${userId}`)
+  return post(`/api/auth/force-logout/${userId}`);
 }
 
 // 导出所有API
@@ -246,6 +246,6 @@ export const authApi = {
   clearLoginHistory,
   getOnlineUsers,
   forceLogout
-}
+};
 
-export default authApi
+export default authApi;

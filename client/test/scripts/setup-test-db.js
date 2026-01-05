@@ -1,7 +1,7 @@
-const { execSync } = require('child_process')
-const path = require('path')
-const fs = require('fs')
-const { MongoClient } = require('mongodb')
+const { execSync } = require('child_process');
+const path = require('path');
+const fs = require('fs');
+const { MongoClient } = require('mongodb');
 
 // 测试数据库配置
 const TEST_DB_CONFIG = {
@@ -16,53 +16,53 @@ const TEST_DB_CONFIG = {
     'finance',
     'notifications'
   ]
-}
+};
 
 // 测试数据目录
-const TEST_DATA_DIR = path.join(__dirname, '../data')
-const SEED_DATA_FILE = path.join(TEST_DATA_DIR, 'seed-data.json')
+const TEST_DATA_DIR = path.join(__dirname, '../data');
+const SEED_DATA_FILE = path.join(TEST_DATA_DIR, 'seed-data.json');
 
 class TestDatabaseSetup {
   constructor() {
-    this.client = null
-    this.db = null
+    this.client = null;
+    this.db = null;
   }
 
   async connect() {
-    console.log('🔌 Connecting to test database...')
+    console.log('🔌 Connecting to test database...');
     try {
-      this.client = new MongoClient(TEST_DB_CONFIG.uri)
-      await this.client.connect()
-      this.db = this.client.db(TEST_DB_CONFIG.dbName)
-      console.log('✅ Connected to test database')
+      this.client = new MongoClient(TEST_DB_CONFIG.uri);
+      await this.client.connect();
+      this.db = this.client.db(TEST_DB_CONFIG.dbName);
+      console.log('✅ Connected to test database');
     } catch (error) {
-      console.error('❌ Failed to connect to test database:', error.message)
-      throw error
+      console.error('❌ Failed to connect to test database:', error.message);
+      throw error;
     }
   }
 
   async disconnect() {
     if (this.client) {
-      await this.client.close()
-      console.log('🔌 Disconnected from test database')
+      await this.client.close();
+      console.log('🔌 Disconnected from test database');
     }
   }
 
   async clearDatabase() {
-    console.log('🧹 Clearing test database...')
+    console.log('🧹 Clearing test database...');
     try {
       for (const collectionName of TEST_DB_CONFIG.collections) {
-        await this.db.collection(collectionName).deleteMany({})
+        await this.db.collection(collectionName).deleteMany({});
       }
-      console.log('✅ Test database cleared')
+      console.log('✅ Test database cleared');
     } catch (error) {
-      console.error('❌ Failed to clear database:', error.message)
-      throw error
+      console.error('❌ Failed to clear database:', error.message);
+      throw error;
     }
   }
 
   async createIndexes() {
-    console.log('📊 Creating indexes...')
+    console.log('📊 Creating indexes...');
     const indexes = [
       {
         collection: 'users',
@@ -94,20 +94,20 @@ class TestDatabaseSetup {
         collection: 'notifications',
         index: { userId: 1, isRead: 1, createTime: -1 }
       }
-    ]
+    ];
 
     for (const { collection, index, options } of indexes) {
       try {
-        await this.db.collection(collection).createIndex(index, options)
-        console.log(`✅ Index created for ${collection}`)
+        await this.db.collection(collection).createIndex(index, options);
+        console.log(`✅ Index created for ${collection}`);
       } catch (error) {
-        console.log(`⚠️  Index already exists for ${collection}`)
+        console.log(`⚠️  Index already exists for ${collection}`);
       }
     }
   }
 
   async seedTestData() {
-    console.log('🌱 Seeding test data...')
+    console.log('🌱 Seeding test data...');
 
     // 创建测试用户
     const testUsers = [
@@ -153,7 +153,7 @@ class TestDatabaseSetup {
         createdAt: new Date(),
         updatedAt: new Date()
       }
-    ]
+    ];
 
     // 创建测试村委
     const testCommittee = [
@@ -189,7 +189,7 @@ class TestDatabaseSetup {
         createdAt: new Date(),
         updatedAt: new Date()
       }
-    ]
+    ];
 
     // 创建测试村民
     const testResidents = Array.from({ length: 100 }, (_, i) => ({
@@ -205,7 +205,7 @@ class TestDatabaseSetup {
       createdBy: 'user-admin',
       createdAt: new Date(Date.now() - i * 24 * 60 * 60 * 1000),
       updatedAt: new Date()
-    }))
+    }));
 
     // 创建测试反馈
     const testFeedbacks = Array.from({ length: 50 }, (_, i) => ({
@@ -225,7 +225,7 @@ class TestDatabaseSetup {
       replyUser: i % 2 === 0 ? testCommittee[i % 2].name : null,
       handlerId: i % 3 === 0 ? 'committee-001' : null,
       villageId: 'village-test'
-    }))
+    }));
 
     // 创建测试公告
     const testAnnouncements = Array.from({ length: 30 }, (_, i) => ({
@@ -244,7 +244,7 @@ class TestDatabaseSetup {
       createdBy: 'user-admin',
       createdAt: new Date(Date.now() - i * 24 * 60 * 60 * 1000),
       updatedAt: new Date()
-    }))
+    }));
 
     // 创建测试财务记录
     const testFinance = Array.from({ length: 80 }, (_, i) => ({
@@ -262,7 +262,7 @@ class TestDatabaseSetup {
       createdBy: 'user-admin',
       createdAt: new Date(),
       updatedAt: new Date()
-    }))
+    }));
 
     // 创建测试通知
     const testNotifications = Array.from({ length: 100 }, (_, i) => ({
@@ -276,32 +276,32 @@ class TestDatabaseSetup {
       readTime: i % 2 === 0 ? new Date(Date.now() - i * 20 * 60 * 1000) : null,
       relatedId: i % 4 === 0 ? `feedback-${String(i + 1).padStart(3, '0')}` : null,
       relatedType: i % 4 === 0 ? 'feedback' : null
-    }))
+    }));
 
     // 插入数据
     try {
-      await this.db.collection('users').insertMany(testUsers)
-      await this.db.collection('committee').insertMany(testCommittee)
-      await this.db.collection('residents').insertMany(testResidents)
-      await this.db.collection('feedbacks').insertMany(testFeedbacks)
-      await this.db.collection('announcements').insertMany(testAnnouncements)
-      await this.db.collection('finance').insertMany(testFinance)
-      await this.db.collection('notifications').insertMany(testNotifications)
+      await this.db.collection('users').insertMany(testUsers);
+      await this.db.collection('committee').insertMany(testCommittee);
+      await this.db.collection('residents').insertMany(testResidents);
+      await this.db.collection('feedbacks').insertMany(testFeedbacks);
+      await this.db.collection('announcements').insertMany(testAnnouncements);
+      await this.db.collection('finance').insertMany(testFinance);
+      await this.db.collection('notifications').insertMany(testNotifications);
 
-      console.log('✅ Test data seeded successfully')
+      console.log('✅ Test data seeded successfully');
     } catch (error) {
-      console.error('❌ Failed to seed test data:', error.message)
-      throw error
+      console.error('❌ Failed to seed test data:', error.message);
+      throw error;
     }
   }
 
   async setup() {
-    console.log('🚀 Setting up test database...')
+    console.log('🚀 Setting up test database...');
     try {
-      await this.connect()
-      await this.clearDatabase()
-      await this.createIndexes()
-      await this.seedTestData()
+      await this.connect();
+      await this.clearDatabase();
+      await this.createIndexes();
+      await this.seedTestData();
 
       // 保存测试配置
       const testConfig = {
@@ -320,69 +320,69 @@ class TestDatabaseSetup {
           finance: 80,
           notifications: 100
         }
-      }
+      };
 
       // 确保测试数据目录存在
       if (!fs.existsSync(TEST_DATA_DIR)) {
-        fs.mkdirSync(TEST_DATA_DIR, { recursive: true })
+        fs.mkdirSync(TEST_DATA_DIR, { recursive: true });
       }
 
       // 保存测试配置
       fs.writeFileSync(
         path.join(TEST_DATA_DIR, 'test-config.json'),
         JSON.stringify(testConfig, null, 2)
-      )
+      );
 
-      console.log('✅ Test database setup completed')
-      return testConfig
+      console.log('✅ Test database setup completed');
+      return testConfig;
     } catch (error) {
-      console.error('❌ Test database setup failed:', error.message)
-      throw error
+      console.error('❌ Test database setup failed:', error.message);
+      throw error;
     } finally {
-      await this.disconnect()
+      await this.disconnect();
     }
   }
 
   async cleanup() {
-    console.log('🧹 Cleaning up test database...')
+    console.log('🧹 Cleaning up test database...');
     try {
-      await this.connect()
-      await this.clearDatabase()
-      console.log('✅ Test database cleaned up')
+      await this.connect();
+      await this.clearDatabase();
+      console.log('✅ Test database cleaned up');
     } catch (error) {
-      console.error('❌ Failed to cleanup test database:', error.message)
+      console.error('❌ Failed to cleanup test database:', error.message);
     } finally {
-      await this.disconnect()
+      await this.disconnect();
     }
   }
 }
 
 // 命令行执行
 async function main() {
-  const setup = new TestDatabaseSetup()
-  const command = process.argv[2]
+  const setup = new TestDatabaseSetup();
+  const command = process.argv[2];
 
   try {
     switch (command) {
-      case 'setup':
-        await setup.setup()
-        break
-      case 'cleanup':
-        await setup.cleanup()
-        break
-      default:
-        console.log('Usage: node setup-test-db.js [setup|cleanup]')
-        process.exit(1)
+    case 'setup':
+      await setup.setup();
+      break;
+    case 'cleanup':
+      await setup.cleanup();
+      break;
+    default:
+      console.log('Usage: node setup-test-db.js [setup|cleanup]');
+      process.exit(1);
     }
   } catch (error) {
-    console.error('Operation failed:', error.message)
-    process.exit(1)
+    console.error('Operation failed:', error.message);
+    process.exit(1);
   }
 }
 
 // 如果直接运行此脚本
 if (require.main === module) {
-  main()
+  main();
 }
 
-module.exports = TestDatabaseSetup
+module.exports = TestDatabaseSetup;

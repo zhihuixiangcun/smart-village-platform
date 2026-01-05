@@ -1,21 +1,21 @@
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue';
 
 /**
  * 移动端触控优化组合式函数
  */
 export function useMobileTouch() {
-  const isMobile = ref(false)
-  const touchDevice = ref(false)
+  const isMobile = ref(false);
+  const touchDevice = ref(false);
 
   // 检测设备类型
   const detectDevice = () => {
-    const userAgent = navigator.userAgent.toLowerCase()
-    const mobileKeywords = ['mobile', 'android', 'iphone', 'ipad', 'tablet']
+    const userAgent = navigator.userAgent.toLowerCase();
+    const mobileKeywords = ['mobile', 'android', 'iphone', 'ipad', 'tablet'];
 
     isMobile.value = mobileKeywords.some(keyword => userAgent.includes(keyword)) ||
-                    window.innerWidth <= 768
-    touchDevice.value = 'ontouchstart' in window || navigator.maxTouchPoints > 0
-  }
+                    window.innerWidth <= 768;
+    touchDevice.value = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  };
 
   // 触觉反馈
   const hapticFeedback = (type = 'light') => {
@@ -27,87 +27,87 @@ export function useMobileTouch() {
         double: [10, 50, 10],
         success: [10, 30, 10],
         error: [50, 50, 50]
-      }
-      navigator.vibrate(patterns[type] || patterns.light)
+      };
+      navigator.vibrate(patterns[type] || patterns.light);
     }
-  }
+  };
 
   // 添加触觉反馈样式类
   const addHapticClass = (element, type = 'light') => {
     if (element) {
-      element.classList.add('haptic-feedback', `feedback-${type}`)
+      element.classList.add('haptic-feedback', `feedback-${type}`);
       setTimeout(() => {
-        element.classList.remove('haptic-feedback', `feedback-${type}`)
-      }, 200)
+        element.classList.remove('haptic-feedback', `feedback-${type}`);
+      }, 200);
     }
-  }
+  };
 
   onMounted(() => {
-    detectDevice()
-    window.addEventListener('resize', detectDevice)
-  })
+    detectDevice();
+    window.addEventListener('resize', detectDevice);
+  });
 
   onUnmounted(() => {
-    window.removeEventListener('resize', detectDevice)
-  })
+    window.removeEventListener('resize', detectDevice);
+  });
 
   return {
     isMobile,
     touchDevice,
     hapticFeedback,
     addHapticClass
-  }
+  };
 }
 
 /**
  * 左滑操作组合式函数
  */
 export function useSwipeAction() {
-  const swipeX = ref(0)
-  const isSwipeActive = ref(false)
-  const swipeThreshold = 80 // 滑动阈值
+  const swipeX = ref(0);
+  const isSwipeActive = ref(false);
+  const swipeThreshold = 80; // 滑动阈值
 
-  let startX = 0
-  let currentX = 0
-  let isDragging = false
+  let startX = 0;
+  let currentX = 0;
+  let isDragging = false;
 
   const handleTouchStart = (event) => {
-    startX = event.touches[0].clientX
-    currentX = startX
-    isDragging = true
-    isSwipeActive.value = true
-  }
+    startX = event.touches[0].clientX;
+    currentX = startX;
+    isDragging = true;
+    isSwipeActive.value = true;
+  };
 
   const handleTouchMove = (event) => {
-    if (!isDragging) return
+    if (!isDragging) return;
 
-    currentX = event.touches[0].clientX
-    const deltaX = currentX - startX
+    currentX = event.touches[0].clientX;
+    const deltaX = currentX - startX;
 
     // 只允许向左滑动
     if (deltaX < 0) {
-      swipeX.value = Math.max(deltaX, -swipeThreshold)
+      swipeX.value = Math.max(deltaX, -swipeThreshold);
     }
-  }
+  };
 
   const handleTouchEnd = () => {
-    isDragging = false
-    isSwipeActive.value = false
+    isDragging = false;
+    isSwipeActive.value = false;
 
     // 判断是否触发操作
     if (Math.abs(swipeX.value) > swipeThreshold / 2) {
-      swipeX.value = -swipeThreshold // 完全展开操作区域
-      return true // 返回true表示触发了滑动操作
+      swipeX.value = -swipeThreshold; // 完全展开操作区域
+      return true; // 返回true表示触发了滑动操作
     } else {
-      swipeX.value = 0 // 回弹
-      return false
+      swipeX.value = 0; // 回弹
+      return false;
     }
-  }
+  };
 
   const resetSwipe = () => {
-    swipeX.value = 0
-    isSwipeActive.value = false
-  }
+    swipeX.value = 0;
+    isSwipeActive.value = false;
+  };
 
   return {
     swipeX,
@@ -116,92 +116,92 @@ export function useSwipeAction() {
     handleTouchMove,
     handleTouchEnd,
     resetSwipe
-  }
+  };
 }
 
 /**
  * 长按操作组合式函数
  */
 export function useLongPress(callback, delay = 500) {
-  let timeout = null
-  let isPressed = ref(false)
+  let timeout = null;
+  const isPressed = ref(false);
 
   const handleTouchStart = (event) => {
-    isPressed.value = true
+    isPressed.value = true;
     timeout = setTimeout(() => {
       if (isPressed.value) {
-        callback(event)
+        callback(event);
         // 触觉反馈
         if ('vibrate' in navigator) {
-          navigator.vibrate([20])
+          navigator.vibrate([20]);
         }
       }
-    }, delay)
-  }
+    }, delay);
+  };
 
   const handleTouchEnd = () => {
-    isPressed.value = false
+    isPressed.value = false;
     if (timeout) {
-      clearTimeout(timeout)
-      timeout = null
+      clearTimeout(timeout);
+      timeout = null;
     }
-  }
+  };
 
   const handleTouchCancel = () => {
-    isPressed.value = false
+    isPressed.value = false;
     if (timeout) {
-      clearTimeout(timeout)
-      timeout = null
+      clearTimeout(timeout);
+      timeout = null;
     }
-  }
+  };
 
   return {
     isPressed,
     handleTouchStart,
     handleTouchEnd,
     handleTouchCancel
-  }
+  };
 }
 
 /**
  * 双击操作组合式函数
  */
 export function useDoubleTap(callback, delay = 300) {
-  let lastTap = 0
-  let timeout = null
+  let lastTap = 0;
+  let timeout = null;
 
   const handleTap = (event) => {
-    const currentTime = new Date().getTime()
-    const tapLength = currentTime - lastTap
+    const currentTime = new Date().getTime();
+    const tapLength = currentTime - lastTap;
 
     if (tapLength < delay && tapLength > 0) {
       // 双击
-      callback(event)
+      callback(event);
       if (timeout) {
-        clearTimeout(timeout)
-        timeout = null
+        clearTimeout(timeout);
+        timeout = null;
       }
     } else {
       // 单击，等待可能的第二次点击
       timeout = setTimeout(() => {
         // 这里可以处理单击事件
-        timeout = null
-      }, delay)
+        timeout = null;
+      }, delay);
     }
 
-    lastTap = currentTime
-  }
+    lastTap = currentTime;
+  };
 
   return {
     handleTap
-  }
+  };
 }
 
 /**
  * 触控操作增强组合式函数
  */
 export function useTouchEnhancement() {
-  const { isMobile, touchDevice, hapticFeedback, addHapticClass } = useMobileTouch()
+  const { isMobile, touchDevice, hapticFeedback, addHapticClass } = useMobileTouch();
 
   // 增强按钮点击反馈
   const enhanceButton = (buttonRef, options = {}) => {
@@ -209,39 +209,39 @@ export function useTouchEnhancement() {
       haptic = 'light',
       scaleEffect = true,
       rippleEffect = false
-    } = options
+    } = options;
 
-    if (!buttonRef.value) return
+    if (!buttonRef.value) return;
 
-    const button = buttonRef.value.$el || buttonRef.value
+    const button = buttonRef.value.$el || buttonRef.value;
 
     // 添加触觉反馈
-    const originalClick = button.onclick
+    const originalClick = button.onclick;
     button.onclick = (event) => {
       if (touchDevice.value) {
-        hapticFeedback(haptic)
+        hapticFeedback(haptic);
         if (scaleEffect) {
-          addHapticClass(button, haptic)
+          addHapticClass(button, haptic);
         }
       }
 
       if (rippleEffect) {
-        createRippleEffect(button, event)
+        createRippleEffect(button, event);
       }
 
       if (originalClick) {
-        originalClick.call(button, event)
+        originalClick.call(button, event);
       }
-    }
-  }
+    };
+  };
 
   // 创建波纹效果
   const createRippleEffect = (element, event) => {
-    const ripple = document.createElement('span')
-    const rect = element.getBoundingClientRect()
-    const size = Math.max(rect.width, rect.height)
-    const x = event.clientX - rect.left - size / 2
-    const y = event.clientY - rect.top - size / 2
+    const ripple = document.createElement('span');
+    const rect = element.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    const x = event.clientX - rect.left - size / 2;
+    const y = event.clientY - rect.top - size / 2;
 
     ripple.style.cssText = `
       position: absolute;
@@ -254,20 +254,20 @@ export function useTouchEnhancement() {
       top: ${y}px;
       pointer-events: none;
       animation: ripple 0.6s ease-out;
-    `
+    `;
 
     // 确保容器有相对定位
     if (getComputedStyle(element).position === 'static') {
-      element.style.position = 'relative'
+      element.style.position = 'relative';
     }
-    element.style.overflow = 'hidden'
+    element.style.overflow = 'hidden';
 
-    element.appendChild(ripple)
+    element.appendChild(ripple);
 
     // 添加动画样式
     if (!document.getElementById('ripple-animation')) {
-      const style = document.createElement('style')
-      style.id = 'ripple-animation'
+      const style = document.createElement('style');
+      style.id = 'ripple-animation';
       style.textContent = `
         @keyframes ripple {
           to {
@@ -275,14 +275,14 @@ export function useTouchEnhancement() {
             opacity: 0;
           }
         }
-      `
-      document.head.appendChild(style)
+      `;
+      document.head.appendChild(style);
     }
 
     setTimeout(() => {
-      ripple.remove()
-    }, 600)
-  }
+      ripple.remove();
+    }, 600);
+  };
 
   return {
     isMobile,
@@ -291,5 +291,5 @@ export function useTouchEnhancement() {
     addHapticClass,
     enhanceButton,
     createRippleEffect
-  }
+  };
 }

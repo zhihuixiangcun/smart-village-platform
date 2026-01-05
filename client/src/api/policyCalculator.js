@@ -2,7 +2,7 @@
  * 政策计算器API
  * @module api/policyCalculator
  */
-import request from '@/utils/request'
+import request from '@/utils/request';
 
 const policyCalculatorApi = {
   /**
@@ -11,7 +11,7 @@ const policyCalculatorApi = {
    * @returns {Promise} 政策计算器列表
    */
   getPolicyCalculators(params = {}) {
-    return request.get('/api/v1/policy-calculator', { params })
+    return request.get('/api/v1/policy-calculator', { params });
   },
 
   /**
@@ -20,7 +20,7 @@ const policyCalculatorApi = {
    * @returns {Promise} 计算器详情
    */
   getPolicyCalculatorById(id) {
-    return request.get(`/api/v1/policy-calculator/${id}`)
+    return request.get(`/api/v1/policy-calculator/${id}`);
   },
 
   /**
@@ -29,7 +29,7 @@ const policyCalculatorApi = {
    * @returns {Promise} 创建结果
    */
   createPolicyCalculator(data) {
-    return request.post('/api/v1/policy-calculator', data)
+    return request.post('/api/v1/policy-calculator', data);
   },
 
   /**
@@ -39,7 +39,7 @@ const policyCalculatorApi = {
    * @returns {Promise} 更新结果
    */
   updatePolicyCalculator(id, data) {
-    return request.put(`/api/v1/policy-calculator/${id}`, data)
+    return request.put(`/api/v1/policy-calculator/${id}`, data);
   },
 
   /**
@@ -48,7 +48,7 @@ const policyCalculatorApi = {
    * @returns {Promise} 删除结果
    */
   deletePolicyCalculator(id) {
-    return request.delete(`/api/v1/policy-calculator/${id}`)
+    return request.delete(`/api/v1/policy-calculator/${id}`);
   },
 
   /**
@@ -58,7 +58,7 @@ const policyCalculatorApi = {
    * @returns {Promise} 计算结果
    */
   calculateSubsidy(id, applicationData) {
-    return request.post(`/api/v1/policy-calculator/${id}/calculate`, applicationData)
+    return request.post(`/api/v1/policy-calculator/${id}/calculate`, applicationData);
   },
 
   /**
@@ -68,7 +68,7 @@ const policyCalculatorApi = {
    * @returns {Promise} 批量计算结果
    */
   batchCalculate(id, applicationsData) {
-    return request.post(`/api/v1/policy-calculator/${id}/batch-calculate`, { applicationsData })
+    return request.post(`/api/v1/policy-calculator/${id}/batch-calculate`, { applicationsData });
   },
 
   /**
@@ -77,7 +77,7 @@ const policyCalculatorApi = {
    * @returns {Promise} 表单结构
    */
   getApplicationForm(id) {
-    return request.get(`/api/v1/policy-calculator/${id}/form`)
+    return request.get(`/api/v1/policy-calculator/${id}/form`);
   },
 
   // ==================== 补贴申请相关 ====================
@@ -88,7 +88,7 @@ const policyCalculatorApi = {
    * @returns {Promise} 申请列表
    */
   getApplications(params = {}) {
-    return request.get('/api/v1/policy-calculator/applications', { params })
+    return request.get('/api/v1/policy-calculator/applications', { params });
   },
 
   /**
@@ -97,7 +97,7 @@ const policyCalculatorApi = {
    * @returns {Promise} 申请详情
    */
   getApplicationById(id) {
-    return request.get(`/api/v1/policy-calculator/applications/${id}`)
+    return request.get(`/api/v1/policy-calculator/applications/${id}`);
   },
 
   /**
@@ -106,7 +106,7 @@ const policyCalculatorApi = {
    * @returns {Promise} 创建结果
    */
   createApplication(applicationData) {
-    return request.post('/api/v1/policy-calculator/applications', applicationData)
+    return request.post('/api/v1/policy-calculator/applications', applicationData);
   },
 
   /**
@@ -115,7 +115,7 @@ const policyCalculatorApi = {
    * @returns {Promise} 提交结果
    */
   submitApplication(id) {
-    return request.post(`/api/v1/policy-calculator/applications/${id}/submit`)
+    return request.post(`/api/v1/policy-calculator/applications/${id}/submit`);
   },
 
   /**
@@ -125,7 +125,7 @@ const policyCalculatorApi = {
    * @returns {Promise} 审核结果
    */
   reviewApplication(id, reviewData) {
-    return request.post(`/api/v1/policy-calculator/applications/${id}/review`, reviewData)
+    return request.post(`/api/v1/policy-calculator/applications/${id}/review`, reviewData);
   },
 
   /**
@@ -135,7 +135,7 @@ const policyCalculatorApi = {
    * @returns {Promise} 支付结果
    */
   processPayment(id, paymentData) {
-    return request.post(`/api/v1/policy-calculator/applications/${id}/payment`, paymentData)
+    return request.post(`/api/v1/policy-calculator/applications/${id}/payment`, paymentData);
   },
 
   /**
@@ -144,7 +144,7 @@ const policyCalculatorApi = {
    * @returns {Promise} 证书数据
    */
   generateCertificate(id) {
-    return request.post(`/api/v1/policy-calculator/applications/${id}/certificate`)
+    return request.post(`/api/v1/policy-calculator/applications/${id}/certificate`);
   },
 
   /**
@@ -154,7 +154,7 @@ const policyCalculatorApi = {
    * @returns {Promise} 发送结果
    */
   sendNotification(id, notificationData) {
-    return request.post(`/api/v1/policy-calculator/applications/${id}/notify`, notificationData)
+    return request.post(`/api/v1/policy-calculator/applications/${id}/notify`, notificationData);
   },
 
   /**
@@ -163,7 +163,7 @@ const policyCalculatorApi = {
    * @returns {Promise} 统计数据
    */
   getApplicationStatistics(params = {}) {
-    return request.get('/api/v1/policy-calculator/applications/statistics', { params })
+    return request.get('/api/v1/policy-calculator/applications/statistics', { params });
   },
 
   /**
@@ -172,7 +172,7 @@ const policyCalculatorApi = {
    * @returns {Promise} 同步结果
    */
   syncGovernmentPolicies(options = {}) {
-    return request.post('/api/v1/policy-calculator/sync', options)
+    return request.post('/api/v1/policy-calculator/sync', options);
   },
 
   /**
@@ -180,7 +180,7 @@ const policyCalculatorApi = {
    * @returns {Promise} 同步状态
    */
   getSyncStatus() {
-    return request.get('/api/v1/policy-calculator/sync/status')
+    return request.get('/api/v1/policy-calculator/sync/status');
   },
 
   // ==================== 便捷方法 ====================
@@ -198,13 +198,13 @@ const policyCalculatorApi = {
       policyType: 'subsidy',
       category: 'agriculture',
       tags: '耕地保护'
-    })
+    });
 
     if (!calculators.data || calculators.data.length === 0) {
-      throw new Error('未找到耕地保护补贴政策')
+      throw new Error('未找到耕地保护补贴政策');
     }
 
-    const calculator = calculators.data[0]
+    const calculator = calculators.data[0];
 
     return this.calculateSubsidy(calculator._id, {
       applicantInfo: {
@@ -226,7 +226,7 @@ const policyCalculatorApi = {
           }
         ]
       }
-    })
+    });
   },
 
   /**
@@ -240,8 +240,8 @@ const policyCalculatorApi = {
       isActive: true,
       sortBy: 'createdAt',
       order: 'desc'
-    })
+    });
   }
-}
+};
 
-export default policyCalculatorApi
+export default policyCalculatorApi;

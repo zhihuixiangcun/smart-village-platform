@@ -10,18 +10,18 @@
 
 class EmergencyNotifier {
   constructor() {
-    this.permission = 'default'
+    this.permission = 'default';
     this.sounds = {
       emergency: '/sounds/emergency.mp3',
       urgent: '/sounds/urgent.mp3',
       normal: '/sounds/normal.mp3',
       response: '/sounds/response.mp3'
-    }
-    this.audioContext = null
-    this.isMuted = false
-    this.offlineQueue = []
-    this.isOnline = navigator.onLine
-    this.init()
+    };
+    this.audioContext = null;
+    this.isMuted = false;
+    this.offlineQueue = [];
+    this.isOnline = navigator.onLine;
+    this.init();
   }
 
   /**
@@ -30,21 +30,21 @@ class EmergencyNotifier {
   async init() {
     // Request notification permission
     if ('Notification' in window) {
-      this.permission = await this.requestPermission()
+      this.permission = await this.requestPermission();
     }
 
     // Initialize Audio Context
     if ('AudioContext' in window || 'webkitAudioContext' in window) {
-      const AudioContext = window.AudioContext || window.webkitAudioContext
-      this.audioContext = new AudioContext()
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      this.audioContext = new AudioContext();
     }
 
     // Setup online/offline listeners
-    window.addEventListener('online', this.handleOnline.bind(this))
-    window.addEventListener('offline', this.handleOffline.bind(this))
+    window.addEventListener('online', this.handleOnline.bind(this));
+    window.addEventListener('offline', this.handleOffline.bind(this));
 
     // Load offline queue from localStorage
-    this.loadOfflineQueue()
+    this.loadOfflineQueue();
   }
 
   /**
@@ -52,20 +52,20 @@ class EmergencyNotifier {
    */
   async requestPermission() {
     if (!('Notification' in window)) {
-      console.warn('This browser does not support desktop notifications')
-      return 'denied'
+      console.warn('This browser does not support desktop notifications');
+      return 'denied';
     }
 
     if (Notification.permission === 'granted') {
-      return 'granted'
+      return 'granted';
     }
 
     if (Notification.permission !== 'denied') {
-      const permission = await Notification.requestPermission()
-      return permission
+      const permission = await Notification.requestPermission();
+      return permission;
     }
 
-    return 'denied'
+    return 'denied';
   }
 
   /**
@@ -78,48 +78,48 @@ class EmergencyNotifier {
       tag: 'emergency-notification',
       requireInteraction: false,
       silent: false
-    }
+    };
 
-    const finalOptions = { ...defaultOptions, ...options }
+    const finalOptions = { ...defaultOptions, ...options };
 
     // If offline, queue the notification
     if (!this.isOnline) {
-      this.queueOfflineNotification(title, finalOptions)
-      return
+      this.queueOfflineNotification(title, finalOptions);
+      return;
     }
 
     // Show browser notification
     if (this.permission === 'granted') {
       try {
-        const notification = new Notification(title, finalOptions)
+        const notification = new Notification(title, finalOptions);
 
         // Handle notification click
         notification.onclick = (event) => {
-          event.preventDefault()
-          window.focus()
-          notification.close()
+          event.preventDefault();
+          window.focus();
+          notification.close();
 
           // Call custom click handler if provided
           if (finalOptions.onClick) {
-            finalOptions.onClick()
+            finalOptions.onClick();
           }
-        }
+        };
 
         // Auto-close after timeout
         if (finalOptions.timeout) {
           setTimeout(() => {
-            notification.close()
-          }, finalOptions.timeout)
+            notification.close();
+          }, finalOptions.timeout);
         }
 
-        return notification
+        return notification;
       } catch (error) {
-        console.error('Failed to show notification:', error)
+        console.error('Failed to show notification:', error);
       }
     }
 
     // Fallback to in-app notification
-    this.showInAppNotification(title, finalOptions)
+    this.showInAppNotification(title, finalOptions);
   }
 
   /**
@@ -127,8 +127,8 @@ class EmergencyNotifier {
    */
   showInAppNotification(title, options) {
     // Create notification element
-    const notification = document.createElement('div')
-    notification.className = 'in-app-notification'
+    const notification = document.createElement('div');
+    notification.className = 'in-app-notification';
     notification.innerHTML = `
       <div class="notification-content">
         <div class="notification-header">
@@ -138,7 +138,7 @@ class EmergencyNotifier {
         ${options.body ? `<p class="notification-body">${options.body}</p>` : ''}
       </div>
       <button class="notification-close">&times;</button>
-    `
+    `;
 
     // Add styles
     notification.style.cssText = `
@@ -153,81 +153,81 @@ class EmergencyNotifier {
       max-width: 400px;
       z-index: 9999;
       animation: slideIn 0.3s ease-out;
-    `
+    `;
 
     // Add to DOM
-    document.body.appendChild(notification)
+    document.body.appendChild(notification);
 
     // Handle close
-    const closeBtn = notification.querySelector('.notification-close')
+    const closeBtn = notification.querySelector('.notification-close');
     closeBtn.onclick = () => {
-      notification.remove()
-    }
+      notification.remove();
+    };
 
     // Auto-close
     setTimeout(() => {
       if (notification.parentNode) {
-        notification.remove()
+        notification.remove();
       }
-    }, options.timeout || 5000)
+    }, options.timeout || 5000);
 
-    return notification
+    return notification;
   }
 
   /**
    * Play sound
    */
   playSound(type = 'normal', options = {}) {
-    if (this.isMuted) return
+    if (this.isMuted) return;
 
     const {
       volume = 1.0,
       loop = false,
       duration = null
-    } = options
+    } = options;
 
-    const soundFile = this.sounds[type]
+    const soundFile = this.sounds[type];
 
     if (!soundFile) {
-      console.warn(`Sound type "${type}" not found`)
-      return
+      console.warn(`Sound type "${type}" not found`);
+      return;
     }
 
     // Create audio element
-    const audio = new Audio(soundFile)
-    audio.volume = Math.min(Math.max(volume, 0), 1)
-    audio.loop = loop
+    const audio = new Audio(soundFile);
+    audio.volume = Math.min(Math.max(volume, 0), 1);
+    audio.loop = loop;
 
     // Play sound
     audio.play().catch(error => {
-      console.error('Failed to play sound:', error)
+      console.error('Failed to play sound:', error);
 
       // Fallback to beep sound using AudioContext
-      this.playBeep(type)
-    })
+      this.playBeep(type);
+    });
 
     // Auto-stop after duration
     if (duration && !loop) {
       setTimeout(() => {
-        audio.pause()
-        audio.currentTime = 0
-      }, duration)
+        audio.pause();
+        audio.currentTime = 0;
+      }, duration);
     }
 
-    return audio
+    return audio;
   }
 
   /**
    * Play beep sound (fallback)
    */
   playBeep(type) {
-    if (!this.audioContext) return
+    if (!this.audioContext) return;
 
-    const oscillator = this.audioContext.createOscillator()
-    const gainNode = this.audioContext.createGain()
+    const oscillator = this.audioContext.createOscillator();
+    const gainNode = this.audioContext.createGain();
 
-    oscillator.connect(gainNode)
-    gainNode.connect(this.audioContext.destination)
+    oscillator.connect(gainNode);
+    gainNode.connect(this.audioContext.destination);
 
     // Different frequencies for different urgency levels
     const frequencies = {
@@ -235,19 +235,19 @@ class EmergencyNotifier {
       urgent: 600,
       normal: 400,
       response: 500
-    }
+    };
 
-    oscillator.frequency.value = frequencies[type] || 400
-    oscillator.type = 'sine'
+    oscillator.frequency.value = frequencies[type] || 400;
+    oscillator.type = 'sine';
 
-    gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime)
+    gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(
       0.01,
       this.audioContext.currentTime + 0.5
-    )
+    );
 
-    oscillator.start(this.audioContext.currentTime)
-    oscillator.stop(this.audioContext.currentTime + 0.5)
+    oscillator.start(this.audioContext.currentTime);
+    oscillator.stop(this.audioContext.currentTime + 0.5);
   }
 
   /**
@@ -255,7 +255,7 @@ class EmergencyNotifier {
    */
   vibrate(pattern = [200, 100, 200]) {
     if ('vibrate' in navigator) {
-      navigator.vibrate(pattern)
+      navigator.vibrate(pattern);
     }
   }
 
@@ -268,23 +268,23 @@ class EmergencyNotifier {
       vibration = [500, 200, 500],
       requireInteraction = true,
       ...rest
-    } = options
+    } = options;
 
     // Show notification
     this.showNotification(title, {
       body: message,
       requireInteraction,
       ...rest
-    })
+    });
 
     // Play sound
     this.playSound(sound, {
       loop: true,
       volume: 1.0
-    })
+    });
 
     // Vibrate
-    this.vibrate(vibration)
+    this.vibrate(vibration);
   }
 
   /**
@@ -298,32 +298,32 @@ class EmergencyNotifier {
     }
 
     // Remove all in-app notifications
-    const inAppNotifications = document.querySelectorAll('.in-app-notification')
+    const inAppNotifications = document.querySelectorAll('.in-app-notification');
     inAppNotifications.forEach(notification => {
-      notification.remove()
-    })
+      notification.remove();
+    });
   }
 
   /**
    * Mute all sounds
    */
   mute() {
-    this.isMuted = true
+    this.isMuted = true;
   }
 
   /**
    * Unmute sounds
    */
   unmute() {
-    this.isMuted = false
+    this.isMuted = false;
   }
 
   /**
    * Toggle mute
    */
   toggleMute() {
-    this.isMuted = !this.isMuted
-    return this.isMuted
+    this.isMuted = !this.isMuted;
+    return this.isMuted;
   }
 
   /**
@@ -335,13 +335,13 @@ class EmergencyNotifier {
       title,
       options,
       timestamp: new Date().toISOString()
-    }
+    };
 
-    this.offlineQueue.push(notification)
-    this.saveOfflineQueue()
+    this.offlineQueue.push(notification);
+    this.saveOfflineQueue();
 
     // Show offline indicator
-    this.showOfflineIndicator()
+    this.showOfflineIndicator();
   }
 
   /**
@@ -352,9 +352,9 @@ class EmergencyNotifier {
       localStorage.setItem(
         'emergency_offline_queue',
         JSON.stringify(this.offlineQueue)
-      )
+      );
     } catch (error) {
-      console.error('Failed to save offline queue:', error)
+      console.error('Failed to save offline queue:', error);
     }
   }
 
@@ -363,13 +363,13 @@ class EmergencyNotifier {
    */
   loadOfflineQueue() {
     try {
-      const saved = localStorage.getItem('emergency_offline_queue')
+      const saved = localStorage.getItem('emergency_offline_queue');
       if (saved) {
-        this.offlineQueue = JSON.parse(saved)
+        this.offlineQueue = JSON.parse(saved);
       }
     } catch (error) {
-      console.error('Failed to load offline queue:', error)
-      this.offlineQueue = []
+      console.error('Failed to load offline queue:', error);
+      this.offlineQueue = [];
     }
   }
 
@@ -377,9 +377,9 @@ class EmergencyNotifier {
    * Show offline indicator
    */
   showOfflineIndicator() {
-    const indicator = document.createElement('div')
-    indicator.className = 'offline-indicator'
-    indicator.textContent = `离线: ${this.offlineQueue.length} 条通知待发送`
+    const indicator = document.createElement('div');
+    indicator.className = 'offline-indicator';
+    indicator.textContent = `离线: ${this.offlineQueue.length} 条通知待发送`;
     indicator.style.cssText = `
       position: fixed;
       bottom: 20px;
@@ -391,59 +391,59 @@ class EmergencyNotifier {
       border-radius: 20px;
       z-index: 9999;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    `
+    `;
 
-    document.body.appendChild(indicator)
+    document.body.appendChild(indicator);
 
     setTimeout(() => {
-      indicator.remove()
-    }, 3000)
+      indicator.remove();
+    }, 3000);
   }
 
   /**
    * Handle online event
    */
   handleOnline() {
-    this.isOnline = true
+    this.isOnline = true;
 
     // Sync offline notifications
-    this.syncOfflineNotifications()
+    this.syncOfflineNotifications();
 
     // Show online notification
     this.showNotification('网络已连接', {
       body: '已恢复在线状态',
       icon: '/online-icon.png'
-    })
+    });
   }
 
   /**
    * Handle offline event
    */
   handleOffline() {
-    this.isOnline = false
+    this.isOnline = false;
 
     this.showNotification('网络已断开', {
       body: '通知将在恢复连接后发送',
       icon: '/offline-icon.png',
       requireInteraction: true
-    })
+    });
   }
 
   /**
    * Sync offline notifications
    */
   async syncOfflineNotifications() {
-    if (this.offlineQueue.length === 0) return
+    if (this.offlineQueue.length === 0) return;
 
     // In a real implementation, you would send these to your server
     // For now, just show them
-    const notifications = [...this.offlineQueue]
-    this.offlineQueue = []
-    this.saveOfflineQueue()
+    const notifications = [...this.offlineQueue];
+    this.offlineQueue = [];
+    this.saveOfflineQueue();
 
     for (const notification of notifications) {
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      this.showNotification(notification.title, notification.options)
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      this.showNotification(notification.title, notification.options);
     }
   }
 
@@ -451,14 +451,14 @@ class EmergencyNotifier {
    * Get notification permission status
    */
   getPermission() {
-    return this.permission
+    return this.permission;
   }
 
   /**
    * Check if notifications are supported
    */
   isSupported() {
-    return 'Notification' in window
+    return 'Notification' in window;
   }
 
   /**
@@ -469,8 +469,8 @@ class EmergencyNotifier {
     if ('serviceWorker' in navigator && 'Notification' in window) {
       navigator.serviceWorker.ready.then(registration => {
         // Channel configuration would go here
-        console.log(`Notification channel "${channelId}" configured`)
-      })
+        console.log(`Notification channel "${channelId}" configured`);
+      });
     }
   }
 
@@ -482,19 +482,19 @@ class EmergencyNotifier {
       try {
         const registration = await navigator.serviceWorker.register(
           '/service-worker.js'
-        )
+        );
 
-        console.log('Service Worker registered:', registration)
+        console.log('Service Worker registered:', registration);
 
         // Request notification permission
         if ('Notification' in window) {
-          const permission = await Notification.requestPermission()
-          this.permission = permission
+          const permission = await Notification.requestPermission();
+          this.permission = permission;
         }
 
-        return registration
+        return registration;
       } catch (error) {
-        console.error('Service Worker registration failed:', error)
+        console.error('Service Worker registration failed:', error);
       }
     }
   }
@@ -504,28 +504,28 @@ class EmergencyNotifier {
    */
   destroy() {
     // Clear all notifications
-    this.clearAllNotifications()
+    this.clearAllNotifications();
 
     // Remove event listeners
-    window.removeEventListener('online', this.handleOnline.bind(this))
-    window.removeEventListener('offline', this.handleOffline.bind(this))
+    window.removeEventListener('online', this.handleOnline.bind(this));
+    window.removeEventListener('offline', this.handleOffline.bind(this));
 
     // Close audio context
     if (this.audioContext) {
-      this.audioContext.close()
+      this.audioContext.close();
     }
   }
 }
 
 // Create singleton instance
-const emergencyNotifier = new EmergencyNotifier()
+const emergencyNotifier = new EmergencyNotifier();
 
 // Export both class and instance
-export default emergencyNotifier
-export { EmergencyNotifier }
+export default emergencyNotifier;
+export { EmergencyNotifier };
 
 // Add CSS animation
-const style = document.createElement('style')
+const style = document.createElement('style');
 style.textContent = `
   @keyframes slideIn {
     from {
@@ -593,6 +593,6 @@ style.textContent = `
   .notification-close:hover {
     color: #303133;
   }
-`
+`;
 
-document.head.appendChild(style)
+document.head.appendChild(style);

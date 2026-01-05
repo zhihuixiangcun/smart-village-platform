@@ -3,15 +3,15 @@
  * 提供前端权限管理、动态权限检查等功能
  */
 
-import axios from 'axios'
-import { ElMessage } from 'element-plus'
-import { useUserStore } from '@/stores/userStore'
+import axios from 'axios';
+import { ElMessage } from 'element-plus';
+import { useUserStore } from '@/stores/userStore';
 
 class EnhancedPermissionService {
   constructor() {
-    this.baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001'
-    this.cache = new Map()
-    this.cacheTimeout = 5 * 60 * 1000 // 5分钟
+    this.baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+    this.cache = new Map();
+    this.cacheTimeout = 5 * 60 * 1000; // 5分钟
   }
 
   /**
@@ -25,34 +25,34 @@ class EnhancedPermissionService {
         headers: {
           'Content-Type': 'application/json'
         }
-      })
+      });
 
       if (response.data.success) {
-        const { data } = response.data
+        const { data } = response.data;
 
         // 存储会话信息
-        localStorage.setItem('sessionId', data.session.sessionId)
-        localStorage.setItem('token', data.session.token)
-        localStorage.setItem('user', JSON.stringify(data.user))
-        localStorage.setItem('permissions', JSON.stringify(data.permissions))
+        localStorage.setItem('sessionId', data.session.sessionId);
+        localStorage.setItem('token', data.session.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('permissions', JSON.stringify(data.permissions));
 
         // 设置axios默认header
-        axios.defaults.headers.common['Authorization'] = `Bearer ${data.session.token}`
-        axios.defaults.headers.common['X-Session-Id'] = data.session.sessionId
+        axios.defaults.headers.common['Authorization'] = `Bearer ${data.session.token}`;
+        axios.defaults.headers.common['X-Session-Id'] = data.session.sessionId;
 
         // 更新用户状态
-        const userStore = useUserStore()
-        userStore.setUser(data.user)
-        userStore.setPermissions(data.permissions)
-        userStore.setToken(data.session.token)
-        userStore.setSessionId(data.session.sessionId)
+        const userStore = useUserStore();
+        userStore.setUser(data.user);
+        userStore.setPermissions(data.permissions);
+        userStore.setToken(data.session.token);
+        userStore.setSessionId(data.session.sessionId);
       }
 
-      return response.data
+      return response.data;
 
     } catch (error) {
-      this.handleError(error, '用户认证失败')
-      throw error
+      this.handleError(error, '用户认证失败');
+      throw error;
     }
   }
 
@@ -72,17 +72,17 @@ class EnhancedPermissionService {
           ...context,
           timestamp: new Date().toISOString()
         }
-      })
+      });
 
-      return response.data
+      return response.data;
 
     } catch (error) {
-      this.handleError(error, '权限检查失败')
+      this.handleError(error, '权限检查失败');
       return {
         success: false,
         allowed: false,
         reason: 'NETWORK_ERROR'
-      }
+      };
     }
   }
 
@@ -95,16 +95,16 @@ class EnhancedPermissionService {
     try {
       const response = await axios.post(`${this.baseURL}/api/v1/enhanced-permissions/batch-check`, {
         permissions
-      })
+      });
 
-      return response.data
+      return response.data;
 
     } catch (error) {
-      this.handleError(error, '批量权限检查失败')
+      this.handleError(error, '批量权限检查失败');
       return {
         success: false,
         results: []
-      }
+      };
     }
   }
 
@@ -115,26 +115,26 @@ class EnhancedPermissionService {
   async getUserPermissions() {
     try {
       // 检查缓存
-      const cacheKey = 'user_permissions'
-      const cached = this.cache.get(cacheKey)
+      const cacheKey = 'user_permissions';
+      const cached = this.cache.get(cacheKey);
       if (cached && (Date.now() - cached.timestamp) < this.cacheTimeout) {
-        return cached.permissions
+        return cached.permissions;
       }
 
-      const response = await axios.get(`${this.baseURL}/api/v1/enhanced-permissions/user/permissions`)
+      const response = await axios.get(`${this.baseURL}/api/v1/enhanced-permissions/user/permissions`);
 
       if (response.data.success) {
         this.cache.set(cacheKey, {
           permissions: response.data.data.permissions,
           timestamp: Date.now()
-        })
+        });
       }
 
-      return response.data.data.permissions
+      return response.data.data.permissions;
 
     } catch (error) {
-      this.handleError(error, '获取用户权限失败')
-      return []
+      this.handleError(error, '获取用户权限失败');
+      return [];
     }
   }
 
@@ -148,13 +148,13 @@ class EnhancedPermissionService {
       const response = await axios.post(
         `${this.baseURL}/api/v1/enhanced-permissions/policies`,
         policyData
-      )
+      );
 
-      return response.data
+      return response.data;
 
     } catch (error) {
-      this.handleError(error, '创建权限策略失败')
-      throw error
+      this.handleError(error, '创建权限策略失败');
+      throw error;
     }
   }
 
@@ -164,12 +164,12 @@ class EnhancedPermissionService {
    */
   async getPermissionPolicies() {
     try {
-      const response = await axios.get(`${this.baseURL}/api/v1/enhanced-permissions/policies`)
-      return response.data.data
+      const response = await axios.get(`${this.baseURL}/api/v1/enhanced-permissions/policies`);
+      return response.data.data;
 
     } catch (error) {
-      this.handleError(error, '获取权限策略失败')
-      return []
+      this.handleError(error, '获取权限策略失败');
+      return [];
     }
   }
 
@@ -183,13 +183,13 @@ class EnhancedPermissionService {
       const response = await axios.post(
         `${this.baseURL}/api/v1/enhanced-permissions/inheritance/configure`,
         config
-      )
+      );
 
-      return response.data
+      return response.data;
 
     } catch (error) {
-      this.handleError(error, '配置权限继承失败')
-      throw error
+      this.handleError(error, '配置权限继承失败');
+      throw error;
     }
   }
 
@@ -201,13 +201,13 @@ class EnhancedPermissionService {
     try {
       const response = await axios.get(
         `${this.baseURL}/api/v1/enhanced-permissions/inheritance/config`
-      )
+      );
 
-      return response.data.data
+      return response.data.data;
 
     } catch (error) {
-      this.handleError(error, '获取权限继承配置失败')
-      return {}
+      this.handleError(error, '获取权限继承配置失败');
+      return {};
     }
   }
 
@@ -225,13 +225,13 @@ class EnhancedPermissionService {
           sessionId,
           sessionData
         }
-      )
+      );
 
-      return response.data
+      return response.data;
 
     } catch (error) {
-      this.handleError(error, '会话管理失败')
-      throw error
+      this.handleError(error, '会话管理失败');
+      throw error;
     }
   }
 
@@ -248,16 +248,16 @@ class EnhancedPermissionService {
         {
           permissions
         }
-      )
+      );
 
       // 清除本地缓存
-      this.cache.clear()
+      this.cache.clear();
 
-      return response.data
+      return response.data;
 
     } catch (error) {
-      this.handleError(error, '实时更新权限失败')
-      throw error
+      this.handleError(error, '实时更新权限失败');
+      throw error;
     }
   }
 
@@ -271,13 +271,13 @@ class EnhancedPermissionService {
       const response = await axios.get(
         `${this.baseURL}/api/v1/enhanced-permissions/audit/report`,
         { params: filters }
-      )
+      );
 
-      return response.data
+      return response.data;
 
     } catch (error) {
-      this.handleError(error, '生成权限审计报告失败')
-      throw error
+      this.handleError(error, '生成权限审计报告失败');
+      throw error;
     }
   }
 
@@ -289,13 +289,13 @@ class EnhancedPermissionService {
     try {
       const response = await axios.get(
         `${this.baseURL}/api/v1/enhanced-permissions/stats`
-      )
+      );
 
-      return response.data.data
+      return response.data.data;
 
     } catch (error) {
-      this.handleError(error, '获取权限统计失败')
-      return {}
+      this.handleError(error, '获取权限统计失败');
+      return {};
     }
   }
 
@@ -305,17 +305,17 @@ class EnhancedPermissionService {
    */
   async clearPermissionCache() {
     try {
-      this.cache.clear()
+      this.cache.clear();
 
       const response = await axios.delete(
         `${this.baseURL}/api/v1/enhanced-permissions/cache`
-      )
+      );
 
-      return response.data
+      return response.data;
 
     } catch (error) {
-      this.handleError(error, '清理权限缓存失败')
-      return { success: false }
+      this.handleError(error, '清理权限缓存失败');
+      return { success: false };
     }
   }
 
@@ -327,29 +327,29 @@ class EnhancedPermissionService {
    */
   hasPermission(resource, action) {
     try {
-      const userStore = useUserStore()
-      const permissions = userStore.permissions || []
+      const userStore = useUserStore();
+      const permissions = userStore.permissions || [];
 
       // 检查具体权限
       if (permissions.includes(`${resource}:${action}`)) {
-        return true
+        return true;
       }
 
       // 检查通配符权限
       if (permissions.includes(`*:${action}`)) {
-        return true
+        return true;
       }
 
       // 检查资源级权限
       return permissions.some(permission => {
-        const [res, acts] = permission.split(':')
+        const [res, acts] = permission.split(':');
         return (res === resource || res === '*') &&
-               acts.split(',').includes(action)
-      })
+               acts.split(',').includes(action);
+      });
 
     } catch (error) {
-      console.error('本地权限检查失败:', error)
-      return false
+      console.error('本地权限检查失败:', error);
+      return false;
     }
   }
 
@@ -360,19 +360,19 @@ class EnhancedPermissionService {
    */
   hasRole(roles) {
     try {
-      const userStore = useUserStore()
-      const userRole = userStore.user?.role
+      const userStore = useUserStore();
+      const userRole = userStore.user?.role;
 
       if (!userRole) {
-        return false
+        return false;
       }
 
-      const requiredRoles = Array.isArray(roles) ? roles : [roles]
-      return requiredRoles.includes(userRole)
+      const requiredRoles = Array.isArray(roles) ? roles : [roles];
+      return requiredRoles.includes(userRole);
 
     } catch (error) {
-      console.error('角色检查失败:', error)
-      return false
+      console.error('角色检查失败:', error);
+      return false;
     }
   }
 
@@ -386,7 +386,7 @@ class EnhancedPermissionService {
       deviceFingerprint: this.generateDeviceFingerprint(),
       userAgent: navigator.userAgent,
       platform: navigator.platform
-    }
+    };
   }
 
   /**
@@ -394,9 +394,9 @@ class EnhancedPermissionService {
    * @returns {String} 设备ID
    */
   generateDeviceId() {
-    const deviceId = 'device_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
-    localStorage.setItem('deviceId', deviceId)
-    return deviceId
+    const deviceId = `device_${  Date.now()  }_${  Math.random().toString(36).substr(2, 9)}`;
+    localStorage.setItem('deviceId', deviceId);
+    return deviceId;
   }
 
   /**
@@ -404,21 +404,21 @@ class EnhancedPermissionService {
    * @returns {String} 设备指纹
    */
   generateDeviceFingerprint() {
-    const canvas = document.createElement('canvas')
-    const ctx = canvas.getContext('2d')
-    ctx.textBaseline = 'top'
-    ctx.font = '14px Arial'
-    ctx.fillText('Device fingerprint', 2, 2)
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.textBaseline = 'top';
+    ctx.font = '14px Arial';
+    ctx.fillText('Device fingerprint', 2, 2);
 
     const fingerprint = [
       navigator.userAgent,
       navigator.language,
-      screen.width + 'x' + screen.height,
+      `${screen.width  }x${  screen.height}`,
       new Date().getTimezoneOffset(),
       canvas.toDataURL()
-    ].join('|')
+    ].join('|');
 
-    return this.hashCode(fingerprint)
+    return this.hashCode(fingerprint);
   }
 
   /**
@@ -428,8 +428,8 @@ class EnhancedPermissionService {
   async getLocation() {
     return new Promise((resolve) => {
       if (!navigator.geolocation) {
-        resolve(null)
-        return
+        resolve(null);
+        return;
       }
 
       navigator.geolocation.getCurrentPosition(
@@ -438,18 +438,18 @@ class EnhancedPermissionService {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
             accuracy: position.coords.accuracy
-          })
+          });
         },
         (error) => {
-          console.warn('获取地理位置失败:', error)
-          resolve(null)
+          console.warn('获取地理位置失败:', error);
+          resolve(null);
         },
         {
           timeout: 5000,
           enableHighAccuracy: false
         }
-      )
-    })
+      );
+    });
   }
 
   /**
@@ -458,40 +458,40 @@ class EnhancedPermissionService {
    * @param {String} defaultMessage - 默认错误消息
    */
   handleError(error, defaultMessage) {
-    let message = defaultMessage
+    let message = defaultMessage;
 
     if (error.response) {
-      const { data, status } = error.response
-      message = data?.message || defaultMessage
+      const { data, status } = error.response;
+      message = data?.message || defaultMessage;
 
       // 处理特定错误码
       if (status === 401) {
         // 清除认证信息
-        this.clearAuth()
-        message = '登录已过期，请重新登录'
+        this.clearAuth();
+        message = '登录已过期，请重新登录';
       } else if (status === 403) {
-        message = '权限不足'
+        message = '权限不足';
       }
     } else if (error.request) {
-      message = '网络连接失败'
+      message = '网络连接失败';
     }
 
-    ElMessage.error(message)
+    ElMessage.error(message);
   }
 
   /**
    * 清除认证信息
    */
   clearAuth() {
-    localStorage.removeItem('sessionId')
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
-    localStorage.removeItem('permissions')
-    delete axios.defaults.headers.common['Authorization']
-    delete axios.defaults.headers.common['X-Session-Id']
+    localStorage.removeItem('sessionId');
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('permissions');
+    delete axios.defaults.headers.common['Authorization'];
+    delete axios.defaults.headers.common['X-Session-Id'];
 
-    const userStore = useUserStore()
-    userStore.clearAuth()
+    const userStore = useUserStore();
+    userStore.clearAuth();
   }
 
   /**
@@ -500,16 +500,16 @@ class EnhancedPermissionService {
    * @returns {String} 哈希值
    */
   hashCode(str) {
-    let hash = 0
-    if (str.length === 0) return hash
+    let hash = 0;
+    if (str.length === 0) return hash;
 
     for (let i = 0; i < str.length; i++) {
-      const char = str.charCodeAt(i)
-      hash = ((hash << 5) - hash) + char
-      hash = hash & hash // Convert to 32bit integer
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32bit integer
     }
 
-    return hash.toString()
+    return hash.toString();
   }
 
   /**
@@ -520,34 +520,34 @@ class EnhancedPermissionService {
     axios.interceptors.request.use(
       (config) => {
         // 添加设备信息
-        const deviceInfo = this.getDeviceInfo()
-        config.headers['X-Device-Id'] = deviceInfo.deviceId
-        config.headers['X-Device-Fingerprint'] = deviceInfo.deviceFingerprint
+        const deviceInfo = this.getDeviceInfo();
+        config.headers['X-Device-Id'] = deviceInfo.deviceId;
+        config.headers['X-Device-Fingerprint'] = deviceInfo.deviceFingerprint;
 
-        return config
+        return config;
       },
       (error) => {
-        return Promise.reject(error)
+        return Promise.reject(error);
       }
-    )
+    );
 
     // 响应拦截器
     axios.interceptors.response.use(
       (response) => {
-        return response
+        return response;
       },
       (error) => {
         if (error.response?.status === 401) {
-          this.clearAuth()
+          this.clearAuth();
           // 跳转到登录页
           if (window.location.pathname !== '/login') {
-            window.location.href = '/login'
+            window.location.href = '/login';
           }
         }
-        return Promise.reject(error)
+        return Promise.reject(error);
       }
-    )
+    );
   }
 }
 
-export default new EnhancedPermissionService()
+export default new EnhancedPermissionService();

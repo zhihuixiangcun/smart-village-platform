@@ -1,7 +1,7 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import { useUserStore } from '@/stores/userStore'
-import { ElMessage } from 'element-plus'
-import villageCommitteeRoutes from './villageCommittee.js'
+import { createRouter, createWebHistory } from 'vue-router';
+import { useUserStore } from '@/stores/userStore';
+import { ElMessage } from 'element-plus';
+import villageCommitteeRoutes from './villageCommittee.js';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -1083,93 +1083,93 @@ const router = createRouter({
   ],
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
-      return savedPosition
+      return savedPosition;
     } else {
-      return { top: 0 }
+      return { top: 0 };
     }
   }
-})
+});
 
 // 路由守卫
 router.beforeEach(async (to, from, next) => {
-  const userStore = useUserStore()
+  const userStore = useUserStore();
 
   // 设置页面标题
-  document.title = to.meta.title ? `${to.meta.title} - 智慧村庄管理平台` : '智慧村庄管理平台'
+  document.title = to.meta.title ? `${to.meta.title} - 智慧村庄管理平台` : '智慧村庄管理平台';
 
   // 检查是否需要认证
   if (to.meta.requiresAuth) {
     try {
       // 【修复】直接从 localStorage 读取状态
-      const token = localStorage.getItem('token')
-      const userInfoStr = localStorage.getItem('userInfo')
+      const token = localStorage.getItem('token');
+      const userInfoStr = localStorage.getItem('userInfo');
 
       // 如果 store 中没有状态，但从 localStorage 中有，恢复 store 状态
       if (token && userInfoStr && !userStore.token) {
-        console.log('🔄 恢复 store 状态...')
-        userStore.initUserState()
+        console.log('🔄 恢复 store 状态...');
+        userStore.initUserState();
       }
 
       // 检查用户是否已登录 - 同时检查 store 和 localStorage
-      const hasValidAuth = userStore.isLoggedIn || (token && userInfoStr)
+      const hasValidAuth = userStore.isLoggedIn || (token && userInfoStr);
 
       if (!hasValidAuth) {
-        console.log('路由守卫: 用户未登录，重定向到登录页')
+        console.log('路由守卫: 用户未登录，重定向到登录页');
         next({
           name: 'unified-login',
           query: { redirect: to.fullPath }
-        })
-        return
+        });
+        return;
       }
 
       // 检查是否有权限访问（如果需要）
       if (to.meta.permissions && to.meta.permissions.length > 0) {
-        const hasPermission = userStore.hasAnyPermission(to.meta.permissions)
+        const hasPermission = userStore.hasAnyPermission(to.meta.permissions);
         if (!hasPermission) {
-          console.log('路由守卫: 用户权限不足')
-          ElMessage.error('您没有权限访问此页面')
-          next({ name: 'dashboard' })
-          return
+          console.log('路由守卫: 用户权限不足');
+          ElMessage.error('您没有权限访问此页面');
+          next({ name: 'dashboard' });
+          return;
         }
       }
 
-      console.log('路由守卫: 允许访问', to.path)
-      next()
-      return
+      console.log('路由守卫: 允许访问', to.path);
+      next();
+      return;
     } catch (error) {
-      console.error('路由守卫错误:', error)
-      ElMessage.error('身份验证失败，请重新登录')
+      console.error('路由守卫错误:', error);
+      ElMessage.error('身份验证失败，请重新登录');
       next({
         name: 'unified-login',
         query: { redirect: to.fullPath }
-      })
+      });
     }
   } else {
     // 如果已登录用户访问登录页面，根据角色重定向到对应主页
     if ((to.name === 'login' || to.name === 'unified-login') && userStore.isLoggedIn) {
-      console.log('路由守卫: 用户已登录，根据角色重定向到对应主页')
+      console.log('路由守卫: 用户已登录，根据角色重定向到对应主页');
       // 根据用户角色跳转到不同的主页
-      const userRole = userStore.userInfo?.role || userStore.userRole
+      const userRole = userStore.userInfo?.role || userStore.userRole;
       const roleRedirectMap = {
         'resident': '/village-affairs',
         'village_admin': '/dashboard',  // 数据库中的村干部角色
         'village_official': '/dashboard',  // 数据库中的乡镇官员角色
         'admin': '/dashboard',
         'purchaser': '/purchaser/dashboard'
-      }
-      const redirectPath = roleRedirectMap[userRole] || '/dashboard'
-      next(redirectPath)
-      return
+      };
+      const redirectPath = roleRedirectMap[userRole] || '/dashboard';
+      next(redirectPath);
+      return;
     }
 
-    next()
+    next();
   }
-})
+});
 
 // 路由后置守卫
 router.afterEach((to, from) => {
   // 可以在这里添加页面加载完成后的逻辑
   // 比如页面埋点、性能监控等
-})
+});
 
-export default router
+export default router;

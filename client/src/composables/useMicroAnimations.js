@@ -1,12 +1,12 @@
-import { ref, computed, nextTick } from 'vue'
+import { ref, computed, nextTick } from 'vue';
 
 /**
  * 微交互动画组合函数
  */
 export function useMicroAnimations() {
   // 动画状态管理
-  const animationStates = ref(new Map())
-  const globalAnimationEnabled = ref(true)
+  const animationStates = ref(new Map());
+  const globalAnimationEnabled = ref(true);
 
   // 动画配置
   const animationConfig = {
@@ -29,7 +29,7 @@ export function useMicroAnimations() {
       medium: 100,
       long: 200
     }
-  }
+  };
 
   // 预定义动画效果
   const animations = {
@@ -236,208 +236,208 @@ export function useMicroAnimations() {
         iterations: Infinity
       }
     }
-  }
+  };
 
   // 执行动画
   const animate = async (element, animationName, options = {}) => {
     if (!globalAnimationEnabled.value || !element) {
-      return Promise.resolve()
+      return Promise.resolve();
     }
 
-    const animation = animations[animationName]
+    const animation = animations[animationName];
     if (!animation) {
-      console.warn(`Animation '${animationName}' not found`)
-      return Promise.resolve()
+      console.warn(`Animation '${animationName}' not found`);
+      return Promise.resolve();
     }
 
     // 合并配置
     const animationOptions = {
       ...animation.options,
       ...options
-    }
+    };
 
     try {
       // 创建动画
-      const webAnimation = element.animate(animation.keyframes, animationOptions)
+      const webAnimation = element.animate(animation.keyframes, animationOptions);
 
       // 存储动画状态
-      const animationId = generateAnimationId()
+      const animationId = generateAnimationId();
       animationStates.value.set(animationId, {
         element,
         animation: webAnimation,
         name: animationName,
         startTime: Date.now()
-      })
+      });
 
       // 等待动画完成
-      await webAnimation.finished
+      await webAnimation.finished;
 
       // 清理动画状态
-      animationStates.value.delete(animationId)
+      animationStates.value.delete(animationId);
 
-      return webAnimation
+      return webAnimation;
     } catch (error) {
-      console.error('Animation failed:', error)
-      return Promise.resolve()
+      console.error('Animation failed:', error);
+      return Promise.resolve();
     }
-  }
+  };
 
   // 链式动画
   const animateSequence = async (element, animationSequence, options = {}) => {
     if (!globalAnimationEnabled.value || !element || !Array.isArray(animationSequence)) {
-      return Promise.resolve()
+      return Promise.resolve();
     }
 
-    const { delay = 0 } = options
+    const { delay = 0 } = options;
 
     for (let i = 0; i < animationSequence.length; i++) {
-      const { name, options: animOptions = {}, delay: stepDelay = 0 } = animationSequence[i]
+      const { name, options: animOptions = {}, delay: stepDelay = 0 } = animationSequence[i];
 
       if (i > 0 || delay > 0) {
-        await new Promise(resolve => setTimeout(resolve, stepDelay || delay))
+        await new Promise(resolve => setTimeout(resolve, stepDelay || delay));
       }
 
-      await animate(element, name, animOptions)
+      await animate(element, name, animOptions);
     }
-  }
+  };
 
   // 并行动画
   const animateParallel = async (animations) => {
     if (!globalAnimationEnabled.value || !Array.isArray(animations)) {
-      return Promise.resolve()
+      return Promise.resolve();
     }
 
     const animationPromises = animations.map(({ element, name, options = {} }) => {
-      return animate(element, name, options)
-    })
+      return animate(element, name, options);
+    });
 
-    return Promise.all(animationPromises)
-  }
+    return Promise.all(animationPromises);
+  };
 
   // 简化的动画方法
-  const buttonClick = (element) => animate(element, 'buttonClick')
-  const buttonHover = (element) => animate(element, 'buttonHover')
+  const buttonClick = (element) => animate(element, 'buttonClick');
+  const buttonHover = (element) => animate(element, 'buttonHover');
   const buttonUnhover = (element) => {
     if (element) {
-      element.style.transform = ''
-      element.style.boxShadow = ''
+      element.style.transform = '';
+      element.style.boxShadow = '';
     }
-  }
+  };
 
-  const cardHover = (element) => animate(element, 'cardHover')
+  const cardHover = (element) => animate(element, 'cardHover');
   const cardUnhover = (element) => {
     if (element) {
-      element.style.transform = ''
-      element.style.boxShadow = ''
+      element.style.transform = '';
+      element.style.boxShadow = '';
     }
-  }
+  };
 
-  const inputFocus = (element) => animate(element, 'inputFocus')
+  const inputFocus = (element) => animate(element, 'inputFocus');
   const inputBlur = (element) => {
     if (element) {
-      element.style.borderColor = ''
-      element.style.boxShadow = ''
+      element.style.borderColor = '';
+      element.style.boxShadow = '';
     }
-  }
+  };
 
-  const highlightTableRow = (element) => animate(element, 'tableRowHighlight')
-  const countNumber = (element) => animate(element, 'numberCount')
-  const showSuccess = (element) => animate(element, 'successIndicator')
-  const shakeError = (element) => animate(element, 'errorShake')
-  const fadeIn = (element, options) => animate(element, 'fadeIn', options)
-  const fadeOut = (element, options) => animate(element, 'fadeOut', options)
-  const slideInLeft = (element, options) => animate(element, 'slideInLeft', options)
-  const slideInRight = (element, options) => animate(element, 'slideInRight', options)
+  const highlightTableRow = (element) => animate(element, 'tableRowHighlight');
+  const countNumber = (element) => animate(element, 'numberCount');
+  const showSuccess = (element) => animate(element, 'successIndicator');
+  const shakeError = (element) => animate(element, 'errorShake');
+  const fadeIn = (element, options) => animate(element, 'fadeIn', options);
+  const fadeOut = (element, options) => animate(element, 'fadeOut', options);
+  const slideInLeft = (element, options) => animate(element, 'slideInLeft', options);
+  const slideInRight = (element, options) => animate(element, 'slideInRight', options);
 
   // 停止所有动画
   const stopAllAnimations = () => {
     animationStates.value.forEach(({ animation }) => {
       try {
-        animation.cancel()
+        animation.cancel();
       } catch (error) {
-        console.warn('Failed to cancel animation:', error)
+        console.warn('Failed to cancel animation:', error);
       }
-    })
-    animationStates.value.clear()
-  }
+    });
+    animationStates.value.clear();
+  };
 
   // 停止特定元素的动画
   const stopElementAnimations = (element) => {
     for (const [id, state] of animationStates.value.entries()) {
       if (state.element === element) {
         try {
-          state.animation.cancel()
-          animationStates.value.delete(id)
+          state.animation.cancel();
+          animationStates.value.delete(id);
         } catch (error) {
-          console.warn('Failed to cancel animation:', error)
+          console.warn('Failed to cancel animation:', error);
         }
       }
     }
-  }
+  };
 
   // 数字计数动画
   const animateNumber = (element, fromValue, toValue, duration = 1000) => {
     if (!globalAnimationEnabled.value || !element) {
-      element.textContent = toValue.toString()
-      return Promise.resolve()
+      element.textContent = toValue.toString();
+      return Promise.resolve();
     }
 
     return new Promise(resolve => {
-      const startTime = Date.now()
-      const difference = toValue - fromValue
+      const startTime = Date.now();
+      const difference = toValue - fromValue;
 
       const updateNumber = () => {
-        const elapsed = Date.now() - startTime
-        const progress = Math.min(elapsed / duration, 1)
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
 
         // 使用缓动函数
-        const easeOutQuart = 1 - Math.pow(1 - progress, 4)
-        const currentValue = Math.round(fromValue + difference * easeOutQuart)
+        const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+        const currentValue = Math.round(fromValue + difference * easeOutQuart);
 
-        element.textContent = currentValue.toLocaleString()
+        element.textContent = currentValue.toLocaleString();
 
         if (progress < 1) {
-          requestAnimationFrame(updateNumber)
+          requestAnimationFrame(updateNumber);
         } else {
-          resolve()
+          resolve();
         }
-      }
+      };
 
-      requestAnimationFrame(updateNumber)
-    })
-  }
+      requestAnimationFrame(updateNumber);
+    });
+  };
 
   // 进度条动画
   const animateProgress = (element, fromPercent, toPercent, duration = 800) => {
     if (!globalAnimationEnabled.value || !element) {
-      element.style.width = `${toPercent}%`
-      return Promise.resolve()
+      element.style.width = `${toPercent}%`;
+      return Promise.resolve();
     }
 
     return animate(element, 'fadeIn', {
       duration,
       fill: 'forwards'
     }).then(() => {
-      element.style.width = `${toPercent}%`
-    })
-  }
+      element.style.width = `${toPercent}%`;
+    });
+  };
 
   // 工具函数
   const generateAnimationId = () => {
-    return `animation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-  }
+    return `animation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  };
 
   // 切换全局动画
   const toggleGlobalAnimation = (enabled) => {
-    globalAnimationEnabled.value = enabled
+    globalAnimationEnabled.value = enabled;
     if (!enabled) {
-      stopAllAnimations()
+      stopAllAnimations();
     }
-  }
+  };
 
   // 计算属性
-  const isAnimating = computed(() => animationStates.value.size > 0)
-  const activeAnimationCount = computed(() => animationStates.value.size)
+  const isAnimating = computed(() => animationStates.value.size > 0);
+  const activeAnimationCount = computed(() => animationStates.value.size);
 
   return {
     // 状态
@@ -477,5 +477,5 @@ export function useMicroAnimations() {
 
     // 预定义动画
     animations
-  }
+  };
 }

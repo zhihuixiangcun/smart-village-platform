@@ -1,7 +1,7 @@
 /**
  * 村委会管理API接口
  */
-import { get, post, put, del, upload, download } from '@/utils/http'
+import { get, post, put, del, upload, download } from '@/utils/http';
 
 /**
  * 获取村委会成员列表
@@ -9,7 +9,7 @@ import { get, post, put, del, upload, download } from '@/utils/http'
  * @returns {Promise} API响应
  */
 export function getCommitteeMembers(params = {}) {
-  return get('/api/committee/members', params)
+  return get('/api/committee/members', params);
 }
 
 /**
@@ -18,7 +18,7 @@ export function getCommitteeMembers(params = {}) {
  * @returns {Promise} API响应
  */
 export function getCommitteeMemberDetail(id) {
-  return get(`/api/committee/members/${id}`)
+  return get(`/api/committee/members/${id}`);
 }
 
 /**
@@ -27,7 +27,7 @@ export function getCommitteeMemberDetail(id) {
  * @returns {Promise} API响应
  */
 export function createCommitteeMember(data) {
-  return post('/api/committee/members', data)
+  return post('/api/committee/members', data);
 }
 
 /**
@@ -37,7 +37,7 @@ export function createCommitteeMember(data) {
  * @returns {Promise} API响应
  */
 export function updateCommitteeMember(id, data) {
-  return put(`/api/committee/members/${id}`, data)
+  return put(`/api/committee/members/${id}`, data);
 }
 
 /**
@@ -46,7 +46,7 @@ export function updateCommitteeMember(id, data) {
  * @returns {Promise} API响应
  */
 export function deleteCommitteeMember(id) {
-  return del(`/api/committee/members/${id}`)
+  return del(`/api/committee/members/${id}`);
 }
 
 /**
@@ -55,7 +55,7 @@ export function deleteCommitteeMember(id) {
  * @returns {Promise} API响应
  */
 export function batchDeleteCommitteeMembers(ids) {
-  return post('/api/committee/members/batch-delete', { ids })
+  return post('/api/committee/members/batch-delete', { ids });
 }
 
 /**
@@ -63,7 +63,7 @@ export function batchDeleteCommitteeMembers(ids) {
  * @returns {Promise} API响应
  */
 export function getCommitteeStatistics() {
-  return get('/api/committee/statistics')
+  return get('/api/committee/statistics');
 }
 
 /**
@@ -71,7 +71,7 @@ export function getCommitteeStatistics() {
  * @returns {Promise} API响应
  */
 export function getOrganizationStructure() {
-  return get('/api/committee/organization')
+  return get('/api/committee/organization');
 }
 
 /**
@@ -80,7 +80,7 @@ export function getOrganizationStructure() {
  * @returns {Promise} API响应
  */
 export function updateOrganizationStructure(data) {
-  return put('/api/committee/organization', data)
+  return put('/api/committee/organization', data);
 }
 
 /**
@@ -89,7 +89,7 @@ export function updateOrganizationStructure(data) {
  * @returns {Promise} API响应
  */
 export function getWorkDuties(memberId) {
-  return get(`/api/committee/members/${memberId}/duties`)
+  return get(`/api/committee/members/${memberId}/duties`);
 }
 
 /**
@@ -99,7 +99,7 @@ export function getWorkDuties(memberId) {
  * @returns {Promise} API响应
  */
 export function updateWorkDuties(memberId, data) {
-  return put(`/api/committee/members/${memberId}/duties`, data)
+  return put(`/api/committee/members/${memberId}/duties`, data);
 }
 
 /**
@@ -108,7 +108,7 @@ export function updateWorkDuties(memberId, data) {
  * @returns {Promise} API响应
  */
 export function getPerformanceRecords(memberId) {
-  return get(`/api/committee/members/${memberId}/performance`)
+  return get(`/api/committee/members/${memberId}/performance`);
 }
 
 /**
@@ -118,7 +118,7 @@ export function getPerformanceRecords(memberId) {
  * @returns {Promise} API响应
  */
 export function addPerformanceRecord(memberId, data) {
-  return post(`/api/committee/members/${memberId}/performance`, data)
+  return post(`/api/committee/members/${memberId}/performance`, data);
 }
 
 /**
@@ -128,7 +128,7 @@ export function addPerformanceRecord(memberId, data) {
  * @returns {Promise} API响应
  */
 export function transferPosition(memberId, data) {
-  return post(`/api/committee/members/${memberId}/transfer`, data)
+  return post(`/api/committee/members/${memberId}/transfer`, data);
 }
 
 /**
@@ -138,7 +138,7 @@ export function transferPosition(memberId, data) {
  * @returns {Promise} API响应
  */
 export function retireCommitteeMember(memberId, data = {}) {
-  return post(`/api/committee/members/${memberId}/retire`, data)
+  return post(`/api/committee/members/${memberId}/retire`, data);
 }
 
 /**
@@ -147,7 +147,7 @@ export function retireCommitteeMember(memberId, data = {}) {
  * @returns {Promise} API响应
  */
 export function getMeetingRecords(params = {}) {
-  return get('/api/committee/meetings', params)
+  return get('/api/committee/meetings', params);
 }
 
 /**
@@ -156,7 +156,7 @@ export function getMeetingRecords(params = {}) {
  * @returns {Promise} API响应
  */
 export function createMeetingRecord(data) {
-  return post('/api/committee/meetings', data)
+  return post('/api/committee/meetings', data);
 }
 
 /**
@@ -165,7 +165,7 @@ export function createMeetingRecord(data) {
  * @returns {Promise} API响应
  */
 export function getResolutions(params = {}) {
-  return get('/api/committee/resolutions', params)
+  return get('/api/committee/resolutions', params);
 }
 
 /**
@@ -174,7 +174,7 @@ export function getResolutions(params = {}) {
  * @returns {Promise} API响应
  */
 export function createResolution(data) {
-  return post('/api/committee/resolutions', data)
+  return post('/api/committee/resolutions', data);
 }
 
 /**
@@ -182,7 +182,7 @@ export function createResolution(data) {
  * @returns {Promise} API响应
  */
 export function getDepartments() {
-  return get('/api/committee/departments')
+  return get('/api/committee/departments');
 }
 
 /**
@@ -191,7 +191,7 @@ export function getDepartments() {
  * @returns {Promise} API响应
  */
 export function createDepartment(data) {
-  return post('/api/committee/departments', data)
+  return post('/api/committee/departments', data);
 }
 
 /**
@@ -201,7 +201,7 @@ export function createDepartment(data) {
  * @returns {Promise} API响应
  */
 export function updateDepartment(id, data) {
-  return put(`/api/committee/departments/${id}`, data)
+  return put(`/api/committee/departments/${id}`, data);
 }
 
 /**
@@ -210,7 +210,7 @@ export function updateDepartment(id, data) {
  * @returns {Promise} API响应
  */
 export function deleteDepartment(id) {
-  return del(`/api/committee/departments/${id}`)
+  return del(`/api/committee/departments/${id}`);
 }
 
 /**
@@ -219,7 +219,7 @@ export function deleteDepartment(id) {
  * @returns {Promise} API响应
  */
 export function exportCommitteeMembers(params = {}) {
-  return download('/api/committee/members/export', '村委会成员.xlsx', params)
+  return download('/api/committee/members/export', '村委会成员.xlsx', params);
 }
 
 /**
@@ -228,7 +228,7 @@ export function exportCommitteeMembers(params = {}) {
  * @returns {Promise} API响应
  */
 export function getPositionHistory(memberId) {
-  return get(`/api/committee/members/${memberId}/position-history`)
+  return get(`/api/committee/members/${memberId}/position-history`);
 }
 
 /**
@@ -238,7 +238,7 @@ export function getPositionHistory(memberId) {
  * @returns {Promise} API响应
  */
 export function searchCommitteeMembers(keyword, filters = {}) {
-  return get('/api/committee/members/search', { keyword, ...filters })
+  return get('/api/committee/members/search', { keyword, ...filters });
 }
 
 // 导出所有API
@@ -269,6 +269,6 @@ export const committeeApi = {
   export: exportCommitteeMembers,
   getPositionHistory,
   search: searchCommitteeMembers
-}
+};
 
-export default committeeApi
+export default committeeApi;

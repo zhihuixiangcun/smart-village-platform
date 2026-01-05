@@ -1,8 +1,12 @@
 <template>
-  <div class="dashboard">
+  <!-- 村民用户：显示新的优化主页 -->
+  <MyProfileOptimized v-if="isResident" />
+
+  <!-- 管理员：显示原有管理控制台 -->
+  <div v-else class="dashboard">
     <div class="welcome-header">
       <h1>🏘️ 欢迎使用智慧村庄管理系统</h1>
-      <p>{{ isAdmin ? '管理员控制台 - 全功能管理平台' : '村民服务门户 - 便民服务平台' }}</p>
+      <p>管理员控制台 - 全功能管理平台</p>
     </div>
 
     <!-- 统计卡片区域 -->
@@ -306,6 +310,7 @@ import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/userStore'
 import { dashboardApi, batchImportApi } from '@/api'
 import { ElMessage, ElDialog, ElUpload, ElProgress, ElButton } from 'element-plus'
+import MyProfileOptimized from '@/views/resident/MyProfileOptimized.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -348,6 +353,11 @@ const formatMoney = (value) => {
 // 根据用户角色显示不同的功能卡片
 const userRole = computed(() => userStore.userInfo?.role || 'villager')
 const isAdmin = computed(() => userRole.value === 'admin')
+const isResident = computed(() => {
+  // 村民用户显示新的优化主页
+  const role = userRole.value
+  return role === 'villager' || role === 'resident' || role === 'user'
+})
 
 // 系统状态显示
 const statusText = computed(() => {

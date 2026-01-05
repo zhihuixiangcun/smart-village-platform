@@ -37,7 +37,7 @@ export function useOfflineSync(options = {}) {
   function getDeviceId() {
     let id = localStorage.getItem('device_id');
     if (!id) {
-      id = 'device_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      id = `device_${  Date.now()  }_${  Math.random().toString(36).substr(2, 9)}`;
       localStorage.setItem('device_id', id);
     }
     return id;
@@ -153,7 +153,7 @@ export function useOfflineSync(options = {}) {
       return record;
     } catch (error) {
       console.error('添加离线操作失败:', error);
-      ElMessage.error('添加失败: ' + error.message);
+      ElMessage.error(`添加失败: ${  error.message}`);
       throw error;
     }
   };
@@ -267,7 +267,7 @@ export function useOfflineSync(options = {}) {
       }
     } catch (error) {
       console.error('批量同步失败:', error);
-      ElMessage.error('同步失败: ' + error.message);
+      ElMessage.error(`同步失败: ${  error.message}`);
     } finally {
       isSyncing.value = false;
       syncProgress.value = 0;
@@ -311,7 +311,7 @@ export function useOfflineSync(options = {}) {
       }
     } catch (error) {
       console.error('拉取数据失败:', error);
-      ElMessage.error('拉取失败: ' + error.message);
+      ElMessage.error(`拉取失败: ${  error.message}`);
       throw error;
     }
   };
@@ -348,7 +348,7 @@ export function useOfflineSync(options = {}) {
       }
     } catch (error) {
       console.error('解决冲突失败:', error);
-      ElMessage.error('解决失败: ' + error.message);
+      ElMessage.error(`解决失败: ${  error.message}`);
       throw error;
     }
   };

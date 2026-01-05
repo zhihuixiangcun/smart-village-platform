@@ -178,7 +178,7 @@ export function useSpeech(options = {}) {
         const result = await handler(command);
         return result;
       } catch (error) {
-        ElMessage.error('命令执行失败: ' + error.message);
+        ElMessage.error(`命令执行失败: ${  error.message}`);
         throw error;
       }
     } else {

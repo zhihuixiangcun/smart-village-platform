@@ -1,4 +1,4 @@
-import request from '@/utils/request'
+import request from '@/utils/request';
 
 /**
  * 项目管理 API
@@ -12,7 +12,7 @@ export const projectApi = {
       url: '/api/v1/projects',
       method: 'get',
       params
-    })
+    });
   },
 
   /**
@@ -22,7 +22,7 @@ export const projectApi = {
     return request({
       url: `/api/v1/projects/${projectId}`,
       method: 'get'
-    })
+    });
   },
 
   /**
@@ -36,7 +36,7 @@ export const projectApi = {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
-    })
+    });
   },
 
   /**
@@ -47,7 +47,7 @@ export const projectApi = {
       url: `/api/v1/projects/${projectId}`,
       method: 'put',
       data
-    })
+    });
   },
 
   /**
@@ -57,7 +57,7 @@ export const projectApi = {
     return request({
       url: `/api/v1/projects/${projectId}`,
       method: 'delete'
-    })
+    });
   },
 
   /**
@@ -67,7 +67,7 @@ export const projectApi = {
     return request({
       url: `/api/v1/projects/${projectId}/submit`,
       method: 'post'
-    })
+    });
   },
 
   /**
@@ -78,7 +78,7 @@ export const projectApi = {
       url: `/api/v1/projects/${projectId}/approve`,
       method: 'post',
       data
-    })
+    });
   },
 
   /**
@@ -88,7 +88,7 @@ export const projectApi = {
     return request({
       url: `/api/v1/projects/${projectId}/start`,
       method: 'post'
-    })
+    });
   },
 
   /**
@@ -102,7 +102,7 @@ export const projectApi = {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
-    })
+    });
   },
 
   /**
@@ -113,7 +113,7 @@ export const projectApi = {
       url: `/api/v1/projects/${projectId}/risks`,
       method: 'post',
       data
-    })
+    });
   },
 
   /**
@@ -124,7 +124,7 @@ export const projectApi = {
       url: `/api/v1/projects/${projectId}/changes`,
       method: 'post',
       data
-    })
+    });
   },
 
   /**
@@ -138,7 +138,7 @@ export const projectApi = {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
-    })
+    });
   },
 
   /**
@@ -149,7 +149,7 @@ export const projectApi = {
       url: '/api/v1/projects/pending-approvals',
       method: 'get',
       params
-    })
+    });
   },
 
   /**
@@ -160,7 +160,7 @@ export const projectApi = {
       url: `/api/v1/projects/statistics/${villageId}`,
       method: 'get',
       params
-    })
+    });
   },
 
   /**
@@ -171,9 +171,9 @@ export const projectApi = {
       url: `/api/v1/projects/reports/${type}`,
       method: 'get',
       params
-    })
+    });
   }
-}
+};
 
 /**
  * 财务管理 API
@@ -187,7 +187,7 @@ export const financeApi = {
       url: '/api/v1/finance/records',
       method: 'get',
       params
-    })
+    });
   },
 
   /**
@@ -201,7 +201,7 @@ export const financeApi = {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
-    })
+    });
   },
 
   /**
@@ -212,16 +212,16 @@ export const financeApi = {
       url: `/api/v1/finance/records/${recordId}/approve`,
       method: 'post',
       data
-    })
+    });
   },
 
   /**
    * OCR发票识别
    */
   processInvoiceOCR(file, ocrProvider = 'baidu') {
-    const formData = new FormData()
-    formData.append('invoice', file)
-    formData.append('ocrProvider', ocrProvider)
+    const formData = new FormData();
+    formData.append('invoice', file);
+    formData.append('ocrProvider', ocrProvider);
     
     return request({
       url: '/api/v1/finance/ocr/invoice',
@@ -230,7 +230,7 @@ export const financeApi = {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
-    })
+    });
   },
 
   /**
@@ -241,7 +241,7 @@ export const financeApi = {
       url: '/api/v1/finance/pending-approvals',
       method: 'get',
       params
-    })
+    });
   },
 
   /**
@@ -252,7 +252,7 @@ export const financeApi = {
       url: `/api/v1/finance/statistics/${villageId}`,
       method: 'get',
       params
-    })
+    });
   },
 
   /**
@@ -263,7 +263,7 @@ export const financeApi = {
       url: '/api/v1/finance/budgets',
       method: 'post',
       data
-    })
+    });
   },
 
   /**
@@ -274,7 +274,7 @@ export const financeApi = {
       url: `/api/v1/finance/budgets/${budgetId}/adjust`,
       method: 'post',
       data
-    })
+    });
   },
 
   /**
@@ -285,11 +285,11 @@ export const financeApi = {
       url: `/api/v1/finance/reports/${type}`,
       method: 'get',
       params
-    })
+    });
   }
-}
+};
 
 export default {
   projectApi,
   financeApi
-}
+};

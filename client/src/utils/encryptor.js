@@ -3,7 +3,7 @@
  * 提供前端加密、解密、哈希计算等功能
  */
 
-import CryptoJS from 'crypto-js'
+import CryptoJS from 'crypto-js';
 
 /**
  * 加密配置
@@ -16,7 +16,7 @@ const ENCRYPT_CONFIG = {
     keySize: 256 / 32, // 256位
     ivSize: 128 / 32   // 128位
   }
-}
+};
 
 /**
  * 生成随机密钥
@@ -24,7 +24,7 @@ const ENCRYPT_CONFIG = {
  * @returns {String} 十六进制密钥
  */
 export function generateRandomKey(length = 32) {
-  return CryptoJS.lib.WordArray.random(length).toString()
+  return CryptoJS.lib.WordArray.random(length).toString();
 }
 
 /**
@@ -33,7 +33,7 @@ export function generateRandomKey(length = 32) {
  * @returns {String} 十六进制IV
  */
 export function generateRandomIV(length = 16) {
-  return CryptoJS.lib.WordArray.random(length).toString()
+  return CryptoJS.lib.WordArray.random(length).toString();
 }
 
 /**
@@ -45,24 +45,24 @@ export function generateRandomIV(length = 16) {
 export function aesEncrypt(plaintext, keyHex) {
   try {
     if (!keyHex) {
-      throw new Error('密钥不能为空')
+      throw new Error('密钥不能为空');
     }
 
     // 生成随机IV
-    const iv = CryptoJS.lib.WordArray.random(16)
+    const iv = CryptoJS.lib.WordArray.random(16);
 
     // 将密钥转换为WordArray
-    const key = CryptoJS.enc.Hex.parse(keyHex)
+    const key = CryptoJS.enc.Hex.parse(keyHex);
 
     // 加密
     const encrypted = CryptoJS.AES.encrypt(plaintext, key, {
-      iv: iv,
+      iv,
       mode: CryptoJS.mode.GCM,
       padding: CryptoJS.pad.Pkcs7
-    })
+    });
 
     // 获取认证标签
-    const tag = encrypted.authTag
+    const tag = encrypted.authTag;
 
     return {
       iv: iv.toString(CryptoJS.enc.Hex),
@@ -70,10 +70,10 @@ export function aesEncrypt(plaintext, keyHex) {
       ciphertext: encrypted.ciphertext.toString(CryptoJS.enc.Hex),
       algorithm: 'aes-256-gcm',
       encoding: 'hex'
-    }
+    };
   } catch (error) {
-    console.error('AES加密失败:', error)
-    throw new Error('AES加密失败: ' + error.message)
+    console.error('AES加密失败:', error);
+    throw new Error(`AES加密失败: ${  error.message}`);
   }
 }
 
@@ -85,25 +85,25 @@ export function aesEncrypt(plaintext, keyHex) {
  */
 export function aesDecrypt(encryptedData, keyHex) {
   try {
-    const { iv, tag, ciphertext } = encryptedData
+    const { iv, tag, ciphertext } = encryptedData;
 
     if (!keyHex) {
-      throw new Error('密钥不能为空')
+      throw new Error('密钥不能为空');
     }
 
     // 将密钥和IV转换为WordArray
-    const key = CryptoJS.enc.Hex.parse(keyHex)
-    const ivParsed = CryptoJS.enc.Hex.parse(iv)
+    const key = CryptoJS.enc.Hex.parse(keyHex);
+    const ivParsed = CryptoJS.enc.Hex.parse(iv);
 
     // 组合密文和认证标签
-    const ciphertextParsed = CryptoJS.enc.Hex.parse(ciphertext)
+    const ciphertextParsed = CryptoJS.enc.Hex.parse(ciphertext);
 
     // 创建CipherParams对象
     const cipherParams = CryptoJS.lib.CipherParams.create({
       ciphertext: ciphertextParsed,
       iv: ivParsed,
       tag: CryptoJS.enc.Hex.parse(tag)
-    })
+    });
 
     // 解密
     const decrypted = CryptoJS.AES.decrypt(
@@ -114,12 +114,12 @@ export function aesDecrypt(encryptedData, keyHex) {
         mode: CryptoJS.mode.GCM,
         padding: CryptoJS.pad.Pkcs7
       }
-    )
+    );
 
-    return decrypted.toString(CryptoJS.enc.Utf8)
+    return decrypted.toString(CryptoJS.enc.Utf8);
   } catch (error) {
-    console.error('AES解密失败:', error)
-    throw new Error('AES解密失败: ' + error.message)
+    console.error('AES解密失败:', error);
+    throw new Error(`AES解密失败: ${  error.message}`);
   }
 }
 
@@ -131,12 +131,12 @@ export function aesDecrypt(encryptedData, keyHex) {
  */
 export function calculateHash(data, algorithm = 'sha256') {
   try {
-    const dataStr = typeof data === 'string' ? data : JSON.stringify(data)
-    const hash = CryptoJS[algorithm.toUpperCase()](dataStr)
-    return hash.toString(CryptoJS.enc.Hex)
+    const dataStr = typeof data === 'string' ? data : JSON.stringify(data);
+    const hash = CryptoJS[algorithm.toUpperCase()](dataStr);
+    return hash.toString(CryptoJS.enc.Hex);
   } catch (error) {
-    console.error('哈希计算失败:', error)
-    throw new Error('哈希计算失败: ' + error.message)
+    console.error('哈希计算失败:', error);
+    throw new Error(`哈希计算失败: ${  error.message}`);
   }
 }
 
@@ -149,15 +149,15 @@ export function calculateHash(data, algorithm = 'sha256') {
  */
 export function hmacSign(data, key, algorithm = 'sha256') {
   try {
-    const dataStr = typeof data === 'string' ? data : JSON.stringify(data)
-    const hmac = CryptoJS['Hmac' + algorithm[0].toUpperCase() + algorithm.slice(1)](
+    const dataStr = typeof data === 'string' ? data : JSON.stringify(data);
+    const hmac = CryptoJS[`Hmac${  algorithm[0].toUpperCase()  }${algorithm.slice(1)}`](
       dataStr,
       key
-    )
-    return hmac.toString(CryptoJS.enc.Hex)
+    );
+    return hmac.toString(CryptoJS.enc.Hex);
   } catch (error) {
-    console.error('HMAC签名失败:', error)
-    throw new Error('HMAC签名失败: ' + error.message)
+    console.error('HMAC签名失败:', error);
+    throw new Error(`HMAC签名失败: ${  error.message}`);
   }
 }
 
@@ -171,11 +171,11 @@ export function hmacSign(data, key, algorithm = 'sha256') {
  */
 export function verifyHmac(data, signature, key, algorithm = 'sha256') {
   try {
-    const calculatedSignature = hmacSign(data, key, algorithm)
-    return calculatedSignature === signature
+    const calculatedSignature = hmacSign(data, key, algorithm);
+    return calculatedSignature === signature;
   } catch (error) {
-    console.error('HMAC验证失败:', error)
-    return false
+    console.error('HMAC验证失败:', error);
+    return false;
   }
 }
 
@@ -186,11 +186,11 @@ export function verifyHmac(data, signature, key, algorithm = 'sha256') {
  */
 export function base64Encode(data) {
   try {
-    const dataStr = typeof data === 'string' ? data : JSON.stringify(data)
-    return CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(dataStr))
+    const dataStr = typeof data === 'string' ? data : JSON.stringify(data);
+    return CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(dataStr));
   } catch (error) {
-    console.error('Base64编码失败:', error)
-    throw new Error('Base64编码失败: ' + error.message)
+    console.error('Base64编码失败:', error);
+    throw new Error(`Base64编码失败: ${  error.message}`);
   }
 }
 
@@ -201,11 +201,11 @@ export function base64Encode(data) {
  */
 export function base64Decode(base64) {
   try {
-    const decoded = CryptoJS.enc.Base64.parse(base64)
-    return decoded.toString(CryptoJS.enc.Utf8)
+    const decoded = CryptoJS.enc.Base64.parse(base64);
+    return decoded.toString(CryptoJS.enc.Utf8);
   } catch (error) {
-    console.error('Base64解码失败:', error)
-    throw new Error('Base64解码失败: ' + error.message)
+    console.error('Base64解码失败:', error);
+    throw new Error(`Base64解码失败: ${  error.message}`);
   }
 }
 
@@ -215,7 +215,7 @@ export function base64Decode(base64) {
  * @returns {String} UTF-8编码
  */
 export function utf8Encode(data) {
-  return CryptoJS.enc.Utf8.parse(data).toString()
+  return CryptoJS.enc.Utf8.parse(data).toString();
 }
 
 /**
@@ -224,7 +224,7 @@ export function utf8Encode(data) {
  * @returns {String} 解码后的数据
  */
 export function utf8Decode(data) {
-  return CryptoJS.enc.Utf8.parse(data).toString(CryptoJS.enc.Utf8)
+  return CryptoJS.enc.Utf8.parse(data).toString(CryptoJS.enc.Utf8);
 }
 
 /**
@@ -233,10 +233,10 @@ export function utf8Decode(data) {
  */
 export function generateUUID() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0
-    const v = c === 'x' ? r : (r & 0x3 | 0x8)
-    return v.toString(16)
-  })
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
 }
 
 /**
@@ -246,11 +246,11 @@ export function generateUUID() {
  * @returns {String} 随机字符串
  */
 export function generateRandomString(length = 16, charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789') {
-  let result = ''
+  let result = '';
   for (let i = 0; i < length; i++) {
-    result += charset.charAt(Math.floor(Math.random() * charset.length))
+    result += charset.charAt(Math.floor(Math.random() * charset.length));
   }
-  return result
+  return result;
 }
 
 /**
@@ -265,12 +265,12 @@ export function deriveKey(password, salt, iterations = 100000, keySize = 32) {
   try {
     const key = CryptoJS.PBKDF2(password, salt, {
       keySize: keySize / 4, // CryptoJS使用32位字
-      iterations: iterations
-    })
-    return key.toString(CryptoJS.enc.Hex)
+      iterations
+    });
+    return key.toString(CryptoJS.enc.Hex);
   } catch (error) {
-    console.error('密钥派生失败:', error)
-    throw new Error('密钥派生失败: ' + error.message)
+    console.error('密钥派生失败:', error);
+    throw new Error(`密钥派生失败: ${  error.message}`);
   }
 }
 
@@ -282,15 +282,15 @@ export function deriveKey(password, salt, iterations = 100000, keySize = 32) {
  */
 export function timingSafeEqual(hash1, hash2) {
   if (hash1.length !== hash2.length) {
-    return false
+    return false;
   }
 
-  let result = 0
+  let result = 0;
   for (let i = 0; i < hash1.length; i++) {
-    result |= hash1.charCodeAt(i) ^ hash2.charCodeAt(i)
+    result |= hash1.charCodeAt(i) ^ hash2.charCodeAt(i);
   }
 
-  return result === 0
+  return result === 0;
 }
 
 /**
@@ -301,16 +301,16 @@ export function timingSafeEqual(hash1, hash2) {
  * @returns {Array} 加密块数组
  */
 export function encryptInChunks(data, keyHex, chunkSize = 1024 * 1024) {
-  const chunks = []
-  const totalLength = data.length
+  const chunks = [];
+  const totalLength = data.length;
 
   for (let i = 0; i < totalLength; i += chunkSize) {
-    const chunk = data.substring(i, i + chunkSize)
-    const encrypted = aesEncrypt(chunk, keyHex)
-    chunks.push(encrypted)
+    const chunk = data.substring(i, i + chunkSize);
+    const encrypted = aesEncrypt(chunk, keyHex);
+    chunks.push(encrypted);
   }
 
-  return chunks
+  return chunks;
 }
 
 /**
@@ -322,7 +322,7 @@ export function encryptInChunks(data, keyHex, chunkSize = 1024 * 1024) {
 export function decryptInChunks(encryptedChunks, keyHex) {
   return encryptedChunks
     .map(chunk => aesDecrypt(chunk, keyHex))
-    .join('')
+    .join('');
 }
 
 /**
@@ -332,11 +332,11 @@ export function decryptInChunks(encryptedChunks, keyHex) {
  * @returns {String} 加密后的数据（Base64）
  */
 export function xorEncrypt(data, key) {
-  let result = ''
+  let result = '';
   for (let i = 0; i < data.length; i++) {
-    result += String.fromCharCode(data.charCodeAt(i) ^ key.charCodeAt(i % key.length))
+    result += String.fromCharCode(data.charCodeAt(i) ^ key.charCodeAt(i % key.length));
   }
-  return base64Encode(result)
+  return base64Encode(result);
 }
 
 /**
@@ -346,12 +346,12 @@ export function xorEncrypt(data, key) {
  * @returns {String} 解密后的数据
  */
 export function xorDecrypt(encryptedData, key) {
-  const data = base64Decode(encryptedData)
-  let result = ''
+  const data = base64Decode(encryptedData);
+  let result = '';
   for (let i = 0; i < data.length; i++) {
-    result += String.fromCharCode(data.charCodeAt(i) ^ key.charCodeAt(i % key.length))
+    result += String.fromCharCode(data.charCodeAt(i) ^ key.charCodeAt(i % key.length));
   }
-  return result
+  return result;
 }
 
 // 默认导出所有函数
@@ -388,4 +388,4 @@ export default {
   // XOR加密
   xorEncrypt,
   xorDecrypt
-}
+};

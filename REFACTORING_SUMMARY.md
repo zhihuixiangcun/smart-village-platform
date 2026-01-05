@@ -237,6 +237,43 @@
 5. **浏览器测试**：测试Chrome、Firefox、Safari、Edge
 6. **移动端测试**：测试iOS和Android设备
 
+## Dashboard 集成完成
+
+### 修改文件
+- **[client/src/views/DashboardView.vue](client/src/views/DashboardView.vue:1)** - 添加条件渲染逻辑
+
+### 集成方式
+```vue
+<template>
+  <!-- 村民用户：显示新的优化主页 -->
+  <MyProfileOptimized v-if="isResident" />
+
+  <!-- 管理员：显示原有管理控制台 -->
+  <div v-else class="dashboard">
+    <!-- 原有管理员控制台内容 -->
+  </div>
+</template>
+
+<script setup>
+import MyProfileOptimized from '@/views/resident/MyProfileOptimized.vue'
+
+const isResident = computed(() => {
+  const role = userRole.value
+  return role === 'villager' || role === 'resident' || role === 'user'
+})
+</script>
+```
+
+### 访问地址
+- **开发环境**：http://localhost:3008/dashboard
+- **生产环境**：根据部署配置而定
+
+### 用户角色判断
+- **村民角色**（villager/resident/user）→ 显示 MyProfileOptimized.vue
+- **管理员角色**（admin）→ 显示原有管理控制台
+
 ## 结论
 
-本次重构成功将村民个人主页从单一巨型组件转换为模块化、可维护的组件架构。所有第一和第二优先级的问题已全部修复，代码质量显著提升。系统现已准备好进行测试和部署。
+本次重构成功将村民个人主页从单一巨型组件转换为模块化、可维护的组件架构。所有第一和第二优先级的问题已全部修复，代码质量显著提升。系统现已成功集成到 Dashboard 路由，村民用户访问 `/dashboard` 将直接看到新的优化主页。
+
+**最新状态**：✅ 已集成到 Dashboard 路由，可正常访问

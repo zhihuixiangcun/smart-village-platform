@@ -1,4 +1,4 @@
-import { defineConfig, devices } from '@playwright/test'
+import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './e2e',
@@ -119,4 +119,4 @@ export default defineConfig({
     'test-suite': 'smart-village-e2e',
     'test-version': '1.0.0'
   }
-})
+});

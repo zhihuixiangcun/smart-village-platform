@@ -70,4 +70,4 @@ export default {
       meta: { title: '产品发布管理' }
     }
   ]
-}
+};

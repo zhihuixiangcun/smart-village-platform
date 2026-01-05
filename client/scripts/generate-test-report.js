@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-const fs = require('fs')
-const path = require('path')
-const { spawn } = require('child_process')
+const fs = require('fs');
+const path = require('path');
+const { spawn } = require('child_process');
 
 class TestReportGenerator {
   constructor() {
@@ -27,27 +27,27 @@ class TestReportGenerator {
         warnings: [],
         recommendations: []
       }
-    }
+    };
   }
 
   async loadJUnitResults(filePath) {
     return new Promise((resolve, reject) => {
       if (!fs.existsSync(filePath)) {
-        resolve(null)
-        return
+        resolve(null);
+        return;
       }
 
       fs.readFile(filePath, 'utf8', (err, data) => {
         if (err) {
-          reject(err)
-          return
+          reject(err);
+          return;
         }
 
         // 简单的XML解析
-        const testsuiteMatch = data.match(/<testsuite[^>]*>([\s\S]*?)<\/testsuite>/)
+        const testsuiteMatch = data.match(/<testsuite[^>]*>([\s\S]*?)<\/testsuite>/);
         if (testsuiteMatch) {
-          const testsuite = testsuiteMatch[1]
-          const testcases = testsuite.match(/<testcase[^>]*>([\s\S]*?)<\/testcase>/g) || []
+          const testsuite = testsuiteMatch[1];
+          const testcases = testsuite.match(/<testcase[^>]*>([\s\S]*?)<\/testcase>/g) || [];
 
           const results = {
             total: testcases.length,
@@ -55,102 +55,102 @@ class TestReportGenerator {
             errors: (testsuite.match(/errors="(\d+)"/) || [])[1] || 0,
             time: (testsuite.match(/time="([^"]+)"/) || [])[1] || 0,
             tests: []
-          }
+          };
 
           testcases.forEach(testcase => {
-            const nameMatch = testcase.match(/name="([^"]+)"/)
-            const failureMatch = testcase.match(/<failure[^>]*>([\s\S]*?)<\/failure>/)
+            const nameMatch = testcase.match(/name="([^"]+)"/);
+            const failureMatch = testcase.match(/<failure[^>]*>([\s\S]*?)<\/failure>/);
 
             results.tests.push({
               name: nameMatch ? nameMatch[1] : 'Unknown',
               status: failureMatch ? 'failed' : 'passed',
               error: failureMatch ? failureMatch[1] : null
-            })
-          })
+            });
+          });
 
-          resolve(results)
+          resolve(results);
         } else {
-          resolve(null)
+          resolve(null);
         }
-      })
-    })
+      });
+    });
   }
 
   async loadCoverageData(coverageDir) {
-    const summaryPath = path.join(coverageDir, 'coverage-summary.json')
+    const summaryPath = path.join(coverageDir, 'coverage-summary.json');
     if (!fs.existsSync(summaryPath)) {
-      return null
+      return null;
     }
 
     try {
-      const summary = JSON.parse(fs.readFileSync(summaryPath, 'utf8'))
+      const summary = JSON.parse(fs.readFileSync(summaryPath, 'utf8'));
       return {
         lines: summary.total.lines.pct,
         functions: summary.total.functions.pct,
         branches: summary.total.branches.pct,
         statements: summary.total.statements.pct
-      }
+      };
     } catch (error) {
-      console.error('Error loading coverage data:', error)
-      return null
+      console.error('Error loading coverage data:', error);
+      return null;
     }
   }
 
   async loadPerformanceResults(resultsPath) {
     if (!fs.existsSync(resultsPath)) {
-      return null
+      return null;
     }
 
     try {
-      const data = JSON.parse(fs.readFileSync(resultsPath, 'utf8'))
+      const data = JSON.parse(fs.readFileSync(resultsPath, 'utf8'));
       return {
         lcp: data.lcp || 0,
         fcp: data.fcp || 0,
         cls: data.cls || 0,
         fid: data.fid || 0,
         score: this.calculatePerformanceScore(data)
-      }
+      };
     } catch (error) {
-      console.error('Error loading performance results:', error)
-      return null
+      console.error('Error loading performance results:', error);
+      return null;
     }
   }
 
   calculatePerformanceScore(metrics) {
-    let score = 100
+    let score = 100;
 
     // LCP scoring
-    if (metrics.lcp > 4000) score -= 25
-    else if (metrics.lcp > 2500) score -= 15
-    else if (metrics.lcp > 1800) score -= 5
+    if (metrics.lcp > 4000) score -= 25;
+    else if (metrics.lcp > 2500) score -= 15;
+    else if (metrics.lcp > 1800) score -= 5;
 
     // FCP scoring
-    if (metrics.fcp > 3000) score -= 25
-    else if (metrics.fcp > 1800) score -= 15
-    else if (metrics.fcp > 1000) score -= 5
+    if (metrics.fcp > 3000) score -= 25;
+    else if (metrics.fcp > 1800) score -= 15;
+    else if (metrics.fcp > 1000) score -= 5;
 
     // CLS scoring
-    if (metrics.cls > 0.25) score -= 25
-    else if (metrics.cls > 0.1) score -= 15
+    if (metrics.cls > 0.25) score -= 25;
+    else if (metrics.cls > 0.1) score -= 15;
 
     // FID scoring
-    if (metrics.fid > 300) score -= 25
-    else if (metrics.fid > 100) score -= 15
+    if (metrics.fid > 300) score -= 25;
+    else if (metrics.fid > 100) score -= 15;
 
-    return Math.max(0, score)
+    return Math.max(0, score);
   }
 
   generateRecommendations() {
-    const recommendations = []
+    const recommendations = [];
 
     // 基于测试失败率
-    const failureRate = (this.reportData.summary.failedTests / this.reportData.summary.totalTests) * 100
+    const failureRate = (this.reportData.summary.failedTests / this.reportData.summary.totalTests) * 100;
     if (failureRate > 10) {
       recommendations.push({
         type: 'quality',
         priority: 'high',
         message: `测试失败率较高 (${failureRate.toFixed(1)}%)，建议检查代码质量和测试用例`
-      })
+      });
     }
 
     // 基于覆盖率
@@ -159,7 +159,7 @@ class TestReportGenerator {
         type: 'coverage',
         priority: 'medium',
         message: `测试覆盖率偏低 (${this.reportData.summary.coverage}%)，建议增加测试用例以提高覆盖率`
-      })
+      });
     }
 
     // 基于性能分数
@@ -168,7 +168,7 @@ class TestReportGenerator {
         type: 'performance',
         priority: 'high',
         message: `应用性能得分偏低 (${this.reportData.categories.performance.score}/100)，建议优化加载速度和用户体验`
-      })
+      });
     }
 
     // 基于E2E测试
@@ -177,49 +177,49 @@ class TestReportGenerator {
         type: 'e2e',
         priority: 'high',
         message: '存在E2E测试失败，可能影响用户关键流程，请优先修复'
-      })
+      });
     }
 
-    return recommendations
+    return recommendations;
   }
 
   async generateReport() {
-    console.log('📊 Generating comprehensive test report...')
+    console.log('📊 Generating comprehensive test report...');
 
     // 加载单元测试结果
-    const unitResults = await this.loadJUnitResults(path.join(process.cwd(), 'client', 'test-results', 'junit.xml'))
+    const unitResults = await this.loadJUnitResults(path.join(process.cwd(), 'client', 'test-results', 'junit.xml'));
     if (unitResults) {
-      this.reportData.categories.unit.tests = unitResults.tests
-      this.reportData.categories.unit.passed = unitResults.total - unitResults.failures - unitResults.errors
-      this.reportData.categories.unit.failed = unitResults.failures + unitResults.errors
+      this.reportData.categories.unit.tests = unitResults.tests;
+      this.reportData.categories.unit.passed = unitResults.total - unitResults.failures - unitResults.errors;
+      this.reportData.categories.unit.failed = unitResults.failures + unitResults.errors;
     }
 
     // 加载集成测试结果
-    const integrationResults = await this.loadJUnitResults(path.join(process.cwd(), 'client', 'test-results', 'integration-junit.xml'))
+    const integrationResults = await this.loadJUnitResults(path.join(process.cwd(), 'client', 'test-results', 'integration-junit.xml'));
     if (integrationResults) {
-      this.reportData.categories.integration.tests = integrationResults.tests
-      this.reportData.categories.integration.passed = integrationResults.total - integrationResults.failures - integrationResults.errors
-      this.reportData.categories.integration.failed = integrationResults.failures + integrationResults.errors
+      this.reportData.categories.integration.tests = integrationResults.tests;
+      this.reportData.categories.integration.passed = integrationResults.total - integrationResults.failures - integrationResults.errors;
+      this.reportData.categories.integration.failed = integrationResults.failures + integrationResults.errors;
     }
 
     // 加载E2E测试结果
-    const e2eResults = await this.loadJUnitResults(path.join(process.cwd(), 'client', 'e2e-results', 'junit-results.xml'))
+    const e2eResults = await this.loadJUnitResults(path.join(process.cwd(), 'client', 'e2e-results', 'junit-results.xml'));
     if (e2eResults) {
-      this.reportData.categories.e2e.tests = e2eResults.tests
-      this.reportData.categories.e2e.passed = e2eResults.total - e2eResults.failures - e2eResults.errors
-      this.reportData.categories.e2e.failed = e2eResults.failures + e2eResults.errors
+      this.reportData.categories.e2e.tests = e2eResults.tests;
+      this.reportData.categories.e2e.passed = e2eResults.total - e2eResults.failures - e2eResults.errors;
+      this.reportData.categories.e2e.failed = e2eResults.failures + e2eResults.errors;
     }
 
     // 加载覆盖率数据
-    const coverageData = await this.loadCoverageData(path.join(process.cwd(), 'client', 'coverage'))
+    const coverageData = await this.loadCoverageData(path.join(process.cwd(), 'client', 'coverage'));
     if (coverageData) {
-      this.reportData.categories.unit.coverage = coverageData.statements
-      this.reportData.categories.integration.coverage = coverageData.statements // 使用相同的覆盖率
-      this.reportData.summary.coverage = coverageData.statements
+      this.reportData.categories.unit.coverage = coverageData.statements;
+      this.reportData.categories.integration.coverage = coverageData.statements; // 使用相同的覆盖率
+      this.reportData.summary.coverage = coverageData.statements;
     }
 
     // 加载性能测试结果
-    const perfResults = await this.loadPerformanceResults(path.join(process.cwd(), 'client', 'e2e-results', 'performance-results.json'))
+    const perfResults = await this.loadPerformanceResults(path.join(process.cwd(), 'client', 'e2e-results', 'performance-results.json'));
     if (perfResults) {
       this.reportData.categories.performance.metrics = [{
         name: 'Largest Contentful Paint (LCP)',
@@ -241,51 +241,51 @@ class TestReportGenerator {
         value: perfResults.fid,
         unit: 'ms',
         threshold: { good: 100, needsImprovement: 300 }
-      }]
-      this.reportData.categories.performance.score = perfResults.score
+      }];
+      this.reportData.categories.performance.score = perfResults.score;
     }
 
     // 计算总计
     this.reportData.summary.totalTests = this.reportData.categories.unit.tests.length +
                                       this.reportData.categories.integration.tests.length +
-                                      this.reportData.categories.e2e.tests.length
+                                      this.reportData.categories.e2e.tests.length;
     this.reportData.summary.passedTests = this.reportData.categories.unit.passed +
                                          this.reportData.categories.integration.passed +
-                                         this.reportData.categories.e2e.passed
+                                         this.reportData.categories.e2e.passed;
     this.reportData.summary.failedTests = this.reportData.categories.unit.failed +
                                          this.reportData.categories.integration.failed +
-                                         this.reportData.categories.e2e.failed
+                                         this.reportData.categories.e2e.failed;
 
     // 收集失败信息
     const allTests = [
       ...this.reportData.categories.unit.tests.map(t => ({ ...t, category: 'unit' })),
       ...this.reportData.categories.integration.tests.map(t => ({ ...t, category: 'integration' })),
       ...this.reportData.categories.e2e.tests.map(t => ({ ...t, category: 'e2e' }))
-    ]
+    ];
 
-    this.reportData.details.failures = allTests.filter(test => test.status === 'failed')
+    this.reportData.details.failures = allTests.filter(test => test.status === 'failed');
 
     // 生成建议
-    this.reportData.details.recommendations = this.generateRecommendations()
+    this.reportData.details.recommendations = this.generateRecommendations();
 
     // 保存JSON报告
-    const reportPath = path.join(process.cwd(), 'test-results-summary.json')
-    fs.writeFileSync(reportPath, JSON.stringify(this.reportData, null, 2))
+    const reportPath = path.join(process.cwd(), 'test-results-summary.json');
+    fs.writeFileSync(reportPath, JSON.stringify(this.reportData, null, 2));
 
     // 生成HTML报告
-    const htmlReport = this.generateHTMLReport()
-    const htmlPath = path.join(process.cwd(), 'test-report.html')
-    fs.writeFileSync(htmlPath, htmlReport)
+    const htmlReport = this.generateHTMLReport();
+    const htmlPath = path.join(process.cwd(), 'test-report.html');
+    fs.writeFileSync(htmlPath, htmlReport);
 
-    console.log('✅ Report generated successfully!')
-    console.log(`📄 JSON: ${reportPath}`)
-    console.log(`🌐 HTML: ${htmlPath}`)
+    console.log('✅ Report generated successfully!');
+    console.log(`📄 JSON: ${reportPath}`);
+    console.log(`🌐 HTML: ${htmlPath}`);
 
-    return this.reportData
+    return this.reportData;
   }
 
   generateHTMLReport() {
-    const { summary, categories, details, timestamp } = this.reportData
+    const { summary, categories, details, timestamp } = this.reportData;
 
     return `
 <!DOCTYPE html>
@@ -629,13 +629,13 @@ class TestReportGenerator {
                     <div class="metric-name">${metric.name}</div>
                     <div class="metric-score">
                         <span class="${metric.value <= (metric.threshold?.good || Infinity) ? 'score-good' :
-                                     metric.value <= (metric.threshold?.needsImprovement || Infinity) ? 'score-warning' : 'score-poor'}">
+    metric.value <= (metric.threshold?.needsImprovement || Infinity) ? 'score-warning' : 'score-poor'}">
                             ${metric.value}${metric.unit}
                         </span>
                         <span class="badge ${metric.value <= (metric.threshold?.good || Infinity) ? 'badge-success' :
-                                       metric.value <= (metric.threshold?.needsImprovement || Infinity) ? 'badge-warning' : 'badge-danger'}">
+    metric.value <= (metric.threshold?.needsImprovement || Infinity) ? 'badge-warning' : 'badge-danger'}">
                             ${metric.value <= (metric.threshold?.good || Infinity) ? '良好' :
-                              metric.value <= (metric.threshold?.needsImprovement || Infinity) ? '需改进' : '较差'}
+    metric.value <= (metric.threshold?.needsImprovement || Infinity) ? '需改进' : '较差'}
                         </span>
                     </div>
                 </div>
@@ -669,8 +669,8 @@ class TestReportGenerator {
                         <span>${rec.priority === 'high' ? '🔴' : rec.priority === 'medium' ? '🟡' : '🟢'}</span>
                         <div>
                             <strong>${rec.type === 'quality' ? '质量' :
-                                 rec.type === 'coverage' ? '覆盖率' :
-                                 rec.type === 'performance' ? '性能' : 'E2E'}:</strong>
+    rec.type === 'coverage' ? '覆盖率' :
+      rec.type === 'performance' ? '性能' : 'E2E'}:</strong>
                             ${rec.message}
                         </div>
                     </li>
@@ -681,13 +681,13 @@ class TestReportGenerator {
     </div>
 </body>
 </html>
-    `
+    `;
   }
 }
 
 // 生成报告
-const generator = new TestReportGenerator()
+const generator = new TestReportGenerator();
 generator.generateReport().catch(error => {
-  console.error('Error generating report:', error)
-  process.exit(1)
-})
+  console.error('Error generating report:', error);
+  process.exit(1);
+});

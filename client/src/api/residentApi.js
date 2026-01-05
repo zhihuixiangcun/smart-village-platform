@@ -1,7 +1,7 @@
 /**
  * 村民管理API接口
  */
-import { get, post, put, del, upload, download } from '@/utils/http'
+import { get, post, put, del, upload, download } from '@/utils/http';
 
 /**
  * 获取村民列表
@@ -9,7 +9,7 @@ import { get, post, put, del, upload, download } from '@/utils/http'
  * @returns {Promise} API响应
  */
 export function getResidentList(params = {}) {
-  return get('/api/residents', params)
+  return get('/api/residents', params);
 }
 
 /**
@@ -18,7 +18,7 @@ export function getResidentList(params = {}) {
  * @returns {Promise} API响应
  */
 export function getResidentDetail(id) {
-  return get(`/api/residents/${id}`)
+  return get(`/api/residents/${id}`);
 }
 
 /**
@@ -27,7 +27,7 @@ export function getResidentDetail(id) {
  * @returns {Promise} API响应
  */
 export function createResident(data) {
-  return post('/api/residents', data)
+  return post('/api/residents', data);
 }
 
 /**
@@ -37,7 +37,7 @@ export function createResident(data) {
  * @returns {Promise} API响应
  */
 export function updateResident(id, data) {
-  return put(`/api/residents/${id}`, data)
+  return put(`/api/residents/${id}`, data);
 }
 
 /**
@@ -46,7 +46,7 @@ export function updateResident(id, data) {
  * @returns {Promise} API响应
  */
 export function deleteResident(id) {
-  return del(`/api/residents/${id}`)
+  return del(`/api/residents/${id}`);
 }
 
 /**
@@ -55,7 +55,7 @@ export function deleteResident(id) {
  * @returns {Promise} API响应
  */
 export function batchDeleteResidents(ids) {
-  return post('/api/residents/batch-delete', { ids })
+  return post('/api/residents/batch-delete', { ids });
 }
 
 /**
@@ -63,7 +63,7 @@ export function batchDeleteResidents(ids) {
  * @returns {Promise} API响应
  */
 export function getResidentStatistics() {
-  return get('/api/residents/statistics')
+  return get('/api/residents/statistics');
 }
 
 /**
@@ -72,7 +72,7 @@ export function getResidentStatistics() {
  * @returns {Promise} API响应
  */
 export function exportResidents(params = {}) {
-  return download('/api/residents/export', '村民信息.xlsx', params)
+  return download('/api/residents/export', '村民信息.xlsx', params);
 }
 
 /**
@@ -81,7 +81,7 @@ export function exportResidents(params = {}) {
  * @returns {Promise} API响应
  */
 export function importResidents(formData) {
-  return upload('/api/residents/import', formData)
+  return upload('/api/residents/import', formData);
 }
 
 /**
@@ -90,7 +90,7 @@ export function importResidents(formData) {
  * @returns {Promise} API响应
  */
 export function getFamilyMembers(residentId) {
-  return get(`/api/residents/${residentId}/family`)
+  return get(`/api/residents/${residentId}/family`);
 }
 
 /**
@@ -100,7 +100,7 @@ export function getFamilyMembers(residentId) {
  * @returns {Promise} API响应
  */
 export function addFamilyMember(residentId, data) {
-  return post(`/api/residents/${residentId}/family`, data)
+  return post(`/api/residents/${residentId}/family`, data);
 }
 
 /**
@@ -111,7 +111,7 @@ export function addFamilyMember(residentId, data) {
  * @returns {Promise} API响应
  */
 export function updateFamilyMember(residentId, memberId, data) {
-  return put(`/api/residents/${residentId}/family/${memberId}`, data)
+  return put(`/api/residents/${residentId}/family/${memberId}`, data);
 }
 
 /**
@@ -121,7 +121,7 @@ export function updateFamilyMember(residentId, memberId, data) {
  * @returns {Promise} API响应
  */
 export function deleteFamilyMember(residentId, memberId) {
-  return del(`/api/residents/${residentId}/family/${memberId}`)
+  return del(`/api/residents/${residentId}/family/${memberId}`);
 }
 
 /**
@@ -130,7 +130,7 @@ export function deleteFamilyMember(residentId, memberId) {
  * @returns {Promise} API响应
  */
 export function getHealthRecords(residentId) {
-  return get(`/api/residents/${residentId}/health`)
+  return get(`/api/residents/${residentId}/health`);
 }
 
 /**
@@ -140,7 +140,7 @@ export function getHealthRecords(residentId) {
  * @returns {Promise} API响应
  */
 export function addHealthRecord(residentId, data) {
-  return post(`/api/residents/${residentId}/health`, data)
+  return post(`/api/residents/${residentId}/health`, data);
 }
 
 /**
@@ -149,7 +149,7 @@ export function addHealthRecord(residentId, data) {
  * @returns {Promise} API响应
  */
 export function getResidentHistory(residentId) {
-  return get(`/api/residents/${residentId}/history`)
+  return get(`/api/residents/${residentId}/history`);
 }
 
 /**
@@ -159,7 +159,7 @@ export function getResidentHistory(residentId) {
  * @returns {Promise} API响应
  */
 export function searchResidents(keyword, filters = {}) {
-  return get('/api/residents/search', { keyword, ...filters })
+  return get('/api/residents/search', { keyword, ...filters });
 }
 
 /**
@@ -169,7 +169,7 @@ export function searchResidents(keyword, filters = {}) {
  * @returns {Promise} API响应
  */
 export function checkIdCardExists(idCard, excludeId = null) {
-  return get('/api/residents/check-idcard', { idCard, excludeId })
+  return get('/api/residents/check-idcard', { idCard, excludeId });
 }
 
 /**
@@ -179,7 +179,7 @@ export function checkIdCardExists(idCard, excludeId = null) {
  * @returns {Promise} API响应
  */
 export function checkPhoneExists(phone, excludeId = null) {
-  return get('/api/residents/check-phone', { phone, excludeId })
+  return get('/api/residents/check-phone', { phone, excludeId });
 }
 
 // 导出所有API
@@ -203,6 +203,6 @@ export const residentApi = {
   search: searchResidents,
   checkIdCardExists,
   checkPhoneExists
-}
+};
 
-export default residentApi
+export default residentApi;

@@ -2,7 +2,7 @@
  * 语音识别API
  * @module api/speech
  */
-import request from '@/utils/request'
+import request from '@/utils/request';
 
 const speechApi = {
   /**
@@ -12,16 +12,16 @@ const speechApi = {
    * @returns {Promise} 识别结果
    */
   recognize(audioFile, options = {}) {
-    const formData = new FormData()
-    formData.append('audio', audioFile)
+    const formData = new FormData();
+    formData.append('audio', audioFile);
 
-    if (options.dialect) formData.append('dialect', options.dialect)
-    if (options.accent) formData.append('accent', options.accent)
-    if (options.domain) formData.append('domain', options.domain)
+    if (options.dialect) formData.append('dialect', options.dialect);
+    if (options.accent) formData.append('accent', options.accent);
+    if (options.domain) formData.append('domain', options.domain);
 
     return request.post('/api/v1/speech/recognize', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
-    })
+    });
   },
 
   /**
@@ -41,7 +41,7 @@ const speechApi = {
       format: options.format || 'mp3'
     }, {
       responseType: 'blob'
-    })
+    });
   },
 
   /**
@@ -50,12 +50,12 @@ const speechApi = {
    * @returns {Promise} 方言检测结果
    */
   detectDialect(audioFile) {
-    const formData = new FormData()
-    formData.append('audio', audioFile)
+    const formData = new FormData();
+    formData.append('audio', audioFile);
 
     return request.post('/api/v1/speech/detect-dialect', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
-    })
+    });
   },
 
   /**
@@ -63,7 +63,7 @@ const speechApi = {
    * @returns {Promise} 方言列表
    */
   getSupportedDialects() {
-    return request.get('/api/v1/speech/dialects')
+    return request.get('/api/v1/speech/dialects');
   },
 
   /**
@@ -71,7 +71,7 @@ const speechApi = {
    * @returns {Promise} 音频配置
    */
   getAudioConfig() {
-    return request.get('/api/v1/speech/audio-config')
+    return request.get('/api/v1/speech/audio-config');
   },
 
   /**
@@ -79,7 +79,7 @@ const speechApi = {
    * @returns {Promise} 统计信息
    */
   getStats() {
-    return request.get('/api/v1/speech/stats')
+    return request.get('/api/v1/speech/stats');
   },
 
   /**
@@ -89,16 +89,16 @@ const speechApi = {
    * @returns {Promise} 批量识别结果
    */
   batchRecognize(files, options = {}) {
-    const formData = new FormData()
+    const formData = new FormData();
     files.forEach(file => {
-      formData.append('files', file)
-    })
+      formData.append('files', file);
+    });
 
-    if (options.dialect) formData.append('dialect', options.dialect)
+    if (options.dialect) formData.append('dialect', options.dialect);
 
     return request.post('/api/v1/speech/batch-recognize', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
-    })
+    });
   },
 
   // ==================== 实时语音识别 ====================
@@ -109,17 +109,17 @@ const speechApi = {
    * @returns {WebSocket} WebSocket连接
    */
   createRealTimeRecognition(options = {}) {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-    const host = window.location.host
-    const queryParams = new URLSearchParams()
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const host = window.location.host;
+    const queryParams = new URLSearchParams();
 
-    if (options.dialect) queryParams.append('dialect', options.dialect)
-    if (options.interimResults !== undefined) queryParams.append('interimResults', options.interimResults)
-    if (options.silenceTimeout) queryParams.append('silenceTimeout', options.silenceTimeout)
+    if (options.dialect) queryParams.append('dialect', options.dialect);
+    if (options.interimResults !== undefined) queryParams.append('interimResults', options.interimResults);
+    if (options.silenceTimeout) queryParams.append('silenceTimeout', options.silenceTimeout);
 
-    const wsUrl = `${protocol}//${host}/api/v1/speech/real-time-recognize?${queryParams.toString()}`
+    const wsUrl = `${protocol}//${host}/api/v1/speech/real-time-recognize?${queryParams.toString()}`;
 
-    return new WebSocket(wsUrl)
+    return new WebSocket(wsUrl);
   },
 
   // ==================== 便捷方法 ====================
@@ -130,8 +130,8 @@ const speechApi = {
    * @returns {Promise} 识别结果
    */
   async quickRecognize(audioBlob) {
-    const file = new File([audioBlob], 'audio.wav', { type: 'audio/wav' })
-    return this.recognize(file, { dialect: 'auto' })
+    const file = new File([audioBlob], 'audio.wav', { type: 'audio/wav' });
+    return this.recognize(file, { dialect: 'auto' });
   },
 
   /**
@@ -141,11 +141,11 @@ const speechApi = {
    * @returns {Promise} 音频URL
    */
   async textToSpeech(text, emotion = 'neutral') {
-    const audioBlob = await this.synthesize(text, { voice: 'mandarin', emotion })
+    const audioBlob = await this.synthesize(text, { voice: 'mandarin', emotion });
 
     // 创建临时URL
-    const audioUrl = URL.createObjectURL(audioBlob)
-    return audioUrl
+    const audioUrl = URL.createObjectURL(audioBlob);
+    return audioUrl;
   },
 
   /**
@@ -159,12 +159,12 @@ const speechApi = {
       cantonese: 'cantonese',
       shanghainese: 'shanghainese',
       sichuanese: 'sichuanese'
-    }
+    };
 
-    const voice = voiceMap[dialect] || 'mandarin'
-    const audioBlob = await this.synthesize(text, { voice })
+    const voice = voiceMap[dialect] || 'mandarin';
+    const audioBlob = await this.synthesize(text, { voice });
 
-    return URL.createObjectURL(audioBlob)
+    return URL.createObjectURL(audioBlob);
   },
 
   /**
@@ -177,9 +177,9 @@ const speechApi = {
       voice: 'elderly',
       speed: 40,
       volume: 60
-    })
+    });
 
-    return URL.createObjectURL(audioBlob)
+    return URL.createObjectURL(audioBlob);
   },
 
   /**
@@ -193,10 +193,10 @@ const speechApi = {
       speed: 55,
       pitch: 60,
       emotion: 'happy'
-    })
+    });
 
-    return URL.createObjectURL(audioBlob)
+    return URL.createObjectURL(audioBlob);
   }
-}
+};
 
-export default speechApi
+export default speechApi;

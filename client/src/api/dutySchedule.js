@@ -2,7 +2,7 @@
  * 智能值班表API
  * @module api/dutySchedule
  */
-import request from '@/utils/request'
+import request from '@/utils/request';
 
 const dutyScheduleApi = {
   /**
@@ -11,7 +11,7 @@ const dutyScheduleApi = {
    * @returns {Promise} 今日值班数据
    */
   getTodayDuty(villageId) {
-    return request.get(`/api/v1/duty-schedule/public/today/${villageId}`)
+    return request.get(`/api/v1/duty-schedule/public/today/${villageId}`);
   },
 
   /**
@@ -22,7 +22,7 @@ const dutyScheduleApi = {
    * @returns {Promise} 日历事件数据
    */
   getCalendarData(params) {
-    return request.get('/api/v1/duty-schedule/calendar', { params })
+    return request.get('/api/v1/duty-schedule/calendar', { params });
   },
 
   /**
@@ -35,7 +35,7 @@ const dutyScheduleApi = {
    * @returns {Promise} 呼叫结果
    */
   scanAndCall(data) {
-    return request.post('/api/v1/duty-schedule/scan-call', data)
+    return request.post('/api/v1/duty-schedule/scan-call', data);
   },
 
   /**
@@ -50,7 +50,7 @@ const dutyScheduleApi = {
    * @returns {Promise} 排班结果
    */
   generateSmartSchedule(scheduleId, options = {}) {
-    return request.post(`/api/v1/duty-schedule/${scheduleId}/smart-schedule`, options)
+    return request.post(`/api/v1/duty-schedule/${scheduleId}/smart-schedule`, options);
   },
 
   /**
@@ -59,7 +59,7 @@ const dutyScheduleApi = {
    * @returns {Promise} 值班表列表
    */
   getSchedules(params = {}) {
-    return request.get('/api/v1/duty-schedule', { params })
+    return request.get('/api/v1/duty-schedule', { params });
   },
 
   /**
@@ -68,7 +68,7 @@ const dutyScheduleApi = {
    * @returns {Promise} 创建的值班表
    */
   createSchedule(data) {
-    return request.post('/api/v1/duty-schedule', data)
+    return request.post('/api/v1/duty-schedule', data);
   },
 
   /**
@@ -78,7 +78,7 @@ const dutyScheduleApi = {
    * @returns {Promise} 更新后的值班表
    */
   updateSchedule(scheduleId, data) {
-    return request.put(`/api/v1/duty-schedule/${scheduleId}`, data)
+    return request.put(`/api/v1/duty-schedule/${scheduleId}`, data);
   },
 
   /**
@@ -87,7 +87,7 @@ const dutyScheduleApi = {
    * @returns {Promise} 删除结果
    */
   deleteSchedule(scheduleId) {
-    return request.delete(`/api/v1/duty-schedule/${scheduleId}`)
+    return request.delete(`/api/v1/duty-schedule/${scheduleId}`);
   },
 
   /**
@@ -96,7 +96,7 @@ const dutyScheduleApi = {
    * @returns {Promise} 包含二维码的值班表
    */
   publishSchedule(scheduleId) {
-    return request.post(`/api/v1/duty-schedule/${scheduleId}/publish`)
+    return request.post(`/api/v1/duty-schedule/${scheduleId}/publish`);
   },
 
   /**
@@ -108,7 +108,7 @@ const dutyScheduleApi = {
    * @returns {Promise} 统计数据
    */
   getStatistics(villageId, params = {}) {
-    return request.get(`/api/v1/duty-schedule/statistics/${villageId}`, { params })
+    return request.get(`/api/v1/duty-schedule/statistics/${villageId}`, { params });
   },
 
   /**
@@ -119,7 +119,7 @@ const dutyScheduleApi = {
    * @returns {Promise} 呼叫记录列表
    */
   getCallerLogs(params = {}) {
-    return request.get('/api/v1/duty-schedule/caller-logs', { params })
+    return request.get('/api/v1/duty-schedule/caller-logs', { params });
   },
 
   /**
@@ -129,7 +129,7 @@ const dutyScheduleApi = {
    * @returns {Promise} 呼叫记录列表
    */
   getOfficerCalls(officerId, params = {}) {
-    return request.get(`/api/v1/duty-schedule/officer-calls/${officerId}`, { params })
+    return request.get(`/api/v1/duty-schedule/officer-calls/${officerId}`, { params });
   },
 
   /**
@@ -140,7 +140,7 @@ const dutyScheduleApi = {
    * @returns {Promise} 响应结果
    */
   respondCall(callId, data) {
-    return request.post(`/api/v1/duty-schedule/calls/${callId}/respond`, data)
+    return request.post(`/api/v1/duty-schedule/calls/${callId}/respond`, data);
   },
 
   /**
@@ -151,7 +151,7 @@ const dutyScheduleApi = {
    * @returns {Promise} 解决结果
    */
   resolveCall(callId, data) {
-    return request.post(`/api/v1/duty-schedule/calls/${callId}/resolve`, data)
+    return request.post(`/api/v1/duty-schedule/calls/${callId}/resolve`, data);
   },
 
   /**
@@ -163,7 +163,7 @@ const dutyScheduleApi = {
    * @returns {Promise} 评价结果
    */
   rateCall(callId, data) {
-    return request.post(`/api/v1/duty-schedule/calls/${callId}/rate`, data)
+    return request.post(`/api/v1/duty-schedule/calls/${callId}/rate`, data);
   },
 
   /**
@@ -172,8 +172,8 @@ const dutyScheduleApi = {
    * @returns {Promise} 超时呼叫列表
    */
   getTimeoutCalls(villageId) {
-    return request.get(`/api/v1/duty-schedule/timeout-calls/${villageId}`)
+    return request.get(`/api/v1/duty-schedule/timeout-calls/${villageId}`);
   }
-}
+};
 
-export default dutyScheduleApi
+export default dutyScheduleApi;
