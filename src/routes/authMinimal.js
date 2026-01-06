@@ -8,6 +8,37 @@ const router = express.Router();
 const authController = require('../controllers/authController');
 const { body, validationResult } = require('express-validator');
 const { handleValidationErrors } = require('../middleware/apiValidation');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs').promises;
+
+// 配置文件上传
+const storage = multer.diskStorage({
+  destination: async (req, file, cb) => {
+    const uploadDir = path.join(__dirname, '../../uploads/temp');
+    await fs.mkdir(uploadDir, { recursive: true }).catch(() => {});
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|pdf/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('只支持图片和PDF文件'));
+    }
+  }
+});
 
 // 测试端点
 router.get('/test', (req, res) => {
@@ -140,6 +171,48 @@ router.post('/verify-code', async (req, res) => {
 });
 
 /**
+ * 发送验证码（前端兼容路由）
+ * POST /api/v1/auth/send-code
+ * 与 /verify-code 功能相同，用于前端兼容
+ */
+router.post('/send-code', async (req, res) => {
+  console.log('[AuthMinimal] /send-code called, body:', JSON.stringify(req.body));
+  console.log('[AuthMinimal] req.body exists:', !!req.body);
+
+  try {
+    const smsService = require('../services/smsService');
+    const { phone } = req.body;
+
+    if (!phone) {
+      return res.status(400).json({
+        success: false,
+        error: '手机号不能为空'
+      });
+    }
+
+    const result = await smsService.sendVerificationCode(phone);
+
+    if (result.success) {
+      res.json({
+        success: true,
+        message: '验证码已发送'
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        error: result.message
+      });
+    }
+  } catch (error) {
+    console.error('[AuthMinimal] Send code error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to send verification code'
+    });
+  }
+});
+
+/**
  * 密码登录
  * POST /api/v1/auth/login
  */
@@ -184,5 +257,101 @@ router.post('/register',
   handleValidationErrors,
   authController.register
 );
+
+/**
+ * 文件上传（通用接口）
+ * POST /api/v1/auth/upload
+ */
+router.post('/upload', upload.single('file'), async (req, res) => {
+  console.log('[AuthMinimal] ===== FILE UPLOAD START =====');
+  console.log('[AuthMinimal] File:', req.file);
+
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        error: '请选择要上传的文件'
+      });
+    }
+
+    // 返回文件信息
+    res.json({
+      success: true,
+      message: '文件上传成功',
+      data: {
+        filename: req.file.filename,
+        originalname: req.file.originalname,
+        mimetype: req.file.mimetype,
+        size: req.file.size,
+        path: `/uploads/temp/${req.file.filename}`,
+        url: `/uploads/temp/${req.file.filename}`
+      }
+    });
+
+    console.log('[AuthMinimal] ===== FILE UPLOAD SUCCESS =====');
+  } catch (error) {
+    console.error('[AuthMinimal] Upload error:', error);
+    res.status(500).json({
+      success: false,
+      error: '文件上传失败',
+      details: error.message
+    });
+  }
+});
+
+/**
+ * 身份证上传（批量接口）
+ * POST /api/v1/auth/upload/idcard
+ */
+router.post('/upload/idcard', upload.fields([
+  { name: 'idCardFront', maxCount: 1 },
+  { name: 'idCardBack', maxCount: 1 }
+]), async (req, res) => {
+  console.log('[AuthMinimal] ===== ID CARD UPLOAD START =====');
+  console.log('[AuthMinimal] Files:', req.files);
+
+  try {
+    if (!req.files || (!req.files.idCardFront && !req.files.idCardBack)) {
+      return res.status(400).json({
+        success: false,
+        error: '请上传身份证照片'
+      });
+    }
+
+    const result = {
+      success: true,
+      message: '身份证上传成功',
+      data: {}
+    };
+
+    if (req.files.idCardFront) {
+      result.data.idCardFront = {
+        filename: req.files.idCardFront[0].filename,
+        originalname: req.files.idCardFront[0].originalname,
+        path: `/uploads/temp/${req.files.idCardFront[0].filename}`,
+        url: `/uploads/temp/${req.files.idCardFront[0].filename}`
+      };
+    }
+
+    if (req.files.idCardBack) {
+      result.data.idCardBack = {
+        filename: req.files.idCardBack[0].filename,
+        originalname: req.files.idCardBack[0].originalname,
+        path: `/uploads/temp/${req.files.idCardBack[0].filename}`,
+        url: `/uploads/temp/${req.files.idCardBack[0].filename}`
+      };
+    }
+
+    console.log('[AuthMinimal] ===== ID CARD UPLOAD SUCCESS =====');
+    res.json(result);
+  } catch (error) {
+    console.error('[AuthMinimal] ID card upload error:', error);
+    res.status(500).json({
+      success: false,
+      error: '身份证上传失败',
+      details: error.message
+    });
+  }
+});
 
 module.exports = router;

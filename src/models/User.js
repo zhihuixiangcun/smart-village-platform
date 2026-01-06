@@ -16,8 +16,9 @@ const userSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: true,
+    required: false,
     unique: true,
+    sparse: true,  // 允许多个 null 值
     trim: true,
     lowercase: true
   },
@@ -28,7 +29,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['admin', 'village_admin', 'village_official', 'resident'],
+    enum: ['admin', 'village_admin', 'village_official', 'resident', 'purchaser'],
     default: 'resident'
   },
   profile: {

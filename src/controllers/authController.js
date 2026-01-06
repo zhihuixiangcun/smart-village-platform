@@ -15,7 +15,8 @@ const roleMapping = {
   'resident': 'resident',
   'cadre': 'village_admin',
   'official': 'village_official',
-  'admin': 'admin'
+  'admin': 'admin',
+  'purchaser': 'purchaser'
 };
 
 /**

@@ -94,6 +94,8 @@ console.log('[DEBUG] massiveDataRoutes DISABLED (causes startup hang)');
 // Load minimal auth routes (full auth.js has missing controller methods)
 const authRoutes = require('./routes/authMinimal');
 console.log('[DEBUG] authMinimalRoutes loaded');
+const uploadRoutes = require('./routes/uploadRoutes');
+console.log('[DEBUG] uploadRoutes loaded');
 // const residentsRoutes = require('./routes/residents');
 // console.log('[DEBUG] residentsRoutes loaded');
 // Temporarily disabled - missing residentValidator dependency
@@ -142,11 +144,21 @@ console.log('[DEBUG] authRoutes loaded');
 // 用户注册审批系统路由
 // const registrationRoutes = require('./routes/registrationRoutes');
 console.log('[DEBUG] registrationRoutes temporarily disabled');
+// 简化的OCR路由（不需要外部API）
+const ocrMinimalRoutes = require('./routes/ocrMinimal');
+console.log('[DEBUG] ocrMinimalRoutes loaded');
+// 完整的OCR路由（需要腾讯云API密钥）
 // const idCardOCRRoutes = require('./routes/idCardOCRRoutes');
-console.log('[DEBUG] idCardOCRRoutes temporarily disabled');
+// console.log('[DEBUG] idCardOCRRoutes loaded');
 // 采购商路由
-// const purchaserRoutes = require('./routes/purchaserRoutes');
-console.log('[DEBUG] purchaserRoutes temporarily disabled');
+const purchaserRoutes = require('./routes/purchaserRoutes');
+console.log('[DEBUG] purchaserRoutes loaded');
+// 交通服务路由
+const transportationRoutes = require('./routes/transportationRoutes');
+console.log('[DEBUG] transportationRoutes loaded');
+// 拼车服务路由 - temporarily disabled (controller needs to be recreated)
+// const carpoolingRoutes = require('./routes/carpoolingRoutes');
+console.log('[DEBUG] carpoolingRoutes DISABLED (controller needs to be recreated)');
 
 // 导入村务管理路由
 // const villageManagementRoutes = require('./routes/villageManagement');
@@ -298,6 +310,22 @@ app.use('/static', express.static(path.join(__dirname, '../public'), {
   maxAge: '1d',
   etag: true,
   lastModified: true
+}));
+
+// 上传文件服务（添加 CORS 支持）
+app.use('/uploads', cors({
+  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001'],
+  credentials: true,
+  methods: ['GET', 'HEAD'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Content-Length', 'Content-Type']
+}), express.static(path.join(__dirname, '../uploads'), {
+  etag: true,
+  lastModified: true,
+  setHeaders: (res, path) => {
+    // 确保图片文件返回正确的 Content-Type
+    res.set('Cross-Origin-Resource-Policy', 'cross-origin');
+  }
 }));
 
 // 实时计算引擎初始化
@@ -543,6 +571,10 @@ console.log('[DEBUG] massiveDataRoutes DISABLED (causes startup hang)');
 app.use('/api/v1/auth', authRoutes);
 console.log('[DEBUG] authRoutes registered');
 
+// 文件上传路由
+app.use('/api/v1/upload', uploadRoutes);
+console.log('[DEBUG] uploadRoutes registered at /api/v1/upload');
+
 // 智慧村庄模块路由 - TEMPORARILY DISABLED to debug startup
 console.log('[DEBUG] About to load residentsRoutes...');
 // app.use('/api/v1/residents', residentsRoutes);
@@ -650,17 +682,22 @@ if (authRoutes) {
 //   app.use('/api/v1/registration', registrationRoutes);
 //   console.log('[DEBUG] registrationRoutes registered at /api/v1/registration');
 // }
-// if (idCardOCRRoutes) {
-//   app.use('/api/v1/ocr', idCardOCRRoutes);
-//   console.log('[DEBUG] idCardOCRRoutes registered at /api/v1/ocr');
-// }
+// OCR识别路由（使用简化版本，无需外部API）
+if (ocrMinimalRoutes) {
+  app.use('/api/v1/ocr', ocrMinimalRoutes);
+  console.log('[DEBUG] ocrMinimalRoutes registered at /api/v1/ocr');
+}
 
-// 采购商路由 - DISABLED (variable not defined)
-// if (purchaserRoutes) {
-//   app.use('/api/v1/purchaser', purchaserRoutes);
-//   console.log('[DEBUG] purchaserRoutes registered at /api/v1/purchaser');
-// }
-console.log('[DEBUG] registrationRoutes, idCardOCRRoutes, purchaserRoutes DISABLED (troubleshooting)');
+// 采购商路由
+if (purchaserRoutes) {
+  app.use('/api/v1/purchaser', purchaserRoutes);
+  // 交通服务路由
+  app.use('/api/v1/transportation', transportationRoutes);
+  // 拼车服务路由 - temporarily disabled
+  // app.use('/api/v1/carpooling', carpoolingRoutes);
+  console.log('[DEBUG] purchaserRoutes registered at /api/v1/purchaser');
+}
+console.log('[DEBUG] registrationRoutes DISABLED (troubleshooting)');
 
 // 安全中间件集成 - Temporarily disabled to debug startup issue
 console.log('[DEBUG] Skipping security middleware for now...');

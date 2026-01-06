@@ -119,6 +119,20 @@ const router = createRouter({
       }
     },
     {
+      path: '/purchaser/profile',
+      name: 'purchaser-profile',
+      component: () => import('@/views/purchasers/PurchaserProfile.vue'),
+      meta: {
+        requiresAuth: true,
+        title: '采购商个人中心',
+        permissions: ['purchaser:access'],
+        breadcrumb: [
+          { title: '首页', path: '/dashboard' },
+          { title: '采购商个人中心', path: '/purchaser/profile' }
+        ]
+      }
+    },
+    {
       path: '/purchaser/recommendations',
       name: 'purchaser-recommendations',
       component: () => import('@/views/purchasers/PurchaserRecommendations.vue'),
