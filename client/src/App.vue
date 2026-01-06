@@ -3,38 +3,30 @@
     <!-- 服务状态指示器 -->
     <div class="service-status" v-if="showStatusBar">
       <div class="status-item">
-        <el-tag :type="mainApiStatus.connected ? 'success' : 'danger'" size="small">
-          主API服务: {{ mainApiStatus.connected ? '正常' : '离线' }}
-        </el-tag>
+        <span class="status-badge" :class="{ 'status-success': mainApiConnected, 'status-offline': !mainApiConnected }">
+          主API服务: {{ getMainApiStatusText() }}
+        </span>
       </div>
       <div class="status-item">
-        <el-tag :type="villageApiStatus.connected ? 'success' : 'danger'" size="small">
-          村务服务: {{ villageApiStatus.connected ? '正常' : '离线' }}
-        </el-tag>
+        <span class="status-badge" :class="{ 'status-success': villageApiConnected, 'status-offline': !villageApiConnected }">
+          村务服务: {{ getVillageApiStatusText() }}
+        </span>
       </div>
       <div class="status-item">
-        <el-tag :type="socketStatus.connected ? 'success' : 'warning'" size="small">
-          实时通信: {{ socketStatus.connected ? '已连接' : '未连接' }}
-        </el-tag>
+        <span class="status-badge" :class="{ 'status-success': socketConnected, 'status-pending': !socketConnected }">
+          实时通信: {{ getSocketStatusText() }}
+        </span>
       </div>
-      <el-button size="small" text @click="showStatusBar = false">
-        <el-icon><Close /></el-icon>
-      </el-button>
+      <button class="close-btn" @click="showStatusBar = false">✕</button>
     </div>
 
     <router-view />
 
     <!-- 浮动操作按钮 -->
-    <div class="floating-actions">
-      <el-button
-        circle
-        type="primary"
-        @click="showStatusBar = true"
-        title="查看服务状态"
-        v-if="!showStatusBar"
-      >
-        <el-icon><Monitor /></el-icon>
-      </el-button>
+    <div class="floating-actions" v-if="!showStatusBar">
+      <button class="fab-button" @click="showStatusBar = true" title="查看服务状态">
+        📊
+      </button>
     </div>
   </div>
 </template>
@@ -43,24 +35,50 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import socketService from '@/services/socket'
 import { ElMessage } from 'element-plus'
-import { Close, Monitor } from '@element-plus/icons-vue'
 
 // 响应式数据
 const showStatusBar = ref(true)
-const mainApiStatus = ref({ connected: false })
-const villageApiStatus = ref({ connected: false })
-const socketStatus = ref({ connected: false })
+const mainApiConnected = ref(false)
+const villageApiConnected = ref(false)
+const socketConnected = ref(false)
 
 // 服务状态检查定时器
 let statusCheckInterval = null
+
+// 主API状态方法
+const getMainApiStatusType = () => {
+  return mainApiConnected.value ? 'success' : 'info'
+}
+
+const getMainApiStatusText = () => {
+  return mainApiConnected.value ? '正常' : '离线'
+}
+
+// 村务API状态方法
+const getVillageApiStatusType = () => {
+  return villageApiConnected.value ? 'success' : 'info'
+}
+
+const getVillageApiStatusText = () => {
+  return villageApiConnected.value ? '正常' : '离线'
+}
+
+// Socket状态方法
+const getSocketStatusType = () => {
+  return socketConnected.value ? 'success' : 'info'
+}
+
+const getSocketStatusText = () => {
+  return socketConnected.value ? '已连接' : '未连接'
+}
 
 // 检查主API服务状态
 const checkMainApiStatus = async () => {
   try {
     const response = await fetch('http://localhost:3001/health')
-    mainApiStatus.value.connected = response.ok
+    mainApiConnected.value = response.ok
   } catch (error) {
-    mainApiStatus.value.connected = false
+    mainApiConnected.value = false
   }
 }
 
@@ -68,16 +86,20 @@ const checkMainApiStatus = async () => {
 const checkVillageApiStatus = async () => {
   try {
     const response = await fetch('http://localhost:5000/health')
-    villageApiStatus.value.connected = response.ok
+    villageApiConnected.value = response.ok
   } catch (error) {
-    villageApiStatus.value.connected = false
+    villageApiConnected.value = false
   }
 }
 
 // 检查Socket.IO连接状态
 const checkSocketStatus = () => {
-  const status = socketService.getConnectionStatus()
-  socketStatus.value = status
+  try {
+    const status = socketService.getConnectionStatus()
+    socketConnected.value = status?.connected || false
+  } catch (error) {
+    socketConnected.value = false
+  }
 }
 
 // 定期检查所有服务状态
@@ -91,7 +113,11 @@ const checkAllServices = async () => {
 
 onMounted(() => {
   // 连接Socket.IO
-  socketService.connect()
+  try {
+    socketService.connect()
+  } catch (e) {
+    console.log('Socket连接失败，将在后台重试')
+  }
 
   // 立即检查一次服务状态
   checkAllServices()
@@ -116,7 +142,11 @@ onUnmounted(() => {
   }
 
   // 断开Socket.IO连接
-  socketService.disconnect()
+  try {
+    socketService.disconnect()
+  } catch (e) {
+    console.log('Socket断开连接失败')
+  }
 })
 </script>
 
@@ -157,6 +187,48 @@ body {
     display: flex;
     align-items: center;
   }
+
+  .status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .status-success {
+    background-color: #f0f9ff;
+    color: #67c23a;
+    border: 1px solid #b3e19d;
+  }
+
+  .status-offline {
+    background-color: #fef0f0;
+    color: #f56c6c;
+    border: 1px solid #fbc4c4;
+  }
+
+  .status-pending {
+    background-color: #fdf6ec;
+    color: #e6a23c;
+    border: 1px solid #f5dab1;
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px 8px;
+    color: #909399;
+    margin-left: auto;
+  }
+
+  .close-btn:hover {
+    color: #606266;
+    background-color: #f5f7fa;
+    border-radius: 4px;
+  }
 }
 
 // 浮动操作按钮
@@ -166,13 +238,22 @@ body {
   right: 24px;
   z-index: 1000;
 
-  .el-button {
+  .fab-button {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: none;
+    background-color: #409eff;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
     box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
+    transition: all 0.3s;
+  }
 
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(64, 158, 255, 0.4);
-    }
+  .fab-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(64, 158, 255, 0.4);
   }
 }
 

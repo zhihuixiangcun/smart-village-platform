@@ -3,7 +3,7 @@
     <!-- 区块标题 -->
     <div class="section-header">
       <div class="title-left">
-        <el-icon class="section-icon"><Gourmet /></el-icon>
+        <el-icon class="section-icon"><Shop /></el-icon>
         <h2 class="section-title">附近吃喝玩乐</h2>
       </div>
       <div class="header-actions">
@@ -200,11 +200,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import {
-  Gourmet,
+  Shop,  // 替代 Gourmet（餐饮）
   Filter,
   Sort,
   Location,
-  Navigation,
+  Compass,  // 替代 Navigation（导航）
   Phone,
   Share
 } from '@element-plus/icons-vue'
@@ -239,7 +239,7 @@ const serviceCategories = ref([
   {
     key: 'all',
     label: '全部',
-    icon: Gourmet,
+    icon: Shop,  // 替代 Gourmet
     color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
   },
   {

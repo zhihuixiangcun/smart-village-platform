@@ -457,7 +457,7 @@ import {
   Download,
   Search,
   Refresh,
-  PaperClip,
+  Link,  // 替代 PaperClip
   Document,
   Upload
 } from '@element-plus/icons-vue';

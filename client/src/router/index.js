@@ -47,16 +47,16 @@ const router = createRouter({
         layout: 'auth'
       }
     },
-    {
-      path: '/face-login',
-      name: 'face-login',
-      component: () => import('@/views/auth/FaceLogin.vue'),
-      meta: {
-        requiresAuth: false,
-        title: '人脸识别登录',
-        layout: 'auth'
-      }
-    },
+    // {
+    //   path: '/face-login',
+    //   name: 'face-login',
+    //   component: () => import('@/views/auth/FaceLogin.vue'),
+    //   meta: {
+    //     requiresAuth: false,
+    //     title: '人脸识别登录',
+    //     layout: 'auth'
+    //   }
+    // },
     {
       path: '/unified-login',
       name: 'unified-login',

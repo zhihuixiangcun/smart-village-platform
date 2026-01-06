@@ -82,7 +82,7 @@
       <div id="villageMap" class="map-container" :class="{ 'fullscreen': isFullscreen }">
         <!-- 地图加载指示器 -->
         <div v-if="mapLoading" class="map-loading">
-          <el-loading-spinner />
+          <div class="loading-spinner">⏳</div>
           <p>地图加载中...</p>
         </div>
 

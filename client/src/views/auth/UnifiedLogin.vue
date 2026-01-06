@@ -13,21 +13,21 @@
         <div class="brand-content">
           <div class="logo">
             <img src="@/assets/logo.png" alt="智慧乡村" v-if="hasLogo" />
-            <el-icon :size="80" color="#ffffff" v-else><OfficeBuilding /></el-icon>
+            <div class="fallback-logo" v-else>🏛️</div>
           </div>
           <h1 class="brand-title">智慧乡村综合服务平台</h1>
           <p class="brand-subtitle">Smart Village Comprehensive Service Platform</p>
           <div class="brand-features">
             <div class="feature-item">
-              <el-icon><Check /></el-icon>
+              <span class="feature-icon">✅</span>
               <span>一站式便民服务</span>
             </div>
             <div class="feature-item">
-              <el-icon><Check /></el-icon>
+              <span class="feature-icon">✅</span>
               <span>村务公开透明</span>
             </div>
             <div class="feature-item">
-              <el-icon><Check /></el-icon>
+              <span class="feature-icon">✅</span>
               <span>智能生活助手</span>
             </div>
           </div>
@@ -46,9 +46,7 @@
               :class="{ active: selectedRole === role.value }"
               @click="selectRole(role.value)"
             >
-              <el-icon :size="24">
-                <component :is="role.icon" />
-              </el-icon>
+              <span class="role-icon">{{ role.emoji }}</span>
               <span>{{ role.label }}</span>
             </div>
           </div>
@@ -73,9 +71,7 @@
                 :class="{ active: loginMethod === method.value }"
                 @click="loginMethod = method.value"
               >
-                <el-icon>
-                  <component :is="method.icon" />
-                </el-icon>
+                <span class="method-icon">{{ method.emoji }}</span>
                 <span>{{ method.label }}</span>
               </div>
             </div>
@@ -97,7 +93,7 @@
                   clearable
                 >
                   <template #prefix>
-                    <el-icon><User /></el-icon>
+                    <span class="input-icon">👤</span>
                   </template>
                 </el-input>
               </el-form-item>
@@ -112,7 +108,7 @@
                   @keyup.enter="handlePasswordLogin"
                 >
                   <template #prefix>
-                    <el-icon><Lock /></el-icon>
+                    <span class="input-icon">🔒</span>
                   </template>
                 </el-input>
               </el-form-item>
@@ -142,7 +138,7 @@
             <!-- 快速测试登录 -->
             <div class="quick-test-login" v-if="selectedRole !== 'purchaser'">
               <el-divider>
-                <el-icon><MagicStick /></el-icon>
+                <span class="divider-icon">🪄</span>
                 快速测试登录
               </el-divider>
               <div class="quick-test-buttons">
@@ -154,7 +150,7 @@
                   :class="{ 'test-btn-active': selectedRole === 'admin' }"
                   class="test-button"
                 >
-                  <el-icon><User /></el-icon>
+                  <span class="button-icon">👤</span>
                   <span>管理员</span>
                   <small>testadmin</small>
                 </el-button>
@@ -166,7 +162,7 @@
                   :class="{ 'test-btn-active': selectedRole === 'cadre' }"
                   class="test-button"
                 >
-                  <el-icon><ChatDotSquare /></el-icon>
+                  <span class="button-icon">👔</span>
                   <span>村委</span>
                   <small>testcadre</small>
                 </el-button>
@@ -178,7 +174,7 @@
                   :class="{ 'test-btn-active': selectedRole === 'resident' }"
                   class="test-button"
                 >
-                  <el-icon><UserFilled /></el-icon>
+                  <span class="button-icon">🧑‍🌾</span>
                   <span>村民</span>
                   <small>testresident</small>
                 </el-button>
@@ -220,7 +216,7 @@
                   clearable
                 >
                   <template #prefix>
-                    <el-icon><Phone /></el-icon>
+                    <span class="input-icon">📱</span>
                   </template>
                 </el-input>
               </el-form-item>
@@ -235,7 +231,7 @@
                   @keyup.enter="handlePurchaserLogin"
                 >
                   <template #prefix>
-                    <el-icon><Postcard /></el-icon>
+                    <span class="input-icon">🪪</span>
                   </template>
                 </el-input>
               </el-form-item>
@@ -279,7 +275,7 @@
                   </div>
                 </div>
                 <div class="face-placeholder" v-if="!faceScanning">
-                  <el-icon :size="80"><UserFilled /></el-icon>
+                  <div class="face-placeholder-icon">👤</div>
                   <p>点击下方按钮开始人脸识别</p>
                 </div>
               </div>
@@ -290,7 +286,7 @@
                 @click="startFaceRecognition"
                 class="face-button"
               >
-                <el-icon v-if="!faceScanning"><Camera /></el-icon>
+                <span v-if="!faceScanning" class="button-icon">📷</span>
                 {{ faceScanning ? '识别中...' : '开始人脸识别' }}
               </el-button>
             </div>
@@ -301,7 +297,7 @@
                 <div class="qr-code" v-if="wechatQrCode">
                   <img :src="wechatQrCode" alt="微信扫码登录" />
                   <div class="qr-overlay" v-if="wechatScanned">
-                    <el-icon :size="60" color="#67C23A"><SuccessFilled /></el-icon>
+                    <div class="qr-success-icon">✅</div>
                     <p>扫描成功</p>
                   </div>
                   <div class="qr-overlay" v-else-if="wechatExpired">
@@ -310,12 +306,12 @@
                   </div>
                 </div>
                 <div class="qr-loading" v-else>
-                  <el-icon class="is-loading" :size="40"><Loading /></el-icon>
+                  <div class="loading-spinner">⏳</div>
                   <p>正在生成二维码...</p>
                 </div>
               </div>
               <div class="wechat-tips">
-                <el-icon><InfoFilled /></el-icon>
+                <span class="tips-icon">ℹ️</span>
                 <span>请使用微信扫描二维码登录</span>
               </div>
             </div>
@@ -333,7 +329,7 @@
                   title="微信登录"
                   class="social-button wechat"
                 >
-                  <el-icon :size="20"><ChatDotRound /></el-icon>
+                  <span class="social-icon">💬</span>
                 </el-button>
                 <el-button
                   circle
@@ -342,7 +338,7 @@
                   title="人脸登录"
                   class="social-button face"
                 >
-                  <el-icon :size="20"><UserFilled /></el-icon>
+                  <span class="social-icon">👤</span>
                 </el-button>
               </div>
             </div>
@@ -483,14 +479,8 @@
 import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import {
-  User, Lock, Phone, Key, Postcard, Camera, Check, InfoFilled,
-  Loading, SuccessFilled, ChatDotRound, UserFilled, OfficeBuilding,
-  Plus, ChatDotSquare, ShoppingCart, MagicStick
-} from '@element-plus/icons-vue'
 import { authApi } from '@/api'
 import api from '@/api'
-import { markRaw } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 
 const router = useRouter()
@@ -498,11 +488,11 @@ const userStore = useUserStore()
 
 // 角色定义
 const roles = ref([
-  { label: '村民', value: 'resident', icon: markRaw(UserFilled) },
-  { label: '村干部', value: 'cadre', icon: markRaw(ChatDotSquare) },
-  { label: '乡镇官员', value: 'official', icon: markRaw(OfficeBuilding) },
-  { label: '采购商', value: 'purchaser', icon: markRaw(ShoppingCart) },
-  { label: '管理员', value: 'admin', icon: markRaw(User) }
+  { label: '村民', value: 'resident', emoji: '🧑‍🌾' },
+  { label: '村干部', value: 'cadre', emoji: '👔' },
+  { label: '乡镇官员', value: 'official', emoji: '🏢' },
+  { label: '采购商', value: 'purchaser', emoji: '🛒' },
+  { label: '管理员', value: 'admin', emoji: '👤' }
 ])
 
 const selectedRole = ref('resident')
@@ -516,9 +506,9 @@ const showPrivacyDialogFlag = ref(false)
 
 // 登录方式
 const loginMethods = ref([
-  { label: '密码登录', value: 'password', icon: markRaw(Lock) },
-  { label: '人脸识别', value: 'face', icon: markRaw(Camera) },
-  { label: '微信登录', value: 'wechat', icon: markRaw(ChatDotRound) }
+  { label: '密码登录', value: 'password', emoji: '🔒' },
+  { label: '人脸识别', value: 'face', emoji: '📷' },
+  { label: '微信登录', value: 'wechat', emoji: '💬' }
 ])
 
 // 登录表单
@@ -1078,6 +1068,16 @@ onUnmounted(() => {
           transform: scale(1.05) rotate(5deg);
         }
       }
+
+      .fallback-logo {
+        font-size: 80px;
+        filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.2));
+        transition: transform 0.3s ease;
+
+        &:hover {
+          transform: scale(1.05) rotate(5deg);
+        }
+      }
     }
 
     .brand-title {
@@ -1125,9 +1125,8 @@ onUnmounted(() => {
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
-        .el-icon {
+        .feature-icon {
           margin-right: 14px;
-          color: #67C23A;
           font-size: 20px;
           filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
         }
@@ -1972,5 +1971,52 @@ onUnmounted(() => {
     background-color: #667eea;
     border-color: #667eea;
   }
+}
+
+// 新增的emoji图标样式
+.role-icon {
+  font-size: 24px;
+  margin-bottom: 4px;
+}
+
+.method-icon {
+  font-size: 18px;
+}
+
+.input-icon {
+  font-size: 18px;
+  color: #909399;
+}
+
+.divider-icon {
+  margin-right: 8px;
+}
+
+.button-icon {
+  font-size: 20px;
+}
+
+.face-placeholder-icon {
+  font-size: 80px;
+  margin-bottom: 16px;
+}
+
+.qr-success-icon {
+  font-size: 60px;
+  margin-bottom: 10px;
+}
+
+.loading-spinner {
+  font-size: 40px;
+  margin-bottom: 16px;
+}
+
+.tips-icon {
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+.social-icon {
+  font-size: 20px;
 }
 </style>

@@ -497,7 +497,7 @@ import { ElMessage } from 'element-plus'
 import {
   Search, Refresh, Download,
   List, Clock, ArrowUp, ArrowDown,
-  DataAnalysis, Warning, Shield
+  DataAnalysis, Warning, Lock
 } from '@element-plus/icons-vue'
 import enhancedPermissionService from '@/services/enhancedPermissionService'
 
@@ -546,7 +546,7 @@ const auditStats = ref([
     key: 'allowed',
     label: '允许操作',
     value: 14250,
-    icon: 'Shield',
+    icon: 'Lock',
     type: 'success',
     trend: 8.3
   },

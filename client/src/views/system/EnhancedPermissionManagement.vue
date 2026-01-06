@@ -110,7 +110,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   Lock, View, Refresh, ArrowUp, ArrowDown,
   User, UserFilled, Key, DataAnalysis,
-  Shield, Connection, Document, Clock
+  Connection, Document, Clock
 } from '@element-plus/icons-vue'
 import { usePermissionStore } from '@/stores/permissionStore'
 import enhancedPermissionService from '@/services/enhancedPermissionService'
@@ -158,7 +158,7 @@ const fetchPermissionStats = async () => {
         key: 'activePolicies',
         label: '活跃策略',
         value: stats.activePolicies || 0,
-        icon: 'Shield',
+        icon: 'Lock',
         type: 'warning'
       },
       {

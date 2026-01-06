@@ -280,7 +280,7 @@ import { ref, computed, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   Bell, Warning, Phone, Location, LocationInformation, Loading,
-  Plus, FirstAidKit, Fire, WarningFilled, Car, Tools
+  Plus, FirstAidKit, Flag, WarningFilled, Van, Tools  // Van 替代 Car, Flag 替代 Fire
 } from '@element-plus/icons-vue'
 import LocationPickerDialog from './LocationPickerDialog.vue'
 import EmergencyCallResultDialog from './EmergencyCallResultDialog.vue'
@@ -333,13 +333,13 @@ const emergencyTypes = [
   {
     name: '火灾',
     value: 'fire',
-    icon: Fire,
+    icon: Flag,  // 替代 Fire
     color: '#ff6b6b'
   },
   {
     name: '事故',
     value: 'accident',
-    icon: Car,
+    icon: Van,  // 替代 Car
     color: '#ffa940'
   },
   {
