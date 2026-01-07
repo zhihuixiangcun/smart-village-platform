@@ -388,3 +388,257 @@ D --驳回--> F[短信告知驳回原因]
 裂变激励：分享农业技术至微信/抖音可兑换农资优惠券
 二、特色运营设计
 田间直播间：对，预计可使农业技术传播效率提升300%。需要试点地区合作社入驻支撑内容真实性验证。
+
+---
+
+## 🤖 智能体技能系统 (AI Agent Skills System)
+
+本项目集成了 **65个专业智能体**，可通过用户指令自动调用以完成特定任务。智能体技能文件存储在 `.claude/skills/` 目录。
+
+### 快速调用指南
+
+#### 按任务类型选择智能体
+
+```
+前端组件开发     → frontend-developer
+后端API设计      → backend-architect
+数据库优化       → database-optimizer
+安全审计         → security-auditor
+代码审查         → code-reviewer
+性能优化         → performance-engineer
+UI设计           → ui-ux-designer
+API文档          → api-documenter
+测试自动化       → test-automator
+云部署           → deployment-engineer
+AI功能开发       → ai-engineer
+数据分析         → data-scientist
+调试问题         → debugger / error-detective
+产品规划         → product-manager-expert
+```
+
+#### 智能体分类索引
+
+**🎨 前端与设计 (3个)**
+- `frontend-developer` - React组件与响应式布局
+- `ui-ux-designer` - UI/UX设计与原型
+- `mermaid-expert` - Mermaid图表专家
+
+**⚙️ 后端开发 (12个)**
+- `backend-architect` - RESTful API与微服务架构
+- `graphql-architect` - GraphQL schema设计
+- `python-pro` / `javascript-pro` / `typescript-pro` - 语言专家
+- `java-pro` / `golang-pro` / `csharp-pro` - 企业级语言
+- `c-pro` / `cpp-pro` / `rust-pro` - 系统级语言
+- `php-pro` / `ruby-pro` / `elixir-pro` / `scala-pro` - 其他语言
+
+**🗄️ 数据与AI (9个)**
+- `data-engineer` - ETL管道与数据仓库
+- `data-scientist` - 数据分析与SQL
+- `ai-engineer` - LLM应用与RAG系统
+- `ml-engineer` - ML管道与模型部署
+- `mlops-engineer` - ML实验跟踪
+- `prompt-engineer` - 提示词优化
+- `database-admin` - 数据库运维
+- `database-optimizer` - SQL优化
+- `sql-pro` - 复杂查询专家
+
+**☁️ 运维与部署 (5个)**
+- `cloud-architect` - AWS/Azure/GCP架构
+- `deployment-engineer` - CI/CD与Kubernetes
+- `devops-troubleshooter` - 生产问题调试
+- `terraform-specialist` - Terraform IaC
+- `incident-responder` - 应急响应
+
+**🔒 安全与测试 (7个)**
+- `security-auditor` - 代码安全审计
+- `code-reviewer` - 代码质量审查
+- `test-automator` - 测试自动化
+- `debugger` - 错误调试
+- `error-detective` - 错误模式分析
+- `performance-engineer` - 性能优化
+- `architect-reviewer` - 架构审查
+
+**📱 移动端开发 (4个)**
+- `mobile-developer` - React Native/Flutter
+- `flutter-expert` - Flutter专家
+- `ios-developer` - iOS原生开发
+- `unity-developer` - Unity游戏开发
+
+**🌐 网络与基础设施 (2个)**
+- `network-engineer` - 网络连接与DNS/SSL
+- `payment-integration` - 支付集成
+
+**📚 文档与教育 (4个)**
+- `docs-architect` - 技术文档创建
+- `api-documenter` - OpenAPI/Swagger规范
+- `tutorial-engineer` - 教程编写
+- `reference-builder` - 技术参考文档
+
+**💼 商业与管理 (8个)**
+- `product-manager-expert` - 产品规划与PRD
+- `business-analyst` - 指标分析与KPI
+- `content-marketer` - 内容营销
+- `customer-support` - 客户支持
+- `legal-advisor` - 法律文档
+- `sales-automator` - 销售自动化
+- `quant-analyst` - 金融模型
+- `risk-manager` - 风险管理
+
+**🔧 工具与技能系统 (3个)**
+- `dx-optimizer` - 开发者体验优化
+- `legacy-modernizer` - 遗留系统现代化
+- `skill-creator` / `skill-share` - 技能创建与分享
+
+**🎮 专项领域 (2个)**
+- `minecraft-bukkit-pro` - Minecraft插件开发
+- `search-specialist` - 网络搜索与研究
+
+### 智能体调用方式
+
+#### 方式1: 直接描述需求
+```
+"请调用 frontend-developer 智能体来创建Vue组件"
+"使用 backend-architect 设计用户认证API"
+```
+
+#### 方式2: 组合调用多个智能体
+```
+全栈开发:
+  frontend-developer + backend-architect + database-optimizer
+
+微服务架构:
+  backend-architect + cloud-architect + devops-troubleshooter
+
+AI应用:
+  ai-engineer + prompt-engineer + data-engineer
+
+移动应用:
+  mobile-developer + ui-ux-designer + backend-architect
+
+测试完整流程:
+  test-automator + security-auditor + performance-engineer
+```
+
+#### 方式3: 产品开发全流程
+使用 `product-manager-expert` 启动完整的产品开发流程:
+
+1. **需求分析阶段**: `product-manager-expert` + `business-analyst`
+2. **架构设计阶段**: `backend-architect` + `cloud-architect` + `database-optimizer`
+3. **UI/UX设计阶段**: `ui-ux-designer` + `frontend-developer`
+4. **开发实现阶段**: 各编程语言专家 + `code-reviewer`
+5. **测试部署阶段**: `test-automator` + `security-auditor` + `deployment-engineer`
+
+### 智能体核心能力详解
+
+#### 产品经理专家 (product-manager-expert)
+- **核心能力**: 需求分析、PRD文档生成、市场调研、功能规划、竞品分析
+- **执行流程**:
+  1. 需求信息调研 - 梳理核心功能与目标用户
+  2. 市场调研 - 分析市场规模与竞争态势
+  3. 需求优先级分析 - 评估价值与确定MVP范围
+  4. 生成PRD文档 - 标准化产品需求文档
+- **输出**: PRD文档、产品概述、功能清单、流程图、原型设计
+
+#### 后端架构师 (backend-architect)
+- **核心能力**: RESTful API设计、微服务边界、数据库schema、缓存策略
+- **输出**: API端点定义、服务架构图、数据库schema、技术选型建议
+- **适用场景**: 创建新后端服务、API设计、系统架构规划
+
+#### 前端开发专家 (frontend-developer)
+- **核心能力**: React/Vue组件架构、响应式设计、状态管理、性能优化
+- **输出**: 完整前端组件、样式方案、状态管理实现、单元测试结构
+- **适用场景**: 创建UI组件、修复前端问题、性能优化
+
+#### AI工程师 (ai-engineer)
+- **核心能力**: LLM集成、RAG系统、提示词工程、智能体编排
+- **输出**: LLM集成代码、RAG管道、提示词模板、向量数据库设置
+- **适用场景**: 开发AI功能、聊天机器人、AI驱动的应用
+
+#### 代码审查专家 (code-reviewer)
+- **核心能力**: 代码质量审查、配置安全审计、性能分析
+- **特别关注**: 配置文件变更、连接池设置、超时配置、安全漏洞
+- **输出**: 分级审查报告(CRITICAL/HIGH/SUGGESTIONS)、安全风险识别
+- **适用场景**: 代码合并前审查、安全审计、性能问题诊断
+
+### 使用示例
+
+#### 示例1: 开发新功能
+```
+"我需要为智慧乡村平台添加'邻里互助'功能，请调用相关智能体完成以下任务:
+1. product-manager-expert: 编写PRD文档
+2. backend-architect: 设计API接口
+3. database-optimizer: 设计数据库schema
+4. frontend-developer: 开发前端组件
+5. code-reviewer: 审查代码质量
+6. test-automator: 编写测试用例"
+```
+
+#### 示例2: 性能优化
+```
+"系统响应速度慢，请调用以下智能体诊断和优化:
+1. performance-engineer: 分析性能瓶颈
+2. database-optimizer: 优化数据库查询
+3. code-reviewer: 审查代码性能问题
+4. architect-reviewer: 审查架构设计"
+```
+
+#### 示例3: 安全审计
+```
+"请调用 security-auditor 智能体对以下代码进行安全审计:
+- 认证授权逻辑
+- 敏感数据处理
+- API接口安全"
+```
+
+#### 示例4: AI功能开发
+```
+"请调用 ai-engineer 智能体为智慧乡村平台开发以下AI功能:
+1. 智能客服助手 - 回答村民常见问题
+2. 政策匹配助手 - 根据用户情况推荐适合的政策补贴
+3. 农业知识问答 - 解答农业生产技术问题"
+```
+
+### 智能体协作原则
+
+1. **明确任务目标**: 清晰描述需要完成的任务
+2. **选择合适智能体**: 根据任务类型选择最匹配的智能体
+3. **组合使用**: 复杂任务可组合多个智能体协同工作
+4. **迭代优化**: 智能体输出可反复优化直到满意
+5. **代码审查**: 代码编写后自动触发 code-reviewer 审查
+
+### 智能体文件存储位置
+
+所有智能体技能文件位于: `.claude/skills/[智能体名称]/SKILL.md`
+
+示例:
+- `.claude/skills/backend-architect/SKILL.md`
+- `.claude/skills/frontend-developer/SKILL.md`
+- `.claude/skills/ai-engineer/SKILL.md`
+- `.claude/skills/product manager expert/SKILL.md`
+
+### 技能管理
+
+#### 查看所有可用智能体
+```bash
+# 查看 SKILLS_INDEX.md 获取完整列表
+cat .claude/SKILLS_INDEX.md
+```
+
+#### 创建新技能
+```bash
+# 使用 skill-creator 智能体创建新技能
+"请使用 skill-creator 智能体创建一个新的 [技能名称]"
+```
+
+#### 分享技能
+```bash
+# 使用 skill-share 智能体分享技能
+"请使用 skill-share 智能体将 [技能名称] 分享到社区"
+```
+
+---
+
+**最后更新**: 2026-01-08
+**智能体总数**: 65个
+**维护位置**: `.claude/skills/`
+**详细索引**: `.claude/SKILLS_INDEX.md`

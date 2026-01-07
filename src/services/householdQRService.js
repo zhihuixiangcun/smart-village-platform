@@ -518,7 +518,7 @@ class HouseholdQRService {
       householdId,
       scannerId: scannerInfo.userId,
       scannerName: scannerInfo.userName,
-      scanTime: new Date();
+      scanTime: new Date()
     });
   }
 

@@ -1,263 +1,392 @@
 <template>
-  <div class="household-qr">
-    <!-- 顶部导航 -->
-    <van-nav-bar
-      title="一户一码"
-      left-arrow
-      @click-left="$router.go(-1)"
-    >
-      <template #right>
-        <van-icon name="qr-invalid" size="20" @click="showMyQR" />
-      </template>
-    </van-nav-bar>
-
-    <!-- 我的户码 -->
-    <div class="my-qr-section" v-if="myHousehold">
-      <van-cell-group inset title="我的户码">
-        <van-cell center>
-          <template #title>
-            <span class="household-name">{{ myHousehold.householder }}</span>
-            <van-tag type="primary" size="small">{{ myHousehold.memberCount }}人</van-tag>
-          </template>
-          <template #label>
-            <span class="code-id">{{ myHousehold.codeId }}</span>
-          </template>
-          <template #right-icon>
-            <van-button size="small" type="primary" @click="showQRCode = true">
-              查看二维码
-            </van-button>
-          </template>
-        </van-cell>
-        <van-cell :title="myHousehold.address" is-link @click="showDetail = true" />
-      </van-cell-group>
+  <div class="household-qr-container">
+    <!-- 页面头部 -->
+    <div class="page-header">
+      <el-page-header @back="$router.go(-1)" title="返回">
+        <template #content>
+          <div class="header-content">
+            <el-icon><Wallet /></el-icon>
+            <span class="title">一户一码</span>
+          </div>
+        </template>
+        <template #extra>
+          <el-button type="primary" :icon="QrCode" @click="showMyQR">
+            我的户码
+          </el-button>
+        </template>
+      </el-page-header>
     </div>
 
-    <van-empty v-else description="暂无户码信息" />
+    <!-- 主内容区 -->
+    <div class="main-content">
+      <!-- 我的户码卡片 -->
+      <el-card v-if="myHousehold" class="household-card" shadow="hover">
+        <template #header>
+          <div class="card-header">
+            <span class="card-title">我的户码</span>
+            <el-tag type="primary" size="large">
+              {{ myHousehold.memberCount || 1 }}人家庭
+            </el-tag>
+          </div>
+        </template>
 
-    <!-- 功能菜单 -->
-    <div class="function-menu">
-      <van-grid :column-num="3" :border="false">
-        <van-grid-item text="扫码查看" icon="scan" @click="showScanner = true" />
-        <van-grid-item text="家庭成员" icon="friends" @click="showMembers = true" />
-        <van-grid-item text="更新信息" icon="edit" @click="showUpdateForm = true" />
-        <van-grid-item text="变更历史" icon="records" @click="showHistory = true" />
-        <van-grid-item text="统计信息" icon="bar-chart" @click="showStats = true" />
-        <van-grid-item text="刷新码" icon="replay" @click="refreshQRCode" />
-      </van-grid>
-    </div>
-
-    <!-- 快捷操作 -->
-    <div class="quick-actions">
-      <van-button type="primary" block icon="plus" @click="showAddMember = true">
-        添加家庭成员
-      </van-button>
-    </div>
-
-    <!-- 二维码弹窗 -->
-    <van-dialog v-model:show="showQRCode" title="户码二维码" :show-confirm-button="false">
-      <div class="qr-dialog-content">
-        <div v-if="qrImageUrl" class="qr-image">
-          <img :src="qrImageUrl" alt="户码二维码" />
-        </div>
-        <van-loading v-else size="24px">生成中...</van-loading>
-        <div class="qr-code-text">{{ myHousehold?.codeId }}</div>
-        <van-button type="primary" block @click="downloadQR">下载二维码</van-button>
-        <van-button block @click="showQRCode = false">关闭</van-button>
-      </div>
-    </van-dialog>
-
-    <!-- 扫码弹窗 -->
-    <van-popup v-model:show="showScanner" position="bottom" :style="{ height: '70%' }">
-      <div class="scanner-popup">
-        <div class="scanner-header">
-          <h3>扫码查看户信息</h3>
-          <van-icon name="cross" @click="showScanner = false" />
-        </div>
-        <div class="scanner-content">
-          <van-field
-            v-model="scanCodeInput"
-            label="户码"
-            placeholder="请输入或扫描户码"
-          />
-          <van-button type="primary" block @click="handleScan">
-            确认扫码
-          </van-button>
-        </div>
-      </div>
-    </van-popup>
-
-    <!-- 家庭成员弹窗 -->
-    <van-popup v-model:show="showMembers" position="bottom" :style="{ height: '80%' }">
-      <div class="members-popup">
-        <div class="popup-header">
-          <h3>家庭成员</h3>
-          <van-icon name="cross" @click="showMembers = false" />
-        </div>
-        <div class="members-content">
-          <van-loading v-if="loadingMembers" size="24px">加载中...</van-loading>
-          <van-empty v-else-if="!members.length" description="暂无成员" />
-          <van-cell-group v-else inset>
-            <van-cell
-              v-for="member in members"
-              :key="member._id"
-              :title="member.name"
-              :label="member.relationship"
-              is-link
-              @click="viewMemberDetail(member)"
-            >
-              <template #right-icon>
-                <van-tag :type="member.isHead ? 'primary' : 'default'" size="small">
-                  {{ member.isHead ? '户主' : '' }}
-                </van-tag>
-              </template>
-            </van-cell>
-          </van-cell-group>
-        </div>
-      </div>
-    </van-popup>
-
-    <!-- 添加成员弹窗 -->
-    <van-dialog v-model:show="showAddMember" title="添加家庭成员" show-cancel-button>
-      <van-form @submit="handleAddMember">
-        <van-cell-group inset>
-          <van-field
-            v-model="newMember.name"
-            name="name"
-            label="姓名"
-            placeholder="请输入姓名"
-            :rules="[{ required: true, message: '请输入姓名' }]"
-          />
-          <van-field
-            v-model="newMember.idCard"
-            name="idCard"
-            label="身份证号"
-            placeholder="请输入身份证号"
-            :rules="[{ required: true, message: '请输入身份证号' }]"
-          />
-          <van-field name="relationship" label="关系">
-            <template #input>
-              <van-radio-group v-model="newMember.relationship" direction="horizontal">
-                <van-radio name="配偶">配偶</van-radio>
-                <van-radio name="子女">子女</van-radio>
-                <van-radio name="父母">父母</van-radio>
-                <van-radio name="其他">其他</van-radio>
-              </van-radio-group>
-            </template>
-          </van-field>
-          <van-field
-            v-model="newMember.phone"
-            name="phone"
-            label="联系电话"
-            placeholder="请输入电话"
-          />
-        </van-cell-group>
-        <div class="dialog-actions">
-          <van-button round block type="primary" native-type="submit">
-            添加成员
-          </van-button>
-        </div>
-      </van-form>
-    </van-dialog>
-
-    <!-- 更新信息弹窗 -->
-    <van-popup v-model:show="showUpdateForm" position="bottom" round>
-      <div class="update-popup">
-        <div class="popup-header">
-          <h3>更新信息</h3>
-          <van-icon name="cross" @click="showUpdateForm = false" />
-        </div>
-        <van-tabs v-model:active="updateTabActive">
-          <van-tab title="地址" title-style="font-size:14px">
-            <van-form @submit="handleUpdateAddress">
-              <van-cell-group inset>
-                <van-field
-                  v-model="updateForm.address.detailed"
-                  label="详细地址"
-                  placeholder="请输入详细地址"
-                />
-              </van-cell-group>
-              <div class="dialog-actions">
-                <van-button round block type="primary" native-type="submit">
-                  更新地址
-                </van-button>
-              </div>
-            </van-form>
-          </van-tab>
-          <van-tab title="标签" title-style="font-size:14px">
-            <van-form @submit="handleUpdateTags">
-              <van-cell-group inset>
-                <van-field name="tags" label="家庭标签">
-                  <template #input>
-                    <van-checkbox-group v-model="updateForm.tags" direction="horizontal">
-                      <van-checkbox name="党员家庭">党员家庭</van-checkbox>
-                      <van-checkbox name="军属家庭">军属家庭</van-checkbox>
-                      <van-checkbox name="文明家庭">文明家庭</van-checkbox>
-                      <van-checkbox name="安全家庭">安全家庭</van-checkbox>
-                    </van-checkbox-group>
-                  </template>
-                </van-field>
-              </van-cell-group>
-              <div class="dialog-actions">
-                <van-button round block type="primary" native-type="submit">
-                  更新标签
-                </van-button>
-              </div>
-            </van-form>
-          </van-tab>
-          <van-tab title="联系方式" title-style="font-size:14px">
-            <van-form @submit="handleUpdateContact">
-              <van-cell-group inset>
-                <van-field
-                  v-model="updateForm.contact.phone"
-                  label="联系电话"
-                  placeholder="请输入电话"
-                  type="tel"
-                />
-              </van-cell-group>
-              <div class="dialog-actions">
-                <van-button round block type="primary" native-type="submit">
-                  更新联系方式
-                </van-button>
-              </div>
-            </van-form>
-          </van-tab>
-        </van-tabs>
-      </div>
-    </van-popup>
-
-    <!-- 扫码结果弹窗 -->
-    <van-popup v-model:show="showScanResult" position="bottom" round>
-      <div class="scan-result-popup">
-        <div class="popup-header">
-          <h3>户信息</h3>
-          <van-icon name="cross" @click="showScanResult = false" />
-        </div>
-        <div class="scan-result-content">
-          <van-cell-group inset>
-            <van-cell title="户主" :value="scanResult?.household?.householder?.name" />
-            <van-cell title="人数" :value="scanResult?.household?.demographics?.totalMembers" />
-            <van-cell title="地址" :value="scanResult?.household?.addressText" />
-            <van-cell title="状态">
-              <template #value>
-                <van-tag type="success">正常</van-tag>
-              </template>
-            </van-cell>
-          </van-cell-group>
-          <div class="result-actions">
-            <van-button type="primary" block @click="showScanResult = false">
-              确定
-            </van-button>
+        <div class="household-info">
+          <div class="info-item">
+            <span class="label">户主姓名：</span>
+            <span class="value">{{ myHousehold.householder }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">户码编号：</span>
+            <span class="value code-id">{{ myHousehold.codeId }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">家庭地址：</span>
+            <span class="value">{{ myHousehold.address }}</span>
           </div>
         </div>
+
+        <div class="card-actions">
+          <el-button type="primary" :icon="View" @click="showQRCode = true">
+            查看二维码
+          </el-button>
+          <el-button :icon="Document" @click="showDetail = true">
+            查看详情
+          </el-button>
+        </div>
+      </el-card>
+
+      <!-- 空状态 -->
+      <el-card v-else class="empty-card" shadow="never">
+        <el-empty description="暂无户码信息">
+          <el-button type="primary" @click="loadMyHousehold">
+            重新加载
+          </el-button>
+        </el-empty>
+      </el-card>
+
+      <!-- 功能菜单 -->
+      <el-card class="function-card" shadow="hover">
+        <template #header>
+          <div class="card-title">功能菜单</div>
+        </template>
+
+        <el-row :gutter="16">
+          <el-col :xs="12" :sm="8" :md="6" v-for="item in menuItems" :key="item.id">
+            <div class="menu-item" @click="handleMenuClick(item)">
+              <div class="menu-icon">
+                <el-icon :size="32">
+                  <component :is="item.icon" />
+                </el-icon>
+              </div>
+              <div class="menu-text">{{ item.text }}</div>
+            </div>
+          </el-col>
+        </el-row>
+      </el-card>
+
+      <!-- 快捷操作 -->
+      <el-card class="action-card" shadow="hover">
+        <template #header>
+          <div class="card-title">快捷操作</div>
+        </template>
+
+        <el-button type="primary" size="large" :icon="Plus" block @click="showAddMember = true">
+          添加家庭成员
+        </el-button>
+      </el-card>
+    </div>
+
+    <!-- 二维码对话框 -->
+    <el-dialog
+      v-model="showQRCode"
+      title="户码二维码"
+      width="450px"
+      center
+      :close-on-click-modal="false"
+    >
+      <div class="qr-dialog-content">
+        <div v-if="qrLoading" class="qr-loading">
+          <el-icon class="is-loading" :size="50"><Loading /></el-icon>
+          <p>正在生成二维码...</p>
+        </div>
+
+        <div v-else-if="qrImageUrl" class="qr-display">
+          <div class="qr-image">
+            <img :src="qrImageUrl" alt="户码二维码" />
+          </div>
+          <div class="qr-info">
+            <p class="code-text">{{ myHousehold?.codeId }}</p>
+            <p class="scan-tip">扫码查看家庭信息</p>
+          </div>
+        </div>
+
+        <div v-else class="qr-error">
+          <el-result icon="error" title="二维码生成失败" sub-title="请稍后重试">
+            <template #extra>
+              <el-button type="primary" @click="generateQRCode">重新生成</el-button>
+            </template>
+          </el-result>
+        </div>
       </div>
-    </van-popup>
+
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="showQRCode = false">关闭</el-button>
+          <el-button type="primary" @click="downloadQR" :disabled="!qrImageUrl || qrLoading">
+            <el-icon><Download /></el-icon>
+            下载二维码
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
+
+    <!-- 扫码对话框 -->
+    <el-dialog
+      v-model="showScanner"
+      title="扫码查看户信息"
+      width="500px"
+      center
+    >
+      <el-form label-position="top">
+        <el-form-item label="户码编号">
+          <el-input
+            v-model="scanCodeInput"
+            placeholder="请输入或扫描户码"
+            clearable
+            size="large"
+          >
+            <template #append>
+              <el-button :icon="Scan" @click="handleScan">
+                扫码
+              </el-button>
+            </template>
+          </el-input>
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <el-button @click="showScanner = false">取消</el-button>
+        <el-button type="primary" @click="handleScan">确认</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 家庭成员对话框 -->
+    <el-dialog
+      v-model="showMembers"
+      title="家庭成员"
+      width="600px"
+      center
+    >
+      <div v-if="loadingMembers" class="loading-container">
+        <el-icon class="is-loading" :size="40"><Loading /></el-icon>
+        <p>加载中...</p>
+      </div>
+
+      <div v-else-if="!members.length" class="empty-container">
+        <el-empty description="暂无成员" />
+      </div>
+
+      <el-table v-else :data="members" stripe>
+        <el-table-column prop="name" label="姓名" width="120" />
+        <el-table-column prop="relationship" label="关系" width="100" />
+        <el-table-column prop="phone" label="联系电话" />
+        <el-table-column prop="gender" label="性别" width="80" />
+        <el-table-column label="操作" width="100">
+          <template #default="scope">
+            <el-button size="small" @click="viewMemberDetail(scope.row)">
+              查看
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <template #footer>
+        <el-button @click="showMembers = false">关闭</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 添加成员对话框 -->
+    <el-dialog
+      v-model="showAddMember"
+      title="添加家庭成员"
+      width="500px"
+      center
+    >
+      <el-form :model="newMember" label-width="100px" size="large">
+        <el-form-item label="姓名" required>
+          <el-input v-model="newMember.name" placeholder="请输入姓名" />
+        </el-form-item>
+
+        <el-form-item label="身份证号" required>
+          <el-input v-model="newMember.idCard" placeholder="请输入身份证号" />
+        </el-form-item>
+
+        <el-form-item label="关系" required>
+          <el-select v-model="newMember.relationship" placeholder="请选择关系">
+            <el-option label="配偶" value="配偶" />
+            <el-option label="子女" value="子女" />
+            <el-option label="父母" value="父母" />
+            <el-option label="其他" value="其他" />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="联系电话">
+          <el-input v-model="newMember.phone" placeholder="请输入电话" />
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <el-button @click="showAddMember = false">取消</el-button>
+        <el-button type="primary" @click="handleAddMember">确定</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 更新信息对话框 -->
+    <el-dialog
+      v-model="showUpdateForm"
+      title="更新信息"
+      width="600px"
+      center
+    >
+      <el-tabs v-model="updateTabActive">
+        <el-tab-pane label="地址" name="address">
+          <el-form :model="updateForm.address" label-width="100px">
+            <el-form-item label="详细地址">
+              <el-input
+                v-model="updateForm.address.detailed"
+                type="textarea"
+                placeholder="请输入详细地址"
+              />
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" @click="handleUpdateAddress">
+                更新地址
+              </el-button>
+            </el-form-item>
+          </el-form>
+        </el-tab-pane>
+
+        <el-tab-pane label="标签" name="tags">
+          <el-form label-width="100px">
+            <el-form-item label="家庭标签">
+              <el-checkbox-group v-model="updateForm.tags">
+                <el-checkbox label="党员家庭" />
+                <el-checkbox label="军属家庭" />
+                <el-checkbox label="文明家庭" />
+                <el-checkbox label="安全家庭" />
+              </el-checkbox-group>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" @click="handleUpdateTags">
+                更新标签
+              </el-button>
+            </el-form-item>
+          </el-form>
+        </el-tab-pane>
+
+        <el-tab-pane label="联系方式" name="contact">
+          <el-form :model="updateForm.contact" label-width="100px">
+            <el-form-item label="联系电话">
+              <el-input
+                v-model="updateForm.contact.phone"
+                placeholder="请输入电话"
+                type="tel"
+              />
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" @click="handleUpdateContact">
+                更新联系方式
+              </el-button>
+            </el-form-item>
+          </el-form>
+        </el-tab-pane>
+      </el-tabs>
+
+      <template #footer>
+        <el-button @click="showUpdateForm = false">关闭</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 扫码结果对话框 -->
+    <el-dialog
+      v-model="showScanResult"
+      title="户信息"
+      width="500px"
+      center
+    >
+      <el-descriptions v-if="scanResult" :column="1" border>
+        <el-descriptions-item label="户主姓名">
+          {{ scanResult.household?.householder?.name }}
+        </el-descriptions-item>
+        <el-descriptions-item label="家庭人数">
+          {{ scanResult.household?.memberCount }}人
+        </el-descriptions-item>
+        <el-descriptions-item label="家庭地址">
+          {{ scanResult.household?.addressText }}
+        </el-descriptions-item>
+        <el-descriptions-item label="状态">
+          <el-tag type="success">正常</el-tag>
+        </el-descriptions-item>
+      </el-descriptions>
+
+      <template #footer>
+        <el-button type="primary" @click="showScanResult = false">确定</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 详情对话框 -->
+    <el-dialog
+      v-model="showDetail"
+      title="家庭详细信息"
+      width="700px"
+      center
+    >
+      <div v-if="myHousehold">
+        <el-descriptions :column="2" border>
+          <el-descriptions-item label="户码" :span="2">
+            {{ myHousehold.codeId }}
+          </el-descriptions-item>
+          <el-descriptions-item label="户主姓名">
+            {{ myHousehold.householder }}
+          </el-descriptions-item>
+          <el-descriptions-item label="家庭人数">
+            {{ myHousehold.memberCount || 1 }}人
+          </el-descriptions-item>
+          <el-descriptions-item label="家庭地址" :span="2">
+            {{ myHousehold.address }}
+          </el-descriptions-item>
+          <el-descriptions-item label="创建时间" :span="2">
+            {{ formatDate(myHousehold.createdAt) }}
+          </el-descriptions-item>
+        </el-descriptions>
+      </div>
+
+      <template #footer>
+        <el-button @click="showDetail = false">关闭</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { showToast, showConfirmDialog } from 'vant'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import {
+  Wallet,
+  QrCode,
+  View,
+  Document,
+  Plus,
+  Download,
+  Scan,
+  Loading,
+  User,
+  Edit,
+  DataAnalysis,
+  Refresh,
+  List
+} from '@element-plus/icons-vue'
 import householdQRApi from '@/api/householdQR'
 import { useUserStore } from '@/stores/user'
 
@@ -267,6 +396,7 @@ const userStore = useUserStore()
 // ============ 响应式数据 ============
 const myHousehold = ref(null)
 const qrImageUrl = ref('')
+const qrLoading = ref(false)
 const loadingMembers = ref(false)
 const members = ref([])
 const scanResult = ref(null)
@@ -295,28 +425,43 @@ const updateForm = reactive({
   tags: [],
   contact: { phone: '' }
 })
-const updateTabActive = ref(0)
+const updateTabActive = ref('address')
+
+// 功能菜单
+const menuItems = [
+  { id: 'scan', text: '扫码查看', icon: Scan },
+  { id: 'members', text: '家庭成员', icon: User },
+  { id: 'update', text: '更新信息', icon: Edit },
+  { id: 'history', text: '变更历史', icon: List },
+  { id: 'stats', text: '统计信息', icon: DataAnalysis },
+  { id: 'refresh', text: '刷新二维码', icon: Refresh }
+]
 
 // ============ 方法 ============
+
 /**
  * 加载我的户码信息
  */
 const loadMyHousehold = async () => {
   try {
-    // 假设从用户信息中获取 householdId
     const householdId = userStore.userInfo?.householdId
     if (!householdId) {
-      showToast('未绑定家庭')
+      ElMessage.warning('未绑定家庭信息')
       return
     }
 
-    const response = await householdQRApi.generateQR(householdId)
+    const response = await householdQRApi.generateQR(householdId, { includeImage: true })
     if (response.success) {
-      myHousehold.value = response.data.household
+      myHousehold.value = {
+        ...response.data.household,
+        codeId: response.data.codeId,
+        address: response.data.household.address
+      }
       qrImageUrl.value = response.data.qrImageUrl
     }
   } catch (error) {
-    console.error('加载户码信息失败:', error)
+    console.error('加载户码失败:', error)
+    ElMessage.error('加载失败，请稍后重试')
   }
 }
 
@@ -325,23 +470,51 @@ const loadMyHousehold = async () => {
  */
 const showMyQR = () => {
   if (!myHousehold.value) {
-    showToast('请先绑定家庭')
+    ElMessage.warning('请先加载户码信息')
+    loadMyHousehold()
     return
   }
   showQRCode.value = true
 }
 
 /**
+ * 生成二维码
+ */
+const generateQRCode = async () => {
+  qrLoading.value = true
+  try {
+    const householdId = userStore.userInfo?.householdId
+    const response = await householdQRApi.generateQR(householdId, { includeImage: true })
+
+    if (response.success) {
+      qrImageUrl.value = response.data.qrImageUrl
+      ElMessage.success('二维码生成成功')
+    }
+  } catch (error) {
+    ElMessage.error('生成失败')
+  } finally {
+    qrLoading.value = false
+  }
+}
+
+/**
  * 下载二维码
  */
 const downloadQR = () => {
-  if (!qrImageUrl.value) return
+  if (!qrImageUrl.value) {
+    ElMessage.warning('请先生成二维码')
+    return
+  }
 
-  const link = document.createElement('a')
-  link.href = qrImageUrl.value
-  link.download = `户码_${myHousehold.value?.codeId}.png`
-  link.click()
-  showToast('下载成功')
+  try {
+    const link = document.createElement('a')
+    link.href = qrImageUrl.value
+    link.download = `户码_${myHousehold.value?.codeId}.png`
+    link.click()
+    ElMessage.success('下载成功')
+  } catch (error) {
+    ElMessage.error('下载失败')
+  }
 }
 
 /**
@@ -350,7 +523,7 @@ const downloadQR = () => {
 const handleScan = async () => {
   const codeId = scanCodeInput.value.trim()
   if (!codeId) {
-    showToast('请输入户码')
+    ElMessage.warning('请输入户码')
     return
   }
 
@@ -363,28 +536,7 @@ const handleScan = async () => {
       scanCodeInput.value = ''
     }
   } catch (error) {
-    showToast(error.message || '扫码失败')
-  }
-}
-
-/**
- * 刷新二维码
- */
-const refreshQRCode = async () => {
-  try {
-    const householdId = userStore.userInfo?.householdId
-    if (!householdId) {
-      showToast('未绑定家庭')
-      return
-    }
-
-    const response = await householdQRApi.refreshQR(householdId)
-    if (response.success) {
-      qrImageUrl.value = response.data.qrData.qrImageUrl
-      showToast('刷新成功')
-    }
-  } catch (error) {
-    showToast('刷新失败')
+    ElMessage.error(error.message || '扫码失败')
   }
 }
 
@@ -395,13 +547,13 @@ const handleAddMember = async () => {
   try {
     const codeId = myHousehold.value?.codeId
     if (!codeId) {
-      showToast('户码不存在')
+      ElMessage.warning('户码不存在')
       return
     }
 
     const response = await householdQRApi.addMember(codeId, newMember)
     if (response.success) {
-      showToast('添加成功')
+      ElMessage.success('添加成功')
       showAddMember.value = false
       // 重置表单
       Object.assign(newMember, {
@@ -410,9 +562,11 @@ const handleAddMember = async () => {
         relationship: '',
         phone: ''
       })
+      // 重新加载成员列表
+      loadMembers()
     }
   } catch (error) {
-    showToast(error.message || '添加失败')
+    ElMessage.error(error.message || '添加失败')
   }
 }
 
@@ -424,11 +578,11 @@ const handleUpdateAddress = async () => {
     const codeId = myHousehold.value?.codeId
     const response = await householdQRApi.updateAddress(codeId, updateForm.address)
     if (response.success) {
-      showToast('更新成功')
+      ElMessage.success('更新成功')
       showUpdateForm.value = false
     }
   } catch (error) {
-    showToast(error.message || '更新失败')
+    ElMessage.error(error.message || '更新失败')
   }
 }
 
@@ -440,11 +594,11 @@ const handleUpdateTags = async () => {
     const codeId = myHousehold.value?.codeId
     const response = await householdQRApi.updateTags(codeId, updateForm.tags)
     if (response.success) {
-      showToast('更新成功')
+      ElMessage.success('更新成功')
       showUpdateForm.value = false
     }
   } catch (error) {
-    showToast(error.message || '更新失败')
+    ElMessage.error(error.message || '更新失败')
   }
 }
 
@@ -456,11 +610,11 @@ const handleUpdateContact = async () => {
     const codeId = myHousehold.value?.codeId
     const response = await householdQRApi.updateContact(codeId, updateForm.contact.phone)
     if (response.success) {
-      showToast('更新成功')
+      ElMessage.success('更新成功')
       showUpdateForm.value = false
     }
   } catch (error) {
-    showToast(error.message || '更新失败')
+    ElMessage.error(error.message || '更新失败')
   }
 }
 
@@ -468,8 +622,77 @@ const handleUpdateContact = async () => {
  * 查看成员详情
  */
 const viewMemberDetail = (member) => {
-  // TODO: 实现成员详情查看
-  console.log('查看成员详情:', member)
+  ElMessageBox.alert(`
+    姓名: ${member.name}
+    关系: ${member.relationship}
+    电话: ${member.phone || '未设置'}
+    性别: ${member.gender || '未设置'}
+  `, '成员详情')
+}
+
+/**
+ * 加载成员列表
+ */
+const loadMembers = async () => {
+  // TODO: 实现加载成员列表的逻辑
+  members.value = []
+}
+
+/**
+ * 菜单点击处理
+ */
+const handleMenuClick = (item) => {
+  switch (item.id) {
+    case 'scan':
+      showScanner.value = true
+      break
+    case 'members':
+      showMembers.value = true
+      loadMembers()
+      break
+    case 'update':
+      showUpdateForm.value = true
+      break
+    case 'history':
+      ElMessage.info('变更历史功能开发中')
+      break
+    case 'stats':
+      ElMessage.info('统计信息功能开发中')
+      break
+    case 'refresh':
+      refreshQRCode()
+      break
+  }
+}
+
+/**
+ * 刷新二维码
+ */
+const refreshQRCode = async () => {
+  try {
+    const householdId = userStore.userInfo?.householdId
+    if (!householdId) {
+      ElMessage.warning('未绑定家庭')
+      return
+    }
+
+    ElMessage.info('正在刷新二维码...')
+    const response = await householdQRApi.refreshQR(householdId)
+    if (response.success) {
+      qrImageUrl.value = response.data.qrData.qrImageUrl
+      ElMessage.success('刷新成功')
+    }
+  } catch (error) {
+    ElMessage.error('刷新失败')
+  }
+}
+
+/**
+ * 格式化日期
+ */
+const formatDate = (date) => {
+  if (!date) return '未设置'
+  return new Date(date).toLocaleDateString('zh-CN')
 }
 
 // ============ 生命周期 ============
@@ -479,104 +702,173 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.household-qr {
+.household-qr-container {
   min-height: 100vh;
-  background-color: #f7f8fa;
+  background-color: #f5f7fa;
 }
 
-.my-qr-section {
-  margin-bottom: 16px;
+.page-header {
+  background: white;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.household-name {
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
   font-weight: 600;
+}
+
+.main-content {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.household-card,
+.function-card,
+.action-card,
+.empty-card {
+  width: 100%;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #303133;
+}
+
+.household-info {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+}
+
+.info-item .label {
+  font-weight: 600;
+  color: #606266;
   margin-right: 8px;
+  min-width: 100px;
 }
 
-.code-id {
+.info-item .value {
+  color: #303133;
+}
+
+.info-item .value.code-id {
   font-family: monospace;
-  color: #1989fa;
+  color: #409eff;
+  font-size: 16px;
+  letter-spacing: 1px;
 }
 
-.function-menu {
+.card-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+/* 功能菜单 */
+.menu-item {
+  background: white;
+  border: 1px solid #ebeef5;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
   margin-bottom: 16px;
 }
 
-.quick-actions {
-  padding: 16px;
+.menu-item:hover {
+  border-color: #409eff;
+  box-shadow: 0 2px 12px rgba(64, 158, 255, 0.2);
+  transform: translateY(-2px);
 }
 
-/* 二维码弹窗 */
+.menu-icon {
+  color: #409eff;
+  margin-bottom: 8px;
+}
+
+.menu-text {
+  font-size: 14px;
+  color: #606266;
+}
+
+/* 二维码对话框 */
 .qr-dialog-content {
-  padding: 24px;
+  padding: 20px 0;
+}
+
+.qr-loading,
+.qr-display,
+.qr-error {
   text-align: center;
 }
 
 .qr-image img {
-  width: 250px;
-  height: 250px;
-  margin: 0 auto 16px;
+  width: 280px;
+  height: 280px;
+  margin: 0 auto 20px;
+  border: 1px solid #ebeef5;
+  border-radius: 8px;
+  padding: 10px;
+  background: white;
 }
 
-.qr-code-text {
-  font-family: monospace;
-  font-size: 18px;
+.qr-info .code-text {
+  font-size: 20px;
   font-weight: 600;
-  margin-bottom: 16px;
+  font-family: monospace;
+  margin: 0 0 8px;
 }
 
-/* 扫码弹窗 */
-.scanner-popup,
-.members-popup,
-.update-popup {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+.qr-info .scan-tip {
+  color: #909399;
+  font-size: 14px;
 }
 
-.popup-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px;
-  border-bottom: 1px solid #eee;
+.loading-container,
+.empty-container {
+  text-align: center;
+  padding: 40px;
 }
 
-.popup-header h3 {
-  margin: 0;
-  font-size: 16px;
-}
+/* 响应式 */
+@media (max-width: 768px) {
+  .main-content {
+    padding: 0 16px;
+  }
 
-.scanner-content,
-.members-content {
-  flex: 1;
-  overflow: auto;
-  padding: 16px;
-}
+  .card-actions {
+    flex-direction: column;
+  }
 
-.update-popup {
-  overflow: hidden;
-}
+  .card-actions .el-button {
+    width: 100%;
+  }
 
-/* 对话框操作 */
-.dialog-actions {
-  padding: 16px;
-}
-
-/* 扫码结果 */
-.scan-result-popup {
-  max-height: 70vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.scan-result-content {
-  flex: 1;
-  overflow: auto;
-  padding: 16px;
-}
-
-.result-actions {
-  padding: 16px;
+  .qr-image img {
+    width: 220px;
+    height: 220px;
+  }
 }
 </style>

@@ -43,6 +43,14 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Village'
   },
+  householdId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Household'
+  },
+  householdCodeId: {
+    type: String,
+    trim: true
+  },
   status: {
     type: String,
     enum: ['active', 'inactive', 'suspended'],
@@ -216,7 +224,14 @@ userSchema.pre('save', async function(next) {
 
 // 验证密码方法
 userSchema.methods.comparePassword = async function(candidatePassword) {
-  return bcrypt.compare(candidatePassword, this.password);
+  console.log('[User.comparePassword] 开始验证密码');
+  console.log('[User.comparePassword] candidatePassword:', candidatePassword);
+  console.log('[User.comparePassword] this.password (前50字符):', this.password ? this.password.substring(0, 50) : 'undefined');
+
+  const result = await bcrypt.compare(candidatePassword, this.password);
+
+  console.log('[User.comparePassword] 验证结果:', result);
+  return result;
 };
 
 // 获取用户公开信息（不包含敏感信息）
@@ -226,4 +241,5 @@ userSchema.methods.toPublicJSON = function() {
   return user;
 };
 
-module.exports = mongoose.model('User', userSchema);
+// 安全导出：避免重复创建模型
+module.exports = mongoose.models.User || mongoose.model('User', userSchema);

@@ -32,6 +32,10 @@ export const useUserStore = defineStore('user', () => {
    * @param {string} newRefreshToken 新刷新Token
    */
   const setToken = (newToken, newRefreshToken = '') => {
+    console.log('[setToken] 开始设置token');
+    console.log('[setToken] newToken:', newToken ? newToken.substring(0, 50) + '...' : 'null');
+    console.log('[setToken] newRefreshToken:', newRefreshToken);
+
     token.value = newToken;
     if (newRefreshToken) {
       refreshToken.value = newRefreshToken;
@@ -43,10 +47,15 @@ export const useUserStore = defineStore('user', () => {
       if (newRefreshToken) {
         localStorage.setItem('refreshToken', newRefreshToken);
       }
+      console.log('[setToken] Token已保存到localStorage');
+      console.log('[setToken] 验证保存:', localStorage.getItem('token')?.substring(0, 50) + '...');
     } else {
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
+      console.log('[setToken] Token已从localStorage删除');
     }
+
+    console.log('[setToken] token.value:', token.value ? token.value.substring(0, 50) + '...' : 'null');
   };
 
   /**
@@ -54,14 +63,23 @@ export const useUserStore = defineStore('user', () => {
    * @param {Object} info 用户信息
    */
   const setUserInfo = (info) => {
+    console.log('[setUserInfo] 开始设置用户信息');
+    console.log('[setUserInfo] info:', info);
+
     userInfo.value = info;
 
     // 持久化存储
     if (info) {
       localStorage.setItem('userInfo', JSON.stringify(info));
+      console.log('[setUserInfo] 用户信息已保存到localStorage');
+      console.log('[setUserInfo] 验证保存:', localStorage.getItem('userInfo')?.substring(0, 100) + '...');
     } else {
       localStorage.removeItem('userInfo');
+      console.log('[setUserInfo] 用户信息已从localStorage删除');
     }
+
+    console.log('[setUserInfo] userInfo.value:', userInfo.value);
+    console.log('[setUserInfo] isLoggedIn:', !!token.value && !!userInfo.value);
   };
 
   /**
@@ -338,6 +356,22 @@ export const useUserStore = defineStore('user', () => {
   };
 
   /**
+   * 从后端刷新用户信息
+   */
+  const refreshUserInfo = async () => {
+    try {
+      const response = await authApi.getUserInfo();
+      if (response.success && response.data) {
+        setUserInfo(response.data);
+        console.log('✅ 用户信息已刷新:', response.data);
+        return response.data;
+      }
+    } catch (error) {
+      console.error('刷新用户信息失败:', error);
+    }
+  };
+
+  /**
    * 初始化用户状态（从本地存储恢复）
    */
   const initUserState = () => {
@@ -511,6 +545,7 @@ export const useUserStore = defineStore('user', () => {
     phoneLogin,
     register,
     logout,
+    refreshUserInfo,
     doRefreshToken,
     getUserInfo,
     updateUserInfo,
