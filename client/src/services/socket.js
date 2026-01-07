@@ -17,7 +17,7 @@ class SocketService {
   // 连接Socket.IO服务器
   connect() {
     try {
-      this.socket = io('http://localhost:5000', {
+      this.socket = io('http://localhost:3001', {
         transports: ['websocket', 'polling'],
         timeout: 10000,
         autoConnect: true
@@ -25,9 +25,9 @@ class SocketService {
 
       this.setupEventListeners()
 
-      console.log('🔌 正在连接Socket.IO服务器...')
+      console.log('正在连接Socket.IO服务器...')
     } catch (error) {
-      console.error('❌ Socket.IO连接失败:', error)
+      console.error('Socket.IO连接失败:', error)
     }
   }
 
@@ -37,7 +37,7 @@ class SocketService {
 
     // 连接成功
     this.socket.on('connect', () => {
-      console.log('✅ Socket.IO连接成功:', this.socket.id)
+      console.log('Socket.IO连接成功:', this.socket.id)
       this.isConnected = true
       this.reconnectAttempts = 0
 
@@ -47,7 +47,7 @@ class SocketService {
 
     // 连接断开
     this.socket.on('disconnect', (reason) => {
-      console.log('📴 Socket.IO连接断开:', reason)
+      console.log('Socket.IO连接断开:', reason)
       this.isConnected = false
 
       if (reason === 'io server disconnect') {
@@ -58,14 +58,14 @@ class SocketService {
 
     // 连接错误
     this.socket.on('connect_error', (error) => {
-      console.error('💥 Socket.IO连接错误:', error)
+      console.error('Socket.IO连接错误:', error)
       this.isConnected = false
       this.reconnect()
     })
 
     // 重连失败
     this.socket.on('reconnect_failed', () => {
-      console.error('❌ Socket.IO重连失败')
+      console.error('Socket.IO重连失败')
       ElNotification({
         title: '连接失败',
         message: '无法连接到实时通信服务器，某些功能可能不可用',
@@ -77,7 +77,7 @@ class SocketService {
     // 紧急广播
     this.socket.on('emergency-alert', (data) => {
       ElNotification({
-        title: '🚨 紧急广播',
+        title: '紧急广播',
         message: data.message || '收到紧急通知',
         type: 'error',
         duration: 0, // 不自动关闭
@@ -114,7 +114,7 @@ class SocketService {
     const targetVillageId = villageId || userStore.user?.villageId || 'default'
 
     this.socket.emit('join-village', targetVillageId)
-    console.log(`👥 已加入村庄房间: ${targetVillageId}`)
+    console.log(`已加入村庄房间: ${targetVillageId}`)
   }
 
   // 发送紧急广播
@@ -140,14 +140,14 @@ class SocketService {
   // 重连逻辑
   reconnect() {
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.error('❌ 达到最大重连次数，停止重连')
+      console.error('达到最大重连次数，停止重连')
       return
     }
 
     this.reconnectAttempts++
     const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 10000)
 
-    console.log(`🔄 ${delay}ms后尝试第${this.reconnectAttempts}次重连...`)
+    console.log(`${delay}ms后尝试第${this.reconnectAttempts}次重连...`)
 
     setTimeout(() => {
       if (this.socket) {
@@ -162,7 +162,7 @@ class SocketService {
       this.socket.disconnect()
       this.socket = null
       this.isConnected = false
-      console.log('👋 Socket.IO连接已断开')
+      console.log('Socket.IO连接已断开')
     }
   }
 

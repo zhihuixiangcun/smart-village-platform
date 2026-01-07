@@ -1093,6 +1093,18 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore()
 
+  // 调试日志
+  console.log('=== 路由守卫 ===', {
+    to: to.path,
+    from: from.path,
+    query: to.query,
+    isLoggedIn: userStore.isLoggedIn,
+    hasToken: !!userStore.token,
+    hasUserInfo: !!userStore.userInfo,
+    localStorageToken: !!localStorage.getItem('token'),
+    localStorageUserInfo: !!localStorage.getItem('userInfo')
+  })
+
   // 设置页面标题
   document.title = to.meta.title ? `${to.meta.title} - 智慧村庄管理平台` : '智慧村庄管理平台'
 

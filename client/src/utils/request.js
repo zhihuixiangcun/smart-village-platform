@@ -64,17 +64,21 @@ service.interceptors.response.use(
       switch (status) {
         case 401:
           // 未授权，token过期或无效
-          ElMessage.error('登录已过期，请重新登录')
+          console.warn('[Request] 401 未授权错误')
 
           // 尝试刷新token
           try {
-            await userStore.refreshAccessToken()
+            await userStore.doRefreshToken()
             // 重新发送原请求
             return service.request(error.config)
           } catch (refreshError) {
-            // 刷新失败，跳转到登录页
-            userStore.clearUserData()
-            router.push('/login')
+            // 刷新失败，跳转到统一登录页
+            console.warn('[Request] Token刷新失败，跳转到登录页')
+            await userStore.logout(false)
+            router.push({
+              name: 'unified-login',
+              query: { redirect: window.location.pathname + window.location.search }
+            })
             return Promise.reject(error)
           }
 

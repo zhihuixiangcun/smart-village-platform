@@ -183,4 +183,7 @@ declare module 'vue' {
     VotingList: typeof import('./src/components/voting/VotingList.vue')['default']
     WorkStatisticsChart: typeof import('./src/components/charts/WorkStatisticsChart.vue')['default']
   }
+  export interface ComponentCustomProperties {
+    vLoading: typeof import('element-plus/es')['ElLoadingDirective']
+  }
 }
