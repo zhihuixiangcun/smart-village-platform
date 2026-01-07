@@ -20,7 +20,18 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
-      component: () => import('@/views/auth/LoginView.vue'),
+      component: () => import('@/views/auth/UnifiedLogin.vue'),
+      meta: {
+        requiresAuth: false,
+        title: '用户登录',
+        layout: 'auth'
+      }
+    },
+    // 兼容旧的路由，直接使用 login 组件
+    {
+      path: '/unified-login',
+      name: 'unified-login',
+      component: () => import('@/views/auth/UnifiedLogin.vue'),
       meta: {
         requiresAuth: false,
         title: '用户登录',
@@ -44,26 +55,6 @@ const router = createRouter({
       meta: {
         requiresAuth: false,
         title: '找回密码',
-        layout: 'auth'
-      }
-    },
-    // {
-    //   path: '/face-login',
-    //   name: 'face-login',
-    //   component: () => import('@/views/auth/FaceLogin.vue'),
-    //   meta: {
-    //     requiresAuth: false,
-    //     title: '人脸识别登录',
-    //     layout: 'auth'
-    //   }
-    // },
-    {
-      path: '/unified-login',
-      name: 'unified-login',
-      component: () => import('@/views/auth/UnifiedLogin.vue'),
-      meta: {
-        requiresAuth: false,
-        title: '统一登录',
         layout: 'auth'
       }
     },
@@ -220,6 +211,38 @@ const router = createRouter({
           { title: '首页', path: '/dashboard' },
           { title: '村民管理', path: '/residents' },
           { title: '编辑村民', path: '' }
+        ]
+      }
+    },
+
+    // 村委管理模块
+    {
+      path: '/village/committee-management',
+      name: 'committee-management',
+      component: () => import('@/views/village/CommitteeManagementEnhanced.vue'),
+      meta: {
+        requiresAuth: true,
+        title: '村委管理',
+        icon: 'UserFilled',
+        permissions: ['village:manage', 'committee:access'],
+        breadcrumb: [
+          { title: '首页', path: '/dashboard' },
+          { title: '村委管理', path: '/village/committee-management' }
+        ]
+      }
+    },
+    {
+      path: '/village/population-management',
+      name: 'population-management',
+      component: () => import('@/views/village/PopulationManagement.vue'),
+      meta: {
+        requiresAuth: true,
+        title: '人口管理',
+        icon: 'Users',
+        permissions: ['village:manage', 'residents:view'],
+        breadcrumb: [
+          { title: '首页', path: '/dashboard' },
+          { title: '人口管理', path: '/village/population-management' }
         ]
       }
     },
@@ -1159,6 +1182,14 @@ router.beforeEach(async (to, from, next) => {
         }
       }
 
+      // 【新增】如果村民访问 /dashboard，重定向到 /village-affairs
+      const userRole = userStore.userInfo?.role || userStore.userRole;
+      if (to.path === '/dashboard' && userRole === 'resident') {
+        console.log('路由守卫: 村民访问 /dashboard，重定向到 /village-affairs');
+        next('/village-affairs');
+        return;
+      }
+
       console.log('路由守卫: 允许访问', to.path);
       next();
       return;
@@ -1172,10 +1203,32 @@ router.beforeEach(async (to, from, next) => {
     }
   } else {
     // 如果已登录用户访问登录页面，根据角色重定向到对应主页
-    if ((to.name === 'login' || to.name === 'unified-login') && userStore.isLoggedIn) {
+    // 【修复】同时检查 store 和 localStorage，避免状态更新延迟问题
+    const token = localStorage.getItem('token');
+    const userInfoStr = localStorage.getItem('userInfo');
+    const isUserLoggedIn = userStore.isLoggedIn || (token && userInfoStr);
+
+    if ((to.name === 'login' || to.name === 'unified-login') && isUserLoggedIn) {
       console.log('路由守卫: 用户已登录，根据角色重定向到对应主页');
+
+      // 如果 store 状态未恢复，先恢复
+      if (token && userInfoStr && !userStore.token) {
+        userStore.initUserState();
+      }
+
       // 根据用户角色跳转到不同的主页
-      const userRole = userStore.userInfo?.role || userStore.userRole;
+      let userRole = userStore.userInfo?.role || userStore.userRole;
+
+      // 如果 store 中没有角色信息，从 localStorage 读取
+      if (!userRole && userInfoStr) {
+        try {
+          const userInfo = JSON.parse(userInfoStr);
+          userRole = userInfo.role;
+        } catch (e) {
+          console.error('解析用户信息失败:', e);
+        }
+      }
+
       const roleRedirectMap = {
         'resident': '/village-affairs',
         'village_admin': '/dashboard',  // 数据库中的村干部角色
@@ -1184,6 +1237,7 @@ router.beforeEach(async (to, from, next) => {
         'purchaser': '/purchaser/dashboard'
       };
       const redirectPath = roleRedirectMap[userRole] || '/dashboard';
+      console.log('路由守卫: 已登录用户角色', userRole, '-> 重定向到', redirectPath);
       next(redirectPath);
       return;
     }

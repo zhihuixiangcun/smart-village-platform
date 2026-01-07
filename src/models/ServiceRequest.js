@@ -576,7 +576,10 @@ ServiceRequestSchema.virtual('isOverdue').get(function() {
 });
 
 // 实例方法 - 添加沟通记录
-ServiceRequestSchema.methods.addCommunication = function(sender, message, messageType = 'response', attachments = []) => {
+ServiceRequestSchema.methods.addCommunication = function(sender, message, messageType, attachments) {
+  messageType = messageType || 'response';
+  attachments = attachments || [];
+
   this.communications.push({
     sender,
     message,
@@ -588,7 +591,9 @@ ServiceRequestSchema.methods.addCommunication = function(sender, message, messag
 };
 
 // 实例方法 - 更新处理进度
-ServiceRequestSchema.methods.updateProgress = function(stepName, status, notes = '') => {
+ServiceRequestSchema.methods.updateProgress = function(stepName, status, notes) {
+  notes = notes || '';
+
   const existingStep = this.progress.steps.find(s => s.stepName === stepName);
 
   if (existingStep) {
@@ -614,7 +619,9 @@ ServiceRequestSchema.methods.updateProgress = function(stepName, status, notes =
 };
 
 // 实例方法 - 分配处理人
-ServiceRequestSchema.methods.assignTo = function(userId, userName, department, estimatedDays = 7) => {
+ServiceRequestSchema.methods.assignTo = function(userId, userName, department, estimatedDays) {
+  estimatedDays = estimatedDays || 7;
+
   this.processing.assignedTo = {
     userId,
     userName,
@@ -633,7 +640,9 @@ ServiceRequestSchema.methods.assignTo = function(userId, userName, department, e
 };
 
 // 实例方法 - 提交评价
-ServiceRequestSchema.methods.submitRating = function(ratings, comments = '') => {
+ServiceRequestSchema.methods.submitRating = function(ratings, comments) {
+  comments = comments || '';
+
   this.satisfaction = {
     rated: true,
     overallRating: ratings.overall || 0,

@@ -722,6 +722,8 @@ const unreadNotices = computed(() => {
 // ==================== 快捷操作配置 ====================
 // 所有可用的快捷操作
 const allQuickActions = ref([
+  { id: 'committee-manage', label: '村委管理', icon: 'UserFilled', route: '/village/committee-management', default: true, color: '#67c23a' },
+  { id: 'population-manage', label: '人口管理', icon: 'Users', route: '/village/population-management', default: true, color: '#409eff' },
   { id: 'add-member', label: '添加人员', icon: 'User', route: '/village-committee/members', default: true },
   { id: 'add-schedule', label: '添加值班', icon: 'Calendar', route: '/village-committee/duty-schedule', default: true },
   { id: 'publish-notice', label: '发布公告', icon: 'Promotion', route: '/announcements/create', default: true },

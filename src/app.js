@@ -159,6 +159,9 @@ console.log('[DEBUG] transportationRoutes loaded');
 // 拼车服务路由 - temporarily disabled (controller needs to be recreated)
 // const carpoolingRoutes = require('./routes/carpoolingRoutes');
 console.log('[DEBUG] carpoolingRoutes DISABLED (controller needs to be recreated)');
+// 一户一码路由
+const householdQRRoutes = require('./routes/householdQR');
+console.log('[DEBUG] householdQRRoutes loaded');
 
 // 导入村务管理路由
 // const villageManagementRoutes = require('./routes/villageManagement');
@@ -606,14 +609,13 @@ if (batchImportRoutes) {
   console.log('[DEBUG] batchImportRoutes registered at /api/v1/batch-import');
 }
 
-// Dashboard统计路由 - TEMPORARILY DISABLED
-console.log('[DEBUG] dashboardRoutes DISABLED (troubleshooting)');
-// const dashboardRoutes = require('./routes/dashboard');
-// console.log('[DEBUG] dashboardRoutes loaded');
-// if (dashboardRoutes) {
-//   app.use('/api/v1/dashboard', dashboardRoutes);
-//   console.log('[DEBUG] dashboardRoutes registered at /api/v1/dashboard');
-// }
+// Dashboard统计路由
+const dashboardRoutes = require('./routes/dashboard');
+console.log('[DEBUG] dashboardRoutes loaded');
+if (dashboardRoutes) {
+  app.use('/api/v1/dashboard', dashboardRoutes);
+  console.log('[DEBUG] dashboardRoutes registered at /api/v1/dashboard');
+}
 
 // 聊天和好友路由
 const chatRoutes = require('./routes/chatRoutes');
@@ -695,7 +697,10 @@ if (purchaserRoutes) {
   app.use('/api/v1/transportation', transportationRoutes);
   // 拼车服务路由 - temporarily disabled
   // app.use('/api/v1/carpooling', carpoolingRoutes);
+  // 一户一码路由
+  app.use('/api/v1/household-qr', householdQRRoutes);
   console.log('[DEBUG] purchaserRoutes registered at /api/v1/purchaser');
+  console.log('[DEBUG] householdQRRoutes registered at /api/v1/household-qr');
 }
 console.log('[DEBUG] registrationRoutes DISABLED (troubleshooting)');
 

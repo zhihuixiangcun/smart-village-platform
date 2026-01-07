@@ -40,9 +40,23 @@
 
 <script setup>
 import { onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/userStore'
+
+const router = useRouter()
+const userStore = useUserStore()
 
 const goToDashboard = () => {
-  window.location.href = '/dashboard'
+  // 检查用户是否已登录
+  const token = userStore.token
+
+  if (token && userStore.userInfo) {
+    // 已登录，跳转到仪表板
+    router.push('/dashboard')
+  } else {
+    // 未登录，跳转到登录页面
+    router.push('/login')
+  }
 }
 
 onMounted(() => {

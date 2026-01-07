@@ -1,9 +1,9 @@
 /**
  * 路由守卫和权限控制
+ * 注意：此文件中的路由守卫已禁用，统一使用 router/index.js 中的守卫
+ * 避免多个守卫冲突导致登录闪退问题
  */
 import router from '@/router';
-import { useUserStore } from '@/stores/userStore';
-import { ElMessage } from 'element-plus';
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 
@@ -13,10 +13,11 @@ NProgress.configure({
   trickleSpeed: 200
 });
 
-// 白名单路由（不需要认证）
-const whiteList = ['/unified-login', '/login', '/register', '/forgot-password', '/404', '/403'];
+// 【已禁用】白名单路由（不需要认证）
+// const whiteList = ['/unified-login', '/login', '/register', '/forgot-password', '/404', '/403'];
 
-// 路由前置守卫
+// 【已禁用】路由前置守卫 - 使用 router/index.js 中的统一守卫
+/*
 router.beforeEach(async (to, from, next) => {
   // 开始进度条
   NProgress.start();
@@ -108,6 +109,7 @@ router.beforeEach(async (to, from, next) => {
     next('/404');
   }
 });
+*/
 
 // 路由后置守卫
 router.afterEach((to, from) => {

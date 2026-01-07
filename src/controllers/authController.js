@@ -85,6 +85,7 @@ const passwordLogin = async (req, res) => {
     // 仅在已连接时才尝试从数据库查找用户
     if (isConnected) {
       try {
+        console.log('[AuthController] 查找用户:', { username, dbRole });
         user = await User.findOne({
           $or: [
             { username },
@@ -131,6 +132,14 @@ const passwordLogin = async (req, res) => {
       }
     }
 
+    console.log('[AuthController] 查找结果:', user ? {
+      username: user.username,
+      role: user.role,
+      status: user.status,
+      _id: user._id.toString(),
+      password前30字符: user.password.substring(0, 30)
+    } : null);
+
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -139,6 +148,7 @@ const passwordLogin = async (req, res) => {
     }
 
     // 检查状态
+    console.log('[AuthController] 检查状态:', user.status);
     if (user.status !== 'active') {
       return res.status(403).json({
         success: false,
@@ -146,6 +156,7 @@ const passwordLogin = async (req, res) => {
       });
     }
 
+<<<<<<< Updated upstream
     // 验证密码（仅对真实数据库用户）
     if (user.comparePassword && typeof user.comparePassword === 'function') {
       const isPasswordValid = await user.comparePassword(password);

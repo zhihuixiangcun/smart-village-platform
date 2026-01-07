@@ -205,6 +205,18 @@
                   <small>testcadre</small>
                 </el-button>
                 <el-button
+                  type="info"
+                  size="default"
+                  @click="quickTestLogin('official')"
+                  :disabled="selectedRole !== 'official'"
+                  :class="{ 'test-btn-active': selectedRole === 'official' }"
+                  class="test-button"
+                >
+                  <span class="button-icon">🏢</span>
+                  <span>乡镇干部</span>
+                  <small>testofficial</small>
+                </el-button>
+                <el-button
                   type="primary"
                   size="default"
                   @click="quickTestLogin('resident')"
@@ -214,7 +226,7 @@
                 >
                   <span class="button-icon">🧑‍🌾</span>
                   <span>村民</span>
-                  <small>testresident</small>
+                  <small>cengfangguo</small>
                 </el-button>
               </div>
               <div class="test-accounts-info">
@@ -226,10 +238,24 @@
                   <template #title>
                     <div class="test-info-content">
                       <p><strong>测试账户信息：</strong></p>
-                      <ul>
-                        <li>管理员: testadmin / Test123456! / 角色: admin</li>
-                        <li>村委: testcadre / Cadre123456! / 角色: village_admin</li>
-                        <li>村民: testresident / Resident123456! / 角色: resident</li>
+                      <ul v-if="selectedRole === 'admin'">
+                        <li>用户名: testadmin</li>
+                        <li>密码: Admin123456!</li>
+                      </ul>
+                      <ul v-else-if="selectedRole === 'cadre'">
+                        <li>用户名: testcadre</li>
+                        <li>密码: Cadre123456!</li>
+                      </ul>
+                      <ul v-else-if="selectedRole === 'official'">
+                        <li>用户名: testofficial</li>
+                        <li>密码: Official123456!</li>
+                      </ul>
+                      <ul v-else-if="selectedRole === 'resident'">
+                        <li><strong>真实村民账户:</strong></li>
+                        <li>么扒村 - 岑方国: cengfangguo / Ceng@123456</li>
+                        <li>弄洋村 - 王定权: wangdingquan / Wang@123456</li>
+                        <li>者央村 - 岑小多: cengxiaoduo / Ceng@123456</li>
+                        <li>林桃村 - 毛光情: maoguangqing / Mao@123456</li>
                       </ul>
                     </div>
                   </template>
@@ -537,7 +563,7 @@ const userStore = useUserStore()
 const roles = ref([
   { label: '村民', value: 'resident', emoji: '🧑‍🌾' },
   { label: '村干部', value: 'cadre', emoji: '👔' },
-  { label: '乡镇官员', value: 'official', emoji: '🏢' },
+  { label: '乡镇干部', value: 'official', emoji: '🏢' },
   { label: '采购商', value: 'purchaser', emoji: '🛒' },
   { label: '管理员', value: 'admin', emoji: '👤' }
 ])
@@ -702,16 +728,44 @@ const handlePasswordLogin = async () => {
     userStore.setPermissions(data.data.user.permissions || ['*'])
     userStore.setRoles([data.data.user.role])
 
+    console.log('[登录成功] Token已保存:', data.data.token)
+    console.log('[登录成功] 用户信息已保存:', data.data.user)
+    console.log('[登录成功] localStorage验证:', {
+      token: localStorage.getItem('token'),
+      userInfo: localStorage.getItem('userInfo')
+    })
+
     ElMessage.success(`欢迎回来，${data.data.user.username || data.data.user.name}！`)
 
-    // 检查是否有重定向地址
-    const redirect = router.currentRoute.value.query.redirect || '/dashboard'
+    // 根据用户角色跳转到不同页面
+    const userRole = data.data.user?.role || selectedRole.value
+    const redirectMap = {
+      'admin': '/dashboard',
+      'village_admin': '/dashboard',
+      'village_official': '/dashboard',
+      'resident': '/village-affairs',
+      'purchaser': '/purchaser/dashboard'
+    }
 
-    // 等待状态更新完成
-    await new Promise(resolve => setTimeout(resolve, 300))
+    // 使用映射后的路径，如果没有匹配则使用默认的 /dashboard
+    const redirectPath = redirectMap[userRole] || '/dashboard'
+
+    console.log('[登录跳转] 用户角色:', userRole, '-> 跳转路径:', redirectPath)
+
+    // 【关键修复】等待 Vue 响应式更新完成，确保 isLoggedIn 计算属性已更新
+    await new Promise(resolve => setTimeout(resolve, 500))
+
+    // 【关键修复】再次验证登录状态
+    console.log('[登录跳转] 跳转前验证状态:', {
+      storeToken: userStore.token,
+      storeUserInfo: userStore.userInfo,
+      storeIsLoggedIn: userStore.isLoggedIn,
+      localStorageToken: localStorage.getItem('token'),
+      localStorageUserInfo: localStorage.getItem('userInfo')
+    })
 
     // 跳转
-    await router.push(redirect)
+    await router.push(redirectPath)
 
   } catch (error) {
     console.error('登录失败:', error)
@@ -955,7 +1009,7 @@ const getRoleTitle = () => {
   const titles = {
     resident: '村民',
     cadre: '村干部',
-    official: '乡镇官员',
+    official: '乡镇干部',
     admin: '管理员',
     purchaser: '采购商'
   }
@@ -986,17 +1040,20 @@ const agreePrivacyAndClose = () => {
 
 // 快速测试登录
 const quickTestLogin = (type) => {
+  // type 是前端角色名称（admin, cadre, official, resident）
+  // testAccounts 存储对应的登录信息
   const testAccounts = {
-    'admin': { username: 'testadmin', password: 'Test123456!', role: 'admin' },
-    'cadre': { username: 'testcadre', password: 'Cadre123456!', role: 'village_admin' },
-    'resident': { username: 'testresident', password: 'Resident123456!', role: 'resident' }
+    'admin': { username: 'testadmin', password: 'Admin123456!' },
+    'cadre': { username: 'testcadre', password: 'Cadre123456!' },
+    'official': { username: 'testofficial', password: 'Official123456!' },
+    'resident': { username: 'cengfangguo', password: 'Ceng@123456' } // 使用真实村民账户
   }
 
   const account = testAccounts[type]
   if (account) {
-    // 自动切换到对应角色
-    if (selectedRole.value !== account.role) {
-      selectedRole.value = account.role
+    // 自动切换到对应的前端角色
+    if (selectedRole.value !== type) {
+      selectedRole.value = type
     }
 
     // 自动填充用户名和密码

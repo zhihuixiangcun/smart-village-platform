@@ -13,17 +13,22 @@ const config = {
 
   // 连接选项
   options: {
+    // useNewUrlParser 和 useUnifiedTopology 在新版本中已废弃，但仍保留兼容性
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    // 连接池配置
-    maxPoolSize: 10,
-    minPoolSize: 2,
-    maxIdleTimeMS: 30000,
-    serverSelectionTimeoutMS: 5000,
-    socketTimeoutMS: 45000,
 
-    // 其他选项
-    bufferCommands: false,  // 禁用命令缓冲，立即失败以支持演示模式
+    // 连接池配置 - 增加连接池大小以处理更多并发请求
+    maxPoolSize: 20,
+    minPoolSize: 5,
+    maxIdleTimeMS: 60000,
+
+    // 超时配置 - 增加超时时间
+    serverSelectionTimeoutMS: 30000,  // 服务器选择超时（增加到30秒）
+    socketTimeoutMS: 60000,          // Socket超时（增加到60秒）
+    connectTimeoutMS: 30000,          // 连接超时（增加到30秒）
+
+    // 禁用命令缓冲，避免在未连接时排队查询导致超时
+    bufferCommands: false,
 
     // 临时禁用自动索引创建以加快启动速度
     // 生产环境中应该手动创建索引或在首次启动时启用

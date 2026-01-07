@@ -354,9 +354,9 @@ const formatMoney = (value) => {
 const userRole = computed(() => userStore.userInfo?.role || 'villager')
 const isAdmin = computed(() => userRole.value === 'admin')
 const isResident = computed(() => {
-  // 村民用户显示新的优化主页
-  const role = userRole.value
-  return role === 'villager' || role === 'resident' || role === 'user'
+  // 村民不再显示 dashboard 中的优化主页，统一使用 /village-affairs
+  // DashboardView 只用于管理员和管理类角色
+  return false
 })
 
 // 系统状态显示

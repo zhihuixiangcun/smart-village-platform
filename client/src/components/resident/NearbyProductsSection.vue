@@ -227,6 +227,7 @@ import {
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useFontSize } from '@/composables/useFontSize'
 import type { Product, ProductCategory, SortType, ViewMode } from '@/types/marketplace'
+import * as mapService from '@/utils/mapService'
 
 // Props
 interface Props {
@@ -252,11 +253,13 @@ const searchKeyword = ref('')
 const activeCategory = ref<ProductCategory | 'all'>('all')
 const currentSort = ref<SortType>('distance')
 const products = ref<Product[]>([])
-const userLocation = ref<GeolocationPosition | null>(null)
+const userLocation = ref<any>(null) // 当前位置信息
 const page = ref(1)
 const pageSize = ref(10)
 const hasMore = ref(false)
 const supportsSpeechRecognition = ref(false)
+const mapInstance = ref<any>(null) // 地图实例
+const markers = ref<any[]>([]) // 地图标记数组
 
 // 默认图片
 const defaultImage = 'https://via.placeholder.com/200?text=暂无图片'
@@ -388,27 +391,49 @@ const loadMore = async () => {
 }
 
 const refreshLocation = async () => {
-  if (!navigator.geolocation) {
-    ElMessage.warning('您的浏览器不支持定位功能')
-    return
-  }
-
   try {
     ElMessage.info('正在获取您的位置...')
-    const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-      navigator.geolocation.getCurrentPosition(resolve, reject, {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0
-      })
-    })
-    userLocation.value = position
+
+    // 使用高德地图API获取位置
+    const location = await mapService.getCurrentLocation()
+
+    userLocation.value = location
+    console.log('定位成功:', location)
+
+    // 重新加载附近商品
     await loadNearbyProducts()
-    ElMessage.success('位置更新成功')
+
+    ElMessage.success(`定位成功：${location.address || location.city || ''}`)
   } catch (error) {
     console.error('获取位置失败:', error)
-    ElMessage.error('获取位置失败，请检查定位权限')
-    emit('locationRequired')
+
+    // 降级方案：使用浏览器原生定位
+    if (navigator.geolocation) {
+      try {
+        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+          })
+        })
+
+        userLocation.value = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          address: '当前位置'
+        }
+
+        await loadNearbyProducts()
+        ElMessage.success('定位成功')
+      } catch (geoError) {
+        ElMessage.error('获取位置失败，请检查定位权限')
+        emit('locationRequired')
+      }
+    } else {
+      ElMessage.error('您的浏览器不支持定位功能')
+      emit('locationRequired')
+    }
   }
 }
 
@@ -519,9 +544,118 @@ const updateCategoryCounts = () => {
   })
 }
 
-const initMap = () => {
-  // TODO: 集成高德地图或百度地图
-  console.log('初始化地图...')
+const initMap = async () => {
+  try {
+    // 清理旧地图
+    if (mapInstance.value) {
+      mapInstance.value.destroy()
+      mapInstance.value = null
+    }
+
+    // 清理旧标记
+    markers.value.forEach(marker => marker.setMap(null))
+    markers.value = []
+
+    // 初始化地图
+    const center = userLocation.value
+      ? [userLocation.value.longitude, userLocation.value.latitude]
+      : [116.397428, 39.90923] // 默认北京天安门
+
+    mapInstance.value = await mapService.initAMap('nearby-products-map', {
+      zoom: 15,
+      center: center,
+      viewMode: '2D'
+    })
+
+    // 添加商品标记
+    if (products.value.length > 0) {
+      addProductMarkers()
+    }
+
+    console.log('地图初始化成功')
+  } catch (error) {
+    console.error('地图初始化失败:', error)
+    ElMessage.error('地图加载失败')
+  }
+}
+
+const addProductMarkers = () => {
+  if (!mapInstance.value || !products.value.length) return
+
+  // 创建标记数据
+  const markerConfigs = products.value.map((product: Product) => {
+    return {
+      position: {
+        longitude: product.merchant.location.longitude,
+        latitude: product.merchant.location.latitude
+      },
+      title: product.name,
+      onClick: (marker: any) => {
+        showProductInfoWindow(product, marker)
+      }
+    }
+  })
+
+  // 添加标记到地图
+  markers.value = mapService.addMarkers(mapInstance.value, markerConfigs)
+
+  // 调整地图视野以包含所有标记
+  if (markers.value.length > 0) {
+    // @ts-ignore - AMap types will be available after script loads
+    const bounds = new window.AMap.Bounds()
+    markers.value.forEach((marker: any) => {
+      bounds.extend(marker.getPosition())
+    })
+    mapInstance.value.setFitView([markers.value[0]])
+  }
+}
+
+const getCategoryColor = (category: ProductCategory): string => {
+  const colors: Record<ProductCategory, string> = {
+    agricultural: '#67c23a', // 绿色
+    supplies: '#e6a23c',      // 橙色
+    daily: '#409eff',         // 蓝色
+    food: '#f56c6c'           // 红色
+  }
+  return colors[category] || '#409eff'
+}
+
+const showProductInfoWindow = (product: Product, marker: any) => {
+  const content = `
+    <div style="padding: 12px; min-width: 200px;">
+      <h4 style="margin: 0 0 8px 0; font-size: 16px;">${product.name}</h4>
+      <p style="margin: 4px 0; font-size: 13px; color: #666;">
+        ${product.merchant.name}
+      </p>
+      <p style="margin: 4px 0; font-size: 14px; color: #f56c6c; font-weight: bold;">
+        ¥${product.price} / ${product.unit}
+      </p>
+      <p style="margin: 4px 0; font-size: 12px; color: #999;">
+        ${mapService.formatDistance(product.distance)}
+      </p>
+      <button data-product-id="${product.id}" class="view-product-btn" style="margin-top: 8px; padding: 6px 12px; background: #409eff; color: #fff; border: none; border-radius: 4px; cursor: pointer;">
+        查看详情
+      </button>
+    </div>
+  `
+
+  // @ts-ignore - AMap types will be available after script loads
+  const infoWindow = mapService.createInfoWindow(mapInstance.value, {
+    content: content,
+    offset: new (window as any).AMap.Pixel(0, -30)
+  })
+
+  infoWindow.open(mapInstance.value, marker.getPosition())
+
+  // 延迟绑定事件到DOM
+  setTimeout(() => {
+    const btn = document.querySelector(`button[data-product-id="${product.id}"]`)
+    if (btn) {
+      btn.addEventListener('click', () => {
+        viewProductDetail(product)
+      })
+    }
+  }, 100)
 }
 
 // 生命周期
