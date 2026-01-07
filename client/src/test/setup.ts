@@ -1,9 +1,9 @@
-import { vi } from 'vitest'
-import { config } from '@vue/test-utils'
-import { createTestingPinia } from '@pinia/testing'
-import { createRouter, createWebHistory } from 'vue-router'
-import ElementPlus from 'element-plus'
-import 'element-plus/dist/index.css'
+import { vi } from 'vitest';
+import { config } from '@vue/test-utils';
+import { createTestingPinia } from '@pinia/testing';
+import { createRouter, createWebHistory } from 'vue-router';
+import ElementPlus from 'element-plus';
+import 'element-plus/dist/index.css';
 
 // Vue Test Utils 全局配置
 config.global.plugins = [
@@ -12,7 +12,7 @@ config.global.plugins = [
     createSpy: vi.fn,
     stubActions: false
   })
-]
+];
 
 // 模拟路由
 const router = createRouter({
@@ -26,9 +26,9 @@ const router = createRouter({
     { path: '/emergency', component: { template: '<div>Emergency</div>' } },
     { path: '/analytics', component: { template: '<div>Analytics</div>' } }
   ]
-})
-router.push('/')
-config.global.plugins.push(router)
+});
+router.push('/');
+config.global.plugins.push(router);
 
 // 全局组件 mocks
 config.global.stubs = {
@@ -64,7 +64,7 @@ config.global.stubs = {
   'el-col': true,
   'router-link': { template: '<a><slot /></a>' },
   'router-view': { template: '<div><slot /></div>' }
-}
+};
 
 // 模拟浏览器 API
 Object.defineProperty(window, 'matchMedia', {
@@ -79,21 +79,21 @@ Object.defineProperty(window, 'matchMedia', {
     removeEventListener: vi.fn(),
     dispatchEvent: vi.fn()
   }))
-})
+});
 
 // 模拟 ResizeObserver
 global.ResizeObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
   disconnect: vi.fn()
-}))
+}));
 
 // 模拟 IntersectionObserver
 global.IntersectionObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
   disconnect: vi.fn()
-}))
+}));
 
 // 模拟 localStorage
 const localStorageMock = {
@@ -101,8 +101,8 @@ const localStorageMock = {
   setItem: vi.fn(),
   removeItem: vi.fn(),
   clear: vi.fn()
-}
-Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+};
+Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
 // 模拟 sessionStorage
 const sessionStorageMock = {
@@ -110,11 +110,11 @@ const sessionStorageMock = {
   setItem: vi.fn(),
   removeItem: vi.fn(),
   clear: vi.fn()
-}
-Object.defineProperty(window, 'sessionStorage', { value: sessionStorageMock })
+};
+Object.defineProperty(window, 'sessionStorage', { value: sessionStorageMock });
 
 // 模拟 fetch
-global.fetch = vi.fn()
+global.fetch = vi.fn();
 
 // 模拟 WebSocket
 global.WebSocket = vi.fn().mockImplementation(() => ({
@@ -123,7 +123,7 @@ global.WebSocket = vi.fn().mockImplementation(() => ({
   addEventListener: vi.fn(),
   removeEventListener: vi.fn(),
   readyState: 1
-}))
+}));
 
 // 模拟 navigator.geolocation
 Object.defineProperty(navigator, 'geolocation', {
@@ -132,14 +132,14 @@ Object.defineProperty(navigator, 'geolocation', {
     watchPosition: vi.fn(),
     clearWatch: vi.fn()
   }
-})
+});
 
 // 模拟 navigator.mediaDevices
 Object.defineProperty(navigator, 'mediaDevices', {
   value: {
     getUserMedia: vi.fn(() => Promise.resolve({}))
   }
-})
+});
 
 // 模拟 Canvas API
 HTMLCanvasElement.prototype.getContext = vi.fn().mockReturnValue({
@@ -167,16 +167,16 @@ HTMLCanvasElement.prototype.getContext = vi.fn().mockReturnValue({
   transform: vi.fn(),
   rect: vi.fn(),
   clip: vi.fn()
-})
+});
 
 // 模拟 URL.createObjectURL
-global.URL.createObjectURL = vi.fn(() => 'mock-url')
-global.URL.revokeObjectURL = vi.fn()
+global.URL.createObjectURL = vi.fn(() => 'mock-url');
+global.URL.revokeObjectURL = vi.fn();
 
 // 设置测试环境变量
-process.env.NODE_ENV = 'test'
-process.env.VUE_APP_API_BASE_URL = 'http://localhost:3000/api'
-process.env.VUE_APP_SOCKET_URL = 'ws://localhost:5000'
+process.env.NODE_ENV = 'test';
+process.env.VUE_APP_API_BASE_URL = 'http://localhost:3000/api';
+process.env.VUE_APP_SOCKET_URL = 'ws://localhost:5000';
 
 // 全局测试工具函数
 global.createMockUser = (overrides = {}) => ({
@@ -186,7 +186,7 @@ global.createMockUser = (overrides = {}) => ({
   role: 'resident',
   villageId: 'test-village-id',
   ...overrides
-})
+});
 
 global.createMockResident = (overrides = {}) => ({
   id: 'test-resident-id',
@@ -196,7 +196,7 @@ global.createMockResident = (overrides = {}) => ({
   address: '测试地址',
   familyType: '普通户',
   ...overrides
-})
+});
 
 global.createMockCommittee = (overrides = {}) => ({
   id: 'test-committee-id',
@@ -206,7 +206,7 @@ global.createMockCommittee = (overrides = {}) => ({
   email: 'committee@test.com',
   isActive: true,
   ...overrides
-})
+});
 
 // 模拟 Element Plus 消息
 global.mockMessage = {
@@ -214,28 +214,28 @@ global.mockMessage = {
   warning: vi.fn(),
   info: vi.fn(),
   error: vi.fn()
-}
+};
 
 global.mockMessageBox = {
   confirm: vi.fn(() => Promise.resolve('confirm')),
   prompt: vi.fn(() => Promise.resolve({ value: 'test' })),
   alert: vi.fn()
-}
+};
 
 // 设置 Element Plus mock
 vi.mock('element-plus', async () => {
-  const actual = await vi.importActual('element-plus')
+  const actual = await vi.importActual('element-plus');
   return {
     ...actual,
     ElMessage: global.mockMessage,
     ElMessageBox: global.mockMessageBox,
     ElNotification: vi.fn()
-  }
-})
+  };
+});
 
 // 在每个测试前重置所有 mocks
 beforeEach(() => {
-  vi.clearAllMocks()
-  localStorage.clear()
-  sessionStorage.clear()
-})
+  vi.clearAllMocks();
+  localStorage.clear();
+  sessionStorage.clear();
+});

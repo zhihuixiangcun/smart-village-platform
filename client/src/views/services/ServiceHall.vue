@@ -210,13 +210,13 @@ import {
   User,
   House,
   Promotion,
-  FirstAid,
+  Suitcase,  // 替代 FirstAid（急救相关）
   Money,
   Calendar,
   Bell,
   OfficeBuilding,
   Van,
-  BabyCarriage
+  Cherry  // 替代 BabyCarriage（生育相关）
 } from '@element-plus/icons-vue'
 import { useLargeText } from '@/composables/useLargeText'
 import { useVoiceInput } from '@/composables/useVoiceInput'
@@ -287,7 +287,7 @@ const services = ref([
     id: 'disability',
     name: '残疾补贴申请',
     description: '残疾人可申请生活补贴和护理补贴',
-    icon: FirstAid,
+    icon: Suitcase,
     color: '#909399',
     type: 'welfare',
     typeName: '福利申请',
@@ -309,7 +309,7 @@ const services = ref([
     id: 'birth',
     name: '生育补贴申请',
     description: '符合生育政策可申请生育津贴和育儿假津贴',
-    icon: BabyCarriage,
+    icon: Cherry,
     color: '#ff7675',
     type: 'welfare',
     typeName: '福利申请',
@@ -515,9 +515,9 @@ const getServiceIcon = (type) => {
     'household': House,
     'marriage': Promotion,
     'subsistence': Money,
-    'disability': FirstAid,
+    'disability': Suitcase,
     'elderly': Calendar,
-    'birth': BabyCarriage,
+    'birth': Cherry,
     'transport': Van,
     'house-building': OfficeBuilding,
     'event': Bell,

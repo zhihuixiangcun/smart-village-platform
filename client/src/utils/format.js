@@ -1,4 +1,4 @@
-import dayjs from 'dayjs'
+import dayjs from 'dayjs';
 
 /**
  * 格式化日期
@@ -7,8 +7,8 @@ import dayjs from 'dayjs'
  * @returns {string} 格式化后的日期字符串
  */
 export function formatDate(date, format = 'YYYY-MM-DD') {
-  if (!date) return ''
-  return dayjs(date).format(format)
+  if (!date) return '';
+  return dayjs(date).format(format);
 }
 
 /**
@@ -18,8 +18,8 @@ export function formatDate(date, format = 'YYYY-MM-DD') {
  * @returns {string} 格式化后的日期时间字符串
  */
 export function formatDateTime(date, format = 'YYYY-MM-DD HH:mm:ss') {
-  if (!date) return ''
-  return dayjs(date).format(format)
+  if (!date) return '';
+  return dayjs(date).format(format);
 }
 
 /**
@@ -28,23 +28,23 @@ export function formatDateTime(date, format = 'YYYY-MM-DD HH:mm:ss') {
  * @returns {string} 相对时间字符串
  */
 export function formatRelativeTime(date) {
-  if (!date) return ''
-  const now = dayjs()
-  const target = dayjs(date)
-  const diffMinutes = now.diff(target, 'minute')
-  const diffHours = now.diff(target, 'hour')
-  const diffDays = now.diff(target, 'day')
+  if (!date) return '';
+  const now = dayjs();
+  const target = dayjs(date);
+  const diffMinutes = now.diff(target, 'minute');
+  const diffHours = now.diff(target, 'hour');
+  const diffDays = now.diff(target, 'day');
 
   if (diffMinutes < 1) {
-    return '刚刚'
+    return '刚刚';
   } else if (diffMinutes < 60) {
-    return `${diffMinutes}分钟前`
+    return `${diffMinutes}分钟前`;
   } else if (diffHours < 24) {
-    return `${diffHours}小时前`
+    return `${diffHours}小时前`;
   } else if (diffDays < 30) {
-    return `${diffDays}天前`
+    return `${diffDays}天前`;
   } else {
-    return formatDate(date)
+    return formatDate(date);
   }
 }
 
@@ -54,8 +54,8 @@ export function formatRelativeTime(date) {
  * @returns {string} 脱敏后的手机号码
  */
 export function formatPhone(phone) {
-  if (!phone) return ''
-  return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')
+  if (!phone) return '';
+  return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
 }
 
 /**
@@ -64,8 +64,8 @@ export function formatPhone(phone) {
  * @returns {string} 脱敏后的身份证号
  */
 export function formatIdCard(idCard) {
-  if (!idCard) return ''
-  return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2')
+  if (!idCard) return '';
+  return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2');
 }
 
 /**
@@ -74,8 +74,8 @@ export function formatIdCard(idCard) {
  * @returns {string} 脱敏后的银行卡号
  */
 export function formatBankCard(cardNumber) {
-  if (!cardNumber) return ''
-  return cardNumber.replace(/(\d{4})\d*(\d{4})/, '$1 **** **** $2')
+  if (!cardNumber) return '';
+  return cardNumber.replace(/(\d{4})\d*(\d{4})/, '$1 **** **** $2');
 }
 
 /**
@@ -86,15 +86,15 @@ export function formatBankCard(cardNumber) {
  * @returns {string} 格式化后的金额字符串
  */
 export function formatAmount(amount, decimals = 2, thousandsSeparator = ',') {
-  if (amount === null || amount === undefined) return '0.00'
-  const number = parseFloat(amount)
-  if (isNaN(number)) return '0.00'
+  if (amount === null || amount === undefined) return '0.00';
+  const number = parseFloat(amount);
+  if (isNaN(number)) return '0.00';
 
-  const fixed = number.toFixed(decimals)
-  const parts = fixed.split('.')
-  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, thousandsSeparator)
+  const fixed = number.toFixed(decimals);
+  const parts = fixed.split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, thousandsSeparator);
 
-  return parts.join('.')
+  return parts.join('.');
 }
 
 /**
@@ -104,15 +104,15 @@ export function formatAmount(amount, decimals = 2, thousandsSeparator = ',') {
  * @returns {string} 格式化后的文件大小
  */
 export function formatFileSize(bytes, decimals = 2) {
-  if (bytes === 0) return '0 Bytes'
+  if (bytes === 0) return '0 Bytes';
 
-  const k = 1024
-  const dm = decimals < 0 ? 0 : decimals
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))  } ${  sizes[i]}`;
 }
 
 /**
@@ -123,9 +123,9 @@ export function formatFileSize(bytes, decimals = 2) {
  * @returns {string} 百分比字符串
  */
 export function formatPercentage(value, total, decimals = 1) {
-  if (total === 0) return '0%'
-  const percentage = (value / total) * 100
-  return `${percentage.toFixed(decimals)}%`
+  if (total === 0) return '0%';
+  const percentage = (value / total) * 100;
+  return `${percentage.toFixed(decimals)}%`;
 }
 
 /**
@@ -135,8 +135,8 @@ export function formatPercentage(value, total, decimals = 1) {
  * @returns {string} 格式化后的数字字符串
  */
 export function formatNumber(num, separator = ',') {
-  if (num === null || num === undefined) return '0'
-  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, separator)
+  if (num === null || num === undefined) return '0';
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, separator);
 }
 
 /**
@@ -154,8 +154,8 @@ export function formatGender(gender) {
     '2': '女',
     '男': '男',
     '女': '女'
-  }
-  return genderMap[gender] || gender
+  };
+  return genderMap[gender] || gender;
 }
 
 /**
@@ -173,8 +173,8 @@ export function formatMaritalStatus(status) {
     'married': '已婚',
     'divorce': '离异',
     'widow': '丧偶'
-  }
-  return statusMap[status] || status
+  };
+  return statusMap[status] || status;
 }
 
 /**
@@ -200,8 +200,8 @@ export function formatEducation(education) {
     '研究生': '研究生',
     '硕士': '硕士',
     '博士': '博士'
-  }
-  return educationMap[education] || education
+  };
+  return educationMap[education] || education;
 }
 
 /**
@@ -219,8 +219,8 @@ export function formatPoliticalStatus(political) {
     '团员': '共青团员',
     '民主党派': '民主党派',
     '群众': '群众'
-  }
-  return politicalMap[political] || political
+  };
+  return politicalMap[political] || political;
 }
 
 /**
@@ -248,8 +248,8 @@ export function formatOccupation(occupation) {
     '学生': '学生',
     '退休': '退休',
     '待业': '待业'
-  }
-  return occupationMap[occupation] || occupation
+  };
+  return occupationMap[occupation] || occupation;
 }
 
 /**
@@ -270,6 +270,6 @@ export function formatHouseholdType(type) {
     '独生子女户': '独生子女户',
     '独居老人': '独居老人',
     '残疾家庭': '残疾家庭'
-  }
-  return typeMap[type] || type
+  };
+  return typeMap[type] || type;
 }

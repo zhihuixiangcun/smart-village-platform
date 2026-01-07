@@ -1,7 +1,7 @@
 /**
  * 路由权限工具函数
  */
-import { useUserStore } from '@/stores/user'
+import { useUserStore } from '@/stores/user';
 
 /**
  * 检查用户是否有访问指定路由的权限
@@ -10,15 +10,15 @@ import { useUserStore } from '@/stores/user'
  * @returns {boolean} 是否有权限
  */
 export function hasRoutePermission(route, userStore = null) {
-  const store = userStore || useUserStore()
+  const store = userStore || useUserStore();
 
   // 如果路由不需要权限，直接返回 true
   if (!route.meta || !route.meta.permissions || route.meta.permissions.length === 0) {
-    return true
+    return true;
   }
 
   // 检查用户是否有任一所需权限
-  return store.hasAnyPermission(route.meta.permissions)
+  return store.hasAnyPermission(route.meta.permissions);
 }
 
 /**
@@ -28,23 +28,23 @@ export function hasRoutePermission(route, userStore = null) {
  * @returns {Array} 过滤后的路由列表
  */
 export function filterAccessibleRoutes(routes, userStore = null) {
-  const store = userStore || useUserStore()
+  const store = userStore || useUserStore();
 
   return routes.filter(route => {
     // 检查当前路由权限
     if (!hasRoutePermission(route, store)) {
-      return false
+      return false;
     }
 
     // 递归检查子路由
     if (route.children && route.children.length > 0) {
-      route.children = filterAccessibleRoutes(route.children, store)
+      route.children = filterAccessibleRoutes(route.children, store);
       // 如果所有子路由都没有权限，则隐藏父路由
-      return route.children.length > 0
+      return route.children.length > 0;
     }
 
-    return true
-  })
+    return true;
+  });
 }
 
 /**
@@ -54,18 +54,18 @@ export function filterAccessibleRoutes(routes, userStore = null) {
  * @returns {Array} 菜单项列表
  */
 export function generateMenuItems(routes, userStore = null) {
-  const store = userStore || useUserStore()
-  const menuItems = []
+  const store = userStore || useUserStore();
+  const menuItems = [];
 
   routes.forEach(route => {
     // 跳过隐藏的路由和不需要在菜单中显示的路由
     if (route.meta && (route.meta.hidden || route.meta.hideInMenu)) {
-      return
+      return;
     }
 
     // 检查权限
     if (!hasRoutePermission(route, store)) {
-      return
+      return;
     }
 
     const menuItem = {
@@ -75,22 +75,22 @@ export function generateMenuItems(routes, userStore = null) {
       icon: route.meta?.icon,
       component: route.component,
       children: []
-    }
+    };
 
     // 处理子路由
     if (route.children && route.children.length > 0) {
-      menuItem.children = generateMenuItems(route.children, store)
+      menuItem.children = generateMenuItems(route.children, store);
 
       // 如果有子菜单但所有子菜单都没有权限，则不显示父菜单
       if (menuItem.children.length === 0 && route.meta?.requireChildren) {
-        return
+        return;
       }
     }
 
-    menuItems.push(menuItem)
-  })
+    menuItems.push(menuItem);
+  });
 
-  return menuItems
+  return menuItems;
 }
 
 /**
@@ -100,8 +100,8 @@ export function generateMenuItems(routes, userStore = null) {
  * @returns {Object|null} 路由对象
  */
 export function getRouteByName(routeName, router) {
-  const routes = router.getRoutes()
-  return routes.find(route => route.name === routeName) || null
+  const routes = router.getRoutes();
+  return routes.find(route => route.name === routeName) || null;
 }
 
 /**
@@ -110,8 +110,8 @@ export function getRouteByName(routeName, router) {
  * @returns {string} 默认路由路径
  */
 export function getDefaultRoute(userStore = null) {
-  const store = userStore || useUserStore()
-  const userRole = store.userRole
+  const store = userStore || useUserStore();
+  const userRole = store.userRole;
 
   // 根据用户角色返回不同的默认首页
   const roleDefaultRoutes = {
@@ -120,9 +120,9 @@ export function getDefaultRoute(userStore = null) {
     'resident': '/dashboard',
     'purchaser': '/purchasers',
     'individual_purchaser': '/purchasers'
-  }
+  };
 
-  return roleDefaultRoutes[userRole] || '/dashboard'
+  return roleDefaultRoutes[userRole] || '/dashboard';
 }
 
 /**
@@ -131,7 +131,7 @@ export function getDefaultRoute(userStore = null) {
  * @returns {boolean} 是否需要认证
  */
 export function requiresAuth(route) {
-  return route.meta && route.meta.requiresAuth !== false
+  return route.meta && route.meta.requiresAuth !== false;
 }
 
 /**
@@ -142,45 +142,45 @@ export function requiresAuth(route) {
  */
 export function getBreadcrumbFromRoute(route, router) {
   if (route.meta && route.meta.breadcrumb) {
-    return route.meta.breadcrumb
+    return route.meta.breadcrumb;
   }
 
   // 自动生成面包屑
-  const pathArray = route.path.split('/').filter(path => path)
-  const breadcrumb = []
+  const pathArray = route.path.split('/').filter(path => path);
+  const breadcrumb = [];
 
   // 添加首页
   breadcrumb.push({
     title: '首页',
     path: '/dashboard'
-  })
+  });
 
-  let currentPath = ''
+  let currentPath = '';
   pathArray.forEach((path, index) => {
-    currentPath += `/${path}`
-    const matchedRoute = router.getRoutes().find(r => r.path === currentPath)
+    currentPath += `/${path}`;
+    const matchedRoute = router.getRoutes().find(r => r.path === currentPath);
 
     if (matchedRoute && matchedRoute.meta && matchedRoute.meta.title) {
       breadcrumb.push({
         title: matchedRoute.meta.title,
         path: index === pathArray.length - 1 ? '' : currentPath
-      })
+      });
     }
-  })
+  });
 
-  return breadcrumb
+  return breadcrumb;
 }
 
 /**
  * 缓存路由权限结果，避免重复计算
  */
-const permissionCache = new Map()
+const permissionCache = new Map();
 
 /**
  * 清除权限缓存
  */
 export function clearPermissionCache() {
-  permissionCache.clear()
+  permissionCache.clear();
 }
 
 /**
@@ -191,18 +191,18 @@ export function clearPermissionCache() {
  * @returns {boolean} 是否有权限
  */
 export function hasPermissionCached(routeName, permissions, userStore = null) {
-  const store = userStore || useUserStore()
-  const userId = store.user?.id
-  const cacheKey = `${userId}-${routeName}-${permissions.join(',')}`
+  const store = userStore || useUserStore();
+  const userId = store.user?.id;
+  const cacheKey = `${userId}-${routeName}-${permissions.join(',')}`;
 
   if (permissionCache.has(cacheKey)) {
-    return permissionCache.get(cacheKey)
+    return permissionCache.get(cacheKey);
   }
 
-  const hasPermission = store.hasAnyPermission(permissions)
-  permissionCache.set(cacheKey, hasPermission)
+  const hasPermission = store.hasAnyPermission(permissions);
+  permissionCache.set(cacheKey, hasPermission);
 
-  return hasPermission
+  return hasPermission;
 }
 
 /**
@@ -240,7 +240,7 @@ export const roleRouteMap = {
     'dashboard',
     'purchasers'
   ]
-}
+};
 
 /**
  * 根据用户角色获取可访问的路由名称列表
@@ -248,7 +248,7 @@ export const roleRouteMap = {
  * @returns {Array} 路由名称列表
  */
 export function getAccessibleRoutesByRole(userRole) {
-  return roleRouteMap[userRole] || []
+  return roleRouteMap[userRole] || [];
 }
 
 /**
@@ -298,7 +298,7 @@ export const PERMISSIONS = {
 
   // 超级管理员权限
   ALL: '*:*'
-}
+};
 
 /**
  * 路由元信息字段定义
@@ -315,4 +315,4 @@ export const ROUTE_META_FIELDS = {
   LAYOUT: 'layout',                  // 布局类型
   CACHE: 'cache',                    // 是否缓存页面
   ACTIVE_MENU: 'activeMenu'          // 激活的菜单项
-}
+};

@@ -247,7 +247,7 @@ import axios from 'axios'
 
 // 导入图标
 import {
-  Shield, Lock, Warning, UserFilled, TrendCharts, Clock,
+  Lock, Warning, UserFilled, TrendCharts, Clock,  // Lock 替代 Shield
   Refresh, Document, Setting, Bell, DataAnalysis, Key,
   Monitor, View, Eye
 } from '@element-plus/icons-vue'
@@ -288,7 +288,7 @@ const securityModules = computed(() => [
   {
     key: 'compliance',
     title: '等保合规',
-    icon: 'Shield',
+    icon: 'Lock',  // 替代 Shield
     status: securityData.modules.compliance?.status || 'inactive',
     score: securityData.modules.compliance?.score || 0,
     metrics: [

@@ -55,27 +55,27 @@ apiClient.interceptors.response.use(
       const { status, data } = error.response;
 
       switch (status) {
-        case 401:
-          // 未授权，清除token并跳转登录
-          localStorage.removeItem('jwt_token');
-          localStorage.removeItem('user_info');
-          ElMessage.error('登录已过期，请重新登录');
-          window.location.href = '/login';
-          break;
-        case 403:
-          ElMessage.error(data.error || '权限不足');
-          break;
-        case 404:
-          ElMessage.error(data.error || '请求的资源不存在');
-          break;
-        case 429:
-          ElMessage.error('请求过于频繁，请稍后再试');
-          break;
-        case 500:
-          ElMessage.error(data.error || '服务器内部错误');
-          break;
-        default:
-          ElMessage.error(data.error || '网络请求失败');
+      case 401:
+        // 未授权，清除token并跳转登录
+        localStorage.removeItem('jwt_token');
+        localStorage.removeItem('user_info');
+        ElMessage.error('登录已过期，请重新登录');
+        window.location.href = '/login';
+        break;
+      case 403:
+        ElMessage.error(data.error || '权限不足');
+        break;
+      case 404:
+        ElMessage.error(data.error || '请求的资源不存在');
+        break;
+      case 429:
+        ElMessage.error('请求过于频繁，请稍后再试');
+        break;
+      case 500:
+        ElMessage.error(data.error || '服务器内部错误');
+        break;
+      default:
+        ElMessage.error(data.error || '网络请求失败');
       }
     } else if (error.request) {
       ElMessage.error('网络连接失败，请检查网络设置');
@@ -89,7 +89,7 @@ apiClient.interceptors.response.use(
 
 // 生成请求ID
 function generateRequestId() {
-  return 'req_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+  return `req_${  Date.now()  }_${  Math.random().toString(36).substr(2, 9)}`;
 }
 
 // Loading管理

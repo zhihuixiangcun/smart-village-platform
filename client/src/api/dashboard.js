@@ -3,7 +3,7 @@
  * 整合所有仪表板需要的接口
  * @module api/dashboard
  */
-import request from '@/utils/request'
+import request from '@/utils/request';
 
 const dashboardApi = {
   /**
@@ -13,7 +13,7 @@ const dashboardApi = {
    * @returns {Promise} 仪表板数据
    */
   getOverview(params = {}) {
-    return request.get('/api/v1/dashboard/overview', { params })
+    return request.get('/api/v1/dashboard/overview', { params });
   },
 
   /**
@@ -24,7 +24,7 @@ const dashboardApi = {
    * @returns {Promise} 统计数据
    */
   getStatistics(params = {}) {
-    return request.get('/api/v1/dashboard/statistics', { params })
+    return request.get('/api/v1/dashboard/statistics', { params });
   },
 
   /**
@@ -33,7 +33,7 @@ const dashboardApi = {
    * @returns {Promise} 今日值班数据
    */
   getTodayDuty(villageId) {
-    return request.get(`/api/v1/duty-schedule/public/today/${villageId}`)
+    return request.get(`/api/v1/duty-schedule/public/today/${villageId}`);
   },
 
   /**
@@ -45,7 +45,7 @@ const dashboardApi = {
    * @returns {Promise} 待办事项列表
    */
   getTodos(params = {}) {
-    return request.get('/api/v1/cadre-tasks', { params })
+    return request.get('/api/v1/cadre-tasks', { params });
   },
 
   /**
@@ -57,7 +57,7 @@ const dashboardApi = {
    * @returns {Promise} 更新结果
    */
   updateTodoStatus(taskId, data) {
-    return request.put(`/api/v1/cadre-tasks/${taskId}/status`, data)
+    return request.put(`/api/v1/cadre-tasks/${taskId}/status`, data);
   },
 
   /**
@@ -68,7 +68,7 @@ const dashboardApi = {
    * @returns {Promise} 通知列表
    */
   getNotifications(params = {}) {
-    return request.get('/api/notifications', { params })
+    return request.get('/api/notifications', { params });
   },
 
   /**
@@ -77,7 +77,7 @@ const dashboardApi = {
    * @returns {Promise} 标记结果
    */
   markNotificationRead(notificationId) {
-    return request.put(`/api/notifications/${notificationId}/read`)
+    return request.put(`/api/notifications/${notificationId}/read`);
   },
 
   /**
@@ -86,7 +86,7 @@ const dashboardApi = {
    * @returns {Promise} 标记结果
    */
   markMultipleNotificationsRead(notificationIds) {
-    return request.put('/api/notifications/read-all', { notificationIds })
+    return request.put('/api/notifications/read-all', { notificationIds });
   },
 
   /**
@@ -94,7 +94,7 @@ const dashboardApi = {
    * @returns {Promise} 未读数量
    */
   getUnreadCount() {
-    return request.get('/api/notifications/unread/count')
+    return request.get('/api/notifications/unread/count');
   },
 
   /**
@@ -103,7 +103,7 @@ const dashboardApi = {
    * @returns {Promise} 删除结果
    */
   deleteNotification(notificationId) {
-    return request.delete(`/api/notifications/${notificationId}`)
+    return request.delete(`/api/notifications/${notificationId}`);
   },
 
   /**
@@ -117,7 +117,7 @@ const dashboardApi = {
    * @returns {Promise} 发送结果
    */
   sendEmergencyNotification(data) {
-    return request.post('/api/village-committee/emergency-notification', data)
+    return request.post('/api/village-committee/emergency-notification', data);
   },
 
   /**
@@ -128,7 +128,7 @@ const dashboardApi = {
    * @returns {Promise} 动态列表
    */
   getActivities(params = {}) {
-    return request.get('/api/v1/activities', { params })
+    return request.get('/api/v1/activities', { params });
   },
 
   /**
@@ -139,7 +139,7 @@ const dashboardApi = {
    * @returns {Promise} 图表数据
    */
   getChartData(params = {}) {
-    return request.get('/api/v1/analytics/dashboard', { params })
+    return request.get('/api/v1/analytics/dashboard', { params });
   },
 
   /**
@@ -154,7 +154,7 @@ const dashboardApi = {
     return request.get('/api/v1/dashboard/export', {
       params,
       responseType: 'blob'
-    })
+    });
   },
 
   /**
@@ -163,7 +163,7 @@ const dashboardApi = {
    * @returns {Promise} 拨打结果
    */
   makeCall(phone) {
-    return request.post('/api/v1/communications/call', { phone })
+    return request.post('/api/v1/communications/call', { phone });
   },
 
   /**
@@ -174,8 +174,8 @@ const dashboardApi = {
    * @returns {Promise} 发送结果
    */
   sendSMS(data) {
-    return request.post('/api/v1/communications/sms', data)
+    return request.post('/api/v1/communications/sms', data);
   }
-}
+};
 
-export default dashboardApi
+export default dashboardApi;

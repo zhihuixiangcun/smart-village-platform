@@ -1,8 +1,8 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
-    "./index.html",
-    "./src/**/*.{vue,js,ts,jsx,tsx}",
+    './index.html',
+    './src/**/*.{vue,js,ts,jsx,tsx}',
   ],
   theme: {
     extend: {
@@ -25,4 +25,4 @@ export default {
   corePlugins: {
     preflight: false, // 禁用预设样式重置，避免影响Element Plus
   }
-}
+};

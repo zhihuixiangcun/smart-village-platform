@@ -1,11 +1,11 @@
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import { resolve } from 'path'
-import AutoImport from 'unplugin-auto-import/vite'
-import Components from 'unplugin-vue-components/vite'
-import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
-import tailwindcss from 'tailwindcss'
-import autoprefixer from 'autoprefixer'
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+import { resolve } from 'path';
+import AutoImport from 'unplugin-auto-import/vite';
+import Components from 'unplugin-vue-components/vite';
+import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
+import tailwindcss from 'tailwindcss';
+import autoprefixer from 'autoprefixer';
 
 /**
  * 性能优先的 Vite 配置
@@ -55,47 +55,47 @@ export default defineConfig({
           if (id.includes('node_modules')) {
             // Vue 核心
             if (id.includes('vue') || id.includes('pinia') || id.includes('@vue')) {
-              return 'vue-core'
+              return 'vue-core';
             }
             // Vue Router
             if (id.includes('vue-router')) {
-              return 'vue-router'
+              return 'vue-router';
             }
             // Element Plus
             if (id.includes('element-plus') || id.includes('@element-plus')) {
-              return 'element-plus'
+              return 'element-plus';
             }
             // ECharts 图表库 (体积大，单独分包)
             if (id.includes('echarts')) {
-              return 'echarts'
+              return 'echarts';
             }
             // 工具库
             if (id.includes('axios') || id.includes('dayjs') || id.includes('lodash')) {
-              return 'utils'
+              return 'utils';
             }
             // Socket.IO
             if (id.includes('socket.io')) {
-              return 'socket'
+              return 'socket';
             }
             // 其他第三方库
-            return 'vendor'
+            return 'vendor';
           }
         },
         chunkFileNames: 'assets/js/[name]-[hash].js',
         entryFileNames: 'assets/js/[name]-[hash].js',
         assetFileNames: (assetInfo) => {
-          const info = assetInfo.name.split('.')
-          const ext = info[info.length - 1]
+          const info = assetInfo.name.split('.');
+          const ext = info[info.length - 1];
           if (/\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/i.test(assetInfo.name)) {
-            return `assets/media/[name]-[hash].[ext]`
+            return 'assets/media/[name]-[hash].[ext]';
           }
           if (/\.(png|jpe?g|gif|svg|ico|webp)(\?.*)?$/i.test(assetInfo.name)) {
-            return `assets/images/[name]-[hash].[ext]`
+            return 'assets/images/[name]-[hash].[ext]';
           }
           if (/\.(woff2?|eot|ttf|otf)(\?.*)?$/i.test(assetInfo.name)) {
-            return `assets/fonts/[name]-[hash].[ext]`
+            return 'assets/fonts/[name]-[hash].[ext]';
           }
-          return `assets/${ext}/[name]-[hash].[ext]`
+          return `assets/${ext}/[name]-[hash].[ext]`;
         }
       }
     },
@@ -148,4 +148,4 @@ export default defineConfig({
       }
     }
   }
-})
+});

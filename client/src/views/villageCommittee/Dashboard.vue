@@ -493,8 +493,8 @@ import ContactButton from '@/components/villageCommittee/ContactButton.vue'
 import NotificationDetailDialog from '@/components/villageCommittee/NotificationDetailDialog.vue'
 import { useDashboardRealtime } from '@/composables/useDashboardRealtime'
 import {
-  Trophy, CircleCheck, Calendar, Phone, List, ArrowRight, Bell, Grid, UserPlus,
-  CalendarPlus, Promotion, Download, Location, Notification, ChatDotRound, Clock,
+  Trophy, CircleCheck, Calendar, Phone, List, ArrowRight, Bell, Grid, Plus,  // Plus 替代 UserPlus
+  Promotion, Download, Location, Notification, ChatDotRound, Clock,
   DataAnalysis, ArrowUp, ArrowDown, Connection, Filter, Search, RefreshLeft,
   ArrowDown as DropdownArrow, Document, Tickets, Files, Setting, Rank, User,
   FolderOpened, Upload, ShoppingCart

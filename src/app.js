@@ -260,11 +260,15 @@ app.use(cors({
     'http://localhost:3007',
     'http://localhost:3008',
     'http://localhost:3009',
+    'http://localhost:3010',
+    'http://localhost:3011',
     'http://localhost:3012',
     'http://127.0.0.1:3006',
     'http://127.0.0.1:3007',
     'http://127.0.0.1:3008',
     'http://127.0.0.1:3009',
+    'http://127.0.0.1:3010',
+    'http://127.0.0.1:3011',
     'http://127.0.0.1:3012'
   ],
   credentials: true,
@@ -619,6 +623,18 @@ app.use('/api/v1/chat', chatRoutes);
 console.log('[DEBUG] chatRoutes registered at /api/v1/chat');
 app.use('/api/v1/friends', friendRoutes);
 console.log('[DEBUG] friendRoutes registered at /api/v1/friends');
+
+// 村干部管理路由 - 新增
+const committeeManagementRoutes = require('./routes/committeeManagement');
+console.log('[DEBUG] committeeManagementRoutes loaded');
+app.use('/api/committee', committeeManagementRoutes);
+console.log('[DEBUG] committeeManagementRoutes registered at /api/committee');
+
+// 人口管理路由 - 新增 (村民分组、人口变动)
+const populationManagementRoutes = require('./routes/populationManagement');
+console.log('[DEBUG] populationManagementRoutes loaded');
+app.use('/api/population', populationManagementRoutes);
+console.log('[DEBUG] populationManagementRoutes registered at /api/population');
 
 // app.use('/api/v1/resident-profiles', residentProfileRoutes);
 console.log('[DEBUG] residentProfileRoutes temporarily disabled');
@@ -1052,7 +1068,9 @@ app.use('*', (req, res) => {
       '/api/v1/emergency/*',
       '/api/v1/ecommerce/*',
       '/api/v1/ai/*',
-      '/api/v1/performance'
+      '/api/v1/performance',
+      '/api/committee/*',
+      '/api/population/*'
     ],
     requestId: req.id
   });

@@ -1,15 +1,15 @@
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import { resolve } from 'path'
-import AutoImport from 'unplugin-auto-import/vite'
-import Components from 'unplugin-vue-components/vite'
-import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
-import tailwindcss from 'tailwindcss'
-import autoprefixer from 'autoprefixer'
-import { visualizer } from 'rollup-plugin-visualizer'
-import viteCompression from 'vite-plugin-compression'
-import viteImagemin from 'vite-plugin-imagemin'
-import vitePluginRequireTransform from 'vite-plugin-require-transform'
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+import { resolve } from 'path';
+import AutoImport from 'unplugin-auto-import/vite';
+import Components from 'unplugin-vue-components/vite';
+import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
+import tailwindcss from 'tailwindcss';
+import autoprefixer from 'autoprefixer';
+import { visualizer } from 'rollup-plugin-visualizer';
+import viteCompression from 'vite-plugin-compression';
+import viteImagemin from 'vite-plugin-imagemin';
+import vitePluginRequireTransform from 'vite-plugin-require-transform';
 
 // CDN 配置 - 用于生产环境的大型库
 const CDN_CONFIG = {
@@ -32,10 +32,10 @@ const CDN_CONFIG = {
       css: 'https://cdn.jsdelivr.net/npm/element-plus@2.4.4/dist/index.min.css'
     }
   ]
-}
+};
 
 export default defineConfig(({ mode }) => {
-  const isProd = mode === 'production'
+  const isProd = mode === 'production';
 
   return {
     css: {
@@ -261,8 +261,8 @@ export default defineConfig(({ mode }) => {
     // 预加载配置
     experimental: {
       renderBuiltUrl(filename, { hostType }) {
-        return { runtime: `window.__assetsPath(${JSON.stringify(filename)})` }
+        return { runtime: `window.__assetsPath(${JSON.stringify(filename)})` };
       }
     }
-  }
-})
+  };
+});

@@ -2,7 +2,7 @@
  * 村干部管理 API 接口
  * 提供村干部主页相关的所有API调用
  */
-import request from '@/utils/request'
+import request from '@/utils/request';
 
 /**
  * 获取仪表盘所有数据
@@ -10,7 +10,7 @@ import request from '@/utils/request'
  * @returns {Promise} 包含统计、值班、待办、通知等数据
  */
 export function getDashboardData(params = {}) {
-  return request.get('/api/v1/cadre/dashboard', params)
+  return request.get('/api/v1/cadre/dashboard', params);
 }
 
 /**
@@ -19,8 +19,8 @@ export function getDashboardData(params = {}) {
  * @returns {Promise} 值班人员列表
  */
 export function getTodayDuty(date) {
-  const params = date ? { date } : {}
-  return request.get('/api/v1/cadre/duty/today', params)
+  const params = date ? { date } : {};
+  return request.get('/api/v1/cadre/duty/today', params);
 }
 
 /**
@@ -30,7 +30,7 @@ export function getTodayDuty(date) {
  * @returns {Promise} 更新后的待办事项
  */
 export function updateTodoStatus(id, data) {
-  return request.put(`/api/v1/cadre/todos/${id}/status`, data)
+  return request.put(`/api/v1/cadre/todos/${id}/status`, data);
 }
 
 /**
@@ -39,7 +39,7 @@ export function updateTodoStatus(id, data) {
  * @returns {Promise} 发送结果
  */
 export function sendEmergencyNotice(data) {
-  return request.post('/api/v1/cadre/emergency', data)
+  return request.post('/api/v1/cadre/emergency', data);
 }
 
 /**
@@ -48,7 +48,7 @@ export function sendEmergencyNotice(data) {
  * @returns {Promise} 通知列表
  */
 export function getNotices(params = {}) {
-  return request.get('/api/v1/cadre/notices', params)
+  return request.get('/api/v1/cadre/notices', params);
 }
 
 /**
@@ -57,7 +57,7 @@ export function getNotices(params = {}) {
  * @returns {Promise} 通知详情
  */
 export function getNoticeDetail(id) {
-  return request.get(`/api/v1/cadre/notices/${id}`)
+  return request.get(`/api/v1/cadre/notices/${id}`);
 }
 
 /**
@@ -66,7 +66,7 @@ export function getNoticeDetail(id) {
  * @returns {Promise} 标记结果
  */
 export function markNoticeRead(id) {
-  return request.put(`/api/v1/cadre/notices/${id}/read`)
+  return request.put(`/api/v1/cadre/notices/${id}/read`);
 }
 
 /**
@@ -75,7 +75,7 @@ export function markNoticeRead(id) {
  * @returns {Promise} 标记结果
  */
 export function batchMarkNoticesRead(ids) {
-  return request.put('/api/v1/cadre/notices/batch-read', { ids })
+  return request.put('/api/v1/cadre/notices/batch-read', { ids });
 }
 
 /**
@@ -84,7 +84,7 @@ export function batchMarkNoticesRead(ids) {
  * @returns {Promise} 村民动态列表
  */
 export function getActivities(params = {}) {
-  return request.get('/api/v1/cadre/activities', params)
+  return request.get('/api/v1/cadre/activities', params);
 }
 
 /**
@@ -93,7 +93,7 @@ export function getActivities(params = {}) {
  * @returns {Promise} 统计数据
  */
 export function getStatistics(period) {
-  return request.get('/api/v1/cadre/statistics', { period })
+  return request.get('/api/v1/cadre/statistics', { period });
 }
 
 /**
@@ -105,7 +105,7 @@ export function getStatistics(period) {
 export function exportReport(type, params = {}) {
   return request.get(`/api/v1/cadre/export/${type}`, params, {
     responseType: 'blob'
-  })
+  });
 }
 
 /**
@@ -114,7 +114,7 @@ export function exportReport(type, params = {}) {
  * @returns {Promise} 待办事项列表
  */
 export function getTodos(params = {}) {
-  return request.get('/api/v1/cadre/todos', params)
+  return request.get('/api/v1/cadre/todos', params);
 }
 
 /**
@@ -123,7 +123,7 @@ export function getTodos(params = {}) {
  * @returns {Promise} 创建的待办事项
  */
 export function createTodo(data) {
-  return request.post('/api/v1/cadre/todos', data)
+  return request.post('/api/v1/cadre/todos', data);
 }
 
 /**
@@ -132,7 +132,7 @@ export function createTodo(data) {
  * @returns {Promise} 删除结果
  */
 export function deleteTodo(id) {
-  return request.delete(`/api/v1/cadre/todos/${id}`)
+  return request.delete(`/api/v1/cadre/todos/${id}`);
 }
 
 /**
@@ -140,7 +140,7 @@ export function deleteTodo(id) {
  * @returns {Promise} 快捷操作列表
  */
 export function getQuickActions() {
-  return request.get('/api/v1/cadre/quick-actions')
+  return request.get('/api/v1/cadre/quick-actions');
 }
 
 /**
@@ -149,7 +149,7 @@ export function getQuickActions() {
  * @returns {Promise} 保存结果
  */
 export function saveQuickActions(actions) {
-  return request.put('/api/v1/cadre/quick-actions', { actions })
+  return request.put('/api/v1/cadre/quick-actions', { actions });
 }
 
 /**
@@ -161,7 +161,7 @@ export function saveQuickActions(actions) {
 export function downloadNoticeAttachment(noticeId, fileId) {
   return request.get(`/api/v1/cadre/notices/${noticeId}/attachments/${fileId}`, {}, {
     responseType: 'blob'
-  })
+  });
 }
 
 /**
@@ -170,7 +170,7 @@ export function downloadNoticeAttachment(noticeId, fileId) {
  * @returns {Promise} 积分数据
  */
 export function getUserPoints(params = {}) {
-  return request.get('/api/v1/cadre/points', params)
+  return request.get('/api/v1/cadre/points', params);
 }
 
 // ==================== 资料收集相关 API ====================
@@ -181,7 +181,7 @@ export function getUserPoints(params = {}) {
  * @returns {Promise} 任务列表
  */
 export function getCollectionTasks(params = {}) {
-  return request.get('/api/v1/cadre/collection/tasks', params)
+  return request.get('/api/v1/cadre/collection/tasks', params);
 }
 
 /**
@@ -189,7 +189,7 @@ export function getCollectionTasks(params = {}) {
  * @returns {Promise} 统计数据
  */
 export function getCollectionStats() {
-  return request.get('/api/v1/cadre/collection/stats')
+  return request.get('/api/v1/cadre/collection/stats');
 }
 
 /**
@@ -198,7 +198,7 @@ export function getCollectionStats() {
  * @returns {Promise} 创建的任务
  */
 export function createCollectionTask(data) {
-  return request.post('/api/v1/cadre/collection/tasks', data)
+  return request.post('/api/v1/cadre/collection/tasks', data);
 }
 
 /**
@@ -208,7 +208,7 @@ export function createCollectionTask(data) {
  * @returns {Promise} 更新后的任务
  */
 export function updateCollectionTask(id, data) {
-  return request.put(`/api/v1/cadre/collection/tasks/${id}`, data)
+  return request.put(`/api/v1/cadre/collection/tasks/${id}`, data);
 }
 
 /**
@@ -217,7 +217,7 @@ export function updateCollectionTask(id, data) {
  * @returns {Promise} 删除结果
  */
 export function deleteCollectionTask(id) {
-  return request.delete(`/api/v1/cadre/collection/tasks/${id}`)
+  return request.delete(`/api/v1/cadre/collection/tasks/${id}`);
 }
 
 /**
@@ -226,7 +226,7 @@ export function deleteCollectionTask(id) {
  * @returns {Promise} 文件列表
  */
 export function getCollectedFiles(taskId) {
-  return request.get(`/api/v1/cadre/collection/tasks/${taskId}/files`)
+  return request.get(`/api/v1/cadre/collection/tasks/${taskId}/files`);
 }
 
 /**
@@ -235,7 +235,7 @@ export function getCollectedFiles(taskId) {
  * @returns {Promise} 提交结果
  */
 export function submitCollectedFile(data) {
-  return request.post('/api/v1/cadre/collection/files', data)
+  return request.post('/api/v1/cadre/collection/files', data);
 }
 
 /**
@@ -244,7 +244,7 @@ export function submitCollectedFile(data) {
  * @returns {Promise} 删除结果
  */
 export function deleteCollectedFile(fileId) {
-  return request.delete(`/api/v1/cadre/collection/files/${fileId}`)
+  return request.delete(`/api/v1/cadre/collection/files/${fileId}`);
 }
 
 /**
@@ -253,7 +253,7 @@ export function deleteCollectedFile(fileId) {
  * @returns {Promise} 村民列表
  */
 export function searchResidents(query) {
-  return request.get('/api/v1/cadre/collection/residents/search', { query })
+  return request.get('/api/v1/cadre/collection/residents/search', { query });
 }
 
 /**
@@ -262,7 +262,7 @@ export function searchResidents(query) {
  * @returns {Promise} 提醒结果
  */
 export function batchRemind(ids) {
-  return request.post('/api/v1/cadre/collection/batch/remind', { ids })
+  return request.post('/api/v1/cadre/collection/batch/remind', { ids });
 }
 
 /**
@@ -272,7 +272,7 @@ export function batchRemind(ids) {
  * @returns {Promise} 操作结果
  */
 export function batchExtendDeadline(ids, days) {
-  return request.post('/api/v1/cadre/collection/batch/extend', { ids, days })
+  return request.post('/api/v1/cadre/collection/batch/extend', { ids, days });
 }
 
 // ==================== 资料上交相关 API ====================
@@ -283,7 +283,7 @@ export function batchExtendDeadline(ids, days) {
  * @returns {Promise} 任务列表
  */
 export function getSubmissionTasks(params = {}) {
-  return request.get('/api/v1/cadre/submission/tasks', params)
+  return request.get('/api/v1/cadre/submission/tasks', params);
 }
 
 /**
@@ -291,7 +291,7 @@ export function getSubmissionTasks(params = {}) {
  * @returns {Promise} 统计数据
  */
 export function getSubmissionStats() {
-  return request.get('/api/v1/cadre/submission/stats')
+  return request.get('/api/v1/cadre/submission/stats');
 }
 
 /**
@@ -300,7 +300,7 @@ export function getSubmissionStats() {
  * @returns {Promise} 创建的任务
  */
 export function createSubmissionTask(data) {
-  return request.post('/api/v1/cadre/submission/tasks', data)
+  return request.post('/api/v1/cadre/submission/tasks', data);
 }
 
 /**
@@ -310,7 +310,7 @@ export function createSubmissionTask(data) {
  * @returns {Promise} 更新后的任务
  */
 export function updateSubmissionTask(id, data) {
-  return request.put(`/api/v1/cadre/submission/tasks/${id}`, data)
+  return request.put(`/api/v1/cadre/submission/tasks/${id}`, data);
 }
 
 /**
@@ -319,7 +319,7 @@ export function updateSubmissionTask(id, data) {
  * @returns {Promise} 删除结果
  */
 export function deleteSubmissionTask(id) {
-  return request.delete(`/api/v1/cadre/submission/tasks/${id}`)
+  return request.delete(`/api/v1/cadre/submission/tasks/${id}`);
 }
 
 /**
@@ -328,7 +328,7 @@ export function deleteSubmissionTask(id) {
  * @returns {Promise} 提交结果
  */
 export function submitTask(id) {
-  return request.post(`/api/v1/cadre/submission/tasks/${id}/submit`)
+  return request.post(`/api/v1/cadre/submission/tasks/${id}/submit`);
 }
 
 /**
@@ -337,7 +337,7 @@ export function submitTask(id) {
  * @returns {Promise} 文件列表
  */
 export function getUploadedFiles(taskId) {
-  return request.get(`/api/v1/cadre/submission/tasks/${taskId}/files`)
+  return request.get(`/api/v1/cadre/submission/tasks/${taskId}/files`);
 }
 
 /**
@@ -346,7 +346,7 @@ export function getUploadedFiles(taskId) {
  * @returns {Promise} 删除结果
  */
 export function deleteUploadedFile(fileId) {
-  return request.delete(`/api/v1/cadre/submission/files/${fileId}`)
+  return request.delete(`/api/v1/cadre/submission/files/${fileId}`);
 }
 
 /**
@@ -357,7 +357,7 @@ export function deleteUploadedFile(fileId) {
 export function downloadSubmissionProof(id) {
   return request.get(`/api/v1/cadre/submission/tasks/${id}/proof`, {}, {
     responseType: 'blob'
-  })
+  });
 }
 
 /**
@@ -366,7 +366,7 @@ export function downloadSubmissionProof(id) {
  * @returns {Promise} 提交结果
  */
 export function batchSubmit(ids) {
-  return request.post('/api/v1/cadre/submission/batch/submit', { ids })
+  return request.post('/api/v1/cadre/submission/batch/submit', { ids });
 }
 
 /**
@@ -375,7 +375,7 @@ export function batchSubmit(ids) {
  * @returns {Promise} 导出结果
  */
 export function batchExport(ids) {
-  return request.post('/api/v1/cadre/submission/batch/export', { ids })
+  return request.post('/api/v1/cadre/submission/batch/export', { ids });
 }
 
 // ==================== 产品管理相关 API ====================
@@ -386,7 +386,7 @@ export function batchExport(ids) {
  * @returns {Promise} 产品列表
  */
 export function getCadreProducts(params = {}) {
-  return request.get('/api/v1/cadre/products', params)
+  return request.get('/api/v1/cadre/products', params);
 }
 
 /**
@@ -394,7 +394,7 @@ export function getCadreProducts(params = {}) {
  * @returns {Promise} 统计数据
  */
 export function getCadreProductStats() {
-  return request.get('/api/v1/cadre/products/stats')
+  return request.get('/api/v1/cadre/products/stats');
 }
 
 /**
@@ -403,7 +403,7 @@ export function getCadreProductStats() {
  * @returns {Promise} 创建的产品
  */
 export function createProduct(data) {
-  return request.post('/api/v1/cadre/products', data)
+  return request.post('/api/v1/cadre/products', data);
 }
 
 /**
@@ -413,7 +413,7 @@ export function createProduct(data) {
  * @returns {Promise} 更新后的产品
  */
 export function updateProduct(id, data) {
-  return request.put(`/api/v1/cadre/products/${id}`, data)
+  return request.put(`/api/v1/cadre/products/${id}`, data);
 }
 
 /**
@@ -422,7 +422,7 @@ export function updateProduct(id, data) {
  * @returns {Promise} 删除结果
  */
 export function deleteProduct(id) {
-  return request.delete(`/api/v1/cadre/products/${id}`)
+  return request.delete(`/api/v1/cadre/products/${id}`);
 }
 
 /**
@@ -432,7 +432,7 @@ export function deleteProduct(id) {
  * @returns {Promise} 操作结果
  */
 export function toggleProductStatus(id, status) {
-  return request.put(`/api/v1/cadre/products/${id}/status`, { status })
+  return request.put(`/api/v1/cadre/products/${id}/status`, { status });
 }
 
 /**
@@ -441,10 +441,51 @@ export function toggleProductStatus(id, status) {
  * @returns {Promise} 操作结果
  */
 export function batchPublish(ids) {
-  return request.post('/api/v1/cadre/products/batch/publish', { ids })
+  return request.post('/api/v1/cadre/products/batch/publish', { ids });
 }
 
 // ==================== 导出API对象 ====================
+
+// 导出产品管理API
+export const productApi = {
+  getCadreProducts,
+  getCadreProductStats,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  toggleProductStatus,
+  batchPublish
+};
+
+// 导出资料收集API
+export const collectionApi = {
+  getCollectionTasks,
+  getCollectionStats,
+  createCollectionTask,
+  updateCollectionTask,
+  deleteCollectionTask,
+  getCollectedFiles,
+  submitCollectedFile,
+  deleteCollectedFile,
+  searchResidents,
+  batchRemind,
+  batchExtendDeadline
+};
+
+// 导出资料上交API
+export const submissionApi = {
+  getSubmissionTasks,
+  getSubmissionStats,
+  createSubmissionTask,
+  updateSubmissionTask,
+  deleteSubmissionTask,
+  submitTask,
+  getUploadedFiles,
+  deleteUploadedFile,
+  downloadSubmissionProof,
+  batchSubmit,
+  batchExport
+};
 
 // 导出所有API作为对象
 export const cadreApi = {
@@ -498,6 +539,6 @@ export const cadreApi = {
   deleteProduct,
   toggleProductStatus,
   batchPublish
-}
+};
 
-export default cadreApi
+export default cadreApi;

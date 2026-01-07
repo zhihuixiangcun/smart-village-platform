@@ -1,27 +1,27 @@
-import { useNotificationSystem } from '@/composables/useNotificationSystem'
+import { useNotificationSystem } from '@/composables/useNotificationSystem';
 
 /**
  * 财务智能通知服务
  */
 export class FinanceNotificationService {
   constructor() {
-    this.notificationSystem = useNotificationSystem()
+    this.notificationSystem = useNotificationSystem();
     this.thresholds = {
       budgetWarning: 0.8, // 预算使用率80%警告
       budgetDanger: 0.9,  // 预算使用率90%危险
       largeExpense: 10000, // 大额支出阈值
       urgentApproval: 24   // 紧急审批时长（小时）
-    }
+    };
 
-    this.init()
+    this.init();
   }
 
   init() {
     // 启动定期检查
-    this.startPeriodicChecks()
+    this.startPeriodicChecks();
 
     // 监听财务数据变化
-    this.setupEventListeners()
+    this.setupEventListeners();
   }
 
   /**
@@ -30,15 +30,15 @@ export class FinanceNotificationService {
   startPeriodicChecks() {
     // 每30分钟检查一次
     setInterval(() => {
-      this.checkBudgetStatus()
-      this.checkPendingApprovals()
-      this.checkUnusualExpenses()
-    }, 30 * 60 * 1000)
+      this.checkBudgetStatus();
+      this.checkPendingApprovals();
+      this.checkUnusualExpenses();
+    }, 30 * 60 * 1000);
 
     // 每天检查月度汇总
     setInterval(() => {
-      this.checkMonthlyReports()
-    }, 24 * 60 * 60 * 1000)
+      this.checkMonthlyReports();
+    }, 24 * 60 * 60 * 1000);
   }
 
   /**
@@ -47,11 +47,11 @@ export class FinanceNotificationService {
   async checkBudgetStatus() {
     try {
       // 这里应该从API获取实际的预算数据
-      const budgetData = await this.getBudgetData()
+      const budgetData = await this.getBudgetData();
 
       budgetData.forEach(budget => {
-        const usageRate = budget.used / budget.total
-        const remainingDays = this.calculateRemainingDays(budget.period)
+        const usageRate = budget.used / budget.total;
+        const remainingDays = this.calculateRemainingDays(budget.period);
 
         if (usageRate >= this.thresholds.budgetDanger) {
           this.notificationSystem.showBudgetWarning({
@@ -71,7 +71,7 @@ export class FinanceNotificationService {
                 handler: () => this.requestBudgetAdjustment(budget.id)
               }
             ]
-          })
+          });
         } else if (usageRate >= this.thresholds.budgetWarning) {
           this.notificationSystem.showBudgetWarning({
             title: '💰 预算使用提醒',
@@ -85,7 +85,7 @@ export class FinanceNotificationService {
                 handler: () => this.viewBudgetDetail(budget.id)
               }
             ]
-          })
+          });
         }
 
         // 检查预算执行进度是否异常
@@ -95,11 +95,11 @@ export class FinanceNotificationService {
             message: `${budget.category}预算执行进度异常，建议检查支出计划。`,
             priority: 'high',
             data: { budgetId: budget.id, anomaly: true }
-          })
+          });
         }
-      })
+      });
     } catch (error) {
-      console.error('检查预算状态失败:', error)
+      console.error('检查预算状态失败:', error);
     }
   }
 
@@ -108,10 +108,10 @@ export class FinanceNotificationService {
    */
   async checkPendingApprovals() {
     try {
-      const pendingApprovals = await this.getPendingApprovals()
+      const pendingApprovals = await this.getPendingApprovals();
 
       pendingApprovals.forEach(approval => {
-        const pendingHours = this.calculatePendingHours(approval.submitTime)
+        const pendingHours = this.calculatePendingHours(approval.submitTime);
 
         if (pendingHours >= this.thresholds.urgentApproval) {
           this.notificationSystem.showApprovalNotification({
@@ -131,14 +131,14 @@ export class FinanceNotificationService {
                 handler: () => this.delegateApproval(approval.id)
               }
             ]
-          })
+          });
         } else if (approval.priority === 'urgent' && pendingHours >= 2) {
           this.notificationSystem.showApprovalNotification({
             title: '⚡ 紧急审批提醒',
             message: `紧急审批${approval.title}已等待${pendingHours}小时，请优先处理！`,
             priority: 'urgent',
             data: { approvalId: approval.id }
-          })
+          });
         }
 
         // 检查大额支出审批
@@ -148,11 +148,11 @@ export class FinanceNotificationService {
             message: `大额支出审批${approval.title}(¥${approval.amount.toLocaleString()})需要您的关注。`,
             priority: 'high',
             data: { approvalId: approval.id, largeAmount: true }
-          })
+          });
         }
-      })
+      });
     } catch (error) {
-      console.error('检查待审批事项失败:', error)
+      console.error('检查待审批事项失败:', error);
     }
   }
 
@@ -161,8 +161,8 @@ export class FinanceNotificationService {
    */
   async checkUnusualExpenses() {
     try {
-      const recentExpenses = await this.getRecentExpenses()
-      const unusualExpenses = this.detectUnusualExpenses(recentExpenses)
+      const recentExpenses = await this.getRecentExpenses();
+      const unusualExpenses = this.detectUnusualExpenses(recentExpenses);
 
       unusualExpenses.forEach(expense => {
         this.notificationSystem.showExpenseAlert({
@@ -182,10 +182,10 @@ export class FinanceNotificationService {
               handler: () => this.markExpenseNormal(expense.id)
             }
           ]
-        })
-      })
+        });
+      });
     } catch (error) {
-      console.error('检查异常支出失败:', error)
+      console.error('检查异常支出失败:', error);
     }
   }
 
@@ -193,12 +193,12 @@ export class FinanceNotificationService {
    * 检查月度报告
    */
   async checkMonthlyReports() {
-    const today = new Date()
-    const isFirstDayOfMonth = today.getDate() === 1
+    const today = new Date();
+    const isFirstDayOfMonth = today.getDate() === 1;
 
     if (isFirstDayOfMonth) {
-      const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1)
-      const monthName = lastMonth.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long' })
+      const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1);
+      const monthName = lastMonth.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long' });
 
       this.notificationSystem.showNotification({
         type: 'system',
@@ -217,7 +217,7 @@ export class FinanceNotificationService {
             handler: () => this.exportMonthlyData(lastMonth)
           }
         ]
-      })
+      });
     }
   }
 
@@ -226,19 +226,19 @@ export class FinanceNotificationService {
    */
   onNewApproval(approval) {
     // AI智能分析审批建议
-    const suggestion = this.analyzeApproval(approval)
+    const suggestion = this.analyzeApproval(approval);
 
-    let priority = 'normal'
-    let message = `新的审批申请：${approval.title}`
+    let priority = 'normal';
+    let message = `新的审批申请：${approval.title}`;
 
     if (suggestion.riskLevel === 'high' || suggestion.riskLevel === 'very_high') {
-      priority = 'high'
-      message += `（AI检测到高风险：${suggestion.riskScore}分）`
+      priority = 'high';
+      message += `（AI检测到高风险：${suggestion.riskScore}分）`;
     }
 
     if (approval.amount >= this.thresholds.largeExpense) {
-      priority = 'high'
-      message += `（大额支出：¥${approval.amount.toLocaleString()}）`
+      priority = 'high';
+      message += `（大额支出：¥${approval.amount.toLocaleString()}）`;
     }
 
     this.notificationSystem.showApprovalNotification({
@@ -262,7 +262,7 @@ export class FinanceNotificationService {
           handler: () => this.showAISuggestion(suggestion)
         }
       ]
-    })
+    });
   }
 
   /**
@@ -274,7 +274,7 @@ export class FinanceNotificationService {
       message: `您的申请${approval.title}已${result === 'approved' ? '通过审批' : '被驳回'}。`,
       priority: 'normal',
       data: { approvalId: approval.id, result }
-    }
+    };
 
     if (result === 'approved') {
       applicantNotification.actions = [
@@ -283,7 +283,7 @@ export class FinanceNotificationService {
           type: 'primary',
           handler: () => this.viewApprovalResult(approval.id)
         }
-      ]
+      ];
     } else {
       applicantNotification.actions = [
         {
@@ -296,10 +296,10 @@ export class FinanceNotificationService {
           type: 'warning',
           handler: () => this.reapplyApproval(approval.id)
         }
-      ]
+      ];
     }
 
-    this.notificationSystem.showNotification(applicantNotification)
+    this.notificationSystem.showNotification(applicantNotification);
   }
 
   /**
@@ -308,19 +308,19 @@ export class FinanceNotificationService {
   setupEventListeners() {
     // 监听WebSocket事件
     if (window.socket) {
-      window.socket.on('new_approval', this.onNewApproval.bind(this))
-      window.socket.on('approval_result', this.onApprovalResult.bind(this))
-      window.socket.on('budget_update', this.checkBudgetStatus.bind(this))
-      window.socket.on('emergency_alert', this.handleEmergencyAlert.bind(this))
+      window.socket.on('new_approval', this.onNewApproval.bind(this));
+      window.socket.on('approval_result', this.onApprovalResult.bind(this));
+      window.socket.on('budget_update', this.checkBudgetStatus.bind(this));
+      window.socket.on('emergency_alert', this.handleEmergencyAlert.bind(this));
     }
 
     // 监听页面可见性变化
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) {
         // 页面重新可见时检查是否有新通知
-        this.checkForUpdates()
+        this.checkForUpdates();
       }
-    })
+    });
   }
 
   /**
@@ -343,7 +343,7 @@ export class FinanceNotificationService {
           handler: () => this.viewEmergencyDetail(alert.id)
         }
       ]
-    })
+    });
   }
 
   // 辅助方法
@@ -352,7 +352,7 @@ export class FinanceNotificationService {
     return [
       { id: 1, category: '基础设施', used: 220000, total: 300000, period: '2025-01' },
       { id: 2, category: '日常运营', used: 85000, total: 100000, period: '2025-01' }
-    ]
+    ];
   }
 
   async getPendingApprovals() {
@@ -365,48 +365,48 @@ export class FinanceNotificationService {
         priority: 'urgent',
         submitTime: new Date(Date.now() - 26 * 60 * 60 * 1000) // 26小时前
       }
-    ]
+    ];
   }
 
   async getRecentExpenses() {
     // 模拟数据
-    return []
+    return [];
   }
 
   calculatePendingHours(submitTime) {
-    return Math.floor((Date.now() - new Date(submitTime)) / (1000 * 60 * 60))
+    return Math.floor((Date.now() - new Date(submitTime)) / (1000 * 60 * 60));
   }
 
   calculateRemainingDays(period) {
     // 计算期间剩余天数
-    const [year, month] = period.split('-')
-    const endOfPeriod = new Date(year, month, 0) // 月末
-    const today = new Date()
-    return Math.max(0, Math.ceil((endOfPeriod - today) / (1000 * 60 * 60 * 24)))
+    const [year, month] = period.split('-');
+    const endOfPeriod = new Date(year, month, 0); // 月末
+    const today = new Date();
+    return Math.max(0, Math.ceil((endOfPeriod - today) / (1000 * 60 * 60 * 24)));
   }
 
   isBudgetProgressAbnormal(usageRate, remainingDays) {
     // 简单的异常检测：如果使用率远超时间进度
-    const totalDays = 31 // 假设一个月31天
-    const expectedProgress = (totalDays - remainingDays) / totalDays
-    return usageRate > expectedProgress + 0.2
+    const totalDays = 31; // 假设一个月31天
+    const expectedProgress = (totalDays - remainingDays) / totalDays;
+    return usageRate > expectedProgress + 0.2;
   }
 
   detectUnusualExpenses(expenses) {
     // 简单的异常检测逻辑
     return expenses.filter(expense => {
       // 检测异常大的金额
-      const isUnusuallyLarge = expense.amount > 50000
+      const isUnusuallyLarge = expense.amount > 50000;
       // 检测频繁的重复支出
-      const isFrequent = this.checkFrequentExpenses(expense)
+      const isFrequent = this.checkFrequentExpenses(expense);
 
-      return isUnusuallyLarge || isFrequent
-    })
+      return isUnusuallyLarge || isFrequent;
+    });
   }
 
   checkFrequentExpenses(expense) {
     // 检测是否有频繁的相似支出
-    return false // 简化实现
+    return false; // 简化实现
   }
 
   analyzeApproval(approval) {
@@ -414,12 +414,12 @@ export class FinanceNotificationService {
     return {
       riskLevel: approval.amount > 20000 ? 'high' : 'low',
       riskScore: approval.amount > 20000 ? 75 : 25
-    }
+    };
   }
 
   // 操作方法
   viewBudgetDetail(budgetId) {
-    window.location.href = `/finance/budget/${budgetId}`
+    window.location.href = `/finance/budget/${budgetId}`;
   }
 
   requestBudgetAdjustment(budgetId) {
@@ -427,7 +427,7 @@ export class FinanceNotificationService {
   }
 
   openApprovalDetail(approvalId) {
-    window.location.href = `/finance/approval/${approvalId}`
+    window.location.href = `/finance/approval/${approvalId}`;
   }
 
   delegateApproval(approvalId) {
@@ -435,7 +435,7 @@ export class FinanceNotificationService {
   }
 
   viewExpenseDetail(expenseId) {
-    window.location.href = `/finance/expenses/${expenseId}`
+    window.location.href = `/finance/expenses/${expenseId}`;
   }
 
   markExpenseNormal(expenseId) {
@@ -443,7 +443,7 @@ export class FinanceNotificationService {
   }
 
   viewMonthlyReport(month) {
-    window.location.href = `/finance/reports/monthly/${month.getFullYear()}-${month.getMonth() + 1}`
+    window.location.href = `/finance/reports/monthly/${month.getFullYear()}-${month.getMonth() + 1}`;
   }
 
   exportMonthlyData(month) {
@@ -452,10 +452,10 @@ export class FinanceNotificationService {
 
   checkForUpdates() {
     // 检查更新
-    this.checkBudgetStatus()
-    this.checkPendingApprovals()
+    this.checkBudgetStatus();
+    this.checkPendingApprovals();
   }
 }
 
 // 创建全局实例
-export const financeNotificationService = new FinanceNotificationService()
+export const financeNotificationService = new FinanceNotificationService();

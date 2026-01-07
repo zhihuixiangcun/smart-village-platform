@@ -384,7 +384,7 @@
               <el-row :gutter="16">
                 <el-col :span="6">
                   <div class="dispatch-option" @click="dispatchTask('safety')">
-                    <el-icon class="option-icon"><Shield /></el-icon>
+                    <el-icon class="option-icon"><Lock /></el-icon>
                     <div class="option-text">
                       <div class="option-title">安全生产</div>
                       <div class="option-desc">一键呼叫安全巡查</div>
@@ -658,7 +658,7 @@ import { useRouter } from 'vue-router'
 import {
   Plus, Download, Money, CreditCard, Wallet, PieChart,
   EditPen, Minus, FolderOpened, Loading, CircleCheck,
-  Warning, Search, ArrowDown, Clock, Shield, FirstAidKit,
+  Warning, Search, ArrowDown, Clock, Lock, FirstAidKit,
   Umbrella, Brush, WarningFilled, CircleCheckFilled
 } from '@element-plus/icons-vue'
 

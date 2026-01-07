@@ -288,7 +288,7 @@ export const useMobileStore = defineStore('mobile', () => {
   function getDeviceId() {
     let id = localStorage.getItem('device_id');
     if (!id) {
-      id = 'device_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      id = `device_${  Date.now()  }_${  Math.random().toString(36).substr(2, 9)}`;
       localStorage.setItem('device_id', id);
     }
     return id;

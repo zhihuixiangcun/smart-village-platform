@@ -36,4 +36,4 @@ export default {
       meta: { title: '我的文档', icon: 'Folder' }
     }
   ]
-}
+};

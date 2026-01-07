@@ -1,15 +1,15 @@
-import { ref, reactive, computed, nextTick } from 'vue'
-import { ElMessage } from 'element-plus'
-import * as echarts from 'echarts'
+import { ref, reactive, computed, nextTick } from 'vue';
+import { ElMessage } from 'element-plus';
+import * as echarts from 'echarts';
 
 /**
  * 交互式图表增强组合函数
  */
 export function useInteractiveCharts() {
   // 图表实例管理
-  const chartInstances = ref(new Map())
-  const isChartsLoading = ref(false)
-  const chartError = ref(null)
+  const chartInstances = ref(new Map());
+  const isChartsLoading = ref(false);
+  const chartError = ref(null);
 
   // 图表配置
   const chartConfig = reactive({
@@ -43,25 +43,25 @@ export function useInteractiveCharts() {
         enabled: false
       }
     }
-  })
+  });
 
   // 图表数据处理
   const processChartData = (rawData, chartType) => {
     switch (chartType) {
-      case 'line':
-        return processLineData(rawData)
-      case 'bar':
-        return processBarData(rawData)
-      case 'pie':
-        return processPieData(rawData)
-      case 'scatter':
-        return processScatterData(rawData)
-      case 'heatmap':
-        return processHeatmapData(rawData)
-      default:
-        return rawData
+    case 'line':
+      return processLineData(rawData);
+    case 'bar':
+      return processBarData(rawData);
+    case 'pie':
+      return processPieData(rawData);
+    case 'scatter':
+      return processScatterData(rawData);
+    case 'heatmap':
+      return processHeatmapData(rawData);
+    default:
+      return rawData;
     }
-  }
+  };
 
   // 线性图数据处理
   const processLineData = (data) => {
@@ -92,8 +92,8 @@ export function useInteractiveCharts() {
         areaStyle: {
           opacity: 0.3,
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: chartConfig.theme.colorPalette[index] + '40' },
-            { offset: 1, color: chartConfig.theme.colorPalette[index] + '10' }
+            { offset: 0, color: `${chartConfig.theme.colorPalette[index]  }40` },
+            { offset: 1, color: `${chartConfig.theme.colorPalette[index]  }10` }
           ])
         },
         emphasis: {
@@ -101,8 +101,8 @@ export function useInteractiveCharts() {
           blurScope: 'coordinateSystem'
         }
       }))
-    }
-  }
+    };
+  };
 
   // 柱状图数据处理
   const processBarData = (data) => {
@@ -130,7 +130,7 @@ export function useInteractiveCharts() {
           borderRadius: [4, 4, 0, 0],
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
             { offset: 0, color: chartConfig.theme.colorPalette[index] },
-            { offset: 1, color: chartConfig.theme.colorPalette[index] + '80' }
+            { offset: 1, color: `${chartConfig.theme.colorPalette[index]  }80` }
           ])
         },
         emphasis: {
@@ -140,8 +140,8 @@ export function useInteractiveCharts() {
           }
         }
       }))
-    }
-  }
+    };
+  };
 
   // 饼图数据处理
   const processPieData = (data) => {
@@ -184,8 +184,8 @@ export function useInteractiveCharts() {
           color: '#606266'
         }
       }]
-    }
-  }
+    };
+  };
 
   // 散点图数据处理
   const processScatterData = (data) => {
@@ -215,8 +215,8 @@ export function useInteractiveCharts() {
           }
         }
       }))
-    }
-  }
+    };
+  };
 
   // 热力图数据处理
   const processHeatmapData = (data) => {
@@ -251,34 +251,34 @@ export function useInteractiveCharts() {
           }
         }
       }]
-    }
-  }
+    };
+  };
 
   // 创建图表实例
   const createChart = async (container, chartType, data, options = {}) => {
     if (!container) {
-      chartError.value = '图表容器不存在'
-      return null
+      chartError.value = '图表容器不存在';
+      return null;
     }
 
-    isChartsLoading.value = true
+    isChartsLoading.value = true;
 
     try {
-      await nextTick()
+      await nextTick();
 
       // 销毁现有实例
       if (chartInstances.value.has(container)) {
-        chartInstances.value.get(container).dispose()
+        chartInstances.value.get(container).dispose();
       }
 
       // 创建新实例
       const chart = echarts.init(container, 'light', {
         renderer: 'canvas',
         useDirtyRect: true
-      })
+      });
 
       // 处理数据
-      const processedData = processChartData(data, chartType)
+      const processedData = processChartData(data, chartType);
 
       // 构建完整配置
       const config = {
@@ -313,128 +313,128 @@ export function useInteractiveCharts() {
         },
         ...processedData,
         ...options.extraConfig
-      }
+      };
 
       // 应用配置
-      chart.setOption(config)
+      chart.setOption(config);
 
       // 添加交互事件
-      setupChartInteractions(chart, options.interactions || {})
+      setupChartInteractions(chart, options.interactions || {});
 
       // 存储实例
-      chartInstances.value.set(container, chart)
+      chartInstances.value.set(container, chart);
 
-      return chart
+      return chart;
     } catch (error) {
-      chartError.value = `图表创建失败: ${error.message}`
-      console.error('图表创建失败:', error)
-      return null
+      chartError.value = `图表创建失败: ${error.message}`;
+      console.error('图表创建失败:', error);
+      return null;
     } finally {
-      isChartsLoading.value = false
+      isChartsLoading.value = false;
     }
-  }
+  };
 
   // 设置图表交互
   const setupChartInteractions = (chart, interactions) => {
     // 点击事件
     if (interactions.onClick) {
-      chart.on('click', interactions.onClick)
+      chart.on('click', interactions.onClick);
     }
 
     // 双击事件
     if (interactions.onDoubleClick) {
-      chart.on('dblclick', interactions.onDoubleClick)
+      chart.on('dblclick', interactions.onDoubleClick);
     }
 
     // 鼠标悬停事件
     if (interactions.onMouseOver) {
-      chart.on('mouseover', interactions.onMouseOver)
+      chart.on('mouseover', interactions.onMouseOver);
     }
 
     // 鼠标离开事件
     if (interactions.onMouseOut) {
-      chart.on('mouseout', interactions.onMouseOut)
+      chart.on('mouseout', interactions.onMouseOut);
     }
 
     // 数据缩放事件
     if (chartConfig.interaction.dataZoom.enabled) {
       chart.on('datazoom', (params) => {
         if (interactions.onDataZoom) {
-          interactions.onDataZoom(params)
+          interactions.onDataZoom(params);
         }
-      })
+      });
     }
 
     // 图例选择事件
     chart.on('legendselectchanged', (params) => {
       if (interactions.onLegendSelect) {
-        interactions.onLegendSelect(params)
+        interactions.onLegendSelect(params);
       }
-    })
+    });
 
     // 刷选事件
     if (chartConfig.interaction.brush.enabled) {
       chart.on('brushSelected', (params) => {
         if (interactions.onBrushSelect) {
-          interactions.onBrushSelect(params)
+          interactions.onBrushSelect(params);
         }
-      })
+      });
     }
-  }
+  };
 
   // 更新图表数据
   const updateChart = (container, newData, options = {}) => {
-    const chart = chartInstances.value.get(container)
+    const chart = chartInstances.value.get(container);
     if (!chart) {
-      console.warn('图表实例不存在')
-      return false
+      console.warn('图表实例不存在');
+      return false;
     }
 
     try {
-      const processedData = processChartData(newData, options.chartType || 'line')
+      const processedData = processChartData(newData, options.chartType || 'line');
 
       chart.setOption({
         ...processedData,
         ...options.extraConfig
-      }, options.notMerge || false)
+      }, options.notMerge || false);
 
-      return true
+      return true;
     } catch (error) {
-      chartError.value = `图表更新失败: ${error.message}`
-      console.error('图表更新失败:', error)
-      return false
+      chartError.value = `图表更新失败: ${error.message}`;
+      console.error('图表更新失败:', error);
+      return false;
     }
-  }
+  };
 
   // 调整图表大小
   const resizeChart = (container) => {
-    const chart = chartInstances.value.get(container)
+    const chart = chartInstances.value.get(container);
     if (chart) {
-      chart.resize()
+      chart.resize();
     }
-  }
+  };
 
   // 销毁图表
   const disposeChart = (container) => {
-    const chart = chartInstances.value.get(container)
+    const chart = chartInstances.value.get(container);
     if (chart) {
-      chart.dispose()
-      chartInstances.value.delete(container)
+      chart.dispose();
+      chartInstances.value.delete(container);
     }
-  }
+  };
 
   // 批量销毁所有图表
   const disposeAllCharts = () => {
-    chartInstances.value.forEach(chart => chart.dispose())
-    chartInstances.value.clear()
-  }
+    chartInstances.value.forEach(chart => chart.dispose());
+    chartInstances.value.clear();
+  };
 
   // 导出图表为图片
   const exportChart = (container, options = {}) => {
-    const chart = chartInstances.value.get(container)
+    const chart = chartInstances.value.get(container);
     if (!chart) {
-      ElMessage.error('图表实例不存在')
-      return null
+      ElMessage.error('图表实例不存在');
+      return null;
     }
 
     try {
@@ -442,55 +442,55 @@ export function useInteractiveCharts() {
         type: options.type || 'png',
         pixelRatio: options.pixelRatio || 2,
         backgroundColor: options.backgroundColor || '#fff'
-      })
+      });
 
       // 自动下载
       if (options.download) {
-        const link = document.createElement('a')
-        link.download = options.filename || `chart_${Date.now()}.${options.type || 'png'}`
-        link.href = dataURL
-        link.click()
+        const link = document.createElement('a');
+        link.download = options.filename || `chart_${Date.now()}.${options.type || 'png'}`;
+        link.href = dataURL;
+        link.click();
       }
 
-      return dataURL
+      return dataURL;
     } catch (error) {
-      ElMessage.error(`图表导出失败: ${error.message}`)
-      return null
+      ElMessage.error(`图表导出失败: ${error.message}`);
+      return null;
     }
-  }
+  };
 
   // 图表主题切换
   const switchTheme = (themeName) => {
     chartInstances.value.forEach(chart => {
-      chart.dispose()
-    })
-    chartInstances.value.clear()
+      chart.dispose();
+    });
+    chartInstances.value.clear();
 
     // 更新主题配置
     if (themeName === 'dark') {
       chartConfig.theme.colorPalette = [
         '#4992ff', '#7cffb2', '#fddd60', '#ff6e76',
         '#58d9f9', '#05c091', '#ff8a45', '#8d48e3'
-      ]
-      chartConfig.theme.backgroundColor = '#1a1a1a'
+      ];
+      chartConfig.theme.backgroundColor = '#1a1a1a';
     } else {
       chartConfig.theme.colorPalette = [
         '#5470c6', '#91cc75', '#fac858', '#ee6666',
         '#73c0de', '#3ba272', '#fc8452', '#9a60b4'
-      ]
-      chartConfig.theme.backgroundColor = 'transparent'
+      ];
+      chartConfig.theme.backgroundColor = 'transparent';
     }
-  }
+  };
 
   // 图表动画控制
   const toggleAnimation = (enabled) => {
-    chartConfig.animation.duration = enabled ? 800 : 0
-  }
+    chartConfig.animation.duration = enabled ? 800 : 0;
+  };
 
   // 计算属性
-  const hasCharts = computed(() => chartInstances.value.size > 0)
+  const hasCharts = computed(() => chartInstances.value.size > 0);
 
-  const chartCount = computed(() => chartInstances.value.size)
+  const chartCount = computed(() => chartInstances.value.size);
 
   return {
     // 状态
@@ -516,5 +516,5 @@ export function useInteractiveCharts() {
     processPieData,
     processScatterData,
     processHeatmapData
-  }
+  };
 }

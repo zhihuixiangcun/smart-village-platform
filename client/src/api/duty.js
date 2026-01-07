@@ -1,4 +1,4 @@
-import request from '@/utils/request'
+import request from '@/utils/request';
 
 // 值班管理API接口
 export const dutyApi = {
@@ -7,7 +7,7 @@ export const dutyApi = {
     return request({
       url: '/api/duty/personnel',
       method: 'get'
-    })
+    });
   },
 
   // 添加值班人员
@@ -16,7 +16,7 @@ export const dutyApi = {
       url: '/api/duty/personnel',
       method: 'post',
       data
-    })
+    });
   },
 
   // 更新值班人员信息
@@ -25,7 +25,7 @@ export const dutyApi = {
       url: `/api/duty/personnel/${id}`,
       method: 'put',
       data
-    })
+    });
   },
 
   // 删除值班人员
@@ -33,7 +33,7 @@ export const dutyApi = {
     return request({
       url: `/api/duty/personnel/${id}`,
       method: 'delete'
-    })
+    });
   },
 
   // 获取值班安排
@@ -42,7 +42,7 @@ export const dutyApi = {
       url: '/api/duty/schedules',
       method: 'get',
       params: { startDate, endDate }
-    })
+    });
   },
 
   // 创建值班安排
@@ -51,7 +51,7 @@ export const dutyApi = {
       url: '/api/duty/schedules',
       method: 'post',
       data
-    })
+    });
   },
 
   // 更新值班安排
@@ -60,7 +60,7 @@ export const dutyApi = {
       url: `/api/duty/schedules/${id}`,
       method: 'put',
       data
-    })
+    });
   },
 
   // 删除值班安排
@@ -68,7 +68,7 @@ export const dutyApi = {
     return request({
       url: `/api/duty/schedules/${id}`,
       method: 'delete'
-    })
+    });
   },
 
   // 批量创建值班安排
@@ -77,7 +77,7 @@ export const dutyApi = {
       url: '/api/duty/schedules/batch',
       method: 'post',
       data
-    })
+    });
   },
 
   // 获取推荐值班人员
@@ -86,7 +86,7 @@ export const dutyApi = {
       url: '/api/duty/recommendations',
       method: 'get',
       params: { date, shiftType }
-    })
+    });
   },
 
   // 调班
@@ -95,7 +95,7 @@ export const dutyApi = {
       url: '/api/duty/schedules/swap',
       method: 'post',
       data: { scheduleId1, scheduleId2 }
-    })
+    });
   },
 
   // 获取统计数据
@@ -103,7 +103,7 @@ export const dutyApi = {
     return request({
       url: '/api/duty/statistics',
       method: 'get'
-    })
+    });
   },
 
   // 生成人员二维码
@@ -111,7 +111,7 @@ export const dutyApi = {
     return request({
       url: `/api/duty/personnel/${personnelId}/qrcode`,
       method: 'post'
-    })
+    });
   },
 
   // 导出值班报表
@@ -121,7 +121,7 @@ export const dutyApi = {
       method: 'get',
       params: { startDate, endDate },
       responseType: 'blob'
-    })
+    });
   },
 
   // 获取值班人员详情
@@ -129,7 +129,7 @@ export const dutyApi = {
     return request({
       url: `/api/duty/personnel/${id}`,
       method: 'get'
-    })
+    });
   },
 
   // 获取值班安排详情
@@ -137,7 +137,7 @@ export const dutyApi = {
     return request({
       url: `/api/duty/schedules/${id}`,
       method: 'get'
-    })
+    });
   },
 
   // 更新人员状态（激活/停用）
@@ -146,7 +146,7 @@ export const dutyApi = {
       url: `/api/duty/personnel/${id}/status`,
       method: 'patch',
       data: { status }
-    })
+    });
   },
 
   // 设置人员请假
@@ -155,7 +155,7 @@ export const dutyApi = {
       url: `/api/duty/personnel/${id}/leave`,
       method: 'post',
       data: leaveData
-    })
+    });
   },
 
   // 获取值班历史
@@ -164,9 +164,9 @@ export const dutyApi = {
       url: `/api/duty/personnel/${personnelId}/history`,
       method: 'get',
       params
-    })
+    });
   }
-}
+};
 
 // 紧急呼叫API接口
 export const getEmergencyAPI = () => {
@@ -176,7 +176,7 @@ export const getEmergencyAPI = () => {
       return request({
         url: '/api/emergency/current-duty',
         method: 'get'
-      })
+      });
     },
 
     // 发送紧急呼叫
@@ -185,7 +185,7 @@ export const getEmergencyAPI = () => {
         url: '/api/emergency/call',
         method: 'post',
         data
-      })
+      });
     },
 
     // 响应呼叫
@@ -194,7 +194,7 @@ export const getEmergencyAPI = () => {
         url: `/api/emergency/call/${callId}/respond`,
         method: 'post',
         data: responseData
-      })
+      });
     },
 
     // 取消呼叫
@@ -203,7 +203,7 @@ export const getEmergencyAPI = () => {
         url: `/api/emergency/call/${callId}/cancel`,
         method: 'post',
         data: { reason }
-      })
+      });
     },
 
     // 重新呼叫
@@ -211,7 +211,7 @@ export const getEmergencyAPI = () => {
       return request({
         url: `/api/emergency/call/${callId}/redial`,
         method: 'post'
-      })
+      });
     },
 
     // 上报呼叫
@@ -219,7 +219,7 @@ export const getEmergencyAPI = () => {
       return request({
         url: `/api/emergency/call/${callId}/escalate`,
         method: 'post'
-      })
+      });
     },
 
     // 获取呼叫状态
@@ -227,7 +227,7 @@ export const getEmergencyAPI = () => {
       return request({
         url: `/api/emergency/call/${callId}/status`,
         method: 'get'
-      })
+      });
     },
 
     // 获取呼叫历史
@@ -236,7 +236,7 @@ export const getEmergencyAPI = () => {
         url: '/api/emergency/calls/recent',
         method: 'get',
         params
-      })
+      });
     },
 
     // 获取完整呼叫历史
@@ -245,7 +245,7 @@ export const getEmergencyAPI = () => {
         url: '/api/emergency/calls/history',
         method: 'get',
         params
-      })
+      });
     },
 
     // 更新位置
@@ -254,7 +254,7 @@ export const getEmergencyAPI = () => {
         url: `/api/emergency/call/${callId}/location`,
         method: 'post',
         data: { location }
-      })
+      });
     },
 
     // 发送聊天消息
@@ -263,7 +263,7 @@ export const getEmergencyAPI = () => {
         url: `/api/emergency/call/${callId}/chat`,
         method: 'post',
         data: { message }
-      })
+      });
     },
 
     // 完成呼叫
@@ -272,7 +272,7 @@ export const getEmergencyAPI = () => {
         url: `/api/emergency/call/${callId}/complete`,
         method: 'post',
         data: { result }
-      })
+      });
     },
 
     // 获取呼叫统计
@@ -281,7 +281,7 @@ export const getEmergencyAPI = () => {
         url: '/api/emergency/statistics',
         method: 'get',
         params
-      })
+      });
     },
 
     // 验证QR码
@@ -290,7 +290,7 @@ export const getEmergencyAPI = () => {
         url: '/api/emergency/verify-qr',
         method: 'post',
         data: qrData
-      })
+      });
     },
 
     // 生成位置QR码
@@ -299,7 +299,7 @@ export const getEmergencyAPI = () => {
         url: '/api/emergency/generate-qr',
         method: 'post',
         data: { locationId }
-      })
+      });
     },
 
     // 获取附近值班人员
@@ -312,7 +312,7 @@ export const getEmergencyAPI = () => {
           longitude: location.longitude,
           radius
         }
-      })
+      });
     },
 
     // 批量呼叫
@@ -324,7 +324,7 @@ export const getEmergencyAPI = () => {
           personnelIds,
           ...data
         }
-      })
+      });
     },
 
     // 获取呼叫详情
@@ -332,7 +332,7 @@ export const getEmergencyAPI = () => {
       return request({
         url: `/api/emergency/call/${callId}`,
         method: 'get'
-      })
+      });
     },
 
     // 添加呼叫备注
@@ -341,13 +341,13 @@ export const getEmergencyAPI = () => {
         url: `/api/emergency/call/${callId}/note`,
         method: 'post',
         data: { note }
-      })
+      });
     },
 
     // 上传呼叫附件
     uploadAttachment(callId, file) {
-      const formData = new FormData()
-      formData.append('file', file)
+      const formData = new FormData();
+      formData.append('file', file);
 
       return request({
         url: `/api/emergency/call/${callId}/attachment`,
@@ -356,7 +356,7 @@ export const getEmergencyAPI = () => {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
-      })
+      });
     }
-  }
-}
+  };
+};

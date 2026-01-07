@@ -1,231 +1,170 @@
 <template>
-  <div class="home">
-    <el-container>
-      <el-header class="header">
-        <div class="logo">
-          <h1>智慧乡村服务平台</h1>
-        </div>
-        <div class="nav-menu">
-          <el-menu
-            mode="horizontal"
-            :default-active="activeIndex"
-            @select="handleSelect"
-            background-color="#409EFF"
-            text-color="#fff"
-            active-text-color="#ffd04b"
-          >
-            <el-menu-item index="1">首页</el-menu-item>
-            <el-menu-item index="2">村民管理</el-menu-item>
-            <el-menu-item index="3">村务治理</el-menu-item>
-            <el-menu-item index="4">信息公示</el-menu-item>
-            <el-menu-item index="5">生活服务</el-menu-item>
-            <el-menu-item index="6">登录</el-menu-item>
-          </el-menu>
-        </div>
-      </el-header>
-      
-      <el-main class="main">
-        <div class="hero-section">
-          <h2 class="text-4xl md:text-5xl font-bold mb-4">欢迎使用智慧乡村服务平台</h2>
-          <p class="text-lg md:text-xl mb-8 opacity-90">打造现代化、智能化的乡村管理与服务体系</p>
-          <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <el-button type="primary" size="large" @click="$router.push('/dashboard')">
-              进入系统
-            </el-button>
-            <button class="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
-              了解更多
-            </button>
-          </div>
-        </div>
-        
-        <div class="features">
-          <el-row :gutter="24">
-            <el-col :xs="24" :sm="12" :md="6" v-for="feature in features" :key="feature.id">
-              <div class="feature-card card hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300">
-                <div class="feature-icon">
-                  <el-icon :size="40" :color="feature.color">
-                    <component :is="feature.icon" />
-                  </el-icon>
-                </div>
-                <h3 class="text-xl font-semibold mb-3 text-gray-800">{{ feature.title }}</h3>
-                <p class="text-gray-600 leading-relaxed">{{ feature.description }}</p>
-              </div>
-            </el-col>
-          </el-row>
-        </div>
-      </el-main>
-      
-      <el-footer class="footer">
-        <p>&copy; 2024 智慧乡村服务平台. 保留所有权利.</p>
-      </el-footer>
-    </el-container>
+  <div class="home-container">
+    <div class="hero-section">
+      <h1>智慧乡村综合服务平台</h1>
+      <p>打造现代化、智能化的乡村管理与服务体系</p>
+      <div class="actions">
+        <button class="btn-primary" @click="goToDashboard">
+          进入系统
+        </button>
+        <button class="btn-secondary">
+          了解更多
+        </button>
+      </div>
+    </div>
+
+    <div class="features-section">
+      <div class="feature-card">
+        <div class="feature-icon">👥</div>
+        <h3>村民管理</h3>
+        <p>全面管理村民信息，实现数字化档案管理</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🏛️</div>
+        <h3>村务治理</h3>
+        <p>透明公开的村务管理，推进民主决策</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📢</div>
+        <h3>信息公示</h3>
+        <p>及时发布通知公告，保证信息传达</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🛒</div>
+        <h3>生活服务</h3>
+        <p>丰富的便民服务，提高生活品质</p>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, markRaw } from 'vue'
-import { User, House, DocumentCopy, Bell } from '@element-plus/icons-vue'
+import { onMounted } from 'vue'
 
-const activeIndex = ref('1')
-
-const features = ref([
-  {
-    id: 1,
-    title: '村民管理',
-    description: '全面管理村民信息，实现数字化档案管理',
-    icon: markRaw(User),
-    color: '#409EFF'
-  },
-  {
-    id: 2,
-    title: '村务治理',
-    description: '透明公开的村务管理，推进民主决策',
-    icon: markRaw(House),
-    color: '#67C23A'
-  },
-  {
-    id: 3,
-    title: '信息公示',
-    description: '及时发布通知公告，保证信息传达',
-    icon: markRaw(Bell),
-    color: '#E6A23C'
-  },
-  {
-    id: 4,
-    title: '生活服务',
-    description: '丰富的便民服务，提高生活品质',
-    icon: markRaw(DocumentCopy),
-    color: '#F56C6C'
-  }
-])
-
-const handleSelect = (key) => {
-  activeIndex.value = key
-  
-  const routes = {
-    '1': '/',
-    '2': '/villagers',
-    '3': '/affairs', 
-    '4': '/news',
-    '5': '/services',
-    '6': '/login'
-  }
-  
-  if (routes[key]) {
-    window.location.href = routes[key]
-  }
+const goToDashboard = () => {
+  window.location.href = '/dashboard'
 }
+
+onMounted(() => {
+  console.log('Home页面已加载')
+})
 </script>
 
-<style lang="scss" scoped>
-.home {
+<style scoped>
+.home-container {
   min-height: 100vh;
-}
-
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: #409EFF;
-  padding: 0 20px;
-  
-  .logo h1 {
-    color: white;
-    font-size: 24px;
-  }
-  
-  .nav-menu {
-    flex: 1;
-    margin-left: 40px;
-  }
-}
-
-.main {
-  padding: 0;
+  background: #f5f7fa;
 }
 
 .hero-section {
-  text-align: center;
-  padding: 80px 20px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  
-  h2 {
-    font-size: 36px;
-    margin-bottom: 16px;
-  }
-  
-  p {
-    font-size: 18px;
-    margin-bottom: 32px;
-    opacity: 0.9;
-  }
+  text-align: center;
+  padding: 80px 20px;
 }
 
-.features {
-  padding: 80px 20px;
-  background-color: #f5f7fa;
+.hero-section h1 {
+  font-size: 48px;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+.hero-section p {
+  font-size: 20px;
+  opacity: 0.9;
+  margin-bottom: 40px;
+}
+
+.actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-primary,
+.btn-secondary {
+  padding: 12px 32px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.btn-primary {
+  background: white;
+  color: #667eea;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: white;
+  border: 2px solid white;
+}
+
+.btn-secondary:hover {
+  background: white;
+  color: #667eea;
+}
+
+.features-section {
+  padding: 60px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
 }
 
 .feature-card {
-  text-align: center;
-  padding: 40px 20px;
+  background: white;
+  padding: 32px;
   border-radius: 12px;
-  transition: transform 0.3s ease;
-  
-  &:hover {
-    transform: translateY(-5px);
-  }
-  
-  .feature-icon {
-    margin-bottom: 20px;
-  }
-  
-  h3 {
-    font-size: 20px;
-    margin-bottom: 12px;
-    color: #333;
-  }
-  
-  p {
-    color: #666;
-    line-height: 1.6;
-  }
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
 }
 
-.footer {
-  background-color: #333;
-  color: white;
-  text-align: center;
-  padding: 20px;
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.feature-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.feature-card h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #333;
+}
+
+.feature-card p {
+  color: #666;
+  line-height: 1.6;
 }
 
 @media (max-width: 768px) {
-  .header {
-    flex-direction: column;
-    padding: 10px;
-    
-    .nav-menu {
-      margin-left: 0;
-      margin-top: 10px;
-      width: 100%;
-    }
+  .hero-section h1 {
+    font-size: 32px;
   }
-  
-  .hero-section {
-    padding: 40px 20px;
-    
-    h2 {
-      font-size: 28px;
-    }
-    
-    p {
-      font-size: 16px;
-    }
+
+  .hero-section p {
+    font-size: 16px;
   }
-  
-  .features {
-    padding: 40px 10px;
+
+  .features-section {
+    grid-template-columns: 1fr;
   }
 }
 </style>

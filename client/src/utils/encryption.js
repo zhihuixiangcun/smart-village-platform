@@ -2,9 +2,9 @@
  * 数据加密工具
  * 用于敏感数据的加密和解密
  */
-import CryptoJS from 'crypto-js'
+import CryptoJS from 'crypto-js';
 
-const SECRET_KEY = import.meta.env.VITE_ENCRYPT_SECRET_KEY || 'smart-village-2025'
+const SECRET_KEY = import.meta.env.VITE_ENCRYPT_SECRET_KEY || 'smart-village-2025';
 
 /**
  * 数据加密服务
@@ -17,11 +17,11 @@ export const encryptionService = {
    */
   encrypt(data) {
     try {
-      const encrypted = CryptoJS.AES.encrypt(data, SECRET_KEY).toString()
-      return encrypted
+      const encrypted = CryptoJS.AES.encrypt(data, SECRET_KEY).toString();
+      return encrypted;
     } catch (error) {
-      console.error('Encryption error:', error)
-      return data
+      console.error('Encryption error:', error);
+      return data;
     }
   },
 
@@ -32,11 +32,11 @@ export const encryptionService = {
    */
   decrypt(encryptedData) {
     try {
-      const decrypted = CryptoJS.AES.decrypt(encryptedData, SECRET_KEY)
-      return decrypted.toString(CryptoJS.enc.Utf8)
+      const decrypted = CryptoJS.AES.decrypt(encryptedData, SECRET_KEY);
+      return decrypted.toString(CryptoJS.enc.Utf8);
     } catch (error) {
-      console.error('Decryption error:', error)
-      return encryptedData
+      console.error('Decryption error:', error);
+      return encryptedData;
     }
   },
 
@@ -47,15 +47,15 @@ export const encryptionService = {
    * @returns {Object} 加密后的对象
    */
   encryptObject(obj, fields = []) {
-    const encrypted = { ...obj }
+    const encrypted = { ...obj };
 
     fields.forEach(field => {
       if (encrypted[field]) {
-        encrypted[field] = this.encrypt(encrypted[field].toString())
+        encrypted[field] = this.encrypt(encrypted[field].toString());
       }
-    })
+    });
 
-    return encrypted
+    return encrypted;
   },
 
   /**
@@ -65,15 +65,15 @@ export const encryptionService = {
    * @returns {Object} 解密后的对象
    */
   decryptObject(obj, fields = []) {
-    const decrypted = { ...obj }
+    const decrypted = { ...obj };
 
     fields.forEach(field => {
       if (decrypted[field]) {
-        decrypted[field] = this.decrypt(decrypted[field])
+        decrypted[field] = this.decrypt(decrypted[field]);
       }
-    })
+    });
 
-    return decrypted
+    return decrypted;
   },
 
   /**
@@ -84,18 +84,18 @@ export const encryptionService = {
    * @returns {string} 脱敏后的身份证号
    */
   maskIdCard(idCard, showPrefix = 6, showSuffix = 4) {
-    if (!idCard) return ''
+    if (!idCard) return '';
 
-    const len = idCard.length
+    const len = idCard.length;
     if (len <= showPrefix + showSuffix) {
-      return idCard
+      return idCard;
     }
 
-    const prefix = idCard.substring(0, showPrefix)
-    const suffix = idCard.substring(len - showSuffix)
-    const mask = '*'.repeat(len - showPrefix - showSuffix)
+    const prefix = idCard.substring(0, showPrefix);
+    const suffix = idCard.substring(len - showSuffix);
+    const mask = '*'.repeat(len - showPrefix - showSuffix);
 
-    return prefix + mask + suffix
+    return prefix + mask + suffix;
   },
 
   /**
@@ -104,8 +104,8 @@ export const encryptionService = {
    * @returns {string} 脱敏后的手机号
    */
   maskPhone(phone) {
-    if (!phone) return ''
-    return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')
+    if (!phone) return '';
+    return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
   },
 
   /**
@@ -114,13 +114,13 @@ export const encryptionService = {
    * @returns {string} 脱敏后的银行卡号
    */
   maskBankCard(cardNo) {
-    if (!cardNo) return ''
-    const len = cardNo.length
-    const showDigits = 4
-    if (len <= showDigits) return cardNo
+    if (!cardNo) return '';
+    const len = cardNo.length;
+    const showDigits = 4;
+    if (len <= showDigits) return cardNo;
 
-    const suffix = cardNo.substring(len - showDigits)
-    return '*'.repeat(len - showDigits) + suffix
+    const suffix = cardNo.substring(len - showDigits);
+    return '*'.repeat(len - showDigits) + suffix;
   },
 
   /**
@@ -129,11 +129,11 @@ export const encryptionService = {
    * @returns {string} 脱敏后的姓名
    */
   maskName(name) {
-    if (!name) return ''
-    if (name.length <= 1) return name
+    if (!name) return '';
+    if (name.length <= 1) return name;
 
-    const firstChar = name[0]
-    return firstChar + '*'
+    const firstChar = name[0];
+    return `${firstChar  }*`;
   },
 
   /**
@@ -142,29 +142,29 @@ export const encryptionService = {
    * @returns {string} 脱敏后的地址
    */
   maskAddress(address) {
-    if (!address) return ''
+    if (!address) return '';
 
     // 保留到村或街道一级
     const patterns = [
       /^(.{6}?(村|街道|社区))(.*)$/,
       /^(.{10}?(镇|乡|区))(.*)$/
-    ]
+    ];
 
     for (const pattern of patterns) {
-      const match = address.match(pattern)
+      const match = address.match(pattern);
       if (match) {
-        return match[1] + '****'
+        return `${match[1]  }****`;
       }
     }
 
     // 如果匹配不到,保留前6个字符
     if (address.length > 6) {
-      return address.substring(0, 6) + '****'
+      return `${address.substring(0, 6)  }****`;
     }
 
-    return address
+    return address;
   }
-}
+};
 
 /**
  * 敏感字段配置
@@ -181,6 +181,6 @@ export const sensitiveFields = {
 
   // 证件敏感字段
   document: ['idCard', 'issueDate', 'expiryDate', 'documentNo']
-}
+};
 
-export default encryptionService
+export default encryptionService;

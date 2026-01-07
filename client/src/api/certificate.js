@@ -1,6 +1,6 @@
-import request from '@/utils/request'
+import request from '@/utils/request';
 
-const API_BASE = '/api/v1/certificates'
+const API_BASE = '/api/v1/certificates';
 
 export const certificateAPI = {
   /**
@@ -10,7 +10,7 @@ export const certificateAPI = {
     return request({
       url: `${API_BASE}/types`,
       method: 'get'
-    })
+    });
   },
 
   /**
@@ -22,7 +22,7 @@ export const certificateAPI = {
       url: `${API_BASE}/applications`,
       method: 'post',
       data
-    })
+    });
   },
 
   /**
@@ -34,7 +34,7 @@ export const certificateAPI = {
       url: `${API_BASE}/applications`,
       method: 'get',
       params
-    })
+    });
   },
 
   /**
@@ -45,7 +45,7 @@ export const certificateAPI = {
     return request({
       url: `${API_BASE}/applications/${applicationId}`,
       method: 'get'
-    })
+    });
   },
 
   /**
@@ -58,7 +58,7 @@ export const certificateAPI = {
       url: `${API_BASE}/applications/${applicationId}/status`,
       method: 'put',
       data
-    })
+    });
   },
 
   /**
@@ -69,7 +69,7 @@ export const certificateAPI = {
     return request({
       url: `${API_BASE}/applications/${applicationId}/progress`,
       method: 'get'
-    })
+    });
   },
 
   /**
@@ -84,7 +84,7 @@ export const certificateAPI = {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
-    })
+    });
   },
 
   /**
@@ -99,7 +99,7 @@ export const certificateAPI = {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
-    })
+    });
   },
 
   /**
@@ -111,7 +111,7 @@ export const certificateAPI = {
       url: `${API_BASE}/certificates/${certificateId}/download`,
       method: 'get',
       responseType: 'blob'
-    })
+    });
   },
 
   /**
@@ -121,7 +121,7 @@ export const certificateAPI = {
     return request({
       url: `${API_BASE}/stats`,
       method: 'get'
-    })
+    });
   },
 
   /**
@@ -137,7 +137,7 @@ export const certificateAPI = {
         applicationIds,
         ...data
       }
-    })
+    });
   },
 
   /**
@@ -148,8 +148,8 @@ export const certificateAPI = {
     return request({
       url: `${API_BASE}/templates/${typeId}`,
       method: 'get'
-    })
+    });
   }
-}
+};
 
-export default certificateAPI
+export default certificateAPI;

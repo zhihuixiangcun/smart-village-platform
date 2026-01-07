@@ -239,7 +239,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   Warning, Close, Edit, Plus, ArrowRight, Location, SOS,
-  Phone, FirstAidKit, Shield, Car, Bell
+  Phone, FirstAidKit, Lock, Van, Bell
 } from '@element-plus/icons-vue'
 import { VanTabs, VanTab, VanList, VanPullRefresh, VanPopup } from 'vant'
 import EmergencyContacts from './EmergencyContacts.vue'
@@ -286,7 +286,7 @@ const quickContacts = ref([
   { id: 1, name: '村委书记', phone: '13800138000', type: 'leader', icon: 'User' },
   { id: 2, name: '村长', phone: '13800138001', type: 'leader', icon: 'User' },
   { id: 3, name: '卫生所', phone: '13800138002', type: 'medical', icon: 'FirstAidKit' },
-  { id: 4, name: '派出所', phone: '110', type: 'police', icon: 'Shield' },
+  { id: 4, name: '派出所', phone: '110', type: 'police', icon: 'Lock' },
   { id: 5, name: '消防队', phone: '119', type: 'fire', icon: 'Bell' },
   { id: 6, name: '救护车', phone: '120', type: 'medical', icon: 'FirstAidKit' }
 ])

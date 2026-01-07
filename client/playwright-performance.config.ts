@@ -1,4 +1,4 @@
-import { defineConfig, devices } from '@playwright/test'
+import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './e2e/performance',
@@ -82,4 +82,4 @@ export default defineConfig({
 
   // 性能测试输出配置
   outputDir: 'e2e-results/performance-artifacts'
-})
+});
