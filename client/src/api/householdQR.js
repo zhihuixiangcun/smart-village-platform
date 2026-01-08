@@ -12,7 +12,7 @@ const householdQRApi = {
    * @returns {Promise} 二维码数据
    */
   generateQR(householdId, options = {}) {
-    return request.post(`/api/v1/household-qr/generate/${householdId}`, null, {
+    return request.post(`/v1/household-qr/generate/${householdId}`, null, {
       params: options
     });
   },
@@ -23,7 +23,7 @@ const householdQRApi = {
    * @returns {Promise} 户信息
    */
   scanQR(codeId) {
-    return request.post('/api/v1/household-qr/scan', { codeId });
+    return request.post('/v1/household-qr/scan', { codeId });
   },
 
   /**
@@ -32,7 +32,7 @@ const householdQRApi = {
    * @returns {Promise} 户信息
    */
   publicScanQR(codeId) {
-    return request.post('/api/v1/household-qr/public/scan', { codeId });
+    return request.post('/v1/household-qr/public/scan', { codeId });
   },
 
   /**
@@ -41,7 +41,7 @@ const householdQRApi = {
    * @returns {Promise} 验证结果
    */
   validateCode(codeId) {
-    return request.post('/api/v1/household-qr/validate', { codeId });
+    return request.post('/v1/household-qr/validate', { codeId });
   },
 
   /**
@@ -51,7 +51,7 @@ const householdQRApi = {
    * @returns {Promise} 更新结果
    */
   updateByQR(codeId, updateData) {
-    return request.put(`/api/v1/household-qr/update/${codeId}`, updateData);
+    return request.put(`/v1/household-qr/update/${codeId}`, updateData);
   },
 
   /**
@@ -61,7 +61,7 @@ const householdQRApi = {
    * @returns {Promise} 成员详情
    */
   getMember(codeId, memberId) {
-    return request.get(`/api/v1/household-qr/member/${codeId}/${memberId}`);
+    return request.get(`/v1/household-qr/member/${codeId}/${memberId}`);
   },
 
   /**
@@ -70,7 +70,7 @@ const householdQRApi = {
    * @returns {Promise} 新的二维码数据
    */
   refreshQR(householdId) {
-    return request.post(`/api/v1/household-qr/refresh/${householdId}`);
+    return request.post(`/v1/household-qr/refresh/${householdId}`);
   },
 
   /**
@@ -79,7 +79,7 @@ const householdQRApi = {
    * @returns {Promise} 批量生成结果
    */
   batchGenerate(villageId) {
-    return request.post(`/api/v1/household-qr/batch/${villageId}`);
+    return request.post(`/v1/household-qr/batch/${villageId}`);
   },
 
   /**
@@ -88,7 +88,7 @@ const householdQRApi = {
    * @returns {Promise} 统计信息
    */
   getStats(villageId) {
-    return request.get(`/api/v1/household-qr/stats/${villageId}`);
+    return request.get(`/v1/household-qr/stats/${villageId}`);
   },
 
   // ==================== 便捷方法 ====================

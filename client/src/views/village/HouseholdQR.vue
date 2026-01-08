@@ -10,7 +10,7 @@
           </div>
         </template>
         <template #extra>
-          <el-button type="primary" :icon="QrCode" @click="showMyQR">
+          <el-button type="primary" :icon="Wallet" @click="showMyQR">
             我的户码
           </el-button>
         </template>
@@ -156,7 +156,7 @@
             size="large"
           >
             <template #append>
-              <el-button :icon="Scan" @click="handleScan">
+              <el-button :icon="Grid" @click="handleScan">
                 扫码
               </el-button>
             </template>
@@ -374,18 +374,17 @@ import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   Wallet,
-  QrCode,
   View,
   Document,
   Plus,
   Download,
-  Scan,
   Loading,
   User,
   Edit,
   DataAnalysis,
   Refresh,
-  List
+  List,
+  Grid
 } from '@element-plus/icons-vue'
 import householdQRApi from '@/api/householdQR'
 import { useUserStore } from '@/stores/user'
@@ -429,7 +428,7 @@ const updateTabActive = ref('address')
 
 // 功能菜单
 const menuItems = [
-  { id: 'scan', text: '扫码查看', icon: Scan },
+  { id: 'scan', text: '扫码查看', icon: Grid },
   { id: 'members', text: '家庭成员', icon: User },
   { id: 'update', text: '更新信息', icon: Edit },
   { id: 'history', text: '变更历史', icon: List },
@@ -444,23 +443,32 @@ const menuItems = [
  */
 const loadMyHousehold = async () => {
   try {
-    const householdId = userStore.userInfo?.householdId
-    if (!householdId) {
-      ElMessage.warning('未绑定家庭信息')
+    // 使用当前登录用户的ID来查找户码
+    const userId = userStore.userInfo?.id
+    if (!userId) {
+      ElMessage.warning('用户信息不存在，请重新登录')
       return
     }
 
-    const response = await householdQRApi.generateQR(householdId, { includeImage: true })
+    console.log('[加载户码] 用户ID:', userId)
+
+    const response = await householdQRApi.generateQR(userId, { includeImage: true })
     if (response.success) {
       myHousehold.value = {
         ...response.data.household,
         codeId: response.data.codeId,
-        address: response.data.household.address
+        address: response.data.household.address,
+        householder: response.data.household.householder,
+        memberCount: response.data.household.memberCount
       }
       qrImageUrl.value = response.data.qrImageUrl
+      console.log('[加载户码] 成功:', myHousehold.value)
+    } else {
+      console.error('[加载户码] 失败:', response.error)
+      ElMessage.error(response.error || '加载户码失败')
     }
   } catch (error) {
-    console.error('加载户码失败:', error)
+    console.error('[加载户码] 异常:', error)
     ElMessage.error('加载失败，请稍后重试')
   }
 }
@@ -483,8 +491,8 @@ const showMyQR = () => {
 const generateQRCode = async () => {
   qrLoading.value = true
   try {
-    const householdId = userStore.userInfo?.householdId
-    const response = await householdQRApi.generateQR(householdId, { includeImage: true })
+    const userId = userStore.userInfo?.id
+    const response = await householdQRApi.generateQR(userId, { includeImage: true })
 
     if (response.success) {
       qrImageUrl.value = response.data.qrImageUrl
@@ -670,14 +678,14 @@ const handleMenuClick = (item) => {
  */
 const refreshQRCode = async () => {
   try {
-    const householdId = userStore.userInfo?.householdId
-    if (!householdId) {
-      ElMessage.warning('未绑定家庭')
+    const userId = userStore.userInfo?.id
+    if (!userId) {
+      ElMessage.warning('用户信息不存在')
       return
     }
 
     ElMessage.info('正在刷新二维码...')
-    const response = await householdQRApi.refreshQR(householdId)
+    const response = await householdQRApi.generateQR(userId, { includeImage: true })
     if (response.success) {
       qrImageUrl.value = response.data.qrData.qrImageUrl
       ElMessage.success('刷新成功')

@@ -3,25 +3,35 @@
  * Port 5000: Handles village-specific operations, Socket.IO real-time communication
  */
 
+// ============================================
+// 第一步：必须首先加载环境变量
+// ============================================
+const dotenv = require('dotenv');
+dotenv.config(); // 加载环境变量，包括 JWT_SECRET
+
+// ============================================
+// 第二步：验证必需的环境变量
+// ============================================
+if (!process.env.JWT_SECRET) {
+  console.error('❌ FATAL: JWT_SECRET environment variable is required.');
+  console.error('请确保 .env 文件中设置了 JWT_SECRET');
+  process.exit(1);
+}
+
 const express = require('express');
 const http = require('http');
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
-const dotenv = require('dotenv');
 const { Server } = require('socket.io');
 const mongoose = require('mongoose');
 const path = require('path');
 
 // ============================================
-// 模型初始化管理器 - 必须首先加载
-// 确保User模型先于其他模型加载，解决ref引用问题
+// 第三步：加载模型（在环境变量之后）
 // ============================================
 require('../src/models');
-
-// Load environment variables
-dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
@@ -32,8 +42,10 @@ const io = new Server(server, {
     origin: [
       process.env.CLIENT_URL || 'http://localhost:3000',
       'http://localhost:3006',
+      'http://localhost:3007',
       'http://localhost:3012',
       'http://127.0.0.1:3006',
+      'http://127.0.0.1:3007',
       'http://127.0.0.1:3012'
     ],
     credentials: true,
@@ -61,8 +73,10 @@ app.use(cors({
   origin: [
     process.env.CLIENT_URL || 'http://localhost:3000',
     'http://localhost:3006',
+    'http://localhost:3007',
     'http://localhost:3012',
     'http://127.0.0.1:3006',
+    'http://127.0.0.1:3007',
     'http://127.0.0.1:3012'
   ],
   credentials: true
@@ -135,23 +149,23 @@ app.get('/api/info', (req, res) => {
   });
 });
 
-// Import routes
-const authRoutes = require('../src/routes/auth');
-const residentRoutes = require('../src/routes/residents');
-const governanceRoutes = require('../src/routes/governance');
-const speechRoutes = require('./api/speech');
-const syncRoutes = require('./api/sync');
+// Import routes - 暂时禁用复杂路由，只使用内置的简化实现
+// const authRoutes = require('../src/routes/auth');
+// const residentRoutes = require('../src/routes/residents');
+// const governanceRoutes = require('../src/routes/governance');
+// const speechRoutes = require('./api/speech');
+// const syncRoutes = require('./api/sync');
 
-// Apply routes
-app.use('/api/auth', authRoutes);
-app.use('/api/residents', residentRoutes);
-app.use('/api/announcements', governanceRoutes);
-app.use('/api/suggestions', governanceRoutes);
-app.use('/api/qrcode', require('../src/routes/villageMap'));
+// Apply routes - 使用内置实现，不加载外部路由文件
+// app.use('/api/auth', authRoutes);
+// app.use('/api/residents', residentRoutes);
+// app.use('/api/announcements', governanceRoutes);
+// app.use('/api/suggestions', governanceRoutes);
+// app.use('/api/qrcode', require('../src/routes/villageMap'));
+// app.use('/api/speech', speechRoutes);
+// app.use('/api/sync', syncRoutes);
 
-// Mobile optimization routes
-app.use('/api/speech', speechRoutes);
-app.use('/api/sync', syncRoutes);
+console.log('⚠️ 村务服务器使用简化模式，未加载外部路由（auth/residents/governance）');
 
 // In-memory data for village operations
 const announcements = [];
@@ -443,6 +457,157 @@ app.get('/api/qrcode/village/:villageId', (req, res) => {
       createdAt: new Date()
     }
   });
+});
+
+// API Route for Household QR - 获取用户户码信息
+app.post('/api/v1/household-qr/generate/:householdId', async (req, res) => {
+  try {
+    const { householdId } = req.params;
+    const { includeImage = false } = req.query;
+
+    console.log('[户码API] 收到请求:', {
+      householdId,
+      includeImage,
+      method: req.method,
+      url: req.url,
+      headers: {
+        authorization: req.headers.authorization ? 'Bearer ***' : 'none',
+        'content-type': req.headers['content-type']
+      }
+    });
+
+    // 从数据库中查找户码信息
+    const Household = mongoose.model('Household');
+    const household = await Household.findOne({
+      $or: [
+        { _id: householdId },
+        { 'householder.userId': householdId },
+        { codeId: householdId }
+      ]
+    }).populate('householder.userId', 'username phone').lean();
+
+    if (!household) {
+      return res.status(404).json({
+        success: false,
+        error: '户码不存在'
+      });
+    }
+
+    // 生成模拟二维码图片URL（使用在线API）
+    const qrImageUrl = includeImage
+      ? `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(household.codeId)}`
+      : null;
+
+    res.json({
+      success: true,
+      data: {
+        codeId: household.codeId,
+        household: {
+          ...household,
+          householder: household.householder.userId || household.householder
+        },
+        qrImageUrl: qrImageUrl,
+        qrData: {
+          codeId: household.codeId,
+          qrImageUrl: qrImageUrl
+        }
+      }
+    });
+  } catch (error) {
+    console.error('获取户码失败:', error);
+    res.status(500).json({
+      success: false,
+      error: '获取户码失败: ' + error.message
+    });
+  }
+});
+
+// API Route for scanning QR code (公开接口，无需登录)
+app.post('/api/v1/household-qr/public/scan', async (req, res) => {
+  try {
+    const { codeId } = req.body;
+
+    if (!codeId) {
+      return res.status(400).json({
+        success: false,
+        error: '户码不能为空'
+      });
+    }
+
+    // 从数据库中查找户码信息
+    const Household = mongoose.model('Household');
+    const household = await Household.findOne({ codeId }).lean();
+
+    if (!household) {
+      return res.status(404).json({
+        success: false,
+        error: '户码不存在'
+      });
+    }
+
+    // 返回公开信息（不包含敏感数据）
+    res.json({
+      success: true,
+      data: {
+        codeId: household.codeId,
+        householder: {
+          name: household.householder.name,
+          isPartyMember: household.householder.isPartyMember,
+          occupation: household.householder.occupation
+        },
+        address: household.address,
+        memberCount: household.memberCount,
+        status: household.status
+      }
+    });
+  } catch (error) {
+    console.error('扫码失败:', error);
+    res.status(500).json({
+      success: false,
+      error: '扫码失败: ' + error.message
+    });
+  }
+});
+
+// API Route for validating QR code
+app.post('/api/v1/household-qr/validate', async (req, res) => {
+  try {
+    const { codeId } = req.body;
+
+    if (!codeId) {
+      return res.status(400).json({
+        success: false,
+        error: '户码不能为空'
+      });
+    }
+
+    // 从数据库中查找户码
+    const Household = mongoose.model('Household');
+    const household = await Household.findOne({ codeId }).lean();
+
+    if (!household) {
+      return res.json({
+        success: false,
+        valid: false,
+        error: '户码不存在'
+      });
+    }
+
+    res.json({
+      success: true,
+      valid: true,
+      data: {
+        codeId: household.codeId,
+        status: household.status
+      }
+    });
+  } catch (error) {
+    console.error('验证户码失败:', error);
+    res.status(500).json({
+      success: false,
+      error: '验证失败: ' + error.message
+    });
+  }
 });
 
 // API Route for residents (basic implementation)

@@ -417,6 +417,24 @@ const router = createRouter({
       }
     },
 
+    // 我的二维码（一户一码）
+    {
+      path: '/qrcode',
+      name: 'household-qr',
+      component: () => import('@/views/village/HouseholdQR.vue'),
+      meta: {
+        requiresAuth: true,
+        title: '我的二维码',
+        icon: 'Wallet',
+        permissions: ['household:read'],
+        breadcrumb: [
+          { title: '首页', path: '/dashboard' },
+          { title: '村务公开', path: '/village-affairs' },
+          { title: '我的二维码', path: '/qrcode' }
+        ]
+      }
+    },
+
     // 生活服务模块
     {
       path: '/services',
