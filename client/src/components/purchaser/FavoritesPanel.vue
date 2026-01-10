@@ -19,11 +19,7 @@
       </div>
 
       <div v-else class="favorites-list">
-        <div
-          v-for="item in favorites"
-          :key="item._id"
-          class="favorite-item"
-        >
+        <div v-for="item in favorites" :key="item._id" class="favorite-item">
           <div class="item-image" @click="viewDetail(item)">
             <img :src="item.product?.images?.[0] || defaultImage" :alt="item.product?.name" />
           </div>
@@ -44,11 +40,7 @@
                 <el-icon><Clock /></el-icon>
                 收藏于 {{ formatDate(item.createdAt) }}
               </span>
-              <el-button
-                size="small"
-                type="danger"
-                @click="$emit('remove', item)"
-              >
+              <el-button size="small" type="danger" @click="$emit('remove', item)">
                 取消收藏
               </el-button>
             </div>
@@ -60,28 +52,29 @@
 </template>
 
 <script setup>
-import { ElMessage } from 'element-plus'
-import { Star, User, Clock } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus';
+import { Star, User, Clock } from '@element-plus/icons-vue';
 
 const props = defineProps({
   favorites: {
     type: Array,
-    default: () => []
-  }
-})
+    default: () => [],
+  },
+});
 
-const emit = defineEmits(['remove'])
+const emit = defineEmits(['remove']);
 
-const defaultImage = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 150"%3E%3Crect width="200" height="150" fill="%23f0f0f0"/%3E%3C/svg%3E'
+const defaultImage =
+  'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 150"%3E%3Crect width="200" height="150" fill="%23f0f0f0"/%3E%3C/svg%3E';
 
-const formatDate = (date) => {
-  if (!date) return ''
-  return new Date(date).toLocaleDateString('zh-CN')
-}
+const formatDate = date => {
+  if (!date) return '';
+  return new Date(date).toLocaleDateString('zh-CN');
+};
 
-const viewDetail = (item) => {
-  ElMessage.success(`正在查看 ${item.product?.name}`)
-}
+const viewDetail = item => {
+  ElMessage.success(`正在查看 ${item.product?.name}`);
+};
 </script>
 
 <style scoped>

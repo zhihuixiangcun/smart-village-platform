@@ -35,9 +35,7 @@
           <template #header>
             <div class="card-header">
               <h3>角色继承配置</h3>
-              <el-button type="primary" @click="showAddInheritanceDialog">
-                添加继承关系
-              </el-button>
+              <el-button type="primary" @click="showAddInheritanceDialog"> 添加继承关系 </el-button>
             </div>
           </template>
 
@@ -79,18 +77,10 @@
                 </div>
               </div>
               <div class="inheritance-actions">
-                <el-button
-                  type="text"
-                  size="small"
-                  @click="editInheritance(inheritance)"
-                >
+                <el-button type="text" size="small" @click="editInheritance(inheritance)">
                   编辑
                 </el-button>
-                <el-button
-                  type="text"
-                  size="small"
-                  @click="openPreviewDialog(inheritance)"
-                >
+                <el-button type="text" size="small" @click="openPreviewDialog(inheritance)">
                   预览
                 </el-button>
                 <el-button
@@ -142,11 +132,7 @@
             <div class="permission-section">
               <h4>动态权限规则</h4>
               <el-checkbox-group v-model="selectedDynamicRules">
-                <el-checkbox
-                  v-for="rule in dynamicRuleOptions"
-                  :key="rule.id"
-                  :label="rule.id"
-                >
+                <el-checkbox v-for="rule in dynamicRuleOptions" :key="rule.id" :label="rule.id">
                   <div class="rule-option">
                     <span class="rule-name">{{ rule.name }}</span>
                     <span class="rule-description">{{ rule.description }}</span>
@@ -159,9 +145,7 @@
               <h4>权限约束</h4>
               <el-form :model="constraintForm" label-width="100px" size="small">
                 <el-form-item label="时间约束">
-                  <el-checkbox v-model="constraintForm.timeConstraint">
-                    启用时间约束
-                  </el-checkbox>
+                  <el-checkbox v-model="constraintForm.timeConstraint"> 启用时间约束 </el-checkbox>
                   <div v-if="constraintForm.timeConstraint" class="constraint-detail">
                     <el-time-picker
                       v-model="constraintForm.startTime"
@@ -196,12 +180,8 @@
             </div>
 
             <div class="permission-actions">
-              <el-button type="primary" @click="saveAdditionalPermissions">
-                保存配置
-              </el-button>
-              <el-button @click="resetAdditionalPermissions">
-                重置
-              </el-button>
+              <el-button type="primary" @click="saveAdditionalPermissions"> 保存配置 </el-button>
+              <el-button @click="resetAdditionalPermissions"> 重置 </el-button>
             </div>
           </div>
 
@@ -239,9 +219,7 @@
             <div class="conflict-content">
               <p>{{ conflict.description }}</p>
               <div class="conflict-actions">
-                <el-button size="small" @click="resolveConflict(conflict)">
-                  解决冲突
-                </el-button>
+                <el-button size="small" @click="resolveConflict(conflict)"> 解决冲突 </el-button>
                 <el-button size="small" type="text" @click="ignoreConflict(conflict)">
                   忽略
                 </el-button>
@@ -401,35 +379,33 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, nextTick } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import {
-  QuestionFilled, ArrowRight, Key, Refresh
-} from '@element-plus/icons-vue'
-import * as echarts from 'echarts'
-import enhancedPermissionService from '@/services/enhancedPermissionService'
+import { ref, reactive, computed, onMounted, nextTick } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { QuestionFilled, ArrowRight, Key, Refresh } from '@element-plus/icons-vue';
+import * as echarts from 'echarts';
+import enhancedPermissionService from '@/services/enhancedPermissionService';
 
 // 响应式数据
-const inheritanceDialogVisible = ref(false)
-const previewDialogVisible = ref(false)
-const selectedRoleForAdditional = ref('')
-const previewInheritance = ref(null)
+const inheritanceDialogVisible = ref(false);
+const previewDialogVisible = ref(false);
+const selectedRoleForAdditional = ref('');
+const previewInheritance = ref(null);
 
 // 统计数据
 const inheritanceStats = ref([
   { key: 'total', label: '总继承关系', value: 12 },
   { key: 'active', label: '活跃继承', value: 10 },
   { key: 'conflicts', label: '冲突数量', value: 2 },
-  { key: 'avgDepth', label: '平均继承深度', value: 2.5 }
-])
+  { key: 'avgDepth', label: '平均继承深度', value: 2.5 },
+]);
 
 // 角色数据
 const roles = ref([
   { id: '1', name: '村级管理员', level: 4 },
   { id: '2', name: '部门主管', level: 3 },
   { id: '3', name: '工作人员', level: 2 },
-  { id: '4', name: '村民', level: 1 }
-])
+  { id: '4', name: '村民', level: 1 },
+]);
 
 // 继承关系数据
 const roleInheritances = ref([
@@ -440,7 +416,7 @@ const roleInheritances = ref([
     inheritedPermissionCount: 45,
     additionalPermissions: ['village:*', 'system:config'],
     enabled: true,
-    conditions: ['network_secure']
+    conditions: ['network_secure'],
   },
   {
     id: '2',
@@ -449,7 +425,7 @@ const roleInheritances = ref([
     inheritedPermissionCount: 28,
     additionalPermissions: ['staff:*', 'report:view'],
     enabled: true,
-    conditions: []
+    conditions: [],
   },
   {
     id: '3',
@@ -458,9 +434,9 @@ const roleInheritances = ref([
     inheritedPermissionCount: 15,
     additionalPermissions: ['service:*', 'announcement:read'],
     enabled: true,
-    conditions: []
-  }
-])
+    conditions: [],
+  },
+]);
 
 // 权限选项
 const basePermissionOptions = ref([
@@ -471,15 +447,15 @@ const basePermissionOptions = ref([
   { key: 'finance:read', label: '查看财务' },
   { key: 'finance:approve', label: '审批财务' },
   { key: 'system:config', label: '系统配置' },
-  { key: 'emergency:dispatch', label: '应急调度' }
-])
+  { key: 'emergency:dispatch', label: '应急调度' },
+]);
 
 const dynamicRuleOptions = ref([
   { id: '1', name: '工作时间限制', description: '仅在工作时间生效' },
   { id: '2', name: '位置限制', description: '限制访问位置' },
   { id: '3', name: '设备信任', description: '需要可信设备' },
-  { id: '4', name: '频率限制', description: '限制操作频率' }
-])
+  { id: '4', name: '频率限制', description: '限制操作频率' },
+]);
 
 // 冲突数据
 const conflicts = ref([
@@ -487,94 +463,90 @@ const conflicts = ref([
     id: '1',
     title: '循环继承检测',
     description: '发现潜在的循环继承路径：村民 -> 工作人员 -> 部门主管 -> 村民',
-    severity: 'error'
+    severity: 'error',
   },
   {
     id: '2',
     title: '权限重复',
     description: '角色"部门主管"通过多条继承路径获得了相同的权限',
-    severity: 'warning'
-  }
-])
+    severity: 'warning',
+  },
+]);
 
 // 表单数据
-const inheritanceFormRef = ref(null)
+const inheritanceFormRef = ref(null);
 const inheritanceForm = reactive({
   childRole: '',
   parentRole: '',
   conditions: [],
   priority: 'medium',
-  description: ''
-})
+  description: '',
+});
 
 const inheritanceRules = {
-  childRole: [
-    { required: true, message: '请选择子角色', trigger: 'change' }
-  ],
-  parentRole: [
-    { required: true, message: '请选择父角色', trigger: 'change' }
-  ]
-}
+  childRole: [{ required: true, message: '请选择子角色', trigger: 'change' }],
+  parentRole: [{ required: true, message: '请选择父角色', trigger: 'change' }],
+};
 
 const constraintForm = reactive({
   timeConstraint: false,
   startTime: '',
   endTime: '',
   networkConstraint: false,
-  deviceConstraint: false
-})
+  deviceConstraint: false,
+});
 
-const selectedBasePermissions = ref([])
-const selectedDynamicRules = ref([])
+const selectedBasePermissions = ref([]);
+const selectedDynamicRules = ref([]);
 
 // 预览数据
 const previewInheritedPermissions = ref([
   { module: '用户管理', permission: 'user:read', source: '村民角色', type: 'direct' },
   { module: '村民管理', permission: 'resident:read', source: '村民角色', type: 'direct' },
-  { module: '财务管理', permission: 'finance:read', source: '部门主管', type: 'indirect' }
-])
+  { module: '财务管理', permission: 'finance:read', source: '部门主管', type: 'indirect' },
+]);
 
 const previewAdditionalPermissions = ref([
   { key: 'staff:manage', name: '员工管理', description: '管理下属员工' },
-  { key: 'task:assign', name: '任务分配', description: '分配工作任务' }
-])
+  { key: 'task:assign', name: '任务分配', description: '分配工作任务' },
+]);
 
 const previewConflicts = ref([
   {
     id: '1',
     title: '权限重复',
-    description: '通过多条路径获得了相同的权限'
-  }
-])
+    description: '通过多条路径获得了相同的权限',
+  },
+]);
 
 // 图表实例
-let inheritanceChart = null
+let inheritanceChart = null;
 
 // 计算属性
 const availableChildRoles = computed(() => {
-  return roles.value.filter(role => role.level > 1)
-})
+  return roles.value.filter(role => role.level > 1);
+});
 
 const availableParentRoles = computed(() => {
-  return roles.value.filter(role => role.level < 4)
-})
+  return roles.value.filter(role => role.level < 4);
+});
 
 const transferProps = {
   key: 'key',
-  label: 'label'
-}
+  label: 'label',
+};
 
 // 方法
 const initInheritanceChart = () => {
-  const chartDom = document.querySelector('[ref="inheritanceChart"]')
-  if (!chartDom) return
+  const chartDom = document.querySelector('[ref="inheritanceChart"]');
+  if (!chartDom) return;
 
-  inheritanceChart = echarts.init(chartDom)
+  inheritanceChart = echarts.init(chartDom);
 
   const option = {
     tooltip: {
       trigger: 'item',
-      triggerOn: 'mousemove'
+      triggerOn: 'mousemove',
     },
     animationDurationUpdate: 1500,
     animationEasingUpdate: 'quinticInOut',
@@ -590,14 +562,12 @@ const initInheritanceChart = () => {
                 children: [
                   {
                     name: '工作人员',
-                    children: [
-                      { name: '村民' }
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
+                    children: [{ name: '村民' }],
+                  },
+                ],
+              },
+            ],
+          },
         ],
         top: '10%',
         left: '8%',
@@ -610,43 +580,43 @@ const initInheritanceChart = () => {
           rotate: 0,
           verticalAlign: 'middle',
           align: 'center',
-          fontSize: 14
+          fontSize: 14,
         },
         leaves: {
           label: {
             position: 'bottom',
             rotate: 0,
             verticalAlign: 'middle',
-            align: 'center'
-          }
+            align: 'center',
+          },
         },
         emphasis: {
-          focus: 'descendant'
+          focus: 'descendant',
         },
         expandAndCollapse: true,
         animationDuration: 550,
-        animationDurationUpdate: 750
-      }
-    ]
-  }
+        animationDurationUpdate: 750,
+      },
+    ],
+  };
 
-  inheritanceChart.setOption(option)
+  inheritanceChart.setOption(option);
 
   // 监听窗口大小变化
   window.addEventListener('resize', () => {
-    inheritanceChart?.resize()
-  })
-}
+    inheritanceChart?.resize();
+  });
+};
 
 const showInheritanceGuide = () => {
   ElMessageBox.alert(
     '权限继承允许子角色自动获得父角色的所有权限，同时可以配置额外的权限。合理的继承关系可以简化权限管理，但需要注意避免循环继承。',
     '权限继承指南',
     {
-      confirmButtonText: '了解了'
+      confirmButtonText: '了解了',
     }
-  )
-}
+  );
+};
 
 const showAddInheritanceDialog = () => {
   Object.assign(inheritanceForm, {
@@ -654,17 +624,17 @@ const showAddInheritanceDialog = () => {
     parentRole: '',
     conditions: [],
     priority: 'medium',
-    description: ''
-  })
-  inheritanceDialogVisible.value = true
-}
+    description: '',
+  });
+  inheritanceDialogVisible.value = true;
+};
 
 const saveInheritance = async () => {
   try {
-    await inheritanceFormRef.value.validate()
+    await inheritanceFormRef.value.validate();
 
-    const childRole = roles.value.find(r => r.id === inheritanceForm.childRole)
-    const parentRole = roles.value.find(r => r.id === inheritanceForm.parentRole)
+    const childRole = roles.value.find(r => r.id === inheritanceForm.childRole);
+    const parentRole = roles.value.find(r => r.id === inheritanceForm.parentRole);
 
     const newInheritance = {
       id: Date.now().toString(),
@@ -673,45 +643,45 @@ const saveInheritance = async () => {
       inheritedPermissionCount: Math.floor(Math.random() * 50) + 10,
       additionalPermissions: [],
       enabled: true,
-      conditions: inheritanceForm.conditions
-    }
+      conditions: inheritanceForm.conditions,
+    };
 
-    roleInheritances.value.push(newInheritance)
-    inheritanceDialogVisible.value = false
+    roleInheritances.value.push(newInheritance);
+    inheritanceDialogVisible.value = false;
 
-    ElMessage.success('继承关系添加成功')
-    updateInheritanceChart()
+    ElMessage.success('继承关系添加成功');
+    updateInheritanceChart();
   } catch (error) {
-    console.error('保存继承关系失败:', error)
+    console.error('保存继承关系失败:', error);
   }
-}
+};
 
-const toggleInheritance = async (inheritance) => {
+const toggleInheritance = async inheritance => {
   try {
-    ElMessage.success(`继承关系已${inheritance.enabled ? '启用' : '禁用'}`)
+    ElMessage.success(`继承关系已${inheritance.enabled ? '启用' : '禁用'}`);
   } catch (error) {
-    inheritance.enabled = !inheritance.enabled
-    ElMessage.error('更新继承状态失败')
+    inheritance.enabled = !inheritance.enabled;
+    ElMessage.error('更新继承状态失败');
   }
-}
+};
 
-const editInheritance = (inheritance) => {
+const editInheritance = inheritance => {
   Object.assign(inheritanceForm, {
     childRole: inheritance.childRole.id,
     parentRole: inheritance.parentRole.id,
     conditions: inheritance.conditions,
     priority: 'medium',
-    description: ''
-  })
-  inheritanceDialogVisible.value = true
-}
+    description: '',
+  });
+  inheritanceDialogVisible.value = true;
+};
 
-const openPreviewDialog = (inheritance) => {
-  previewInheritance.value = inheritance
-  previewDialogVisible.value = true
-}
+const openPreviewDialog = inheritance => {
+  previewInheritance.value = inheritance;
+  previewDialogVisible.value = true;
+};
 
-const deleteInheritance = async (inheritance) => {
+const deleteInheritance = async inheritance => {
   try {
     await ElMessageBox.confirm(
       `确定要删除"${inheritance.childRole.name}"到"${inheritance.parentRole.name}"的继承关系吗？`,
@@ -719,121 +689,124 @@ const deleteInheritance = async (inheritance) => {
       {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
       }
-    )
+    );
 
-    const index = roleInheritances.value.findIndex(i => i.id === inheritance.id)
-    roleInheritances.value.splice(index, 1)
+    const index = roleInheritances.value.findIndex(i => i.id === inheritance.id);
+    roleInheritances.value.splice(index, 1);
 
-    ElMessage.success('继承关系删除成功')
-    updateInheritanceChart()
+    ElMessage.success('继承关系删除成功');
+    updateInheritanceChart();
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('删除继承关系失败')
+      ElMessage.error('删除继承关系失败');
     }
   }
-}
+};
 
 const loadAdditionalPermissions = () => {
   // 加载选中角色的额外权限
-  console.log('加载角色额外权限:', selectedRoleForAdditional.value)
-}
+  console.log('加载角色额外权限:', selectedRoleForAdditional.value);
+};
 
 const saveAdditionalPermissions = async () => {
   try {
-    ElMessage.success('额外权限配置保存成功')
+    ElMessage.success('额外权限配置保存成功');
   } catch (error) {
-    ElMessage.error('保存失败')
+    ElMessage.error('保存失败');
   }
-}
+};
 
 const resetAdditionalPermissions = () => {
-  selectedBasePermissions.value = []
-  selectedDynamicRules.value = []
+  selectedBasePermissions.value = [];
+  selectedDynamicRules.value = [];
   Object.assign(constraintForm, {
     timeConstraint: false,
     startTime: '',
     endTime: '',
     networkConstraint: false,
-    deviceConstraint: false
-  })
-}
+    deviceConstraint: false,
+  });
+};
 
 const runConflictDetection = async () => {
   try {
-    ElMessage.info('正在检测权限继承冲突...')
+    ElMessage.info('正在检测权限继承冲突...');
 
     // 模拟检测过程
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     if (conflicts.value.length > 0) {
-      ElMessage.warning(`检测到 ${conflicts.value.length} 个冲突`)
+      ElMessage.warning(`检测到 ${conflicts.value.length} 个冲突`);
     } else {
-      ElMessage.success('未检测到冲突')
+      ElMessage.success('未检测到冲突');
     }
   } catch (error) {
-    ElMessage.error('冲突检测失败')
+    ElMessage.error('冲突检测失败');
   }
-}
+};
 
-const resolveConflict = (conflict) => {
-  ElMessage.info(`解决冲突: ${conflict.title}`)
-  const index = conflicts.value.findIndex(c => c.id === conflict.id)
-  conflicts.value.splice(index, 1)
-}
+const resolveConflict = conflict => {
+  ElMessage.info(`解决冲突: ${conflict.title}`);
+  const index = conflicts.value.findIndex(c => c.id === conflict.id);
+  conflicts.value.splice(index, 1);
+};
 
-const ignoreConflict = (conflict) => {
-  const index = conflicts.value.findIndex(c => c.id === conflict.id)
-  conflicts.value.splice(index, 1)
-}
+const ignoreConflict = conflict => {
+  const index = conflicts.value.findIndex(c => c.id === conflict.id);
+  conflicts.value.splice(index, 1);
+};
 
 const updateInheritanceChart = () => {
   // 更新图表数据
   if (inheritanceChart) {
-    const chartData = buildChartData()
+    const chartData = buildChartData();
     inheritanceChart.setOption({
-      series: [{
-        data: [chartData]
-      }]
-    })
+      series: [
+        {
+          data: [chartData],
+        },
+      ],
+    });
   }
-}
+};
 
 const buildChartData = () => {
   // 根据继承关系构建图表数据
-  const roleMap = new Map()
+  const roleMap = new Map();
   roles.value.forEach(role => {
-    roleMap.set(role.id, { name: role.name, children: [] })
-  })
+    roleMap.set(role.id, { name: role.name, children: [] });
+  });
 
   // 构建继承树
   roleInheritances.value
     .filter(inheritance => inheritance.enabled)
     .forEach(inheritance => {
-      const child = roleMap.get(inheritance.childRole.id)
-      const parent = roleMap.get(inheritance.parentRole.id)
+      const child = roleMap.get(inheritance.childRole.id);
+      const parent = roleMap.get(inheritance.parentRole.id);
 
       if (child && parent && !parent.children.find(c => c.name === child.name)) {
-        parent.children.push(child)
+        parent.children.push(child);
       }
-    })
+    });
 
   // 找到根节点
-  const rootRoles = Array.from(roleMap.values()).filter(role =>
-    !roleInheritances.value.some(inheritance =>
-      inheritance.enabled && inheritance.parentRole.id === role.name
-    )
-  )
+  const rootRoles = Array.from(roleMap.values()).filter(
+    role =>
+      !roleInheritances.value.some(
+        inheritance => inheritance.enabled && inheritance.parentRole.id === role.name
+      )
+  );
 
-  return rootRoles[0] || { name: '村级管理员', children: [] }
-}
+  return rootRoles[0] || { name: '村级管理员', children: [] };
+};
 
 // 生命周期
 onMounted(async () => {
-  await nextTick()
-  initInheritanceChart()
-})
+  await nextTick();
+  initInheritanceChart();
+});
 </script>
 
 <style lang="scss" scoped>

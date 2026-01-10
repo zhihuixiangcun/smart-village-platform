@@ -17,18 +17,10 @@
         </div>
       </div>
       <div class="preview-actions">
-        <el-button @click="handleDownload" icon="Download">
-          下载
-        </el-button>
-        <el-button @click="handlePrint" icon="Printer">
-          打印
-        </el-button>
-        <el-button @click="handleShare" icon="Share" type="primary">
-          分享
-        </el-button>
-        <el-button @click="handleVoiceRead" icon="Microphone">
-          语音朗读
-        </el-button>
+        <el-button @click="handleDownload" icon="Download"> 下载 </el-button>
+        <el-button @click="handlePrint" icon="Printer"> 打印 </el-button>
+        <el-button @click="handleShare" icon="Share" type="primary"> 分享 </el-button>
+        <el-button @click="handleVoiceRead" icon="Microphone"> 语音朗读 </el-button>
       </div>
     </div>
 
@@ -85,12 +77,7 @@
 
               <!-- PDF预览 -->
               <div v-else-if="previewMode === 'pdf'" class="pdf-preview">
-                <iframe
-                  :src="pdfViewerUrl"
-                  width="100%"
-                  height="600px"
-                  frameborder="0"
-                ></iframe>
+                <iframe :src="pdfViewerUrl" width="100%" height="600px" frameborder="0"></iframe>
               </div>
 
               <!-- 文本预览（OCR结果） -->
@@ -205,11 +192,7 @@
     </div>
 
     <!-- 分享对话框 -->
-    <el-dialog
-      v-model="showShareDialog"
-      title="分享文档"
-      width="500px"
-    >
+    <el-dialog v-model="showShareDialog" title="分享文档" width="500px">
       <DocumentShare
         :document="document"
         @confirm="handleShareConfirm"
@@ -220,152 +203,161 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ref, computed, onMounted } from 'vue';
+import { ElMessage } from 'element-plus';
 import {
-  Download, Printer, Share, Microphone, Picture, Document,
-  ChatLineRound, ZoomOut, ZoomIn, FullScreen, Loading
-} from '@element-plus/icons-vue'
-import DocumentShare from './DocumentShare.vue'
-import { documentApi } from '@/api/residentProfile'
+  Download,
+  Printer,
+  Share,
+  Microphone,
+  Picture,
+  Document,
+  ChatLineRound,
+  ZoomOut,
+  ZoomIn,
+  FullScreen,
+  Loading,
+} from '@element-plus/icons-vue';
+import DocumentShare from './DocumentShare.vue';
+import { documentApi } from '@/api/residentProfile';
 
 // Props
 const props = defineProps({
   document: {
     type: Object,
-    required: true
-  }
-})
+    required: true,
+  },
+});
 
 // 响应式数据
-const previewMode = ref('image')
-const zoomLevel = ref(1)
-const loading = ref(false)
-const showShareDialog = ref(false)
-const previewArea = ref(null)
+const previewMode = ref('image');
+const zoomLevel = ref(1);
+const loading = ref(false);
+const showShareDialog = ref(false);
+const previewArea = ref(null);
 
 // 预览URL
 const previewUrl = computed(() => {
-  if (!props.document?.fileInfo?.filePath) return ''
-  return `${import.meta.env.VITE_API_URL}/${props.document.fileInfo.filePath}`
-})
+  if (!props.document?.fileInfo?.filePath) return '';
+  return `${import.meta.env.VITE_API_URL}/${props.document.fileInfo.filePath}`;
+});
 
 // PDF查看器URL
 const pdfViewerUrl = computed(() => {
-  if (!previewUrl.value) return ''
-  return `/pdfjs/web/viewer.html?file=${encodeURIComponent(previewUrl.value)}`
-})
+  if (!previewUrl.value) return '';
+  return `/pdfjs/web/viewer.html?file=${encodeURIComponent(previewUrl.value)}`;
+});
 
 // OCR字段列表
 const ocrFieldList = computed(() => {
-  if (!props.document?.ocrResult?.extractedFields) return []
+  if (!props.document?.ocrResult?.extractedFields) return [];
 
   return Object.entries(props.document.ocrResult.extractedFields).map(([field, data]) => ({
     field,
     value: data.value,
-    confidence: data.confidence
-  }))
-})
+    confidence: data.confidence,
+  }));
+});
 
 // 获取状态类型
-const getStatusType = (status) => {
+const getStatusType = status => {
   const statusMap = {
-    '有效': 'success',
-    '即将过期': 'warning',
-    '已过期': 'danger',
-    '遗失': 'info',
-    '注销': 'info'
-  }
-  return statusMap[status] || 'info'
-}
+    有效: 'success',
+    即将过期: 'warning',
+    已过期: 'danger',
+    遗失: 'info',
+    注销: 'info',
+  };
+  return statusMap[status] || 'info';
+};
 
 // 获取置信度类型
-const getConfidenceType = (confidence) => {
-  if (confidence >= 0.9) return 'success'
-  if (confidence >= 0.7) return 'warning'
-  return 'danger'
-}
+const getConfidenceType = confidence => {
+  if (confidence >= 0.9) return 'success';
+  if (confidence >= 0.7) return 'warning';
+  return 'danger';
+};
 
 // 格式化日期
-const formatDate = (date) => {
-  if (!date) return ''
-  return new Date(date).toLocaleString('zh-CN')
-}
+const formatDate = date => {
+  if (!date) return '';
+  return new Date(date).toLocaleString('zh-CN');
+};
 
 // 格式化文件大小
-const formatFileSize = (size) => {
-  if (!size) return '0 B'
-  const units = ['B', 'KB', 'MB', 'GB']
-  let index = 0
+const formatFileSize = size => {
+  if (!size) return '0 B';
+  const units = ['B', 'KB', 'MB', 'GB'];
+  let index = 0;
   while (size >= 1024 && index < units.length - 1) {
-    size /= 1024
-    index++
+    size /= 1024;
+    index++;
   }
-  return `${size.toFixed(2)} ${units[index]}`
-}
+  return `${size.toFixed(2)} ${units[index]}`;
+};
 
 // 获取用户名称（示例）
-const getUserName = (userId) => {
+const getUserName = userId => {
   // 实际应该从用户列表或API获取
   const userMap = {
-    'user1': '张三',
-    'user2': '李四',
-    'user3': '王五'
-  }
-  return userMap[userId] || userId
-}
+    user1: '张三',
+    user2: '李四',
+    user3: '王五',
+  };
+  return userMap[userId] || userId;
+};
 
 // 缩放控制
 const zoomIn = () => {
   if (zoomLevel.value < 3) {
-    zoomLevel.value += 0.1
+    zoomLevel.value += 0.1;
   }
-}
+};
 
 const zoomOut = () => {
   if (zoomLevel.value > 0.5) {
-    zoomLevel.value -= 0.1
+    zoomLevel.value -= 0.1;
   }
-}
+};
 
 const fitToScreen = () => {
-  zoomLevel.value = 1
-}
+  zoomLevel.value = 1;
+};
 
 // 图片加载处理
 const handleImageLoad = () => {
-  loading.value = false
-}
+  loading.value = false;
+};
 
 const handleImageError = () => {
-  loading.value = false
-  ElMessage.error('图片加载失败')
-}
+  loading.value = false;
+  ElMessage.error('图片加载失败');
+};
 
 // 下载文档
 const handleDownload = async () => {
   try {
-    const response = await documentApi.downloadDocument(props.document._id)
+    const response = await documentApi.downloadDocument(props.document._id);
     // 创建下载链接
-    const url = window.URL.createObjectURL(new Blob([response.data]))
-    const link = document.createElement('a')
-    link.href = url
-    link.setAttribute('download', props.document.fileInfo.originalName)
-    document.body.appendChild(link)
-    link.click()
-    link.remove()
-    window.URL.revokeObjectURL(url)
-    ElMessage.success('下载成功')
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', props.document.fileInfo.originalName);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+    ElMessage.success('下载成功');
   } catch (error) {
-    ElMessage.error('下载失败')
-    console.error(error)
+    ElMessage.error('下载失败');
+    console.error(error);
   }
-}
+};
 
 // 打印文档
 const handlePrint = () => {
   if (previewMode.value === 'image') {
-    const printWindow = window.open('', '_blank')
+    const printWindow = window.open('', '_blank');
     printWindow.document.write(`
       <html>
         <head>
@@ -379,50 +371,54 @@ const handlePrint = () => {
           <img src="${previewUrl.value}" />
         </body>
       </html>
-    `)
-    printWindow.document.close()
-    printWindow.print()
+    `);
+    printWindow.document.close();
+    printWindow.print();
   } else {
-    ElMessage.info('当前模式不支持打印，请切换到图片预览模式')
+    ElMessage.info('当前模式不支持打印，请切换到图片预览模式');
   }
-}
+};
 
 // 分享文档
 const handleShare = () => {
-  showShareDialog.value = true
-}
+  showShareDialog.value = true;
+};
 
 const handleShareConfirm = () => {
-  showShareDialog.value = false
-  ElMessage.success('分享设置已更新')
-}
+  showShareDialog.value = false;
+  ElMessage.success('分享设置已更新');
+};
 
 // 语音朗读
 const handleVoiceRead = async () => {
   try {
-    const text = props.document.ocrResult?.text || props.document.documentInfo.name
-    await documentApi.readDocument(props.document._id)
-    ElMessage.success('开始语音朗读')
+    const text = props.document.ocrResult?.text || props.document.documentInfo.name;
+    await documentApi.readDocument(props.document._id);
+    ElMessage.success('开始语音朗读');
   } catch (error) {
-    ElMessage.error('语音朗读失败')
-    console.error(error)
+    ElMessage.error('语音朗读失败');
+    console.error(error);
   }
-}
+};
 
 // 生命周期
 onMounted(() => {
   // 根据文件类型自动选择预览模式
   if (props.document?.fileInfo) {
-    const fileName = props.document.fileInfo.originalName.toLowerCase()
+    const fileName = props.document.fileInfo.originalName.toLowerCase();
     if (fileName.endsWith('.pdf')) {
-      previewMode.value = 'pdf'
-    } else if (fileName.endsWith('.jpg') || fileName.endsWith('.jpeg') || fileName.endsWith('.png')) {
-      previewMode.value = 'image'
+      previewMode.value = 'pdf';
+    } else if (
+      fileName.endsWith('.jpg') ||
+      fileName.endsWith('.jpeg') ||
+      fileName.endsWith('.png')
+    ) {
+      previewMode.value = 'image';
     } else {
-      previewMode.value = 'text'
+      previewMode.value = 'text';
     }
   }
-})
+});
 </script>
 
 <style lang="scss" scoped>

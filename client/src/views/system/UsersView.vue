@@ -322,23 +322,23 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 
 // 响应式数据
 const searchQuery = reactive({
   name: '',
   position: '',
-  status: ''
-})
+  status: '',
+});
 
-const currentPage = ref(1)
-const pageSize = ref(20)
-const memberDialogVisible = ref(false)
-const dutyDialogVisible = ref(false)
-const dialogMode = ref('add')
-const saving = ref(false)
-const memberFormRef = ref()
+const currentPage = ref(1);
+const pageSize = ref(20);
+const memberDialogVisible = ref(false);
+const dutyDialogVisible = ref(false);
+const dialogMode = ref('add');
+const saving = ref(false);
+const memberFormRef = ref();
 
 // 成员表单
 const memberForm = reactive({
@@ -351,8 +351,8 @@ const memberForm = reactive({
   email: '',
   partyMember: false,
   joinDate: '',
-  address: ''
-})
+  address: '',
+});
 
 // 表单验证规则
 const memberRules = {
@@ -361,8 +361,8 @@ const memberRules = {
   position: [{ required: true, message: '请选择职务', trigger: 'change' }],
   status: [{ required: true, message: '请选择状态', trigger: 'change' }],
   idCard: [{ required: true, message: '请输入身份证号', trigger: 'blur' }],
-  phone: [{ required: true, message: '请输入联系电话', trigger: 'blur' }]
-}
+  phone: [{ required: true, message: '请输入联系电话', trigger: 'blur' }],
+};
 
 // 模拟数据
 const committeeMembers = ref([
@@ -378,7 +378,7 @@ const committeeMembers = ref([
     joinDate: '2020-03-15',
     idCard: '110101198001011234',
     address: '智慧村1号楼',
-    avatar: ''
+    avatar: '',
   },
   {
     id: 2,
@@ -392,7 +392,7 @@ const committeeMembers = ref([
     joinDate: '2020-03-15',
     idCard: '110101198502022345',
     address: '智慧村2号楼',
-    avatar: ''
+    avatar: '',
   },
   {
     id: 3,
@@ -406,7 +406,7 @@ const committeeMembers = ref([
     joinDate: '2021-06-10',
     idCard: '110101199003033456',
     address: '智慧村3号楼',
-    avatar: ''
+    avatar: '',
   },
   {
     id: 4,
@@ -420,7 +420,7 @@ const committeeMembers = ref([
     joinDate: '2021-09-20',
     idCard: '110101198504044567',
     address: '智慧村4号楼',
-    avatar: ''
+    avatar: '',
   },
   {
     id: 5,
@@ -434,9 +434,9 @@ const committeeMembers = ref([
     joinDate: '2022-01-10',
     idCard: '110101198805055678',
     address: '智慧村5号楼',
-    avatar: ''
-  }
-])
+    avatar: '',
+  },
+]);
 
 const dutySchedule = ref([
   {
@@ -445,7 +445,7 @@ const dutySchedule = ref([
     time: '上午',
     person: '张大明',
     phone: '13800138001',
-    status: '已安排'
+    status: '已安排',
   },
   {
     id: 2,
@@ -453,7 +453,7 @@ const dutySchedule = ref([
     time: '下午',
     person: '李红梅',
     phone: '13800138002',
-    status: '已安排'
+    status: '已安排',
   },
   {
     id: 3,
@@ -461,94 +461,94 @@ const dutySchedule = ref([
     time: '上午',
     person: '王小强',
     phone: '13800138003',
-    status: '待安排'
-  }
-])
+    status: '待安排',
+  },
+]);
 
 // 计算属性
 const filteredMembers = computed(() => {
   return committeeMembers.value.filter(member => {
-    const matchName = !searchQuery.name || member.name.includes(searchQuery.name)
-    const matchPosition = !searchQuery.position || member.position === searchQuery.position
-    const matchStatus = !searchQuery.status || member.status === searchQuery.status
-    return matchName && matchPosition && matchStatus
-  })
-})
+    const matchName = !searchQuery.name || member.name.includes(searchQuery.name);
+    const matchPosition = !searchQuery.position || member.position === searchQuery.position;
+    const matchStatus = !searchQuery.status || member.status === searchQuery.status;
+    return matchName && matchPosition && matchStatus;
+  });
+});
 
 const paginatedMembers = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value
-  const end = start + pageSize.value
-  return filteredMembers.value.slice(start, end)
-})
+  const start = (currentPage.value - 1) * pageSize.value;
+  const end = start + pageSize.value;
+  return filteredMembers.value.slice(start, end);
+});
 
 const stats = computed(() => {
-  const total = committeeMembers.value.length
-  const active = committeeMembers.value.filter(m => m.status === 'active').length
-  const partyMembers = committeeMembers.value.filter(m => m.partyMember).length
-  const onDuty = dutySchedule.value.filter(d => d.status === '已安排').length
+  const total = committeeMembers.value.length;
+  const active = committeeMembers.value.filter(m => m.status === 'active').length;
+  const partyMembers = committeeMembers.value.filter(m => m.partyMember).length;
+  const onDuty = dutySchedule.value.filter(d => d.status === '已安排').length;
 
-  return { total, active, partyMembers, onDuty }
-})
+  return { total, active, partyMembers, onDuty };
+});
 
 // 方法
-const getStatusType = (status) => {
+const getStatusType = status => {
   const typeMap = {
-    'active': 'success',
-    'vacation': 'warning',
-    'transferred': 'danger'
-  }
-  return typeMap[status] || 'info'
-}
+    active: 'success',
+    vacation: 'warning',
+    transferred: 'danger',
+  };
+  return typeMap[status] || 'info';
+};
 
-const getStatusText = (status) => {
+const getStatusText = status => {
   const textMap = {
-    'active': '在职',
-    'vacation': '休假',
-    'transferred': '调离'
-  }
-  return textMap[status] || '未知'
-}
+    active: '在职',
+    vacation: '休假',
+    transferred: '调离',
+  };
+  return textMap[status] || '未知';
+};
 
-const getPositionType = (position) => {
+const getPositionType = position => {
   const typeMap = {
-    '村支书': 'danger',
-    '村主任': 'primary',
-    '会计': 'warning',
-    '妇女主任': 'success',
-    '治保主任': 'info',
-    '民兵连长': 'warning'
-  }
-  return typeMap[position] || 'info'
-}
+    村支书: 'danger',
+    村主任: 'primary',
+    会计: 'warning',
+    妇女主任: 'success',
+    治保主任: 'info',
+    民兵连长: 'warning',
+  };
+  return typeMap[position] || 'info';
+};
 
-const maskPhone = (phone) => {
-  if (!phone || phone.length < 7) return phone
-  return phone.substring(0, 3) + '****' + phone.substring(phone.length - 4)
-}
+const maskPhone = phone => {
+  if (!phone || phone.length < 7) return phone;
+  return phone.substring(0, 3) + '****' + phone.substring(phone.length - 4);
+};
 
-const formatDate = (date) => {
-  if (!date) return '-'
-  return new Date(date).toLocaleDateString('zh-CN')
-}
+const formatDate = date => {
+  if (!date) return '-';
+  return new Date(date).toLocaleDateString('zh-CN');
+};
 
 const handleSearch = () => {
-  currentPage.value = 1
-}
+  currentPage.value = 1;
+};
 
-const handleSizeChange = (size) => {
-  pageSize.value = size
-  currentPage.value = 1
-}
+const handleSizeChange = size => {
+  pageSize.value = size;
+  currentPage.value = 1;
+};
 
-const handleCurrentChange = (page) => {
-  currentPage.value = page
-}
+const handleCurrentChange = page => {
+  currentPage.value = page;
+};
 
 const showAddDialog = () => {
-  dialogMode.value = 'add'
-  resetForm()
-  memberDialogVisible.value = true
-}
+  dialogMode.value = 'add';
+  resetForm();
+  memberDialogVisible.value = true;
+};
 
 const resetForm = () => {
   Object.assign(memberForm, {
@@ -561,109 +561,105 @@ const resetForm = () => {
     email: '',
     partyMember: false,
     joinDate: '',
-    address: ''
-  })
-}
+    address: '',
+  });
+};
 
-const viewMember = (member) => {
-  ElMessage.info(`查看 ${member.name} 的详细信息`)
-}
+const viewMember = member => {
+  ElMessage.info(`查看 ${member.name} 的详细信息`);
+};
 
-const editMember = (member) => {
-  dialogMode.value = 'edit'
-  Object.assign(memberForm, member)
-  memberDialogVisible.value = true
-}
+const editMember = member => {
+  dialogMode.value = 'edit';
+  Object.assign(memberForm, member);
+  memberDialogVisible.value = true;
+};
 
 const saveMember = async () => {
-  if (!memberFormRef.value) return
+  if (!memberFormRef.value) return;
 
   try {
-    await memberFormRef.value.validate()
-    saving.value = true
+    await memberFormRef.value.validate();
+    saving.value = true;
 
     // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     if (dialogMode.value === 'add') {
       const newMember = {
         ...memberForm,
         id: Date.now(),
-        avatar: ''
-      }
-      committeeMembers.value.push(newMember)
-      ElMessage.success('添加成员成功')
+        avatar: '',
+      };
+      committeeMembers.value.push(newMember);
+      ElMessage.success('添加成员成功');
     } else {
-      const index = committeeMembers.value.findIndex(m => m.id === memberForm.id)
+      const index = committeeMembers.value.findIndex(m => m.id === memberForm.id);
       if (index !== -1) {
-        Object.assign(committeeMembers.value[index], memberForm)
-        ElMessage.success('更新成员信息成功')
+        Object.assign(committeeMembers.value[index], memberForm);
+        ElMessage.success('更新成员信息成功');
       }
     }
 
-    memberDialogVisible.value = false
+    memberDialogVisible.value = false;
   } catch (error) {
-    ElMessage.error('保存失败：' + (error.message || '未知错误'))
+    ElMessage.error('保存失败：' + (error.message || '未知错误'));
   } finally {
-    saving.value = false
+    saving.value = false;
   }
-}
+};
 
-const handleTransfer = async (member) => {
+const handleTransfer = async member => {
   try {
-    await ElMessageBox.confirm(
-      `确定要将 ${member.name} 调离现任职务吗？`,
-      '确认调离',
-      { type: 'warning' }
-    )
+    await ElMessageBox.confirm(`确定要将 ${member.name} 调离现任职务吗？`, '确认调离', {
+      type: 'warning',
+    });
 
-    const index = committeeMembers.value.findIndex(m => m.id === member.id)
+    const index = committeeMembers.value.findIndex(m => m.id === member.id);
     if (index !== -1) {
-      committeeMembers.value[index].status = 'transferred'
-      ElMessage.success('已标记为调离状态')
+      committeeMembers.value[index].status = 'transferred';
+      ElMessage.success('已标记为调离状态');
     }
   } catch {
     // 用户取消
   }
-}
+};
 
 const exportData = () => {
-  ElMessage.info('导出功能开发中...')
-}
+  ElMessage.info('导出功能开发中...');
+};
 
 const showDutyDialog = () => {
-  dutyDialogVisible.value = true
-}
+  dutyDialogVisible.value = true;
+};
 
 const addDuty = () => {
-  ElMessage.info('添加值班功能开发中...')
-}
+  ElMessage.info('添加值班功能开发中...');
+};
 
-const editDuty = (duty) => {
-  ElMessage.info('编辑值班功能开发中...')
-}
+const editDuty = duty => {
+  ElMessage.info('编辑值班功能开发中...');
+};
 
-const deleteDuty = async (duty) => {
+const deleteDuty = async duty => {
   try {
-    await ElMessageBox.confirm(
-      `确定要删除 ${duty.date} ${duty.time} 的值班安排吗？`,
-      '确认删除',
-      { type: 'warning' }
-    )
+    await ElMessageBox.confirm(`确定要删除 ${duty.date} ${duty.time} 的值班安排吗？`, '确认删除', {
+      type: 'warning',
+    });
 
-    const index = dutySchedule.value.findIndex(d => d.id === duty.id)
+    const index = dutySchedule.value.findIndex(d => d.id === duty.id);
     if (index !== -1) {
-      dutySchedule.value.splice(index, 1)
-      ElMessage.success('删除值班安排成功')
+      dutySchedule.value.splice(index, 1);
+      ElMessage.success('删除值班安排成功');
     }
   } catch {
     // 用户取消
   }
-}
+};
 
 onMounted(() => {
-  console.log('村委管理模块加载完成')
-})
+  console.log('村委管理模块加载完成');
+});
 </script>
 
 <style lang="scss" scoped>

@@ -1,10 +1,5 @@
 <template>
-  <el-drawer
-    v-model="visible"
-    :title="task?.title || '任务详情'"
-    size="600px"
-    @close="handleClose"
-  >
+  <el-drawer v-model="visible" :title="task?.title || '任务详情'" size="600px" @close="handleClose">
     <div v-if="task" class="task-detail">
       <!-- 基本信息区域 -->
       <div class="detail-section">
@@ -38,7 +33,7 @@
             {{ task.startDate ? formatDate(task.startDate) : '-' }}
           </el-descriptions-item>
           <el-descriptions-item label="截止日期">
-            <span :class="{ 'overdue': task.isOverdue }">
+            <span :class="{ overdue: task.isOverdue }">
               {{ task.dueDate ? formatDate(task.dueDate) : '-' }}
             </span>
           </el-descriptions-item>
@@ -88,16 +83,9 @@
       <div class="detail-section" v-if="task.subtasks && task.subtasks.length">
         <h3 class="section-title">子任务</h3>
         <div class="subtasks-list">
-          <div
-            v-for="(subtask, index) in task.subtasks"
-            :key="index"
-            class="subtask-item"
-          >
-            <el-checkbox
-              :model-value="subtask.completed"
-              @change="toggleSubtask(index)"
-            >
-              <span :class="{ 'completed': subtask.completed }">
+          <div v-for="(subtask, index) in task.subtasks" :key="index" class="subtask-item">
+            <el-checkbox :model-value="subtask.completed" @change="toggleSubtask(index)">
+              <span :class="{ completed: subtask.completed }">
                 {{ subtask.title }}
               </span>
             </el-checkbox>
@@ -112,11 +100,7 @@
       <div class="detail-section" v-if="task.tags && task.tags.length">
         <h3 class="section-title">标签</h3>
         <div class="tags-list">
-          <el-tag
-            v-for="tag in task.tags"
-            :key="tag"
-            style="margin-right: 8px; margin-bottom: 8px"
-          >
+          <el-tag v-for="tag in task.tags" :key="tag" style="margin-right: 8px; margin-bottom: 8px">
             {{ tag }}
           </el-tag>
         </div>
@@ -126,11 +110,7 @@
       <div class="detail-section">
         <h3 class="section-title">评论与讨论</h3>
         <div class="comments-list">
-          <div
-            v-for="(comment, index) in task.comments"
-            :key="index"
-            class="comment-item"
-          >
+          <div v-for="(comment, index) in task.comments" :key="index" class="comment-item">
             <div class="comment-header">
               <span class="comment-user">{{ comment.userName }}</span>
               <span class="comment-time">{{ formatDateTime(comment.createdAt) }}</span>
@@ -179,10 +159,7 @@
         >
           暂停任务
         </el-button>
-        <el-popconfirm
-          title="确定删除此任务吗？"
-          @confirm="deleteTask"
-        >
+        <el-popconfirm title="确定删除此任务吗？" @confirm="deleteTask">
           <template #reference>
             <el-button type="danger" :icon="Delete">删除</el-button>
           </template>
@@ -193,170 +170,172 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
-import { Edit, Delete } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
-import { cadreTaskApi } from '@/api'
+import { ref, computed, watch } from 'vue';
+import { Edit, Delete } from '@element-plus/icons-vue';
+import { ElMessage } from 'element-plus';
+import { cadreTaskApi } from '@/api';
 
 const props = defineProps({
   modelValue: {
     type: Boolean,
-    default: false
+    default: false,
   },
   task: {
     type: Object,
-    default: null
-  }
-})
+    default: null,
+  },
+});
 
-const emit = defineEmits(['update:modelValue', 'updated'])
+const emit = defineEmits(['update:modelValue', 'updated']);
 
 const visible = computed({
   get: () => props.modelValue,
-  set: (val) => emit('update:modelValue', val)
-})
+  set: val => emit('update:modelValue', val),
+});
 
-const updating = ref(false)
-const addingComment = ref(false)
-const newProgress = ref(0)
-const newComment = ref('')
+const updating = ref(false);
+const addingComment = ref(false);
+const newProgress = ref(0);
+const newComment = ref('');
 
 // 监听任务变化
-watch(() => props.task, (newTask) => {
-  if (newTask) {
-    newProgress.value = newTask.progress || 0
-  }
-}, { immediate: true })
+watch(
+  () => props.task,
+  newTask => {
+    if (newTask) {
+      newProgress.value = newTask.progress || 0;
+    }
+  },
+  { immediate: true }
+);
 
 const handleClose = () => {
-  visible.value = false
-}
+  visible.value = false;
+};
 
 const handleEdit = () => {
   // 触发编辑事件，由父组件处理
-  emit('edit', props.task)
-}
+  emit('edit', props.task);
+};
 
 const updateProgress = async () => {
   try {
-    updating.value = true
+    updating.value = true;
     const { data } = await cadreTaskApi.updateTask(props.task._id, {
-      progress: newProgress.value
-    })
+      progress: newProgress.value,
+    });
     if (data.success) {
-      ElMessage.success('进度更新成功')
-      emit('updated')
+      ElMessage.success('进度更新成功');
+      emit('updated');
     }
   } catch (error) {
-    console.error('Update progress error:', error)
-    ElMessage.error('更新失败')
+    console.error('Update progress error:', error);
+    ElMessage.error('更新失败');
   } finally {
-    updating.value = false
+    updating.value = false;
   }
-}
+};
 
-const toggleSubtask = async (index) => {
+const toggleSubtask = async index => {
   try {
-    updating.value = true
-    const subtask = props.task.subtasks[index]
-    const { data } = await cadreTaskApi.completeSubtask(
-      props.task._id,
-      subtask._id || index,
-      { completed: !subtask.completed }
-    )
+    updating.value = true;
+    const subtask = props.task.subtasks[index];
+    const { data } = await cadreTaskApi.completeSubtask(props.task._id, subtask._id || index, {
+      completed: !subtask.completed,
+    });
     if (data.success) {
-      ElMessage.success('子任务状态更新成功')
-      emit('updated')
+      ElMessage.success('子任务状态更新成功');
+      emit('updated');
     }
   } catch (error) {
-    console.error('Toggle subtask error:', error)
-    ElMessage.error('更新失败')
+    console.error('Toggle subtask error:', error);
+    ElMessage.error('更新失败');
   } finally {
-    updating.value = false
+    updating.value = false;
   }
-}
+};
 
 const completeTask = async () => {
   try {
-    updating.value = true
+    updating.value = true;
     const { data } = await cadreTaskApi.updateTaskStatus(props.task._id, {
       status: 'completed',
-      progress: 100
-    })
+      progress: 100,
+    });
     if (data.success) {
-      ElMessage.success('任务已完成')
-      emit('updated')
-      handleClose()
+      ElMessage.success('任务已完成');
+      emit('updated');
+      handleClose();
     }
   } catch (error) {
-    console.error('Complete task error:', error)
-    ElMessage.error('操作失败')
+    console.error('Complete task error:', error);
+    ElMessage.error('操作失败');
   } finally {
-    updating.value = false
+    updating.value = false;
   }
-}
+};
 
 const pauseTask = async () => {
   try {
-    updating.value = true
+    updating.value = true;
     const { data } = await cadreTaskApi.updateTaskStatus(props.task._id, {
-      status: 'on-hold'
-    })
+      status: 'on-hold',
+    });
     if (data.success) {
-      ElMessage.success('任务已暂停')
-      emit('updated')
+      ElMessage.success('任务已暂停');
+      emit('updated');
     }
   } catch (error) {
-    console.error('Pause task error:', error)
-    ElMessage.error('操作失败')
+    console.error('Pause task error:', error);
+    ElMessage.error('操作失败');
   } finally {
-    updating.value = false
+    updating.value = false;
   }
-}
+};
 
 const deleteTask = async () => {
   try {
-    updating.value = true
-    const { data } = await cadreTaskApi.deleteTask(props.task._id)
+    updating.value = true;
+    const { data } = await cadreTaskApi.deleteTask(props.task._id);
     if (data.success) {
-      ElMessage.success('删除成功')
-      emit('updated')
-      handleClose()
+      ElMessage.success('删除成功');
+      emit('updated');
+      handleClose();
     }
   } catch (error) {
-    console.error('Delete task error:', error)
-    ElMessage.error('删除失败')
+    console.error('Delete task error:', error);
+    ElMessage.error('删除失败');
   } finally {
-    updating.value = false
+    updating.value = false;
   }
-}
+};
 
 const addComment = async () => {
   if (!newComment.value.trim()) {
-    ElMessage.warning('请输入评论内容')
-    return
+    ElMessage.warning('请输入评论内容');
+    return;
   }
 
   try {
-    addingComment.value = true
+    addingComment.value = true;
     const { data } = await cadreTaskApi.addComment(props.task._id, {
-      content: newComment.value
-    })
+      content: newComment.value,
+    });
     if (data.success) {
-      ElMessage.success('评论添加成功')
-      newComment.value = ''
-      emit('updated')
+      ElMessage.success('评论添加成功');
+      newComment.value = '';
+      emit('updated');
     }
   } catch (error) {
-    console.error('Add comment error:', error)
-    ElMessage.error('添加失败')
+    console.error('Add comment error:', error);
+    ElMessage.error('添加失败');
   } finally {
-    addingComment.value = false
+    addingComment.value = false;
   }
-}
+};
 
 // 工具函数
-const getCategoryType = (category) => {
+const getCategoryType = category => {
   const types = {
     governance: 'primary',
     emergency: 'danger',
@@ -364,12 +343,12 @@ const getCategoryType = (category) => {
     service: 'info',
     infrastructure: 'warning',
     agriculture: 'success',
-    other: 'info'
-  }
-  return types[category] || 'info'
-}
+    other: 'info',
+  };
+  return types[category] || 'info';
+};
 
-const getCategoryLabel = (category) => {
+const getCategoryLabel = category => {
   const labels = {
     governance: '村务',
     emergency: '应急',
@@ -377,60 +356,60 @@ const getCategoryLabel = (category) => {
     service: '服务',
     infrastructure: '基建',
     agriculture: '农业',
-    other: '其他'
-  }
-  return labels[category] || category
-}
+    other: '其他',
+  };
+  return labels[category] || category;
+};
 
-const getQuadrantType = (quadrant) => {
+const getQuadrantType = quadrant => {
   const types = {
     'urgent-important': 'danger',
     'important-not-urgent': 'warning',
     'urgent-not-important': 'info',
-    'not-urgent-not-important': 'info'
-  }
-  return types[quadrant] || 'info'
-}
+    'not-urgent-not-important': 'info',
+  };
+  return types[quadrant] || 'info';
+};
 
-const getQuadrantLabel = (quadrant) => {
+const getQuadrantLabel = quadrant => {
   const labels = {
     'urgent-important': '重要且紧急',
     'important-not-urgent': '重要不紧急',
     'urgent-not-important': '紧急不重要',
-    'not-urgent-not-important': '不重要不紧急'
-  }
-  return labels[quadrant] || quadrant
-}
+    'not-urgent-not-important': '不重要不紧急',
+  };
+  return labels[quadrant] || quadrant;
+};
 
-const getStatusType = (status) => {
+const getStatusType = status => {
   const types = {
     pending: 'info',
     'in-progress': 'primary',
     completed: 'success',
     cancelled: 'danger',
-    'on-hold': 'warning'
-  }
-  return types[status] || 'info'
-}
+    'on-hold': 'warning',
+  };
+  return types[status] || 'info';
+};
 
-const getStatusLabel = (status) => {
+const getStatusLabel = status => {
   const labels = {
     pending: '待处理',
     'in-progress': '进行中',
     completed: '已完成',
     cancelled: '已取消',
-    'on-hold': '暂停'
-  }
-  return labels[status] || status
-}
+    'on-hold': '暂停',
+  };
+  return labels[status] || status;
+};
 
-const formatDate = (date) => {
-  return new Date(date).toLocaleDateString('zh-CN')
-}
+const formatDate = date => {
+  return new Date(date).toLocaleDateString('zh-CN');
+};
 
-const formatDateTime = (date) => {
-  return new Date(date).toLocaleString('zh-CN')
-}
+const formatDateTime = date => {
+  return new Date(date).toLocaleString('zh-CN');
+};
 </script>
 
 <style scoped>

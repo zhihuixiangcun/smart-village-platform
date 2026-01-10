@@ -64,13 +64,25 @@
             <el-icon><Filter /></el-icon>
             数据筛选
           </span>
-          <el-select v-model="filters.todoStatus" placeholder="待办状态" clearable size="small" style="width: 120px">
+          <el-select
+            v-model="filters.todoStatus"
+            placeholder="待办状态"
+            clearable
+            size="small"
+            style="width: 120px"
+          >
             <el-option label="全部" value="" />
             <el-option label="待处理" value="pending" />
             <el-option label="进行中" value="in_progress" />
             <el-option label="已完成" value="completed" />
           </el-select>
-          <el-select v-model="filters.todoType" placeholder="待办类型" clearable size="small" style="width: 120px">
+          <el-select
+            v-model="filters.todoType"
+            placeholder="待办类型"
+            clearable
+            size="small"
+            style="width: 120px"
+          >
             <el-option label="全部" value="" />
             <el-option label="人事" value="人事" />
             <el-option label="党务" value="党务" />
@@ -78,7 +90,13 @@
             <el-option label="财务" value="财务" />
             <el-option label="应急" value="应急" />
           </el-select>
-          <el-select v-model="filters.noticeLevel" placeholder="通知级别" clearable size="small" style="width: 120px">
+          <el-select
+            v-model="filters.noticeLevel"
+            placeholder="通知级别"
+            clearable
+            size="small"
+            style="width: 120px"
+          >
             <el-option label="全部" value="" />
             <el-option label="紧急" value="紧急" />
             <el-option label="重要" value="重要" />
@@ -158,7 +176,7 @@
             </div>
           </template>
           <div class="chart-container">
-            <div ref="chartRef" style="height: 300px;"></div>
+            <div ref="chartRef" style="height: 300px"></div>
           </div>
         </el-card>
 
@@ -234,7 +252,7 @@
               class="todo-item"
               v-for="todo in filteredTodoList"
               :key="todo._id"
-              :class="{ 'urgent': isUrgent(todo.deadline), 'completed': todo.completed }"
+              :class="{ urgent: isUrgent(todo.deadline), completed: todo.completed }"
             >
               <div class="todo-content">
                 <el-checkbox v-model="todo.completed" @change="toggleTodoStatus(todo)">
@@ -242,16 +260,14 @@
                 </el-checkbox>
                 <div class="todo-meta">
                   <el-tag :type="getTodoTypeTag(todo.type)" size="small">{{ todo.type }}</el-tag>
-                  <span class="todo-deadline" :class="{ 'overdue': isOverdue(todo.deadline) }">
+                  <span class="todo-deadline" :class="{ overdue: isOverdue(todo.deadline) }">
                     <el-icon><Clock /></el-icon>
                     {{ formatDeadline(todo.deadline) }}
                   </span>
                 </div>
               </div>
               <div class="todo-actions">
-                <el-button type="primary" size="small" @click="handleTodo(todo)">
-                  处理
-                </el-button>
+                <el-button type="primary" size="small" @click="handleTodo(todo)"> 处理 </el-button>
               </div>
             </div>
             <el-empty v-if="filteredTodoList.length === 0" description="暂无待办事项" />
@@ -275,7 +291,11 @@
             </div>
           </template>
           <div class="quick-actions">
-            <el-button type="danger" @click="showEmergencyDialog = true" class="quick-btn emergency">
+            <el-button
+              type="danger"
+              @click="showEmergencyDialog = true"
+              class="quick-btn emergency"
+            >
               <el-icon><Bell /></el-icon>
               <span>紧急通知</span>
             </el-button>
@@ -326,7 +346,7 @@
               class="notice-item"
               v-for="notice in filteredNoticeList"
               :key="notice._id"
-              :class="{ 'unread': !notice.read }"
+              :class="{ unread: !notice.read }"
               @click="viewNotice(notice)"
             >
               <el-tag :type="getNoticeTypeTag(notice.level)" size="small" class="notice-tag">
@@ -360,7 +380,7 @@
                     <el-dropdown-item command="week">本周</el-dropdown-item>
                     <el-dropdown-item command="month">本月</el-dropdown-item>
                   </el-dropdown-menu>
-                  </template>
+                </template>
               </el-dropdown>
             </div>
           </template>
@@ -391,7 +411,12 @@
       :fullscreen="isMobile"
       destroy-on-close
     >
-      <el-form :model="emergencyForm" :rules="emergencyRules" ref="emergencyFormRef" label-width="100px">
+      <el-form
+        :model="emergencyForm"
+        :rules="emergencyRules"
+        ref="emergencyFormRef"
+        label-width="100px"
+      >
         <el-form-item label="通知类型" prop="type">
           <el-select v-model="emergencyForm.type" placeholder="请选择通知类型" style="width: 100%">
             <el-option label="🚨 紧急事件" value="emergency" />
@@ -402,7 +427,12 @@
           </el-select>
         </el-form-item>
         <el-form-item label="通知标题" prop="title">
-          <el-input v-model="emergencyForm.title" placeholder="请输入通知标题" maxlength="100" show-word-limit />
+          <el-input
+            v-model="emergencyForm.title"
+            placeholder="请输入通知标题"
+            maxlength="100"
+            show-word-limit
+          />
         </el-form-item>
         <el-form-item label="通知内容" prop="content">
           <el-input
@@ -482,42 +512,65 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
-import { useRouter } from 'vue-router'
-import { useUserStore } from '@/stores/userStore'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import * as echarts from 'echarts'
-import draggable from 'vuedraggable'
-import dashboardApi from '@/api/dashboard'
-import ContactButton from '@/components/villageCommittee/ContactButton.vue'
-import NotificationDetailDialog from '@/components/villageCommittee/NotificationDetailDialog.vue'
-import { useDashboardRealtime } from '@/composables/useDashboardRealtime'
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/userStore';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import * as echarts from 'echarts';
+import draggable from 'vuedraggable';
+import dashboardApi from '@/api/dashboard';
+import ContactButton from '@/components/villageCommittee/ContactButton.vue';
+import NotificationDetailDialog from '@/components/villageCommittee/NotificationDetailDialog.vue';
+import { useDashboardRealtime } from '@/composables/useDashboardRealtime';
 import {
-  Trophy, CircleCheck, Calendar, Phone, List, ArrowRight, Bell, Grid, Plus,  // Plus 替代 UserPlus
-  Promotion, Download, Location, Notification, ChatDotRound, Clock,
-  DataAnalysis, ArrowUp, ArrowDown, Connection, Filter, Search, RefreshLeft,
-  ArrowDown as DropdownArrow, Document, Tickets, Files, Setting, Rank, User,
-  FolderOpened, Upload, ShoppingCart
-} from '@element-plus/icons-vue'
+  Trophy,
+  CircleCheck,
+  Calendar,
+  Phone,
+  List,
+  ArrowRight,
+  Bell,
+  Grid,
+  Plus, // Plus 替代 UserPlus
+  Promotion,
+  Download,
+  Location,
+  Notification,
+  ChatDotRound,
+  Clock,
+  DataAnalysis,
+  ArrowUp,
+  ArrowDown,
+  Connection,
+  Filter,
+  Search,
+  RefreshLeft,
+  ArrowDown as DropdownArrow,
+  Document,
+  Tickets,
+  Files,
+  Setting,
+  Rank,
+  User,
+  FolderOpened,
+  Upload,
+  ShoppingCart,
+} from '@element-plus/icons-vue';
 
 /**
  * 村干部主页组件
  * @description 提供数据概览、快捷操作、待办事项、通知和村民动态等功能
  */
-const router = useRouter()
-const userStore = useUserStore()
+const router = useRouter();
+const userStore = useUserStore();
 
 // 实时更新连接
 const realtime = useDashboardRealtime({
-  // 新通知或通知状态变化时
-  onNotificationUpdate: async (data) => {
-    console.log('[Dashboard] 收到通知更新:', data)
-
-    // 如果是新通知，添加到列表
+  onNotificationUpdate: async data => {
     if (data.action === 'created' || !data.action) {
-      const villageId = userStore.villageId || 'default'
+      const villageId = userStore.villageId || 'default';
       try {
-        const response = await dashboardApi.getNotifications({ limit: 10 })
+        const response = await dashboardApi.getNotifications({ limit: 10 });
         if (response.data?.notifications) {
           noticeList.value = response.data.notifications.map(n => ({
             _id: n._id || n.id,
@@ -525,35 +578,29 @@ const realtime = useDashboardRealtime({
             level: n.priority || n.level || '一般',
             content: n.content,
             createdAt: n.createdAt || n.created_at,
-            read: n.read || false
-          }))
+            read: n.read || false,
+          }));
         }
       } catch (error) {
-        console.error('刷新通知列表失败:', error)
+        console.error('刷新通知列表失败:', error);
       }
     }
 
-    // 如果是删除操作，从列表中移除
     if (data.action === 'deleted' && data.notificationId) {
-      noticeList.value = noticeList.value.filter(n => n._id !== data.notificationId)
+      noticeList.value = noticeList.value.filter(n => n._id !== data.notificationId);
     }
 
-    // 如果是已读操作，更新状态
     if (data.action === 'read' && data.notificationId) {
-      const notice = noticeList.value.find(n => n._id === data.notificationId)
+      const notice = noticeList.value.find(n => n._id === data.notificationId);
       if (notice) {
-        notice.read = true
+        notice.read = true;
       }
     }
   },
 
-  // 待办事项更新时
-  onTodoUpdate: async (data) => {
-    console.log('[Dashboard] 收到待办更新:', data)
-
-    // 刷新待办列表
+  onTodoUpdate: async data => {
     try {
-      const response = await dashboardApi.getTodos({ limit: 10, status: 'pending' })
+      const response = await dashboardApi.getTodos({ limit: 10, status: 'pending' });
       if (response.data?.tasks) {
         todoList.value = response.data.tasks.map(task => ({
           _id: task._id || task.id,
@@ -561,190 +608,235 @@ const realtime = useDashboardRealtime({
           type: task.category || task.type || '待办',
           deadline: task.dueDate || task.deadline,
           completed: task.status === 'completed',
-          status: task.status || 'pending'
-        }))
+          status: task.status || 'pending',
+        }));
       }
     } catch (error) {
-      console.error('刷新待办列表失败:', error)
+      console.error('刷新待办列表失败:', error);
     }
   },
 
-  // 值班表更新时
-  onDutyUpdate: async (data) => {
-    console.log('[Dashboard] 收到值班表更新:', data)
-
-    // 刷新值班数据
+  onDutyUpdate: async data => {
     try {
-      const villageId = userStore.villageId || 'default'
-      const response = await dashboardApi.getTodayDuty(villageId)
+      const villageId = userStore.villageId || 'default';
+      const response = await dashboardApi.getTodayDuty(villageId);
       if (response.data?.schedule) {
-        todayDuty.value = response.data.schedule
+        todayDuty.value = response.data.schedule;
       }
     } catch (error) {
-      console.error('刷新值班表失败:', error)
+      console.error('刷新值班表失败:', error);
     }
   },
 
-  // 统计数据更新时
-  onStatisticsUpdate: (data) => {
-    console.log('[Dashboard] 收到统计数据更新:', data)
-    // 可以更新统计卡片数据
+  onStatisticsUpdate: data => {
     if (data.statistics) {
       statisticsCards.value.forEach(card => {
         if (data.statistics[card.key] !== undefined) {
-          card.value = data.statistics[card.key]
+          card.value = data.statistics[card.key];
         }
-      })
+      });
     }
   },
 
-  // 紧急通知时
-  onEmergencyAlert: (data) => {
-    console.log('[Dashboard] 收到紧急通知:', data)
+  onEmergencyAlert: data => {
     ElMessage.error({
       message: data.message || '收到紧急通知',
       duration: 0,
-      showClose: true
-    })
-  }
-})
+      showClose: true,
+    });
+  },
+});
 
 // ==================== 响应式状态 ====================
-const chartRef = ref(null)
-const chartPeriod = ref('week')
-const chartInstance = ref(null)
-const showEmergencyDialog = ref(false)
-const showNotificationDialog = ref(false)
-const showCustomActionDialog = ref(false)
-const sendingEmergency = ref(false)
-const isMobile = ref(window.innerWidth < 768)
-const selectedNotice = ref(null)
-const loading = ref(false)
-const chartLoading = ref(false)
+const chartRef = ref(null);
+const chartPeriod = ref('week');
+const chartInstance = ref(null);
+const showEmergencyDialog = ref(false);
+const showNotificationDialog = ref(false);
+const showCustomActionDialog = ref(false);
+const sendingEmergency = ref(false);
+const isMobile = ref(window.innerWidth < 768);
+const selectedNotice = ref(null);
+const loading = ref(false);
+const chartLoading = ref(false);
 
 // 数据筛选
 const filters = ref({
   todoStatus: '',
   todoType: '',
   noticeLevel: '',
-  dateRange: null
-})
+  dateRange: null,
+});
 
 // 筛选状态
-const todoFilter = ref('all')
-const noticeFilter = ref('all')
-const activityTimeRange = ref('today')
+const todoFilter = ref('all');
+const noticeFilter = ref('all');
+const activityTimeRange = ref('today');
 
 // ==================== 计算属性 ====================
 /**
  * 当前用户信息
  */
-const currentUser = computed(() => userStore.userInfo || {})
+const currentUser = computed(() => userStore.userInfo || {});
 
 /**
  * 积分和待处理任务数
  */
-const monthlyPoints = ref(0)
-const pendingTasks = ref(0)
+const monthlyPoints = ref(0);
+const pendingTasks = ref(0);
 
 /**
  * 统计卡片数据
  */
-const statisticsCards = ref([])
+const statisticsCards = ref([]);
 
 // ==================== 数据列表 ====================
-const todayDuty = ref([])
-const todoList = ref([])
-const noticeList = ref([])
-const activityList = ref([])
+const todayDuty = ref([]);
+const todoList = ref([]);
+const noticeList = ref([]);
+const activityList = ref([]);
 
 /**
  * 筛选后的待办列表
  */
 const filteredTodoList = computed(() => {
-  let list = [...todoList.value]
+  let list = [...todoList.value];
   if (todoFilter.value === 'pending') {
-    list = list.filter(t => !t.completed)
+    list = list.filter(t => !t.completed);
   } else if (todoFilter.value === 'completed') {
-    list = list.filter(t => t.completed)
+    list = list.filter(t => t.completed);
   } else if (todoFilter.value === 'urgent') {
-    list = list.filter(t => isUrgent(t.deadline))
+    list = list.filter(t => isUrgent(t.deadline));
   }
-  return list
-})
+  return list;
+});
 
 /**
  * 筛选后的通知列表
  */
 const filteredNoticeList = computed(() => {
-  let list = [...noticeList.value]
+  let list = [...noticeList.value];
   if (noticeFilter.value !== 'all') {
     list = list.filter(n => {
-      const levelMap = { urgent: '紧急', important: '重要', general: '一般' }
-      return n.level === levelMap[noticeFilter.value]
-    })
+      const levelMap = { urgent: '紧急', important: '重要', general: '一般' };
+      return n.level === levelMap[noticeFilter.value];
+    });
   }
-  return list
-})
+  return list;
+});
 
 /**
  * 筛选后的活动列表
  */
 const filteredActivityList = computed(() => {
-  const now = Date.now()
-  let list = [...activityList.value]
+  const now = Date.now();
+  let list = [...activityList.value];
 
   if (activityTimeRange.value === 'today') {
-    const oneDay = 24 * 60 * 60 * 1000
-    list = list.filter(a => now - new Date(a.createdAt).getTime() < oneDay)
+    const oneDay = 24 * 60 * 60 * 1000;
+    list = list.filter(a => now - new Date(a.createdAt).getTime() < oneDay);
   } else if (activityTimeRange.value === 'week') {
-    const oneWeek = 7 * 24 * 60 * 60 * 1000
-    list = list.filter(a => now - new Date(a.createdAt).getTime() < oneWeek)
+    const oneWeek = 7 * 24 * 60 * 60 * 1000;
+    list = list.filter(a => now - new Date(a.createdAt).getTime() < oneWeek);
   }
-  return list
-})
+  return list;
+});
 
 /**
  * 活动时间范围标签
  */
 const activityTimeRangeLabel = computed(() => {
-  const labels = { today: '今天', week: '本周', month: '本月' }
-  return labels[activityTimeRange.value] || '本月'
-})
+  const labels = { today: '今天', week: '本周', month: '本月' };
+  return labels[activityTimeRange.value] || '本月';
+});
 
 /**
  * 未读通知数量
  */
 const unreadNotices = computed(() => {
-  return noticeList.value.filter(n => !n.read).length
-})
+  return noticeList.value.filter(n => !n.read).length;
+});
 
 // ==================== 快捷操作配置 ====================
 // 所有可用的快捷操作
 const allQuickActions = ref([
-  { id: 'committee-manage', label: '村委管理', icon: 'UserFilled', route: '/village/committee-management', default: true, color: '#67c23a' },
-  { id: 'population-manage', label: '人口管理', icon: 'Users', route: '/village/population-management', default: true, color: '#409eff' },
-  { id: 'add-member', label: '添加人员', icon: 'User', route: '/village-committee/members', default: true },
-  { id: 'add-schedule', label: '添加值班', icon: 'Calendar', route: '/village-committee/duty-schedule', default: true },
-  { id: 'publish-notice', label: '发布公告', icon: 'Promotion', route: '/announcements/create', default: true },
+  {
+    id: 'committee-manage',
+    label: '村委管理',
+    icon: 'UserFilled',
+    route: '/village/committee-management',
+    default: true,
+    color: '#67c23a',
+  },
+  {
+    id: 'population-manage',
+    label: '人口管理',
+    icon: 'Users',
+    route: '/village/population-management',
+    default: true,
+    color: '#409eff',
+  },
+  {
+    id: 'add-member',
+    label: '添加人员',
+    icon: 'User',
+    route: '/village-committee/members',
+    default: true,
+  },
+  {
+    id: 'add-schedule',
+    label: '添加值班',
+    icon: 'Calendar',
+    route: '/village-committee/duty-schedule',
+    default: true,
+  },
+  {
+    id: 'publish-notice',
+    label: '发布公告',
+    icon: 'Promotion',
+    route: '/announcements/create',
+    default: true,
+  },
   { id: 'export-report', label: '导出报表', icon: 'Download', action: 'export', default: true },
-  { id: 'view-map', label: '村情地图', icon: 'Location', route: '/village-committee/village-map', default: true },
-  { id: 'data-collection', label: '资料收集', icon: 'FolderOpened', route: '/village-committee/data-collection', default: true },
-  { id: 'data-submission', label: '资料上交', icon: 'Upload', route: '/village-committee/data-submission', default: true },
-  { id: 'product-publish', label: '产品发布', icon: 'ShoppingCart', route: '/village-committee/product-management', default: true }
-])
+  {
+    id: 'view-map',
+    label: '村情地图',
+    icon: 'Location',
+    route: '/village-committee/village-map',
+    default: true,
+  },
+  {
+    id: 'data-collection',
+    label: '资料收集',
+    icon: 'FolderOpened',
+    route: '/village-committee/data-collection',
+    default: true,
+  },
+  {
+    id: 'data-submission',
+    label: '资料上交',
+    icon: 'Upload',
+    route: '/village-committee/data-submission',
+    default: true,
+  },
+  {
+    id: 'product-publish',
+    label: '产品发布',
+    icon: 'ShoppingCart',
+    route: '/village-committee/product-management',
+    default: true,
+  },
+]);
 
 // 选中的快捷操作ID
-const selectedQuickActions = ref([])
+const selectedQuickActions = ref([]);
 
 /**
  * 显示的快捷操作列表
  */
 const quickActionsList = computed(() => {
-  return allQuickActions.value.filter(action =>
-    selectedQuickActions.value.includes(action.id)
-  )
-})
+  return allQuickActions.value.filter(action => selectedQuickActions.value.includes(action.id));
+});
 
 // ==================== 表单数据 ====================
 const emergencyForm = ref({
@@ -752,15 +844,15 @@ const emergencyForm = ref({
   title: '',
   content: '',
   targets: [],
-  channels: ['app']
-})
+  channels: ['app'],
+});
 
 const emergencyRules = {
   type: [{ required: true, message: '请选择通知类型', trigger: 'change' }],
   title: [{ required: true, message: '请输入通知标题', trigger: 'blur' }],
   content: [{ required: true, message: '请输入通知内容', trigger: 'blur' }],
-  targets: [{ type: 'array', min: 1, message: '请选择通知范围', trigger: 'change' }]
-}
+  targets: [{ type: 'array', min: 1, message: '请选择通知范围', trigger: 'change' }],
+};
 
 // ==================== 工具函数 ====================
 
@@ -769,123 +861,123 @@ const emergencyRules = {
  * @returns {string} 问候语
  */
 const getGreeting = () => {
-  const hour = new Date().getHours()
-  if (hour < 6) return '凌晨好'
-  if (hour < 9) return '早上好'
-  if (hour < 12) return '上午好'
-  if (hour < 14) return '中午好'
-  if (hour < 18) return '下午好'
-  if (hour < 22) return '晚上好'
-  return '夜深了'
-}
+  const hour = new Date().getHours();
+  if (hour < 6) return '凌晨好';
+  if (hour < 9) return '早上好';
+  if (hour < 12) return '上午好';
+  if (hour < 14) return '中午好';
+  if (hour < 18) return '下午好';
+  if (hour < 22) return '晚上好';
+  return '夜深了';
+};
 
 /**
  * 格式化日期
  * @param {Date|string} date - 日期对象或日期字符串
  * @returns {string} 格式化后的日期 (YYYY-MM-DD)
  */
-const formatDate = (date) => {
-  if (!date) return ''
-  const d = new Date(date)
-  const year = d.getFullYear()
-  const month = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
-}
+const formatDate = date => {
+  if (!date) return '';
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
 /**
  * 格式化相对时间
  * @param {Date|string} date - 日期
  * @returns {string} 相对时间描述
  */
-const formatRelativeTime = (date) => {
-  if (!date) return ''
-  const now = new Date()
-  const target = new Date(date)
-  const diff = now - target
-  const minutes = Math.floor(diff / 60000)
-  const hours = Math.floor(diff / 3600000)
-  const days = Math.floor(diff / 86400000)
+const formatRelativeTime = date => {
+  if (!date) return '';
+  const now = new Date();
+  const target = new Date(date);
+  const diff = now - target;
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
 
-  if (minutes < 1) return '刚刚'
-  if (minutes < 60) return `${minutes}分钟前`
-  if (hours < 24) return `${hours}小时前`
-  if (days < 7) return `${days}天前`
-  return formatDate(date)
-}
+  if (minutes < 1) return '刚刚';
+  if (minutes < 60) return `${minutes}分钟前`;
+  if (hours < 24) return `${hours}小时前`;
+  if (days < 7) return `${days}天前`;
+  return formatDate(date);
+};
 
 /**
  * 格式化截止时间
  * @param {Date|string} date - 日期
  * @returns {string} 格式化的截止时间
  */
-const formatDeadline = (date) => {
-  if (!date) return '无截止日期'
-  const deadline = new Date(date)
-  const now = new Date()
-  const diff = deadline - now
-  const hours = Math.floor(diff / 3600000)
-  const days = Math.floor(diff / 86400000)
+const formatDeadline = date => {
+  if (!date) return '无截止日期';
+  const deadline = new Date(date);
+  const now = new Date();
+  const diff = deadline - now;
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
 
-  if (diff < 0) return '已过期'
-  if (hours < 24) return `${hours}小时后到期`
-  if (days < 7) return `${days}天后到期`
-  return formatDate(date)
-}
+  if (diff < 0) return '已过期';
+  if (hours < 24) return `${hours}小时后到期`;
+  if (days < 7) return `${days}天后到期`;
+  return formatDate(date);
+};
 
 /**
  * 判断任务是否紧急（24小时内）
  * @param {Date|string} deadline - 截止日期
  * @returns {boolean} 是否紧急
  */
-const isUrgent = (deadline) => {
-  if (!deadline) return false
-  const deadlineDate = new Date(deadline)
-  const now = new Date()
-  const diff = deadlineDate - now
-  return diff > 0 && diff < 24 * 60 * 60 * 1000
-}
+const isUrgent = deadline => {
+  if (!deadline) return false;
+  const deadlineDate = new Date(deadline);
+  const now = new Date();
+  const diff = deadlineDate - now;
+  return diff > 0 && diff < 24 * 60 * 60 * 1000;
+};
 
 /**
  * 判断任务是否过期
  * @param {Date|string} deadline - 截止日期
  * @returns {boolean} 是否过期
  */
-const isOverdue = (deadline) => {
-  if (!deadline) return false
-  return new Date(deadline) < new Date()
-}
+const isOverdue = deadline => {
+  if (!deadline) return false;
+  return new Date(deadline) < new Date();
+};
 
 /**
  * 获取待办类型标签颜色
  * @param {string} type - 待办类型
  * @returns {string} Element Plus 标签类型
  */
-const getTodoTypeTag = (type) => {
+const getTodoTypeTag = type => {
   const typeMap = {
-    '人事': 'primary',
-    '党务': 'danger',
-    '行政': 'warning',
-    '财务': 'success',
-    '应急': 'danger'
-  }
-  return typeMap[type] || 'info'
-}
+    人事: 'primary',
+    党务: 'danger',
+    行政: 'warning',
+    财务: 'success',
+    应急: 'danger',
+  };
+  return typeMap[type] || 'info';
+};
 
 /**
  * 获取通知级别标签颜色
  * @param {string} level - 通知级别
  * @returns {string} Element Plus 标签类型
  */
-const getNoticeTypeTag = (level) => {
+const getNoticeTypeTag = level => {
   const typeMap = {
-    '紧急': 'danger',
-    '重要': 'warning',
-    '一般': 'info',
-    '通知': 'primary'
-  }
-  return typeMap[level] || 'info'
-}
+    紧急: 'danger',
+    重要: 'warning',
+    一般: 'info',
+    通知: 'primary',
+  };
+  return typeMap[level] || 'info';
+};
 
 // ==================== 交互处理函数 ====================
 
@@ -893,185 +985,189 @@ const getNoticeTypeTag = (level) => {
  * 导航到指定路由
  * @param {string} route - 路由路径
  */
-const navigateTo = (route) => {
+const navigateTo = route => {
   if (route) {
-    router.push(route)
+    router.push(route);
   }
-}
+};
 
 /**
  * 切换待办事项状态
  * @param {Object} todo - 待办事项对象
  */
-const toggleTodoStatus = async (todo) => {
+const toggleTodoStatus = async todo => {
   try {
-    const status = todo.completed ? 'completed' : 'pending'
+    const status = todo.completed ? 'completed' : 'pending';
     await dashboardApi.updateTodoStatus(todo._id, {
       status,
-      progress: todo.completed ? 100 : 0
-    })
-    ElMessage.success(todo.completed ? '已标记为完成' : '已标记为未完成')
+      progress: todo.completed ? 100 : 0,
+    });
+    ElMessage.success(todo.completed ? '已标记为完成' : '已标记为未完成');
   } catch (error) {
-    console.error('更新待办状态失败:', error)
-    ElMessage.error('操作失败')
+    console.error('更新待办状态失败:', error);
+    ElMessage.error('操作失败');
     // 回滚状态
-    todo.completed = !todo.completed
+    todo.completed = !todo.completed;
   }
-}
+};
 
 /**
  * 处理待办事项
  * @param {Object} todo - 待办事项对象
  */
-const handleTodo = (todo) => {
-  ElMessage.info(`处理待办: ${todo.title}`)
+const handleTodo = todo => {
+  ElMessage.info(`处理待办: ${todo.title}`);
   // TODO: 跳转到待办详情页面
   // router.push(`/tasks/${todo._id}`)
-}
+};
 
 /**
  * 查看所有待办事项
  */
 const viewAllTodos = () => {
-  router.push('/tasks')
-}
+  router.push('/tasks');
+};
 
-const viewNotice = async (notice) => {
+const viewNotice = async notice => {
   try {
     // 设置选中的通知
-    selectedNotice.value = notice
+    selectedNotice.value = notice;
 
     // 打开通知详情对话框
-    showNotificationDialog.value = true
+    showNotificationDialog.value = true;
 
     // 标记为已读
     if (!notice.read) {
-      await dashboardApi.markNotificationRead(notice._id)
-      notice.read = true
+      await dashboardApi.markNotificationRead(notice._id);
+      notice.read = true;
     }
   } catch (error) {
-    console.error('标记通知已读失败:', error)
+    console.error('标记通知已读失败:', error);
   }
-}
+};
 
-const handleNotificationMarkedRead = async (notice) => {
+const handleNotificationMarkedRead = async notice => {
   try {
-    await dashboardApi.markNotificationRead(notice._id)
+    await dashboardApi.markNotificationRead(notice._id);
     // 更新列表中的通知状态
-    const targetNotice = noticeList.value.find(n => n._id === notice._id)
+    const targetNotice = noticeList.value.find(n => n._id === notice._id);
     if (targetNotice) {
-      targetNotice.read = true
+      targetNotice.read = true;
     }
   } catch (error) {
-    console.error('标记通知已读失败:', error)
+    console.error('标记通知已读失败:', error);
   }
-}
+};
 
-const handleNotificationDeleted = async (notice) => {
+const handleNotificationDeleted = async notice => {
   try {
-    await dashboardApi.deleteNotification(notice._id)
+    await dashboardApi.deleteNotification(notice._id);
     // 从列表中移除通知
-    noticeList.value = noticeList.value.filter(n => n._id !== notice._id)
+    noticeList.value = noticeList.value.filter(n => n._id !== notice._id);
   } catch (error) {
-    console.error('删除通知失败:', error)
+    console.error('删除通知失败:', error);
   }
-}
+};
 
 const handleDutyContact = ({ contact, success }) => {
   if (success) {
-    ElMessage.success(`已联系值班人员: ${contact}`)
+    ElMessage.success(`已联系值班人员: ${contact}`);
   }
-}
+};
 
 /**
  * 快捷操作处理
  * @param {string} action - 操作类型
  */
-const quickAction = (action) => {
-  const actionConfig = allQuickActions.value.find(a => a.id === action)
+const quickAction = action => {
+  const actionConfig = allQuickActions.value.find(a => a.id === action);
 
   if (!actionConfig) {
-    ElMessage.info('功能开发中...')
-    return
+    ElMessage.info('功能开发中...');
+    return;
   }
 
   if (actionConfig.action === 'export') {
-    showCustomActionDialog.value = true
+    showCustomActionDialog.value = true;
   } else if (actionConfig.route) {
-    router.push(actionConfig.route)
+    router.push(actionConfig.route);
   } else {
-    ElMessage.info('功能开发中...')
+    ElMessage.info('功能开发中...');
   }
-}
+};
 
 // ========== 数据筛选功能 ==========
 
 // 应用筛选
 const applyFilters = async () => {
   try {
-    ElMessage.info('正在应用筛选条件...')
+    ElMessage.info('正在应用筛选条件...');
 
-    const villageId = userStore.villageId || 'default'
+    const villageId = userStore.villageId || 'default';
 
     // 构建查询参数
     const params = {
       villageId,
-      limit: 50
-    }
+      limit: 50,
+    };
 
     // 添加筛选条件
     if (filters.value.todoStatus) {
-      params.status = filters.value.todoStatus
+      params.status = filters.value.todoStatus;
     }
     if (filters.value.todoType) {
-      params.type = filters.value.todoType
+      params.type = filters.value.todoType;
     }
     if (filters.value.noticeLevel) {
-      params.level = filters.value.noticeLevel
+      params.level = filters.value.noticeLevel;
     }
     if (filters.value.dateRange && filters.value.dateRange.length === 2) {
-      params.startDate = formatDate(filters.value.dateRange[0])
-      params.endDate = formatDate(filters.value.dateRange[1])
+      params.startDate = formatDate(filters.value.dateRange[0]);
+      params.endDate = formatDate(filters.value.dateRange[1]);
     }
 
     // 并行加载筛选后的数据
     const [todosResponse, noticesResponse] = await Promise.allSettled([
       dashboardApi.getTodos(params),
-      dashboardApi.getNotifications(params)
-    ])
+      dashboardApi.getNotifications(params),
+    ]);
 
     // 更新待办事项
     if (todosResponse.status === 'fulfilled' && todosResponse.value?.data) {
-      const tasksData = todosResponse.value.data.tasks || todosResponse.value.data
-      todoList.value = Array.isArray(tasksData) ? tasksData.map(task => ({
-        _id: task._id || task.id,
-        title: task.title,
-        type: task.category || task.type || '待办',
-        deadline: task.dueDate || task.deadline,
-        completed: task.status === 'completed',
-        status: task.status || 'pending'
-      })) : []
+      const tasksData = todosResponse.value.data.tasks || todosResponse.value.data;
+      todoList.value = Array.isArray(tasksData)
+        ? tasksData.map(task => ({
+            _id: task._id || task.id,
+            title: task.title,
+            type: task.category || task.type || '待办',
+            deadline: task.dueDate || task.deadline,
+            completed: task.status === 'completed',
+            status: task.status || 'pending',
+          }))
+        : [];
     }
 
     // 更新通知列表
     if (noticesResponse.status === 'fulfilled' && noticesResponse.value?.data) {
-      const noticesData = noticesResponse.value.data.notifications || noticesResponse.value.data
-      noticeList.value = Array.isArray(noticesData) ? noticesData.map(notice => ({
-        _id: notice._id || notice.id,
-        title: notice.title,
-        level: notice.priority || notice.level || '一般',
-        content: notice.content,
-        createdAt: notice.createdAt || notice.created_at,
-        read: notice.read || false
-      })) : []
+      const noticesData = noticesResponse.value.data.notifications || noticesResponse.value.data;
+      noticeList.value = Array.isArray(noticesData)
+        ? noticesData.map(notice => ({
+            _id: notice._id || notice.id,
+            title: notice.title,
+            level: notice.priority || notice.level || '一般',
+            content: notice.content,
+            createdAt: notice.createdAt || notice.created_at,
+            read: notice.read || false,
+          }))
+        : [];
     }
 
-    ElMessage.success('筛选完成')
+    ElMessage.success('筛选完成');
   } catch (error) {
-    console.error('应用筛选失败:', error)
-    ElMessage.error('筛选失败，请重试')
+    console.error('应用筛选失败:', error);
+    ElMessage.error('筛选失败，请重试');
   }
-}
+};
 
 // 重置筛选
 const resetFilters = async () => {
@@ -1079,34 +1175,34 @@ const resetFilters = async () => {
     todoStatus: '',
     todoType: '',
     noticeLevel: '',
-    dateRange: null
-  }
+    dateRange: null,
+  };
 
   // 重新加载所有数据
-  await loadData()
-  ElMessage.success('筛选已重置')
-}
+  await loadData();
+  ElMessage.success('筛选已重置');
+};
 
 // ========== 数据导出功能 ==========
 
 // 处理导出
-const handleExport = async (command) => {
+const handleExport = async command => {
   try {
-    const villageId = userStore.villageId || 'default'
+    const villageId = userStore.villageId || 'default';
 
     if (command === 'all') {
       // 导出全部数据
-      ElMessage.info('正在准备全部数据导出...')
-      await exportAllData()
+      ElMessage.info('正在准备全部数据导出...');
+      await exportAllData();
     } else {
       // 导出特定格式
       const formatMap = {
-        'excel': 'Excel',
-        'pdf': 'PDF',
-        'csv': 'CSV'
-      }
+        excel: 'Excel',
+        pdf: 'PDF',
+        csv: 'CSV',
+      };
 
-      ElMessage.info(`正在生成 ${formatMap[command]} 报表...`)
+      ElMessage.info(`正在生成 ${formatMap[command]} 报表...`);
 
       // 调用导出 API
       const response = await dashboardApi.exportReport({
@@ -1115,33 +1211,32 @@ const handleExport = async (command) => {
           todoStatus: filters.value.todoStatus,
           todoType: filters.value.todoType,
           noticeLevel: filters.value.noticeLevel,
-          dateRange: filters.value.dateRange ? [
-            formatDate(filters.value.dateRange[0]),
-            formatDate(filters.value.dateRange[1])
-          ] : null
+          dateRange: filters.value.dateRange
+            ? [formatDate(filters.value.dateRange[0]), formatDate(filters.value.dateRange[1])]
+            : null,
         },
-        villageId
-      })
+        villageId,
+      });
 
       // 创建下载链接
-      const url = window.URL.createObjectURL(new Blob([response.data]))
-      const link = document.createElement('a')
-      link.href = url
-      link.setAttribute('download', `村委仪表板报表_${formatDate(new Date())}.${command}`)
-      document.body.appendChild(link)
-      link.click()
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `村委仪表板报表_${formatDate(new Date())}.${command}`);
+      document.body.appendChild(link);
+      link.click();
 
       // 清理
-      window.URL.revokeObjectURL(url)
-      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(link);
 
-      ElMessage.success(`${formatMap[command]} 报表导出成功！`)
+      ElMessage.success(`${formatMap[command]} 报表导出成功！`);
     }
   } catch (error) {
-    console.error('导出失败:', error)
-    ElMessage.error('导出失败，请重试')
+    console.error('导出失败:', error);
+    ElMessage.error('导出失败，请重试');
   }
-}
+};
 
 // 导出全部数据
 const exportAllData = async () => {
@@ -1154,26 +1249,26 @@ const exportAllData = async () => {
       todos: todoList.value,
       notices: noticeList.value,
       dutySchedule: todayDuty.value,
-      activities: activityList.value
-    }
+      activities: activityList.value,
+    };
 
     // 创建 Blob 并下载
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
-    const url = window.URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.setAttribute('download', `仪表板完整数据_${formatDate(new Date())}.json`)
-    document.body.appendChild(link)
-    link.click()
-    window.URL.revokeObjectURL(url)
-    document.body.removeChild(link)
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `仪表板完整数据_${formatDate(new Date())}.json`);
+    document.body.appendChild(link);
+    link.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(link);
 
-    ElMessage.success('完整数据导出成功！')
+    ElMessage.success('完整数据导出成功！');
   } catch (error) {
-    console.error('导出全部数据失败:', error)
-    throw error
+    console.error('导出全部数据失败:', error);
+    throw error;
   }
-}
+};
 
 /**
  * 发送紧急通知
@@ -1181,23 +1276,23 @@ const exportAllData = async () => {
 const sendEmergencyNotice = async () => {
   // 手动验证表单
   if (!emergencyForm.value.type) {
-    ElMessage.warning('请选择通知类型')
-    return
+    ElMessage.warning('请选择通知类型');
+    return;
   }
   if (!emergencyForm.value.title) {
-    ElMessage.warning('请输入通知标题')
-    return
+    ElMessage.warning('请输入通知标题');
+    return;
   }
   if (!emergencyForm.value.content) {
-    ElMessage.warning('请输入通知内容')
-    return
+    ElMessage.warning('请输入通知内容');
+    return;
   }
   if (emergencyForm.value.targets.length === 0) {
-    ElMessage.warning('请选择通知范围')
-    return
+    ElMessage.warning('请选择通知范围');
+    return;
   }
 
-  sendingEmergency.value = true
+  sendingEmergency.value = true;
 
   try {
     await dashboardApi.sendEmergencyNotification({
@@ -1205,11 +1300,11 @@ const sendEmergencyNotice = async () => {
       title: emergencyForm.value.title,
       content: emergencyForm.value.content,
       targets: emergencyForm.value.targets,
-      channels: emergencyForm.value.channels
-    })
+      channels: emergencyForm.value.channels,
+    });
 
-    ElMessage.success('紧急通知发送成功！')
-    showEmergencyDialog.value = false
+    ElMessage.success('紧急通知发送成功！');
+    showEmergencyDialog.value = false;
 
     // 重置表单
     emergencyForm.value = {
@@ -1217,39 +1312,39 @@ const sendEmergencyNotice = async () => {
       title: '',
       content: '',
       targets: [],
-      channels: ['app']
-    }
+      channels: ['app'],
+    };
   } catch (error) {
-    console.error('发送紧急通知失败:', error)
-    ElMessage.error(error.response?.data?.message || '发送失败，请重试')
+    console.error('发送紧急通知失败:', error);
+    ElMessage.error(error.response?.data?.message || '发送失败，请重试');
   } finally {
-    sendingEmergency.value = false
+    sendingEmergency.value = false;
   }
-}
+};
 
 /**
  * 筛选待办事项
  * @param {string} filter - 筛选类型
  */
-const filterTodos = (filter) => {
-  todoFilter.value = filter
-}
+const filterTodos = filter => {
+  todoFilter.value = filter;
+};
 
 /**
  * 筛选通知
  * @param {string} filter - 筛选类型
  */
-const filterNotices = (filter) => {
-  noticeFilter.value = filter
-}
+const filterNotices = filter => {
+  noticeFilter.value = filter;
+};
 
 /**
  * 筛选活动
  * @param {string} range - 时间范围
  */
-const filterActivities = (range) => {
-  activityTimeRange.value = range
-}
+const filterActivities = range => {
+  activityTimeRange.value = range;
+};
 
 /**
  * 保存自定义快捷操作
@@ -1257,69 +1352,70 @@ const filterActivities = (range) => {
 const saveCustomActions = async () => {
   try {
     // 保存到本地存储
-    localStorage.setItem('quickActions', JSON.stringify(selectedQuickActions.value))
+    localStorage.setItem('quickActions', JSON.stringify(selectedQuickActions.value));
 
     // TODO: 保存到后端
     // await saveQuickActions(selectedQuickActions.value)
 
-    ElMessage.success('保存成功')
-    showCustomActionDialog.value = false
+    ElMessage.success('保存成功');
+    showCustomActionDialog.value = false;
   } catch (error) {
-    ElMessage.error('保存失败')
+    ElMessage.error('保存失败');
   }
-}
+};
 
 /**
  * 图表周期变化处理
  */
 const handleChartPeriodChange = async () => {
-  chartLoading.value = true
+  chartLoading.value = true;
   try {
     // TODO: 从后端获取对应周期的数据
     // const stats = await getStatistics(chartPeriod.value)
     // updateChart(stats)
-    updateChart()
+    updateChart();
   } catch (error) {
-    console.error('加载图表数据失败:', error)
+    console.error('加载图表数据失败:', error);
   } finally {
-    chartLoading.value = false
+    chartLoading.value = false;
   }
-}
+};
 
 // ==================== 图表相关函数 ====================
 
 /**
  * 初始化图表
  */
-const initChart = () => {
-  if (!chartRef.value) return
+const initChart = async () => {
+  await nextTick();
+  if (!chartRef.value) return;
 
-  chartInstance.value = echarts.init(chartRef.value)
+  chartInstance.value = echarts.init(chartRef.value);
 
   const option = {
     tooltip: {
       trigger: 'axis',
       axisPointer: {
-        type: 'shadow'
-      }
+        type: 'shadow',
+      },
     },
     legend: {
       data: ['新增村民', '处理事务', '发布公告'],
-      bottom: 0
+      bottom: 0,
     },
     grid: {
       left: '3%',
       right: '4%',
       bottom: '10%',
       top: '10%',
-      containLabel: true
+      containLabel: true,
     },
     xAxis: {
       type: 'category',
-      data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+      data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
     },
     yAxis: {
-      type: 'value'
+      type: 'value',
     },
     series: [
       {
@@ -1329,9 +1425,9 @@ const initChart = () => {
         itemStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
             { offset: 0, color: '#667eea' },
-            { offset: 1, color: '#764ba2' }
-          ])
-        }
+            { offset: 1, color: '#764ba2' },
+          ]),
+        },
       },
       {
         name: '处理事务',
@@ -1340,9 +1436,9 @@ const initChart = () => {
         itemStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
             { offset: 0, color: '#4facfe' },
-            { offset: 1, color: '#00f2fe' }
-          ])
-        }
+            { offset: 1, color: '#00f2fe' },
+          ]),
+        },
       },
       {
         name: '发布公告',
@@ -1351,21 +1447,21 @@ const initChart = () => {
         itemStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
             { offset: 0, color: '#43e97b' },
-            { offset: 1, color: '#38f9d7' }
-          ])
-        }
-      }
-    ]
-  }
+            { offset: 1, color: '#38f9d7' },
+          ]),
+        },
+      },
+    ],
+  };
 
-  chartInstance.value.setOption(option)
-}
+  chartInstance.value.setOption(option);
+};
 
 /**
  * 更新图表数据
  */
 const updateChart = () => {
-  if (!chartInstance.value) return
+  if (!chartInstance.value) return;
 
   // TODO: 根据chartPeriod从后端获取不同时间段的数据
   const dataMap = {
@@ -1373,56 +1469,66 @@ const updateChart = () => {
       xAxis: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
       series1: [2, 4, 6, 3, 5, 8, 4],
       series2: [8, 12, 15, 10, 14, 18, 12],
-      series3: [3, 5, 4, 6, 5, 8, 6]
+      series3: [3, 5, 4, 6, 5, 8, 6],
     },
     month: {
       xAxis: ['第一周', '第二周', '第三周', '第四周'],
       series1: [15, 22, 18, 25],
       series2: [45, 52, 48, 55],
-      series3: [12, 18, 15, 20]
+      series3: [12, 18, 15, 20],
     },
     year: {
-      xAxis: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+      xAxis: [
+        '1月',
+        '2月',
+        '3月',
+        '4月',
+        '5月',
+        '6月',
+        '7月',
+        '8月',
+        '9月',
+        '10月',
+        '11月',
+        '12月',
+      ],
       series1: [20, 25, 30, 28, 35, 40, 38, 42, 45, 50, 48, 55],
       series2: [50, 55, 60, 58, 65, 70, 68, 72, 75, 80, 78, 85],
-      series3: [15, 18, 20, 22, 25, 28, 26, 30, 32, 35, 33, 38]
-    }
-  }
+      series3: [15, 18, 20, 22, 25, 28, 26, 30, 32, 35, 33, 38],
+    },
+  };
 
-  const data = dataMap[chartPeriod.value]
+  const data = dataMap[chartPeriod.value];
 
   chartInstance.value.setOption({
     xAxis: {
-      data: data.xAxis
+      data: data.xAxis,
     },
-    series: [
-      { data: data.series1 },
-      { data: data.series2 },
-      { data: data.series3 }
-    ]
-  })
-}
+    series: [{ data: data.series1 }, { data: data.series2 }, { data: data.series3 }],
+  });
+};
 
 /**
  * 加载仪表盘数据（使用真实API，失败时fallback到模拟数据）
  */
 const loadDashboardData = async () => {
-  loading.value = true
+  loading.value = true;
   try {
-    const villageId = userStore.villageId || 'default'
+    const villageId = userStore.villageId || 'default';
 
     // 并行加载所有数据
-    const [dutyResponse, todosResponse, noticesResponse, activitiesResponse] = await Promise.allSettled([
-      dashboardApi.getTodayDuty(villageId),
-      dashboardApi.getTodos({ limit: 10, status: 'pending' }),
-      dashboardApi.getNotifications({ limit: 10 }),
-      dashboardApi.getActivities({ limit: 10, villageId })
-    ])
+    const [dutyResponse, todosResponse, noticesResponse, activitiesResponse] =
+      await Promise.allSettled([
+        dashboardApi.getTodayDuty(villageId),
+        dashboardApi.getTodos({ limit: 10, status: 'pending' }),
+        dashboardApi.getNotifications({ limit: 10 }),
+        dashboardApi.getActivities({ limit: 10, villageId }),
+      ]);
 
     // 处理今日值班数据
     if (dutyResponse.status === 'fulfilled' && dutyResponse.value?.data) {
-      const dutyData = dutyResponse.value.data
-      todayDuty.value = dutyData.schedule || dutyData || []
+      const dutyData = dutyResponse.value.data;
+      todayDuty.value = dutyData.schedule || dutyData || [];
     } else {
       // 使用模拟数据作为后备
       todayDuty.value = [
@@ -1432,7 +1538,7 @@ const loadDashboardData = async () => {
           position: '村支书',
           period: '上午 08:00-12:00',
           contact: '13800138000',
-          avatar: ''
+          avatar: '',
         },
         {
           _id: '2',
@@ -1440,22 +1546,24 @@ const loadDashboardData = async () => {
           position: '村主任',
           period: '下午 14:00-18:00',
           contact: '13800138001',
-          avatar: ''
-        }
-      ]
+          avatar: '',
+        },
+      ];
     }
 
     // 处理待办事项数据
     if (todosResponse.status === 'fulfilled' && todosResponse.value?.data) {
-      const tasksData = todosResponse.value.data.tasks || todosResponse.value.data
-      todoList.value = Array.isArray(tasksData) ? tasksData.map(task => ({
-        _id: task._id || task.id,
-        title: task.title,
-        type: task.category || task.type || '待办',
-        deadline: task.dueDate || task.deadline,
-        completed: task.status === 'completed',
-        status: task.status || 'pending'
-      })) : []
+      const tasksData = todosResponse.value.data.tasks || todosResponse.value.data;
+      todoList.value = Array.isArray(tasksData)
+        ? tasksData.map(task => ({
+            _id: task._id || task.id,
+            title: task.title,
+            type: task.category || task.type || '待办',
+            deadline: task.dueDate || task.deadline,
+            completed: task.status === 'completed',
+            status: task.status || 'pending',
+          }))
+        : [];
     } else {
       // 使用模拟数据作为后备
       todoList.value = [
@@ -1465,7 +1573,7 @@ const loadDashboardData = async () => {
           type: '人事',
           deadline: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
           completed: false,
-          status: 'pending'
+          status: 'pending',
         },
         {
           _id: '2',
@@ -1473,7 +1581,7 @@ const loadDashboardData = async () => {
           type: '党务',
           deadline: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
           completed: false,
-          status: 'pending'
+          status: 'pending',
         },
         {
           _id: '3',
@@ -1481,22 +1589,24 @@ const loadDashboardData = async () => {
           type: '行政',
           deadline: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
           completed: false,
-          status: 'pending'
-        }
-      ]
+          status: 'pending',
+        },
+      ];
     }
 
     // 处理通知数据
     if (noticesResponse.status === 'fulfilled' && noticesResponse.value?.data) {
-      const noticesData = noticesResponse.value.data.notifications || noticesResponse.value.data
-      noticeList.value = Array.isArray(noticesData) ? noticesData.map(notice => ({
-        _id: notice._id || notice.id,
-        title: notice.title,
-        level: notice.priority || notice.level || '一般',
-        content: notice.content,
-        createdAt: notice.createdAt || notice.created_at,
-        read: notice.read || false
-      })) : []
+      const noticesData = noticesResponse.value.data.notifications || noticesResponse.value.data;
+      noticeList.value = Array.isArray(noticesData)
+        ? noticesData.map(notice => ({
+            _id: notice._id || notice.id,
+            title: notice.title,
+            level: notice.priority || notice.level || '一般',
+            content: notice.content,
+            createdAt: notice.createdAt || notice.created_at,
+            read: notice.read || false,
+          }))
+        : [];
     } else {
       // 使用模拟数据作为后备
       noticeList.value = [
@@ -1505,35 +1615,38 @@ const loadDashboardData = async () => {
           title: '关于召开村委会议的通知',
           level: '重要',
           createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-          read: false
+          read: false,
         },
         {
           _id: '2',
           title: '冬季防火安全提示',
           level: '一般',
           createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-          read: false
+          read: false,
         },
         {
           _id: '3',
           title: '关于开展主题党日活动的通知',
           level: '通知',
           createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-          read: true
-        }
-      ]
+          read: true,
+        },
+      ];
     }
 
     // 处理村民动态数据
     if (activitiesResponse.status === 'fulfilled' && activitiesResponse.value?.data) {
-      const activitiesData = activitiesResponse.value.data.activities || activitiesResponse.value.data
-      activityList.value = Array.isArray(activitiesData) ? activitiesData.map(activity => ({
-        _id: activity._id || activity.id,
-        userName: activity.userName || activity.user_name,
-        userAvatar: activity.userAvatar || activity.avatar,
-        action: activity.action || activity.description,
-        createdAt: activity.createdAt || activity.created_at
-      })) : []
+      const activitiesData =
+        activitiesResponse.value.data.activities || activitiesResponse.value.data;
+      activityList.value = Array.isArray(activitiesData)
+        ? activitiesData.map(activity => ({
+            _id: activity._id || activity.id,
+            userName: activity.userName || activity.user_name,
+            userAvatar: activity.userAvatar || activity.avatar,
+            action: activity.action || activity.description,
+            createdAt: activity.createdAt || activity.created_at,
+          }))
+        : [];
     } else {
       // 使用模拟数据作为后备
       activityList.value = [
@@ -1542,39 +1655,39 @@ const loadDashboardData = async () => {
           userName: '王五',
           userAvatar: '',
           action: '提交了低保申请',
-          createdAt: new Date(Date.now() - 10 * 60 * 1000).toISOString()
+          createdAt: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
         },
         {
           _id: '2',
           userName: '赵六',
           userAvatar: '',
           action: '咨询了医保政策',
-          createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString()
+          createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
         },
         {
           _id: '3',
           userName: '孙七',
           userAvatar: '',
           action: '反馈了道路问题',
-          createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
-        }
-      ]
+          createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+        },
+      ];
     }
   } catch (error) {
-    console.warn('API加载失败，使用模拟数据:', error)
+    console.warn('API加载失败，使用模拟数据:', error);
 
     // Fallback到模拟数据
-    await loadMockData()
+    await loadMockData();
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 /**
  * 加载模拟数据（API失败时的备用方案）
  */
 const loadMockData = async () => {
-  await new Promise(resolve => setTimeout(resolve, 500))
+  await new Promise(resolve => setTimeout(resolve, 500));
 
   // 统计卡片
   statisticsCards.value = [
@@ -1587,7 +1700,7 @@ const loadMockData = async () => {
       change: '+12 本月',
       trendClass: 'up',
       trendIcon: ArrowUp,
-      route: '/residents'
+      route: '/residents',
     },
     {
       key: 'households',
@@ -1598,7 +1711,7 @@ const loadMockData = async () => {
       change: '+3 本月',
       trendClass: 'up',
       trendIcon: ArrowUp,
-      route: '/household-codes'
+      route: '/household-codes',
     },
     {
       key: 'notices',
@@ -1609,7 +1722,7 @@ const loadMockData = async () => {
       change: '+5 环比',
       trendClass: 'up',
       trendIcon: ArrowUp,
-      route: '/announcements'
+      route: '/announcements',
     },
     {
       key: 'tasks',
@@ -1620,58 +1733,56 @@ const loadMockData = async () => {
       change: '-2 较昨日',
       trendClass: 'down',
       trendIcon: ArrowDown,
-      route: '/tasks'
-    }
-  ]
+      route: '/tasks',
+    },
+  ];
 
-  monthlyPoints.value = 1250
-  pendingTasks.value = 8
-}
+  monthlyPoints.value = 1250;
+  pendingTasks.value = 8;
+};
 
-const loadData = loadDashboardData
+const loadData = loadDashboardData;
 
 /**
  * 初始化快捷操作配置
  */
 const initQuickActions = () => {
   // 从本地存储加载配置
-  const saved = localStorage.getItem('quickActions')
+  const saved = localStorage.getItem('quickActions');
   if (saved) {
-    selectedQuickActions.value = JSON.parse(saved)
+    selectedQuickActions.value = JSON.parse(saved);
   } else {
     // 默认选中所有默认操作
-    selectedQuickActions.value = allQuickActions.value
-      .filter(a => a.default)
-      .map(a => a.id)
+    selectedQuickActions.value = allQuickActions.value.filter(a => a.default).map(a => a.id);
   }
-}
+};
 
 /**
  * 窗口大小改变处理
  */
 const handleResize = () => {
-  isMobile.value = window.innerWidth < 768
+  isMobile.value = window.innerWidth < 768;
   if (chartInstance.value) {
-    chartInstance.value.resize()
+    chartInstance.value.resize();
   }
-}
+};
 
 // ==================== 生命周期钩子 ====================
 
 onMounted(async () => {
-  initQuickActions()
-  await loadDashboardData()
-  await nextTick()
-  initChart()
-  window.addEventListener('resize', handleResize)
-})
+  initQuickActions();
+  await loadDashboardData();
+  await nextTick();
+  initChart();
+  window.addEventListener('resize', handleResize);
+});
 
 onUnmounted(() => {
   if (chartInstance.value) {
-    chartInstance.value.dispose()
+    chartInstance.value.dispose();
   }
-  window.removeEventListener('resize', handleResize)
-})
+  window.removeEventListener('resize', handleResize);
+});
 
 // ==================== 监听器 ====================
 
@@ -1679,8 +1790,8 @@ onUnmounted(() => {
  * 监听图表周期变化
  */
 watch(chartPeriod, () => {
-  handleChartPeriodChange()
-})
+  handleChartPeriodChange();
+});
 </script>
 
 <style lang="scss" scoped>
@@ -1802,7 +1913,8 @@ watch(chartPeriod, () => {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {

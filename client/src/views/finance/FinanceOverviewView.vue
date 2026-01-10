@@ -144,10 +144,18 @@
               <div class="card-header">
                 <span class="card-title">收支明细</span>
                 <div class="header-actions">
-                  <el-button size="small" @click="showBatchApproval" :disabled="!selectedTransactions.length">
+                  <el-button
+                    size="small"
+                    @click="showBatchApproval"
+                    :disabled="!selectedTransactions.length"
+                  >
                     批量审批
                   </el-button>
-                  <el-button size="small" @click="batchDelete" :disabled="!selectedTransactions.length">
+                  <el-button
+                    size="small"
+                    @click="batchDelete"
+                    :disabled="!selectedTransactions.length"
+                  >
                     批量删除
                   </el-button>
                 </div>
@@ -186,15 +194,15 @@
               <el-table-column prop="amount" label="金额" width="120" sortable>
                 <template #default="scope">
                   <span :class="scope.row.type === 'income' ? 'income-amount' : 'expense-amount'">
-                    {{ scope.row.type === 'income' ? '+' : '-' }}¥{{ formatAmount(scope.row.amount) }}
+                    {{ scope.row.type === 'income' ? '+' : '-' }}¥{{
+                      formatAmount(scope.row.amount)
+                    }}
                   </span>
                 </template>
               </el-table-column>
 
               <el-table-column prop="balance" label="余额" width="120">
-                <template #default="scope">
-                  ¥{{ formatAmount(scope.row.balance) }}
-                </template>
+                <template #default="scope"> ¥{{ formatAmount(scope.row.balance) }} </template>
               </el-table-column>
 
               <el-table-column prop="status" label="状态" width="100">
@@ -209,8 +217,12 @@
 
               <el-table-column label="操作" width="150" fixed="right">
                 <template #default="scope">
-                  <el-button link type="primary" @click="viewTransaction(scope.row)">详情</el-button>
-                  <el-button link type="warning" @click="editTransaction(scope.row)">编辑</el-button>
+                  <el-button link type="primary" @click="viewTransaction(scope.row)"
+                    >详情</el-button
+                  >
+                  <el-button link type="warning" @click="editTransaction(scope.row)"
+                    >编辑</el-button
+                  >
                   <el-button
                     v-if="scope.row.status === 'pending'"
                     link
@@ -249,15 +261,13 @@
             </template>
 
             <div class="budget-list">
-              <div
-                v-for="budget in budgets"
-                :key="budget.id"
-                class="budget-item"
-              >
+              <div v-for="budget in budgets" :key="budget.id" class="budget-item">
                 <div class="budget-header">
                   <h4>{{ budget.name }}</h4>
                   <div class="budget-actions">
-                    <el-button link type="primary" @click="viewBudgetDetail(budget)">详情</el-button>
+                    <el-button link type="primary" @click="viewBudgetDetail(budget)"
+                      >详情</el-button
+                    >
                     <el-button link type="warning" @click="editBudgetItem(budget)">编辑</el-button>
                   </div>
                 </div>
@@ -281,11 +291,19 @@
 
                 <div class="budget-details">
                   <el-descriptions :column="3" size="small">
-                    <el-descriptions-item label="预算周期">{{ budget.period }}</el-descriptions-item>
+                    <el-descriptions-item label="预算周期">{{
+                      budget.period
+                    }}</el-descriptions-item>
                     <el-descriptions-item label="负责人">{{ budget.manager }}</el-descriptions-item>
                     <el-descriptions-item label="状态">
-                      <el-tag :type="budget.usage > 90 ? 'danger' : budget.usage > 70 ? 'warning' : 'success'">
-                        {{ budget.usage > 90 ? '超支预警' : budget.usage > 70 ? '注意控制' : '正常' }}
+                      <el-tag
+                        :type="
+                          budget.usage > 90 ? 'danger' : budget.usage > 70 ? 'warning' : 'success'
+                        "
+                      >
+                        {{
+                          budget.usage > 90 ? '超支预警' : budget.usage > 70 ? '注意控制' : '正常'
+                        }}
                       </el-tag>
                     </el-descriptions-item>
                   </el-descriptions>
@@ -365,7 +383,12 @@
 
     <!-- 收支录入对话框 -->
     <el-dialog v-model="transactionDialogVisible" title="录入收支" width="600px">
-      <el-form :model="transactionForm" :rules="transactionRules" ref="transactionFormRef" label-width="100px">
+      <el-form
+        :model="transactionForm"
+        :rules="transactionRules"
+        ref="transactionFormRef"
+        label-width="100px"
+      >
         <el-row :gutter="16">
           <el-col :span="12">
             <el-form-item label="收支类型" prop="type">
@@ -439,9 +462,7 @@
           >
             <el-button icon="Upload">上传凭证</el-button>
             <template #tip>
-              <div class="el-upload__tip">
-                支持jpg/png/pdf文件，单个文件不超过10MB
-              </div>
+              <div class="el-upload__tip">支持jpg/png/pdf文件，单个文件不超过10MB</div>
             </template>
           </el-upload>
         </el-form-item>
@@ -456,34 +477,34 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 
 // 响应式数据
-const activeTab = ref('transactions')
-const transactionDialogVisible = ref(false)
-const budgetDialogVisible = ref(false)
-const saving = ref(false)
-const transactionFormRef = ref()
-const selectedTransactions = ref([])
+const activeTab = ref('transactions');
+const transactionDialogVisible = ref(false);
+const budgetDialogVisible = ref(false);
+const saving = ref(false);
+const transactionFormRef = ref();
+const selectedTransactions = ref([]);
 
 // 搜索和筛选
 const searchQuery = reactive({
-  transaction: ''
-})
+  transaction: '',
+});
 
 const filterQuery = reactive({
   type: '',
   category: '',
-  dateRange: []
-})
+  dateRange: [],
+});
 
 // 分页
 const currentPage = reactive({
   transactions: 1,
-  reports: 1
-})
-const pageSize = ref(20)
+  reports: 1,
+});
+const pageSize = ref(20);
 
 // 收支表单
 const transactionForm = reactive({
@@ -493,8 +514,8 @@ const transactionForm = reactive({
   amount: 0,
   description: '',
   paymentMethod: 'bank',
-  attachments: []
-})
+  attachments: [],
+});
 
 // 表单验证规则
 const transactionRules = {
@@ -502,16 +523,16 @@ const transactionRules = {
   category: [{ required: true, message: '请选择收支分类', trigger: 'change' }],
   date: [{ required: true, message: '请选择交易日期', trigger: 'change' }],
   amount: [{ required: true, message: '请输入交易金额', trigger: 'blur' }],
-  description: [{ required: true, message: '请输入交易说明', trigger: 'blur' }]
-}
+  description: [{ required: true, message: '请输入交易说明', trigger: 'blur' }],
+};
 
 // 模拟数据
 const overview = ref({
   totalIncome: 2850000,
   totalExpense: 1680000,
   balance: 1170000,
-  budgetUsage: 73.5
-})
+  budgetUsage: 73.5,
+});
 
 const transactions = ref([
   {
@@ -524,7 +545,7 @@ const transactions = ref([
     balance: 1170000,
     status: 'approved',
     operator: '张大明',
-    attachments: ['补助通知.pdf']
+    attachments: ['补助通知.pdf'],
   },
   {
     id: 2,
@@ -536,7 +557,7 @@ const transactions = ref([
     balance: 670000,
     status: 'approved',
     operator: '李红梅',
-    attachments: ['工程合同.pdf', '验收报告.pdf']
+    attachments: ['工程合同.pdf', '验收报告.pdf'],
   },
   {
     id: 3,
@@ -548,9 +569,9 @@ const transactions = ref([
     balance: 585000,
     status: 'pending',
     operator: '王小强',
-    attachments: []
-  }
-])
+    attachments: [],
+  },
+]);
 
 const budgets = ref([
   {
@@ -561,7 +582,7 @@ const budgets = ref([
     remaining: 550000,
     usage: 72.5,
     period: '2024年度',
-    manager: '张大明'
+    manager: '张大明',
   },
   {
     id: 2,
@@ -571,7 +592,7 @@ const budgets = ref([
     remaining: 280000,
     usage: 65.0,
     period: '2024年度',
-    manager: '李红梅'
+    manager: '李红梅',
   },
   {
     id: 3,
@@ -581,9 +602,9 @@ const budgets = ref([
     remaining: 2000,
     usage: 99.3,
     period: '2024年度',
-    manager: '王小强'
-  }
-])
+    manager: '王小强',
+  },
+]);
 
 const reports = ref([
   {
@@ -592,7 +613,7 @@ const reports = ref([
     type: '月度报表',
     period: '2024年12月',
     createTime: '2024-12-15T10:30:00',
-    size: '2.5MB'
+    size: '2.5MB',
   },
   {
     id: 2,
@@ -600,7 +621,7 @@ const reports = ref([
     type: '年度报表',
     period: '2024年',
     createTime: '2024-11-30T16:45:00',
-    size: '8.7MB'
+    size: '8.7MB',
   },
   {
     id: 3,
@@ -608,132 +629,133 @@ const reports = ref([
     type: '季度报表',
     period: '2024年Q3',
     createTime: '2024-10-05T09:20:00',
-    size: '3.2MB'
-  }
-])
+    size: '3.2MB',
+  },
+]);
 
 // 计算属性
 const filteredTransactions = computed(() => {
   return transactions.value.filter(item => {
-    const matchSearch = !searchQuery.transaction ||
-      item.description.includes(searchQuery.transaction)
-    const matchType = !filterQuery.type || item.type === filterQuery.type
-    const matchCategory = !filterQuery.category || item.category === filterQuery.category
-    const matchDate = !filterQuery.dateRange.length ||
+    const matchSearch =
+      !searchQuery.transaction || item.description.includes(searchQuery.transaction);
+    const matchType = !filterQuery.type || item.type === filterQuery.type;
+    const matchCategory = !filterQuery.category || item.category === filterQuery.category;
+    const matchDate =
+      !filterQuery.dateRange.length ||
       (new Date(item.date) >= new Date(filterQuery.dateRange[0]) &&
-       new Date(item.date) <= new Date(filterQuery.dateRange[1]))
-    return matchSearch && matchType && matchCategory && matchDate
-  })
-})
+        new Date(item.date) <= new Date(filterQuery.dateRange[1]));
+    return matchSearch && matchType && matchCategory && matchDate;
+  });
+});
 
 const paginatedTransactions = computed(() => {
-  const start = (currentPage.transactions - 1) * pageSize.value
-  const end = start + pageSize.value
-  return filteredTransactions.value.slice(start, end)
-})
+  const start = (currentPage.transactions - 1) * pageSize.value;
+  const end = start + pageSize.value;
+  return filteredTransactions.value.slice(start, end);
+});
 
 // 方法
-const handleTabChange = (tabName) => {
-  console.log('切换到标签页:', tabName)
-}
+const handleTabChange = tabName => {
+  console.log('切换到标签页:', tabName);
+};
 
-const formatAmount = (amount) => {
-  return new Intl.NumberFormat('zh-CN').format(amount)
-}
+const formatAmount = amount => {
+  return new Intl.NumberFormat('zh-CN').format(amount);
+};
 
-const formatDate = (date) => {
-  if (!date) return '-'
-  return new Date(date).toLocaleDateString('zh-CN')
-}
+const formatDate = date => {
+  if (!date) return '-';
+  return new Date(date).toLocaleDateString('zh-CN');
+};
 
-const formatDateTime = (dateTime) => {
-  if (!dateTime) return '-'
-  return new Date(dateTime).toLocaleString('zh-CN')
-}
+const formatDateTime = dateTime => {
+  if (!dateTime) return '-';
+  return new Date(dateTime).toLocaleString('zh-CN');
+};
 
-const getProgressColor = (percentage) => {
-  if (percentage > 90) return '#f56c6c'
-  if (percentage > 70) return '#e6a23c'
-  return '#67c23a'
-}
+const getProgressColor = percentage => {
+  if (percentage > 90) return '#f56c6c';
+  if (percentage > 70) return '#e6a23c';
+  return '#67c23a';
+};
 
-const getBudgetProgressColor = (percentage) => {
-  if (percentage > 95) return '#f56c6c'
-  if (percentage > 80) return '#e6a23c'
-  return '#409eff'
-}
+const getBudgetProgressColor = percentage => {
+  if (percentage > 95) return '#f56c6c';
+  if (percentage > 80) return '#e6a23c';
+  return '#409eff';
+};
 
-const getCategoryText = (category) => {
+const getCategoryText = category => {
   const categoryMap = {
-    'government': '政府补助',
-    'collective': '集体收入',
-    'infrastructure': '基础设施',
-    'public_service': '公共服务',
-    'administrative': '行政支出',
-    'welfare': '福利支出',
-    'agriculture': '农业支出'
-  }
-  return categoryMap[category] || category
-}
+    government: '政府补助',
+    collective: '集体收入',
+    infrastructure: '基础设施',
+    public_service: '公共服务',
+    administrative: '行政支出',
+    welfare: '福利支出',
+    agriculture: '农业支出',
+  };
+  return categoryMap[category] || category;
+};
 
-const getStatusColor = (status) => {
+const getStatusColor = status => {
   const colorMap = {
-    'approved': 'success',
-    'pending': 'warning',
-    'rejected': 'danger'
-  }
-  return colorMap[status] || 'info'
-}
+    approved: 'success',
+    pending: 'warning',
+    rejected: 'danger',
+  };
+  return colorMap[status] || 'info';
+};
 
-const getStatusText = (status) => {
+const getStatusText = status => {
   const textMap = {
-    'approved': '已审批',
-    'pending': '待审批',
-    'rejected': '已拒绝'
-  }
-  return textMap[status] || status
-}
+    approved: '已审批',
+    pending: '待审批',
+    rejected: '已拒绝',
+  };
+  return textMap[status] || status;
+};
 
-const getCategoriesByType = (type) => {
+const getCategoriesByType = type => {
   if (type === 'income') {
     return [
       { label: '政府补助', value: 'government' },
       { label: '集体收入', value: 'collective' },
       { label: '捐赠收入', value: 'donation' },
-      { label: '其他收入', value: 'other_income' }
-    ]
+      { label: '其他收入', value: 'other_income' },
+    ];
   } else {
     return [
       { label: '基础设施', value: 'infrastructure' },
       { label: '公共服务', value: 'public_service' },
       { label: '行政支出', value: 'administrative' },
       { label: '福利支出', value: 'welfare' },
-      { label: '农业支出', value: 'agriculture' }
-    ]
+      { label: '农业支出', value: 'agriculture' },
+    ];
   }
-}
+};
 
 const searchTransactions = () => {
-  currentPage.transactions = 1
-}
+  currentPage.transactions = 1;
+};
 
-const handleSelectionChange = (selection) => {
-  selectedTransactions.value = selection
-}
+const handleSelectionChange = selection => {
+  selectedTransactions.value = selection;
+};
 
-const handleSizeChange = (size) => {
-  pageSize.value = size
-  currentPage.transactions = 1
-}
+const handleSizeChange = size => {
+  pageSize.value = size;
+  currentPage.transactions = 1;
+};
 
-const handleCurrentChange = (page) => {
-  currentPage.transactions = page
-}
+const handleCurrentChange = page => {
+  currentPage.transactions = page;
+};
 
 const showTransactionDialog = () => {
-  resetTransactionForm()
-  transactionDialogVisible.value = true
-}
+  resetTransactionForm();
+  transactionDialogVisible.value = true;
+};
 
 const resetTransactionForm = () => {
   Object.assign(transactionForm, {
@@ -743,74 +765,74 @@ const resetTransactionForm = () => {
     amount: 0,
     description: '',
     paymentMethod: 'bank',
-    attachments: []
-  })
-}
+    attachments: [],
+  });
+};
 
 const handleFileChange = (file, fileList) => {
-  transactionForm.attachments = fileList
-}
+  transactionForm.attachments = fileList;
+};
 
 const saveTransaction = async () => {
-  if (!transactionFormRef.value) return
+  if (!transactionFormRef.value) return;
 
   try {
-    await transactionFormRef.value.validate()
-    saving.value = true
+    await transactionFormRef.value.validate();
+    saving.value = true;
 
     // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     const newTransaction = {
       ...transactionForm,
       id: Date.now(),
-      balance: overview.value.balance + (transactionForm.type === 'income' ? transactionForm.amount : -transactionForm.amount),
+      balance:
+        overview.value.balance +
+        (transactionForm.type === 'income' ? transactionForm.amount : -transactionForm.amount),
       status: 'pending',
-      operator: '当前用户'
-    }
+      operator: '当前用户',
+    };
 
-    transactions.value.unshift(newTransaction)
+    transactions.value.unshift(newTransaction);
 
     // 更新概览数据
     if (transactionForm.type === 'income') {
-      overview.value.totalIncome += transactionForm.amount
+      overview.value.totalIncome += transactionForm.amount;
     } else {
-      overview.value.totalExpense += transactionForm.amount
+      overview.value.totalExpense += transactionForm.amount;
     }
-    overview.value.balance = newTransaction.balance
+    overview.value.balance = newTransaction.balance;
 
-    ElMessage.success('收支记录保存成功')
-    transactionDialogVisible.value = false
+    ElMessage.success('收支记录保存成功');
+    transactionDialogVisible.value = false;
   } catch (error) {
-    ElMessage.error('保存失败：' + (error.message || '未知错误'))
+    ElMessage.error('保存失败：' + (error.message || '未知错误'));
   } finally {
-    saving.value = false
+    saving.value = false;
   }
-}
+};
 
-const viewTransaction = (transaction) => {
-  ElMessage.info(`查看收支记录：${transaction.description}`)
-}
+const viewTransaction = transaction => {
+  ElMessage.info(`查看收支记录：${transaction.description}`);
+};
 
-const editTransaction = (transaction) => {
-  Object.assign(transactionForm, transaction)
-  transactionDialogVisible.value = true
-}
+const editTransaction = transaction => {
+  Object.assign(transactionForm, transaction);
+  transactionDialogVisible.value = true;
+};
 
-const approveTransaction = async (transaction) => {
+const approveTransaction = async transaction => {
   try {
-    await ElMessageBox.confirm(
-      `确定要审批通过"${transaction.description}"吗？`,
-      '确认审批',
-      { type: 'warning' }
-    )
+    await ElMessageBox.confirm(`确定要审批通过"${transaction.description}"吗？`, '确认审批', {
+      type: 'warning',
+    });
 
-    transaction.status = 'approved'
-    ElMessage.success('审批通过')
+    transaction.status = 'approved';
+    ElMessage.success('审批通过');
   } catch {
     // 用户取消
   }
-}
+};
 
 const showBatchApproval = async () => {
   try {
@@ -818,20 +840,20 @@ const showBatchApproval = async () => {
       `确定要批量审批选中的 ${selectedTransactions.value.length} 条记录吗？`,
       '确认批量审批',
       { type: 'warning' }
-    )
+    );
 
     selectedTransactions.value.forEach(item => {
       if (item.status === 'pending') {
-        item.status = 'approved'
+        item.status = 'approved';
       }
-    })
+    });
 
-    ElMessage.success(`已批量审批 ${selectedTransactions.value.length} 条记录`)
-    selectedTransactions.value = []
+    ElMessage.success(`已批量审批 ${selectedTransactions.value.length} 条记录`);
+    selectedTransactions.value = [];
   } catch {
     // 用户取消
   }
-}
+};
 
 const batchDelete = async () => {
   try {
@@ -839,76 +861,74 @@ const batchDelete = async () => {
       `确定要删除选中的 ${selectedTransactions.value.length} 条记录吗？`,
       '确认删除',
       { type: 'warning' }
-    )
+    );
 
     selectedTransactions.value.forEach(item => {
-      const index = transactions.value.findIndex(t => t.id === item.id)
+      const index = transactions.value.findIndex(t => t.id === item.id);
       if (index !== -1) {
-        transactions.value.splice(index, 1)
+        transactions.value.splice(index, 1);
       }
-    })
+    });
 
-    ElMessage.success(`已删除 ${selectedTransactions.value.length} 条记录`)
-    selectedTransactions.value = []
+    ElMessage.success(`已删除 ${selectedTransactions.value.length} 条记录`);
+    selectedTransactions.value = [];
   } catch {
     // 用户取消
   }
-}
+};
 
 const showBudgetDialog = () => {
-  budgetDialogVisible.value = true
-  ElMessage.info('预算管理功能开发中...')
-}
+  budgetDialogVisible.value = true;
+  ElMessage.info('预算管理功能开发中...');
+};
 
-const viewBudgetDetail = (budget) => {
-  ElMessage.info(`查看预算详情：${budget.name}`)
-}
+const viewBudgetDetail = budget => {
+  ElMessage.info(`查看预算详情：${budget.name}`);
+};
 
-const editBudgetItem = (budget) => {
-  ElMessage.info(`编辑预算：${budget.name}`)
-}
+const editBudgetItem = budget => {
+  ElMessage.info(`编辑预算：${budget.name}`);
+};
 
 const generateMonthlyReport = () => {
-  ElMessage.info('生成月度报表...')
-}
+  ElMessage.info('生成月度报表...');
+};
 
 const generateYearlyReport = () => {
-  ElMessage.info('生成年度报表...')
-}
+  ElMessage.info('生成年度报表...');
+};
 
 const exportReport = () => {
-  ElMessage.info('导出报表功能开发中...')
-}
+  ElMessage.info('导出报表功能开发中...');
+};
 
-const viewReport = (report) => {
-  ElMessage.info(`查看报表：${report.name}`)
-}
+const viewReport = report => {
+  ElMessage.info(`查看报表：${report.name}`);
+};
 
-const downloadReport = (report) => {
-  ElMessage.info(`下载报表：${report.name}`)
-}
+const downloadReport = report => {
+  ElMessage.info(`下载报表：${report.name}`);
+};
 
-const deleteReport = async (report) => {
+const deleteReport = async report => {
   try {
-    await ElMessageBox.confirm(
-      `确定要删除报表"${report.name}"吗？`,
-      '确认删除',
-      { type: 'warning' }
-    )
+    await ElMessageBox.confirm(`确定要删除报表"${report.name}"吗？`, '确认删除', {
+      type: 'warning',
+    });
 
-    const index = reports.value.findIndex(r => r.id === report.id)
+    const index = reports.value.findIndex(r => r.id === report.id);
     if (index !== -1) {
-      reports.value.splice(index, 1)
-      ElMessage.success('报表删除成功')
+      reports.value.splice(index, 1);
+      ElMessage.success('报表删除成功');
     }
   } catch {
     // 用户取消
   }
-}
+};
 
 onMounted(() => {
-  console.log('财务管理模块加载完成')
-})
+  console.log('财务管理模块加载完成');
+});
 </script>
 
 <style lang="scss" scoped>

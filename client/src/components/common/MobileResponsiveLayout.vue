@@ -37,11 +37,7 @@
     </div>
 
     <!-- 移动端侧边栏遮罩 -->
-    <div
-      v-if="isMobile && !sidebarCollapsed"
-      class="sidebar-overlay"
-      @click="toggleSidebar"
-    ></div>
+    <div v-if="isMobile && !sidebarCollapsed" class="sidebar-overlay" @click="toggleSidebar"></div>
 
     <!-- 主要内容区域 -->
     <div class="main-content">
@@ -67,15 +63,27 @@
         <el-icon><List /></el-icon>
         <span>列表</span>
       </div>
-      <div class="nav-item" :class="{ active: activeTab === 'search' }" @click="setActiveTab('search')">
+      <div
+        class="nav-item"
+        :class="{ active: activeTab === 'search' }"
+        @click="setActiveTab('search')"
+      >
         <el-icon><Search /></el-icon>
         <span>搜索</span>
       </div>
-      <div class="nav-item" :class="{ active: activeTab === 'statistics' }" @click="setActiveTab('statistics')">
+      <div
+        class="nav-item"
+        :class="{ active: activeTab === 'statistics' }"
+        @click="setActiveTab('statistics')"
+      >
         <el-icon><TrendCharts /></el-icon>
         <span>统计</span>
       </div>
-      <div class="nav-item" :class="{ active: activeTab === 'profile' }" @click="setActiveTab('profile')">
+      <div
+        class="nav-item"
+        :class="{ active: activeTab === 'profile' }"
+        @click="setActiveTab('profile')"
+      >
         <el-icon><User /></el-icon>
         <span>我的</span>
       </div>
@@ -99,9 +107,7 @@
             clearable
             @keyup.enter="performMobileSearch"
           />
-          <el-button type="primary" @click="performMobileSearch" size="large">
-            搜索
-          </el-button>
+          <el-button type="primary" @click="performMobileSearch" size="large"> 搜索 </el-button>
         </div>
 
         <div class="quick-filters">
@@ -131,12 +137,7 @@
             >
               <el-icon><Clock /></el-icon>
               <span>{{ item.query }}</span>
-              <el-button
-                text
-                @click.stop="removeHistoryItem(item.id)"
-                icon="Close"
-                size="small"
-              />
+              <el-button text @click.stop="removeHistoryItem(item.id)" icon="Close" size="small" />
             </div>
           </div>
         </div>
@@ -166,7 +167,7 @@
           class="fab-item"
           :style="{
             transform: `translateY(${-(index + 1) * 60}px)`,
-            transitionDelay: `${index * 50}ms`
+            transitionDelay: `${index * 50}ms`,
           }"
         />
       </transition-group>
@@ -191,12 +192,7 @@
             <p>{{ notification.message }}</p>
             <span class="notification-time">{{ formatTime(notification.time) }}</span>
           </div>
-          <el-button
-            text
-            @click="dismissNotification(notification.id)"
-            icon="Close"
-            size="small"
-          />
+          <el-button text @click="dismissNotification(notification.id)" icon="Close" size="small" />
         </div>
       </el-card>
     </div>
@@ -213,43 +209,54 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ElMessage } from 'element-plus';
 import {
-  Expand, Fold, Search, More, Plus, List, TrendCharts, User,
-  Clock, Close, Upload, Download, InfoFilled
-} from '@element-plus/icons-vue'
+  Expand,
+  Fold,
+  Search,
+  More,
+  Plus,
+  List,
+  TrendCharts,
+  User,
+  Clock,
+  Close,
+  Upload,
+  Download,
+  InfoFilled,
+} from '@element-plus/icons-vue';
 
 // Props
 const props = defineProps({
   pageTitle: {
     type: String,
-    default: '村民管理'
+    default: '村民管理',
   },
   enableGestures: {
     type: Boolean,
-    default: true
+    default: true,
   },
   showBottomNav: {
     type: Boolean,
-    default: true
-  }
-})
+    default: true,
+  },
+});
 
 // Emits
-const emit = defineEmits(['tab-change', 'search', 'quick-action', 'fab-action'])
+const emit = defineEmits(['tab-change', 'search', 'quick-action', 'fab-action']);
 
 // 响应式数据
-const windowWidth = ref(window.innerWidth)
-const windowHeight = ref(window.innerHeight)
-const sidebarCollapsed = ref(true)
-const showMobileSearch = ref(false)
-const mobileSearchQuery = ref('')
-const selectedFilters = ref([])
-const activeTab = ref('list')
-const fabExpanded = ref(false)
-const showGestureHint = ref(false)
-const gestureHintText = ref('')
+const windowWidth = ref(window.innerWidth);
+const windowHeight = ref(window.innerHeight);
+const sidebarCollapsed = ref(true);
+const showMobileSearch = ref(false);
+const mobileSearchQuery = ref('');
+const selectedFilters = ref([]);
+const activeTab = ref('list');
+const fabExpanded = ref(false);
+const showGestureHint = ref(false);
+const gestureHintText = ref('');
 
 // 通知数据
 const notifications = ref([
@@ -258,23 +265,23 @@ const notifications = ref([
     type: 'info',
     title: '数据同步完成',
     message: '村民档案数据已更新至最新版本',
-    time: new Date()
+    time: new Date(),
   },
   {
     id: 2,
     type: 'warning',
     title: '待办提醒',
     message: '有3条村民信息需要审核',
-    time: new Date(Date.now() - 30 * 60 * 1000)
-  }
-])
+    time: new Date(Date.now() - 30 * 60 * 1000),
+  },
+]);
 
 // 搜索历史
 const searchHistory = ref([
   { id: 1, query: '张三', time: new Date() },
   { id: 2, query: '低保户', time: new Date(Date.now() - 60 * 60 * 1000) },
-  { id: 3, query: '65岁以上', time: new Date(Date.now() - 2 * 60 * 60 * 1000) }
-])
+  { id: 3, query: '65岁以上', time: new Date(Date.now() - 2 * 60 * 60 * 1000) },
+]);
 
 // 快速筛选标签
 const quickFilters = ref([
@@ -283,180 +290,180 @@ const quickFilters = ref([
   { key: 'disabled', label: '残疾人' },
   { key: 'children', label: '儿童' },
   { key: 'veteran', label: '退伍军人' },
-  { key: 'singleParent', label: '单亲家庭' }
-])
+  { key: 'singleParent', label: '单亲家庭' },
+]);
 
 // 浮动按钮操作
 const fabActions = ref([
   { key: 'add', icon: 'Plus', label: '新增' },
   { key: 'scan', icon: 'Camera', label: '扫码' },
   { key: 'voice', icon: 'Microphone', label: '语音' },
-  { key: 'import', icon: 'Upload', label: '导入' }
-])
+  { key: 'import', icon: 'Upload', label: '导入' },
+]);
 
 // 计算属性
-const isMobile = computed(() => windowWidth.value <= 768)
-const isTablet = computed(() => windowWidth.value > 768 && windowWidth.value <= 1024)
-const isDesktop = computed(() => windowWidth.value > 1024)
+const isMobile = computed(() => windowWidth.value <= 768);
+const isTablet = computed(() => windowWidth.value > 768 && windowWidth.value <= 1024);
+const isDesktop = computed(() => windowWidth.value > 1024);
 
 // 设备类型检测
 const deviceType = computed(() => {
-  if (isMobile.value) return 'mobile'
-  if (isTablet.value) return 'tablet'
-  return 'desktop'
-})
+  if (isMobile.value) return 'mobile';
+  if (isTablet.value) return 'tablet';
+  return 'desktop';
+});
 
 // 屏幕方向
-const isLandscape = computed(() => windowWidth.value > windowHeight.value)
-const isPortrait = computed(() => windowHeight.value > windowWidth.value)
+const isLandscape = computed(() => windowWidth.value > windowHeight.value);
+const isPortrait = computed(() => windowHeight.value > windowWidth.value);
 
 // 方法
 const handleResize = () => {
-  windowWidth.value = window.innerWidth
-  windowHeight.value = window.innerHeight
+  windowWidth.value = window.innerWidth;
+  windowHeight.value = window.innerHeight;
 
   // 自动调整布局
   if (isMobile.value) {
-    sidebarCollapsed.value = true
+    sidebarCollapsed.value = true;
   }
-}
+};
 
 const toggleSidebar = () => {
-  sidebarCollapsed.value = !sidebarCollapsed.value
-}
+  sidebarCollapsed.value = !sidebarCollapsed.value;
+};
 
-const setActiveTab = (tab) => {
-  activeTab.value = tab
-  emit('tab-change', tab)
-}
+const setActiveTab = tab => {
+  activeTab.value = tab;
+  emit('tab-change', tab);
+};
 
-const handleQuickAction = (command) => {
-  emit('quick-action', command)
-}
+const handleQuickAction = command => {
+  emit('quick-action', command);
+};
 
 const performMobileSearch = () => {
-  if (!mobileSearchQuery.value.trim()) return
+  if (!mobileSearchQuery.value.trim()) return;
 
   // 添加到搜索历史
   const historyItem = {
     id: Date.now(),
     query: mobileSearchQuery.value,
-    time: new Date()
-  }
-  searchHistory.value.unshift(historyItem)
+    time: new Date(),
+  };
+  searchHistory.value.unshift(historyItem);
 
   // 限制历史记录数量
   if (searchHistory.value.length > 10) {
-    searchHistory.value = searchHistory.value.slice(0, 10)
+    searchHistory.value = searchHistory.value.slice(0, 10);
   }
 
   emit('search', {
     query: mobileSearchQuery.value,
-    filters: selectedFilters.value
-  })
+    filters: selectedFilters.value,
+  });
 
-  showMobileSearch.value = false
-  ElMessage.success('搜索完成')
-}
+  showMobileSearch.value = false;
+  ElMessage.success('搜索完成');
+};
 
-const toggleFilter = (filterKey) => {
-  const index = selectedFilters.value.indexOf(filterKey)
+const toggleFilter = filterKey => {
+  const index = selectedFilters.value.indexOf(filterKey);
   if (index > -1) {
-    selectedFilters.value.splice(index, 1)
+    selectedFilters.value.splice(index, 1);
   } else {
-    selectedFilters.value.push(filterKey)
+    selectedFilters.value.push(filterKey);
   }
-}
+};
 
-const selectHistoryItem = (item) => {
-  mobileSearchQuery.value = item.query
-  performMobileSearch()
-}
+const selectHistoryItem = item => {
+  mobileSearchQuery.value = item.query;
+  performMobileSearch();
+};
 
-const removeHistoryItem = (id) => {
-  const index = searchHistory.value.findIndex(item => item.id === id)
+const removeHistoryItem = id => {
+  const index = searchHistory.value.findIndex(item => item.id === id);
   if (index > -1) {
-    searchHistory.value.splice(index, 1)
+    searchHistory.value.splice(index, 1);
   }
-}
+};
 
 const toggleFab = () => {
-  fabExpanded.value = !fabExpanded.value
-}
+  fabExpanded.value = !fabExpanded.value;
+};
 
-const handleFabAction = (action) => {
-  fabExpanded.value = false
-  emit('fab-action', action)
-}
+const handleFabAction = action => {
+  fabExpanded.value = false;
+  emit('fab-action', action);
+};
 
-const dismissNotification = (id) => {
-  const index = notifications.value.findIndex(n => n.id === id)
+const dismissNotification = id => {
+  const index = notifications.value.findIndex(n => n.id === id);
   if (index > -1) {
-    notifications.value.splice(index, 1)
+    notifications.value.splice(index, 1);
   }
-}
+};
 
-const getNotificationIcon = (type) => {
+const getNotificationIcon = type => {
   const iconMap = {
     info: 'InfoFilled',
     success: 'SuccessFilled',
     warning: 'WarningFilled',
-    error: 'CircleCloseFilled'
-  }
-  return iconMap[type] || 'InfoFilled'
-}
+    error: 'CircleCloseFilled',
+  };
+  return iconMap[type] || 'InfoFilled';
+};
 
-const formatTime = (time) => {
-  const now = new Date()
-  const diff = now - time
-  const minutes = Math.floor(diff / 60000)
-  const hours = Math.floor(diff / 3600000)
-  const days = Math.floor(diff / 86400000)
+const formatTime = time => {
+  const now = new Date();
+  const diff = now - time;
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
 
-  if (minutes < 1) return '刚刚'
-  if (minutes < 60) return `${minutes}分钟前`
-  if (hours < 24) return `${hours}小时前`
-  return `${days}天前`
-}
+  if (minutes < 1) return '刚刚';
+  if (minutes < 60) return `${minutes}分钟前`;
+  if (hours < 24) return `${hours}小时前`;
+  return `${days}天前`;
+};
 
 // 手势操作
 const setupGestures = () => {
-  if (!props.enableGestures || !isMobile.value) return
+  if (!props.enableGestures || !isMobile.value) return;
 
-  let startX = 0
-  let startY = 0
-  let endX = 0
-  let endY = 0
+  let startX = 0;
+  let startY = 0;
+  let endX = 0;
+  let endY = 0;
 
-  const handleTouchStart = (e) => {
-    startX = e.touches[0].clientX
-    startY = e.touches[0].clientY
-  }
+  const handleTouchStart = e => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+  };
 
-  const handleTouchEnd = (e) => {
-    endX = e.changedTouches[0].clientX
-    endY = e.changedTouches[0].clientY
-    handleGesture()
-  }
+  const handleTouchEnd = e => {
+    endX = e.changedTouches[0].clientX;
+    endY = e.changedTouches[0].clientY;
+    handleGesture();
+  };
 
   const handleGesture = () => {
-    const deltaX = endX - startX
-    const deltaY = endY - startY
-    const minSwipeDistance = 50
+    const deltaX = endX - startX;
+    const deltaY = endY - startY;
+    const minSwipeDistance = 50;
 
     // 水平滑动
     if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > minSwipeDistance) {
       if (deltaX > 0) {
         // 右滑
         if (sidebarCollapsed.value) {
-          toggleSidebar()
-          showGestureHint('向右滑动打开菜单')
+          toggleSidebar();
+          showGestureHint('向右滑动打开菜单');
         }
       } else {
         // 左滑
         if (!sidebarCollapsed.value) {
-          toggleSidebar()
-          showGestureHint('向左滑动关闭菜单')
+          toggleSidebar();
+          showGestureHint('向左滑动关闭菜单');
         }
       }
     }
@@ -465,162 +472,168 @@ const setupGestures = () => {
     if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > minSwipeDistance) {
       if (deltaY < 0) {
         // 上滑
-        showGestureHint('向上滑动刷新数据')
-        emit('refresh')
+        showGestureHint('向上滑动刷新数据');
+        emit('refresh');
       } else {
         // 下滑
-        showGestureHint('向下滑动返回顶部')
-        window.scrollTo({ top: 0, behavior: 'smooth' })
+        showGestureHint('向下滑动返回顶部');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
-  }
+  };
 
-  const showGestureHint = (text) => {
-    gestureHintText.value = text
-    showGestureHint.value = true
+  const showGestureHint = text => {
+    gestureHintText.value = text;
+    showGestureHint.value = true;
     setTimeout(() => {
-      showGestureHint.value = false
-    }, 2000)
-  }
+      showGestureHint.value = false;
+    }, 2000);
+  };
 
   const dismissGestureHint = () => {
-    showGestureHint.value = false
-  }
+    showGestureHint.value = false;
+  };
 
   // 绑定事件
-  document.addEventListener('touchstart', handleTouchStart, { passive: true })
-  document.addEventListener('touchend', handleTouchEnd, { passive: true })
+  document.addEventListener('touchstart', handleTouchStart, { passive: true });
+  document.addEventListener('touchend', handleTouchEnd, { passive: true });
 
   // 返回清理函数
   return () => {
-    document.removeEventListener('touchstart', handleTouchStart)
-    document.removeEventListener('touchend', handleTouchEnd)
-  }
-}
+    document.removeEventListener('touchstart', handleTouchStart);
+    document.removeEventListener('touchend', handleTouchEnd);
+  };
+};
 
 // 双击缩放
 const setupDoubleClick = () => {
-  if (!isMobile.value) return
+  if (!isMobile.value) return;
 
-  let lastClickTime = 0
+  let lastClickTime = 0;
   const handleDoubleClick = () => {
-    const now = Date.now()
+    const now = Date.now();
     if (now - lastClickTime < 300) {
       // 双击事件
-      const currentZoom = document.body.style.zoom || '1'
-      const newZoom = currentZoom === '1' ? '1.2' : '1'
-      document.body.style.zoom = newZoom
+      const currentZoom = document.body.style.zoom || '1';
+      const newZoom = currentZoom === '1' ? '1.2' : '1';
+      document.body.style.zoom = newZoom;
 
-      showGestureHint(newZoom === '1.2' ? '双击放大' : '双击恢复')
+      showGestureHint(newZoom === '1.2' ? '双击放大' : '双击恢复');
     }
-    lastClickTime = now
-  }
+    lastClickTime = now;
+  };
 
-  document.addEventListener('click', handleDoubleClick)
+  document.addEventListener('click', handleDoubleClick);
 
   return () => {
-    document.removeEventListener('click', handleDoubleClick)
-  }
-}
+    document.removeEventListener('click', handleDoubleClick);
+  };
+};
 
 // 长按操作
 const setupLongPress = () => {
-  if (!isMobile.value) return
+  if (!isMobile.value) return;
 
-  let pressTimer = null
-  const handleTouchStart = (e) => {
+  let pressTimer = null;
+  const handleTouchStart = e => {
     pressTimer = setTimeout(() => {
       // 长按事件
-      const target = e.target.closest('.data-item')
+      const target = e.target.closest('.data-item');
       if (target) {
-        showContextMenu(target)
+        showContextMenu(target);
       }
-    }, 800)
-  }
+    }, 800);
+  };
 
   const handleTouchEnd = () => {
     if (pressTimer) {
-      clearTimeout(pressTimer)
+      clearTimeout(pressTimer);
     }
-  }
+  };
 
-  const showContextMenu = (element) => {
-    showGestureHint('长按显示更多操作')
-    emit('long-press', element)
-  }
+  const showContextMenu = element => {
+    showGestureHint('长按显示更多操作');
+    emit('long-press', element);
+  };
 
-  document.addEventListener('touchstart', handleTouchStart, { passive: true })
-  document.addEventListener('touchend', handleTouchEnd, { passive: true })
-  document.addEventListener('touchcancel', handleTouchEnd, { passive: true })
+  document.addEventListener('touchstart', handleTouchStart, { passive: true });
+  document.addEventListener('touchend', handleTouchEnd, { passive: true });
+  document.addEventListener('touchcancel', handleTouchEnd, { passive: true });
 
   return () => {
-    document.removeEventListener('touchstart', handleTouchStart)
-    document.removeEventListener('touchend', handleTouchEnd)
-    document.removeEventListener('touchcancel', handleTouchEnd)
-  }
-}
+    document.removeEventListener('touchstart', handleTouchStart);
+    document.removeEventListener('touchend', handleTouchEnd);
+    document.removeEventListener('touchcancel', handleTouchEnd);
+  };
+};
 
 // 视口高度修正（解决移动端地址栏影响）
 const fixViewportHeight = () => {
   const setVH = () => {
-    const vh = window.innerHeight * 0.01
-    document.documentElement.style.setProperty('--vh', `${vh}px`)
-  }
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+  };
 
-  setVH()
-  window.addEventListener('resize', setVH)
+  setVH();
+  window.addEventListener('resize', setVH);
   window.addEventListener('orientationchange', () => {
-    setTimeout(setVH, 100)
-  })
-}
+    setTimeout(setVH, 100);
+  });
+};
 
 // 禁用双击缩放（防止误操作）
 const disableDoubleTapZoom = () => {
-  let lastTouchEnd = 0
-  document.addEventListener('touchend', (e) => {
-    const now = Date.now()
-    if (now - lastTouchEnd <= 300) {
-      e.preventDefault()
-    }
-    lastTouchEnd = now
-  }, false)
-}
+  let lastTouchEnd = 0;
+  document.addEventListener(
+    'touchend',
+    e => {
+      const now = Date.now();
+      if (now - lastTouchEnd <= 300) {
+        e.preventDefault();
+      }
+      lastTouchEnd = now;
+    },
+    false
+  );
+};
 
 // 生命周期
 onMounted(() => {
-  window.addEventListener('resize', handleResize)
+  window.addEventListener('resize', handleResize);
 
   if (isMobile.value && props.enableGestures) {
     // 设置手势操作
-    const cleanupGestures = setupGestures()
-    const cleanupDoubleClick = setupDoubleClick()
-    const cleanupLongPress = setupLongPress()
+    const cleanupGestures = setupGestures();
+    const cleanupDoubleClick = setupDoubleClick();
+    const cleanupLongPress = setupLongPress();
 
     // 修正视口高度
-    fixViewportHeight()
+    fixViewportHeight();
 
     // 禁用双击缩放
-    disableDoubleTapZoom()
+    disableDoubleTapZoom();
 
     // 清理函数
     onUnmounted(() => {
-      cleanupGestures?.()
-      cleanupDoubleClick?.()
-      cleanupLongPress?.()
-    })
+      cleanupGestures?.();
+      cleanupDoubleClick?.();
+      cleanupLongPress?.();
+    });
   }
-})
+});
 
 onUnmounted(() => {
-  window.removeEventListener('resize', handleResize)
-})
+  window.removeEventListener('resize', handleResize);
+});
 
 // 监听设备变化
 watch(deviceType, (newType, oldType) => {
   if (newType !== oldType) {
-    ElMessage.info(`切换到${newType === 'mobile' ? '移动' : newType === 'tablet' ? '平板' : '桌面'}模式`)
+    ElMessage.info(
+      `切换到${newType === 'mobile' ? '移动' : newType === 'tablet' ? '平板' : '桌面'}模式`
+    );
   }
-})
+});
 
 // 暴露方法和数据
 defineExpose({
@@ -631,8 +644,8 @@ defineExpose({
   windowWidth,
   windowHeight,
   toggleSidebar,
-  performMobileSearch
-})
+  performMobileSearch,
+});
 </script>
 
 <style lang="scss" scoped>

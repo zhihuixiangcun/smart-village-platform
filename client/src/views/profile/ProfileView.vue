@@ -28,10 +28,19 @@
         </div>
 
         <div class="header-actions">
-          <el-button type="primary" @click="editProfile" :size="largeTextMode ? 'large' : 'default'" icon="Edit">
+          <el-button
+            type="primary"
+            @click="editProfile"
+            :size="largeTextMode ? 'large' : 'default'"
+            icon="Edit"
+          >
             {{ largeTextMode ? '编辑个人资料' : '编辑资料' }}
           </el-button>
-          <el-button @click="showSettings" :size="largeTextMode ? 'large' : 'default'" icon="Setting">
+          <el-button
+            @click="showSettings"
+            :size="largeTextMode ? 'large' : 'default'"
+            icon="Setting"
+          >
             {{ largeTextMode ? '设置' : '设置' }}
           </el-button>
         </div>
@@ -110,11 +119,7 @@
 
             <div class="household-qrcode">
               <div class="qrcode-wrapper" @click="showQRCode">
-                <el-image
-                  :src="getQRCodeUrl()"
-                  fit="cover"
-                  class="qrcode-img"
-                >
+                <el-image :src="getQRCodeUrl()" fit="cover" class="qrcode-img">
                   <template #error>
                     <div class="qrcode-placeholder">
                       <el-icon size="40"><Grid /></el-icon>
@@ -336,10 +341,7 @@
             <h4>语音提示</h4>
             <p>开启语音播报功能</p>
           </div>
-          <el-switch
-            v-model="voiceEnabled"
-            :size="largeTextMode ? 'large' : 'default'"
-          />
+          <el-switch v-model="voiceEnabled" :size="largeTextMode ? 'large' : 'default'" />
         </div>
 
         <div class="setting-item">
@@ -347,10 +349,7 @@
             <h4>消息通知</h4>
             <p>接收村务通知和办事提醒</p>
           </div>
-          <el-switch
-            v-model="notificationEnabled"
-            :size="largeTextMode ? 'large' : 'default'"
-          />
+          <el-switch v-model="notificationEnabled" :size="largeTextMode ? 'large' : 'default'" />
         </div>
       </div>
 
@@ -381,7 +380,13 @@
           </div>
         </div>
 
-        <el-button type="primary" plain icon="Plus" @click="addFamilyMember" :size="largeTextMode ? 'large' : 'default'">
+        <el-button
+          type="primary"
+          plain
+          icon="Plus"
+          @click="addFamilyMember"
+          :size="largeTextMode ? 'large' : 'default'"
+        >
           添加家庭成员
         </el-button>
       </div>
@@ -390,10 +395,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useUserStore } from '@/stores/userStore'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/userStore';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
   User,
   House,
@@ -411,24 +416,24 @@ import {
   Calendar,
   Phone,
   Microphone,
-  Plus
-} from '@element-plus/icons-vue'
+  Plus,
+} from '@element-plus/icons-vue';
 
-const router = useRouter()
-const userStore = useUserStore()
+const router = useRouter();
+const userStore = useUserStore();
 
 // 响应式数据
-const largeTextMode = ref(false)
-const voiceEnabled = ref(false)
-const notificationEnabled = ref(true)
-const showIdCard = ref(false)
-const showPhone = ref(false)
-const editDialogVisible = ref(false)
-const familyDialogVisible = ref(false)
-const settingsDialogVisible = ref(false)
+const largeTextMode = ref(false);
+const voiceEnabled = ref(false);
+const notificationEnabled = ref(true);
+const showIdCard = ref(false);
+const showPhone = ref(false);
+const editDialogVisible = ref(false);
+const familyDialogVisible = ref(false);
+const settingsDialogVisible = ref(false);
 
 // 表单引用
-const editFormRef = ref(null)
+const editFormRef = ref(null);
 
 // 用户信息
 const userInfo = reactive({
@@ -444,8 +449,8 @@ const userInfo = reactive({
   politicalStatus: '群众',
   healthStatus: '健康',
   isVerified: true,
-  householdCode: 'SM2024001'
-})
+  householdCode: 'SM2024001',
+});
 
 // 家庭成员
 const familyMembers = reactive([
@@ -457,7 +462,7 @@ const familyMembers = reactive([
     idCard: '330106199001011234',
     avatar: '',
     isStudent: false,
-    hasInsurance: true
+    hasInsurance: true,
   },
   {
     id: '2',
@@ -467,7 +472,7 @@ const familyMembers = reactive([
     idCard: '330106199201015678',
     avatar: '',
     isStudent: false,
-    hasInsurance: true
+    hasInsurance: true,
   },
   {
     id: '3',
@@ -477,9 +482,9 @@ const familyMembers = reactive([
     idCard: '330106201601019012',
     avatar: '',
     isStudent: true,
-    hasInsurance: true
-  }
-])
+    hasInsurance: true,
+  },
+]);
 
 // 编辑表单
 const editForm = reactive({
@@ -487,30 +492,24 @@ const editForm = reactive({
   phone: '',
   address: '',
   politicalStatus: '',
-  healthStatus: ''
-})
+  healthStatus: '',
+});
 
 // 表单验证规则
 const editRules = {
-  name: [
-    { required: true, message: '请输入姓名', trigger: 'blur' }
-  ],
+  name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
   phone: [
     { required: true, message: '请输入联系电话', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' }
+    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' },
   ],
-  address: [
-    { required: true, message: '请输入家庭住址', trigger: 'blur' }
-  ]
-}
+  address: [{ required: true, message: '请输入家庭住址', trigger: 'blur' }],
+};
 
 // 待处理证件数量
-const pendingApplications = ref(2)
+const pendingApplications = ref(2);
 
 // 福利申请
-const welfareApplications = reactive([
-  { id: '1', type: '医保补贴', status: 'pending' }
-])
+const welfareApplications = reactive([{ id: '1', type: '医保补贴', status: 'pending' }]);
 
 // 办事记录
 const serviceRecords = reactive([
@@ -519,86 +518,87 @@ const serviceRecords = reactive([
     title: '医保报销申请',
     description: '申请住院医疗费用报销，金额3000元',
     date: '2024-01-15 14:30',
-    status: 'success'
+    status: 'success',
   },
   {
     id: '2',
     title: '老年证办理',
     description: '为父亲办理老年人优待证',
     date: '2024-01-10 09:15',
-    status: 'processing'
+    status: 'processing',
   },
   {
     id: '3',
     title: '住房补贴申请',
     description: '申请农村住房改造补贴',
     date: '2024-01-05 16:45',
-    status: 'warning'
-  }
-])
-
+    status: 'warning',
+  },
+]);
 
 // 方法
-const maskIdCard = (idCard) => {
-  if (!idCard) return ''
-  if (showIdCard.value) return idCard
-  return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2')
-}
+const maskIdCard = idCard => {
+  if (!idCard) return '';
+  if (showIdCard.value) return idCard;
+  return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2');
+};
 
-const maskPhone = (phone) => {
-  if (!phone) return ''
-  if (showPhone.value) return phone
-  return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')
-}
+const maskPhone = phone => {
+  if (!phone) return '';
+  if (showPhone.value) return phone;
+  return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
+};
 
-const getHealthType = (status) => {
+const getHealthType = status => {
   const types = {
-    '健康': 'success',
-    '良好': 'primary',
-    '一般': 'warning',
-    '欠佳': 'danger'
-  }
-  return types[status] || 'info'
-}
+    健康: 'success',
+    良好: 'primary',
+    一般: 'warning',
+    欠佳: 'danger',
+  };
+  return types[status] || 'info';
+};
 
 const getQRCodeUrl = () => {
-  return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${userInfo.householdCode}`
-}
+  return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${userInfo.householdCode}`;
+};
 
-const getStatusType = (status) => {
+const getStatusType = status => {
   const types = {
-    'success': 'success',
-    'processing': 'primary',
-    'warning': 'warning',
-    'error': 'danger'
-  }
-  return types[status] || 'info'
-}
+    success: 'success',
+    processing: 'primary',
+    warning: 'warning',
+    error: 'danger',
+  };
+  return types[status] || 'info';
+};
 
-const getStatusText = (status) => {
+const getStatusText = status => {
   const texts = {
-    'success': '已完成',
-    'processing': '办理中',
-    'warning': '待审核',
-    'error': '已驳回'
-  }
-  return texts[status] || '未知'
-}
+    success: '已完成',
+    processing: '办理中',
+    warning: '待审核',
+    error: '已驳回',
+  };
+  return texts[status] || '未知';
+};
 
 const showFullIdCard = () => {
   ElMessageBox.confirm('查看完整身份证信息需要身份验证', '安全验证', {
     confirmButtonText: '验证查看',
     cancelButtonText: '取消',
-    type: 'warning'
-  }).then(() => {
-    showIdCard.value = !showIdCard.value
-    ElMessage.success('验证成功，已显示完整身份证号')
-  }).catch(() => {})
-}
+    type: 'warning',
+  })
+    .then(() => {
+      showIdCard.value = !showIdCard.value;
+      ElMessage.success('验证成功，已显示完整身份证号');
+    })
+    .catch(() => {});
+};
 
 const showFullPhone = () => {
-  showPhone.value = !showPhone.value
-}
+  showPhone.value = !showPhone.value;
+};
 
 const showQRCode = () => {
   ElMessageBox.alert(
@@ -610,10 +610,10 @@ const showQRCode = () => {
     '家庭二维码',
     {
       dangerouslyUseHTMLString: true,
-      customClass: largeTextMode.value ? 'large-text-dialog' : ''
+      customClass: largeTextMode.value ? 'large-text-dialog' : '',
     }
-  )
-}
+  );
+};
 
 const editProfile = () => {
   // 填充表单
@@ -622,75 +622,75 @@ const editProfile = () => {
     phone: userInfo.phone,
     address: userInfo.address,
     politicalStatus: userInfo.politicalStatus,
-    healthStatus: userInfo.healthStatus
-  })
-  editDialogVisible.value = true
-}
+    healthStatus: userInfo.healthStatus,
+  });
+  editDialogVisible.value = true;
+};
 
 const saveProfile = async () => {
-  if (!editFormRef.value) return
+  if (!editFormRef.value) return;
 
   try {
-    await editFormRef.value.validate()
+    await editFormRef.value.validate();
 
     // 更新用户信息
-    Object.assign(userInfo, editForm)
+    Object.assign(userInfo, editForm);
 
-    editDialogVisible.value = false
-    ElMessage.success('个人信息更新成功')
+    editDialogVisible.value = false;
+    ElMessage.success('个人信息更新成功');
   } catch (error) {
-    console.error('表单验证失败:', error)
+    console.error('表单验证失败:', error);
   }
-}
+};
 
 const showSettings = () => {
-  settingsDialogVisible.value = true
-}
+  settingsDialogVisible.value = true;
+};
 
-const toggleLargeTextMode = (value) => {
+const toggleLargeTextMode = value => {
   if (value) {
-    document.body.classList.add('large-text-mode')
-    ElMessage.success('已开启大字模式')
+    document.body.classList.add('large-text-mode');
+    ElMessage.success('已开启大字模式');
   } else {
-    document.body.classList.remove('large-text-mode')
-    ElMessage.info('已关闭大字模式')
+    document.body.classList.remove('large-text-mode');
+    ElMessage.info('已关闭大字模式');
   }
-}
+};
 
 const viewFamilyMembers = () => {
-  familyDialogVisible.value = true
-}
+  familyDialogVisible.value = true;
+};
 
 const addFamilyMember = () => {
-  ElMessage.info('请联系村委会添加家庭成员')
-}
+  ElMessage.info('请联系村委会添加家庭成员');
+};
 
-const goToService = (type) => {
-  router.push(`/services/${type}`)
-}
+const goToService = type => {
+  router.push(`/services/${type}`);
+};
 
 const viewAllRecords = () => {
-  router.push('/service-records')
-}
+  router.push('/service-records');
+};
 
-const openTool = (tool) => {
+const openTool = tool => {
   switch (tool) {
     case 'calculator':
-      router.push('/tools/calculator')
-      break
+      router.push('/tools/calculator');
+      break;
     case 'calendar':
-      router.push('/village-calendar')
-      break
+      router.push('/village-calendar');
+      break;
     case 'contacts':
-      showEmergencyContacts()
-      break
+      showEmergencyContacts();
+      break;
     case 'voice':
-      startVoiceAssistant()
-      break
+      startVoiceAssistant();
+      break;
     default:
-      ElMessage.info('功能开发中')
+      ElMessage.info('功能开发中');
   }
-}
+};
 
 const showEmergencyContacts = () => {
   ElMessageBox.alert(
@@ -705,19 +705,19 @@ const showEmergencyContacts = () => {
     '应急电话',
     {
       dangerouslyUseHTMLString: true,
-      customClass: largeTextMode.value ? 'large-text-dialog' : ''
+      customClass: largeTextMode.value ? 'large-text-dialog' : '',
     }
-  )
-}
+  );
+};
 
 const startVoiceAssistant = () => {
-  ElMessage.info('语音助手功能正在开发中')
+  ElMessage.info('语音助手功能正在开发中');
   // 这里可以集成语音识别功能
-}
+};
 
 onMounted(() => {
-  console.log('村民个人中心加载完成')
-})
+  console.log('村民个人中心加载完成');
+});
 </script>
 
 <style lang="scss" scoped>
@@ -739,7 +739,8 @@ onMounted(() => {
       }
     }
 
-    .service-item, .tool-item {
+    .service-item,
+    .tool-item {
       padding: 20px;
 
       h4 {
@@ -819,7 +820,11 @@ onMounted(() => {
 .profile-content {
   padding: 0 24px;
 
-  .info-card, .family-card, .services-card, .records-card, .tools-card {
+  .info-card,
+  .family-card,
+  .services-card,
+  .records-card,
+  .tools-card {
     margin-bottom: 24px;
 
     .card-header {

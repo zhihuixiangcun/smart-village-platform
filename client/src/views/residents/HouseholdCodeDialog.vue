@@ -14,26 +14,25 @@
             placeholder="户码、户主姓名或地址"
             prefix-icon="Search"
             clearable
-            style="width: 240px;"
+            style="width: 240px"
             @keyup.enter="searchHouseholds"
           />
         </el-form-item>
         <el-form-item label="状态">
-          <el-select v-model="searchForm.status" placeholder="请选择" clearable style="width: 120px;">
+          <el-select
+            v-model="searchForm.status"
+            placeholder="请选择"
+            clearable
+            style="width: 120px"
+          >
             <el-option label="正常" value="active" />
             <el-option label="异常" value="inactive" />
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="searchHouseholds" icon="Search">
-            搜索
-          </el-button>
-          <el-button @click="resetSearch" icon="Refresh">
-            重置
-          </el-button>
-          <el-button type="success" @click="generateNewCode" icon="Plus">
-            生成新户码
-          </el-button>
+          <el-button type="primary" @click="searchHouseholds" icon="Search"> 搜索 </el-button>
+          <el-button @click="resetSearch" icon="Refresh"> 重置 </el-button>
+          <el-button type="success" @click="generateNewCode" icon="Plus"> 生成新户码 </el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -86,7 +85,7 @@
         v-for="household in filteredHouseholds"
         :key="household.code"
         class="household-card"
-        :class="{ 'inactive': household.status === 'inactive' }"
+        :class="{ inactive: household.status === 'inactive' }"
       >
         <div class="card-header">
           <div class="household-code">
@@ -94,10 +93,7 @@
             <span>{{ household.code }}</span>
           </div>
           <div class="status-badge">
-            <el-tag
-              :type="household.status === 'active' ? 'success' : 'danger'"
-              size="small"
-            >
+            <el-tag :type="household.status === 'active' ? 'success' : 'danger'" size="small">
               {{ household.status === 'active' ? '正常' : '异常' }}
             </el-tag>
           </div>
@@ -106,9 +102,15 @@
         <div class="card-content">
           <div class="household-info">
             <h4>{{ household.householder }}</h4>
-            <p><el-icon><User /></el-icon> {{ household.memberCount }} 人</p>
-            <p><el-icon><LocationFilled /></el-icon> {{ household.address }}</p>
-            <p><el-icon><Calendar /></el-icon> {{ formatDate(household.createTime) }}</p>
+            <p>
+              <el-icon><User /></el-icon> {{ household.memberCount }} 人
+            </p>
+            <p>
+              <el-icon><LocationFilled /></el-icon> {{ household.address }}
+            </p>
+            <p>
+              <el-icon><Calendar /></el-icon> {{ formatDate(household.createTime) }}
+            </p>
           </div>
 
           <div class="qr-preview" @click="showQRCode(household)">
@@ -119,21 +121,13 @@
 
         <div class="card-actions">
           <el-button-group size="small">
-            <el-button
-              type="primary"
-              @click="showQRCode(household)"
-              icon="QrCode"
-            >
+            <el-button type="primary" @click="showQRCode(household)" icon="QrCode">
               二维码
             </el-button>
-            <el-button
-              type="success"
-              @click="editHousehold(household)"
-              icon="Edit"
-            >
+            <el-button type="success" @click="editHousehold(household)" icon="Edit">
               编辑
             </el-button>
-            <el-dropdown @command="(cmd) => handleAction(cmd, household)">
+            <el-dropdown @command="cmd => handleAction(cmd, household)">
               <el-button icon="MoreFilled" />
               <template #dropdown>
                 <el-dropdown-menu>
@@ -167,19 +161,12 @@
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="dialogVisible = false">关闭</el-button>
-        <el-button type="primary" @click="exportAllCodes" icon="Download">
-          批量导出
-        </el-button>
+        <el-button type="primary" @click="exportAllCodes" icon="Download"> 批量导出 </el-button>
       </div>
     </template>
 
     <!-- 二维码预览对话框 -->
-    <el-dialog
-      v-model="qrPreviewVisible"
-      title="户码二维码"
-      width="500px"
-      append-to-body
-    >
+    <el-dialog v-model="qrPreviewVisible" title="户码二维码" width="500px" append-to-body>
       <div v-if="selectedHousehold" class="qr-preview-content">
         <div class="household-summary">
           <h3>{{ selectedHousehold.householder }}</h3>
@@ -193,12 +180,8 @@
         </div>
 
         <div class="qr-actions">
-          <el-button type="primary" @click="downloadQRCode" icon="Download">
-            下载二维码
-          </el-button>
-          <el-button type="success" @click="printQRCode" icon="Printer">
-            打印二维码
-          </el-button>
+          <el-button type="primary" @click="downloadQRCode" icon="Download"> 下载二维码 </el-button>
+          <el-button type="success" @click="printQRCode" icon="Printer"> 打印二维码 </el-button>
         </div>
       </div>
     </el-dialog>
@@ -213,96 +196,110 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, nextTick } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, reactive, computed, onMounted, nextTick } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
-  House, UserFilled, Warning, CircleClose, QrCode, User, LocationFilled,
-  Calendar, Search, Refresh, Plus, Edit, MoreFilled, Printer, Download
-} from '@element-plus/icons-vue'
-import QRCode from 'qrcode'
-import { residentAPI } from '@/api/resident'
-import HouseholdEditDialog from './HouseholdEditDialog.vue'
+  House,
+  UserFilled,
+  Warning,
+  CircleClose,
+  QrCode,
+  User,
+  LocationFilled,
+  Calendar,
+  Search,
+  Refresh,
+  Plus,
+  Edit,
+  MoreFilled,
+  Printer,
+  Download,
+} from '@element-plus/icons-vue';
+import QRCode from 'qrcode';
+import { residentAPI } from '@/api/resident';
+import HouseholdEditDialog from './HouseholdEditDialog.vue';
 
 const props = defineProps({
   modelValue: {
     type: Boolean,
-    default: false
-  }
-})
+    default: false,
+  },
+});
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue']);
 
 // 响应式数据
-const loading = ref(false)
-const qrPreviewVisible = ref(false)
-const editDialogVisible = ref(false)
-const selectedHousehold = ref(null)
-const qrPreviewCanvas = ref()
-const canvasRefs = ref({})
+const loading = ref(false);
+const qrPreviewVisible = ref(false);
+const editDialogVisible = ref(false);
+const selectedHousehold = ref(null);
+const qrPreviewCanvas = ref();
+const canvasRefs = ref({});
 
 // 搜索表单
 const searchForm = reactive({
   keyword: '',
-  status: ''
-})
+  status: '',
+});
 
 // 统计数据
 const statistics = reactive({
   totalHouseholds: 0,
   totalMembers: 0,
   activeHouseholds: 0,
-  inactiveHouseholds: 0
-})
+  inactiveHouseholds: 0,
+});
 
 // 分页
 const pagination = reactive({
   currentPage: 1,
   pageSize: 12,
-  total: 0
-})
+  total: 0,
+});
 
 // 户码数据
-const households = ref([])
+const households = ref([]);
 
 // 对话框显示状态
 const dialogVisible = computed({
   get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
-})
+  set: value => emit('update:modelValue', value),
+});
 
 // 过滤后的户码列表
 const filteredHouseholds = computed(() => {
-  let result = households.value
+  let result = households.value;
 
   if (searchForm.keyword) {
-    result = result.filter(household =>
-      household.code.includes(searchForm.keyword) ||
-      household.householder.includes(searchForm.keyword) ||
-      household.address.includes(searchForm.keyword)
-    )
+    result = result.filter(
+      household =>
+        household.code.includes(searchForm.keyword) ||
+        household.householder.includes(searchForm.keyword) ||
+        household.address.includes(searchForm.keyword)
+    );
   }
 
   if (searchForm.status) {
-    result = result.filter(household => household.status === searchForm.status)
+    result = result.filter(household => household.status === searchForm.status);
   }
 
-  return result
-})
+  return result;
+});
 
 // 方法
 const setCanvasRef = (code, el) => {
   if (el) {
-    canvasRefs.value[code] = el
+    canvasRefs.value[code] = el;
     nextTick(() => {
-      generateMiniQR(code, el)
-    })
+      generateMiniQR(code, el);
+    });
   }
-}
+};
 
 const generateMiniQR = async (code, canvas) => {
   try {
     // 构建更丰富的二维码数据
-    const household = households.value.find(h => h.code === code)
+    const household = households.value.find(h => h.code === code);
     const qrData = JSON.stringify({
       type: 'household_code',
       version: '2.0',
@@ -312,18 +309,18 @@ const generateMiniQR = async (code, canvas) => {
         memberCount: household?.memberCount,
         address: household?.address,
         status: household?.status,
-        createTime: household?.createTime
+        createTime: household?.createTime,
       },
       security: {
         signature: generateSignature(code),
         timestamp: Date.now(),
-        expires: Date.now() + (1000 * 60 * 60 * 24 * 30) // 30天过期
+        expires: Date.now() + 1000 * 60 * 60 * 24 * 30, // 30天过期
       },
       metadata: {
         village: '智慧村庄',
-        platform: 'Smart Village Management System'
-      }
-    })
+        platform: 'Smart Village Management System',
+      },
+    });
 
     await QRCode.toCanvas(canvas, qrData, {
       width: 80,
@@ -331,34 +328,34 @@ const generateMiniQR = async (code, canvas) => {
       margin: 1,
       color: {
         dark: '#000000',
-        light: '#ffffff'
+        light: '#ffffff',
       },
-      errorCorrectionLevel: 'M'
-    })
+      errorCorrectionLevel: 'M',
+    });
   } catch (error) {
-    console.error('生成二维码失败:', error)
+    console.error('生成二维码失败:', error);
   }
-}
+};
 
 // 生成安全签名
-const generateSignature = (code) => {
+const generateSignature = code => {
   // 简单的签名生成，实际项目中应使用更安全的方法
-  const secret = 'smart_village_secret_key'
-  const data = code + Date.now().toString()
-  let hash = 0
+  const secret = 'smart_village_secret_key';
+  const data = code + Date.now().toString();
+  let hash = 0;
   for (let i = 0; i < data.length; i++) {
-    const char = data.charCodeAt(i)
-    hash = ((hash << 5) - hash) + char
-    hash = hash & hash
+    const char = data.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash;
   }
-  return Math.abs(hash).toString(36)
-}
+  return Math.abs(hash).toString(36);
+};
 
-const showQRCode = async (household) => {
-  selectedHousehold.value = household
-  qrPreviewVisible.value = true
+const showQRCode = async household => {
+  selectedHousehold.value = household;
+  qrPreviewVisible.value = true;
 
-  await nextTick()
+  await nextTick();
   if (qrPreviewCanvas.value) {
     try {
       // 生成详细的二维码数据
@@ -371,21 +368,21 @@ const showQRCode = async (household) => {
           memberCount: household.memberCount,
           address: household.address,
           status: household.status,
-          createTime: household.createTime
+          createTime: household.createTime,
         },
         security: {
           signature: generateSignature(household.code),
           timestamp: Date.now(),
-          expires: Date.now() + (1000 * 60 * 60 * 24 * 30), // 30天过期
-          checksum: generateChecksum(household)
+          expires: Date.now() + 1000 * 60 * 60 * 24 * 30, // 30天过期
+          checksum: generateChecksum(household),
         },
         metadata: {
           village: '智慧村庄',
           platform: 'Smart Village Management System',
           generatedBy: 'system',
-          purpose: 'household_identification'
-        }
-      })
+          purpose: 'household_identification',
+        },
+      });
 
       await QRCode.toCanvas(qrPreviewCanvas.value, qrData, {
         width: 300,
@@ -393,78 +390,78 @@ const showQRCode = async (household) => {
         margin: 2,
         color: {
           dark: '#000000',
-          light: '#ffffff'
+          light: '#ffffff',
         },
-        errorCorrectionLevel: 'H' // 高纠错级别
-      })
+        errorCorrectionLevel: 'H', // 高纠错级别
+      });
     } catch (error) {
-      console.error('生成大尺寸二维码失败:', error)
-      ElMessage.error('生成二维码失败')
+      console.error('生成大尺寸二维码失败:', error);
+      ElMessage.error('生成二维码失败');
     }
   }
-}
+};
 
 // 生成校验和
-const generateChecksum = (household) => {
-  const data = `${household.code}-${household.householder}-${household.memberCount}`
-  let checksum = 0
+const generateChecksum = household => {
+  const data = `${household.code}-${household.householder}-${household.memberCount}`;
+  let checksum = 0;
   for (let i = 0; i < data.length; i++) {
-    checksum += data.charCodeAt(i)
+    checksum += data.charCodeAt(i);
   }
-  return (checksum % 9999).toString().padStart(4, '0')
-}
+  return (checksum % 9999).toString().padStart(4, '0');
+};
 
-const editHousehold = (household) => {
-  selectedHousehold.value = household
-  editDialogVisible.value = true
-}
+const editHousehold = household => {
+  selectedHousehold.value = household;
+  editDialogVisible.value = true;
+};
 
 const handleAction = async (command, household) => {
-  selectedHousehold.value = household
+  selectedHousehold.value = household;
 
   switch (command) {
     case 'print':
-      await showQRCode(household)
-      printQRCode()
-      break
+      await showQRCode(household);
+      printQRCode();
+      break;
     case 'download':
-      await showQRCode(household)
-      downloadQRCode()
-      break
+      await showQRCode(household);
+      downloadQRCode();
+      break;
     case 'regenerate':
-      regenerateCode(household)
-      break
+      regenerateCode(household);
+      break;
     case 'deactivate':
-      toggleHouseholdStatus(household)
-      break
+      toggleHouseholdStatus(household);
+      break;
   }
-}
+};
 
 const downloadQRCode = () => {
-  if (!qrPreviewCanvas.value || !selectedHousehold.value) return
+  if (!qrPreviewCanvas.value || !selectedHousehold.value) return;
 
   try {
-    const link = document.createElement('a')
-    link.download = `户码_${selectedHousehold.value.code}_${selectedHousehold.value.householder}.png`
-    link.href = qrPreviewCanvas.value.toDataURL()
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
+    const link = document.createElement('a');
+    link.download = `户码_${selectedHousehold.value.code}_${selectedHousehold.value.householder}.png`;
+    link.href = qrPreviewCanvas.value.toDataURL();
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 
-    ElMessage.success('二维码下载成功')
+    ElMessage.success('二维码下载成功');
   } catch (error) {
-    console.error('下载二维码失败:', error)
-    ElMessage.error('下载二维码失败')
+    console.error('下载二维码失败:', error);
+    ElMessage.error('下载二维码失败');
   }
-}
+};
 
 const printQRCode = () => {
-  if (!qrPreviewCanvas.value || !selectedHousehold.value) return
+  if (!qrPreviewCanvas.value || !selectedHousehold.value) return;
 
   try {
-    const household = selectedHousehold.value
-    const printWindow = window.open('', '_blank')
-    const imageData = qrPreviewCanvas.value.toDataURL()
+    const household = selectedHousehold.value;
+    const printWindow = window.open('', '_blank');
+    const imageData = qrPreviewCanvas.value.toDataURL();
 
     printWindow.document.write(`
       <html>
@@ -514,19 +511,19 @@ const printQRCode = () => {
           </div>
         </body>
       </html>
-    `)
+    `);
 
-    printWindow.document.close()
-    printWindow.print()
+    printWindow.document.close();
+    printWindow.print();
 
-    ElMessage.success('正在打印二维码')
+    ElMessage.success('正在打印二维码');
   } catch (error) {
-    console.error('打印二维码失败:', error)
-    ElMessage.error('打印二维码失败')
+    console.error('打印二维码失败:', error);
+    ElMessage.error('打印二维码失败');
   }
-}
+};
 
-const regenerateCode = async (household) => {
+const regenerateCode = async household => {
   try {
     await ElMessageBox.confirm(
       `确定要重新生成户码 ${household.code} 吗？原二维码将失效。`,
@@ -534,134 +531,130 @@ const regenerateCode = async (household) => {
       {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
       }
-    )
+    );
 
-    const response = await residentAPI.regenerateHouseholdCode(household.id)
+    const response = await residentAPI.regenerateHouseholdCode(household.id);
     if (response.success) {
-      ElMessage.success('户码重新生成成功')
-      loadHouseholds()
+      ElMessage.success('户码重新生成成功');
+      loadHouseholds();
     }
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('重新生成失败')
+      ElMessage.error('重新生成失败');
     }
   }
-}
+};
 
-const toggleHouseholdStatus = async (household) => {
-  const action = household.status === 'active' ? '停用' : '启用'
+const toggleHouseholdStatus = async household => {
+  const action = household.status === 'active' ? '停用' : '启用';
 
   try {
-    await ElMessageBox.confirm(
-      `确定要${action}户码 ${household.code} 吗？`,
-      `${action}确认`,
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
+    await ElMessageBox.confirm(`确定要${action}户码 ${household.code} 吗？`, `${action}确认`, {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
 
     const response = await residentAPI.updateHouseholdStatus(
       household.id,
       household.status === 'active' ? 'inactive' : 'active'
-    )
+    );
 
     if (response.success) {
-      ElMessage.success(`${action}成功`)
-      loadHouseholds()
+      ElMessage.success(`${action}成功`);
+      loadHouseholds();
     }
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error(`${action}失败`)
+      ElMessage.error(`${action}失败`);
     }
   }
-}
+};
 
 const generateNewCode = () => {
-  editDialogVisible.value = true
-  selectedHousehold.value = null
-}
+  editDialogVisible.value = true;
+  selectedHousehold.value = null;
+};
 
 const searchHouseholds = () => {
-  pagination.currentPage = 1
-  loadHouseholds()
-}
+  pagination.currentPage = 1;
+  loadHouseholds();
+};
 
 const resetSearch = () => {
   Object.assign(searchForm, {
     keyword: '',
-    status: ''
-  })
-  searchHouseholds()
-}
+    status: '',
+  });
+  searchHouseholds();
+};
 
 const loadHouseholds = async () => {
-  loading.value = true
+  loading.value = true;
   try {
     const params = {
       page: pagination.currentPage,
       pageSize: pagination.pageSize,
-      ...searchForm
-    }
+      ...searchForm,
+    };
 
-    const response = await residentAPI.getHouseholdList(params)
+    const response = await residentAPI.getHouseholdList(params);
     if (response.success) {
-      households.value = response.data.list
-      pagination.total = response.data.total
-      updateStatistics()
+      households.value = response.data.list;
+      pagination.total = response.data.total;
+      updateStatistics();
     }
   } catch (error) {
-    ElMessage.error('获取户码数据失败')
+    ElMessage.error('获取户码数据失败');
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const updateStatistics = () => {
-  statistics.totalHouseholds = households.value.length
-  statistics.totalMembers = households.value.reduce((sum, h) => sum + h.memberCount, 0)
-  statistics.activeHouseholds = households.value.filter(h => h.status === 'active').length
-  statistics.inactiveHouseholds = households.value.filter(h => h.status === 'inactive').length
-}
+  statistics.totalHouseholds = households.value.length;
+  statistics.totalMembers = households.value.reduce((sum, h) => sum + h.memberCount, 0);
+  statistics.activeHouseholds = households.value.filter(h => h.status === 'active').length;
+  statistics.inactiveHouseholds = households.value.filter(h => h.status === 'inactive').length;
+};
 
-const handleSizeChange = (size) => {
-  pagination.pageSize = size
-  loadHouseholds()
-}
+const handleSizeChange = size => {
+  pagination.pageSize = size;
+  loadHouseholds();
+};
 
-const handleCurrentChange = (page) => {
-  pagination.currentPage = page
-  loadHouseholds()
-}
+const handleCurrentChange = page => {
+  pagination.currentPage = page;
+  loadHouseholds();
+};
 
 const handleEditConfirm = () => {
-  editDialogVisible.value = false
-  loadHouseholds()
-}
+  editDialogVisible.value = false;
+  loadHouseholds();
+};
 
 const exportAllCodes = async () => {
   try {
-    await residentAPI.exportHouseholdCodes(searchForm)
-    ElMessage.success('导出成功')
+    await residentAPI.exportHouseholdCodes(searchForm);
+    ElMessage.success('导出成功');
   } catch (error) {
-    ElMessage.error('导出失败')
+    ElMessage.error('导出失败');
   }
-}
+};
 
-const formatDate = (date) => {
-  if (!date) return ''
-  return new Date(date).toLocaleDateString()
-}
+const formatDate = date => {
+  if (!date) return '';
+  return new Date(date).toLocaleDateString();
+};
 
 // 生命周期
 onMounted(() => {
   if (props.modelValue) {
-    loadHouseholds()
+    loadHouseholds();
   }
-})
+});
 </script>
 
 <style lang="scss" scoped>

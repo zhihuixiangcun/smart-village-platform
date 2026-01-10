@@ -59,17 +59,11 @@
           </div>
 
           <div class="supplier-footer">
-            <el-button size="small" @click="viewProducts(supplier)">
-              查看产品
-            </el-button>
+            <el-button size="small" @click="viewProducts(supplier)"> 查看产品 </el-button>
             <el-button size="small" type="primary" @click="contactSupplier(supplier)">
               联系
             </el-button>
-            <el-button
-              size="small"
-              type="danger"
-              @click="$emit('unfollow', supplier)"
-            >
+            <el-button size="small" type="danger" @click="$emit('unfollow', supplier)">
               取消关注
             </el-button>
           </div>
@@ -80,27 +74,36 @@
 </template>
 
 <script setup>
-import { ElMessage } from 'element-plus'
-import { UserFilled, Search, User, CircleCheck, Location, Goods, Star } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus';
+import {
+  UserFilled,
+  Search,
+  User,
+  CircleCheck,
+  Location,
+  Goods,
+  Star,
+} from '@element-plus/icons-vue';
 
 const props = defineProps({
   suppliers: {
     type: Array,
-    default: () => []
-  }
-})
+    default: () => [],
+  },
+});
 
-const emit = defineEmits(['unfollow'])
+const emit = defineEmits(['unfollow']);
 
-const defaultAvatar = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ccircle cx="50" cy="50" r="50" fill="%23e0e0e0"/%3E%3C/svg%3E'
+const defaultAvatar =
+  'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ccircle cx="50" cy="50" r="50" fill="%23e0e0e0"/%3E%3C/svg%3E';
 
-const viewProducts = (supplier) => {
-  ElMessage.success(`正在查看 ${supplier.name} 的产品...`)
-}
+const viewProducts = supplier => {
+  ElMessage.success(`正在查看 ${supplier.name} 的产品...`);
+};
 
-const contactSupplier = (supplier) => {
-  ElMessage.success(`正在联系 ${supplier.name}...`)
-}
+const contactSupplier = supplier => {
+  ElMessage.success(`正在联系 ${supplier.name}...`);
+};
 </script>
 
 <style scoped>

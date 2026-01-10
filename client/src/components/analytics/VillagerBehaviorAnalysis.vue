@@ -49,15 +49,21 @@
                 <div class="metric-label">活跃用户</div>
               </div>
               <div class="summary-item">
-                <div class="metric-value">{{ (reportData.summary.keyMetrics.retentionRate * 100).toFixed(1) }}%</div>
+                <div class="metric-value">
+                  {{ (reportData.summary.keyMetrics.retentionRate * 100).toFixed(1) }}%
+                </div>
                 <div class="metric-label">留存率</div>
               </div>
               <div class="summary-item">
-                <div class="metric-value">{{ reportData.summary.keyMetrics.avgSessionDuration }}分钟</div>
+                <div class="metric-value">
+                  {{ reportData.summary.keyMetrics.avgSessionDuration }}分钟
+                </div>
                 <div class="metric-label">平均使用时长</div>
               </div>
               <div class="summary-item">
-                <div class="metric-value">{{ reportData.summary.keyMetrics.userSatisfaction }}/5.0</div>
+                <div class="metric-value">
+                  {{ reportData.summary.keyMetrics.userSatisfaction }}/5.0
+                </div>
                 <div class="metric-label">用户满意度</div>
               </div>
             </div>
@@ -65,7 +71,9 @@
             <div class="key-findings">
               <h4>关键发现</h4>
               <ul>
-                <li v-for="finding in reportData.summary.topFindings" :key="finding">{{ finding }}</li>
+                <li v-for="finding in reportData.summary.topFindings" :key="finding">
+                  {{ finding }}
+                </li>
               </ul>
             </div>
           </div>
@@ -90,19 +98,25 @@
               <div class="recommendation-category">
                 <h4>短期措施</h4>
                 <ul>
-                  <li v-for="item in reportData.recommendations.shortTerm" :key="item">{{ item }}</li>
+                  <li v-for="item in reportData.recommendations.shortTerm" :key="item">
+                    {{ item }}
+                  </li>
                 </ul>
               </div>
               <div class="recommendation-category">
                 <h4>中期措施</h4>
                 <ul>
-                  <li v-for="item in reportData.recommendations.mediumTerm" :key="item">{{ item }}</li>
+                  <li v-for="item in reportData.recommendations.mediumTerm" :key="item">
+                    {{ item }}
+                  </li>
                 </ul>
               </div>
               <div class="recommendation-category">
                 <h4>长期措施</h4>
                 <ul>
-                  <li v-for="item in reportData.recommendations.longTerm" :key="item">{{ item }}</li>
+                  <li v-for="item in reportData.recommendations.longTerm" :key="item">
+                    {{ item }}
+                  </li>
                 </ul>
               </div>
             </div>
@@ -119,12 +133,12 @@
 </template>
 
 <script>
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
-import ActivityAnalysis from './components/ActivityAnalysis.vue'
-import PreferenceAnalysis from './components/PreferenceAnalysis.vue'
-import BehaviorPrediction from './components/BehaviorPrediction.vue'
-import UserPersona from './components/UserPersona.vue'
+import { ref, reactive, onMounted } from 'vue';
+import { ElMessage } from 'element-plus';
+import ActivityAnalysis from './components/ActivityAnalysis.vue';
+import PreferenceAnalysis from './components/PreferenceAnalysis.vue';
+import BehaviorPrediction from './components/BehaviorPrediction.vue';
+import UserPersona from './components/UserPersona.vue';
 
 export default {
   name: 'VillagerBehaviorAnalysis',
@@ -132,131 +146,129 @@ export default {
     ActivityAnalysis,
     PreferenceAnalysis,
     BehaviorPrediction,
-    UserPersona
+    UserPersona,
   },
   setup() {
     // 响应式数据
-    const activeTab = ref('activity')
-    const reportDialogVisible = ref(false)
-    const reportGenerating = ref(false)
-    const reportData = ref(null)
+    const activeTab = ref('activity');
+    const reportDialogVisible = ref(false);
+    const reportGenerating = ref(false);
+    const reportData = ref(null);
 
     // 组件引用
-    const activityAnalysis = ref(null)
-    const preferenceAnalysis = ref(null)
-    const behaviorPrediction = ref(null)
-    const userPersona = ref(null)
+    const activityAnalysis = ref(null);
+    const preferenceAnalysis = ref(null);
+    const behaviorPrediction = ref(null);
+    const userPersona = ref(null);
 
     // 方法
-    const handleTabChange = (tabName) => {
+    const handleTabChange = tabName => {
       // 根据切换的标签页加载数据
       nextTick(() => {
         switch (tabName) {
           case 'activity':
-            activityAnalysis.value?.loadData()
-            break
+            activityAnalysis.value?.loadData();
+            break;
           case 'preference':
-            preferenceAnalysis.value?.loadData()
-            break
+            preferenceAnalysis.value?.loadData();
+            break;
           case 'prediction':
-            behaviorPrediction.value?.loadData()
-            break
+            behaviorPrediction.value?.loadData();
+            break;
           case 'persona':
-            userPersona.value?.loadData()
-            break
+            userPersona.value?.loadData();
+            break;
         }
-      })
-    }
+      });
+    };
 
     const generateReport = async () => {
       try {
-        reportGenerating.value = true
+        reportGenerating.value = true;
 
         const response = await fetch('/api/v1/analytics/behavior/report', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            reportType: 'comprehensive'
-          })
-        })
+            reportType: 'comprehensive',
+          }),
+        });
 
-        const result = await response.json()
+        const result = await response.json();
 
         if (result.success) {
-          reportData.value = result.data
-          reportDialogVisible.value = true
-          ElMessage.success('报告生成成功')
+          reportData.value = result.data;
+          reportDialogVisible.value = true;
+          ElMessage.success('报告生成成功');
         } else {
-          ElMessage.error('生成报告失败: ' + result.message)
+          ElMessage.error('生成报告失败: ' + result.message);
         }
-
       } catch (error) {
-        console.error('生成报告失败:', error)
-        ElMessage.error('生成报告失败，请稍后重试')
+        console.error('生成报告失败:', error);
+        ElMessage.error('生成报告失败，请稍后重试');
       } finally {
-        reportGenerating.value = false
+        reportGenerating.value = false;
       }
-    }
+    };
 
     const exportData = async () => {
       try {
         const response = await fetch('/api/v1/analytics/behavior/export', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             format: 'excel',
-            dataTypes: ['activity', 'preference', 'prediction']
-          })
-        })
+            dataTypes: ['activity', 'preference', 'prediction'],
+          }),
+        });
 
         if (response.ok) {
-          const blob = await response.blob()
-          const url = window.URL.createObjectURL(blob)
-          const a = document.createElement('a')
-          a.href = url
-          a.download = `村民行为分析数据_${new Date().toISOString().split('T')[0]}.xlsx`
-          document.body.appendChild(a)
-          a.click()
-          document.body.removeChild(a)
-          window.URL.revokeObjectURL(url)
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `村民行为分析数据_${new Date().toISOString().split('T')[0]}.xlsx`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
 
-          ElMessage.success('数据导出成功')
+          ElMessage.success('数据导出成功');
         } else {
-          ElMessage.error('导出数据失败')
+          ElMessage.error('导出数据失败');
         }
-
       } catch (error) {
-        console.error('导出数据失败:', error)
-        ElMessage.error('导出数据失败，请稍后重试')
+        console.error('导出数据失败:', error);
+        ElMessage.error('导出数据失败，请稍后重试');
       }
-    }
+    };
 
     const downloadReport = () => {
-      if (!reportData.value) return
+      if (!reportData.value) return;
 
-      const reportContent = JSON.stringify(reportData.value, null, 2)
-      const blob = new Blob([reportContent], { type: 'application/json' })
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `村民行为分析报告_${new Date().toISOString().split('T')[0]}.json`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      window.URL.revokeObjectURL(url)
+      const reportContent = JSON.stringify(reportData.value, null, 2);
+      const blob = new Blob([reportContent], { type: 'application/json' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `村民行为分析报告_${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
 
-      ElMessage.success('报告下载成功')
-    }
+      ElMessage.success('报告下载成功');
+    };
 
     // 生命周期
     onMounted(() => {
       // 初始加载活跃度分析数据
-      handleTabChange('activity')
-    })
+      handleTabChange('activity');
+    });
 
     return {
       // 响应式数据
@@ -275,10 +287,10 @@ export default {
       handleTabChange,
       generateReport,
       exportData,
-      downloadReport
-    }
-  }
-}
+      downloadReport,
+    };
+  },
+};
 </script>
 
 <style scoped>

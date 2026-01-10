@@ -27,11 +27,7 @@
         </el-tooltip>
 
         <el-tooltip content="全屏查看" placement="top">
-          <el-button
-            size="small"
-            icon="FullScreen"
-            @click="toggleFullscreen"
-          />
+          <el-button size="small" icon="FullScreen" @click="toggleFullscreen" />
         </el-tooltip>
 
         <el-dropdown @command="handleExport">
@@ -48,11 +44,7 @@
         </el-dropdown>
 
         <el-tooltip content="图表设置" placement="top">
-          <el-button
-            size="small"
-            icon="Setting"
-            @click="showSettingsDialog = true"
-          />
+          <el-button size="small" icon="Setting" @click="showSettingsDialog = true" />
         </el-tooltip>
       </div>
     </div>
@@ -62,8 +54,8 @@
       ref="chartContainer"
       class="chart-container"
       :class="{
-        'fullscreen': isFullscreen,
-        'loading': isChartsLoading
+        fullscreen: isFullscreen,
+        loading: isChartsLoading,
       }"
       :style="containerStyle"
     >
@@ -119,31 +111,18 @@
     </div>
 
     <!-- 图表设置对话框 -->
-    <el-dialog
-      v-model="showSettingsDialog"
-      title="图表设置"
-      width="500px"
-    >
+    <el-dialog v-model="showSettingsDialog" title="图表设置" width="500px">
       <el-form :model="settings" label-width="100px">
         <el-form-item label="动画效果">
-          <el-switch
-            v-model="settings.animation"
-            @change="handleAnimationChange"
-          />
+          <el-switch v-model="settings.animation" @change="handleAnimationChange" />
         </el-form-item>
 
         <el-form-item label="显示图例">
-          <el-switch
-            v-model="settings.showLegend"
-            @change="handleLegendChange"
-          />
+          <el-switch v-model="settings.showLegend" @change="handleLegendChange" />
         </el-form-item>
 
         <el-form-item label="显示工具提示">
-          <el-switch
-            v-model="settings.showTooltip"
-            @change="handleTooltipChange"
-          />
+          <el-switch v-model="settings.showTooltip" @change="handleTooltipChange" />
         </el-form-item>
 
         <el-form-item label="主题颜色">
@@ -185,61 +164,71 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ref, reactive, computed, watch, onMounted, onUnmounted, nextTick } from 'vue';
+import { ElMessage } from 'element-plus';
 import {
-  Refresh, FullScreen, Download, Setting, Loading, Warning,
-  ArrowDown, Picture, Document, TrendCharts, BarChart, PieChart
-} from '@element-plus/icons-vue'
-import { useInteractiveCharts } from '@/composables/useInteractiveCharts'
+  Refresh,
+  FullScreen,
+  Download,
+  Setting,
+  Loading,
+  Warning,
+  ArrowDown,
+  Picture,
+  Document,
+  TrendCharts,
+  BarChart,
+  PieChart,
+} from '@element-plus/icons-vue';
+import { useInteractiveCharts } from '@/composables/useInteractiveCharts';
 
 // Props
 const props = defineProps({
   // 图表数据
   data: {
     type: Object,
-    required: true
+    required: true,
   },
   // 图表类型
   type: {
     type: String,
     default: 'line',
-    validator: (value) => ['line', 'bar', 'pie', 'scatter', 'heatmap'].includes(value)
+    validator: value => ['line', 'bar', 'pie', 'scatter', 'heatmap'].includes(value),
   },
   // 图表高度
   height: {
     type: [Number, String],
-    default: 400
+    default: 400,
   },
   // 是否显示工具栏
   showToolbar: {
     type: Boolean,
-    default: true
+    default: true,
   },
   // 是否显示信息面板
   showInfo: {
     type: Boolean,
-    default: false
+    default: false,
   },
   // 可用的图表类型
   enabledTypes: {
     type: Array,
-    default: () => ['line', 'bar', 'pie']
+    default: () => ['line', 'bar', 'pie'],
   },
   // 自定义交互配置
   interactions: {
     type: Object,
-    default: () => ({})
+    default: () => ({}),
   },
   // 自动刷新间隔（秒）
   autoRefreshInterval: {
     type: Number,
-    default: 0
-  }
-})
+    default: 0,
+  },
+});
 
 // Emits
-const emit = defineEmits(['typeChange', 'dataPointClick', 'refresh', 'loadData', 'export'])
+const emit = defineEmits(['typeChange', 'dataPointClick', 'refresh', 'loadData', 'export']);
 
 // 使用交互式图表组合函数
 const {
@@ -252,17 +241,17 @@ const {
   disposeChart,
   exportChart,
   switchTheme,
-  toggleAnimation
-} = useInteractiveCharts()
+  toggleAnimation,
+} = useInteractiveCharts();
 
 // 响应式数据
-const chartContainer = ref()
-const currentType = ref(props.type)
-const isFullscreen = ref(false)
-const showSettingsDialog = ref(false)
-const chartInstance = ref(null)
-const lastUpdateTime = ref('')
-const autoRefreshTimer = ref(null)
+const chartContainer = ref();
+const currentType = ref(props.type);
+const isFullscreen = ref(false);
+const showSettingsDialog = ref(false);
+const chartInstance = ref(null);
+const lastUpdateTime = ref('');
+const autoRefreshTimer = ref(null);
 
 // 图表设置
 const settings = reactive({
@@ -271,8 +260,8 @@ const settings = reactive({
   showTooltip: true,
   theme: 'light',
   height: props.height,
-  animationDuration: 800
-})
+  animationDuration: 800,
+});
 
 // 可用图表类型配置
 const chartTypes = {
@@ -280,172 +269,167 @@ const chartTypes = {
   bar: { label: '柱状图', icon: 'BarChart' },
   pie: { label: '饼图', icon: 'PieChart' },
   scatter: { label: '散点图', icon: 'Document' },
-  heatmap: { label: '热力图', icon: 'Picture' }
-}
+  heatmap: { label: '热力图', icon: 'Picture' },
+};
 
 // 计算属性
 const availableTypes = computed(() => {
   return props.enabledTypes.map(type => ({
     value: type,
-    ...chartTypes[type]
-  }))
-})
+    ...chartTypes[type],
+  }));
+});
 
 const hasData = computed(() => {
-  return props.data && Object.keys(props.data).length > 0
-})
+  return props.data && Object.keys(props.data).length > 0;
+});
 
 const dataPointCount = computed(() => {
-  if (!props.data) return 0
+  if (!props.data) return 0;
 
   if (props.data.series) {
-    return props.data.series.reduce((total, serie) => total + (serie.data?.length || 0), 0)
+    return props.data.series.reduce((total, serie) => total + (serie.data?.length || 0), 0);
   }
 
   if (Array.isArray(props.data)) {
-    return props.data.length
+    return props.data.length;
   }
 
-  return 0
-})
+  return 0;
+});
 
 const currentTypeLabel = computed(() => {
-  return chartTypes[currentType.value]?.label || '未知'
-})
+  return chartTypes[currentType.value]?.label || '未知';
+});
 
 const interactionMode = computed(() => {
-  return chartConfig.interaction.tooltip.enabled ? '交互式' : '静态'
-})
+  return chartConfig.interaction.tooltip.enabled ? '交互式' : '静态';
+});
 
 const containerStyle = computed(() => ({
   height: `${settings.height}px`,
-  transition: 'height 0.3s ease'
-}))
+  transition: 'height 0.3s ease',
+}));
 
 // 方法
 const initChart = async () => {
-  if (!chartContainer.value || !hasData.value) return
+  if (!chartContainer.value || !hasData.value) return;
 
   try {
-    chartInstance.value = await createChart(
-      chartContainer.value,
-      currentType.value,
-      props.data,
-      {
-        showLegend: settings.showLegend,
-        tooltipFormatter: null,
-        interactions: {
-          onClick: handleDataPointClick,
-          onDoubleClick: handleDoubleClick,
-          ...props.interactions
-        }
-      }
-    )
+    chartInstance.value = await createChart(chartContainer.value, currentType.value, props.data, {
+      showLegend: settings.showLegend,
+      tooltipFormatter: null,
+      interactions: {
+        onClick: handleDataPointClick,
+        onDoubleClick: handleDoubleClick,
+        ...props.interactions,
+      },
+    });
 
     if (chartInstance.value) {
-      lastUpdateTime.value = new Date().toLocaleTimeString()
+      lastUpdateTime.value = new Date().toLocaleTimeString();
     }
   } catch (error) {
-    console.error('图表初始化失败:', error)
+    console.error('图表初始化失败:', error);
   }
-}
+};
 
-const switchChartType = async (type) => {
-  if (type === currentType.value) return
+const switchChartType = async type => {
+  if (type === currentType.value) return;
 
-  currentType.value = type
-  emit('typeChange', type)
+  currentType.value = type;
+  emit('typeChange', type);
 
   if (chartContainer.value && hasData.value) {
-    await initChart()
+    await initChart();
   }
-}
+};
 
 const handleRefresh = () => {
-  emit('refresh')
+  emit('refresh');
   if (chartContainer.value) {
-    initChart()
+    initChart();
   }
-}
+};
 
-const handleDataPointClick = (params) => {
-  emit('dataPointClick', params)
-  ElMessage.info(`点击了数据点: ${params.name} = ${params.value}`)
-}
+const handleDataPointClick = params => {
+  emit('dataPointClick', params);
+  ElMessage.info(`点击了数据点: ${params.name} = ${params.value}`);
+};
 
-const handleDoubleClick = (params) => {
+const handleDoubleClick = params => {
   // 双击放大功能
   if (chartInstance.value) {
     chartInstance.value.dispatchAction({
       type: 'dataZoom',
       dataZoomIndex: 0,
       startValue: params.dataIndex - 2,
-      endValue: params.dataIndex + 2
-    })
+      endValue: params.dataIndex + 2,
+    });
   }
-}
+};
 
-const handleExport = (format) => {
-  if (!chartContainer.value) return
+const handleExport = format => {
+  if (!chartContainer.value) return;
 
   const result = exportChart(chartContainer.value, {
     type: format,
     download: true,
-    filename: `chart_${currentType.value}_${Date.now()}`
-  })
+    filename: `chart_${currentType.value}_${Date.now()}`,
+  });
 
   if (result) {
-    emit('export', { format, dataURL: result })
-    ElMessage.success(`图表已导出为 ${format.toUpperCase()} 格式`)
+    emit('export', { format, dataURL: result });
+    ElMessage.success(`图表已导出为 ${format.toUpperCase()} 格式`);
   }
-}
+};
 
 const toggleFullscreen = () => {
-  isFullscreen.value = !isFullscreen.value
+  isFullscreen.value = !isFullscreen.value;
 
   nextTick(() => {
     if (chartInstance.value) {
-      resizeChart(chartContainer.value)
+      resizeChart(chartContainer.value);
     }
-  })
-}
+  });
+};
 
 const retryLoad = () => {
-  initChart()
-}
+  initChart();
+};
 
 // 设置处理
-const handleAnimationChange = (enabled) => {
-  toggleAnimation(enabled)
-  initChart()
-}
+const handleAnimationChange = enabled => {
+  toggleAnimation(enabled);
+  initChart();
+};
 
 const handleLegendChange = () => {
-  initChart()
-}
+  initChart();
+};
 
 const handleTooltipChange = () => {
-  chartConfig.interaction.tooltip.enabled = settings.showTooltip
-  initChart()
-}
+  chartConfig.interaction.tooltip.enabled = settings.showTooltip;
+  initChart();
+};
 
-const handleThemeChange = (theme) => {
-  switchTheme(theme)
-  initChart()
-}
+const handleThemeChange = theme => {
+  switchTheme(theme);
+  initChart();
+};
 
 const handleHeightChange = () => {
   nextTick(() => {
     if (chartInstance.value) {
-      resizeChart(chartContainer.value)
+      resizeChart(chartContainer.value);
     }
-  })
-}
+  });
+};
 
-const handleAnimationDurationChange = (duration) => {
-  chartConfig.animation.duration = duration
-  initChart()
-}
+const handleAnimationDurationChange = duration => {
+  chartConfig.animation.duration = duration;
+  initChart();
+};
 
 const resetSettings = () => {
   Object.assign(settings, {
@@ -454,65 +438,65 @@ const resetSettings = () => {
     showTooltip: true,
     theme: 'light',
     height: props.height,
-    animationDuration: 800
-  })
-  initChart()
-}
+    animationDuration: 800,
+  });
+  initChart();
+};
 
 // 自动刷新
 const startAutoRefresh = () => {
   if (props.autoRefreshInterval > 0) {
     autoRefreshTimer.value = setInterval(() => {
-      handleRefresh()
-    }, props.autoRefreshInterval * 1000)
+      handleRefresh();
+    }, props.autoRefreshInterval * 1000);
   }
-}
+};
 
 const stopAutoRefresh = () => {
   if (autoRefreshTimer.value) {
-    clearInterval(autoRefreshTimer.value)
-    autoRefreshTimer.value = null
+    clearInterval(autoRefreshTimer.value);
+    autoRefreshTimer.value = null;
   }
-}
+};
 
 // 监听数据变化
 watch(
   () => props.data,
-  (newData) => {
+  newData => {
     if (newData && chartContainer.value) {
-      updateChart(chartContainer.value, newData, { chartType: currentType.value })
-      lastUpdateTime.value = new Date().toLocaleTimeString()
+      updateChart(chartContainer.value, newData, { chartType: currentType.value });
+      lastUpdateTime.value = new Date().toLocaleTimeString();
     }
   },
   { deep: true }
-)
+);
 
 // 监听容器大小变化
 const resizeObserver = new ResizeObserver(() => {
   if (chartInstance.value) {
-    resizeChart(chartContainer.value)
+    resizeChart(chartContainer.value);
   }
-})
+});
 
 // 生命周期
 onMounted(async () => {
-  await nextTick()
-  await initChart()
+  await nextTick();
+  await initChart();
 
   if (chartContainer.value) {
-    resizeObserver.observe(chartContainer.value)
+    resizeObserver.observe(chartContainer.value);
   }
 
-  startAutoRefresh()
-})
+  startAutoRefresh();
+});
 
 onUnmounted(() => {
   if (chartContainer.value) {
-    disposeChart(chartContainer.value)
-    resizeObserver.unobserve(chartContainer.value)
+    disposeChart(chartContainer.value);
+    resizeObserver.unobserve(chartContainer.value);
   }
-  stopAutoRefresh()
-})
+  stopAutoRefresh();
+});
 </script>
 
 <style lang="scss" scoped>
@@ -612,8 +596,12 @@ onUnmounted(() => {
 }
 
 @keyframes rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 // 响应式设计

@@ -189,8 +189,18 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="description" label="事件描述" min-width="200" show-overflow-tooltip />
-        <el-table-column prop="location.address" label="事发地点" width="150" show-overflow-tooltip />
+        <el-table-column
+          prop="description"
+          label="事件描述"
+          min-width="200"
+          show-overflow-tooltip
+        />
+        <el-table-column
+          prop="location.address"
+          label="事发地点"
+          width="150"
+          show-overflow-tooltip
+        />
         <el-table-column prop="reporter" label="报告人" width="100" />
         <el-table-column prop="status" label="状态" width="100">
           <template #default="{ row }">
@@ -207,12 +217,7 @@
         <el-table-column label="操作" width="200" fixed="right">
           <template #default="{ row }">
             <el-button-group>
-              <el-button
-                size="small"
-                type="primary"
-                link
-                @click="handleView(row)"
-              >
+              <el-button size="small" type="primary" link @click="handleView(row)">
                 查看
               </el-button>
               <el-button
@@ -224,20 +229,10 @@
               >
                 处理
               </el-button>
-              <el-button
-                size="small"
-                type="warning"
-                link
-                @click="handleUpdateStatus(row)"
-              >
+              <el-button size="small" type="warning" link @click="handleUpdateStatus(row)">
                 更新
               </el-button>
-              <el-button
-                size="small"
-                type="danger"
-                link
-                @click="handleDelete(row)"
-              >
+              <el-button size="small" type="danger" link @click="handleDelete(row)">
                 删除
               </el-button>
             </el-button-group>
@@ -298,9 +293,15 @@
               {{ getStatusLabel(detailDialog.data.status) }}
             </el-tag>
           </el-descriptions-item>
-          <el-descriptions-item label="报告人">{{ detailDialog.data.reporter }}</el-descriptions-item>
-          <el-descriptions-item label="联系电话">{{ detailDialog.data.phone }}</el-descriptions-item>
-          <el-descriptions-item label="事发地点" :span="2">{{ detailDialog.data.location?.address }}</el-descriptions-item>
+          <el-descriptions-item label="报告人">{{
+            detailDialog.data.reporter
+          }}</el-descriptions-item>
+          <el-descriptions-item label="联系电话">{{
+            detailDialog.data.phone
+          }}</el-descriptions-item>
+          <el-descriptions-item label="事发地点" :span="2">{{
+            detailDialog.data.location?.address
+          }}</el-descriptions-item>
           <el-descriptions-item label="经纬度" :span="2">
             {{ detailDialog.data.location?.latitude }}, {{ detailDialog.data.location?.longitude }}
           </el-descriptions-item>
@@ -310,14 +311,19 @@
           <el-descriptions-item label="更新时间">
             {{ formatDateTime(detailDialog.data.updatedAt) }}
           </el-descriptions-item>
-          <el-descriptions-item label="事件描述" :span="2">{{ detailDialog.data.description }}</el-descriptions-item>
+          <el-descriptions-item label="事件描述" :span="2">{{
+            detailDialog.data.description
+          }}</el-descriptions-item>
           <el-descriptions-item v-if="detailDialog.data.processingNote" label="处理说明" :span="2">
             {{ detailDialog.data.processingNote }}
           </el-descriptions-item>
         </el-descriptions>
 
         <!-- 事件图片 -->
-        <div v-if="detailDialog.data.images && detailDialog.data.images.length > 0" class="event-images">
+        <div
+          v-if="detailDialog.data.images && detailDialog.data.images.length > 0"
+          class="event-images"
+        >
           <h4>现场图片</h4>
           <el-row :gutter="10">
             <el-col v-for="(image, index) in detailDialog.data.images" :key="index" :span="6">
@@ -325,7 +331,7 @@
                 :src="image"
                 :preview-src-list="detailDialog.data.images"
                 fit="cover"
-                style="width: 100%; height: 120px;"
+                style="width: 100%; height: 120px"
               />
             </el-col>
           </el-row>
@@ -337,7 +343,10 @@
           <div class="map-placeholder">
             <el-icon size="64"><Location /></el-icon>
             <p>{{ detailDialog.data.location.address }}</p>
-            <p>经度: {{ detailDialog.data.location.latitude }}, 纬度: {{ detailDialog.data.location.longitude }}</p>
+            <p>
+              经度: {{ detailDialog.data.location.latitude }}, 纬度:
+              {{ detailDialog.data.location.longitude }}
+            </p>
           </div>
         </div>
       </div>
@@ -350,12 +359,7 @@
       width="700px"
       :before-close="handleCloseFormDialog"
     >
-      <el-form
-        ref="reportFormRef"
-        :model="reportForm"
-        :rules="reportFormRules"
-        label-width="100px"
-      >
+      <el-form ref="reportFormRef" :model="reportForm" :rules="reportFormRules" label-width="100px">
         <el-form-item label="事件类型" prop="type">
           <el-select v-model="reportForm.type" placeholder="请选择事件类型" style="width: 100%">
             <el-option label="医疗急救" value="medical" />
@@ -383,10 +387,7 @@
           />
         </el-form-item>
         <el-form-item label="事发地点" prop="location">
-          <el-input
-            v-model="reportForm.location.address"
-            placeholder="请输入事发地点"
-          >
+          <el-input v-model="reportForm.location.address" placeholder="请输入事发地点">
             <template #append>
               <el-button @click="getCurrentLocation">获取位置</el-button>
             </template>
@@ -424,11 +425,7 @@
     </el-dialog>
 
     <!-- 状态更新对话框 -->
-    <el-dialog
-      v-model="statusDialog.visible"
-      title="更新状态"
-      width="500px"
-    >
+    <el-dialog v-model="statusDialog.visible" title="更新状态" width="500px">
       <el-form :model="statusForm" label-width="100px">
         <el-form-item label="新状态" required>
           <el-select v-model="statusForm.status" placeholder="请选择状态" style="width: 100%">
@@ -459,12 +456,13 @@
     </el-dialog>
 
     <!-- 紧急广播对话框 -->
-    <el-dialog
-      v-model="broadcastDialog.visible"
-      title="紧急广播"
-      width="600px"
-    >
-      <el-form :model="broadcastForm" :rules="broadcastFormRules" label-width="100px" ref="broadcastFormRef">
+    <el-dialog v-model="broadcastDialog.visible" title="紧急广播" width="600px">
+      <el-form
+        :model="broadcastForm"
+        :rules="broadcastFormRules"
+        label-width="100px"
+        ref="broadcastFormRef"
+      >
         <el-form-item label="广播标题" prop="title">
           <el-input v-model="broadcastForm.title" placeholder="请输入广播标题" />
         </el-form-item>
@@ -509,9 +507,17 @@
 import { ref, reactive, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import {
-  Plus, Warning, Loading, CircleCheck, Clock, FirstAidKit,
-  Select, InfoFilled, Bell, Download,
-  Location
+  Plus,
+  Warning,
+  Loading,
+  CircleCheck,
+  Clock,
+  FirstAidKit,
+  Select,
+  InfoFilled,
+  Bell,
+  Download,
+  Location,
 } from '@element-plus/icons-vue';
 import apiService from '@/services/apiService';
 
@@ -528,7 +534,7 @@ const filters = reactive({
   search: '',
   type: '',
   severity: '',
-  status: ''
+  status: '',
 });
 
 const dateRange = ref([]);
@@ -537,7 +543,7 @@ const dateRange = ref([]);
 const pagination = reactive({
   page: 1,
   limit: 20,
-  total: 0
+  total: 0,
 });
 
 // 应急统计
@@ -545,30 +551,30 @@ const stats = reactive({
   criticalCount: 0,
   processingCount: 0,
   resolvedCount: 0,
-  todayCount: 0
+  todayCount: 0,
 });
 
 // 详情对话框
 const detailDialog = reactive({
   visible: false,
-  data: null
+  data: null,
 });
 
 // 表单对话框
 const formDialog = reactive({
   visible: false,
-  isEdit: false
+  isEdit: false,
 });
 
 // 状态更新对话框
 const statusDialog = reactive({
   visible: false,
-  data: null
+  data: null,
 });
 
 // 紧急广播对话框
 const broadcastDialog = reactive({
-  visible: false
+  visible: false,
 });
 
 // 应急报告表单
@@ -580,17 +586,17 @@ const reportForm = reactive({
   location: {
     address: '',
     latitude: '',
-    longitude: ''
+    longitude: '',
   },
   reporter: '',
   phone: '',
-  images: []
+  images: [],
 });
 
 // 状态更新表单
 const statusForm = reactive({
   status: '',
-  processingNote: ''
+  processingNote: '',
 });
 
 // 广播表单
@@ -598,42 +604,26 @@ const broadcastForm = reactive({
   title: '',
   message: '',
   scope: 'all',
-  priority: 'high'
+  priority: 'high',
 });
 
 // 表单验证规则
 const reportFormRules = {
-  type: [
-    { required: true, message: '请选择事件类型', trigger: 'change' }
-  ],
-  severity: [
-    { required: true, message: '请选择严重程度', trigger: 'change' }
-  ],
-  description: [
-    { required: true, message: '请输入事件描述', trigger: 'blur' }
-  ],
-  'location.address': [
-    { required: true, message: '请输入事发地点', trigger: 'blur' }
-  ],
-  reporter: [
-    { required: true, message: '请输入报告人姓名', trigger: 'blur' }
-  ],
+  type: [{ required: true, message: '请选择事件类型', trigger: 'change' }],
+  severity: [{ required: true, message: '请选择严重程度', trigger: 'change' }],
+  description: [{ required: true, message: '请输入事件描述', trigger: 'blur' }],
+  'location.address': [{ required: true, message: '请输入事发地点', trigger: 'blur' }],
+  reporter: [{ required: true, message: '请输入报告人姓名', trigger: 'blur' }],
   phone: [
     { required: true, message: '请输入联系电话', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
-  ]
+    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' },
+  ],
 };
 
 const broadcastFormRules = {
-  title: [
-    { required: true, message: '请输入广播标题', trigger: 'blur' }
-  ],
-  message: [
-    { required: true, message: '请输入广播内容', trigger: 'blur' }
-  ],
-  scope: [
-    { required: true, message: '请选择广播范围', trigger: 'change' }
-  ]
+  title: [{ required: true, message: '请输入广播标题', trigger: 'blur' }],
+  message: [{ required: true, message: '请输入广播内容', trigger: 'blur' }],
+  scope: [{ required: true, message: '请选择广播范围', trigger: 'change' }],
 };
 
 // 表单引用
@@ -647,7 +637,7 @@ const loadReportList = async () => {
     const params = {
       page: pagination.page,
       limit: pagination.limit,
-      ...filters
+      ...filters,
     };
 
     // 添加日期范围
@@ -694,7 +684,7 @@ const handleReset = () => {
   loadReportList();
 };
 
-const handleDateRangeChange = (dates) => {
+const handleDateRangeChange = dates => {
   if (dates && dates.length === 2) {
     filters.startDate = dates[0];
     filters.endDate = dates[1];
@@ -705,50 +695,46 @@ const handleDateRangeChange = (dates) => {
   handleSearch();
 };
 
-const handleSizeChange = (size) => {
+const handleSizeChange = size => {
   pagination.limit = size;
   loadReportList();
 };
 
-const handleCurrentChange = (page) => {
+const handleCurrentChange = page => {
   pagination.page = page;
   loadReportList();
 };
 
-const handleSelectionChange = (selection) => {
+const handleSelectionChange = selection => {
   selectedReports.value = selection;
 };
 
-const handleView = (row) => {
+const handleView = row => {
   detailDialog.data = row;
   detailDialog.visible = true;
 };
 
-const handleProcess = (row) => {
+const handleProcess = row => {
   statusDialog.data = row;
   statusDialog.visible = true;
   statusForm.status = 'processing';
   statusForm.processingNote = '';
 };
 
-const handleUpdateStatus = (row) => {
+const handleUpdateStatus = row => {
   statusDialog.data = row;
   statusDialog.visible = true;
   statusForm.status = row.status;
   statusForm.processingNote = row.processingNote || '';
 };
 
-const handleDelete = async (row) => {
+const handleDelete = async row => {
   try {
-    await ElMessageBox.confirm(
-      `确定要删除应急报告 "${row.description}" 吗？`,
-      '确认删除',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    );
+    await ElMessageBox.confirm(`确定要删除应急报告 "${row.description}" 吗？`, '确认删除', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
 
     // 实现删除逻辑
     ElMessage.success('应急报告删除成功');
@@ -761,7 +747,7 @@ const handleDelete = async (row) => {
   }
 };
 
-const createEmergencyReport = (type) => {
+const createEmergencyReport = type => {
   showCreateDialog(type);
 };
 
@@ -793,12 +779,12 @@ const resetReportForm = () => {
 const getCurrentLocation = () => {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
-      (position) => {
+      position => {
         reportForm.location.latitude = position.coords.latitude;
         reportForm.location.longitude = position.coords.longitude;
         ElMessage.success('位置获取成功');
       },
-      (error) => {
+      error => {
         ElMessage.error('位置获取失败，请手动输入地址');
       }
     );
@@ -807,20 +793,20 @@ const getCurrentLocation = () => {
   }
 };
 
-const handleImageUpload = (file) => {
+const handleImageUpload = file => {
   // 这里应该实现图片上传逻辑
   const reader = new FileReader();
-  reader.onload = (e) => {
+  reader.onload = e => {
     reportForm.images.push({
       name: file.name,
-      url: e.target.result
+      url: e.target.result,
     });
   };
   reader.readAsDataURL(file);
   return false; // 阻止默认上传
 };
 
-const handlePictureCardPreview = (file) => {
+const handlePictureCardPreview = file => {
   // 预览图片
   console.log('Preview:', file);
 };
@@ -869,7 +855,7 @@ const handleSubmitStatus = async () => {
 
     const statusData = {
       status: statusForm.status,
-      processingNote: statusForm.processingNote
+      processingNote: statusForm.processingNote,
     };
 
     const response = await apiService.updateEmergencyStatus(statusDialog.data.id, statusData);
@@ -943,7 +929,7 @@ const handleBatchUpdateStatus = async () => {
       {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
       }
     );
 
@@ -971,7 +957,7 @@ const handleBatchDelete = async () => {
       {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
       }
     );
 
@@ -990,71 +976,71 @@ const exportEmergencyReport = () => {
 };
 
 // 工具方法
-const formatDateTime = (dateTime) => {
+const formatDateTime = dateTime => {
   if (!dateTime) return '';
   return new Date(dateTime).toLocaleString('zh-CN');
 };
 
-const getTypeLabel = (type) => {
+const getTypeLabel = type => {
   const typeMap = {
     medical: '医疗急救',
     fire: '火灾报警',
     security: '安全事件',
     natural_disaster: '自然灾害',
     facility_failure: '设施故障',
-    other: '其他'
+    other: '其他',
   };
   return typeMap[type] || type;
 };
 
-const getTypeTagType = (type) => {
+const getTypeTagType = type => {
   const typeMap = {
     medical: 'danger',
     fire: 'danger',
     security: 'warning',
     natural_disaster: 'warning',
     facility_failure: 'info',
-    other: 'info'
+    other: 'info',
   };
   return typeMap[type] || 'info';
 };
 
-const getSeverityLabel = (severity) => {
+const getSeverityLabel = severity => {
   const severityMap = {
     critical: '紧急',
     high: '严重',
     medium: '中等',
-    low: '轻微'
+    low: '轻微',
   };
   return severityMap[severity] || severity;
 };
 
-const getSeverityTagType = (severity) => {
+const getSeverityTagType = severity => {
   const typeMap = {
     critical: 'danger',
     high: 'warning',
     medium: 'primary',
-    low: 'success'
+    low: 'success',
   };
   return typeMap[severity] || 'info';
 };
 
-const getStatusLabel = (status) => {
+const getStatusLabel = status => {
   const statusMap = {
     pending: '待处理',
     processing: '处理中',
     resolved: '已解决',
-    closed: '已关闭'
+    closed: '已关闭',
   };
   return statusMap[status] || status;
 };
 
-const getStatusTagType = (status) => {
+const getStatusTagType = status => {
   const typeMap = {
     pending: 'warning',
     processing: 'primary',
     resolved: 'success',
-    closed: 'info'
+    closed: 'info',
   };
   return typeMap[status] || 'info';
 };

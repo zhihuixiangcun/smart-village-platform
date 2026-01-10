@@ -6,9 +6,7 @@
         <el-icon><ArrowLeft /></el-icon>
       </div>
       <div class="mobile-header-title">建议征集</div>
-      <div class="mobile-header-action" @click="showFilters = !showFilters">
-        筛选
-      </div>
+      <div class="mobile-header-action" @click="showFilters = !showFilters">筛选</div>
     </div>
 
     <!-- 搜索栏 -->
@@ -18,7 +16,7 @@
         class="mobile-search-input"
         placeholder="搜索建议标题或内容..."
         @input="debounceSearch"
-      >
+      />
     </div>
 
     <!-- 筛选标签 -->
@@ -30,7 +28,10 @@
             v-for="status in statusOptions"
             :key="status.value"
             :class="['mobile-tag', { active: filterStatus === status.value }]"
-            @click="filterStatus = status.value; loadSuggestions()"
+            @click="
+              filterStatus = status.value;
+              loadSuggestions();
+            "
           >
             {{ status.label }}
           </button>
@@ -44,7 +45,10 @@
             v-for="category in categories"
             :key="category.nameEn"
             :class="['mobile-tag', { active: filterCategory === category.nameEn }]"
-            @click="filterCategory = category.nameEn; loadSuggestions()"
+            @click="
+              filterCategory = category.nameEn;
+              loadSuggestions();
+            "
           >
             {{ category.name }}
           </button>
@@ -105,12 +109,8 @@
           <!-- 投票信息 -->
           <div class="vote-section">
             <div class="vote-stats">
-              <span class="vote-item support">
-                👍 {{ suggestion.votes?.support || 0 }}
-              </span>
-              <span class="vote-item oppose">
-                👎 {{ suggestion.votes?.oppose || 0 }}
-              </span>
+              <span class="vote-item support"> 👍 {{ suggestion.votes?.support || 0 }} </span>
+              <span class="vote-item oppose"> 👎 {{ suggestion.votes?.oppose || 0 }} </span>
             </div>
             <div class="vote-actions">
               <button
@@ -152,13 +152,7 @@
       </div>
 
       <!-- 加载更多 -->
-      <div
-        v-if="hasMore && !loading"
-        class="load-more-btn"
-        @click="loadMore"
-      >
-        加载更多
-      </div>
+      <div v-if="hasMore && !loading" class="load-more-btn" @click="loadMore">加载更多</div>
 
       <!-- 加载中 -->
       <div v-if="loading" class="mobile-loading">
@@ -262,11 +256,7 @@
             <div v-if="aiAnalysis.keywords?.length" class="analysis-item">
               <span class="analysis-label">关键词:</span>
               <div class="keywords">
-                <span
-                  v-for="keyword in aiAnalysis.keywords"
-                  :key="keyword"
-                  class="keyword-tag"
-                >
+                <span v-for="keyword in aiAnalysis.keywords" :key="keyword" class="keyword-tag">
                   {{ keyword }}
                 </span>
               </div>
@@ -294,42 +284,42 @@
 </template>
 
 <script>
-import { ref, reactive, onMounted, computed } from 'vue'
-import { ElMessage } from 'element-plus'
-import { ArrowLeft, Plus } from '@element-plus/icons-vue'
-import { useResponsive } from '@/composables/useResponsive'
-import { suggestionApi } from '@/api/suggestion'
+import { ref, reactive, onMounted, computed } from 'vue';
+import { ElMessage } from 'element-plus';
+import { ArrowLeft, Plus } from '@element-plus/icons-vue';
+import { useResponsive } from '@/composables/useResponsive';
+import { suggestionApi } from '@/api/suggestion';
 
 export default {
   name: 'MobileSuggestionList',
   components: {
     ArrowLeft,
-    Plus
+    Plus,
   },
   setup() {
-    const { isMobile } = useResponsive()
+    const { isMobile } = useResponsive();
 
-    const suggestions = ref([])
-    const categories = ref([])
-    const loading = ref(false)
-    const hasMore = ref(true)
-    const currentPage = ref(1)
-    const pageSize = ref(10)
-    const showFilters = ref(false)
-    const detailVisible = ref(false)
-    const currentSuggestion = ref(null)
-    const aiAnalysis = ref(null)
+    const suggestions = ref([]);
+    const categories = ref([]);
+    const loading = ref(false);
+    const hasMore = ref(true);
+    const currentPage = ref(1);
+    const pageSize = ref(10);
+    const showFilters = ref(false);
+    const detailVisible = ref(false);
+    const currentSuggestion = ref(null);
+    const aiAnalysis = ref(null);
 
-    const searchKeyword = ref('')
-    const filterStatus = ref('')
-    const filterCategory = ref('')
+    const searchKeyword = ref('');
+    const filterStatus = ref('');
+    const filterCategory = ref('');
 
     const stats = reactive({
       total: 0,
       pending: 0,
       inProgress: 0,
-      completed: 0
-    })
+      completed: 0,
+    });
 
     const statusOptions = [
       { label: '全部', value: '' },
@@ -337,17 +327,17 @@ export default {
       { label: '审核中', value: 'under_review' },
       { label: '进行中', value: 'in_progress' },
       { label: '已完成', value: 'completed' },
-      { label: '已拒绝', value: 'rejected' }
-    ]
+      { label: '已拒绝', value: 'rejected' },
+    ];
 
     const loadSuggestions = async (reset = true) => {
       try {
         if (reset) {
-          currentPage.value = 1
-          suggestions.value = []
+          currentPage.value = 1;
+          suggestions.value = [];
         }
 
-        loading.value = true
+        loading.value = true;
 
         const params = {
           village: 'default_village',
@@ -355,212 +345,210 @@ export default {
           limit: pageSize.value,
           status: filterStatus.value,
           category: filterCategory.value,
-          search: searchKeyword.value
-        }
+          search: searchKeyword.value,
+        };
 
-        const response = await suggestionApi.getList(params)
-        const newSuggestions = response.data.suggestions
+        const response = await suggestionApi.getList(params);
+        const newSuggestions = response.data.suggestions;
 
         if (reset) {
-          suggestions.value = newSuggestions
+          suggestions.value = newSuggestions;
         } else {
-          suggestions.value.push(...newSuggestions)
+          suggestions.value.push(...newSuggestions);
         }
 
-        hasMore.value = newSuggestions.length === pageSize.value
-
+        hasMore.value = newSuggestions.length === pageSize.value;
       } catch (error) {
-        ElMessage.error('加载建议列表失败：' + error.message)
+        ElMessage.error('加载建议列表失败：' + error.message);
       } finally {
-        loading.value = false
+        loading.value = false;
       }
-    }
+    };
 
     const loadMore = () => {
-      if (!hasMore.value || loading.value) return
-      currentPage.value++
-      loadSuggestions(false)
-    }
+      if (!hasMore.value || loading.value) return;
+      currentPage.value++;
+      loadSuggestions(false);
+    };
 
     const loadStats = async () => {
       try {
-        const response = await suggestionApi.getStats('default_village')
-        const data = response.data.totalStats
+        const response = await suggestionApi.getStats('default_village');
+        const data = response.data.totalStats;
         Object.assign(stats, {
           total: data.total || 0,
           pending: data.submitted || 0,
           inProgress: data.inProgress || 0,
-          completed: data.completed || 0
-        })
+          completed: data.completed || 0,
+        });
       } catch (error) {
-        console.error('加载统计数据失败:', error)
+        console.error('加载统计数据失败:', error);
       }
-    }
+    };
 
     const loadCategories = async () => {
       try {
-        const response = await suggestionApi.getCategories('default_village')
-        categories.value = [{ name: '全部', nameEn: '' }, ...response.data]
+        const response = await suggestionApi.getCategories('default_village');
+        categories.value = [{ name: '全部', nameEn: '' }, ...response.data];
       } catch (error) {
-        console.error('加载分类失败:', error)
+        console.error('加载分类失败:', error);
       }
-    }
+    };
 
     const debounceSearch = (() => {
-      let timer = null
+      let timer = null;
       return () => {
-        clearTimeout(timer)
+        clearTimeout(timer);
         timer = setTimeout(() => {
-          loadSuggestions()
-        }, 500)
-      }
-    })()
+          loadSuggestions();
+        }, 500);
+      };
+    })();
 
-    const showDetail = async (suggestion) => {
-      currentSuggestion.value = suggestion
-      detailVisible.value = true
+    const showDetail = async suggestion => {
+      currentSuggestion.value = suggestion;
+      detailVisible.value = true;
 
       // 加载AI分析结果
       try {
         const response = await fetch('/api/ai-analysis/analyze-sentiment', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: suggestion.content })
-        })
-        const result = await response.json()
+          body: JSON.stringify({ text: suggestion.content }),
+        });
+        const result = await response.json();
         if (result.success) {
-          aiAnalysis.value = result.data
+          aiAnalysis.value = result.data;
         }
       } catch (error) {
-        console.error('AI分析失败:', error)
+        console.error('AI分析失败:', error);
       }
-    }
+    };
 
     const vote = async (suggestionId, voteType) => {
       try {
         // 这里应该集成区块链投票
         const response = await suggestionApi.vote(suggestionId, {
           userId: 'current_user_id',
-          voteType
-        })
+          voteType,
+        });
 
-        ElMessage.success('投票成功')
-        await loadSuggestions()
-
+        ElMessage.success('投票成功');
+        await loadSuggestions();
       } catch (error) {
-        ElMessage.error('投票失败：' + error.message)
+        ElMessage.error('投票失败：' + error.message);
       }
-    }
+    };
 
     // 辅助函数
-    const getCategoryName = (categoryEn) => {
-      const category = categories.value.find(c => c.nameEn === categoryEn)
-      return category ? category.name : categoryEn
-    }
+    const getCategoryName = categoryEn => {
+      const category = categories.value.find(c => c.nameEn === categoryEn);
+      return category ? category.name : categoryEn;
+    };
 
-    const getStatusText = (status) => {
+    const getStatusText = status => {
       const texts = {
         submitted: '待审核',
         under_review: '审核中',
         in_progress: '进行中',
         completed: '已完成',
-        rejected: '已拒绝'
-      }
-      return texts[status] || status
-    }
+        rejected: '已拒绝',
+      };
+      return texts[status] || status;
+    };
 
-    const getStatusType = (status) => {
+    const getStatusType = status => {
       const types = {
         submitted: 'info',
         under_review: 'warning',
         in_progress: 'info',
         completed: 'success',
-        rejected: 'error'
-      }
-      return types[status] || 'info'
-    }
+        rejected: 'error',
+      };
+      return types[status] || 'info';
+    };
 
-    const getPriorityText = (priority) => {
+    const getPriorityText = priority => {
       const texts = {
         urgent: '特急',
         high: '紧急',
         medium: '重要',
-        low: '一般'
-      }
-      return texts[priority] || priority
-    }
+        low: '一般',
+      };
+      return texts[priority] || priority;
+    };
 
-    const getPriorityClass = (priority) => {
-      return `priority-${priority}`
-    }
+    const getPriorityClass = priority => {
+      return `priority-${priority}`;
+    };
 
-    const getProgressPercentage = (status) => {
+    const getProgressPercentage = status => {
       const percentages = {
         submitted: 10,
         under_review: 30,
         in_progress: 70,
         completed: 100,
-        rejected: 0
-      }
-      return percentages[status] || 0
-    }
+        rejected: 0,
+      };
+      return percentages[status] || 0;
+    };
 
-    const getProgressText = (status) => {
-      return `${getProgressPercentage(status)}%`
-    }
+    const getProgressText = status => {
+      return `${getProgressPercentage(status)}%`;
+    };
 
-    const formatTime = (dateString) => {
-      const date = new Date(dateString)
-      const now = new Date()
-      const diff = now - date
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+    const formatTime = dateString => {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diff = now - date;
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
-      if (days === 0) return '今天'
-      if (days === 1) return '昨天'
-      if (days < 7) return `${days}天前`
-      return date.toLocaleDateString('zh-CN')
-    }
+      if (days === 0) return '今天';
+      if (days === 1) return '昨天';
+      if (days < 7) return `${days}天前`;
+      return date.toLocaleDateString('zh-CN');
+    };
 
     const getVotePercentage = (suggestion, type) => {
-      const total = (suggestion.votes?.support || 0) + (suggestion.votes?.oppose || 0)
-      if (total === 0) return 0
-      return Math.round(((suggestion.votes?.[type] || 0) / total) * 100)
-    }
+      const total = (suggestion.votes?.support || 0) + (suggestion.votes?.oppose || 0);
+      if (total === 0) return 0;
+      return Math.round(((suggestion.votes?.[type] || 0) / total) * 100);
+    };
 
-    const getSentimentText = (sentiment) => {
+    const getSentimentText = sentiment => {
       const texts = {
         positive: '积极',
         negative: '消极',
-        neutral: '中性'
-      }
-      return texts[sentiment] || sentiment
-    }
+        neutral: '中性',
+      };
+      return texts[sentiment] || sentiment;
+    };
 
-    const getUrgencyText = (urgency) => {
+    const getUrgencyText = urgency => {
       const texts = {
         high: '高',
         medium: '中',
-        low: '低'
-      }
-      return texts[urgency] || urgency
-    }
+        low: '低',
+      };
+      return texts[urgency] || urgency;
+    };
 
-    const getActionText = (action) => {
+    const getActionText = action => {
       const texts = {
         approved: '审核通过',
         rejected: '拒绝处理',
         needs_more_info: '需要更多信息',
         in_progress: '开始处理',
-        completed: '处理完成'
-      }
-      return texts[action] || action
-    }
+        completed: '处理完成',
+      };
+      return texts[action] || action;
+    };
 
     onMounted(() => {
-      loadSuggestions()
-      loadStats()
-      loadCategories()
-    })
+      loadSuggestions();
+      loadStats();
+      loadCategories();
+    });
 
     return {
       isMobile,
@@ -593,10 +581,10 @@ export default {
       getVotePercentage,
       getSentimentText,
       getUrgencyText,
-      getActionText
-    }
-  }
-}
+      getActionText,
+    };
+  },
+};
 </script>
 
 <style scoped>

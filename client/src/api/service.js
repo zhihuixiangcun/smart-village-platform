@@ -7,8 +7,8 @@ const api = axios.create({
   baseURL: BASE_URL,
   timeout: 30000,
   headers: {
-    'Content-Type': 'application/json'
-  }
+    'Content-Type': 'application/json',
+  },
 });
 
 // 请求拦截器
@@ -145,12 +145,12 @@ export const serviceApi = {
 
     return api.post('/api/v1/upload/file', formData, {
       headers: {
-        'Content-Type': 'multipart/form-data'
+        'Content-Type': 'multipart/form-data',
       },
-      onUploadProgress: (progressEvent) => {
+      onUploadProgress: progressEvent => {
         const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
         console.log(`Upload progress: ${percentCompleted}%`);
-      }
+      },
     });
   },
 
@@ -166,8 +166,8 @@ export const serviceApi = {
 
     return api.post('/api/v1/upload/files', formData, {
       headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+        'Content-Type': 'multipart/form-data',
+      },
     });
   },
 
@@ -181,8 +181,8 @@ export const serviceApi = {
 
     return api.post('/api/v1/ocr/recognize', formData, {
       headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+        'Content-Type': 'multipart/form-data',
+      },
     });
   },
 
@@ -212,9 +212,9 @@ export const serviceApi = {
    */
   searchServices(keyword) {
     return api.get('/api/v1/services/search', {
-      params: { keyword }
+      params: { keyword },
     });
-  }
+  },
 };
 
 export default serviceApi;

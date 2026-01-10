@@ -120,13 +120,19 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, computed, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
-  Lock, SuccessFilled, Warning, Key, Histogram,
-  CircleCheck, CircleClose, InfoFilled
-} from '@element-plus/icons-vue'
-import { securityApi } from '@/api/security'
+  Lock,
+  SuccessFilled,
+  Warning,
+  Key,
+  Histogram,
+  CircleCheck,
+  CircleClose,
+  InfoFilled,
+} from '@element-plus/icons-vue';
+import { securityApi } from '@/api/security';
 
 // 加密状态
 const encryptionStatus = ref({
@@ -134,145 +140,145 @@ const encryptionStatus = ref({
   algorithm: {
     aes: 'aes-256-gcm',
     rsa: 'rsa-oaep-2048',
-    hash: 'sha256'
+    hash: 'sha256',
   },
   keyInfo: {
     keyLength: 256,
-    lastRotated: new Date()
-  }
-})
+    lastRotated: new Date(),
+  },
+});
 
 // 加载状态
-const loading = ref(false)
-const rotating = ref(false)
+const loading = ref(false);
+const rotating = ref(false);
 
 // 安全评分
 const securityScore = computed(() => {
-  let score = 100
+  let score = 100;
 
   // 根据各种因素计算安全评分
   if (encryptionStatus.value.status !== 'active') {
-    score -= 30
+    score -= 30;
   }
 
-  const daysSince = daysSinceRotation.value
+  const daysSince = daysSinceRotation.value;
   if (daysSince > 180) {
-    score -= 20
+    score -= 20;
   } else if (daysSince > 90) {
-    score -= 10
+    score -= 10;
   }
 
-  const keyLength = encryptionStatus.value.keyInfo?.keyLength || 0
+  const keyLength = encryptionStatus.value.keyInfo?.keyLength || 0;
   if (keyLength < 256) {
-    score -= 20
+    score -= 20;
   }
 
-  return Math.max(0, score)
-})
+  return Math.max(0, score);
+});
 
 // 距离上次轮换的天数
 const daysSinceRotation = computed(() => {
-  if (!encryptionStatus.value.keyInfo?.lastRotated) return 0
+  if (!encryptionStatus.value.keyInfo?.lastRotated) return 0;
 
-  const lastRotated = new Date(encryptionStatus.value.keyInfo.lastRotated)
-  const now = new Date()
-  const diff = now - lastRotated
-  return Math.floor(diff / (1000 * 60 * 60 * 24))
-})
+  const lastRotated = new Date(encryptionStatus.value.keyInfo.lastRotated);
+  const now = new Date();
+  const diff = now - lastRotated;
+  return Math.floor(diff / (1000 * 60 * 60 * 24));
+});
 
 // 是否需要轮换
 const needRotation = computed(() => {
-  return daysSinceRotation.value >= 90
-})
+  return daysSinceRotation.value >= 90;
+});
 
 // 安全建议
 const recommendations = computed(() => {
-  const list = []
+  const list = [];
 
   if (encryptionStatus.value.status !== 'active') {
     list.push({
       icon: CircleClose,
       color: '#f56c6c',
-      text: '加密服务未激活，请立即检查'
-    })
+      text: '加密服务未激活，请立即检查',
+    });
   }
 
   if (daysSinceRotation.value >= 180) {
     list.push({
       icon: Warning,
       color: '#e6a23c',
-      text: '密钥使用时间过长，建议尽快轮换'
-    })
+      text: '密钥使用时间过长，建议尽快轮换',
+    });
   } else if (daysSinceRotation.value >= 90) {
     list.push({
       icon: InfoFilled,
       color: '#409eff',
-      text: '密钥使用时间较长，建议定期轮换'
-    })
+      text: '密钥使用时间较长，建议定期轮换',
+    });
   }
 
   if (securityScore.value >= 90) {
     list.push({
       icon: CircleCheck,
       color: '#67c23a',
-      text: '系统加密状态良好，继续保持'
-    })
+      text: '系统加密状态良好，继续保持',
+    });
   }
 
-  return list
-})
+  return list;
+});
 
 // 获取状态名称
-const getStatusName = (status) => {
+const getStatusName = status => {
   const nameMap = {
     active: '正常',
     inactive: '未激活',
-    error: '错误'
-  }
-  return nameMap[status] || status
-}
+    error: '错误',
+  };
+  return nameMap[status] || status;
+};
 
 // 获取进度条颜色
-const getProgressColor = (score) => {
-  if (score >= 90) return '#67c23a'
-  if (score >= 70) return '#409eff'
-  if (score >= 50) return '#e6a23c'
-  return '#f56c6c'
-}
+const getProgressColor = score => {
+  if (score >= 90) return '#67c23a';
+  if (score >= 70) return '#409eff';
+  if (score >= 50) return '#e6a23c';
+  return '#f56c6c';
+};
 
 // 获取等级描述
-const getLevelDescription = (score) => {
-  if (score >= 90) return '安全等级：优秀 - 数据保护措施完善'
-  if (score >= 70) return '安全等级：良好 - 数据保护措施基本完善'
-  if (score >= 50) return '安全等级：一般 - 建议加强数据保护措施'
-  return '安全等级：较差 - 请立即检查并加强安全措施'
-}
+const getLevelDescription = score => {
+  if (score >= 90) return '安全等级：优秀 - 数据保护措施完善';
+  if (score >= 70) return '安全等级：良好 - 数据保护措施基本完善';
+  if (score >= 50) return '安全等级：一般 - 建议加强数据保护措施';
+  return '安全等级：较差 - 请立即检查并加强安全措施';
+};
 
 // 格式化日期
-const formatDate = (date) => {
-  if (!date) return '-'
-  return new Date(date).toLocaleString('zh-CN')
-}
+const formatDate = date => {
+  if (!date) return '-';
+  return new Date(date).toLocaleString('zh-CN');
+};
 
 // 刷新状态
 const refreshStatus = async () => {
   try {
-    loading.value = true
-    const response = await securityApi.getEncryptionStats()
+    loading.value = true;
+    const response = await securityApi.getEncryptionStats();
 
     if (response.success) {
-      encryptionStatus.value = response.data
-      ElMessage.success('刷新成功')
+      encryptionStatus.value = response.data;
+      ElMessage.success('刷新成功');
     } else {
-      ElMessage.error('刷新失败')
+      ElMessage.error('刷新失败');
     }
   } catch (error) {
-    ElMessage.error('刷新失败')
-    console.error(error)
+    ElMessage.error('刷新失败');
+    console.error(error);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 // 密钥轮换
 const rotateKeys = async () => {
@@ -283,32 +289,32 @@ const rotateKeys = async () => {
       {
         type: 'warning',
         confirmButtonText: '确认轮换',
-        cancelButtonText: '取消'
+        cancelButtonText: '取消',
       }
-    )
+    );
 
-    rotating.value = true
-    const response = await securityApi.rotateKeys()
+    rotating.value = true;
+    const response = await securityApi.rotateKeys();
 
     if (response.success) {
-      ElMessage.success('密钥轮换成功')
-      refreshStatus()
+      ElMessage.success('密钥轮换成功');
+      refreshStatus();
     } else {
-      ElMessage.error(response.message || '密钥轮换失败')
+      ElMessage.error(response.message || '密钥轮换失败');
     }
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('密钥轮换失败')
-      console.error(error)
+      ElMessage.error('密钥轮换失败');
+      console.error(error);
     }
   } finally {
-    rotating.value = false
+    rotating.value = false;
   }
-}
+};
 
 onMounted(() => {
-  refreshStatus()
-})
+  refreshStatus();
+});
 </script>
 
 <style scoped>

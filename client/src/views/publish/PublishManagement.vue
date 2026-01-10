@@ -159,7 +159,12 @@
         </el-form-item>
 
         <el-form-item label="标题" prop="title">
-          <el-input v-model="publishForm.title" placeholder="请输入标题" maxlength="200" show-word-limit />
+          <el-input
+            v-model="publishForm.title"
+            placeholder="请输入标题"
+            maxlength="200"
+            show-word-limit
+          />
         </el-form-item>
 
         <el-form-item label="内容" prop="content">
@@ -224,12 +229,7 @@
           <el-input v-model="editForm.title" placeholder="请输入标题" />
         </el-form-item>
         <el-form-item label="内容" prop="content">
-          <el-input
-            v-model="editForm.content"
-            type="textarea"
-            :rows="8"
-            placeholder="请输入内容"
-          />
+          <el-input v-model="editForm.content" type="textarea" :rows="8" placeholder="请输入内容" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -241,16 +241,34 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
-  Plus, CaretTop, CaretBottom, Grid, ChatDotSquare, Bell, Document, Coin,
-  Promotion, TrendCharts, Warning, ChatLineSquare, Reading
-} from '@element-plus/icons-vue'
-import { agricultureApi, socialApi, announcementApi, governanceApi, financePublicApi, contentReviewApi } from '@/api'
+  Plus,
+  CaretTop,
+  CaretBottom,
+  Grid,
+  ChatDotSquare,
+  Bell,
+  Document,
+  Coin,
+  Promotion,
+  TrendCharts,
+  Warning,
+  ChatLineSquare,
+  Reading,
+} from '@element-plus/icons-vue';
+import {
+  agricultureApi,
+  socialApi,
+  announcementApi,
+  governanceApi,
+  financePublicApi,
+  contentReviewApi,
+} from '@/api';
 
-const router = useRouter()
+const router = useRouter();
 
 // 统计数据
 const stats = ref([
@@ -261,7 +279,7 @@ const stats = ref([
     trend: 12.5,
     color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
     icon: TrendCharts,
-    type: 'primary'
+    type: 'primary',
   },
   {
     key: 'pending',
@@ -270,7 +288,7 @@ const stats = ref([
     trend: -8.3,
     color: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
     icon: Warning,
-    type: 'warning'
+    type: 'warning',
   },
   {
     key: 'published',
@@ -279,7 +297,7 @@ const stats = ref([
     trend: 15.2,
     color: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
     icon: Promotion,
-    type: 'success'
+    type: 'success',
   },
   {
     key: 'views',
@@ -288,15 +306,15 @@ const stats = ref([
     trend: 23.1,
     color: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
     icon: ChatLineSquare,
-    type: 'info'
-  }
-])
+    type: 'info',
+  },
+]);
 
 // 待审核数量
-const pendingCount = ref(23)
+const pendingCount = ref(23);
 
 // 当前激活的标签
-const activeTab = ref('pending')
+const activeTab = ref('pending');
 
 // 加载状态
 const loading = reactive({
@@ -304,22 +322,22 @@ const loading = reactive({
   social: false,
   announcement: false,
   governance: false,
-  finance: false
-})
+  finance: false,
+});
 
 // 各类型内容列表
-const pendingItems = ref([])
-const agricultureItems = ref([])
-const socialItems = ref([])
-const announcementItems = ref([])
-const governanceItems = ref([])
-const financeItems = ref([])
+const pendingItems = ref([]);
+const agricultureItems = ref([]);
+const socialItems = ref([]);
+const announcementItems = ref([]);
+const governanceItems = ref([]);
+const financeItems = ref([]);
 
 // 发布对话框
-const publishDialogVisible = ref(false)
-const publishing = ref(false)
-const publishFormRef = ref(null)
-const publishImageList = ref([])
+const publishDialogVisible = ref(false);
+const publishing = ref(false);
+const publishFormRef = ref(null);
+const publishImageList = ref([]);
 
 const publishForm = reactive({
   type: 'agriculture',
@@ -327,353 +345,353 @@ const publishForm = reactive({
   content: '',
   immediatePublish: true,
   notify: false,
-  scheduledAt: null
-})
+  scheduledAt: null,
+});
 
 const publishRules = {
   type: [{ required: true, message: '请选择发布类型', trigger: 'change' }],
   title: [{ required: true, message: '请输入标题', trigger: 'blur' }],
-  content: [{ required: true, message: '请输入内容', trigger: 'blur' }]
-}
+  content: [{ required: true, message: '请输入内容', trigger: 'blur' }],
+};
 
 // 编辑对话框
-const editDialogVisible = ref(false)
-const saving = ref(false)
-const editFormRef = ref(null)
+const editDialogVisible = ref(false);
+const saving = ref(false);
+const editFormRef = ref(null);
 
 const editForm = reactive({
   id: '',
   type: '',
   title: '',
-  content: ''
-})
+  content: '',
+});
 
 const editRules = {
   title: [{ required: true, message: '请输入标题', trigger: 'blur' }],
-  content: [{ required: true, message: '请输入内容', trigger: 'blur' }]
-}
+  content: [{ required: true, message: '请输入内容', trigger: 'blur' }],
+};
 
 // 标签切换
-const handleTabChange = (tab) => {
+const handleTabChange = tab => {
   switch (tab) {
     case 'agriculture':
-      fetchAgricultureItems()
-      break
+      fetchAgricultureItems();
+      break;
     case 'social':
-      fetchSocialItems()
-      break
+      fetchSocialItems();
+      break;
     case 'announcement':
-      fetchAnnouncementItems()
-      break
+      fetchAnnouncementItems();
+      break;
     case 'governance':
-      fetchGovernanceItems()
-      break
+      fetchGovernanceItems();
+      break;
     case 'finance':
-      fetchFinanceItems()
-      break
+      fetchFinanceItems();
+      break;
     case 'pending':
-      fetchPendingItems()
-      break
+      fetchPendingItems();
+      break;
   }
-}
+};
 
 // 获取农业知识列表
 const fetchAgricultureItems = async () => {
-  loading.agriculture = true
+  loading.agriculture = true;
   try {
-    const res = await agricultureApi.getPosts({ status: 'published', limit: 20 })
-    agricultureItems.value = res.data || []
+    const res = await agricultureApi.getPosts({ status: 'published', limit: 20 });
+    agricultureItems.value = res.data || [];
   } catch (error) {
-    console.error('获取农业知识列表失败', error)
+    console.error('获取农业知识列表失败', error);
   } finally {
-    loading.agriculture = false
+    loading.agriculture = false;
   }
-}
+};
 
 // 获取朋友圈动态列表
 const fetchSocialItems = async () => {
-  loading.social = true
+  loading.social = true;
   try {
-    const res = await socialApi.getPosts({ limit: 20 })
-    socialItems.value = res.data || []
+    const res = await socialApi.getPosts({ limit: 20 });
+    socialItems.value = res.data || [];
   } catch (error) {
-    console.error('获取朋友圈动态列表失败', error)
+    console.error('获取朋友圈动态列表失败', error);
   } finally {
-    loading.social = false
+    loading.social = false;
   }
-}
+};
 
 // 获取公告列表
 const fetchAnnouncementItems = async () => {
-  loading.announcement = true
+  loading.announcement = true;
   try {
-    const res = await announcementApi.getAnnouncements({ status: 'published', limit: 20 })
-    announcementItems.value = res.data || []
+    const res = await announcementApi.getAnnouncements({ status: 'published', limit: 20 });
+    announcementItems.value = res.data || [];
   } catch (error) {
-    console.error('获取公告列表失败', error)
+    console.error('获取公告列表失败', error);
   } finally {
-    loading.announcement = false
+    loading.announcement = false;
   }
-}
+};
 
 // 获取村务公开列表
 const fetchGovernanceItems = async () => {
-  loading.governance = true
+  loading.governance = true;
   try {
-    const res = await governanceApi.getGovernanceItems({ status: 'published', limit: 20 })
-    governanceItems.value = res.data || []
+    const res = await governanceApi.getGovernanceItems({ status: 'published', limit: 20 });
+    governanceItems.value = res.data || [];
   } catch (error) {
-    console.error('获取村务列表失败', error)
+    console.error('获取村务列表失败', error);
   } finally {
-    loading.governance = false
+    loading.governance = false;
   }
-}
+};
 
 // 获取财务公开列表
 const fetchFinanceItems = async () => {
-  loading.finance = true
+  loading.finance = true;
   try {
-    const res = await financePublicApi.getFinanceItems({ status: 'published', limit: 20 })
-    financeItems.value = res.data || []
+    const res = await financePublicApi.getFinanceItems({ status: 'published', limit: 20 });
+    financeItems.value = res.data || [];
   } catch (error) {
-    console.error('获取财务列表失败', error)
+    console.error('获取财务列表失败', error);
   } finally {
-    loading.finance = false
+    loading.finance = false;
   }
-}
+};
 
 // 获取待审核列表
 const fetchPendingItems = async () => {
   try {
-    const res = await contentReviewApi.getPendingItems({ limit: 50 })
-    pendingItems.value = res.data || []
-    pendingCount.value = pendingItems.value.length
+    const res = await contentReviewApi.getPendingItems({ limit: 50 });
+    pendingItems.value = res.data || [];
+    pendingCount.value = pendingItems.value.length;
   } catch (error) {
-    console.error('获取待审核列表失败', error)
+    console.error('获取待审核列表失败', error);
   }
-}
+};
 
 // 审核通过
-const handleApprove = async (item) => {
+const handleApprove = async item => {
   try {
     await ElMessageBox.confirm('确认审核通过并发布该内容吗？', '审核确认', {
-      type: 'success'
-    })
-    await contentReviewApi.approveContent(item.type, item._id, {})
-    ElMessage.success('审核通过，内容已发布')
-    fetchPendingItems()
+      type: 'success',
+    });
+    await contentReviewApi.approveContent(item.type, item._id, {});
+    ElMessage.success('审核通过，内容已发布');
+    fetchPendingItems();
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('审核通过失败')
+      ElMessage.error('审核通过失败');
     }
   }
-}
+};
 
 // 审核拒绝
-const handleReject = async (item) => {
+const handleReject = async item => {
   try {
     const { value } = await ElMessageBox.prompt('请输入拒绝原因', '审核拒绝', {
       inputPattern: /.+/,
-      inputErrorMessage: '请输入拒绝原因'
-    })
-    await contentReviewApi.rejectContent(item.type, item._id, { reason: value })
-    ElMessage.success('已拒绝该内容')
-    fetchPendingItems()
+      inputErrorMessage: '请输入拒绝原因',
+    });
+    await contentReviewApi.rejectContent(item.type, item._id, { reason: value });
+    ElMessage.success('已拒绝该内容');
+    fetchPendingItems();
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('审核拒绝失败')
+      ElMessage.error('审核拒绝失败');
     }
   }
-}
+};
 
 // 直接发布
-const handleDirectPublish = async (item) => {
+const handleDirectPublish = async item => {
   try {
     await ElMessageBox.confirm('确认发布该内容吗？', '发布确认', {
-      type: 'info'
-    })
+      type: 'info',
+    });
     // 根据类型调用相应的发布API
     switch (item.type || activeTab.value) {
       case 'agriculture':
-        await agricultureApi.publishPost(item._id)
-        break
+        await agricultureApi.publishPost(item._id);
+        break;
       case 'social':
-        await socialApi.updatePost(item._id, { status: 'published' })
-        break
+        await socialApi.updatePost(item._id, { status: 'published' });
+        break;
       case 'announcement':
-        await announcementApi.publishAnnouncement(item._id)
-        break
+        await announcementApi.publishAnnouncement(item._id);
+        break;
       case 'governance':
-        await governanceApi.publishGovernance(item._id)
-        break
+        await governanceApi.publishGovernance(item._id);
+        break;
       case 'finance':
-        await financePublicApi.publishFinance(item._id)
-        break
+        await financePublicApi.publishFinance(item._id);
+        break;
     }
-    ElMessage.success('发布成功')
-    handleTabChange(activeTab.value)
+    ElMessage.success('发布成功');
+    handleTabChange(activeTab.value);
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('发布失败')
+      ElMessage.error('发布失败');
     }
   }
-}
+};
 
 // 编辑
-const handleEdit = (item) => {
-  editForm.id = item._id
-  editForm.type = item.type || activeTab.value
-  editForm.title = item.title
-  editForm.content = item.content || item.text
-  editDialogVisible.value = true
-}
+const handleEdit = item => {
+  editForm.id = item._id;
+  editForm.type = item.type || activeTab.value;
+  editForm.title = item.title;
+  editForm.content = item.content || item.text;
+  editDialogVisible.value = true;
+};
 
 // 删除
-const handleDelete = async (item) => {
+const handleDelete = async item => {
   try {
     await ElMessageBox.confirm('确认删除该内容吗？此操作不可恢复！', '删除确认', {
-      type: 'warning'
-    })
+      type: 'warning',
+    });
     // 根据类型调用相应的删除API
     switch (item.type || activeTab.value) {
       case 'agriculture':
-        await agricultureApi.deletePost(item._id)
-        break
+        await agricultureApi.deletePost(item._id);
+        break;
       case 'social':
-        await socialApi.deletePost(item._id)
-        break
+        await socialApi.deletePost(item._id);
+        break;
       case 'announcement':
-        await announcementApi.deleteAnnouncement(item._id)
-        break
+        await announcementApi.deleteAnnouncement(item._id);
+        break;
       case 'governance':
-        await governanceApi.deleteGovernance(item._id)
-        break
+        await governanceApi.deleteGovernance(item._id);
+        break;
       case 'finance':
-        await financePublicApi.deleteFinance(item._id)
-        break
+        await financePublicApi.deleteFinance(item._id);
+        break;
     }
-    ElMessage.success('删除成功')
-    handleTabChange(activeTab.value)
+    ElMessage.success('删除成功');
+    handleTabChange(activeTab.value);
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('删除失败')
+      ElMessage.error('删除失败');
     }
   }
-}
+};
 
 // 保存编辑
 const handleSaveEdit = async () => {
-  await editFormRef.value.validate()
-  saving.value = true
+  await editFormRef.value.validate();
+  saving.value = true;
   try {
-    const { id, type, title, content } = editForm
+    const { id, type, title, content } = editForm;
     // 根据类型调用相应的更新API
     switch (type) {
       case 'agriculture':
-        await agricultureApi.updatePost(id, { title, content })
-        break
+        await agricultureApi.updatePost(id, { title, content });
+        break;
       case 'social':
-        await socialApi.updatePost(id, { text: content })
-        break
+        await socialApi.updatePost(id, { text: content });
+        break;
       case 'announcement':
-        await announcementApi.updateAnnouncement(id, { title, content })
-        break
+        await announcementApi.updateAnnouncement(id, { title, content });
+        break;
       case 'governance':
-        await governanceApi.updateGovernance(id, { title, content })
-        break
+        await governanceApi.updateGovernance(id, { title, content });
+        break;
       case 'finance':
-        await financePublicApi.updateFinance(id, { title, description: content })
-        break
+        await financePublicApi.updateFinance(id, { title, description: content });
+        break;
     }
-    ElMessage.success('保存成功')
-    editDialogVisible.value = false
-    handleTabChange(activeTab.value)
+    ElMessage.success('保存成功');
+    editDialogVisible.value = false;
+    handleTabChange(activeTab.value);
   } catch (error) {
-    ElMessage.error('保存失败')
+    ElMessage.error('保存失败');
   } finally {
-    saving.value = false
+    saving.value = false;
   }
-}
+};
 
 // 显示发布对话框
 const showPublishDialog = () => {
-  publishForm.type = 'agriculture'
-  publishForm.title = ''
-  publishForm.content = ''
-  publishForm.immediatePublish = true
-  publishForm.notify = false
-  publishForm.scheduledAt = null
-  publishImageList.value = []
-  publishDialogVisible.value = true
-}
+  publishForm.type = 'agriculture';
+  publishForm.title = '';
+  publishForm.content = '';
+  publishForm.immediatePublish = true;
+  publishForm.notify = false;
+  publishForm.scheduledAt = null;
+  publishImageList.value = [];
+  publishDialogVisible.value = true;
+};
 
 // 发布
 const handlePublish = async () => {
-  await publishFormRef.value.validate()
-  publishing.value = true
+  await publishFormRef.value.validate();
+  publishing.value = true;
   try {
-    const { type, title, content, immediatePublish, notify, scheduledAt } = publishForm
+    const { type, title, content, immediatePublish, notify, scheduledAt } = publishForm;
     const publishData = {
       title,
       content,
       status: immediatePublish ? 'published' : 'pending',
       notify,
-      scheduledAt
-    }
+      scheduledAt,
+    };
 
     // 根据类型调用相应的创建API
     switch (type) {
       case 'agriculture':
-        await agricultureApi.createPost(publishData)
-        break
+        await agricultureApi.createPost(publishData);
+        break;
       case 'social':
-        await socialApi.createPost({ text: content, ...publishData })
-        break
+        await socialApi.createPost({ text: content, ...publishData });
+        break;
       case 'announcement':
-        await announcementApi.createAnnouncement(publishData)
-        break
+        await announcementApi.createAnnouncement(publishData);
+        break;
       case 'governance':
-        await governanceApi.createGovernance(publishData)
-        break
+        await governanceApi.createGovernance(publishData);
+        break;
       case 'finance':
-        await financePublicApi.createFinance({ title, description: content, ...publishData })
-        break
+        await financePublicApi.createFinance({ title, description: content, ...publishData });
+        break;
     }
-    ElMessage.success('发布成功')
-    publishDialogVisible.value = false
-    handleTabChange(activeTab.value)
+    ElMessage.success('发布成功');
+    publishDialogVisible.value = false;
+    handleTabChange(activeTab.value);
   } catch (error) {
-    ElMessage.error('发布失败')
+    ElMessage.error('发布失败');
   } finally {
-    publishing.value = false
+    publishing.value = false;
   }
-}
+};
 
 // 禁用日期
-const disabledDate = (date) => {
-  return date.getTime() < Date.now() - 86400000
-}
+const disabledDate = date => {
+  return date.getTime() < Date.now() - 86400000;
+};
 
 // 获取类型标签
-const getTypeLabel = (type) => {
+const getTypeLabel = type => {
   const labels = {
     agriculture: '农业知识',
     social: '朋友圈动态',
     announcement: '公告',
     governance: '村务公开',
-    finance: '财务公开'
-  }
-  return labels[type] || type
-}
+    finance: '财务公开',
+  };
+  return labels[type] || type;
+};
 
 // 返回
 const goBack = () => {
-  router.back()
-}
+  router.back();
+};
 
 onMounted(() => {
-  fetchPendingItems()
-})
+  fetchPendingItems();
+});
 </script>
 
 <style scoped lang="scss">

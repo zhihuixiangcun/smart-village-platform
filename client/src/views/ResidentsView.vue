@@ -117,7 +117,11 @@
           <div class="card-header">
             <span class="card-title">村民列表</span>
             <div class="header-actions">
-              <el-button size="small" @click="batchGenerateQRCodes" :disabled="!selectedResidents.length">
+              <el-button
+                size="small"
+                @click="batchGenerateQRCodes"
+                :disabled="!selectedResidents.length"
+              >
                 批量生成二维码
               </el-button>
               <el-button size="small" @click="batchExport" :disabled="!selectedResidents.length">
@@ -210,8 +214,17 @@
     </div>
 
     <!-- 新增/编辑村民对话框 -->
-    <el-dialog v-model="addDialogVisible" :title="dialogMode === 'add' ? '新增村民' : '编辑村民'" width="800px">
-      <el-form :model="residentForm" :rules="residentRules" ref="residentFormRef" label-width="100px">
+    <el-dialog
+      v-model="addDialogVisible"
+      :title="dialogMode === 'add' ? '新增村民' : '编辑村民'"
+      width="800px"
+    >
+      <el-form
+        :model="residentForm"
+        :rules="residentRules"
+        ref="residentFormRef"
+        label-width="100px"
+      >
         <el-row :gutter="16">
           <el-col :span="12">
             <el-form-item label="姓名" prop="name">
@@ -331,53 +344,53 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { useRouter } from 'vue-router'
-import { axiosInstance as api } from '@/api'
-import { useUserStore } from '@/stores/userStore'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { useRouter } from 'vue-router';
+import { axiosInstance as api } from '@/api';
+import { useUserStore } from '@/stores/userStore';
 
-const router = useRouter()
-const userStore = useUserStore()
+const router = useRouter();
+const userStore = useUserStore();
 
 // 从数据库加载数据
 const loadResidents = async () => {
   try {
-    const response = await api.get('/api/v1/residents')
+    const response = await api.get('/api/v1/residents');
     if (response.success) {
-      residents.value = response.data || []
-      stats.value.total = residents.value.length
-      stats.value.households = new Set(residents.value.map(r => r.householdCode)).size
-      stats.value.elderly = residents.value.filter(r => calculateAge(r.birthDate) >= 60).length
-      stats.value.withHealthRecord = residents.value.filter(r => r.hasHealthRecord).length
+      residents.value = response.data || [];
+      stats.value.total = residents.value.length;
+      stats.value.households = new Set(residents.value.map(r => r.householdCode)).size;
+      stats.value.elderly = residents.value.filter(r => calculateAge(r.birthDate) >= 60).length;
+      stats.value.withHealthRecord = residents.value.filter(r => r.hasHealthRecord).length;
     }
   } catch (error) {
-    console.error('加载村民数据失败:', error)
-    ElMessage.warning('加载数据失败，显示模拟数据')
+    console.error('加载村民数据失败:', error);
+    ElMessage.warning('加载数据失败，显示模拟数据');
   }
-}
+};
 
 // 响应式数据
-const currentPage = ref(1)
-const pageSize = ref(20)
-const addDialogVisible = ref(false)
-const qrDialogVisible = ref(false)
-const dialogMode = ref('add')
-const saving = ref(false)
-const residentFormRef = ref()
-const currentResident = ref(null)
-const selectedResidents = ref([])
+const currentPage = ref(1);
+const pageSize = ref(20);
+const addDialogVisible = ref(false);
+const qrDialogVisible = ref(false);
+const dialogMode = ref('add');
+const saving = ref(false);
+const residentFormRef = ref();
+const currentResident = ref(null);
+const selectedResidents = ref([]);
 
 // 搜索和筛选
 const searchQuery = reactive({
-  resident: ''
-})
+  resident: '',
+});
 
 const filterQuery = reactive({
   gender: '',
   familyType: '',
-  village: ''
-})
+  village: '',
+});
 
 // 村民表单
 const residentForm = reactive({
@@ -392,8 +405,8 @@ const residentForm = reactive({
   familyType: '普通户',
   householdCode: '',
   hasHealthRecord: false,
-  specialHealth: ''
-})
+  specialHealth: '',
+});
 
 // 表单验证规则
 const residentRules = {
@@ -405,16 +418,16 @@ const residentRules = {
   village: [{ required: true, message: '请选择所属村组', trigger: 'change' }],
   address: [{ required: true, message: '请输入家庭住址', trigger: 'blur' }],
   householdHead: [{ required: true, message: '请输入户主姓名', trigger: 'blur' }],
-  familyType: [{ required: true, message: '请选择家庭类型', trigger: 'change' }]
-}
+  familyType: [{ required: true, message: '请选择家庭类型', trigger: 'change' }],
+};
 
 // 模拟数据
 const stats = ref({
   total: 486,
   households: 156,
   elderly: 89,
-  withHealthRecord: 412
-})
+  withHealthRecord: 412,
+});
 
 const residents = ref([
   {
@@ -431,7 +444,7 @@ const residents = ref([
     householdCode: 'VILLAGE001001',
     hasHealthRecord: true,
     specialHealth: '无',
-    avatar: ''
+    avatar: '',
   },
   {
     id: 2,
@@ -447,7 +460,7 @@ const residents = ref([
     householdCode: 'VILLAGE001001',
     hasHealthRecord: true,
     specialHealth: '高血压',
-    avatar: ''
+    avatar: '',
   },
   {
     id: 3,
@@ -463,7 +476,7 @@ const residents = ref([
     householdCode: 'VILLAGE002001',
     hasHealthRecord: true,
     specialHealth: '无',
-    avatar: ''
+    avatar: '',
   },
   {
     id: 4,
@@ -479,7 +492,7 @@ const residents = ref([
     householdCode: 'VILLAGE002002',
     hasHealthRecord: false,
     specialHealth: '无',
-    avatar: ''
+    avatar: '',
   },
   {
     id: 5,
@@ -495,85 +508,87 @@ const residents = ref([
     householdCode: 'VILLAGE003001',
     hasHealthRecord: true,
     specialHealth: '糖尿病',
-    avatar: ''
-  }
-])
+    avatar: '',
+  },
+]);
 
 // 计算属性
 const filteredResidents = computed(() => {
   return residents.value.filter(resident => {
-    const matchSearch = !searchQuery.resident ||
+    const matchSearch =
+      !searchQuery.resident ||
       resident.name.includes(searchQuery.resident) ||
       resident.idCard.includes(searchQuery.resident) ||
-      resident.address.includes(searchQuery.resident)
-    const matchGender = !filterQuery.gender || resident.gender === filterQuery.gender
-    const matchFamilyType = !filterQuery.familyType || resident.familyType === filterQuery.familyType
-    const matchVillage = !filterQuery.village || resident.village === filterQuery.village
-    return matchSearch && matchGender && matchFamilyType && matchVillage
-  })
-})
+      resident.address.includes(searchQuery.resident);
+    const matchGender = !filterQuery.gender || resident.gender === filterQuery.gender;
+    const matchFamilyType =
+      !filterQuery.familyType || resident.familyType === filterQuery.familyType;
+    const matchVillage = !filterQuery.village || resident.village === filterQuery.village;
+    return matchSearch && matchGender && matchFamilyType && matchVillage;
+  });
+});
 
 const paginatedResidents = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value
-  const end = start + pageSize.value
-  return filteredResidents.value.slice(start, end)
-})
+  const start = (currentPage.value - 1) * pageSize.value;
+  const end = start + pageSize.value;
+  return filteredResidents.value.slice(start, end);
+});
 
 // 方法
-const calculateAge = (birthDate) => {
-  if (!birthDate) return 0
-  const today = new Date()
-  const birth = new Date(birthDate)
-  let age = today.getFullYear() - birth.getFullYear()
-  const monthDiff = today.getMonth() - birth.getMonth()
+const calculateAge = birthDate => {
+  if (!birthDate) return 0;
+  const today = new Date();
+  const birth = new Date(birthDate);
+  let age = today.getFullYear() - birth.getFullYear();
+  const monthDiff = today.getMonth() - birth.getMonth();
   if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-    age--
+    age--;
   }
-  return age
-}
+  return age;
+};
 
-const maskIdCard = (idCard) => {
-  if (!idCard || idCard.length < 8) return idCard
-  return idCard.substring(0, 4) + '********' + idCard.substring(idCard.length - 4)
-}
+const maskIdCard = idCard => {
+  if (!idCard || idCard.length < 8) return idCard;
+  return idCard.substring(0, 4) + '********' + idCard.substring(idCard.length - 4);
+};
 
-const maskPhone = (phone) => {
-  if (!phone || phone.length < 7) return phone
-  return phone.substring(0, 3) + '****' + phone.substring(phone.length - 4)
-}
+const maskPhone = phone => {
+  if (!phone || phone.length < 7) return phone;
+  return phone.substring(0, 3) + '****' + phone.substring(phone.length - 4);
+};
 
-const getFamilyTypeColor = (type) => {
+const getFamilyTypeColor = type => {
   const colorMap = {
-    '低保户': 'danger',
-    '独生户': 'warning',
-    '困难户': 'info',
-    '普通户': 'success'
-  }
-  return colorMap[type] || 'info'
-}
+    低保户: 'danger',
+    独生户: 'warning',
+    困难户: 'info',
+    普通户: 'success',
+  };
+  return colorMap[type] || 'info';
+};
 
 const searchResidents = () => {
-  currentPage.value = 1
-}
+  currentPage.value = 1;
+};
 
-const handleSelectionChange = (selection) => {
-  selectedResidents.value = selection
-}
+const handleSelectionChange = selection => {
+  selectedResidents.value = selection;
+};
 
-const handleSizeChange = (size) => {
-  pageSize.value = size
-  currentPage.value = 1
-}
+const handleSizeChange = size => {
+  pageSize.value = size;
+  currentPage.value = 1;
+};
 
-const handleCurrentChange = (page) => {
-  currentPage.value = page
-}
+const handleCurrentChange = page => {
+  currentPage.value = page;
+};
 
 const showAddDialog = () => {
-  dialogMode.value = 'add'
-  resetForm()
-  addDialogVisible.value = true
-}
+  dialogMode.value = 'add';
+  resetForm();
+  addDialogVisible.value = true;
+};
 
 const resetForm = () => {
   Object.assign(residentForm, {
@@ -588,131 +603,130 @@ const resetForm = () => {
     familyType: '普通户',
     householdCode: '',
     hasHealthRecord: false,
-    specialHealth: ''
-  })
-}
+    specialHealth: '',
+  });
+};
 
 const saveResident = async () => {
-  if (!residentFormRef.value) return
+  if (!residentFormRef.value) return;
 
   try {
-    await residentFormRef.value.validate()
-    saving.value = true
+    await residentFormRef.value.validate();
+    saving.value = true;
 
     // 生成户编码
     if (dialogMode.value === 'add') {
-      residentForm.householdCode = 'VILLAGE' + String(residents.value.length + 1).padStart(3, '0') + '001'
+      residentForm.householdCode =
+        'VILLAGE' + String(residents.value.length + 1).padStart(3, '0') + '001';
     }
 
     if (dialogMode.value === 'add') {
       // 调用API创建村民
-      const response = await api.post('/api/v1/residents', residentForm)
+      const response = await api.post('/api/v1/residents', residentForm);
       if (response.success) {
-        residents.value.push(response.data)
-        stats.value.total++
-        ElMessage.success('新增村民成功')
-        addDialogVisible.value = false
+        residents.value.push(response.data);
+        stats.value.total++;
+        ElMessage.success('新增村民成功');
+        addDialogVisible.value = false;
       } else {
-        ElMessage.error(response.message || '新增失败')
+        ElMessage.error(response.message || '新增失败');
       }
     } else {
       // 调用API更新村民
-      const response = await api.put(`/api/v1/residents/${residentForm.id}`, residentForm)
+      const response = await api.put(`/api/v1/residents/${residentForm.id}`, residentForm);
       if (response.success) {
-        const index = residents.value.findIndex(r => r.id === residentForm.id)
+        const index = residents.value.findIndex(r => r.id === residentForm.id);
         if (index !== -1) {
-          Object.assign(residents.value[index], response.data)
+          Object.assign(residents.value[index], response.data);
         }
-        ElMessage.success('更新村民信息成功')
-        addDialogVisible.value = false
+        ElMessage.success('更新村民信息成功');
+        addDialogVisible.value = false;
       } else {
-        ElMessage.error(response.message || '更新失败')
+        ElMessage.error(response.message || '更新失败');
       }
     }
   } catch (error) {
-    console.error('保存村民失败:', error)
-    ElMessage.error(error.response?.data?.error || error.message || '保存失败')
+    console.error('保存村民失败:', error);
+    ElMessage.error(error.response?.data?.error || error.message || '保存失败');
   } finally {
-    saving.value = false
+    saving.value = false;
   }
-}
+};
 
-const viewResident = (resident) => {
-  router.push(`/residents/${resident.id}`)
-}
+const viewResident = resident => {
+  router.push(`/residents/${resident.id}`);
+};
 
-const editResident = (resident) => {
-  dialogMode.value = 'edit'
-  Object.assign(residentForm, resident)
-  addDialogVisible.value = true
-}
+const editResident = resident => {
+  dialogMode.value = 'edit';
+  Object.assign(residentForm, resident);
+  addDialogVisible.value = true;
+};
 
-const deleteResident = async (resident) => {
+const deleteResident = async resident => {
   try {
-    await ElMessageBox.confirm(
-      `确定要删除村民"${resident.name}"吗？`,
-      '确认删除',
-      { type: 'warning' }
-    )
+    await ElMessageBox.confirm(`确定要删除村民"${resident.name}"吗？`, '确认删除', {
+      type: 'warning',
+    });
 
     // 调用API删除村民
-    const response = await api.delete(`/api/v1/residents/${resident.id}`)
+    const response = await api.delete(`/api/v1/residents/${resident.id}`);
     if (response.success) {
-      const index = residents.value.findIndex(r => r.id === resident.id)
+      const index = residents.value.findIndex(r => r.id === resident.id);
       if (index !== -1) {
-        residents.value.splice(index, 1)
-        stats.value.total--
+        residents.value.splice(index, 1);
+        stats.value.total--;
       }
-      ElMessage.success('删除成功')
+      ElMessage.success('删除成功');
     } else {
-      ElMessage.error(response.message || '删除失败')
+      ElMessage.error(response.message || '删除失败');
     }
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('删除村民失败:', error)
-      ElMessage.error(error.response?.data?.error || error.message || '删除失败')
+      console.error('删除村民失败:', error);
+      ElMessage.error(error.response?.data?.error || error.message || '删除失败');
     }
   }
-}
+};
 
-const generateQRCode = (code) => {
-  return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(code)}`
-}
+const generateQRCode = code => {
+  return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(code)}`;
+};
 
-const generateQRCodeForResident = (resident) => {
-  currentResident.value = resident
-  qrDialogVisible.value = true
-}
+const generateQRCodeForResident = resident => {
+  currentResident.value = resident;
+  qrDialogVisible.value = true;
+};
 
 const printQRCode = () => {
-  ElMessage.info('打印功能开发中...')
-}
+  ElMessage.info('打印功能开发中...');
+};
 
 const downloadQRCode = () => {
-  ElMessage.info('下载功能开发中...')
-}
+  ElMessage.info('下载功能开发中...');
+};
 
 const batchGenerateQRCodes = () => {
-  ElMessage.info(`批量生成 ${selectedResidents.value.length} 个二维码功能开发中...`)
-}
+  ElMessage.info(`批量生成 ${selectedResidents.value.length} 个二维码功能开发中...`);
+};
 
 const batchExport = () => {
-  ElMessage.info(`批量导出 ${selectedResidents.value.length} 条记录功能开发中...`)
-}
+  ElMessage.info(`批量导出 ${selectedResidents.value.length} 条记录功能开发中...`);
+};
 
 const importResidents = () => {
-  ElMessage.info('批量导入功能开发中...')
-}
+  ElMessage.info('批量导入功能开发中...');
+};
 
 const exportResidents = () => {
-  ElMessage.info('数据导出功能开发中...')
-}
+  ElMessage.info('数据导出功能开发中...');
+};
 
 onMounted(() => {
-  console.log('村民管理模块加载完成')
+  console.log('村民管理模块加载完成');
   // 加载数据
-  loadResidents()
-})
+  loadResidents();
+});
 </script>
 
 <style lang="scss" scoped>

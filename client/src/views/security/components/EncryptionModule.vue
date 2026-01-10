@@ -46,14 +46,10 @@
         </el-table-column>
         <el-table-column prop="keyLength" label="密钥长度" width="100" />
         <el-table-column prop="throughput" label="吞吐量" width="120">
-          <template #default="scope">
-            {{ scope.row.throughput }} MB/s
-          </template>
+          <template #default="scope"> {{ scope.row.throughput }} MB/s </template>
         </el-table-column>
         <el-table-column prop="avgTime" label="平均时间" width="100">
-          <template #default="scope">
-            {{ scope.row.avgTime }}ms
-          </template>
+          <template #default="scope"> {{ scope.row.avgTime }}ms </template>
         </el-table-column>
         <el-table-column label="性能评级">
           <template #default="scope">
@@ -68,10 +64,7 @@
         </el-table-column>
         <el-table-column label="状态">
           <template #default="scope">
-            <el-switch
-              v-model="scope.row.enabled"
-              @change="toggleAlgorithm(scope.row)"
-            />
+            <el-switch v-model="scope.row.enabled" @change="toggleAlgorithm(scope.row)" />
           </template>
         </el-table-column>
       </el-table>
@@ -124,12 +117,8 @@
       </el-table>
 
       <div class="key-actions">
-        <el-button type="primary" @click="generateKeyDialogVisible = true">
-          生成新密钥
-        </el-button>
-        <el-button type="warning" @click="rotateAllKeys">
-          批量轮换
-        </el-button>
+        <el-button type="primary" @click="generateKeyDialogVisible = true"> 生成新密钥 </el-button>
+        <el-button type="warning" @click="rotateAllKeys"> 批量轮换 </el-button>
       </div>
     </div>
 
@@ -165,9 +154,7 @@
           <el-button type="primary" @click="performEncryptionTest" :loading="testing">
             执行测试
           </el-button>
-          <el-button @click="clearTestResults">
-            清空结果
-          </el-button>
+          <el-button @click="clearTestResults"> 清空结果 </el-button>
         </el-form-item>
       </el-form>
 
@@ -208,11 +195,7 @@
     </div>
 
     <!-- 生成密钥对话框 -->
-    <el-dialog
-      v-model="generateKeyDialogVisible"
-      title="生成新密钥"
-      width="50%"
-    >
+    <el-dialog v-model="generateKeyDialogVisible" title="生成新密钥" width="50%">
       <el-form :model="keyForm" label-width="120px">
         <el-form-item label="算法类型">
           <el-select v-model="keyForm.algorithm" placeholder="选择算法">
@@ -225,12 +208,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="密钥长度">
-          <el-input-number
-            v-model="keyForm.keyLength"
-            :min="128"
-            :max="4096"
-            :step="128"
-          />
+          <el-input-number v-model="keyForm.keyLength" :min="128" :max="4096" :step="128" />
         </el-form-item>
         <el-form-item label="密钥ID">
           <el-input v-model="keyForm.keyId" placeholder="留空自动生成" />
@@ -257,39 +235,39 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import axios from 'axios'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import axios from 'axios';
 
 // Props
 const props = defineProps({
   moduleData: {
     type: Object,
-    default: () => ({})
-  }
-})
+    default: () => ({}),
+  },
+});
 
 // Emits
-const emit = defineEmits(['refresh'])
+const emit = defineEmits(['refresh']);
 
 // 响应式数据
-const testing = ref(false)
-const generatingKey = ref(false)
-const generateKeyDialogVisible = ref(false)
+const testing = ref(false);
+const generatingKey = ref(false);
+const generateKeyDialogVisible = ref(false);
 
 // 加密统计数据
 const encryptionStats = reactive({
   keyCount: 0,
   encryptedFiles: 0,
   algorithms: 0,
-  performance: 0
-})
+  performance: 0,
+});
 
 // 算法性能数据
-const algorithmPerformance = ref([])
+const algorithmPerformance = ref([]);
 
 // 密钥列表
-const keyList = ref([])
+const keyList = ref([]);
 
 // 可用算法列表
 const availableAlgorithms = ref([
@@ -297,80 +275,84 @@ const availableAlgorithms = ref([
   { name: 'SM4-GCM', type: '对称加密', keyLength: 128 },
   { name: 'RSA-2048', type: '非对称加密', keyLength: 2048 },
   { name: 'SM2', type: '非对称加密', keyLength: 256 },
-  { name: 'ChaCha20-Poly1305', type: '对称加密', keyLength: 256 }
-])
+  { name: 'ChaCha20-Poly1305', type: '对称加密', keyLength: 256 },
+]);
 
 // 测试表单
 const testForm = reactive({
   testData: 'Hello, this is a test message for encryption.',
   algorithm: 'AES-256-GCM',
-  operation: 'encrypt'
-})
+  operation: 'encrypt',
+});
 
 // 测试结果
-const testResult = ref(null)
+const testResult = ref(null);
 
 // 密钥生成表单
 const keyForm = reactive({
   algorithm: 'AES-256-GCM',
   keyLength: 256,
   keyId: '',
-  expiresAt: ''
-})
+  expiresAt: '',
+});
 
 // 计算属性
-const getPerformanceClass = (performance) => {
-  if (performance < 50) return 'excellent'
-  if (performance < 100) return 'good'
-  return 'poor'
-}
+const getPerformanceClass = performance => {
+  if (performance < 50) return 'excellent';
+  if (performance < 100) return 'good';
+  return 'poor';
+};
 
-const getKeyStatusType = (status) => {
+const getKeyStatusType = status => {
   const typeMap = {
-    'active': 'success',
-    'expired': 'danger',
-    'revoked': 'warning'
-  }
-  return typeMap[status] || 'info'
-}
+    active: 'success',
+    expired: 'danger',
+    revoked: 'warning',
+  };
+  return typeMap[status] || 'info';
+};
 
 // 方法
-const formatDate = (date) => {
-  return new Date(date).toLocaleString('zh-CN')
-}
+const formatDate = date => {
+  return new Date(date).toLocaleString('zh-CN');
+};
 
 // 获取加密统计数据
 const fetchEncryptionStats = async () => {
   try {
-    const response = await axios.get('/api/v1/security/encryption/stats')
+    const response = await axios.get('/api/v1/security/encryption/stats');
 
     if (response.data.success) {
-      Object.assign(encryptionStats, response.data.data)
+      Object.assign(encryptionStats, response.data.data);
     }
   } catch (error) {
-    console.error('获取加密统计失败:', error)
-    ElMessage.error('获取加密统计失败')
+    console.error('获取加密统计失败:', error);
+    ElMessage.error('获取加密统计失败');
   }
-}
+};
 
 // 获取算法性能数据
 const fetchAlgorithmPerformance = async () => {
   try {
-    const response = await axios.get('/api/v1/security/encryption/performance')
+    const response = await axios.get('/api/v1/security/encryption/performance');
 
     if (response.data.success) {
-      algorithmPerformance.value = response.data.data.testResults?.map(result => ({
-        algorithm: result.algorithm,
-        type: result.algorithm.includes('RSA') || result.algorithm.includes('SM2') ? '非对称加密' : '对称加密',
-        keyLength: result.keyLength || 256,
-        throughput: (1024 / (result.avgTime / 1000)).toFixed(2),
-        avgTime: result.avgTime,
-        rating: Math.ceil(100 / result.avgTime) > 5 ? 5 : Math.ceil(100 / result.avgTime),
-        enabled: true
-      })) || []
+      algorithmPerformance.value =
+        response.data.data.testResults?.map(result => ({
+          algorithm: result.algorithm,
+          type:
+            result.algorithm.includes('RSA') || result.algorithm.includes('SM2')
+              ? '非对称加密'
+              : '对称加密',
+          keyLength: result.keyLength || 256,
+          throughput: (1024 / (result.avgTime / 1000)).toFixed(2),
+          avgTime: result.avgTime,
+          rating: Math.ceil(100 / result.avgTime) > 5 ? 5 : Math.ceil(100 / result.avgTime),
+          enabled: true,
+        })) || [];
     }
   } catch (error) {
-    console.error('获取算法性能数据失败:', error)
+    console.error('获取算法性能数据失败:', error);
     // 使用模拟数据
     algorithmPerformance.value = [
       {
@@ -380,7 +362,7 @@ const fetchAlgorithmPerformance = async () => {
         throughput: 85.2,
         avgTime: 12,
         rating: 5,
-        enabled: true
+        enabled: true,
       },
       {
         algorithm: 'SM4-GCM',
@@ -389,7 +371,7 @@ const fetchAlgorithmPerformance = async () => {
         throughput: 78.5,
         avgTime: 15,
         rating: 4,
-        enabled: true
+        enabled: true,
       },
       {
         algorithm: 'RSA-2048',
@@ -398,22 +380,22 @@ const fetchAlgorithmPerformance = async () => {
         throughput: 2.1,
         avgTime: 485,
         rating: 1,
-        enabled: true
-      }
-    ]
+        enabled: true,
+      },
+    ];
   }
-}
+};
 
 // 获取密钥列表
 const fetchKeyList = async () => {
   try {
-    const response = await axios.get('/api/v1/security/encryption/keys')
+    const response = await axios.get('/api/v1/security/encryption/keys');
 
     if (response.data.success) {
-      keyList.value = response.data.data || []
+      keyList.value = response.data.data || [];
     }
   } catch (error) {
-    console.error('获取密钥列表失败:', error)
+    console.error('获取密钥列表失败:', error);
     // 使用模拟数据
     keyList.value = [
       {
@@ -422,7 +404,7 @@ const fetchKeyList = async () => {
         keyLength: 256,
         createdAt: new Date('2024-01-15'),
         expiresAt: new Date('2025-01-15'),
-        status: 'active'
+        status: 'active',
       },
       {
         keyId: 'sm4_key_001',
@@ -430,127 +412,115 @@ const fetchKeyList = async () => {
         keyLength: 128,
         createdAt: new Date('2024-02-20'),
         expiresAt: new Date('2025-02-20'),
-        status: 'active'
-      }
-    ]
+        status: 'active',
+      },
+    ];
   }
-}
+};
 
 // 切换算法状态
-const toggleAlgorithm = async (algorithm) => {
+const toggleAlgorithm = async algorithm => {
   try {
     // 这里应该调用API切换算法状态
-    ElMessage.success(`已${algorithm.enabled ? '启用' : '禁用'} ${algorithm.algorithm}`)
+    ElMessage.success(`已${algorithm.enabled ? '启用' : '禁用'} ${algorithm.algorithm}`);
   } catch (error) {
-    ElMessage.error('切换算法状态失败')
+    ElMessage.error('切换算法状态失败');
   }
-}
+};
 
 // 密钥轮换
-const rotateKey = async (key) => {
+const rotateKey = async key => {
   try {
-    await ElMessageBox.confirm(
-      `确定要轮换密钥 ${key.keyId} 吗？`,
-      '确认轮换',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
+    await ElMessageBox.confirm(`确定要轮换密钥 ${key.keyId} 吗？`, '确认轮换', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
 
     const response = await axios.post('/api/v1/security/encryption/manage-key', {
       operation: 'rotate',
-      keyId: key.keyId
-    })
+      keyId: key.keyId,
+    });
 
     if (response.data.success) {
-      ElMessage.success('密钥轮换成功')
-      await fetchKeyList()
+      ElMessage.success('密钥轮换成功');
+      await fetchKeyList();
     }
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('密钥轮换失败')
+      ElMessage.error('密钥轮换失败');
     }
   }
-}
+};
 
 // 撤销密钥
-const revokeKey = async (key) => {
+const revokeKey = async key => {
   try {
-    await ElMessageBox.confirm(
-      `确定要撤销密钥 ${key.keyId} 吗？此操作不可恢复。`,
-      '确认撤销',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
+    await ElMessageBox.confirm(`确定要撤销密钥 ${key.keyId} 吗？此操作不可恢复。`, '确认撤销', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
 
     const response = await axios.post('/api/v1/security/encryption/manage-key', {
       operation: 'revoke',
-      keyId: key.keyId
-    })
+      keyId: key.keyId,
+    });
 
     if (response.data.success) {
-      ElMessage.success('密钥撤销成功')
-      await fetchKeyList()
+      ElMessage.success('密钥撤销成功');
+      await fetchKeyList();
     }
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('密钥撤销失败')
+      ElMessage.error('密钥撤销失败');
     }
   }
-}
+};
 
 // 批量轮换密钥
 const rotateAllKeys = async () => {
   try {
-    await ElMessageBox.confirm(
-      '确定要批量轮换所有活跃密钥吗？',
-      '确认批量轮换',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
+    await ElMessageBox.confirm('确定要批量轮换所有活跃密钥吗？', '确认批量轮换', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
 
-    ElMessage.success('批量密钥轮换已启动')
-    await fetchKeyList()
+    ElMessage.success('批量密钥轮换已启动');
+    await fetchKeyList();
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('批量密钥轮换失败')
+      ElMessage.error('批量密钥轮换失败');
     }
   }
-}
+};
 
 // 执行加密测试
 const performEncryptionTest = async () => {
   if (!testForm.testData.trim()) {
-    ElMessage.warning('请输入测试数据')
-    return
+    ElMessage.warning('请输入测试数据');
+    return;
   }
 
-  testing.value = true
-  const startTime = Date.now()
+  testing.value = true;
+  const startTime = Date.now();
 
   try {
-    let response
+    let response;
     if (testForm.operation === 'encrypt') {
       response = await axios.post('/api/v1/security/encryption/encrypt', {
         data: testForm.testData,
-        algorithm: testForm.algorithm
-      })
+        algorithm: testForm.algorithm,
+      });
     } else {
       response = await axios.post('/api/v1/security/encryption/decrypt', {
-        encryptedData: JSON.parse(testForm.testData)
-      })
+        encryptedData: JSON.parse(testForm.testData),
+      });
     }
 
-    const endTime = Date.now()
-    const processingTime = endTime - startTime
+    const endTime = Date.now();
+    const processingTime = endTime - startTime;
 
     if (response.data.success) {
       testResult.value = {
@@ -559,70 +529,66 @@ const performEncryptionTest = async () => {
         processingTime,
         inputSize: testForm.testData.length,
         outputSize: JSON.stringify(response.data.data).length,
-        result: JSON.stringify(response.data.data, null, 2)
-      }
+        result: JSON.stringify(response.data.data, null, 2),
+      };
 
-      ElMessage.success(`${testForm.operation === 'encrypt' ? '加密' : '解密'}测试成功`)
+      ElMessage.success(`${testForm.operation === 'encrypt' ? '加密' : '解密'}测试成功`);
     }
   } catch (error) {
-    const endTime = Date.now()
+    const endTime = Date.now();
     testResult.value = {
       success: false,
       algorithm: testForm.algorithm,
       processingTime: endTime - startTime,
       inputSize: testForm.testData.length,
-      result: error.message
-    }
+      result: error.message,
+    };
 
-    ElMessage.error(`${testForm.operation === 'encrypt' ? '加密' : '解密'}测试失败`)
+    ElMessage.error(`${testForm.operation === 'encrypt' ? '加密' : '解密'}测试失败`);
   } finally {
-    testing.value = false
+    testing.value = false;
   }
-}
+};
 
 // 清空测试结果
 const clearTestResults = () => {
-  testResult.value = null
-  testForm.testData = 'Hello, this is a test message for encryption.'
-}
+  testResult.value = null;
+  testForm.testData = 'Hello, this is a test message for encryption.';
+};
 
 // 生成新密钥
 const generateKey = async () => {
   if (!keyForm.algorithm) {
-    ElMessage.warning('请选择加密算法')
-    return
+    ElMessage.warning('请选择加密算法');
+    return;
   }
 
-  generatingKey.value = true
+  generatingKey.value = true;
   try {
     const response = await axios.post('/api/v1/security/encryption/manage-key', {
       operation: 'generate',
       algorithm: keyForm.algorithm,
       keyLength: keyForm.keyLength,
       keyId: keyForm.keyId || undefined,
-      expiresAt: keyForm.expiresAt || undefined
-    })
+      expiresAt: keyForm.expiresAt || undefined,
+    });
 
     if (response.data.success) {
-      ElMessage.success('密钥生成成功')
-      generateKeyDialogVisible.value = false
-      await fetchKeyList()
+      ElMessage.success('密钥生成成功');
+      generateKeyDialogVisible.value = false;
+      await fetchKeyList();
     }
   } catch (error) {
-    ElMessage.error('密钥生成失败')
+    ElMessage.error('密钥生成失败');
   } finally {
-    generatingKey.value = false
+    generatingKey.value = false;
   }
-}
+};
 
 // 初始化
 onMounted(async () => {
-  await Promise.all([
-    fetchEncryptionStats(),
-    fetchAlgorithmPerformance(),
-    fetchKeyList()
-  ])
-})
+  await Promise.all([fetchEncryptionStats(), fetchAlgorithmPerformance(), fetchKeyList()]);
+});
 </script>
 
 <style scoped>
@@ -649,19 +615,19 @@ onMounted(async () => {
 }
 
 .overview-value.active {
-  color: #67C23A;
+  color: #67c23a;
 }
 
 .overview-value.excellent {
-  color: #67C23A;
+  color: #67c23a;
 }
 
 .overview-value.good {
-  color: #409EFF;
+  color: #409eff;
 }
 
 .overview-value.poor {
-  color: #F56C6C;
+  color: #f56c6c;
 }
 
 .overview-label {

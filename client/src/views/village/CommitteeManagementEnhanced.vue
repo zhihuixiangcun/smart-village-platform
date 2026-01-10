@@ -58,7 +58,12 @@
       <el-tab-pane label="申请审核" name="applications">
         <div class="tab-header">
           <div class="filter-options">
-            <el-select v-model="applicationFilter.status" placeholder="状态筛选" clearable @change="loadApplications">
+            <el-select
+              v-model="applicationFilter.status"
+              placeholder="状态筛选"
+              clearable
+              @change="loadApplications"
+            >
               <el-option label="全部" value="" />
               <el-option label="待审核" value="pending" />
               <el-option label="审核中" value="under_review" />
@@ -94,9 +99,7 @@
                 >
                   取消申请
                 </el-button>
-                <el-button size="small" @click="viewApplicationDetail(app)">
-                  查看详情
-                </el-button>
+                <el-button size="small" @click="viewApplicationDetail(app)"> 查看详情 </el-button>
               </div>
             </div>
             <div class="app-content">
@@ -127,7 +130,12 @@
       <el-tab-pane label="成员管理" name="members">
         <div class="tab-header">
           <div class="filter-options">
-            <el-select v-model="memberFilter.role" placeholder="角色筛选" clearable @change="loadMembers">
+            <el-select
+              v-model="memberFilter.role"
+              placeholder="角色筛选"
+              clearable
+              @change="loadMembers"
+            >
               <el-option label="全部" value="" />
               <el-option label="村支书" value="secretary" />
               <el-option label="村主任" value="village_head" />
@@ -160,10 +168,10 @@
                   </el-button>
                   <template #dropdown>
                     <el-dropdown-menu>
-                      <el-dropdown-item :command="{action: 'permission', member}">
+                      <el-dropdown-item :command="{ action: 'permission', member }">
                         <el-icon><Lock /></el-icon> 权限管理
                       </el-dropdown-item>
-                      <el-dropdown-item :command="{action: 'remove', member}" divided>
+                      <el-dropdown-item :command="{ action: 'remove', member }" divided>
                         <el-icon><Delete /></el-icon> 移除成员
                       </el-dropdown-item>
                     </el-dropdown-menu>
@@ -201,7 +209,12 @@
       width="600px"
       @close="resetApplicationForm"
     >
-      <el-form :model="applicationForm" :rules="applicationRules" ref="applicationFormRef" label-width="120px">
+      <el-form
+        :model="applicationForm"
+        :rules="applicationRules"
+        ref="applicationFormRef"
+        label-width="120px"
+      >
         <el-form-item label="申请类型" prop="applicationType">
           <el-select v-model="applicationForm.applicationType" placeholder="请选择申请类型">
             <el-option label="新账号申请" value="new_account" />
@@ -246,13 +259,21 @@
     >
       <div v-if="currentApplication" class="review-content">
         <el-descriptions :column="1" border>
-          <el-descriptions-item label="申请ID">{{ currentApplication.applicationId }}</el-descriptions-item>
+          <el-descriptions-item label="申请ID">{{
+            currentApplication.applicationId
+          }}</el-descriptions-item>
           <el-descriptions-item label="申请类型">
             {{ getApplicationTypeText(currentApplication.applicationType) }}
           </el-descriptions-item>
-          <el-descriptions-item label="申请人">{{ currentApplication.applicant?.name }}</el-descriptions-item>
-          <el-descriptions-item label="目标角色">{{ getRoleText(currentApplication.targetRole) }}</el-descriptions-item>
-          <el-descriptions-item label="申请理由">{{ currentApplication.reason }}</el-descriptions-item>
+          <el-descriptions-item label="申请人">{{
+            currentApplication.applicant?.name
+          }}</el-descriptions-item>
+          <el-descriptions-item label="目标角色">{{
+            getRoleText(currentApplication.targetRole)
+          }}</el-descriptions-item>
+          <el-descriptions-item label="申请理由">{{
+            currentApplication.reason
+          }}</el-descriptions-item>
         </el-descriptions>
       </div>
       <el-form :model="reviewForm" ref="reviewFormRef" label-width="80px" style="margin-top: 20px">
@@ -273,11 +294,7 @@
     </el-dialog>
 
     <!-- 权限管理对话框 -->
-    <el-dialog
-      v-model="permissionDialogVisible"
-      title="权限管理"
-      width="700px"
-    >
+    <el-dialog v-model="permissionDialogVisible" title="权限管理" width="700px">
       <div v-if="currentMember" class="permission-content">
         <el-form :model="permissionForm" label-width="100px">
           <el-form-item label="成员姓名">
@@ -312,241 +329,237 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import {
-  Plus,
-  Refresh,
-  MoreFilled,
-  Lock,
-  Delete
-} from '@element-plus/icons-vue'
-import axios from 'axios'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { Plus, Refresh, MoreFilled, Lock, Delete } from '@element-plus/icons-vue';
+import axios from 'axios';
 
 // API基础URL
-const API_BASE = 'http://localhost:3001/api'
+const API_BASE = 'http://localhost:3001/api';
 
 // 响应式数据
-const activeTab = ref('applications')
-const applicationDialogVisible = ref(false)
-const reviewDialogVisible = ref(false)
-const permissionDialogVisible = ref(false)
+const activeTab = ref('applications');
+const applicationDialogVisible = ref(false);
+const reviewDialogVisible = ref(false);
+const permissionDialogVisible = ref(false);
 
-const applications = ref([])
-const members = ref([])
-const currentApplication = ref(null)
-const currentMember = ref(null)
+const applications = ref([]);
+const members = ref([]);
+const currentApplication = ref(null);
+const currentMember = ref(null);
 
 // 统计数据
 const statistics = reactive({
   totalMembers: 0,
   pendingApplications: 0,
   approvedApplications: 0,
-  rejectedApplications: 0
-})
+  rejectedApplications: 0,
+});
 
 // 角色分布
-const roleDistribution = ref([])
+const roleDistribution = ref([]);
 
 // 筛选条件
 const applicationFilter = reactive({
-  status: ''
-})
+  status: '',
+});
 
 const memberFilter = reactive({
-  role: ''
-})
+  role: '',
+});
 
 // 申请表单
 const applicationForm = reactive({
   applicationType: 'new_account',
   targetRole: '',
   targetVillageId: '',
-  reason: ''
-})
+  reason: '',
+});
 
 const applicationRules = {
   applicationType: [{ required: true, message: '请选择申请类型', trigger: 'change' }],
   targetRole: [{ required: true, message: '请选择目标角色', trigger: 'change' }],
   targetVillageId: [{ required: true, message: '请输入村庄ID', trigger: 'blur' }],
-  reason: [{ required: true, message: '请输入申请理由', trigger: 'blur' }]
-}
+  reason: [{ required: true, message: '请输入申请理由', trigger: 'blur' }],
+};
 
-const applicationFormRef = ref(null)
+const applicationFormRef = ref(null);
 
 // 审核表单
 const reviewForm = reactive({
   decision: '',
-  comments: ''
-})
+  comments: '',
+});
 
-const reviewFormRef = ref(null)
+const reviewFormRef = ref(null);
 
 // 权限表单
 const permissionForm = reactive({
   customPermissions: [],
   restrictions: {
-    dataScope: 'all'
-  }
-})
+    dataScope: 'all',
+  },
+});
 
 // 获取Token
 const getToken = () => {
-  return localStorage.getItem('token') || ''
-}
+  return localStorage.getItem('token') || '';
+};
 
 // Axios配置
 const apiClient = axios.create({
   baseURL: API_BASE,
   headers: {
-    'Content-Type': 'application/json'
-  }
-})
+    'Content-Type': 'application/json',
+  },
+});
 
 // 请求拦截器
 apiClient.interceptors.request.use(config => {
-  const token = getToken()
+  const token = getToken();
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`
+    config.headers.Authorization = `Bearer ${token}`;
   }
-  return config
-})
+  return config;
+});
 
 // 响应拦截器
 apiClient.interceptors.response.use(
   response => response,
   error => {
     if (error.response?.status === 401) {
-      ElMessage.error('登录已过期,请重新登录')
+      ElMessage.error('登录已过期,请重新登录');
       // 跳转到登录页
     } else if (error.response?.status === 403) {
-      ElMessage.error('权限不足')
+      ElMessage.error('权限不足');
     } else {
-      ElMessage.error(error.response?.data?.message || '请求失败')
+      ElMessage.error(error.response?.data?.message || '请求失败');
     }
-    return Promise.reject(error)
+    return Promise.reject(error);
   }
-)
+);
 
 // 加载统计数据
 const loadStatistics = async () => {
   try {
-    const response = await apiClient.get('/committee/statistics')
+    const response = await apiClient.get('/committee/statistics');
     if (response.data.success) {
-      const data = response.data.data
-      statistics.totalMembers = data.totalMembers || 0
-      statistics.pendingApplications = data.applications?.pending || 0
-      statistics.approvedApplications = data.applications?.approved || 0
-      statistics.rejectedApplications = data.applications?.rejected || 0
-      roleDistribution.value = data.members || []
+      const data = response.data.data;
+      statistics.totalMembers = data.totalMembers || 0;
+      statistics.pendingApplications = data.applications?.pending || 0;
+      statistics.approvedApplications = data.applications?.approved || 0;
+      statistics.rejectedApplications = data.applications?.rejected || 0;
+      roleDistribution.value = data.members || [];
     }
   } catch (error) {
-    console.error('加载统计数据失败:', error)
+    console.error('加载统计数据失败:', error);
   }
-}
+};
 
 // 加载申请列表
 const loadApplications = async () => {
   try {
-    const params = {}
+    const params = {};
     if (applicationFilter.status) {
-      params.status = applicationFilter.status
+      params.status = applicationFilter.status;
     }
-    const response = await apiClient.get('/committee/applications', { params })
+    const response = await apiClient.get('/committee/applications', { params });
     if (response.data.success) {
-      applications.value = response.data.data.applications || []
+      applications.value = response.data.data.applications || [];
     }
   } catch (error) {
-    console.error('加载申请列表失败:', error)
+    console.error('加载申请列表失败:', error);
   }
-}
+};
 
 // 加载成员列表
 const loadMembers = async () => {
   try {
-    const params = {}
+    const params = {};
     if (memberFilter.role) {
-      params.role = memberFilter.role
+      params.role = memberFilter.role;
     }
-    const response = await apiClient.get('/committee/members', { params })
+    const response = await apiClient.get('/committee/members', { params });
     if (response.data.success) {
-      members.value = response.data.data || []
+      members.value = response.data.data || [];
     }
   } catch (error) {
-    console.error('加载成员列表失败:', error)
+    console.error('加载成员列表失败:', error);
   }
-}
+};
 
 // 提交申请
 const submitApplication = async () => {
-  if (!applicationFormRef.value) return
+  if (!applicationFormRef.value) return;
 
   try {
-    await applicationFormRef.value.validate()
-    const response = await apiClient.post('/committee/applications', applicationForm)
+    await applicationFormRef.value.validate();
+    const response = await apiClient.post('/committee/applications', applicationForm);
     if (response.data.success) {
-      ElMessage.success('申请提交成功')
-      applicationDialogVisible.value = false
-      resetApplicationForm()
-      loadApplications()
-      loadStatistics()
+      ElMessage.success('申请提交成功');
+      applicationDialogVisible.value = false;
+      resetApplicationForm();
+      loadApplications();
+      loadStatistics();
     }
   } catch (error) {
-    console.error('提交申请失败:', error)
+    console.error('提交申请失败:', error);
   }
-}
+};
 
 // 审核申请
-const reviewApplication = (application) => {
-  currentApplication.value = application
-  reviewDialogVisible.value = true
-}
+const reviewApplication = application => {
+  currentApplication.value = application;
+  reviewDialogVisible.value = true;
+};
 
 // 处理审核
-const handleReview = async (decision) => {
-  if (!currentApplication.value) return
+const handleReview = async decision => {
+  if (!currentApplication.value) return;
 
   try {
     const response = await apiClient.put(
       `/committee/applications/${currentApplication.value.applicationId}/review`,
       {
         decision,
-        comments: reviewForm.comments
+        comments: reviewForm.comments,
       }
-    )
+    );
     if (response.data.success) {
-      ElMessage.success(decision === 'approve' ? '审核通过' : '已驳回')
-      reviewDialogVisible.value = false
-      resetReviewForm()
-      loadApplications()
-      loadStatistics()
+      ElMessage.success(decision === 'approve' ? '审核通过' : '已驳回');
+      reviewDialogVisible.value = false;
+      resetReviewForm();
+      loadApplications();
+      loadStatistics();
     }
   } catch (error) {
-    console.error('审核失败:', error)
+    console.error('审核失败:', error);
   }
-}
+};
 
 // 取消申请
-const cancelApplication = async (application) => {
+const cancelApplication = async application => {
   try {
     await ElMessageBox.confirm('确定要取消此申请吗?', '确认操作', {
-      type: 'warning'
-    })
-    const response = await apiClient.put(`/committee/applications/${application.applicationId}/cancel`)
+      type: 'warning',
+    });
+    const response = await apiClient.put(
+      `/committee/applications/${application.applicationId}/cancel`
+    );
     if (response.data.success) {
-      ElMessage.success('申请已取消')
-      loadApplications()
-      loadStatistics()
+      ElMessage.success('申请已取消');
+      loadApplications();
+      loadStatistics();
     }
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('取消申请失败:', error)
+      console.error('取消申请失败:', error);
     }
   }
-}
+};
 
 // 查看详情
-const viewApplicationDetail = (application) => {
+const viewApplicationDetail = application => {
   ElMessageBox.alert(
     `
     <p><strong>申请ID:</strong> ${application.applicationId}</p>
@@ -560,150 +573,152 @@ const viewApplicationDetail = (application) => {
     '申请详情',
     {
       dangerouslyUseHTMLString: true,
-      confirmButtonText: '关闭'
+      confirmButtonText: '关闭',
     }
-  )
-}
+  );
+};
 
 // 处理成员操作
 const handleMemberAction = ({ action, member }) => {
   switch (action) {
     case 'permission':
-      managePermission(member)
-      break
+      managePermission(member);
+      break;
     case 'remove':
-      removeMember(member)
-      break
+      removeMember(member);
+      break;
   }
-}
+};
 
 // 权限管理
-const managePermission = (member) => {
-  currentMember.value = member
-  permissionForm.customPermissions = member.customPermissions || []
-  permissionForm.restrictions = member.restrictions || { dataScope: 'all' }
-  permissionDialogVisible.value = true
-}
+const managePermission = member => {
+  currentMember.value = member;
+  permissionForm.customPermissions = member.customPermissions || [];
+  permissionForm.restrictions = member.restrictions || { dataScope: 'all' };
+  permissionDialogVisible.value = true;
+};
 
 // 保存权限
 const savePermissions = async () => {
-  if (!currentMember.value) return
+  if (!currentMember.value) return;
 
   try {
     const response = await apiClient.put(`/committee/members/${currentMember.value._id}`, {
       customPermissions: permissionForm.customPermissions,
-      restrictions: permissionForm.restrictions
-    })
+      restrictions: permissionForm.restrictions,
+    });
     if (response.data.success) {
-      ElMessage.success('权限更新成功')
-      permissionDialogVisible.value = false
-      loadMembers()
+      ElMessage.success('权限更新成功');
+      permissionDialogVisible.value = false;
+      loadMembers();
     }
   } catch (error) {
-    console.error('更新权限失败:', error)
+    console.error('更新权限失败:', error);
   }
-}
+};
 
 // 移除成员
-const removeMember = async (member) => {
+const removeMember = async member => {
   try {
     await ElMessageBox.confirm(`确定要移除 ${member.name} 吗?`, '确认操作', {
       type: 'warning',
       confirmButtonText: '确定移除',
-      cancelButtonText: '取消'
-    })
-    const response = await apiClient.delete(`/committee/members/${member._id}`)
+      cancelButtonText: '取消',
+    });
+    const response = await apiClient.delete(`/committee/members/${member._id}`);
     if (response.data.success) {
-      ElMessage.success('成员已移除')
-      loadMembers()
-      loadStatistics()
+      ElMessage.success('成员已移除');
+      loadMembers();
+      loadStatistics();
     }
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('移除成员失败:', error)
+      console.error('移除成员失败:', error);
     }
   }
-}
+};
 
 // 工具函数
-const getApplicationStatusType = (status) => {
+const getApplicationStatusType = status => {
   const typeMap = {
-    'pending': 'warning',
-    'under_review': 'primary',
-    'approved': 'success',
-    'rejected': 'danger',
-    'cancelled': 'info'
-  }
-  return typeMap[status] || 'info'
-}
+    pending: 'warning',
+    under_review: 'primary',
+    approved: 'success',
+    rejected: 'danger',
+    cancelled: 'info',
+  };
+  return typeMap[status] || 'info';
+};
 
-const getApplicationStatusText = (status) => {
+const getApplicationStatusText = status => {
   const textMap = {
-    'pending': '待审核',
-    'under_review': '审核中',
-    'approved': '已通过',
-    'rejected': '已驳回',
-    'cancelled': '已取消'
-  }
-  return textMap[status] || '未知'
-}
+    pending: '待审核',
+    under_review: '审核中',
+    approved: '已通过',
+    rejected: '已驳回',
+    cancelled: '已取消',
+  };
+  return textMap[status] || '未知';
+};
 
-const getApplicationTypeText = (type) => {
+const getApplicationTypeText = type => {
   const textMap = {
-    'new_account': '新账号申请',
-    'role_change': '角色变更',
-    'permission_grant': '权限授予',
-    'role_resign': '离职申请'
-  }
-  return textMap[type] || '未知'
-}
+    new_account: '新账号申请',
+    role_change: '角色变更',
+    permission_grant: '权限授予',
+    role_resign: '离职申请',
+  };
+  return textMap[type] || '未知';
+};
 
-const getRoleText = (roleCode) => {
+const getRoleText = roleCode => {
   const textMap = {
-    'secretary': '村支书',
-    'village_head': '村主任',
-    'accountant': '会计',
-    'population_admin': '人口主任',
-    'security_director': '治保主任'
-  }
-  return textMap[roleCode] || roleCode
-}
+    secretary: '村支书',
+    village_head: '村主任',
+    accountant: '会计',
+    population_admin: '人口主任',
+    security_director: '治保主任',
+  };
+  return textMap[roleCode] || roleCode;
+};
 
-const getRoleType = (roleCode) => {
+const getRoleType = roleCode => {
   const typeMap = {
-    'secretary': 'danger',
-    'village_head': 'warning',
-    'accountant': 'primary',
-    'population_admin': 'success',
-    'security_director': 'info'
-  }
-  return typeMap[roleCode] || 'info'
-}
+    secretary: 'danger',
+    village_head: 'warning',
+    accountant: 'primary',
+    population_admin: 'success',
+    security_director: 'info',
+  };
+  return typeMap[roleCode] || 'info';
+};
 
-const formatDate = (dateString) => {
-  if (!dateString) return '-'
-  return new Date(dateString).toLocaleString('zh-CN')
-}
+const formatDate = dateString => {
+  if (!dateString) return '-';
+  return new Date(dateString).toLocaleString('zh-CN');
+};
 
-const maskPhone = (phone) => {
-  if (!phone) return '-'
-  return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')
-}
+const maskPhone = phone => {
+  if (!phone) return '-';
+  return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
+};
 
-const canReview = (application) => {
+const canReview = application => {
   // 简化版: 实际应根据当前用户角色判断
-  return ['pending', 'under_review'].includes(application.status)
-}
+  return ['pending', 'under_review'].includes(application.status);
+};
 
-const canCancel = (application) => {
-  return ['pending', 'under_review'].includes(application.status) &&
-         application.applicant?.userId === getCurrentUserId()
-}
+const canCancel = application => {
+  return (
+    ['pending', 'under_review'].includes(application.status) &&
+    application.applicant?.userId === getCurrentUserId()
+  );
+};
 
 const getCurrentUserId = () => {
   // 简化版: 从localStorage或其他地方获取当前用户ID
-  return localStorage.getItem('userId') || ''
-}
+  return localStorage.getItem('userId') || '';
+};
 
 // 重置表单
 const resetApplicationForm = () => {
@@ -711,31 +726,31 @@ const resetApplicationForm = () => {
     applicationType: 'new_account',
     targetRole: '',
     targetVillageId: '',
-    reason: ''
-  })
+    reason: '',
+  });
   if (applicationFormRef.value) {
-    applicationFormRef.value.resetFields()
+    applicationFormRef.value.resetFields();
   }
-}
+};
 
 const resetReviewForm = () => {
   Object.assign(reviewForm, {
     decision: '',
-    comments: ''
-  })
-  currentApplication.value = null
-}
+    comments: '',
+  });
+  currentApplication.value = null;
+};
 
 const showApplicationDialog = () => {
-  applicationDialogVisible.value = true
-}
+  applicationDialogVisible.value = true;
+};
 
 // 生命周期
 onMounted(() => {
-  loadStatistics()
-  loadApplications()
-  loadMembers()
-})
+  loadStatistics();
+  loadApplications();
+  loadMembers();
+});
 </script>
 
 <style scoped>

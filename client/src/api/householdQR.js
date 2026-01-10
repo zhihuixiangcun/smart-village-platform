@@ -13,7 +13,7 @@ const householdQRApi = {
    */
   generateQR(householdId, options = {}) {
     return request.post(`/v1/household-qr/generate/${householdId}`, null, {
-      params: options
+      params: options,
     });
   },
 
@@ -102,7 +102,7 @@ const householdQRApi = {
   addMember(codeId, memberData) {
     return this.updateByQR(codeId, {
       memberData,
-      updateType: 'add_member'
+      updateType: 'add_member',
     });
   },
 
@@ -114,7 +114,7 @@ const householdQRApi = {
    */
   removeMember(codeId, memberId) {
     return this.updateByQR(codeId, {
-      removeMemberId: memberId
+      removeMemberId: memberId,
     });
   },
 
@@ -128,7 +128,7 @@ const householdQRApi = {
   updateMember(codeId, memberId, memberData) {
     return this.updateByQR(codeId, {
       memberId,
-      memberData
+      memberData,
     });
   },
 
@@ -160,9 +160,35 @@ const householdQRApi = {
    */
   updateContact(codeId, phone) {
     return this.updateByQR(codeId, {
-      contact: { householderPhone: phone }
+      contact: { householderPhone: phone },
     });
-  }
+  },
+
+  /**
+   * 获取家庭成员列表
+   * @param {string} householdId - 家庭ID
+   * @returns {Promise} 成员列表
+   */
+  getMembers(householdId) {
+    return request.get(`/v1/household/${householdId}/members`);
+  },
+
+  /**
+   * 获取家庭详情
+   * @param {string} householdId - 家庭ID
+   * @returns {Promise} 家庭详情
+   */
+  getHouseholdDetail(householdId) {
+    return request.get(`/v1/household/${householdId}`);
+  },
+
+  /**
+   * 获取我的家庭信息
+   * @returns {Promise} 我的家庭信息
+   */
+  getMyHousehold() {
+    return request.get('/v1/household/my');
+  },
 };
 
 export default householdQRApi;

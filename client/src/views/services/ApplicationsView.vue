@@ -9,10 +9,19 @@
           <p class="page-description">一站式在线服务，让办事更便捷</p>
         </div>
         <div class="header-actions">
-          <el-button @click="showApplicationHistory" :size="largeTextMode ? 'large' : 'default'" icon="Document">
+          <el-button
+            @click="showApplicationHistory"
+            :size="largeTextMode ? 'large' : 'default'"
+            icon="Document"
+          >
             办事记录
           </el-button>
-          <el-button type="primary" @click="showApplicationGuide" :size="largeTextMode ? 'large' : 'default'" icon="QuestionFilled">
+          <el-button
+            type="primary"
+            @click="showApplicationGuide"
+            :size="largeTextMode ? 'large' : 'default'"
+            icon="QuestionFilled"
+          >
             办事指南
           </el-button>
         </div>
@@ -121,7 +130,7 @@
             <el-button
               type="text"
               @click="showMyApplications"
-              style="width: 100%; margin-top: 16px;"
+              style="width: 100%; margin-top: 16px"
             >
               查看全部
               <el-icon><ArrowRight /></el-icon>
@@ -194,10 +203,7 @@
             </div>
 
             <!-- 空状态 -->
-            <el-empty
-              v-if="!loading && filteredServices.length === 0"
-              description="暂无相关服务"
-            />
+            <el-empty v-if="!loading && filteredServices.length === 0" description="暂无相关服务" />
           </div>
         </el-col>
       </el-row>
@@ -256,21 +262,38 @@
           <!-- 在线办理 -->
           <el-tab-pane label="在线办理" name="application">
             <div class="application-form">
-              <el-form :model="applicationForm" :rules="applicationRules" ref="applicationFormRef" label-width="120px">
+              <el-form
+                :model="applicationForm"
+                :rules="applicationRules"
+                ref="applicationFormRef"
+                label-width="120px"
+              >
                 <el-form-item label="申请人姓名" prop="name">
-                  <el-input v-model="applicationForm.name" :size="largeTextMode ? 'large' : 'default'" />
+                  <el-input
+                    v-model="applicationForm.name"
+                    :size="largeTextMode ? 'large' : 'default'"
+                  />
                 </el-form-item>
 
                 <el-form-item label="身份证号" prop="idCard">
-                  <el-input v-model="applicationForm.idCard" :size="largeTextMode ? 'large' : 'default'" />
+                  <el-input
+                    v-model="applicationForm.idCard"
+                    :size="largeTextMode ? 'large' : 'default'"
+                  />
                 </el-form-item>
 
                 <el-form-item label="联系电话" prop="phone">
-                  <el-input v-model="applicationForm.phone" :size="largeTextMode ? 'large' : 'default'" />
+                  <el-input
+                    v-model="applicationForm.phone"
+                    :size="largeTextMode ? 'large' : 'default'"
+                  />
                 </el-form-item>
 
                 <el-form-item label="家庭地址" prop="address">
-                  <el-input v-model="applicationForm.address" :size="largeTextMode ? 'large' : 'default'" />
+                  <el-input
+                    v-model="applicationForm.address"
+                    :size="largeTextMode ? 'large' : 'default'"
+                  />
                 </el-form-item>
 
                 <!-- 动态字段 -->
@@ -316,9 +339,7 @@
                     :on-change="handleFileChange"
                   >
                     <el-icon class="el-icon--upload"><UploadFilled /></el-icon>
-                    <div class="el-upload__text">
-                      将文件拖到此处，或<em>点击上传</em>
-                    </div>
+                    <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
                     <template #tip>
                       <div class="el-upload__tip">
                         {{ field.tip || '支持jpg/png/pdf文件，不超过10MB' }}
@@ -350,11 +371,7 @@
           <!-- 常见问题 -->
           <el-tab-pane label="常见问题" name="faq">
             <div class="faq-list">
-              <div
-                v-for="(faq, index) in currentService?.faq"
-                :key="index"
-                class="faq-item"
-              >
+              <div v-for="(faq, index) in currentService?.faq" :key="index" class="faq-item">
                 <div class="faq-question" @click="toggleFaq(index)">
                   <span>{{ faq.question }}</span>
                   <el-icon>
@@ -416,10 +433,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useUserStore } from '@/stores/userStore'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/userStore';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
   Search,
   QuestionFilled,
@@ -430,37 +447,31 @@ import {
   User,
   Money,
   Document,
-  UploadFilled
-} from '@element-plus/icons-vue'
+  UploadFilled,
+} from '@element-plus/icons-vue';
 
-const router = useRouter()
-const userStore = useUserStore()
+const router = useRouter();
+const userStore = useUserStore();
 
 // 响应式数据
-const largeTextMode = ref(false)
-const loading = ref(false)
-const submitting = ref(false)
-const searchQuery = ref('')
-const activeCategory = ref('all')
-const activeTab = ref('overview')
-const detailDialogVisible = ref(false)
-const guideDialogVisible = ref(false)
-const expandedFaq = ref(-1)
+const largeTextMode = ref(false);
+const loading = ref(false);
+const submitting = ref(false);
+const searchQuery = ref('');
+const activeCategory = ref('all');
+const activeTab = ref('overview');
+const detailDialogVisible = ref(false);
+const guideDialogVisible = ref(false);
+const expandedFaq = ref(-1);
 
 // 当前服务
-const currentService = ref(null)
+const currentService = ref(null);
 
 // 表单引用
-const applicationFormRef = ref(null)
+const applicationFormRef = ref(null);
 
 // 热门搜索
-const hotSearches = reactive([
-  '身份证办理',
-  '医保报销',
-  '老年证',
-  '生育证明',
-  '住房申请'
-])
+const hotSearches = reactive(['身份证办理', '医保报销', '老年证', '生育证明', '住房申请']);
 
 // 服务分类
 const serviceCategories = reactive([
@@ -470,8 +481,8 @@ const serviceCategories = reactive([
   { id: 'medical', name: '医疗保障', icon: '🏥', count: 10 },
   { id: 'agriculture', name: '农业服务', icon: '🌾', count: 6 },
   { id: 'housing', name: '住房保障', icon: '🏠', count: 5 },
-  { id: 'elderly', name: '养老助老', icon: '👴', count: 4 }
-])
+  { id: 'elderly', name: '养老助老', icon: '👴', count: 4 },
+]);
 
 // 服务列表
 const servicesList = reactive([
@@ -487,41 +498,49 @@ const servicesList = reactive([
     timeLimit: '15个工作日',
     fee: '首次申领免费，换领20元，补领40元',
     tags: ['热门', '常用'],
-    conditions: [
-      '具有智慧村户籍',
-      '年满16周岁',
-      '携带相关证明材料'
-    ],
+    conditions: ['具有智慧村户籍', '年满16周岁', '携带相关证明材料'],
     materials: [
       { name: '户口本', required: true },
       { name: '本人近期免冠照片', required: true },
-      { name: '旧身份证（换领时）', required: false }
+      { name: '旧身份证（换领时）', required: false },
     ],
     process: [
       { title: '在线申请', description: '填写个人信息并选择办理类型' },
       { title: '材料审核', description: '工作人员审核提交的材料' },
       { title: '现场核验', description: '到村委会进行现场核验' },
       { title: '证件制作', description: '公安机关制作身份证' },
-      { title: '领取证件', description: '到指定地点领取新身份证' }
+      { title: '领取证件', description: '到指定地点领取新身份证' },
     ],
     formFields: [
-      { name: 'type', label: '办理类型', type: 'select', required: true, options: [
-        { label: '首次申领', value: 'first' },
-        { label: '换领', value: 'renew' },
-        { label: '补领', value: 'replace' }
-      ]},
-      { name: 'reason', label: '申请原因', type: 'text', required: true, placeholder: '请说明办理原因' }
+      {
+        name: 'type',
+        label: '办理类型',
+        type: 'select',
+        required: true,
+        options: [
+          { label: '首次申领', value: 'first' },
+          { label: '换领', value: 'renew' },
+          { label: '补领', value: 'replace' },
+        ],
+      },
+      {
+        name: 'reason',
+        label: '申请原因',
+        type: 'text',
+        required: true,
+        placeholder: '请说明办理原因',
+      },
     ],
     faq: [
       {
         question: '办理身份证需要多长时间？',
-        answer: '一般情况下15个工作日内可以完成办理。'
+        answer: '一般情况下15个工作日内可以完成办理。',
       },
       {
         question: '可以代办身份证吗？',
-        answer: '年满16周岁需要本人办理，特殊情况可咨询村委会。'
-      }
-    ]
+        answer: '年满16周岁需要本人办理，特殊情况可咨询村委会。',
+      },
+    ],
   },
   {
     id: '2',
@@ -535,39 +554,41 @@ const servicesList = reactive([
     timeLimit: '20个工作日',
     fee: '免费',
     tags: ['医疗', '保障'],
-    conditions: [
-      '已参加城乡居民医保',
-      '在定点医疗机构就医',
-      '费用符合医保报销范围'
-    ],
+    conditions: ['已参加城乡居民医保', '在定点医疗机构就医', '费用符合医保报销范围'],
     materials: [
       { name: '医保卡', required: true },
       { name: '医疗费用发票', required: true },
       { name: '费用明细清单', required: true },
-      { name: '出院小结', required: false }
+      { name: '出院小结', required: false },
     ],
     process: [
       { title: '提交申请', description: '在线提交报销申请和相关材料' },
       { title: '材料初审', description: '医保中心初审材料完整性' },
       { title: '费用审核', description: '审核报销费用是否符合政策' },
-      { title: '资金拨付', description: '报销资金拨付到个人账户' }
+      { title: '资金拨付', description: '报销资金拨付到个人账户' },
     ],
     formFields: [
       { name: 'hospital', label: '就医医院', type: 'text', required: true },
       { name: 'treatmentDate', label: '就医日期', type: 'date', required: true },
       { name: 'totalAmount', label: '总费用', type: 'text', required: true },
-      { name: 'receipts', label: '费用单据', type: 'file', required: true, tip: '请上传医疗费用发票和明细清单' }
+      {
+        name: 'receipts',
+        label: '费用单据',
+        type: 'file',
+        required: true,
+        tip: '请上传医疗费用发票和明细清单',
+      },
     ],
     faq: [
       {
         question: '报销比例是多少？',
-        answer: '根据就医医院等级和费用类型，报销比例在50%-90%之间。'
+        answer: '根据就医医院等级和费用类型，报销比例在50%-90%之间。',
       },
       {
         question: '异地就医可以报销吗？',
-        answer: '办理异地就医备案后，在备案地就医可以报销。'
-      }
-    ]
+        answer: '办理异地就医备案后，在备案地就医可以报销。',
+      },
+    ],
   },
   {
     id: '3',
@@ -581,32 +602,34 @@ const servicesList = reactive([
     timeLimit: '7个工作日',
     fee: '免费',
     tags: ['老年人', '优待'],
-    conditions: [
-      '年满60周岁',
-      '具有智慧村户籍或居住证',
-      '本人申请或代办'
-    ],
+    conditions: ['年满60周岁', '具有智慧村户籍或居住证', '本人申请或代办'],
     materials: [
       { name: '身份证', required: true },
       { name: '户口本', required: true },
-      { name: '近期免冠照片', required: true }
+      { name: '近期免冠照片', required: true },
     ],
     process: [
       { title: '在线申请', description: '填写个人信息并上传材料' },
       { title: '审核材料', description: '村委会审核申请材料' },
       { title: '制作证件', description: '民政部门制作优待证' },
-      { title: '发放证件', description: '到村委会领取优待证' }
+      { title: '发放证件', description: '到村委会领取优待证' },
     ],
     formFields: [
       { name: 'birthDate', label: '出生日期', type: 'date', required: true },
-      { name: 'photo', label: '证件照片', type: 'file', required: true, tip: '请上传近期免冠白底照片' }
+      {
+        name: 'photo',
+        label: '证件照片',
+        type: 'file',
+        required: true,
+        tip: '请上传近期免冠白底照片',
+      },
     ],
     faq: [
       {
         question: '老年优待证有哪些优待？',
-        answer: '可免费乘坐公交车、参观公园、景区门票半价等。'
-      }
-    ]
+        answer: '可免费乘坐公交车、参观公园、景区门票半价等。',
+      },
+    ],
   },
   {
     id: '4',
@@ -620,46 +643,48 @@ const servicesList = reactive([
     timeLimit: '30个工作日',
     fee: '免费',
     tags: ['住房', '补贴'],
-    conditions: [
-      '家庭经济困难',
-      '住房为危房',
-      '具有改造意愿和能力'
-    ],
+    conditions: ['家庭经济困难', '住房为危房', '具有改造意愿和能力'],
     materials: [
       { name: '家庭收入证明', required: true },
       { name: '房屋鉴定报告', required: true },
-      { name: '改造方案', required: true }
+      { name: '改造方案', required: true },
     ],
     process: [
       { title: '提交申请', description: '在线提交补贴申请' },
       { title: '上门核查', description: '工作人员上门实地核查' },
       { title: '评审公示', description: '评审委员会评审并公示' },
-      { title: '资金拨付', description: '改造验收后拨付补贴资金' }
+      { title: '资金拨付', description: '改造验收后拨付补贴资金' },
     ],
     formFields: [
       { name: 'familyIncome', label: '家庭年收入', type: 'text', required: true },
-      { name: 'houseCondition', label: '房屋状况', type: 'select', required: true, options: [
-        { label: 'D级危房', value: 'D' },
-        { label: 'C级危房', value: 'C' },
-        { label: '需要改造', value: 'need' }
-      ]},
-      { name: 'reconstructionPlan', label: '改造方案', type: 'file', required: true }
+      {
+        name: 'houseCondition',
+        label: '房屋状况',
+        type: 'select',
+        required: true,
+        options: [
+          { label: 'D级危房', value: 'D' },
+          { label: 'C级危房', value: 'C' },
+          { label: '需要改造', value: 'need' },
+        ],
+      },
+      { name: 'reconstructionPlan', label: '改造方案', type: 'file', required: true },
     ],
     faq: [
       {
         question: '补贴标准是多少？',
-        answer: '根据危房等级和家庭情况，补贴标准在1-3万元之间。'
-      }
-    ]
-  }
-])
+        answer: '根据危房等级和家庭情况，补贴标准在1-3万元之间。',
+      },
+    ],
+  },
+]);
 
 // 申请统计
 const applicationStats = reactive({
   pending: 2,
   processing: 3,
-  completed: 8
-})
+  completed: 8,
+});
 
 // 申请表单
 const applicationForm = reactive({
@@ -667,94 +692,95 @@ const applicationForm = reactive({
   idCard: '',
   phone: '',
   address: '',
-  remark: ''
-})
+  remark: '',
+});
 
 // 表单验证规则
 const applicationRules = {
-  name: [
-    { required: true, message: '请输入申请人姓名', trigger: 'blur' }
-  ],
+  name: [{ required: true, message: '请输入申请人姓名', trigger: 'blur' }],
   idCard: [
     { required: true, message: '请输入身份证号', trigger: 'blur' },
-    { pattern: /^[1-9]\d{5}(19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[0-9Xx]$/, message: '请输入正确的身份证号', trigger: 'blur' }
+    {
+      pattern: /^[1-9]\d{5}(19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[0-9Xx]$/,
+      message: '请输入正确的身份证号',
+      trigger: 'blur',
+    },
   ],
   phone: [
     { required: true, message: '请输入联系电话', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' }
+    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' },
   ],
-  address: [
-    { required: true, message: '请输入家庭地址', trigger: 'blur' }
-  ]
-}
+  address: [{ required: true, message: '请输入家庭地址', trigger: 'blur' }],
+};
 
 // 计算属性
 const filteredServices = computed(() => {
-  let filtered = servicesList
+  let filtered = servicesList;
 
   // 按分类筛选
   if (activeCategory.value !== 'all') {
-    filtered = filtered.filter(service => service.category === activeCategory.value)
+    filtered = filtered.filter(service => service.category === activeCategory.value);
   }
 
   // 按搜索关键词筛选
   if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase()
-    filtered = filtered.filter(service =>
-      service.name.toLowerCase().includes(query) ||
-      service.description.toLowerCase().includes(query) ||
-      service.tags.some(tag => tag.toLowerCase().includes(query))
-    )
+    const query = searchQuery.value.toLowerCase();
+    filtered = filtered.filter(
+      service =>
+        service.name.toLowerCase().includes(query) ||
+        service.description.toLowerCase().includes(query) ||
+        service.tags.some(tag => tag.toLowerCase().includes(query))
+    );
   }
 
-  return filtered
-})
+  return filtered;
+});
 
 // 方法
 const getCurrentCategoryName = () => {
-  const category = serviceCategories.find(cat => cat.id === activeCategory.value)
-  return category ? category.name : '全部服务'
-}
+  const category = serviceCategories.find(cat => cat.id === activeCategory.value);
+  return category ? category.name : '全部服务';
+};
 
-const setActiveCategory = (categoryId) => {
-  activeCategory.value = categoryId
-}
+const setActiveCategory = categoryId => {
+  activeCategory.value = categoryId;
+};
 
 const handleSearch = () => {
-  loading.value = true
+  loading.value = true;
   setTimeout(() => {
-    loading.value = false
-  }, 500)
-}
+    loading.value = false;
+  }, 500);
+};
 
-const quickSearch = (tag) => {
-  searchQuery.value = tag
-  handleSearch()
-}
+const quickSearch = tag => {
+  searchQuery.value = tag;
+  handleSearch();
+};
 
-const getStatusText = (status) => {
+const getStatusText = status => {
   const texts = {
-    'available': '可办理',
-    'limited': '限办理',
-    'unavailable': '暂停办理'
-  }
-  return texts[status] || '未知'
-}
+    available: '可办理',
+    limited: '限办理',
+    unavailable: '暂停办理',
+  };
+  return texts[status] || '未知';
+};
 
-const getTagType = (tag) => {
+const getTagType = tag => {
   const types = {
-    '热门': 'danger',
-    '常用': 'warning',
-    '新上线': 'success',
-    '推荐': 'primary'
-  }
-  return types[tag] || ''
-}
+    热门: 'danger',
+    常用: 'warning',
+    新上线: 'success',
+    推荐: 'primary',
+  };
+  return types[tag] || '';
+};
 
-const openService = (service) => {
-  currentService.value = service
-  activeTab.value = 'overview'
-  detailDialogVisible.value = true
+const openService = service => {
+  currentService.value = service;
+  activeTab.value = 'overview';
+  detailDialogVisible.value = true;
 
   // 重置表单
   Object.assign(applicationForm, {
@@ -762,61 +788,61 @@ const openService = (service) => {
     phone: userStore.userInfo?.phone || '',
     address: userStore.userInfo?.address || '',
     idCard: '',
-    remark: ''
-  })
-}
+    remark: '',
+  });
+};
 
-const applyService = (service) => {
-  openService(service)
-  activeTab.value = 'application'
-}
+const applyService = service => {
+  openService(service);
+  activeTab.value = 'application';
+};
 
-const viewServiceDetail = (service) => {
-  openService(service)
-}
+const viewServiceDetail = service => {
+  openService(service);
+};
 
-const toggleFaq = (index) => {
-  expandedFaq.value = expandedFaq.value === index ? -1 : index
-}
+const toggleFaq = index => {
+  expandedFaq.value = expandedFaq.value === index ? -1 : index;
+};
 
-const handleFileChange = (file) => {
-  console.log('文件上传:', file)
-}
+const handleFileChange = file => {
+  console.log('文件上传:', file);
+};
 
 const submitApplication = async () => {
-  if (!applicationFormRef.value) return
+  if (!applicationFormRef.value) return;
 
   try {
-    await applicationFormRef.value.validate()
+    await applicationFormRef.value.validate();
 
-    submitting.value = true
+    submitting.value = true;
 
     // 模拟提交
     setTimeout(() => {
-      submitting.value = false
-      detailDialogVisible.value = false
-      ElMessage.success('申请提交成功，请等待审核')
-    }, 2000)
+      submitting.value = false;
+      detailDialogVisible.value = false;
+      ElMessage.success('申请提交成功，请等待审核');
+    }, 2000);
   } catch (error) {
-    console.error('表单验证失败:', error)
+    console.error('表单验证失败:', error);
   }
-}
+};
 
 const showApplicationGuide = () => {
-  guideDialogVisible.value = true
-}
+  guideDialogVisible.value = true;
+};
 
 const showApplicationHistory = () => {
-  router.push('/my-applications')
-}
+  router.push('/my-applications');
+};
 
 const showMyApplications = () => {
-  router.push('/my-applications')
-}
+  router.push('/my-applications');
+};
 
 onMounted(() => {
-  console.log('在线办事大厅加载完成')
-})
+  console.log('在线办事大厅加载完成');
+});
 </script>
 
 <style lang="scss" scoped>
@@ -931,7 +957,8 @@ onMounted(() => {
   padding: 0 24px 24px;
 }
 
-.category-card, .progress-card {
+.category-card,
+.progress-card {
   margin-bottom: 16px;
 
   .card-header {

@@ -10,8 +10,8 @@ config.global.plugins = [
   ElementPlus,
   createTestingPinia({
     createSpy: vi.fn,
-    stubActions: false
-  })
+    stubActions: false,
+  }),
 ];
 
 // 模拟路由
@@ -24,8 +24,8 @@ const router = createRouter({
     { path: '/committee', component: { template: '<div>Committee</div>' } },
     { path: '/finance', component: { template: '<div>Finance</div>' } },
     { path: '/emergency', component: { template: '<div>Emergency</div>' } },
-    { path: '/analytics', component: { template: '<div>Analytics</div>' } }
-  ]
+    { path: '/analytics', component: { template: '<div>Analytics</div>' } },
+  ],
 });
 router.push('/');
 config.global.plugins.push(router);
@@ -35,11 +35,12 @@ config.global.stubs = {
   'el-icon': true,
   'el-button': {
     template: '<button @click="$emit(\'click\')"><slot /></button>',
-    props: ['type', 'size', 'loading', 'disabled']
+    props: ['type', 'size', 'loading', 'disabled'],
   },
   'el-input': {
-    template: '<input :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
-    props: ['modelValue', 'placeholder', 'type']
+    template:
+      '<input :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
+    props: ['modelValue', 'placeholder', 'type'],
   },
   'el-form': true,
   'el-form-item': true,
@@ -48,11 +49,11 @@ config.global.stubs = {
   'el-pagination': true,
   'el-dialog': {
     template: '<div v-if="modelValue"><slot /></div>',
-    props: ['modelValue', 'title', 'width']
+    props: ['modelValue', 'title', 'width'],
   },
   'el-drawer': {
     template: '<div v-if="modelValue"><slot /></div>',
-    props: ['modelValue', 'title']
+    props: ['modelValue', 'title'],
   },
   'el-select': true,
   'el-option': true,
@@ -63,7 +64,7 @@ config.global.stubs = {
   'el-row': true,
   'el-col': true,
   'router-link': { template: '<a><slot /></a>' },
-  'router-view': { template: '<div><slot /></div>' }
+  'router-view': { template: '<div><slot /></div>' },
 };
 
 // 模拟浏览器 API
@@ -77,22 +78,22 @@ Object.defineProperty(window, 'matchMedia', {
     removeListener: vi.fn(),
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn()
-  }))
+    dispatchEvent: vi.fn(),
+  })),
 });
 
 // 模拟 ResizeObserver
 global.ResizeObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
-  disconnect: vi.fn()
+  disconnect: vi.fn(),
 }));
 
 // 模拟 IntersectionObserver
 global.IntersectionObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
-  disconnect: vi.fn()
+  disconnect: vi.fn(),
 }));
 
 // 模拟 localStorage
@@ -100,7 +101,7 @@ const localStorageMock = {
   getItem: vi.fn(),
   setItem: vi.fn(),
   removeItem: vi.fn(),
-  clear: vi.fn()
+  clear: vi.fn(),
 };
 Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
@@ -109,7 +110,7 @@ const sessionStorageMock = {
   getItem: vi.fn(),
   setItem: vi.fn(),
   removeItem: vi.fn(),
-  clear: vi.fn()
+  clear: vi.fn(),
 };
 Object.defineProperty(window, 'sessionStorage', { value: sessionStorageMock });
 
@@ -122,7 +123,7 @@ global.WebSocket = vi.fn().mockImplementation(() => ({
   send: vi.fn(),
   addEventListener: vi.fn(),
   removeEventListener: vi.fn(),
-  readyState: 1
+  readyState: 1,
 }));
 
 // 模拟 navigator.geolocation
@@ -130,15 +131,15 @@ Object.defineProperty(navigator, 'geolocation', {
   value: {
     getCurrentPosition: vi.fn(),
     watchPosition: vi.fn(),
-    clearWatch: vi.fn()
-  }
+    clearWatch: vi.fn(),
+  },
 });
 
 // 模拟 navigator.mediaDevices
 Object.defineProperty(navigator, 'mediaDevices', {
   value: {
-    getUserMedia: vi.fn(() => Promise.resolve({}))
-  }
+    getUserMedia: vi.fn(() => Promise.resolve({})),
+  },
 });
 
 // 模拟 Canvas API
@@ -166,7 +167,7 @@ HTMLCanvasElement.prototype.getContext = vi.fn().mockReturnValue({
   measureText: vi.fn(() => ({ width: 0 })),
   transform: vi.fn(),
   rect: vi.fn(),
-  clip: vi.fn()
+  clip: vi.fn(),
 });
 
 // 模拟 URL.createObjectURL
@@ -185,7 +186,7 @@ global.createMockUser = (overrides = {}) => ({
   name: '测试用户',
   role: 'resident',
   villageId: 'test-village-id',
-  ...overrides
+  ...overrides,
 });
 
 global.createMockResident = (overrides = {}) => ({
@@ -195,7 +196,7 @@ global.createMockResident = (overrides = {}) => ({
   phone: '13800138000',
   address: '测试地址',
   familyType: '普通户',
-  ...overrides
+  ...overrides,
 });
 
 global.createMockCommittee = (overrides = {}) => ({
@@ -205,7 +206,7 @@ global.createMockCommittee = (overrides = {}) => ({
   phone: '13900139000',
   email: 'committee@test.com',
   isActive: true,
-  ...overrides
+  ...overrides,
 });
 
 // 模拟 Element Plus 消息
@@ -213,13 +214,13 @@ global.mockMessage = {
   success: vi.fn(),
   warning: vi.fn(),
   info: vi.fn(),
-  error: vi.fn()
+  error: vi.fn(),
 };
 
 global.mockMessageBox = {
   confirm: vi.fn(() => Promise.resolve('confirm')),
   prompt: vi.fn(() => Promise.resolve({ value: 'test' })),
-  alert: vi.fn()
+  alert: vi.fn(),
 };
 
 // 设置 Element Plus mock
@@ -229,7 +230,7 @@ vi.mock('element-plus', async () => {
     ...actual,
     ElMessage: global.mockMessage,
     ElMessageBox: global.mockMessageBox,
-    ElNotification: vi.fn()
+    ElNotification: vi.fn(),
   };
 });
 

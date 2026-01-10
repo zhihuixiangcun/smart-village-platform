@@ -37,11 +37,11 @@ class ResidentBatchImportService extends EventEmitter {
    * 创建导入任务
    */
   async createImportTask(userId, fileInfo) {
-    const taskId = 'import_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    const taskId = `import_${  Date.now()  }_${  Math.random().toString(36).substr(2, 9)}`;
 
     const task = {
       id: taskId,
-      userId: userId,
+      userId,
       fileName: fileInfo.originalname,
       filePath: fileInfo.path,
       status: 'pending',
@@ -92,13 +92,13 @@ class ResidentBatchImportService extends EventEmitter {
     const ext = path.extname(filePath).toLowerCase();
 
     if (!this.supportedFormats.includes(ext)) {
-      throw new Error('不支持的文件格式: ' + ext);
+      throw new Error(`不支持的文件格式: ${  ext}`);
     }
 
     // 检查文件大小
     const stats = fs.statSync(filePath);
     if (stats.size > this.maxFileSize) {
-      throw new Error('文件大小超过限制: ' + Math.round(stats.size / 1024 / 1024) + 'MB');
+      throw new Error(`文件大小超过限制: ${  Math.round(stats.size / 1024 / 1024)  }MB`);
     }
 
     let data = [];
@@ -161,7 +161,7 @@ class ResidentBatchImportService extends EventEmitter {
       // 检查必填字段
       for (const field of requiredFields) {
         if (!row[field] || row[field].trim() === '') {
-          record.errors.push(field + '不能为空');
+          record.errors.push(`${field  }不能为空`);
         } else {
           record.data[field] = row[field].trim();
         }
@@ -194,7 +194,7 @@ class ResidentBatchImportService extends EventEmitter {
       if (record.data['村ID']) {
         const villageExists = await this.checkVillageExists(record.data['村ID']);
         if (!villageExists) {
-          record.warnings.push('村ID ' + record.data['村ID'] + ' 不存在');
+          record.warnings.push(`村ID ${  record.data['村ID']  } 不存在`);
         }
       }
 
@@ -226,8 +226,8 @@ class ResidentBatchImportService extends EventEmitter {
     }
 
     return {
-      validRecords: validRecords,
-      errors: errors,
+      validRecords,
+      errors,
       total: data.length,
       validCount: validRecords.length,
       errorCount: errors.length
@@ -300,7 +300,7 @@ class ResidentBatchImportService extends EventEmitter {
    */
   async checkDuplicateIdCard(idCard) {
     try {
-      const resident = await Resident.findOne({ idCard: idCard });
+      const resident = await Resident.findOne({ idCard });
       return !!resident;
     } catch (error) {
       return false;
@@ -436,11 +436,11 @@ class ResidentBatchImportService extends EventEmitter {
     try {
       // 1. 解析文件
       const data = await this.parseFile(task.filePath);
-      logger.info('文件解析完成', { taskId: taskId, rowCount: data.length });
+      logger.info('文件解析完成', { taskId, rowCount: data.length });
 
       // 2. 验证数据
       const validation = await this.validateData(data, taskId);
-      logger.info('数据验证完成', { taskId: taskId, ...validation });
+      logger.info('数据验证完成', { taskId, ...validation });
 
       if (validation.validCount === 0) {
         throw new Error('没有有效数据可导入');
@@ -448,18 +448,18 @@ class ResidentBatchImportService extends EventEmitter {
 
       // 3. 导入数据
       const results = await this.importData(validation.validRecords, taskId);
-      logger.info('数据导入完成', { taskId: taskId, ...results });
+      logger.info('数据导入完成', { taskId, ...results });
 
       // 4. 清理临时文件
       this.cleanupFile(task.filePath);
 
       return {
-        taskId: taskId,
+        taskId,
         ...validation,
         importResults: results
       };
     } catch (error) {
-      logger.error('导入失败', { taskId: taskId, error: error.message });
+      logger.error('导入失败', { taskId, error: error.message });
       task.status = 'failed';
       task.endTime = new Date();
       task.errors.push({ error: error.message });
@@ -475,10 +475,10 @@ class ResidentBatchImportService extends EventEmitter {
     try {
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
-        logger.info('临时文件已删除', { filePath: filePath });
+        logger.info('临时文件已删除', { filePath });
       }
     } catch (error) {
-      logger.warn('删除临时文件失败', { filePath: filePath, error: error.message });
+      logger.warn('删除临时文件失败', { filePath, error: error.message });
     }
   }
 
@@ -617,14 +617,14 @@ class ResidentBatchImportService extends EventEmitter {
           validation.errors.push({
             row: i + 2,
             name: row['姓名'] || '未知',
-            errors: errors
+            errors
           });
         }
       }
 
       return validation;
     } catch (error) {
-      throw new Error('验证文件失败: ' + error.message);
+      throw new Error(`验证文件失败: ${  error.message}`);
     }
   }
 
@@ -692,7 +692,7 @@ class ResidentBatchImportService extends EventEmitter {
     const { userId, villageId, file, skipDuplicates = true, updateExisting = false } = options;
 
     // 创建临时任务ID
-    const tempTaskId = 'sync_' + Date.now();
+    const tempTaskId = `sync_${  Date.now()}`;
     await this.createImportTask(userId, { originalname: file.originalname, path: file.path });
     const tempTask = this.importTasks.get(tempTaskId);
 

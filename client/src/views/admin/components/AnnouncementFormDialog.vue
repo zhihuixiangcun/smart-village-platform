@@ -183,11 +183,7 @@
         </el-form-item>
 
         <el-form-item v-if="form.visibility === 'custom'" label="指定用户">
-          <user-selector
-            v-model="form.visibleTo"
-            multiple
-            placeholder="选择可见用户"
-          />
+          <user-selector v-model="form.visibleTo" multiple placeholder="选择可见用户" />
         </el-form-item>
       </div>
 
@@ -222,7 +218,10 @@
             <el-row :gutter="20">
               <el-col :span="8">
                 <el-form-item label="方言类型">
-                  <el-select v-model="form.pushSettings.voiceSettings.dialect" placeholder="选择方言">
+                  <el-select
+                    v-model="form.pushSettings.voiceSettings.dialect"
+                    placeholder="选择方言"
+                  >
                     <el-option label="普通话" value="mandarin" />
                     <el-option label="粤语" value="cantonese" />
                     <el-option label="闽南语" value="minnan" />
@@ -274,9 +273,7 @@
               drag
             >
               <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-              <div class="el-upload__text">
-                将文件拖到此处，或<em>点击上传</em>
-              </div>
+              <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
               <template #tip>
                 <div class="el-upload__tip">
                   支持图片、视频、音频、文档等格式，单个文件不超过50MB
@@ -288,11 +285,7 @@
 
         <!-- 附件列表 -->
         <div v-if="form.attachments.length > 0" class="attachment-list">
-          <div
-            v-for="(attachment, index) in form.attachments"
-            :key="index"
-            class="attachment-item"
-          >
+          <div v-for="(attachment, index) in form.attachments" :key="index" class="attachment-item">
             <div class="attachment-info">
               <el-icon class="attachment-icon">
                 <component :is="getAttachmentIcon(attachment.type)" />
@@ -329,41 +322,45 @@
     </template>
 
     <!-- 预览弹窗 -->
-    <announcement-preview-dialog
-      v-model="previewVisible"
-      :announcement="form"
-    />
+    <announcement-preview-dialog v-model="previewVisible" :announcement="form" />
   </el-dialog>
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch, nextTick } from 'vue'
-import { ElMessage } from 'element-plus'
-import { Delete, UploadFilled, Document, Picture, VideoPlay, Headphones } from '@element-plus/icons-vue'
-import RichTextEditor from '@/components/common/RichTextEditor.vue'
-import UserSelector from '@/components/common/UserSelector.vue'
-import AnnouncementPreviewDialog from './AnnouncementPreviewDialog.vue'
-import { useAnnouncementStore } from '@/stores/announcement'
-import { formatTime, formatFileSize } from '@/utils/format'
+import { ref, reactive, computed, watch, nextTick } from 'vue';
+import { ElMessage } from 'element-plus';
+import {
+  Delete,
+  UploadFilled,
+  Document,
+  Picture,
+  VideoPlay,
+  Headphones,
+} from '@element-plus/icons-vue';
+import RichTextEditor from '@/components/common/RichTextEditor.vue';
+import UserSelector from '@/components/common/UserSelector.vue';
+import AnnouncementPreviewDialog from './AnnouncementPreviewDialog.vue';
+import { useAnnouncementStore } from '@/stores/announcement';
+import { formatTime, formatFileSize } from '@/utils/format';
 
 // Props
 const props = defineProps({
   modelValue: {
     type: Boolean,
-    default: false
+    default: false,
   },
   announcement: {
     type: Object,
-    default: null
+    default: null,
   },
   mode: {
     type: String,
-    default: 'create' // create | edit
-  }
-})
+    default: 'create', // create | edit
+  },
+});
 
 // Emits
-const emit = defineEmits(['update:modelValue', 'saved'])
+const emit = defineEmits(['update:modelValue', 'saved']);
 
 // 公告分类配置
 const categories = [
@@ -376,33 +373,33 @@ const categories = [
   { value: 'emergency', label: '紧急通知', icon: '🚨' },
   { value: 'meeting', label: '会议通知', icon: '👥' },
   { value: 'service', label: '便民服务', icon: '🔧' },
-  { value: 'other', label: '其他', icon: '📄' }
-]
+  { value: 'other', label: '其他', icon: '📄' },
+];
 
 // Store
-const announcementStore = useAnnouncementStore()
+const announcementStore = useAnnouncementStore();
 
 // 响应式数据
-const formRef = ref()
-const uploadRef = ref()
-const tagInputRef = ref()
+const formRef = ref();
+const uploadRef = ref();
+const tagInputRef = ref();
 
 const visible = computed({
   get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
-})
+  set: value => emit('update:modelValue', value),
+});
 
 const title = computed(() => {
-  return props.mode === 'create' ? '发布公告' : '编辑公告'
-})
+  return props.mode === 'create' ? '发布公告' : '编辑公告';
+});
 
-const uploadUrl = '/api/announcements/upload'
+const uploadUrl = '/api/announcements/upload';
 
-const saving = ref(false)
-const previewVisible = ref(false)
-const tagInputVisible = ref(false)
-const tagInputValue = ref('')
-const attachmentList = ref([])
+const saving = ref(false);
+const previewVisible = ref(false);
+const tagInputVisible = ref(false);
+const tagInputValue = ref('');
+const attachmentList = ref([]);
 
 // 表单数据
 const defaultForm = {
@@ -425,52 +422,42 @@ const defaultForm = {
       enabled: false,
       dialect: 'mandarin',
       speed: 1.0,
-      volume: 70
-    }
+      volume: 70,
+    },
   },
-  attachments: []
-}
+  attachments: [],
+};
 
-const form = reactive({ ...defaultForm })
+const form = reactive({ ...defaultForm });
 
 // 表单验证规则
 const rules = {
   title: [
     { required: true, message: '请输入公告标题', trigger: 'blur' },
-    { min: 1, max: 200, message: '标题长度在1到200个字符', trigger: 'blur' }
+    { min: 1, max: 200, message: '标题长度在1到200个字符', trigger: 'blur' },
   ],
   content: [
     { required: true, message: '请输入公告内容', trigger: 'blur' },
-    { min: 1, max: 50000, message: '内容长度在1到50000个字符', trigger: 'blur' }
+    { min: 1, max: 50000, message: '内容长度在1到50000个字符', trigger: 'blur' },
   ],
-  category: [
-    { required: true, message: '请选择公告分类', trigger: 'change' }
-  ],
-  priority: [
-    { required: true, message: '请选择优先级', trigger: 'change' }
-  ],
-  type: [
-    { required: true, message: '请选择公告类型', trigger: 'change' }
-  ],
-  status: [
-    { required: true, message: '请选择发布状态', trigger: 'change' }
-  ],
+  category: [{ required: true, message: '请选择公告分类', trigger: 'change' }],
+  priority: [{ required: true, message: '请选择优先级', trigger: 'change' }],
+  type: [{ required: true, message: '请选择公告类型', trigger: 'change' }],
+  status: [{ required: true, message: '请选择发布状态', trigger: 'change' }],
   scheduledTime: [
     {
       validator: (rule, value, callback) => {
         if (form.status === 'scheduled' && !value) {
-          callback(new Error('定时发布需要选择发布时间'))
+          callback(new Error('定时发布需要选择发布时间'));
         } else {
-          callback()
+          callback();
         }
       },
-      trigger: 'change'
-    }
+      trigger: 'change',
+    },
   ],
-  visibility: [
-    { required: true, message: '请选择可见范围', trigger: 'change' }
-  ]
-}
+  visibility: [{ required: true, message: '请选择可见范围', trigger: 'change' }],
+};
 
 // 方法
 const initForm = () => {
@@ -478,9 +465,11 @@ const initForm = () => {
     Object.assign(form, {
       ...defaultForm,
       ...props.announcement,
-      scheduledTime: props.announcement.scheduledTime ? new Date(props.announcement.scheduledTime) : null,
-      expiryTime: props.announcement.expiryTime ? new Date(props.announcement.expiryTime) : null
-    })
+      scheduledTime: props.announcement.scheduledTime
+        ? new Date(props.announcement.scheduledTime)
+        : null,
+      expiryTime: props.announcement.expiryTime ? new Date(props.announcement.expiryTime) : null,
+    });
   } else if (props.announcement && props.mode === 'create') {
     // 复制模式
     Object.assign(form, {
@@ -490,61 +479,61 @@ const initForm = () => {
       title: props.announcement.title,
       status: 'draft',
       scheduledTime: null,
-      expiryTime: null
-    })
+      expiryTime: null,
+    });
   } else {
-    Object.assign(form, defaultForm)
+    Object.assign(form, defaultForm);
   }
-}
+};
 
-const disabledDate = (time) => {
-  return time.getTime() < Date.now() - 24 * 60 * 60 * 1000
-}
+const disabledDate = time => {
+  return time.getTime() < Date.now() - 24 * 60 * 60 * 1000;
+};
 
 // 标签管理
 const addTag = () => {
-  const tag = tagInputValue.value.trim()
+  const tag = tagInputValue.value.trim();
   if (tag && !form.tags.includes(tag)) {
-    form.tags.push(tag)
+    form.tags.push(tag);
   }
-  tagInputValue.value = ''
-  tagInputVisible.value = false
-}
+  tagInputValue.value = '';
+  tagInputVisible.value = false;
+};
 
-const removeTag = (tag) => {
-  const index = form.tags.indexOf(tag)
+const removeTag = tag => {
+  const index = form.tags.indexOf(tag);
   if (index > -1) {
-    form.tags.splice(index, 1)
+    form.tags.splice(index, 1);
   }
-}
+};
 
 const showTagInput = () => {
-  tagInputVisible.value = true
+  tagInputVisible.value = true;
   nextTick(() => {
-    tagInputRef.value?.focus()
-  })
-}
+    tagInputRef.value?.focus();
+  });
+};
 
 // 附件管理
-const handleImageUpload = (imageData) => {
+const handleImageUpload = imageData => {
   form.attachments.push({
     type: 'image',
     name: imageData.name,
     url: imageData.url,
     size: imageData.size,
     mimeType: imageData.mimeType,
-    uploadTime: new Date()
-  })
-}
+    uploadTime: new Date(),
+  });
+};
 
-const beforeAttachmentUpload = (file) => {
-  const isValidSize = file.size / 1024 / 1024 < 50
+const beforeAttachmentUpload = file => {
+  const isValidSize = file.size / 1024 / 1024 < 50;
   if (!isValidSize) {
-    ElMessage.error('文件大小不能超过50MB')
-    return false
+    ElMessage.error('文件大小不能超过50MB');
+    return false;
   }
-  return true
-}
+  return true;
+};
 
 const handleAttachmentSuccess = (response, file) => {
   if (response.success) {
@@ -554,125 +543,131 @@ const handleAttachmentSuccess = (response, file) => {
       url: response.data.url,
       size: file.size,
       mimeType: file.raw.type,
-      uploadTime: new Date()
-    })
-    ElMessage.success('文件上传成功')
+      uploadTime: new Date(),
+    });
+    ElMessage.success('文件上传成功');
   } else {
-    ElMessage.error('文件上传失败')
+    ElMessage.error('文件上传失败');
   }
-}
+};
 
 const handleAttachmentError = () => {
-  ElMessage.error('文件上传失败')
-}
+  ElMessage.error('文件上传失败');
+};
 
-const removeAttachment = (index) => {
-  form.attachments.splice(index, 1)
-}
+const removeAttachment = index => {
+  form.attachments.splice(index, 1);
+};
 
-const getFileTypeFromMime = (mimeType) => {
-  if (mimeType.startsWith('image/')) return 'image'
-  if (mimeType.startsWith('video/')) return 'video'
-  if (mimeType.startsWith('audio/')) return 'audio'
-  return 'document'
-}
+const getFileTypeFromMime = mimeType => {
+  if (mimeType.startsWith('image/')) return 'image';
+  if (mimeType.startsWith('video/')) return 'video';
+  if (mimeType.startsWith('audio/')) return 'audio';
+  return 'document';
+};
 
-const getAttachmentIcon = (type) => {
+const getAttachmentIcon = type => {
   const icons = {
     image: Picture,
     video: VideoPlay,
     audio: Headphones,
-    document: Document
-  }
-  return icons[type] || Document
-}
+    document: Document,
+  };
+  return icons[type] || Document;
+};
 
 // 表单提交
 const validateForm = async () => {
-  if (!formRef.value) return false
+  if (!formRef.value) return false;
 
   try {
-    await formRef.value.validate()
-    return true
+    await formRef.value.validate();
+    return true;
   } catch (error) {
-    ElMessage.error('请检查表单输入')
-    return false
+    ElMessage.error('请检查表单输入');
+    return false;
   }
-}
+};
 
 const saveDraft = async () => {
-  const isValid = await validateForm()
-  if (!isValid) return
+  const isValid = await validateForm();
+  if (!isValid) return;
 
-  saving.value = true
+  saving.value = true;
   try {
     const formData = {
       ...form,
-      status: 'draft'
-    }
+      status: 'draft',
+    };
 
     if (props.mode === 'edit') {
-      await announcementStore.update(form.id, formData)
-      ElMessage.success('草稿保存成功')
+      await announcementStore.update(form.id, formData);
+      ElMessage.success('草稿保存成功');
     } else {
-      await announcementStore.create(formData)
-      ElMessage.success('草稿创建成功')
+      await announcementStore.create(formData);
+      ElMessage.success('草稿创建成功');
     }
 
-    emit('saved')
+    emit('saved');
   } catch (error) {
-    ElMessage.error('保存失败')
+    ElMessage.error('保存失败');
   } finally {
-    saving.value = false
+    saving.value = false;
   }
-}
+};
 
 const submit = async () => {
-  const isValid = await validateForm()
-  if (!isValid) return
+  const isValid = await validateForm();
+  if (!isValid) return;
 
-  saving.value = true
+  saving.value = true;
   try {
-    const formData = { ...form }
+    const formData = { ...form };
 
     if (props.mode === 'edit') {
-      await announcementStore.update(form.id, formData)
-      ElMessage.success('公告更新成功')
+      await announcementStore.update(form.id, formData);
+      ElMessage.success('公告更新成功');
     } else {
-      await announcementStore.create(formData)
-      ElMessage.success(form.status === 'published' ? '公告发布成功' : '公告创建成功')
+      await announcementStore.create(formData);
+      ElMessage.success(form.status === 'published' ? '公告发布成功' : '公告创建成功');
     }
 
-    emit('saved')
+    emit('saved');
   } catch (error) {
-    ElMessage.error('操作失败')
+    ElMessage.error('操作失败');
   } finally {
-    saving.value = false
+    saving.value = false;
   }
-}
+};
 
 const preview = () => {
-  previewVisible.value = true
-}
+  previewVisible.value = true;
+};
 
 const handleClose = () => {
-  emit('update:modelValue', false)
-}
+  emit('update:modelValue', false);
+};
 
 // 监听器
-watch(() => props.modelValue, (newVal) => {
-  if (newVal) {
-    initForm()
+watch(
+  () => props.modelValue,
+  newVal => {
+    if (newVal) {
+      initForm();
+    }
   }
-})
+);
 
-watch(() => form.pushSettings.channels, (channels) => {
-  if (channels.includes('voice')) {
-    form.pushSettings.voiceSettings.enabled = true
-  } else {
-    form.pushSettings.voiceSettings.enabled = false
+watch(
+  () => form.pushSettings.channels,
+  channels => {
+    if (channels.includes('voice')) {
+      form.pushSettings.voiceSettings.enabled = true;
+    } else {
+      form.pushSettings.voiceSettings.enabled = false;
+    }
   }
-})
+);
 </script>
 
 <style lang="scss" scoped>
@@ -702,11 +697,21 @@ watch(() => form.pushSettings.channels, (channels) => {
     }
 
     .priority-option {
-      &.emergency { color: #f56c6c; }
-      &.urgent { color: #e6a23c; }
-      &.high { color: #f56c6c; }
-      &.normal { color: #409eff; }
-      &.low { color: #909399; }
+      &.emergency {
+        color: #f56c6c;
+      }
+      &.urgent {
+        color: #e6a23c;
+      }
+      &.high {
+        color: #f56c6c;
+      }
+      &.normal {
+        color: #409eff;
+      }
+      &.low {
+        color: #909399;
+      }
     }
 
     .tag-item {

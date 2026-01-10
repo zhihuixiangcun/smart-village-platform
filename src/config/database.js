@@ -17,15 +17,19 @@ const config = {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 
-    // 连接池配置 - 增加连接池大小以处理更多并发请求
-    maxPoolSize: 20,
-    minPoolSize: 5,
-    maxIdleTimeMS: 60000,
+    // 连接池配置 - 优化为高并发场景
+    maxPoolSize: 50,                  // 最大连接数，支持1000+并发用户
+    minPoolSize: 10,                 // 最小连接数，确保快速响应
+    maxIdleTimeMS: 30000,             // 空闲连接超时30秒
+    maxConnecting: 10,                // 最大并发连接数
 
-    // 超时配置 - 增加超时时间
-    serverSelectionTimeoutMS: 30000,  // 服务器选择超时（增加到30秒）
-    socketTimeoutMS: 60000,          // Socket超时（增加到60秒）
-    connectTimeoutMS: 30000,          // 连接超时（增加到30秒）
+    // 超时配置 - 优化平衡性能和可靠性
+    serverSelectionTimeoutMS: 10000,   // 服务器选择超时10秒
+    socketTimeoutMS: 45000,           // Socket超时45秒
+    connectTimeoutMS: 10000,           // 连接超时10秒
+    heartbeatFrequencyMS: 10000,        // 心跳频率10秒
+    retryWrites: true,                  // 启用重试写入
+    retryReads: true,                  // 启用重试读取
 
     // 禁用命令缓冲，避免在未连接时排队查询导致超时
     bufferCommands: false,

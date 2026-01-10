@@ -2,7 +2,7 @@
  * 市集和位置服务 API 接口
  * 提供附近商品、商家、招聘、拼车等功能的API调用
  */
-import request from '@/utils/request'
+import request from '@/utils/request';
 
 // ==================== 附近商品/商家 API ====================
 
@@ -12,7 +12,7 @@ import request from '@/utils/request'
  * @returns {Promise} 商品列表
  */
 export function getNearbyProducts(params = {}) {
-  return request.get('/api/v1/marketplace/products/nearby', params)
+  return request.get('/api/v1/marketplace/products/nearby', params);
 }
 
 /**
@@ -21,7 +21,7 @@ export function getNearbyProducts(params = {}) {
  * @returns {Promise} 商品详情
  */
 export function getProductDetail(id) {
-  return request.get(`/api/v1/marketplace/products/${id}`)
+  return request.get(`/api/v1/marketplace/products/${id}`);
 }
 
 /**
@@ -30,7 +30,7 @@ export function getProductDetail(id) {
  * @returns {Promise} 商家列表
  */
 export function getNearbyMerchants(params = {}) {
-  return request.get('/api/v1/marketplace/merchants/nearby', params)
+  return request.get('/api/v1/marketplace/merchants/nearby', params);
 }
 
 /**
@@ -39,7 +39,7 @@ export function getNearbyMerchants(params = {}) {
  * @returns {Promise} 商家详情
  */
 export function getMerchantDetail(id) {
-  return request.get(`/api/v1/marketplace/merchants/${id}`)
+  return request.get(`/api/v1/marketplace/merchants/${id}`);
 }
 
 /**
@@ -48,7 +48,7 @@ export function getMerchantDetail(id) {
  * @returns {Promise} 搜索结果
  */
 export function searchProducts(params = {}) {
-  return request.get('/api/v1/marketplace/products/search', params)
+  return request.get('/api/v1/marketplace/products/search', params);
 }
 
 // ==================== 商品发布 API ====================
@@ -59,7 +59,7 @@ export function searchProducts(params = {}) {
  * @returns {Promise} 发布结果
  */
 export function publishProduct(data) {
-  return request.post('/api/v1/marketplace/products', data)
+  return request.post('/api/v1/marketplace/products', data);
 }
 
 /**
@@ -70,9 +70,9 @@ export function publishProduct(data) {
 export function uploadProductImage(formData) {
   return request.post('/api/v1/marketplace/products/upload-image', formData, {
     headers: {
-      'Content-Type': 'multipart/form-data'
-    }
-  })
+      'Content-Type': 'multipart/form-data',
+    },
+  });
 }
 
 /**
@@ -82,7 +82,7 @@ export function uploadProductImage(formData) {
  * @returns {Promise} 更新结果
  */
 export function updateProduct(id, data) {
-  return request.put(`/api/v1/marketplace/products/${id}`, data)
+  return request.put(`/api/v1/marketplace/products/${id}`, data);
 }
 
 /**
@@ -91,7 +91,7 @@ export function updateProduct(id, data) {
  * @returns {Promise} 下架结果
  */
 export function deleteProduct(id) {
-  return request.delete(`/api/v1/marketplace/products/${id}`)
+  return request.delete(`/api/v1/marketplace/products/${id}`);
 }
 
 /**
@@ -100,7 +100,7 @@ export function deleteProduct(id) {
  * @returns {Promise} 商品列表
  */
 export function getMyProducts(params = {}) {
-  return request.get('/api/v1/marketplace/products/my', params)
+  return request.get('/api/v1/marketplace/products/my', params);
 }
 
 // ==================== 附近服务(吃喝玩乐) API ====================
@@ -111,7 +111,7 @@ export function getMyProducts(params = {}) {
  * @returns {Promise} 场所列表
  */
 export function getNearbyVenues(params = {}) {
-  return request.get('/api/v1/marketplace/venues/nearby', params)
+  return request.get('/api/v1/marketplace/venues/nearby', params);
 }
 
 /**
@@ -120,7 +120,7 @@ export function getNearbyVenues(params = {}) {
  * @returns {Promise} 场所详情
  */
 export function getVenueDetail(id) {
-  return request.get(`/api/v1/marketplace/venues/${id}`)
+  return request.get(`/api/v1/marketplace/venues/${id}`);
 }
 
 /**
@@ -130,7 +130,7 @@ export function getVenueDetail(id) {
  * @returns {Promise} 评价列表
  */
 export function getVenueReviews(id, params = {}) {
-  return request.get(`/api/v1/marketplace/venues/${id}/reviews`, params)
+  return request.get(`/api/v1/marketplace/venues/${id}/reviews`, params);
 }
 
 /**
@@ -140,7 +140,7 @@ export function getVenueReviews(id, params = {}) {
  * @returns {Promise} 评价结果
  */
 export function submitVenueReview(id, data) {
-  return request.post(`/api/v1/marketplace/venues/${id}/reviews`, data)
+  return request.post(`/api/v1/marketplace/venues/${id}/reviews`, data);
 }
 
 // ==================== 交通出行 API ====================
@@ -151,7 +151,7 @@ export function submitVenueReview(id, data) {
  * @returns {Promise} 机场列表
  */
 export function getNearbyAirports(params = {}) {
-  return request.get('/api/v1/marketplace/travel/airports', params)
+  return request.get('/api/v1/marketplace/travel/airports', params);
 }
 
 /**
@@ -160,7 +160,7 @@ export function getNearbyAirports(params = {}) {
  * @returns {Promise} 航班列表
  */
 export function getFlights(params = {}) {
-  return request.get('/api/v1/marketplace/travel/flights', params)
+  return request.get('/api/v1/marketplace/travel/flights', params);
 }
 
 /**
@@ -169,7 +169,7 @@ export function getFlights(params = {}) {
  * @returns {Promise} 高铁站列表
  */
 export function getNearbyTrainStations(params = {}) {
-  return request.get('/api/v1/marketplace/train/stations', params)
+  return request.get('/api/v1/marketplace/train/stations', params);
 }
 
 /**
@@ -178,7 +178,7 @@ export function getNearbyTrainStations(params = {}) {
  * @returns {Promise} 车次列表
  */
 export function getTrainTickets(params = {}) {
-  return request.get('/api/v1/marketplace/train/tickets', params)
+  return request.get('/api/v1/marketplace/train/tickets', params);
 }
 
 // ==================== 拼车服务 API ====================
@@ -189,7 +189,7 @@ export function getTrainTickets(params = {}) {
  * @returns {Promise} 拼车列表
  */
 export function getCarpoolList(params = {}) {
-  return request.get('/api/v1/marketplace/carpool', params)
+  return request.get('/api/v1/marketplace/carpool', params);
 }
 
 /**
@@ -198,7 +198,7 @@ export function getCarpoolList(params = {}) {
  * @returns {Promise} 发布结果
  */
 export function publishCarpool(data) {
-  return request.post('/api/v1/marketplace/carpool', data)
+  return request.post('/api/v1/marketplace/carpool', data);
 }
 
 /**
@@ -208,7 +208,7 @@ export function publishCarpool(data) {
  * @returns {Promise} 更新结果
  */
 export function updateCarpool(id, data) {
-  return request.put(`/api/v1/marketplace/carpool/${id}`, data)
+  return request.put(`/api/v1/marketplace/carpool/${id}`, data);
 }
 
 /**
@@ -217,7 +217,7 @@ export function updateCarpool(id, data) {
  * @returns {Promise} 取消结果
  */
 export function cancelCarpool(id) {
-  return request.delete(`/api/v1/marketplace/carpool/${id}`)
+  return request.delete(`/api/v1/marketplace/carpool/${id}`);
 }
 
 /**
@@ -226,7 +226,7 @@ export function cancelCarpool(id) {
  * @returns {Promise} 预订结果
  */
 export function bookCarpool(id) {
-  return request.post(`/api/v1/marketplace/carpool/${id}/book`)
+  return request.post(`/api/v1/marketplace/carpool/${id}/book`);
 }
 
 /**
@@ -235,7 +235,7 @@ export function bookCarpool(id) {
  * @returns {Promise} 拼车列表
  */
 export function getMyCarpool(params = {}) {
-  return request.get('/api/v1/marketplace/carpool/my', params)
+  return request.get('/api/v1/marketplace/carpool/my', params);
 }
 
 // ==================== 招聘求职 API ====================
@@ -246,7 +246,7 @@ export function getMyCarpool(params = {}) {
  * @returns {Promise} 招聘列表
  */
 export function getJobPostings(params = {}) {
-  return request.get('/api/v1/marketplace/jobs', params)
+  return request.get('/api/v1/marketplace/jobs', params);
 }
 
 /**
@@ -255,7 +255,7 @@ export function getJobPostings(params = {}) {
  * @returns {Promise} 招聘详情
  */
 export function getJobDetail(id) {
-  return request.get(`/api/v1/marketplace/jobs/${id}`)
+  return request.get(`/api/v1/marketplace/jobs/${id}`);
 }
 
 /**
@@ -264,7 +264,7 @@ export function getJobDetail(id) {
  * @returns {Promise} 发布结果
  */
 export function publishJob(data) {
-  return request.post('/api/v1/marketplace/jobs', data)
+  return request.post('/api/v1/marketplace/jobs', data);
 }
 
 /**
@@ -274,7 +274,7 @@ export function publishJob(data) {
  * @returns {Promise} 更新结果
  */
 export function updateJob(id, data) {
-  return request.put(`/api/v1/marketplace/jobs/${id}`, data)
+  return request.put(`/api/v1/marketplace/jobs/${id}`, data);
 }
 
 /**
@@ -283,7 +283,7 @@ export function updateJob(id, data) {
  * @returns {Promise} 关闭结果
  */
 export function closeJob(id) {
-  return request.delete(`/api/v1/marketplace/jobs/${id}`)
+  return request.delete(`/api/v1/marketplace/jobs/${id}`);
 }
 
 /**
@@ -292,7 +292,7 @@ export function closeJob(id) {
  * @returns {Promise} 申请结果
  */
 export function applyJob(id) {
-  return request.post(`/api/v1/marketplace/jobs/${id}/apply`)
+  return request.post(`/api/v1/marketplace/jobs/${id}/apply`);
 }
 
 /**
@@ -301,7 +301,7 @@ export function applyJob(id) {
  * @returns {Promise} 求职列表
  */
 export function getJobSeekers(params = {}) {
-  return request.get('/api/v1/marketplace/seekers', params)
+  return request.get('/api/v1/marketplace/seekers', params);
 }
 
 /**
@@ -310,7 +310,7 @@ export function getJobSeekers(params = {}) {
  * @returns {Promise} 发布结果
  */
 export function publishSeeker(data) {
-  return request.post('/api/v1/marketplace/seekers', data)
+  return request.post('/api/v1/marketplace/seekers', data);
 }
 
 /**
@@ -320,7 +320,7 @@ export function publishSeeker(data) {
  * @returns {Promise} 更新结果
  */
 export function updateSeeker(id, data) {
-  return request.put(`/api/v1/marketplace/seekers/${id}`, data)
+  return request.put(`/api/v1/marketplace/seekers/${id}`, data);
 }
 
 /**
@@ -330,7 +330,7 @@ export function updateSeeker(id, data) {
  * @returns {Promise} 邀请结果
  */
 export function inviteSeeker(id, data) {
-  return request.post(`/api/v1/marketplace/seekers/${id}/invite`, data)
+  return request.post(`/api/v1/marketplace/seekers/${id}/invite`, data);
 }
 
 // ==================== 收藏和互动 API ====================
@@ -341,7 +341,7 @@ export function inviteSeeker(id, data) {
  * @returns {Promise} 收藏结果
  */
 export function likeProduct(id) {
-  return request.post(`/api/v1/marketplace/products/${id}/like`)
+  return request.post(`/api/v1/marketplace/products/${id}/like`);
 }
 
 /**
@@ -350,7 +350,7 @@ export function likeProduct(id) {
  * @returns {Promise} 取消结果
  */
 export function unlikeProduct(id) {
-  return request.delete(`/api/v1/marketplace/products/${id}/like`)
+  return request.delete(`/api/v1/marketplace/products/${id}/like`);
 }
 
 /**
@@ -359,7 +359,7 @@ export function unlikeProduct(id) {
  * @returns {Promise} 收藏列表
  */
 export function getMyLikes(params = {}) {
-  return request.get('/api/v1/marketplace/likes/my', params)
+  return request.get('/api/v1/marketplace/likes/my', params);
 }
 
 // ==================== 位置服务 API ====================
@@ -371,28 +371,28 @@ export function getMyLikes(params = {}) {
 export function getCurrentLocation() {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
-      reject(new Error('Geolocation not supported'))
-      return
+      reject(new Error('Geolocation not supported'));
+      return;
     }
 
     navigator.geolocation.getCurrentPosition(
-      (position) => {
+      position => {
         resolve({
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
-          accuracy: position.coords.accuracy
-        })
+          accuracy: position.coords.accuracy,
+        });
       },
-      (error) => {
-        reject(error)
+      error => {
+        reject(error);
       },
       {
         enableHighAccuracy: true,
         timeout: 10000,
-        maximumAge: 0
+        maximumAge: 0,
       }
-    )
-  })
+    );
+  });
 }
 
 /**
@@ -404,18 +404,18 @@ export function getCurrentLocation() {
  * @returns {number} 距离(米)
  */
 export function calculateDistance(lat1, lon1, lat2, lon2) {
-  const R = 6371e3 // 地球半径(米)
-  const φ1 = lat1 * Math.PI / 180
-  const φ2 = lat2 * Math.PI / 180
-  const Δφ = (lat2 - lat1) * Math.PI / 180
-  const Δλ = (lon2 - lon1) * Math.PI / 180
+  const R = 6371e3; // 地球半径(米)
+  const φ1 = (lat1 * Math.PI) / 180;
+  const φ2 = (lat2 * Math.PI) / 180;
+  const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+  const Δλ = ((lon2 - lon1) * Math.PI) / 180;
 
-  const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-          Math.cos(φ1) * Math.cos(φ2) *
-          Math.sin(Δλ / 2) * Math.sin(Δλ / 2)
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  const a =
+    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-  return R * c
+  return R * c;
 }
 
 // ==================== 导出API对象 ====================
@@ -431,24 +431,24 @@ export const productApi = {
   uploadProductImage,
   updateProduct,
   deleteProduct,
-  getMyProducts
-}
+  getMyProducts,
+};
 
 // 导出服务相关API
 export const venueApi = {
   getNearbyVenues,
   getVenueDetail,
   getVenueReviews,
-  submitVenueReview
-}
+  submitVenueReview,
+};
 
 // 导出交通相关API
 export const travelApi = {
   getNearbyAirports,
   getFlights,
   getNearbyTrainStations,
-  getTrainTickets
-}
+  getTrainTickets,
+};
 
 // 导出拼车相关API
 export const carpoolApi = {
@@ -457,8 +457,8 @@ export const carpoolApi = {
   updateCarpool,
   cancelCarpool,
   bookCarpool,
-  getMyCarpool
-}
+  getMyCarpool,
+};
 
 // 导出招聘求职API
 export const jobApi = {
@@ -471,8 +471,8 @@ export const jobApi = {
   getJobSeekers,
   publishSeeker,
   updateSeeker,
-  inviteSeeker
-}
+  inviteSeeker,
+};
 
 // 导出所有API作为对象
 export const marketplaceApi = {
@@ -521,7 +521,7 @@ export const marketplaceApi = {
   getMyLikes,
   // 位置
   getCurrentLocation,
-  calculateDistance
-}
+  calculateDistance,
+};
 
-export default marketplaceApi
+export default marketplaceApi;

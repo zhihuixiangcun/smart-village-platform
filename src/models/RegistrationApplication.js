@@ -32,7 +32,7 @@ const registrationApplicationSchema = new mongoose.Schema({
       type: String,
       required: true,
       validate: {
-        validator: function(v) {
+        validator(v) {
           return /^1[3-9]\d{9}$/.test(v);
         },
         message: '手机号格式不正确'
@@ -41,7 +41,7 @@ const registrationApplicationSchema = new mongoose.Schema({
     idCard: {
       type: String,
       required: true,
-      set: function(v) {
+      set(v) {
         // 加密存储身份证号
         try {
           return encrypt(v);
@@ -93,20 +93,20 @@ const registrationApplicationSchema = new mongoose.Schema({
     villageId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Village',
-      required: function() {
+      required() {
         return this.applicationType === 'village_admin';
       }
     },
     position: {
       type: String,
       enum: ['村支书', '村委会主任', '村委委员', '会计', '妇女主任'],
-      required: function() {
+      required() {
         return this.applicationType === 'village_admin';
       }
     },
     appointmentLetterUrl: {
       type: String,
-      required: function() {
+      required() {
         return this.applicationType === 'village_admin';
       }
     }
@@ -118,7 +118,7 @@ const registrationApplicationSchema = new mongoose.Schema({
     position: String,
     appointmentLetterUrl: {
       type: String,
-      required: function() {
+      required() {
         return this.applicationType === 'township_admin';
       }
     }
@@ -155,7 +155,7 @@ const registrationApplicationSchema = new mongoose.Schema({
     currentStage: {
       type: String,
       enum: ['village_review', 'township_review', 'super_admin_review'],
-      default: function() {
+      default() {
         // 根据申请类型设置初始阶段
         if (this.applicationType === 'resident') {
           return 'village_review';

@@ -42,26 +42,19 @@ class UserFeedbackService {
       const context = this.captureContext();
       formData.append('context', JSON.stringify(context));
 
-      const response = await axios.post(
-        `${this.baseURL}/api/v1/feedback`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            'Authorization': `Bearer ${this.getToken()}`
-          },
-          onUploadProgress: (progressEvent) => {
-            const progress = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total
-            );
-            this.updateUploadProgress('submit', progress);
-          }
-        }
-      );
+      const response = await axios.post(`${this.baseURL}/api/v1/feedback`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${this.getToken()}`,
+        },
+        onUploadProgress: progressEvent => {
+          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          this.updateUploadProgress('submit', progress);
+        },
+      });
 
       ElMessage.success('反馈提交成功！我们会尽快处理');
       return response.data;
-
     } catch (error) {
       this.handleError(error, '提交反馈失败');
       throw error;
@@ -87,17 +80,13 @@ class UserFeedbackService {
         }
       });
 
-      const response = await axios.get(
-        `${this.baseURL}/api/v1/feedback?${params}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${this.getToken()}`
-          }
-        }
-      );
+      const response = await axios.get(`${this.baseURL}/api/v1/feedback?${params}`, {
+        headers: {
+          Authorization: `Bearer ${this.getToken()}`,
+        },
+      });
 
       return response.data;
-
     } catch (error) {
       this.handleError(error, '获取反馈列表失败');
       throw error;
@@ -115,28 +104,25 @@ class UserFeedbackService {
       const cacheKey = `feedback_detail_${feedbackId}`;
       if (this.cache.has(cacheKey)) {
         const cached = this.cache.get(cacheKey);
-        if (Date.now() - cached.timestamp < 5 * 60 * 1000) { // 5分钟缓存
+        if (Date.now() - cached.timestamp < 5 * 60 * 1000) {
+          // 5分钟缓存
           return cached.data;
         }
       }
 
-      const response = await axios.get(
-        `${this.baseURL}/api/v1/feedback/${feedbackId}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${this.getToken()}`
-          }
-        }
-      );
+      const response = await axios.get(`${this.baseURL}/api/v1/feedback/${feedbackId}`, {
+        headers: {
+          Authorization: `Bearer ${this.getToken()}`,
+        },
+      });
 
       // 缓存结果
       this.cache.set(cacheKey, {
         data: response.data,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
 
       return response.data;
-
     } catch (error) {
       this.handleError(error, '获取反馈详情失败');
       throw error;
@@ -156,8 +142,8 @@ class UserFeedbackService {
         processData,
         {
           headers: {
-            'Authorization': `Bearer ${this.getToken()}`
-          }
+            Authorization: `Bearer ${this.getToken()}`,
+          },
         }
       );
 
@@ -167,7 +153,6 @@ class UserFeedbackService {
       this.clearFeedbackCache(feedbackId);
 
       return response.data;
-
     } catch (error) {
       this.handleError(error, '处理反馈失败');
       throw error;
@@ -187,14 +172,13 @@ class UserFeedbackService {
         satisfactionData,
         {
           headers: {
-            'Authorization': `Bearer ${this.getToken()}`
-          }
+            Authorization: `Bearer ${this.getToken()}`,
+          },
         }
       );
 
       ElMessage.success('感谢您的评价！');
       return response.data;
-
     } catch (error) {
       this.handleError(error, '添加满意度评价失败');
       throw error;
@@ -215,17 +199,13 @@ class UserFeedbackService {
         }
       });
 
-      const response = await axios.get(
-        `${this.baseURL}/api/v1/feedback/stats?${params}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${this.getToken()}`
-          }
-        }
-      );
+      const response = await axios.get(`${this.baseURL}/api/v1/feedback/stats?${params}`, {
+        headers: {
+          Authorization: `Bearer ${this.getToken()}`,
+        },
+      });
 
       return response.data;
-
     } catch (error) {
       this.handleError(error, '获取反馈统计失败');
       throw error;
@@ -238,17 +218,13 @@ class UserFeedbackService {
    */
   async analyzeFeedbackTrends() {
     try {
-      const response = await axios.get(
-        `${this.baseURL}/api/v1/feedback/analyze/trends`,
-        {
-          headers: {
-            'Authorization': `Bearer ${this.getToken()}`
-          }
-        }
-      );
+      const response = await axios.get(`${this.baseURL}/api/v1/feedback/analyze/trends`, {
+        headers: {
+          Authorization: `Bearer ${this.getToken()}`,
+        },
+      });
 
       return response.data;
-
     } catch (error) {
       this.handleError(error, 'AI分析反馈趋势失败');
       throw error;
@@ -267,13 +243,12 @@ class UserFeedbackService {
         { problemArea },
         {
           headers: {
-            'Authorization': `Bearer ${this.getToken()}`
-          }
+            Authorization: `Bearer ${this.getToken()}`,
+          },
         }
       );
 
       return response.data;
-
     } catch (error) {
       this.handleError(error, '推荐改进方案失败');
       throw error;
@@ -288,15 +263,11 @@ class UserFeedbackService {
   async exportFeedbackData(options = {}) {
     try {
       // 确认导出操作
-      await ElMessageBox.confirm(
-        '确定要导出反馈数据吗？这可能需要一些时间。',
-        '确认导出',
-        {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'info'
-        }
-      );
+      await ElMessageBox.confirm('确定要导出反馈数据吗？这可能需要一些时间。', '确认导出', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'info',
+      });
 
       const params = new URLSearchParams();
       Object.keys(options).forEach(key => {
@@ -309,15 +280,12 @@ class UserFeedbackService {
         }
       });
 
-      const response = await axios.get(
-        `${this.baseURL}/api/v1/feedback/export?${params}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${this.getToken()}`
-          },
-          responseType: 'blob'
-        }
-      );
+      const response = await axios.get(`${this.baseURL}/api/v1/feedback/export?${params}`, {
+        headers: {
+          Authorization: `Bearer ${this.getToken()}`,
+        },
+        responseType: 'blob',
+      });
 
       // 创建下载链接
       const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -332,7 +300,6 @@ class UserFeedbackService {
       ElMessage.success('数据导出成功');
 
       return { success: true };
-
     } catch (error) {
       if (error !== 'cancel') {
         this.handleError(error, '导出反馈数据失败');
@@ -347,17 +314,13 @@ class UserFeedbackService {
    */
   async getCategoryStats() {
     try {
-      const response = await axios.get(
-        `${this.baseURL}/api/v1/feedback/categories/stats`,
-        {
-          headers: {
-            'Authorization': `Bearer ${this.getToken()}`
-          }
-        }
-      );
+      const response = await axios.get(`${this.baseURL}/api/v1/feedback/categories/stats`, {
+        headers: {
+          Authorization: `Bearer ${this.getToken()}`,
+        },
+      });
 
       return response.data;
-
     } catch (error) {
       this.handleError(error, '获取分类统计失败');
       throw error;
@@ -379,17 +342,13 @@ class UserFeedbackService {
         }
       });
 
-      const response = await axios.get(
-        `${this.baseURL}/api/v1/feedback/user/${userId}?${params}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${this.getToken()}`
-          }
-        }
-      );
+      const response = await axios.get(`${this.baseURL}/api/v1/feedback/user/${userId}?${params}`, {
+        headers: {
+          Authorization: `Bearer ${this.getToken()}`,
+        },
+      });
 
       return response.data;
-
     } catch (error) {
       this.handleError(error, '获取用户反馈历史失败');
       throw error;
@@ -412,7 +371,7 @@ class UserFeedbackService {
         {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
-          type: 'warning'
+          type: 'warning',
         }
       );
 
@@ -421,12 +380,12 @@ class UserFeedbackService {
         {
           feedbackIds,
           processAction,
-          processData
+          processData,
         },
         {
           headers: {
-            'Authorization': `Bearer ${this.getToken()}`
-          }
+            Authorization: `Bearer ${this.getToken()}`,
+          },
         }
       );
 
@@ -436,7 +395,6 @@ class UserFeedbackService {
       feedbackIds.forEach(id => this.clearFeedbackCache(id));
 
       return response.data;
-
     } catch (error) {
       if (error !== 'cancel') {
         this.handleError(error, '批量处理反馈失败');
@@ -457,33 +415,94 @@ class UserFeedbackService {
     // 关键词匹配规则
     const categoryRules = {
       bug_report: [
-        '错误', '异常', '崩溃', '失败', '无法', '不能', '问题',
-        'bug', 'error', 'crash', 'issue'
+        '错误',
+        '异常',
+        '崩溃',
+        '失败',
+        '无法',
+        '不能',
+        '问题',
+        'bug',
+        'error',
+        'crash',
+        'issue',
       ],
       feature_request: [
-        '建议', '希望', '添加', '新增', '功能', '改进',
-        'suggest', 'recommend', 'add', 'feature', 'improve'
+        '建议',
+        '希望',
+        '添加',
+        '新增',
+        '功能',
+        '改进',
+        'suggest',
+        'recommend',
+        'add',
+        'feature',
+        'improve',
       ],
       improvement: [
-        '优化', '改善', '提升', '体验', '效率', '速度',
-        'optimize', 'improve', 'enhance', 'better'
+        '优化',
+        '改善',
+        '提升',
+        '体验',
+        '效率',
+        '速度',
+        'optimize',
+        'improve',
+        'enhance',
+        'better',
       ],
       complaint: [
-        '投诉', '不满', '差', '糟糕', '失望', '愤怒',
-        'complaint', 'dissatisfied', 'angry', 'disappointed'
+        '投诉',
+        '不满',
+        '差',
+        '糟糕',
+        '失望',
+        '愤怒',
+        'complaint',
+        'dissatisfied',
+        'angry',
+        'disappointed',
       ],
       compliment: [
-        '表扬', '赞', '好', '棒', '优秀', '满意', '喜欢',
-        'praise', 'good', 'excellent', 'love', 'great'
+        '表扬',
+        '赞',
+        '好',
+        '棒',
+        '优秀',
+        '满意',
+        '喜欢',
+        'praise',
+        'good',
+        'excellent',
+        'love',
+        'great',
       ],
       question: [
-        '如何', '怎么', '什么', '为什么', '请问', '咨询',
-        'how', 'what', 'why', 'question', 'help'
+        '如何',
+        '怎么',
+        '什么',
+        '为什么',
+        '请问',
+        '咨询',
+        'how',
+        'what',
+        'why',
+        'question',
+        'help',
       ],
       usage_difficulty: [
-        '困难', '复杂', '不会', '不懂', '困惑', '难用',
-        'difficult', 'confused', 'hard to use', 'complicated'
-      ]
+        '困难',
+        '复杂',
+        '不会',
+        '不懂',
+        '困惑',
+        '难用',
+        'difficult',
+        'confused',
+        'hard to use',
+        'complicated',
+      ],
     };
 
     // 计算匹配分数
@@ -510,7 +529,7 @@ class UserFeedbackService {
         .filter(([_, score]) => score > 0 && score < maxScore)
         .sort(([_, a], [__, b]) => b - a)
         .slice(0, 2)
-        .map(([category, _]) => category)
+        .map(([category, _]) => category),
     };
   }
 
@@ -533,10 +552,10 @@ class UserFeedbackService {
       if (summary.length + sentence.length > maxLength) {
         break;
       }
-      summary += `${sentence  }。`;
+      summary += `${sentence}。`;
     }
 
-    return summary || `${description.substring(0, maxLength)  }...`;
+    return summary || `${description.substring(0, maxLength)}...`;
   }
 
   /**
@@ -565,14 +584,15 @@ class UserFeedbackService {
     // 附件验证
     if (feedbackData.attachments) {
       const totalSize = feedbackData.attachments.reduce((sum, file) => sum + file.size, 0);
-      if (totalSize > 50 * 1024 * 1024) { // 50MB
+      if (totalSize > 50 * 1024 * 1024) {
+        // 50MB
         errors.push('附件总大小不能超过50MB');
       }
     }
 
     return {
       isValid: errors.length === 0,
-      errors
+      errors,
     };
   }
 
@@ -591,7 +611,7 @@ class UserFeedbackService {
       browserInfo: this.getBrowserInfo(),
       location: this.getLocationInfo(),
       timestamp: new Date().toISOString(),
-      sessionId: this.getSessionId()
+      sessionId: this.getSessionId(),
     };
   }
 
@@ -621,7 +641,9 @@ class UserFeedbackService {
       screenResolution: `${screen.width}x${screen.height}`,
       colorDepth: screen.colorDepth,
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      isMobile: /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+      isMobile: /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      ),
     };
   }
 
@@ -652,7 +674,7 @@ class UserFeedbackService {
       name: browserName,
       version: browserVersion,
       cookiesEnabled: navigator.cookieEnabled,
-      doNotTrack: navigator.doNotTrack
+      doNotTrack: navigator.doNotTrack,
     };
   }
 
@@ -669,14 +691,14 @@ class UserFeedbackService {
       const position = await new Promise((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(resolve, reject, {
           timeout: 5000,
-          enableHighAccuracy: false
+          enableHighAccuracy: false,
         });
       });
 
       return {
         latitude: position.coords.latitude,
         longitude: position.coords.longitude,
-        accuracy: position.coords.accuracy
+        accuracy: position.coords.accuracy,
       };
     } catch (error) {
       return null;
@@ -690,7 +712,7 @@ class UserFeedbackService {
   getSessionId() {
     let sessionId = sessionStorage.getItem('feedback_session_id');
     if (!sessionId) {
-      sessionId = `sess_${  Date.now()  }_${  Math.random().toString(36).substr(2, 9)}`;
+      sessionId = `sess_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       sessionStorage.setItem('feedback_session_id', sessionId);
     }
     return sessionId;

@@ -168,9 +168,7 @@
               </el-table-column>
 
               <el-table-column prop="landArea" label="耕地面积" width="100" sortable>
-                <template #default="{ row }">
-                  {{ row.landArea }}亩
-                </template>
+                <template #default="{ row }"> {{ row.landArea }}亩 </template>
               </el-table-column>
 
               <el-table-column prop="certificationStatus" label="认证状态" width="100" sortable>
@@ -223,7 +221,7 @@
                     <el-icon><CircleCheckFilled /></el-icon>
                     认证
                   </el-button>
-                  <el-dropdown @command="(command) => handleAction(command, row)">
+                  <el-dropdown @command="command => handleAction(command, row)">
                     <el-button type="text" size="small">
                       更多<el-icon><ArrowDown /></el-icon>
                     </el-button>
@@ -233,7 +231,11 @@
                         <el-dropdown-item command="orders">订单记录</el-dropdown-item>
                         <el-dropdown-item command="statistics">统计分析</el-dropdown-item>
                         <el-dropdown-item command="export">导出数据</el-dropdown-item>
-                        <el-dropdown-item command="delete" divided v-if="hasPermission('farmer:delete')">
+                        <el-dropdown-item
+                          command="delete"
+                          divided
+                          v-if="hasPermission('farmer:delete')"
+                        >
                           删除农户
                         </el-dropdown-item>
                       </el-dropdown-menu>
@@ -263,8 +265,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, computed, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
   User,
   Download,
@@ -275,20 +277,20 @@ import {
   Search,
   View,
   Edit,
-  ArrowDown
-} from '@element-plus/icons-vue'
+  ArrowDown,
+} from '@element-plus/icons-vue';
 
 // 响应式数据
-const loading = ref(false)
-const farmers = ref([])
-const searchQuery = ref('')
-const filterStatus = ref('')
-const filterVillage = ref('')
-const filterProductType = ref('')
-const currentPage = ref(1)
-const pageSize = ref(10)
-const sortField = ref('')
-const sortOrder = ref('')
+const loading = ref(false);
+const farmers = ref([]);
+const searchQuery = ref('');
+const filterStatus = ref('');
+const filterVillage = ref('');
+const filterProductType = ref('');
+const currentPage = ref(1);
+const pageSize = ref(10);
+const sortField = ref('');
+const sortOrder = ref('');
 
 // 模拟农户数据
 const mockFarmers = [
@@ -305,7 +307,7 @@ const mockFarmers = [
     annualIncome: 120000,
     products: ['有机大米', '玉米', '小麦'],
     joinDate: '2024-01-15',
-    lastActive: '2025-12-13'
+    lastActive: '2025-12-13',
   },
   {
     id: 2,
@@ -320,7 +322,7 @@ const mockFarmers = [
     annualIncome: 85000,
     products: ['有机蔬菜', '番茄', '黄瓜'],
     joinDate: '2024-02-10',
-    lastActive: '2025-12-12'
+    lastActive: '2025-12-12',
   },
   {
     id: 3,
@@ -335,7 +337,7 @@ const mockFarmers = [
     annualIncome: 95000,
     products: ['土鸡', '土鸡蛋', '蜂蜜'],
     joinDate: '2024-03-08',
-    lastActive: '2025-12-11'
+    lastActive: '2025-12-11',
   },
   {
     id: 4,
@@ -350,7 +352,7 @@ const mockFarmers = [
     annualIncome: 150000,
     products: ['山核桃', '茶叶', '竹笋'],
     joinDate: '2024-01-20',
-    lastActive: '2025-12-13'
+    lastActive: '2025-12-13',
   },
   {
     id: 5,
@@ -365,7 +367,7 @@ const mockFarmers = [
     annualIncome: 65000,
     products: ['大棚蔬菜', '草莓', '西瓜'],
     joinDate: '2024-04-15',
-    lastActive: '2025-12-10'
+    lastActive: '2025-12-10',
   },
   {
     id: 6,
@@ -380,7 +382,7 @@ const mockFarmers = [
     annualIncome: 110000,
     products: ['优质大米', '大豆', '花生'],
     joinDate: '2024-05-01',
-    lastActive: '2025-12-09'
+    lastActive: '2025-12-09',
   },
   {
     id: 7,
@@ -395,7 +397,7 @@ const mockFarmers = [
     annualIncome: 180000,
     products: ['生态猪', '土鸡', '山羊'],
     joinDate: '2024-02-28',
-    lastActive: '2025-12-13'
+    lastActive: '2025-12-13',
   },
   {
     id: 8,
@@ -410,9 +412,9 @@ const mockFarmers = [
     annualIncome: 72000,
     products: ['有机蔬菜', '食用菌', '香椿'],
     joinDate: '2024-06-10',
-    lastActive: '2025-12-12'
-  }
-]
+    lastActive: '2025-12-12',
+  },
+];
 
 // 计算属性
 const farmerStats = computed(() => {
@@ -420,141 +422,137 @@ const farmerStats = computed(() => {
     total: farmers.value.length,
     certified: farmers.value.filter(farmer => farmer.certificationStatus === 'certified').length,
     pending: farmers.value.filter(farmer => farmer.certificationStatus === 'pending').length,
-    uncertified: farmers.value.filter(farmer => farmer.certificationStatus === 'uncertified').length,
+    uncertified: farmers.value.filter(farmer => farmer.certificationStatus === 'uncertified')
+      .length,
     active: farmers.value.filter(farmer => {
-      const lastActiveDate = new Date(farmer.lastActive)
-      const weekAgo = new Date()
-      weekAgo.setDate(weekAgo.getDate() - 7)
-      return lastActiveDate > weekAgo
-    }).length
-  }
-  return stats
-})
+      const lastActiveDate = new Date(farmer.lastActive);
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      return lastActiveDate > weekAgo;
+    }).length,
+  };
+  return stats;
+});
 
 const filteredFarmers = computed(() => {
-  let filtered = [...farmers.value]
+  let filtered = [...farmers.value];
 
   // 搜索过滤
   if (searchQuery.value) {
-    filtered = filtered.filter(farmer =>
-      farmer.name.includes(searchQuery.value) ||
-      farmer.phone.includes(searchQuery.value)
-    )
+    filtered = filtered.filter(
+      farmer => farmer.name.includes(searchQuery.value) || farmer.phone.includes(searchQuery.value)
+    );
   }
 
   // 状态过滤
   if (filterStatus.value) {
-    filtered = filtered.filter(farmer => farmer.certificationStatus === filterStatus.value)
+    filtered = filtered.filter(farmer => farmer.certificationStatus === filterStatus.value);
   }
 
   // 村庄过滤
   if (filterVillage.value) {
-    filtered = filtered.filter(farmer => farmer.village === filterVillage.value)
+    filtered = filtered.filter(farmer => farmer.village === filterVillage.value);
   }
 
   // 产品类型过滤
   if (filterProductType.value) {
-    filtered = filtered.filter(farmer => farmer.productType === filterProductType.value)
+    filtered = filtered.filter(farmer => farmer.productType === filterProductType.value);
   }
 
-  return filtered
-})
+  return filtered;
+});
 
 // 生命周期
 onMounted(() => {
-  loadFarmers()
-})
+  loadFarmers();
+});
 
 // 方法
 const loadFarmers = async () => {
-  loading.value = true
+  loading.value = true;
   try {
     // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 500))
-    farmers.value = mockFarmers
+    await new Promise(resolve => setTimeout(resolve, 500));
+    farmers.value = mockFarmers;
   } catch (error) {
-    ElMessage.error('加载农户列表失败')
-    console.error('Load farmers error:', error)
+    ElMessage.error('加载农户列表失败');
+    console.error('Load farmers error:', error);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const handleSearch = () => {
-  currentPage.value = 1
-}
+  currentPage.value = 1;
+};
 
 const handleFilter = () => {
-  currentPage.value = 1
-}
+  currentPage.value = 1;
+};
 
 const handleSortChange = ({ prop, order }) => {
-  sortField.value = prop
-  sortOrder.value = order
-}
+  sortField.value = prop;
+  sortOrder.value = order;
+};
 
-const handleSizeChange = (size) => {
-  pageSize.value = size
-  currentPage.value = 1
-}
+const handleSizeChange = size => {
+  pageSize.value = size;
+  currentPage.value = 1;
+};
 
-const handleCurrentChange = (page) => {
-  currentPage.value = page
-}
+const handleCurrentChange = page => {
+  currentPage.value = page;
+};
 
-const viewFarmer = (id) => {
-  ElMessage.info(`查看农户详情: #${id}`)
-}
+const viewFarmer = id => {
+  ElMessage.info(`查看农户详情: #${id}`);
+};
 
-const editFarmer = (id) => {
-  ElMessage.info(`编辑农户信息: #${id}`)
-}
+const editFarmer = id => {
+  ElMessage.info(`编辑农户信息: #${id}`);
+};
 
 const addFarmer = () => {
-  ElMessage.info('添加农户功能开发中')
-}
+  ElMessage.info('添加农户功能开发中');
+};
 
-const certifyFarmer = async (id) => {
+const certifyFarmer = async id => {
   try {
-    const farmer = farmers.value.find(f => f.id === id)
-    if (!farmer) return
+    const farmer = farmers.value.find(f => f.id === id);
+    if (!farmer) return;
 
-    await ElMessageBox.confirm(
-      `确定要认证农户"${farmer.name}"吗？`,
-      '确认认证',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
+    await ElMessageBox.confirm(`确定要认证农户"${farmer.name}"吗？`, '确认认证', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
 
-    farmer.certificationStatus = 'certified'
-    farmer.certificationDate = new Date().toISOString().split('T')[0]
-    ElMessage.success('农户认证成功')
+    farmer.certificationStatus = 'certified';
+    farmer.certificationDate = new Date().toISOString().split('T')[0];
+    ElMessage.success('农户认证成功');
   } catch (error) {
     // 用户取消
   }
-}
+};
 
 const exportFarmers = () => {
-  ElMessage.info('导出农户功能开发中')
-}
+  ElMessage.info('导出农户功能开发中');
+};
 
 const handleAction = async (command, farmer) => {
   switch (command) {
     case 'products':
-      ElMessage.info(`查看农户${farmer.name}的产品列表`)
-      break
+      ElMessage.info(`查看农户${farmer.name}的产品列表`);
+      break;
     case 'orders':
-      ElMessage.info(`查看农户${farmer.name}的订单记录`)
-      break
+      ElMessage.info(`查看农户${farmer.name}的订单记录`);
+      break;
     case 'statistics':
-      ElMessage.info(`查看农户${farmer.name}的统计分析`)
-      break
+      ElMessage.info(`查看农户${farmer.name}的统计分析`);
+      break;
     case 'export':
-      ElMessage.info(`导出农户${farmer.name}的数据`)
-      break
+      ElMessage.info(`导出农户${farmer.name}的数据`);
+      break;
     case 'delete':
       try {
         await ElMessageBox.confirm(
@@ -563,72 +561,72 @@ const handleAction = async (command, farmer) => {
           {
             confirmButtonText: '确定',
             cancelButtonText: '取消',
-            type: 'warning'
+            type: 'warning',
           }
-        )
+        );
 
-        const index = farmers.value.findIndex(f => f.id === farmer.id)
+        const index = farmers.value.findIndex(f => f.id === farmer.id);
         if (index > -1) {
-          farmers.value.splice(index, 1)
+          farmers.value.splice(index, 1);
         }
 
-        ElMessage.success('农户删除成功')
+        ElMessage.success('农户删除成功');
       } catch (error) {
         // 用户取消删除
       }
-      break
+      break;
   }
-}
+};
 
 // 辅助方法
-const formatDate = (dateString) => {
-  if (!dateString) return '-'
-  return new Date(dateString).toLocaleDateString('zh-CN')
-}
+const formatDate = dateString => {
+  if (!dateString) return '-';
+  return new Date(dateString).toLocaleDateString('zh-CN');
+};
 
-const getProductTypeTagType = (type) => {
+const getProductTypeTagType = type => {
   const typeMap = {
     grain: 'success',
     cash: 'warning',
     vegetable: 'primary',
-    livestock: 'danger'
-  }
-  return typeMap[type] || 'info'
-}
+    livestock: 'danger',
+  };
+  return typeMap[type] || 'info';
+};
 
-const getProductTypeLabel = (type) => {
+const getProductTypeLabel = type => {
   const typeMap = {
     grain: '粮食作物',
     cash: '经济作物',
     vegetable: '蔬菜水果',
-    livestock: '畜禽养殖'
-  }
-  return typeMap[type] || type
-}
+    livestock: '畜禽养殖',
+  };
+  return typeMap[type] || type;
+};
 
-const getCertificationTagType = (status) => {
+const getCertificationTagType = status => {
   const statusMap = {
     certified: 'success',
     pending: 'warning',
-    uncertified: 'info'
-  }
-  return statusMap[status] || 'info'
-}
+    uncertified: 'info',
+  };
+  return statusMap[status] || 'info';
+};
 
-const getCertificationLabel = (status) => {
+const getCertificationLabel = status => {
   const statusMap = {
     certified: '已认证',
     pending: '待认证',
-    uncertified: '未认证'
-  }
-  return statusMap[status] || status
-}
+    uncertified: '未认证',
+  };
+  return statusMap[status] || status;
+};
 
 // 权限检查
-const hasPermission = (permission) => {
+const hasPermission = permission => {
   // 模拟权限检查
-  return true
-}
+  return true;
+};
 </script>
 
 <style lang="scss" scoped>

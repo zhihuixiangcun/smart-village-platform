@@ -1,0 +1,29 @@
+{
+  "providers": {
+    "zhipuai": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "https://open.bigmodel.cn/api/paas/v4/",
+        "apiKey": "87ea9eec688e4ee38d7b58adf81a3199.E35iML7oTzUy6Aq4"
+      },
+      "models": {
+        "glm-4.6": {
+          "type": "chat",
+          "maxTokens": 8192,
+          "temperature": 0.7,
+          "topP": 0.9,
+          "description": "智谱AI GLM-4.6 模型，支持中文对话和推理"
+        }
+      }
+    }
+  },
+  "defaultProvider": "zhipuai",
+  "fallbackProvider": "anthropic",
+  "settings": {
+    "cacheEnabled": true,
+    "cacheTTL": 3600,
+    "rateLimitEnabled": true,
+    "maxRequestsPerMinute": 60,
+    "timeout": 30000
+  }
+}

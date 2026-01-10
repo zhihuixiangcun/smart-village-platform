@@ -37,12 +37,7 @@
             {{ getStatusText(subsidy) }}
           </p>
         </div>
-        <el-tag
-          v-if="subsidy.badge"
-          :type="subsidy.badgeType"
-          size="small"
-          class="subsidy-badge"
-        >
+        <el-tag v-if="subsidy.badge" :type="subsidy.badgeType" size="small" class="subsidy-badge">
           {{ subsidy.badge }}
         </el-tag>
       </div>
@@ -51,24 +46,32 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
-import { Coin, ArrowRight, Calendar, Suitcase, Medal, Wallet, Operation } from '@element-plus/icons-vue'
+import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { ElMessage } from 'element-plus';
+import {
+  Coin,
+  ArrowRight,
+  Calendar,
+  Suitcase,
+  Medal,
+  Wallet,
+  Operation,
+} from '@element-plus/icons-vue';
 
 interface Subsidy {
-  id: string
-  name: string
-  type: 'elderly' | 'medical' | 'subsistence' | 'disability'
-  icon: any
-  amount?: string
-  status: 'available' | 'pending' | 'applied' | 'approved'
-  badge?: string
-  badgeType?: 'success' | 'warning' | 'danger' | 'info'
-  route?: string
+  id: string;
+  name: string;
+  type: 'elderly' | 'medical' | 'subsistence' | 'disability';
+  icon: any;
+  amount?: string;
+  status: 'available' | 'pending' | 'applied' | 'approved';
+  badge?: string;
+  badgeType?: 'success' | 'warning' | 'danger' | 'info';
+  route?: string;
 }
 
-const router = useRouter()
+const router = useRouter();
 
 // 补贴列表数据
 const subsidies = ref<Subsidy[]>([
@@ -81,7 +84,7 @@ const subsidies = ref<Subsidy[]>([
     status: 'available',
     badge: '可领取',
     badgeType: 'success',
-    route: '/subsidy/elderly'
+    route: '/subsidy/elderly',
   },
   {
     id: 'medical',
@@ -92,7 +95,7 @@ const subsidies = ref<Subsidy[]>([
     status: 'pending',
     badge: '待申请',
     badgeType: 'warning',
-    route: '/subsidy/medical'
+    route: '/subsidy/medical',
   },
   {
     id: 'subsistence',
@@ -102,7 +105,7 @@ const subsidies = ref<Subsidy[]>([
     amount: '',
     status: 'applied',
     badge: '审核中',
-    badgeType: 'info'
+    badgeType: 'info',
   },
   {
     id: 'calculator',
@@ -113,9 +116,9 @@ const subsidies = ref<Subsidy[]>([
     status: 'available',
     badge: '试一试',
     badgeType: 'primary',
-    route: '/subsidy/calculator'
-  }
-])
+    route: '/subsidy/calculator',
+  },
+]);
 
 /**
  * 获取状态文本
@@ -125,29 +128,29 @@ const getStatusText = (subsidy: Subsidy): string => {
     available: subsidy.amount || '查看详情',
     pending: '立即申请',
     applied: '审核中',
-    approved: '已通过'
-  }
-  return statusMap[subsidy.status] || '查看详情'
-}
+    approved: '已通过',
+  };
+  return statusMap[subsidy.status] || '查看详情';
+};
 
 /**
  * 处理补贴卡片点击
  */
 const handleSubsidyClick = (subsidy: Subsidy) => {
   if (subsidy.route) {
-    router.push(subsidy.route)
+    router.push(subsidy.route);
   } else {
     // 显示补贴详情
-    ElMessage.info(`查看${subsidy.name}详情`)
+    ElMessage.info(`查看${subsidy.name}详情`);
   }
-}
+};
 
 /**
  * 跳转到补贴列表页面
  */
 const goToSubsidyList = () => {
-  router.push('/subsidy')
-}
+  router.push('/subsidy');
+};
 </script>
 
 <style lang="scss" scoped>

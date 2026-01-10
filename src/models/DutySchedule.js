@@ -395,7 +395,7 @@ dutyScheduleSchema.index({ 'dutyRecords.date': 1, 'dutyRecords.shiftId': 1 });
 // 虚拟字段：月份名称
 dutyScheduleSchema.virtual('monthName').get(function() {
   const months = ['一月', '二月', '三月', '四月', '五月', '六月',
-                  '七月', '八月', '九月', '十月', '十一月', '十二月'];
+    '七月', '八月', '九月', '十月', '十一月', '十二月'];
   return months[this.month - 1];
 });
 
@@ -440,16 +440,16 @@ dutyScheduleSchema.methods.updateDutyRecordStatus = function(recordId, newStatus
 
   // 根据状态更新相关信息
   switch (newStatus) {
-    case 'ongoing':
-      record.actualStartTime = new Date();
-      break;
-    case 'completed':
-      record.actualEndTime = new Date();
-      this.statistics.completedDays++;
-      break;
-    case 'absent':
-      this.statistics.absentDays++;
-      break;
+  case 'ongoing':
+    record.actualStartTime = new Date();
+    break;
+  case 'completed':
+    record.actualEndTime = new Date();
+    this.statistics.completedDays++;
+    break;
+  case 'absent':
+    this.statistics.absentDays++;
+    break;
   }
 
   // 合并额外数据

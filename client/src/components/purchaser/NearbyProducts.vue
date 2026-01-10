@@ -37,9 +37,7 @@
             <el-icon><Search /></el-icon>
           </template>
           <template #append>
-            <el-button @click="handleSearch">
-              搜索
-            </el-button>
+            <el-button @click="handleSearch"> 搜索 </el-button>
           </template>
         </el-input>
       </div>
@@ -115,9 +113,7 @@
       <!-- 空状态 -->
       <div v-else-if="filteredProducts.length === 0" class="empty-container">
         <el-empty description="暂无相关商品">
-          <el-button type="primary" @click="expandSearch">
-            扩大搜索范围
-          </el-button>
+          <el-button type="primary" @click="expandSearch"> 扩大搜索范围 </el-button>
         </el-empty>
       </div>
 
@@ -275,19 +271,12 @@
 
       <!-- 加载更多 -->
       <div class="load-more" v-if="hasMore && !loading">
-        <el-button @click="loadMore" :loading="loadingMore">
-          加载更多
-        </el-button>
+        <el-button @click="loadMore" :loading="loadingMore"> 加载更多 </el-button>
       </div>
     </el-card>
 
     <!-- 地图视图对话框 -->
-    <el-dialog
-      v-model="mapDialogVisible"
-      title="附近商品地图"
-      width="90%"
-      top="5vh"
-    >
+    <el-dialog v-model="mapDialogVisible" title="附近商品地图" width="90%" top="5vh">
       <div class="map-container" id="productMap">
         <div class="map-placeholder">
           <el-icon><MapLocation /></el-icon>
@@ -301,11 +290,7 @@
     </el-dialog>
 
     <!-- 商品详情对话框 -->
-    <el-dialog
-      v-model="detailDialogVisible"
-      :title="currentProduct?.name"
-      width="700px"
-    >
+    <el-dialog v-model="detailDialogVisible" :title="currentProduct?.name" width="700px">
       <div class="product-detail" v-if="currentProduct">
         <!-- 图片展示 -->
         <div class="detail-gallery">
@@ -336,7 +321,9 @@
             {{ currentProduct.distance?.toFixed(1) }}km
           </el-descriptions-item>
           <el-descriptions-item label="库存">
-            {{ currentProduct.inStock ? `${currentProduct.stock}${currentProduct.unit}` : '暂无库存' }}
+            {{
+              currentProduct.inStock ? `${currentProduct.stock}${currentProduct.unit}` : '暂无库存'
+            }}
           </el-descriptions-item>
           <el-descriptions-item label="销量">
             {{ currentProduct.salesCount || 0 }}件
@@ -388,46 +375,62 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { ElMessage } from 'element-plus';
 import {
-  ShoppingCart, Refresh, MapLocation, Search, Loading, Location, Shop,
-  ChatDotRound, Star, StarFilled, List, Grid, Food, Goods,
-  PriceTag, Burger, Operation, Clock
-} from '@element-plus/icons-vue'
-import api from '@/api'
+  ShoppingCart,
+  Refresh,
+  MapLocation,
+  Search,
+  Loading,
+  Location,
+  Shop,
+  ChatDotRound,
+  Star,
+  StarFilled,
+  List,
+  Grid,
+  Food,
+  Goods,
+  PriceTag,
+  Burger,
+  Operation,
+  Clock,
+} from '@element-plus/icons-vue';
+import api from '@/api';
 
-const router = useRouter()
+const router = useRouter();
 
 const props = defineProps({
   purchaserId: {
     type: String,
-    default: ''
-  }
-})
+    default: '',
+  },
+});
 
-const emit = defineEmits(['addToCart', 'contact', 'favorite', 'navigate'])
+const emit = defineEmits(['addToCart', 'contact', 'favorite', 'navigate']);
 
-const loading = ref(false)
-const loadingMore = ref(false)
-const activeCategory = ref('all')
-const searchKeyword = ref('')
-const viewMode = ref('grid')
-const mapDialogVisible = ref(false)
-const detailDialogVisible = ref(false)
-const currentProduct = ref(null)
-const locationInfo = ref({ city: '杭州市' })
-const hasMore = ref(true)
+const loading = ref(false);
+const loadingMore = ref(false);
+const activeCategory = ref('all');
+const searchKeyword = ref('');
+const viewMode = ref('grid');
+const mapDialogVisible = ref(false);
+const detailDialogVisible = ref(false);
+const currentProduct = ref(null);
+const locationInfo = ref({ city: '杭州市' });
+const hasMore = ref(true);
 
-const defaultProductImage = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"%3E%3Crect width="200" height="200" fill="%23f0f0f0"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" fill="%23999" font-size="16"%3E商品图片%3C/text%3E%3C/svg%3E'
+const defaultProductImage =
+  'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"%3E%3Crect width="200" height="200" fill="%23f0f0f0"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" fill="%23999" font-size="16"%3E商品图片%3C/text%3E%3C/svg%3E';
 
 const filters = reactive({
   distance: 5,
   priceRange: null,
   sortBy: 'distance',
-  inStock: ''
-})
+  inStock: '',
+});
 
 const categories = [
   {
@@ -435,51 +438,51 @@ const categories = [
     label: '全部',
     icon: Grid,
     color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    count: 0
+    count: 0,
   },
   {
     key: 'vegetables',
     label: '蔬菜',
     icon: Food,
     color: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
-    count: 25
+    count: 25,
   },
   {
     key: 'fruits',
     label: '水果',
     icon: Goods,
     color: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-    count: 18
+    count: 18,
   },
   {
     key: 'grain',
     label: '粮食',
     icon: Burger,
     color: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
-    count: 12
+    count: 12,
   },
   {
     key: 'livestock',
     label: '畜禽',
     icon: Operation,
     color: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-    count: 15
+    count: 15,
   },
   {
     key: 'aquatic',
     label: '水产',
     icon: PriceTag,
     color: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-    count: 8
+    count: 8,
   },
   {
     key: 'drinks',
     label: '饮品',
     icon: Clock,
     color: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)',
-    count: 20
-  }
-]
+    count: 20,
+  },
+];
 
 // 模拟商品数据
 const productsData = ref([
@@ -500,10 +503,10 @@ const productsData = ref([
     isFavorite: false,
     description: '新鲜有机种植，口感鲜嫩，营养丰富。',
     specs: {
-      '产地': '杭州西湖',
-      '保质期': '7天',
-      '存储方式': '阴凉干燥处'
-    }
+      产地: '杭州西湖',
+      保质期: '7天',
+      存储方式: '阴凉干燥处',
+    },
   },
   {
     _id: '2',
@@ -522,10 +525,10 @@ const productsData = ref([
     isFavorite: true,
     description: '精选优质草莓，个大饱满，香甜可口。',
     specs: {
-      '产地': '杭州余杭',
-      '保质期': '3天',
-      '存储方式': '冷藏'
-    }
+      产地: '杭州余杭',
+      保质期: '3天',
+      存储方式: '冷藏',
+    },
   },
   {
     _id: '3',
@@ -544,10 +547,10 @@ const productsData = ref([
     isFavorite: false,
     description: '散养土鸡产蛋，营养丰富，味道鲜美。',
     specs: {
-      '产地': '杭州萧山',
-      '保质期': '15天',
-      '存储方式': '常温或冷藏'
-    }
+      产地: '杭州萧山',
+      保质期: '15天',
+      存储方式: '常温或冷藏',
+    },
   },
   {
     _id: '4',
@@ -566,10 +569,10 @@ const productsData = ref([
     isFavorite: false,
     description: '优质稻谷，生态种植，米香浓郁。',
     specs: {
-      '产地': '杭州临平',
-      '保质期': '12个月',
-      '存储方式': '阴凉干燥'
-    }
+      产地: '杭州临平',
+      保质期: '12个月',
+      存储方式: '阴凉干燥',
+    },
   },
   {
     _id: '5',
@@ -588,10 +591,10 @@ const productsData = ref([
     isFavorite: true,
     description: '现捞现卖，新鲜活鱼，肉质鲜美。',
     specs: {
-      '产地': '杭州本地',
-      '保质期': '1天',
-      '存储方式': '活水养殖'
-    }
+      产地: '杭州本地',
+      保质期: '1天',
+      存储方式: '活水养殖',
+    },
   },
   {
     _id: '6',
@@ -609,10 +612,10 @@ const productsData = ref([
     isFavorite: false,
     description: '新鲜有机胡萝卜，甘甜脆嫩。',
     specs: {
-      '产地': '杭州西湖',
-      '保质期': '10天',
-      '存储方式': '阴凉干燥'
-    }
+      产地: '杭州西湖',
+      保质期: '10天',
+      存储方式: '阴凉干燥',
+    },
   },
   {
     _id: '7',
@@ -631,10 +634,10 @@ const productsData = ref([
     isFavorite: false,
     description: '纯粮酿造，口感醇厚，回味悠长。',
     specs: {
-      '产地': '杭州余杭',
-      '酒精度': '12度',
-      '保质期': '18个月'
-    }
+      产地: '杭州余杭',
+      酒精度: '12度',
+      保质期: '18个月',
+    },
   },
   {
     _id: '8',
@@ -652,147 +655,148 @@ const productsData = ref([
     isFavorite: false,
     description: '自然成熟，酸甜可口，营养丰富。',
     specs: {
-      '产地': '杭州西湖',
-      '保质期': '5天',
-      '存储方式': '阴凉干燥'
-    }
-  }
-])
+      产地: '杭州西湖',
+      保质期: '5天',
+      存储方式: '阴凉干燥',
+    },
+  },
+]);
 
-const filteredProducts = ref([])
+const filteredProducts = ref([]);
 
 // 选择分类
-const selectCategory = (key) => {
-  activeCategory.value = key
-  handleFilter()
-}
+const selectCategory = key => {
+  activeCategory.value = key;
+  handleFilter();
+};
 
 // 搜索
 const handleSearch = () => {
-  handleFilter()
-}
+  handleFilter();
+};
 
 // 筛选商品
 const handleFilter = () => {
-  loading.value = true
+  loading.value = true;
 
   setTimeout(() => {
-    let filtered = [...productsData.value]
+    let filtered = [...productsData.value];
 
     // 按分类筛选
     if (activeCategory.value !== 'all') {
-      filtered = filtered.filter(p => p.category === activeCategory.value)
+      filtered = filtered.filter(p => p.category === activeCategory.value);
     }
 
     // 按关键词搜索
     if (searchKeyword.value) {
-      const keyword = searchKeyword.value.toLowerCase()
-      filtered = filtered.filter(p =>
-        p.name.toLowerCase().includes(keyword) ||
-        p.shopName.toLowerCase().includes(keyword) ||
-        p.description?.toLowerCase().includes(keyword)
-      )
+      const keyword = searchKeyword.value.toLowerCase();
+      filtered = filtered.filter(
+        p =>
+          p.name.toLowerCase().includes(keyword) ||
+          p.shopName.toLowerCase().includes(keyword) ||
+          p.description?.toLowerCase().includes(keyword)
+      );
     }
 
     // 按距离筛选
     if (filters.distance) {
-      filtered = filtered.filter(p => p.distance <= filters.distance)
+      filtered = filtered.filter(p => p.distance <= filters.distance);
     }
 
     // 按价格筛选
     if (filters.priceRange) {
-      filtered = filtered.filter(p =>
-        p.price >= filters.priceRange.min && p.price <= filters.priceRange.max
-      )
+      filtered = filtered.filter(
+        p => p.price >= filters.priceRange.min && p.price <= filters.priceRange.max
+      );
     }
 
     // 按库存筛选
     if (filters.inStock === true) {
-      filtered = filtered.filter(p => p.inStock)
+      filtered = filtered.filter(p => p.inStock);
     }
 
     // 排序
     switch (filters.sortBy) {
       case 'distance':
-        filtered.sort((a, b) => a.distance - b.distance)
-        break
+        filtered.sort((a, b) => a.distance - b.distance);
+        break;
       case 'price_asc':
-        filtered.sort((a, b) => a.price - b.price)
-        break
+        filtered.sort((a, b) => a.price - b.price);
+        break;
       case 'price_desc':
-        filtered.sort((a, b) => b.price - a.price)
-        break
+        filtered.sort((a, b) => b.price - a.price);
+        break;
       case 'sales':
-        filtered.sort((a, b) => (b.salesCount || 0) - (a.salesCount || 0))
-        break
+        filtered.sort((a, b) => (b.salesCount || 0) - (a.salesCount || 0));
+        break;
     }
 
-    filteredProducts.value = filtered.slice(0, 12)
-    hasMore.value = filtered.length > 12
+    filteredProducts.value = filtered.slice(0, 12);
+    hasMore.value = filtered.length > 12;
 
-    loading.value = false
-  }, 300)
-}
+    loading.value = false;
+  }, 300);
+};
 
 // 刷新
 const handleRefresh = () => {
-  handleFilter()
-}
+  handleFilter();
+};
 
 // 扩大搜索范围
 const expandSearch = () => {
-  filters.distance = Math.min(filters.distance + 5, 20)
-  handleFilter()
-}
+  filters.distance = Math.min(filters.distance + 5, 20);
+  handleFilter();
+};
 
 // 地图视图
 const handleMapView = () => {
-  mapDialogVisible.value = true
-}
+  mapDialogVisible.value = true;
+};
 
 // 切换视图模式
 const toggleViewMode = () => {
-  viewMode.value = viewMode.value === 'grid' ? 'list' : 'grid'
-}
+  viewMode.value = viewMode.value === 'grid' ? 'list' : 'grid';
+};
 
 // 查看商品详情
-const viewProductDetail = (product) => {
-  currentProduct.value = product
-  detailDialogVisible.value = true
-}
+const viewProductDetail = product => {
+  currentProduct.value = product;
+  detailDialogVisible.value = true;
+};
 
 // 收藏/取消收藏
-const toggleFavorite = (product) => {
-  product.isFavorite = !product.isFavorite
-  emit('favorite', product)
-  ElMessage.success(product.isFavorite ? '已添加收藏' : '已取消收藏')
-}
+const toggleFavorite = product => {
+  product.isFavorite = !product.isFavorite;
+  emit('favorite', product);
+  ElMessage.success(product.isFavorite ? '已添加收藏' : '已取消收藏');
+};
 
 // 联系商家
-const handleContact = (product) => {
-  emit('contact', product)
-  ElMessage.success(`正在联系${product.shopName}...`)
-}
+const handleContact = product => {
+  emit('contact', product);
+  ElMessage.success(`正在联系${product.shopName}...`);
+};
 
 // 加入购物车
-const handleAddToCart = (product) => {
-  emit('addToCart', product)
-  ElMessage.success(`已将${product.name}加入购物车`)
-}
+const handleAddToCart = product => {
+  emit('addToCart', product);
+  ElMessage.success(`已将${product.name}加入购物车`);
+};
 
 // 加载更多
 const loadMore = () => {
-  loadingMore.value = true
+  loadingMore.value = true;
   setTimeout(() => {
-    loadingMore.value = false
-    hasMore.value = false
-    ElMessage.success('没有更多了')
-  }, 1000)
-}
+    loadingMore.value = false;
+    hasMore.value = false;
+    ElMessage.success('没有更多了');
+  }, 1000);
+};
 
 onMounted(() => {
-  handleFilter()
-})
+  handleFilter();
+});
 </script>
 
 <style scoped>
@@ -974,11 +978,7 @@ onMounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0) 0%,
-    rgba(0, 0, 0, 0.3) 100%
-  );
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.3) 100%);
   padding: 12px;
   display: flex;
   flex-direction: column;

@@ -5,9 +5,7 @@
       <template #header>
         <div class="card-header">
           <span>基本信息</span>
-          <el-button type="primary" @click="handleEdit">
-            编辑档案
-          </el-button>
+          <el-button type="primary" @click="handleEdit"> 编辑档案 </el-button>
         </div>
       </template>
 
@@ -16,7 +14,10 @@
           {{ profile?.personalInfo?.name }}
         </el-descriptions-item>
         <el-descriptions-item label="性别">
-          <el-tag :type="profile?.personalInfo?.gender === '男' ? 'primary' : 'danger'" size="small">
+          <el-tag
+            :type="profile?.personalInfo?.gender === '男' ? 'primary' : 'danger'"
+            size="small"
+          >
             {{ profile?.personalInfo?.gender }}
           </el-tag>
         </el-descriptions-item>
@@ -203,9 +204,7 @@
       <template #header>
         <div class="card-header">
           <span>档案文档</span>
-          <el-button type="success" @click="handleUploadDocument">
-            上传文档
-          </el-button>
+          <el-button type="success" @click="handleUploadDocument"> 上传文档 </el-button>
         </div>
       </template>
 
@@ -231,15 +230,9 @@
         </el-table-column>
         <el-table-column label="操作" width="200">
           <template #default="{ row }">
-            <el-button link type="primary" @click="viewDocument(row)">
-              预览
-            </el-button>
-            <el-button link type="primary" @click="downloadDocument(row)">
-              下载
-            </el-button>
-            <el-button link type="primary" @click="shareDocument(row)">
-              分享
-            </el-button>
+            <el-button link type="primary" @click="viewDocument(row)"> 预览 </el-button>
+            <el-button link type="primary" @click="downloadDocument(row)"> 下载 </el-button>
+            <el-button link type="primary" @click="shareDocument(row)"> 分享 </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -274,18 +267,11 @@
       width="90%"
       top="5vh"
     >
-      <DocumentPreview
-        v-if="currentDocument"
-        :document="currentDocument"
-      />
+      <DocumentPreview v-if="currentDocument" :document="currentDocument" />
     </el-dialog>
 
     <!-- 上传文档对话框 -->
-    <el-dialog
-      v-model="showUploadDialog"
-      title="上传文档"
-      width="800px"
-    >
+    <el-dialog v-model="showUploadDialog" title="上传文档" width="800px">
       <DocumentUpload
         :owner="profile?.userId || profile?._id"
         @submit="handleDocumentSubmit"
@@ -296,26 +282,26 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { ElMessage } from 'element-plus'
-import DocumentPreview from './DocumentPreview.vue'
-import DocumentUpload from './DocumentUpload.vue'
+import { ref } from 'vue';
+import { ElMessage } from 'element-plus';
+import DocumentPreview from './DocumentPreview.vue';
+import DocumentUpload from './DocumentUpload.vue';
 
 // Props
 const props = defineProps({
   profile: {
     type: Object,
-    required: true
-  }
-})
+    required: true,
+  },
+});
 
 // Emits
-const emit = defineEmits(['edit', 'refresh'])
+const emit = defineEmits(['edit', 'refresh']);
 
 // 响应式数据
-const showDocumentDialog = ref(false)
-const showUploadDialog = ref(false)
-const currentDocument = ref(null)
+const showDocumentDialog = ref(false);
+const showUploadDialog = ref(false);
+const currentDocument = ref(null);
 
 // 操作记录（示例数据）
 const operationLogs = ref([
@@ -325,7 +311,7 @@ const operationLogs = ref([
     action: '创建档案',
     operator: '张三',
     remark: '初始创建村民档案',
-    createdAt: '2025-01-15 10:30:00'
+    createdAt: '2025-01-15 10:30:00',
   },
   {
     id: 2,
@@ -333,7 +319,7 @@ const operationLogs = ref([
     action: '更新信息',
     operator: '李四',
     remark: '修改联系电话',
-    createdAt: '2025-01-16 14:20:00'
+    createdAt: '2025-01-16 14:20:00',
   },
   {
     id: 3,
@@ -341,122 +327,122 @@ const operationLogs = ref([
     action: '上传文档',
     operator: '王五',
     remark: '上传身份证扫描件',
-    createdAt: '2025-01-17 09:15:00'
-  }
-])
+    createdAt: '2025-01-17 09:15:00',
+  },
+]);
 
 // 获取标签类型
-const getTagType = (tag) => {
+const getTagType = tag => {
   const tagTypeMap = {
-    '党员': 'danger',
-    '村干部': 'warning',
-    '退役军人': 'success',
-    '残疾人': 'info',
-    '低保户': 'danger',
-    '五保户': 'warning',
-    '留守儿童': 'primary',
-    '空巢老人': 'warning',
-    '独居老人': 'warning',
-    '大病家庭': 'danger',
-    '单亲家庭': 'info',
-    '失独家庭': 'danger',
-    '烈属': 'danger',
-    '优抚对象': 'success',
-    '困难党员': 'danger',
-    '返乡创业': 'success',
-    '农民工': '',
-    '大学生': 'primary',
-    '专业技术人才': 'success',
-    '其他': ''
-  }
-  return tagTypeMap[tag] || ''
-}
+    党员: 'danger',
+    村干部: 'warning',
+    退役军人: 'success',
+    残疾人: 'info',
+    低保户: 'danger',
+    五保户: 'warning',
+    留守儿童: 'primary',
+    空巢老人: 'warning',
+    独居老人: 'warning',
+    大病家庭: 'danger',
+    单亲家庭: 'info',
+    失独家庭: 'danger',
+    烈属: 'danger',
+    优抚对象: 'success',
+    困难党员: 'danger',
+    返乡创业: 'success',
+    农民工: '',
+    大学生: 'primary',
+    专业技术人才: 'success',
+    其他: '',
+  };
+  return tagTypeMap[tag] || '';
+};
 
 // 获取状态类型
-const getStatusType = (status) => {
+const getStatusType = status => {
   const statusMap = {
-    '有效': 'success',
-    '即将过期': 'warning',
-    '已过期': 'danger',
-    '遗失': 'info',
-    '注销': 'info'
-  }
-  return statusMap[status] || 'info'
-}
+    有效: 'success',
+    即将过期: 'warning',
+    已过期: 'danger',
+    遗失: 'info',
+    注销: 'info',
+  };
+  return statusMap[status] || 'info';
+};
 
 // 获取日志类型
-const getLogType = (type) => {
+const getLogType = type => {
   const typeMap = {
-    'create': 'success',
-    'update': 'primary',
-    'upload': 'success',
-    'delete': 'danger',
-    'share': 'warning'
-  }
-  return typeMap[type] || 'primary'
-}
+    create: 'success',
+    update: 'primary',
+    upload: 'success',
+    delete: 'danger',
+    share: 'warning',
+  };
+  return typeMap[type] || 'primary';
+};
 
 // 身份证号脱敏
-const maskIdCard = (idCard) => {
-  if (!idCard) return ''
-  return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2')
-}
+const maskIdCard = idCard => {
+  if (!idCard) return '';
+  return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2');
+};
 
 // 格式化收入
-const formatIncome = (income) => {
-  if (!income) return '未填写'
-  return `${income.toLocaleString()} 元`
-}
+const formatIncome = income => {
+  if (!income) return '未填写';
+  return `${income.toLocaleString()} 元`;
+};
 
 // 格式化文件大小
-const formatFileSize = (size) => {
-  if (!size) return '0 B'
-  const units = ['B', 'KB', 'MB', 'GB']
-  let index = 0
+const formatFileSize = size => {
+  if (!size) return '0 B';
+  const units = ['B', 'KB', 'MB', 'GB'];
+  let index = 0;
   while (size >= 1024 && index < units.length - 1) {
-    size /= 1024
-    index++
+    size /= 1024;
+    index++;
   }
-  return `${size.toFixed(2)} ${units[index]}`
-}
+  return `${size.toFixed(2)} ${units[index]}`;
+};
 
 // 格式化日期
-const formatDate = (date) => {
-  return new Date(date).toLocaleString('zh-CN')
-}
+const formatDate = date => {
+  return new Date(date).toLocaleString('zh-CN');
+};
 
 // 编辑档案
 const handleEdit = () => {
-  emit('edit', props.profile)
-}
+  emit('edit', props.profile);
+};
 
 // 查看文档
-const viewDocument = (document) => {
-  currentDocument.value = document
-  showDocumentDialog.value = true
-}
+const viewDocument = document => {
+  currentDocument.value = document;
+  showDocumentDialog.value = true;
+};
 
 // 下载文档
-const downloadDocument = (document) => {
-  ElMessage.info('下载功能开发中...')
-}
+const downloadDocument = document => {
+  ElMessage.info('下载功能开发中...');
+};
 
 // 分享文档
-const shareDocument = (document) => {
-  ElMessage.info('分享功能开发中...')
-}
+const shareDocument = document => {
+  ElMessage.info('分享功能开发中...');
+};
 
 // 上传文档
 const handleUploadDocument = () => {
-  showUploadDialog.value = true
-}
+  showUploadDialog.value = true;
+};
 
 // 文档提交
-const handleDocumentSubmit = (formData) => {
-  ElMessage.success('文档上传成功')
-  showUploadDialog.value = false
-  emit('refresh')
-}
+const handleDocumentSubmit = formData => {
+  ElMessage.success('文档上传成功');
+  showUploadDialog.value = false;
+  emit('refresh');
+};
 </script>
 
 <style lang="scss" scoped>

@@ -39,11 +39,7 @@
           立即同步 ({{ stats.pendingOperations }})
         </el-button>
 
-        <el-button
-          @click="showStorageDialog = true"
-          icon="Document"
-          size="small"
-        >
+        <el-button @click="showStorageDialog = true" icon="Document" size="small">
           离线数据
         </el-button>
 
@@ -89,18 +85,12 @@
         <div class="storage-actions">
           <h4>数据管理</h4>
           <el-space wrap>
-            <el-button @click="exportOfflineData" icon="Download">
-              导出离线数据
-            </el-button>
-            <el-button @click="importOfflineData" icon="Upload">
-              导入数据
-            </el-button>
+            <el-button @click="exportOfflineData" icon="Download"> 导出离线数据 </el-button>
+            <el-button @click="importOfflineData" icon="Upload"> 导入数据 </el-button>
             <el-button @click="clearExpiredData" icon="Delete" type="warning">
               清理过期数据
             </el-button>
-            <el-button @click="clearAllData" icon="Delete" type="danger">
-              清空所有数据
-            </el-button>
+            <el-button @click="clearAllData" icon="Delete" type="danger"> 清空所有数据 </el-button>
           </el-space>
         </div>
 
@@ -176,11 +166,7 @@
         </div>
 
         <div v-else class="conflict-list">
-          <div
-            v-for="conflict in conflictQueue"
-            :key="conflict.id"
-            class="conflict-item"
-          >
+          <div v-for="conflict in conflictQueue" :key="conflict.id" class="conflict-item">
             <div class="conflict-header">
               <h4>数据ID: {{ conflict.dataId }}</h4>
               <el-tag type="warning">{{ formatDateTime(conflict.timestamp) }}</el-tag>
@@ -220,28 +206,16 @@
 
             <div class="conflict-actions">
               <el-space>
-                <el-button
-                  @click="resolveConflict(conflict.id, 'use_local')"
-                  type="primary"
-                >
+                <el-button @click="resolveConflict(conflict.id, 'use_local')" type="primary">
                   使用本地版本
                 </el-button>
-                <el-button
-                  @click="resolveConflict(conflict.id, 'use_server')"
-                  type="success"
-                >
+                <el-button @click="resolveConflict(conflict.id, 'use_server')" type="success">
                   使用服务器版本
                 </el-button>
-                <el-button
-                  @click="showMergeDialogHandler(conflict)"
-                  type="warning"
-                >
+                <el-button @click="showMergeDialogHandler(conflict)" type="warning">
                   手动合并
                 </el-button>
-                <el-button
-                  @click="autoMergeConflict(conflict.id)"
-                  type="info"
-                >
+                <el-button @click="autoMergeConflict(conflict.id)" type="info">
                   智能合并
                 </el-button>
               </el-space>
@@ -257,11 +231,7 @@
     </el-dialog>
 
     <!-- 合并编辑对话框 -->
-    <el-dialog
-      v-model="showMergeDialog"
-      title="手动合并数据"
-      width="700px"
-    >
+    <el-dialog v-model="showMergeDialog" title="手动合并数据" width="700px">
       <div v-if="mergingConflict" class="merge-editor">
         <div class="editor-hint">
           <el-alert
@@ -293,22 +263,27 @@
       <div class="offline-message">
         <el-icon class="offline-icon"><WarningFilled /></el-icon>
         <span>当前处于离线模式，数据将保存到本地</span>
-        <el-button @click="checkConnection" size="small" text>
-          重新连接
-        </el-button>
+        <el-button @click="checkConnection" size="small" text> 重新连接 </el-button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, watch } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, reactive, computed, onMounted, watch } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
-  SuccessFilled, Loading, WarningFilled, Refresh,
-  Document, Warning, Download, Upload, Delete
-} from '@element-plus/icons-vue'
-import { useOfflineStorage } from '@/composables/useOfflineStorage'
+  SuccessFilled,
+  Loading,
+  WarningFilled,
+  Refresh,
+  Document,
+  Warning,
+  Download,
+  Upload,
+  Delete,
+} from '@element-plus/icons-vue';
+import { useOfflineStorage } from '@/composables/useOfflineStorage';
 
 // 使用离线存储Hook
 const {
@@ -324,72 +299,72 @@ const {
   syncData,
   resolveConflict,
   clearExpiredCache,
-  getStorageStats
+  getStorageStats,
 } = useOfflineStorage({
   autoSync: true,
-  syncInterval: 30000
-})
+  syncInterval: 30000,
+});
 
 // 响应式数据
-const showStorageDialog = ref(false)
-const showConflictDialog = ref(false)
-const showMergeDialog = ref(false)
-const mergingConflict = ref(null)
-const mergedDataJson = ref('')
-const recentOperations = ref([])
+const showStorageDialog = ref(false);
+const showConflictDialog = ref(false);
+const showMergeDialog = ref(false);
+const mergingConflict = ref(null);
+const mergedDataJson = ref('');
+const recentOperations = ref([]);
 
 // 同步配置
 const syncConfig = reactive({
   autoSync: true,
   interval: 30000,
   maxRetries: 3,
-  retentionDays: 7
-})
+  retentionDays: 7,
+});
 
 // 方法
 const getStatusText = () => {
-  if (isSyncing.value) return '正在同步...'
-  if (!isOnline.value) return '离线模式'
-  if (hasPendingOperations.value) return `有 ${stats.pendingOperations} 项待同步`
-  return '已连接'
-}
+  if (isSyncing.value) return '正在同步...';
+  if (!isOnline.value) return '离线模式';
+  if (hasPendingOperations.value) return `有 ${stats.pendingOperations} 项待同步`;
+  return '已连接';
+};
 
-const formatTime = (time) => {
-  if (!time) return ''
-  const now = new Date()
-  const diff = now - time
-  const minutes = Math.floor(diff / 60000)
-  if (minutes < 1) return '刚刚'
-  if (minutes < 60) return `${minutes}分钟前`
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}小时前`
-  return `${Math.floor(hours / 24)}天前`
-}
+const formatTime = time => {
+  if (!time) return '';
+  const now = new Date();
+  const diff = now - time;
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return '刚刚';
+  if (minutes < 60) return `${minutes}分钟前`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}小时前`;
+  return `${Math.floor(hours / 24)}天前`;
+};
 
-const formatDateTime = (timestamp) => {
-  return new Date(timestamp).toLocaleString()
-}
+const formatDateTime = timestamp => {
+  return new Date(timestamp).toLocaleString();
+};
 
 const triggerSync = async () => {
   try {
-    await syncData()
+    await syncData();
   } catch (error) {
-    ElMessage.error('同步失败: ' + error.message)
+    ElMessage.error('同步失败: ' + error.message);
   }
-}
+};
 
 const exportOfflineData = async () => {
   try {
     // 导出离线数据的逻辑
-    ElMessage.info('导出功能开发中...')
+    ElMessage.info('导出功能开发中...');
   } catch (error) {
-    ElMessage.error('导出失败: ' + error.message)
+    ElMessage.error('导出失败: ' + error.message);
   }
-}
+};
 
 const importOfflineData = () => {
-  ElMessage.info('导入功能开发中...')
-}
+  ElMessage.info('导入功能开发中...');
+};
 
 const clearExpiredData = async () => {
   try {
@@ -399,25 +374,25 @@ const clearExpiredData = async () => {
       {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
       }
-    )
+    );
 
     if (result === 'confirm') {
-      const maxAge = syncConfig.retentionDays * 24 * 60 * 60 * 1000
-      const deletedCount = await clearExpiredCache(maxAge)
-      ElMessage.success(`已清理 ${deletedCount} 项过期数据`)
+      const maxAge = syncConfig.retentionDays * 24 * 60 * 60 * 1000;
+      const deletedCount = await clearExpiredCache(maxAge);
+      ElMessage.success(`已清理 ${deletedCount} 项过期数据`);
 
       // 更新统计信息
-      const newStats = await getStorageStats()
-      Object.assign(stats, newStats)
+      const newStats = await getStorageStats();
+      Object.assign(stats, newStats);
     }
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('清理失败: ' + error.message)
+      ElMessage.error('清理失败: ' + error.message);
     }
   }
-}
+};
 
 const clearAllData = async () => {
   try {
@@ -427,52 +402,52 @@ const clearAllData = async () => {
       {
         confirmButtonText: '确定清空',
         cancelButtonText: '取消',
-        type: 'error'
+        type: 'error',
       }
-    )
+    );
 
     if (result === 'confirm') {
       // 清空所有数据的逻辑
-      ElMessage.success('所有离线数据已清空')
+      ElMessage.success('所有离线数据已清空');
     }
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('清空失败: ' + error.message)
+      ElMessage.error('清空失败: ' + error.message);
     }
   }
-}
+};
 
-const showMergeDialogHandler = (conflict) => {
-  mergingConflict.value = conflict
-  mergedDataJson.value = JSON.stringify(conflict.localData.data, null, 2)
-  showMergeDialog.value = true
-}
+const showMergeDialogHandler = conflict => {
+  mergingConflict.value = conflict;
+  mergedDataJson.value = JSON.stringify(conflict.localData.data, null, 2);
+  showMergeDialog.value = true;
+};
 
 const closeMergeDialog = () => {
-  showMergeDialog.value = false
-  mergingConflict.value = null
-  mergedDataJson.value = ''
-}
+  showMergeDialog.value = false;
+  mergingConflict.value = null;
+  mergedDataJson.value = '';
+};
 
 const saveMergedData = async () => {
   try {
-    const mergedData = JSON.parse(mergedDataJson.value)
-    await resolveConflict(mergingConflict.value.id, 'merge', mergedData)
-    ElMessage.success('数据合并成功')
-    closeMergeDialog()
+    const mergedData = JSON.parse(mergedDataJson.value);
+    await resolveConflict(mergingConflict.value.id, 'merge', mergedData);
+    ElMessage.success('数据合并成功');
+    closeMergeDialog();
   } catch (error) {
-    ElMessage.error('数据格式错误或合并失败: ' + error.message)
+    ElMessage.error('数据格式错误或合并失败: ' + error.message);
   }
-}
+};
 
-const autoMergeConflict = async (conflictId) => {
+const autoMergeConflict = async conflictId => {
   try {
-    await resolveConflict(conflictId, 'merge')
-    ElMessage.success('智能合并完成')
+    await resolveConflict(conflictId, 'merge');
+    ElMessage.success('智能合并完成');
   } catch (error) {
-    ElMessage.error('智能合并失败: ' + error.message)
+    ElMessage.error('智能合并失败: ' + error.message);
   }
-}
+};
 
 const resolveAllConflicts = async () => {
   try {
@@ -482,77 +457,77 @@ const resolveAllConflicts = async () => {
       {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
       }
-    )
+    );
 
     if (result === 'confirm') {
       for (const conflict of conflictQueue.value) {
-        await resolveConflict(conflict.id, 'use_server')
+        await resolveConflict(conflict.id, 'use_server');
       }
-      ElMessage.success('所有冲突已解决')
-      showConflictDialog.value = false
+      ElMessage.success('所有冲突已解决');
+      showConflictDialog.value = false;
     }
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('批量解决失败: ' + error.message)
+      ElMessage.error('批量解决失败: ' + error.message);
     }
   }
-}
+};
 
 const checkConnection = () => {
   if (navigator.onLine) {
-    location.reload()
+    location.reload();
   } else {
-    ElMessage.warning('网络仍然不可用')
+    ElMessage.warning('网络仍然不可用');
   }
-}
+};
 
 const saveStorageSettings = () => {
   // 保存设置到localStorage
-  localStorage.setItem('offlineSettings', JSON.stringify(syncConfig))
-  ElMessage.success('设置已保存')
-  showStorageDialog.value = false
-}
+  localStorage.setItem('offlineSettings', JSON.stringify(syncConfig));
+  ElMessage.success('设置已保存');
+  showStorageDialog.value = false;
+};
 
-const getOperationTagType = (type) => {
+const getOperationTagType = type => {
   const typeMap = {
     create: 'success',
     update: 'primary',
-    delete: 'danger'
-  }
-  return typeMap[type] || 'info'
-}
+    delete: 'danger',
+  };
+  return typeMap[type] || 'info';
+};
 
-const getOperationText = (type) => {
+const getOperationText = type => {
   const textMap = {
     create: '新增',
     update: '更新',
-    delete: '删除'
-  }
-  return textMap[type] || type
-}
+    delete: '删除',
+  };
+  return textMap[type] || type;
+};
 
-const getStatusTagType = (status) => {
+const getStatusTagType = status => {
   const statusMap = {
     pending: 'warning',
     synced: 'success',
-    error: 'danger'
-  }
-  return statusMap[status] || 'info'
-}
+    error: 'danger',
+  };
+  return statusMap[status] || 'info';
+};
 
 // 生命周期
 onMounted(() => {
   // 从localStorage加载设置
-  const savedSettings = localStorage.getItem('offlineSettings')
+  const savedSettings = localStorage.getItem('offlineSettings');
   if (savedSettings) {
-    Object.assign(syncConfig, JSON.parse(savedSettings))
+    Object.assign(syncConfig, JSON.parse(savedSettings));
   }
 
   // 加载最近操作历史
-  loadRecentOperations()
-})
+  loadRecentOperations();
+});
 
 const loadRecentOperations = () => {
   // 模拟最近操作数据
@@ -561,25 +536,25 @@ const loadRecentOperations = () => {
       timestamp: Date.now() - 300000,
       type: 'create',
       collection: 'residents',
-      status: 'synced'
+      status: 'synced',
     },
     {
       timestamp: Date.now() - 600000,
       type: 'update',
       collection: 'residents',
-      status: 'pending'
-    }
-  ]
-}
+      status: 'pending',
+    },
+  ];
+};
 
 // 监听在线状态变化
-watch(isOnline, (online) => {
+watch(isOnline, online => {
   if (online) {
-    ElMessage.success('网络已恢复，开始同步数据')
+    ElMessage.success('网络已恢复，开始同步数据');
   } else {
-    ElMessage.warning('网络连接断开，切换到离线模式')
+    ElMessage.warning('网络连接断开，切换到离线模式');
   }
-})
+});
 </script>
 
 <style lang="scss" scoped>

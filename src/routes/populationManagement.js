@@ -731,53 +731,53 @@ router.put('/changes/:changeId/review',
 
             if (household) {
               switch (change.changeType) {
-                case 'birth':
-                  // 新增家庭成员
-                  household.members.push({
-                    name: change.personInfo.name,
-                    idCard: change.personInfo.idCard,
-                    gender: change.personInfo.gender,
-                    birthDate: change.personInfo.birthDate,
-                    relation: change.personInfo.relation,
-                    phone: change.personInfo.phone
-                  });
-                  household.populationCount += 1;
-                  break;
+              case 'birth':
+                // 新增家庭成员
+                household.members.push({
+                  name: change.personInfo.name,
+                  idCard: change.personInfo.idCard,
+                  gender: change.personInfo.gender,
+                  birthDate: change.personInfo.birthDate,
+                  relation: change.personInfo.relation,
+                  phone: change.personInfo.phone
+                });
+                household.populationCount += 1;
+                break;
 
-                case 'death':
-                  // 标记成员为已故
-                  const member = household.members.find(
-                    m => m.idCard === change.personInfo.idCard
-                  );
-                  if (member) {
-                    member.isAlive = false;
-                    member.deathDate = change.changeDate;
-                    household.populationCount -= 1;
-                  }
-                  break;
-
-                case 'marriage_out':
-                case 'move_out':
-                  // 移除成员
-                  household.members = household.members.filter(
-                    m => m.idCard !== change.personInfo.idCard
-                  );
+              case 'death':
+                // 标记成员为已故
+                const member = household.members.find(
+                  m => m.idCard === change.personInfo.idCard
+                );
+                if (member) {
+                  member.isAlive = false;
+                  member.deathDate = change.changeDate;
                   household.populationCount -= 1;
-                  break;
+                }
+                break;
 
-                case 'marriage_in':
-                case 'move_in':
-                  // 新增成员
-                  household.members.push({
-                    name: change.personInfo.name,
-                    idCard: change.personInfo.idCard,
-                    gender: change.personInfo.gender,
-                    birthDate: change.personInfo.birthDate,
-                    relation: change.personInfo.relation,
-                    phone: change.personInfo.phone
-                  });
-                  household.populationCount += 1;
-                  break;
+              case 'marriage_out':
+              case 'move_out':
+                // 移除成员
+                household.members = household.members.filter(
+                  m => m.idCard !== change.personInfo.idCard
+                );
+                household.populationCount -= 1;
+                break;
+
+              case 'marriage_in':
+              case 'move_in':
+                // 新增成员
+                household.members.push({
+                  name: change.personInfo.name,
+                  idCard: change.personInfo.idCard,
+                  gender: change.personInfo.gender,
+                  birthDate: change.personInfo.birthDate,
+                  relation: change.personInfo.relation,
+                  phone: change.personInfo.phone
+                });
+                household.populationCount += 1;
+                break;
               }
 
               await household.save();

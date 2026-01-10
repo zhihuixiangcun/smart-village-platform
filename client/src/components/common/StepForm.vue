@@ -67,25 +67,14 @@
         >
           提交申请
         </el-button>
-        <el-button
-          v-else
-          type="primary"
-          size="large"
-          icon="ArrowRight"
-          @click="handleNext"
-        >
+        <el-button v-else type="primary" size="large" icon="ArrowRight" @click="handleNext">
           下一步
         </el-button>
       </div>
     </div>
 
     <!-- 语音识别对话框 -->
-    <el-dialog
-      v-model="isListening"
-      title="语音输入"
-      width="400px"
-      :close-on-click-modal="false"
-    >
+    <el-dialog v-model="isListening" title="语音输入" width="400px" :close-on-click-modal="false">
       <div class="voice-input-dialog">
         <div class="listening-animation">
           <div class="wave"></div>
@@ -104,242 +93,235 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
-import { ElMessage } from 'element-plus'
-import {
-  ArrowLeft,
-  ArrowRight,
-  Check,
-  Microphone
-} from '@element-plus/icons-vue'
-import { useVoiceInput } from '@/composables/useVoiceInput'
-import { useLargeText } from '@/composables/useLargeText'
+import { computed, ref, watch } from 'vue';
+import { ElMessage } from 'element-plus';
+import { ArrowLeft, ArrowRight, Check, Microphone } from '@element-plus/icons-vue';
+import { useVoiceInput } from '@/composables/useVoiceInput';
+import { useLargeText } from '@/composables/useLargeText';
 
 const props = defineProps({
   // 步骤配置
   steps: {
     type: Array,
     required: true,
-    default: () => []
+    default: () => [],
   },
   // 步骤组件
   stepComponents: {
     type: Array,
-    required: true
+    required: true,
   },
   // 初始数据
   initialData: {
     type: Object,
-    default: () => ({})
+    default: () => ({}),
   },
   // 显示进度条
   showProgress: {
     type: Boolean,
-    default: true
+    default: true,
   },
   // 显示进度文字
   showProgressText: {
     type: Boolean,
-    default: true
+    default: true,
   },
   // 显示上一步按钮
   showPrev: {
     type: Boolean,
-    default: true
+    default: true,
   },
   // 启用语音输入
   enableVoice: {
     type: Boolean,
-    default: true
+    default: true,
   },
   // 自动保存
   autoSave: {
     type: Boolean,
-    default: true
-  }
-})
+    default: true,
+  },
+});
 
-const emit = defineEmits(['update', 'submit', 'step-change'])
+const emit = defineEmits(['update', 'submit', 'step-change']);
 
 // Composables
-const { isLargeText } = useLargeText()
-const {
-  isListening,
-  recognizedText,
-  startListening,
-  stopListening
-} = useVoiceInput()
+const { isLargeText } = useLargeText();
+const { isListening, recognizedText, startListening, stopListening } = useVoiceInput();
 
 // 状态
-const currentStep = ref(0)
-const formData = ref({ ...props.initialData })
-const stepValidation = ref(new Array(props.steps.length).fill(false))
-const submitting = ref(false)
+const currentStep = ref(0);
+const formData = ref({ ...props.initialData });
+const stepValidation = ref(new Array(props.steps.length).fill(false));
+const submitting = ref(false);
 
 // 当前步骤组件
 const currentStepComponent = computed(() => {
-  return props.stepComponents[currentStep.value]
-})
+  return props.stepComponents[currentStep.value];
+});
 
 // 当前步骤配置
 const currentStepConfig = computed(() => {
-  return props.steps[currentStep.value]
-})
+  return props.steps[currentStep.value];
+});
 
 // 当前步骤属性
 const currentStepProps = computed(() => {
-  return currentStepConfig.value?.props || {}
-})
+  return currentStepConfig.value?.props || {};
+});
 
 // 是否第一步
-const isFirstStep = computed(() => currentStep.value === 0)
+const isFirstStep = computed(() => currentStep.value === 0);
 
 // 是否最后一步
-const isLastStep = computed(() => currentStep.value === props.steps.length - 1)
+const isLastStep = computed(() => currentStep.value === props.steps.length - 1);
 
 // 进度
 const progress = computed(() => {
-  return ((currentStep.value + 1) / props.steps.length) * 100
-})
+  return ((currentStep.value + 1) / props.steps.length) * 100;
+});
 
 // 处理数据更新
-const handleUpdate = (data) => {
-  formData.value = { ...formData.value, ...data }
-  emit('update', formData.value, currentStep.value)
+const handleUpdate = data => {
+  formData.value = { ...formData.value, ...data };
+  emit('update', formData.value, currentStep.value);
 
   if (props.autoSave) {
-    saveFormData()
+    saveFormData();
   }
-}
+};
 
 // 处理验证
-const handleValidate = (isValid) => {
-  stepValidation.value[currentStep.value] = isValid
-}
+const handleValidate = isValid => {
+  stepValidation.value[currentStep.value] = isValid;
+};
 
 // 下一步
 const handleNext = () => {
   if (!stepValidation.value[currentStep.value]) {
-    ElMessage.warning('请完成当前步骤的必填项')
-    return
+    ElMessage.warning('请完成当前步骤的必填项');
+    return;
   }
 
   if (currentStep.value < props.steps.length - 1) {
-    currentStep.value++
-    emit('step-change', currentStep.value, formData.value)
+    currentStep.value++;
+    emit('step-change', currentStep.value, formData.value);
   }
-}
+};
 
 // 上一步
 const handlePrev = () => {
   if (currentStep.value > 0) {
-    currentStep.value--
-    emit('step-change', currentStep.value, formData.value)
+    currentStep.value--;
+    emit('step-change', currentStep.value, formData.value);
   }
-}
+};
 
 // 跳转到指定步骤
-const goToStep = (index) => {
+const goToStep = index => {
   if (index >= 0 && index < props.steps.length) {
-    currentStep.value = index
-    emit('step-change', currentStep.value, formData.value)
+    currentStep.value = index;
+    emit('step-change', currentStep.value, formData.value);
   }
-}
+};
 
 // 语音输入
 const handleVoiceInput = async () => {
   try {
-    await startListening()
+    await startListening();
   } catch (error) {
-    console.error('Voice input error:', error)
+    console.error('Voice input error:', error);
   }
-}
+};
 
 // 确认语音输入
 const confirmVoiceInput = () => {
-  stopListening()
+  stopListening();
   if (recognizedText.value) {
     // 将识别的文本传递给当前步骤组件
-    emit('voice-input', recognizedText.value, currentStep.value)
-    ElMessage.success('已识别语音内容')
+    emit('voice-input', recognizedText.value, currentStep.value);
+    ElMessage.success('已识别语音内容');
   }
-}
+};
 
 // 提交表单
 const handleSubmit = async () => {
   // 验证所有步骤
-  const allValid = stepValidation.value.every(v => v)
+  const allValid = stepValidation.value.every(v => v);
   if (!allValid) {
-    ElMessage.warning('请完成所有必填项')
-    return
+    ElMessage.warning('请完成所有必填项');
+    return;
   }
 
-  submitting.value = true
+  submitting.value = true;
 
   try {
-    await emit('submit', formData.value)
-    ElMessage.success('提交成功')
+    await emit('submit', formData.value);
+    ElMessage.success('提交成功');
 
     // 清除保存的数据
     if (props.autoSave) {
-      clearSavedData()
+      clearSavedData();
     }
   } catch (error) {
-    ElMessage.error('提交失败: ' + error.message)
+    ElMessage.error('提交失败: ' + error.message);
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
-}
+};
 
 // 保存表单数据
 const saveFormData = () => {
-  const saveKey = `step-form-${props.steps[0]?.title || 'form'}`
+  const saveKey = `step-form-${props.steps[0]?.title || 'form'}`;
   try {
-    localStorage.setItem(saveKey, JSON.stringify({
-      formData: formData.value,
-      currentStep: currentStep.value,
-      stepValidation: stepValidation.value
-    }))
+    localStorage.setItem(
+      saveKey,
+      JSON.stringify({
+        formData: formData.value,
+        currentStep: currentStep.value,
+        stepValidation: stepValidation.value,
+      })
+    );
   } catch (error) {
-    console.error('Save form data error:', error)
+    console.error('Save form data error:', error);
   }
-}
+};
 
 // 清除保存的数据
 const clearSavedData = () => {
-  const saveKey = `step-form-${props.steps[0]?.title || 'form'}`
-  localStorage.removeItem(saveKey)
-}
+  const saveKey = `step-form-${props.steps[0]?.title || 'form'}`;
+  localStorage.removeItem(saveKey);
+};
 
 // 加载保存的数据
 const loadSavedData = () => {
-  if (!props.autoSave) return
+  if (!props.autoSave) return;
 
-  const saveKey = `step-form-${props.steps[0]?.title || 'form'}`
+  const saveKey = `step-form-${props.steps[0]?.title || 'form'}`;
   try {
-    const saved = localStorage.getItem(saveKey)
+    const saved = localStorage.getItem(saveKey);
     if (saved) {
-      const data = JSON.parse(saved)
-      formData.value = { ...formData.value, ...data.formData }
-      currentStep.value = data.currentStep || 0
-      stepValidation.value = data.stepValidation || stepValidation.value
+      const data = JSON.parse(saved);
+      formData.value = { ...formData.value, ...data.formData };
+      currentStep.value = data.currentStep || 0;
+      stepValidation.value = data.stepValidation || stepValidation.value;
     }
   } catch (error) {
-    console.error('Load saved data error:', error)
+    console.error('Load saved data error:', error);
   }
-}
+};
 
 // 暴露方法
-const updateFormData = (data) => {
-  handleUpdate(data)
-}
+const updateFormData = data => {
+  handleUpdate(data);
+};
 
-const setStepValidation = (isValid) => {
-  handleValidate(isValid)
-}
+const setStepValidation = isValid => {
+  handleValidate(isValid);
+};
 
 // 初始化
-loadSavedData()
+loadSavedData();
 
 // 暴露给父组件
 defineExpose({
@@ -349,8 +331,8 @@ defineExpose({
   updateFormData,
   setStepValidation,
   goToStep,
-  resetForm: clearSavedData
-})
+  resetForm: clearSavedData,
+});
 </script>
 
 <style lang="scss" scoped>
@@ -451,7 +433,8 @@ defineExpose({
 }
 
 @keyframes wave {
-  0%, 100% {
+  0%,
+  100% {
     transform: scaleY(0.5);
   }
   50% {

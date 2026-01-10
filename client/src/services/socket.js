@@ -17,10 +17,11 @@ class SocketService {
   // 连接Socket.IO服务器
   connect() {
     try {
-      this.socket = io('http://localhost:3001', {
+      this.socket = io('http://localhost:5000', {
+        // 连接到村务服务器
         transports: ['websocket', 'polling'],
         timeout: 10000,
-        autoConnect: true
+        autoConnect: true,
       });
 
       this.setupEventListeners();
@@ -46,7 +47,7 @@ class SocketService {
     });
 
     // 连接断开
-    this.socket.on('disconnect', (reason) => {
+    this.socket.on('disconnect', reason => {
       console.log('📴 Socket.IO连接断开:', reason);
       this.isConnected = false;
 
@@ -57,7 +58,7 @@ class SocketService {
     });
 
     // 连接错误
-    this.socket.on('connect_error', (error) => {
+    this.socket.on('connect_error', error => {
       console.error('💥 Socket.IO连接错误:', error);
       this.isConnected = false;
       this.reconnect();
@@ -70,38 +71,38 @@ class SocketService {
         title: '连接失败',
         message: '无法连接到实时通信服务器，某些功能可能不可用',
         type: 'error',
-        duration: 5000
+        duration: 5000,
       });
     });
 
     // 紧急广播
-    this.socket.on('emergency-alert', (data) => {
+    this.socket.on('emergency-alert', data => {
       ElNotification({
         title: '紧急广播',
         message: data.message || '收到紧急通知',
         type: 'error',
         duration: 0, // 不自动关闭
-        dangerouslyUseHTMLString: true
+        dangerouslyUseHTMLString: true,
       });
     });
 
     // 系统通知
-    this.socket.on('system-notification', (data) => {
+    this.socket.on('system-notification', data => {
       ElNotification({
         title: data.title || '系统通知',
         message: data.message,
         type: data.type || 'info',
-        duration: 4000
+        duration: 4000,
       });
     });
 
     // 村务更新通知
-    this.socket.on('village-update', (data) => {
+    this.socket.on('village-update', data => {
       ElNotification({
         title: '村务更新',
         message: data.message,
         type: 'success',
-        duration: 3000
+        duration: 3000,
       });
     });
   }
@@ -131,7 +132,7 @@ class SocketService {
       villageId: targetVillageId,
       message,
       sender: userStore.user?.name || '系统',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     return true;
@@ -171,7 +172,7 @@ class SocketService {
     return {
       connected: this.isConnected,
       socketId: this.socket?.id || null,
-      reconnectAttempts: this.reconnectAttempts
+      reconnectAttempts: this.reconnectAttempts,
     };
   }
 }

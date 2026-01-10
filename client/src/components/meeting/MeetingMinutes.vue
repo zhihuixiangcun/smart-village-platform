@@ -3,12 +3,7 @@
     <div class="minutes-header">
       <h3>会议纪要</h3>
       <div class="header-actions">
-        <el-button
-          v-if="canEditMinutes"
-          type="primary"
-          size="small"
-          @click="showEditDialog = true"
-        >
+        <el-button v-if="canEditMinutes" type="primary" size="small" @click="showEditDialog = true">
           编辑纪要
         </el-button>
         <el-button
@@ -67,10 +62,7 @@
               <span class="attendee-name">{{ attendee.userId.realName }}</span>
               <span class="attendee-role">{{ attendee.role }}</span>
             </div>
-            <el-tag
-              :type="attendee.status === 'present' ? 'success' : 'warning'"
-              size="mini"
-            >
+            <el-tag :type="attendee.status === 'present' ? 'success' : 'warning'" size="mini">
               {{ getAttendanceText(attendee.status) }}
             </el-tag>
           </div>
@@ -78,7 +70,10 @@
       </div>
 
       <!-- 议程讨论 -->
-      <div v-if="minutes.agendaDiscussions && minutes.agendaDiscussions.length > 0" class="agenda-discussions">
+      <div
+        v-if="minutes.agendaDiscussions && minutes.agendaDiscussions.length > 0"
+        class="agenda-discussions"
+      >
         <h4>议程讨论</h4>
         <div
           v-for="(discussion, index) in minutes.agendaDiscussions"
@@ -111,14 +106,13 @@
             </ul>
           </div>
 
-          <div v-if="discussion.actionItems && discussion.actionItems.length > 0" class="action-items">
+          <div
+            v-if="discussion.actionItems && discussion.actionItems.length > 0"
+            class="action-items"
+          >
             <h6>行动事项：</h6>
             <div class="action-list">
-              <div
-                v-for="(action, idx) in discussion.actionItems"
-                :key="idx"
-                class="action-item"
-              >
+              <div v-for="(action, idx) in discussion.actionItems" :key="idx" class="action-item">
                 <div class="action-content">{{ action.content }}</div>
                 <div class="action-meta">
                   <span class="responsible">负责人：{{ action.responsible }}</span>
@@ -188,11 +182,7 @@
 
     <!-- 空状态 -->
     <el-empty v-else description="暂无会议纪要">
-      <el-button
-        v-if="canEditMinutes"
-        type="primary"
-        @click="showEditDialog = true"
-      >
+      <el-button v-if="canEditMinutes" type="primary" @click="showEditDialog = true">
         创建纪要
       </el-button>
     </el-empty>
@@ -206,22 +196,14 @@
       custom-class="minutes-edit-dialog"
     >
       <div class="edit-minutes">
-        <el-form
-          ref="minutesForm"
-          :model="editingMinutes"
-          label-width="120px"
-          size="small"
-        >
+        <el-form ref="minutesForm" :model="editingMinutes" label-width="120px" size="small">
           <!-- 基本信息 -->
           <div class="form-section">
             <h4>基本信息</h4>
             <el-row :gutter="16">
               <el-col :span="12">
                 <el-form-item label="记录人" required>
-                  <el-select
-                    v-model="editingMinutes.recordedBy"
-                    placeholder="选择记录人"
-                  >
+                  <el-select v-model="editingMinutes.recordedBy" placeholder="选择记录人">
                     <el-option
                       v-for="participant in meetingParticipants"
                       :key="participant._id"
@@ -265,10 +247,7 @@
                   placeholder="职务/角色"
                   style="width: 150px; margin-left: 10px"
                 ></el-input>
-                <el-select
-                  v-model="attendee.status"
-                  style="width: 100px; margin-left: 10px"
-                >
+                <el-select v-model="attendee.status" style="width: 100px; margin-left: 10px">
                   <el-option label="出席" value="present"></el-option>
                   <el-option label="迟到" value="late"></el-option>
                   <el-option label="早退" value="early_leave"></el-option>
@@ -283,9 +262,7 @@
                   删除
                 </el-button>
               </div>
-              <el-button type="primary" size="mini" @click="addAttendee">
-                添加参会人员
-              </el-button>
+              <el-button type="primary" size="mini" @click="addAttendee"> 添加参会人员 </el-button>
             </div>
           </div>
 
@@ -350,11 +327,7 @@
                     删除
                   </el-button>
                 </div>
-                <el-button
-                  type="primary"
-                  size="mini"
-                  @click="addKeyPoint(index)"
-                >
+                <el-button type="primary" size="mini" @click="addKeyPoint(index)">
                   添加观点
                 </el-button>
               </div>
@@ -388,11 +361,7 @@
                     删除
                   </el-button>
                 </div>
-                <el-button
-                  type="primary"
-                  size="mini"
-                  @click="addDecision(index)"
-                >
+                <el-button type="primary" size="mini" @click="addDecision(index)">
                   添加决议
                 </el-button>
               </div>
@@ -430,19 +399,13 @@
                     删除
                   </el-button>
                 </div>
-                <el-button
-                  type="primary"
-                  size="mini"
-                  @click="addActionItem(index)"
-                >
+                <el-button type="primary" size="mini" @click="addActionItem(index)">
                   添加行动事项
                 </el-button>
               </div>
             </div>
 
-            <el-button type="primary" @click="addDiscussion">
-              添加议程讨论
-            </el-button>
+            <el-button type="primary" @click="addDiscussion"> 添加议程讨论 </el-button>
           </div>
 
           <!-- 会议总结 -->
@@ -503,64 +466,64 @@
       <div slot="footer" class="dialog-footer">
         <el-button @click="showEditDialog = false">取消</el-button>
         <el-button @click="saveDraft" :loading="saving">保存草稿</el-button>
-        <el-button type="primary" @click="saveMinutes" :loading="saving">
-          提交审核
-        </el-button>
+        <el-button type="primary" @click="saveMinutes" :loading="saving"> 提交审核 </el-button>
       </div>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { meetingAPI } from '@/api/meeting'
-import { formatDate, formatDateTime } from '@/utils/dateUtils'
+import { meetingAPI } from '@/api/meeting';
+import { formatDate, formatDateTime } from '@/utils/dateUtils';
 
 export default {
   name: 'MeetingMinutes',
   props: {
     meeting: {
       type: Object,
-      required: true
+      required: true,
     },
     minutes: {
       type: Object,
-      default: null
-    }
+      default: null,
+    },
   },
   data() {
     return {
       showEditDialog: false,
       saving: false,
       editingMinutes: this.getDefaultMinutes(),
-      meetingParticipants: []
-    }
+      meetingParticipants: [],
+    };
   },
   computed: {
     canEditMinutes() {
-      const userRole = this.$store.getters.userRole
-      const userId = this.$store.getters.userId
+      const userRole = this.$store.getters.userRole;
+      const userId = this.$store.getters.userId;
 
-      return userRole === 'admin' ||
-             userRole === 'committee' ||
-             this.meeting.organizer._id === userId ||
-             this.meeting.secretary?._id === userId
+      return (
+        userRole === 'admin' ||
+        userRole === 'committee' ||
+        this.meeting.organizer._id === userId ||
+        this.meeting.secretary?._id === userId
+      );
     },
     uploadUrl() {
-      return `/api/v1/meetings/${this.meeting._id}/attachments`
+      return `/api/v1/meetings/${this.meeting._id}/attachments`;
     },
     uploadHeaders() {
       return {
-        'Authorization': `Bearer ${this.$store.getters.token}`
-      }
-    }
+        Authorization: `Bearer ${this.$store.getters.token}`,
+      };
+    },
   },
   watch: {
-    'showEditDialog'(newVal) {
+    showEditDialog(newVal) {
       if (newVal) {
-        this.initEditingMinutes()
-        this.loadMeetingParticipants()
+        this.initEditingMinutes();
+        this.loadMeetingParticipants();
       }
-    }
+    },
   },
   methods: {
     getDefaultMinutes() {
@@ -572,43 +535,43 @@ export default {
         summary: '',
         nextMeeting: {
           topic: '',
-          scheduledTime: null
+          scheduledTime: null,
         },
         attachments: [],
-        status: 'draft'
-      }
+        status: 'draft',
+      };
     },
 
     initEditingMinutes() {
       if (this.minutes) {
-        this.editingMinutes = JSON.parse(JSON.stringify(this.minutes))
+        this.editingMinutes = JSON.parse(JSON.stringify(this.minutes));
       } else {
-        this.editingMinutes = this.getDefaultMinutes()
-        this.editingMinutes.meetingType = this.meeting.meetingType
+        this.editingMinutes = this.getDefaultMinutes();
+        this.editingMinutes.meetingType = this.meeting.meetingType;
       }
 
       // 确保必要的数组字段存在
-      if (!this.editingMinutes.attendees) this.editingMinutes.attendees = []
-      if (!this.editingMinutes.agendaDiscussions) this.editingMinutes.agendaDiscussions = []
-      if (!this.editingMinutes.attachments) this.editingMinutes.attachments = []
+      if (!this.editingMinutes.attendees) this.editingMinutes.attendees = [];
+      if (!this.editingMinutes.agendaDiscussions) this.editingMinutes.agendaDiscussions = [];
+      if (!this.editingMinutes.attachments) this.editingMinutes.attachments = [];
       if (!this.editingMinutes.nextMeeting) {
-        this.editingMinutes.nextMeeting = { topic: '', scheduledTime: null }
+        this.editingMinutes.nextMeeting = { topic: '', scheduledTime: null };
       }
     },
 
     async loadMeetingParticipants() {
       // 从会议参与者中获取
-      const participants = []
+      const participants = [];
 
       if (this.meeting.participants?.required) {
-        participants.push(...this.meeting.participants.required.map(p => p.userId))
+        participants.push(...this.meeting.participants.required.map(p => p.userId));
       }
 
       if (this.meeting.participants?.optional) {
-        participants.push(...this.meeting.participants.optional.map(p => p.userId))
+        participants.push(...this.meeting.participants.optional.map(p => p.userId));
       }
 
-      this.meetingParticipants = participants
+      this.meetingParticipants = participants;
     },
 
     // 出席人员管理
@@ -616,12 +579,12 @@ export default {
       this.editingMinutes.attendees.push({
         userId: null,
         role: '',
-        status: 'present'
-      })
+        status: 'present',
+      });
     },
 
     removeAttendee(index) {
-      this.editingMinutes.attendees.splice(index, 1)
+      this.editingMinutes.attendees.splice(index, 1);
     },
 
     // 议程讨论管理
@@ -631,36 +594,36 @@ export default {
         duration: 30,
         keyPoints: [],
         decisions: [],
-        actionItems: []
-      })
+        actionItems: [],
+      });
     },
 
     removeDiscussion(index) {
-      this.editingMinutes.agendaDiscussions.splice(index, 1)
+      this.editingMinutes.agendaDiscussions.splice(index, 1);
     },
 
     // 主要观点管理
     addKeyPoint(discussionIndex) {
       this.editingMinutes.agendaDiscussions[discussionIndex].keyPoints.push({
         speaker: '',
-        content: ''
-      })
+        content: '',
+      });
     },
 
     removeKeyPoint(discussionIndex, pointIndex) {
-      this.editingMinutes.agendaDiscussions[discussionIndex].keyPoints.splice(pointIndex, 1)
+      this.editingMinutes.agendaDiscussions[discussionIndex].keyPoints.splice(pointIndex, 1);
     },
 
     // 决议管理
     addDecision(discussionIndex) {
       this.editingMinutes.agendaDiscussions[discussionIndex].decisions.push({
         content: '',
-        voteResult: ''
-      })
+        voteResult: '',
+      });
     },
 
     removeDecision(discussionIndex, decisionIndex) {
-      this.editingMinutes.agendaDiscussions[discussionIndex].decisions.splice(decisionIndex, 1)
+      this.editingMinutes.agendaDiscussions[discussionIndex].decisions.splice(decisionIndex, 1);
     },
 
     // 行动事项管理
@@ -668,12 +631,12 @@ export default {
       this.editingMinutes.agendaDiscussions[discussionIndex].actionItems.push({
         content: '',
         responsible: '',
-        deadline: null
-      })
+        deadline: null,
+      });
     },
 
     removeActionItem(discussionIndex, actionIndex) {
-      this.editingMinutes.agendaDiscussions[discussionIndex].actionItems.splice(actionIndex, 1)
+      this.editingMinutes.agendaDiscussions[discussionIndex].actionItems.splice(actionIndex, 1);
     },
 
     // 文件上传处理
@@ -682,39 +645,36 @@ export default {
         this.editingMinutes.attachments.push({
           name: response.data.fileName,
           url: response.data.fileUrl,
-          size: response.data.fileSize
-        })
+          size: response.data.fileSize,
+        });
       }
     },
 
     onAttachmentRemoved(file) {
       const index = this.editingMinutes.attachments.findIndex(
         attachment => attachment.name === file.name
-      )
+      );
       if (index > -1) {
-        this.editingMinutes.attachments.splice(index, 1)
+        this.editingMinutes.attachments.splice(index, 1);
       }
     },
 
     // 保存草稿
     async saveDraft() {
-      this.saving = true
+      this.saving = true;
       try {
-        this.editingMinutes.status = 'draft'
-        const response = await meetingAPI.saveMeetingMinutes(
-          this.meeting._id,
-          this.editingMinutes
-        )
+        this.editingMinutes.status = 'draft';
+        const response = await meetingAPI.saveMeetingMinutes(this.meeting._id, this.editingMinutes);
 
         if (response.data.success) {
-          this.$message.success('纪要草稿保存成功')
-          this.$emit('minutes-updated', response.data.data)
+          this.$message.success('纪要草稿保存成功');
+          this.$emit('minutes-updated', response.data.data);
         }
       } catch (error) {
-        this.$message.error('保存草稿失败')
-        console.error(error)
+        this.$message.error('保存草稿失败');
+        console.error(error);
       } finally {
-        this.saving = false
+        this.saving = false;
       }
     },
 
@@ -722,92 +682,96 @@ export default {
     async saveMinutes() {
       // 基本验证
       if (!this.editingMinutes.recordedBy) {
-        this.$message.error('请选择记录人')
-        return
+        this.$message.error('请选择记录人');
+        return;
       }
 
       if (!this.editingMinutes.summary.trim()) {
-        this.$message.error('请填写会议总结')
-        return
+        this.$message.error('请填写会议总结');
+        return;
       }
 
-      this.saving = true
+      this.saving = true;
       try {
-        this.editingMinutes.status = 'pending_approval'
-        const response = await meetingAPI.saveMeetingMinutes(
-          this.meeting._id,
-          this.editingMinutes
-        )
+        this.editingMinutes.status = 'pending_approval';
+        const response = await meetingAPI.saveMeetingMinutes(this.meeting._id, this.editingMinutes);
 
         if (response.data.success) {
-          this.$message.success('会议纪要已提交审核')
-          this.showEditDialog = false
-          this.$emit('minutes-updated', response.data.data)
+          this.$message.success('会议纪要已提交审核');
+          this.showEditDialog = false;
+          this.$emit('minutes-updated', response.data.data);
         }
       } catch (error) {
-        this.$message.error('提交纪要失败')
-        console.error(error)
+        this.$message.error('提交纪要失败');
+        console.error(error);
       } finally {
-        this.saving = false
+        this.saving = false;
       }
     },
 
     // 导出纪要
     async exportMinutes() {
       try {
-        const response = await meetingAPI.exportMeetingMinutes(this.meeting._id)
+        const response = await meetingAPI.exportMeetingMinutes(this.meeting._id);
 
         // 创建下载链接
-        const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
-        const url = window.URL.createObjectURL(blob)
-        const link = document.createElement('a')
-        link.href = url
-        link.download = `${this.meeting.title}_会议纪要.docx`
-        link.click()
-        window.URL.revokeObjectURL(url)
+        const blob = new Blob([response.data], {
+          type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${this.meeting.title}_会议纪要.docx`;
+        link.click();
+        window.URL.revokeObjectURL(url);
 
-        this.$message.success('纪要导出成功')
+        this.$message.success('纪要导出成功');
       } catch (error) {
-        this.$message.error('导出纪要失败')
-        console.error(error)
+        this.$message.error('导出纪要失败');
+        console.error(error);
       }
     },
 
     // 状态相关方法
     getAttendanceText(status) {
       const statusMap = {
-        'present': '出席',
-        'late': '迟到',
-        'early_leave': '早退',
-        'absent': '缺席'
-      }
-      return statusMap[status] || '未知'
+        present: '出席',
+        late: '迟到',
+        early_leave: '早退',
+        absent: '缺席',
+      };
+      return statusMap[status] || '未知';
     },
 
     getApprovalType(status) {
       switch (status) {
-        case 'draft': return 'info'
-        case 'pending_approval': return 'warning'
-        case 'completed': return 'success'
-        case 'rejected': return 'danger'
-        default: return 'info'
+        case 'draft':
+          return 'info';
+        case 'pending_approval':
+          return 'warning';
+        case 'completed':
+          return 'success';
+        case 'rejected':
+          return 'danger';
+        default:
+          return 'info';
       }
     },
 
     getApprovalText(status) {
       const statusMap = {
-        'draft': '草稿',
-        'pending_approval': '待审核',
-        'completed': '已审核',
-        'rejected': '被驳回'
-      }
-      return statusMap[status] || '未知'
+        draft: '草稿',
+        pending_approval: '待审核',
+        completed: '已审核',
+        rejected: '被驳回',
+      };
+      return statusMap[status] || '未知';
     },
 
     formatDate,
-    formatDateTime
-  }
-}
+    formatDateTime,
+  },
+};
 </script>
 
 <style scoped>

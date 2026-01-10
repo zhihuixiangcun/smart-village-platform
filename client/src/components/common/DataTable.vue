@@ -92,11 +92,7 @@
     <div v-if="showToolbar" class="toolbar mb-4">
       <div class="toolbar-left">
         <slot name="toolbar-left">
-          <el-button
-            v-if="showAdd"
-            type="primary"
-            @click="$emit('add')"
-          >
+          <el-button v-if="showAdd" type="primary" @click="$emit('add')">
             <el-icon><Plus /></el-icon>
             {{ addText }}
           </el-button>
@@ -115,18 +111,12 @@
 
       <div class="toolbar-right">
         <slot name="toolbar-right">
-          <el-button
-            v-if="showExport"
-            @click="handleExport"
-          >
+          <el-button v-if="showExport" @click="handleExport">
             <el-icon><Download /></el-icon>
             导出
           </el-button>
 
-          <el-button
-            v-if="showRefresh"
-            @click="handleRefresh"
-          >
+          <el-button v-if="showRefresh" @click="handleRefresh">
             <el-icon><Refresh /></el-icon>
             刷新
           </el-button>
@@ -150,12 +140,7 @@
       @row-dblclick="handleRowDblClick"
     >
       <!-- 多选列 -->
-      <el-table-column
-        v-if="showSelection"
-        type="selection"
-        width="55"
-        align="center"
-      />
+      <el-table-column v-if="showSelection" type="selection" width="55" align="center" />
 
       <!-- 序号列 -->
       <el-table-column
@@ -211,11 +196,7 @@
         align="center"
       >
         <template #default="scope">
-          <slot
-            name="actions"
-            :row="scope.row"
-            :$index="scope.$index"
-          >
+          <slot name="actions" :row="scope.row" :$index="scope.$index">
             <el-button
               v-if="showEdit"
               type="primary"
@@ -255,144 +236,144 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Refresh, Plus, Delete, Download } from '@element-plus/icons-vue'
+import { ref, computed, watch, nextTick } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { Search, Refresh, Plus, Delete, Download } from '@element-plus/icons-vue';
 
 // Props定义
 const props = defineProps({
   // 数据相关
   data: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   columns: {
     type: Array,
-    required: true
+    required: true,
   },
   loading: {
     type: Boolean,
-    default: false
+    default: false,
   },
 
   // 分页相关
   showPagination: {
     type: Boolean,
-    default: true
+    default: true,
   },
   total: {
     type: Number,
-    default: 0
+    default: 0,
   },
   pageSize: {
     type: Number,
-    default: 10
+    default: 10,
   },
   pageSizes: {
     type: Array,
-    default: () => [10, 20, 50, 100]
+    default: () => [10, 20, 50, 100],
   },
 
   // 搜索相关
   showSearch: {
     type: Boolean,
-    default: true
+    default: true,
   },
   searchPlaceholder: {
     type: String,
-    default: '请输入搜索关键词'
+    default: '请输入搜索关键词',
   },
   searchColSpan: {
     type: Number,
-    default: 6
+    default: 6,
   },
   showAdvancedSearch: {
     type: Boolean,
-    default: false
+    default: false,
   },
   advancedSearchFields: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
 
   // 工具栏相关
   showToolbar: {
     type: Boolean,
-    default: true
+    default: true,
   },
   showAdd: {
     type: Boolean,
-    default: true
+    default: true,
   },
   addText: {
     type: String,
-    default: '新增'
+    default: '新增',
   },
   showBatchDelete: {
     type: Boolean,
-    default: true
+    default: true,
   },
   showExport: {
     type: Boolean,
-    default: true
+    default: true,
   },
   showRefresh: {
     type: Boolean,
-    default: true
+    default: true,
   },
 
   // 表格样式
   stripe: {
     type: Boolean,
-    default: true
+    default: true,
   },
   border: {
     type: Boolean,
-    default: true
+    default: true,
   },
   size: {
     type: String,
-    default: 'default'
+    default: 'default',
   },
   height: {
     type: [String, Number],
-    default: undefined
+    default: undefined,
   },
   maxHeight: {
     type: [String, Number],
-    default: undefined
+    default: undefined,
   },
 
   // 列相关
   showSelection: {
     type: Boolean,
-    default: true
+    default: true,
   },
   showIndex: {
     type: Boolean,
-    default: true
+    default: true,
   },
   showActions: {
     type: Boolean,
-    default: true
+    default: true,
   },
   actionWidth: {
     type: [String, Number],
-    default: 150
+    default: 150,
   },
   actionFixed: {
     type: String,
-    default: 'right'
+    default: 'right',
   },
   showEdit: {
     type: Boolean,
-    default: true
+    default: true,
   },
   showDelete: {
     type: Boolean,
-    default: true
-  }
-})
+    default: true,
+  },
+});
 
 // Emits定义
 const emit = defineEmits([
@@ -408,139 +389,143 @@ const emit = defineEmits([
   'sort-change',
   'row-click',
   'row-dblclick',
-  'page-change'
-])
+  'page-change',
+]);
 
 // 响应式数据
-const tableRef = ref()
-const searchQuery = ref('')
-const advancedSearchForm = ref({})
-const selectedRows = ref([])
-const currentPage = ref(1)
+const tableRef = ref();
+const searchQuery = ref('');
+const advancedSearchForm = ref({});
+const selectedRows = ref([]);
+const currentPage = ref(1);
 
 // 计算属性
-const tableData = computed(() => props.data)
+const tableData = computed(() => props.data);
 
 // 初始化高级搜索表单
 const initAdvancedSearchForm = () => {
-  const form = {}
+  const form = {};
   props.advancedSearchFields.forEach(field => {
-    form[field.prop] = field.type === 'daterange' ? [] : ''
-  })
-  advancedSearchForm.value = form
-}
+    form[field.prop] = field.type === 'daterange' ? [] : '';
+  });
+  advancedSearchForm.value = form;
+};
 
 // 序号计算方法
-const getIndexMethod = (index) => {
-  return (currentPage.value - 1) * props.pageSize + index + 1
-}
+const getIndexMethod = index => {
+  return (currentPage.value - 1) * props.pageSize + index + 1;
+};
 
 // 事件处理方法
 const handleSearch = () => {
-  emit('search', searchQuery.value)
-}
+  emit('search', searchQuery.value);
+};
 
 const handleReset = () => {
-  searchQuery.value = ''
-  emit('reset')
-}
+  searchQuery.value = '';
+  emit('reset');
+};
 
 const handleAdvancedSearch = () => {
-  emit('search', { ...advancedSearchForm.value, keyword: searchQuery.value })
-}
+  emit('search', { ...advancedSearchForm.value, keyword: searchQuery.value });
+};
 
 const handleAdvancedReset = () => {
-  initAdvancedSearchForm()
-  searchQuery.value = ''
-  emit('reset')
-}
+  initAdvancedSearchForm();
+  searchQuery.value = '';
+  emit('reset');
+};
 
 const handleRefresh = () => {
-  emit('refresh')
-}
+  emit('refresh');
+};
 
 const handleExport = () => {
-  emit('export', selectedRows.value)
-}
+  emit('export', selectedRows.value);
+};
 
-const handleDelete = (row) => {
+const handleDelete = row => {
   ElMessageBox.confirm('确定要删除这条记录吗？', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
-    type: 'warning'
-  }).then(() => {
-    emit('delete', row)
-  }).catch(() => {
-    // 取消删除
+    type: 'warning',
   })
-}
+    .then(() => {
+      emit('delete', row);
+    })
+    .catch(() => {
+      // 取消删除
+    });
+};
 
 const handleBatchDelete = () => {
   if (!selectedRows.value.length) {
-    ElMessage.warning('请先选择要删除的记录')
-    return
+    ElMessage.warning('请先选择要删除的记录');
+    return;
   }
 
   ElMessageBox.confirm(`确定要删除选中的 ${selectedRows.value.length} 条记录吗？`, '批量删除', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
-    type: 'warning'
-  }).then(() => {
-    emit('batch-delete', selectedRows.value)
-  }).catch(() => {
-    // 取消删除
+    type: 'warning',
   })
-}
+    .then(() => {
+      emit('batch-delete', selectedRows.value);
+    })
+    .catch(() => {
+      // 取消删除
+    });
+};
 
-const handleSelectionChange = (selection) => {
-  selectedRows.value = selection
-  emit('selection-change', selection)
-}
+const handleSelectionChange = selection => {
+  selectedRows.value = selection;
+  emit('selection-change', selection);
+};
 
-const handleSortChange = (sortData) => {
-  emit('sort-change', sortData)
-}
+const handleSortChange = sortData => {
+  emit('sort-change', sortData);
+};
 
 const handleRowClick = (row, column, event) => {
-  emit('row-click', row, column, event)
-}
+  emit('row-click', row, column, event);
+};
 
 const handleRowDblClick = (row, column, event) => {
-  emit('row-dblclick', row, column, event)
-}
+  emit('row-dblclick', row, column, event);
+};
 
-const handleSizeChange = (size) => {
-  emit('page-change', { page: currentPage.value, size })
-}
+const handleSizeChange = size => {
+  emit('page-change', { page: currentPage.value, size });
+};
 
-const handleCurrentChange = (page) => {
-  currentPage.value = page
-  emit('page-change', { page, size: props.pageSize })
-}
+const handleCurrentChange = page => {
+  currentPage.value = page;
+  emit('page-change', { page, size: props.pageSize });
+};
 
 // 暴露的方法
 const clearSelection = () => {
-  tableRef.value?.clearSelection()
-}
+  tableRef.value?.clearSelection();
+};
 
 const toggleRowSelection = (row, selected) => {
-  tableRef.value?.toggleRowSelection(row, selected)
-}
+  tableRef.value?.toggleRowSelection(row, selected);
+};
 
 const toggleAllSelection = () => {
-  tableRef.value?.toggleAllSelection()
-}
+  tableRef.value?.toggleAllSelection();
+};
 
-const setCurrentRow = (row) => {
-  tableRef.value?.setCurrentRow(row)
-}
+const setCurrentRow = row => {
+  tableRef.value?.setCurrentRow(row);
+};
 
-const scrollTo = (options) => {
-  tableRef.value?.scrollTo(options)
-}
+const scrollTo = options => {
+  tableRef.value?.scrollTo(options);
+};
 
 // 初始化
-initAdvancedSearchForm()
+initAdvancedSearchForm();
 
 // 暴露方法给父组件
 defineExpose({
@@ -548,8 +533,8 @@ defineExpose({
   toggleRowSelection,
   toggleAllSelection,
   setCurrentRow,
-  scrollTo
-})
+  scrollTo,
+});
 </script>
 
 <style scoped>

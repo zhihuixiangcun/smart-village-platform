@@ -10,29 +10,29 @@ class CommunicationService {
   constructor() {
     this.client = axios.create({
       baseURL: `${API_BASE_URL}/cloudCommunication`,
-      timeout: 30000
+      timeout: 30000,
     });
 
     // 请求拦截器
     this.client.interceptors.request.use(
-      (config) => {
+      config => {
         const token = localStorage.getItem('token');
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
       },
-      (error) => {
+      error => {
         return Promise.reject(error);
       }
     );
 
     // 响应拦截器
     this.client.interceptors.response.use(
-      (response) => {
+      response => {
         return response.data;
       },
-      (error) => {
+      error => {
         if (error.response?.status === 401) {
           localStorage.removeItem('token');
           window.location.href = '/login';
@@ -138,7 +138,7 @@ class CommunicationService {
       return await this.client.post('/emergency/broadcast', {
         villageId,
         message,
-        channels
+        channels,
       });
     } catch (error) {
       throw new Error(`应急广播发送失败: ${error.message}`);
@@ -223,7 +223,7 @@ class CommunicationService {
       customContent,
       params = {},
       priority = 1,
-      scheduleTime = null
+      scheduleTime = null,
     } = config;
 
     // 验证接收者
@@ -245,8 +245,8 @@ class CommunicationService {
       recipients,
       options: {
         priority,
-        scheduleTime
-      }
+        scheduleTime,
+      },
     };
 
     if (templateType === 'custom' && customContent) {
@@ -254,7 +254,7 @@ class CommunicationService {
     } else {
       sendConfig.template = {
         code: templateId,
-        params
+        params,
       };
     }
 
@@ -270,7 +270,7 @@ class CommunicationService {
         total: messages.length,
         success: 0,
         failed: 0,
-        details: []
+        details: [],
       };
 
       // 分批处理，避免并发过多
@@ -278,14 +278,14 @@ class CommunicationService {
       for (let i = 0; i < messages.length; i += batchSize) {
         const batch = messages.slice(i, i + batchSize);
 
-        const batchPromises = batch.map(async (messageConfig) => {
+        const batchPromises = batch.map(async messageConfig => {
           try {
             const result = await this.sendMessage(messageConfig);
             results.success++;
             results.details.push({
               config: messageConfig,
               success: true,
-              result
+              result,
             });
             return { success: true, result };
           } catch (error) {
@@ -293,7 +293,7 @@ class CommunicationService {
             results.details.push({
               config: messageConfig,
               success: false,
-              error: error.message
+              error: error.message,
             });
             return { success: false, error: error.message };
           }
@@ -304,7 +304,7 @@ class CommunicationService {
 
       return {
         success: true,
-        data: results
+        data: results,
       };
     } catch (error) {
       throw new Error(`批量个性化消息发送失败: ${error.message}`);
@@ -319,7 +319,7 @@ class CommunicationService {
       const scheduledConfig = {
         ...config,
         scheduleTime: scheduleTime.toISOString(),
-        isScheduled: true
+        isScheduled: true,
       };
 
       return await this.sendMessage(scheduledConfig);
@@ -335,7 +335,7 @@ class CommunicationService {
     try {
       const params = {
         ...filters,
-        statistics: true
+        statistics: true,
       };
 
       const historyResult = await this.getMessageHistory(params);
@@ -348,7 +348,7 @@ class CommunicationService {
         pending: 0,
         byType: {},
         byProvider: {},
-        successRate: 0
+        successRate: 0,
       };
 
       historyResult.data.messages.forEach(message => {
@@ -377,7 +377,7 @@ class CommunicationService {
 
       return {
         success: true,
-        data: statistics
+        data: statistics,
       };
     } catch (error) {
       throw new Error(`获取消息统计失败: ${error.message}`);
@@ -396,17 +396,17 @@ class CommunicationService {
           { id: 'SMS_VERIFICATION', name: '验证码模板', description: '用于发送验证码' },
           { id: 'SMS_NOTIFICATION', name: '通知模板', description: '用于发送各类通知' },
           { id: 'SMS_BIRTHDAY', name: '生日祝福', description: '生日祝福消息' },
-          { id: 'SMS_HOLIDAY', name: '节日祝福', description: '节日祝福消息' }
+          { id: 'SMS_HOLIDAY', name: '节日祝福', description: '节日祝福消息' },
         ],
         voice: [
           { id: 'VOICE_EMERGENCY', name: '紧急通知', description: '紧急情况语音通知' },
-          { id: 'VOICE_REMINDER', name: '提醒通知', description: '事项提醒语音' }
-        ]
+          { id: 'VOICE_REMINDER', name: '提醒通知', description: '事项提醒语音' },
+        ],
       };
 
       return {
         success: true,
-        data: templates[type] || []
+        data: templates[type] || [],
       };
     } catch (error) {
       throw new Error(`获取消息模板失败: ${error.message}`);
@@ -420,7 +420,7 @@ class CommunicationService {
     const validation = {
       valid: true,
       errors: [],
-      warnings: []
+      warnings: [],
     };
 
     switch (type) {
@@ -494,8 +494,8 @@ class CommunicationService {
         options: {
           ...options,
           isResend: true,
-          originalMessageId: messageId
-        }
+          originalMessageId: messageId,
+        },
       };
 
       return await this.sendMessage(resendConfig);
@@ -514,7 +514,7 @@ class CommunicationService {
       if (!validation.valid) {
         return {
           success: false,
-          errors: validation.errors
+          errors: validation.errors,
         };
       }
 
@@ -525,12 +525,12 @@ class CommunicationService {
         content: config.content,
         estimatedCost: this.calculateCost(config),
         estimatedTime: this.estimateDeliveryTime(config),
-        warnings: validation.warnings
+        warnings: validation.warnings,
       };
 
       return {
         success: true,
-        data: preview
+        data: preview,
       };
     } catch (error) {
       throw new Error(`消息预览失败: ${error.message}`);
@@ -545,12 +545,10 @@ class CommunicationService {
       sms: 0.045, // 每条短信费用（元）
       voice: 0.15, // 每分钟语音费用（元）
       email: 0.01, // 每封邮件费用（元）
-      push: 0.001 // 每条推送费用（元）
+      push: 0.001, // 每条推送费用（元）
     };
 
-    const recipientCount = Array.isArray(config.recipients)
-      ? config.recipients.length
-      : 1;
+    const recipientCount = Array.isArray(config.recipients) ? config.recipients.length : 1;
 
     const rate = rates[config.type] || 0;
     return (recipientCount * rate).toFixed(4);
@@ -564,12 +562,10 @@ class CommunicationService {
       sms: 1, // 1分钟内
       voice: 2, // 2分钟内
       email: 5, // 5分钟内
-      push: 0.5 // 30秒内
+      push: 0.5, // 30秒内
     };
 
-    const recipientCount = Array.isArray(config.recipients)
-      ? config.recipients.length
-      : 1;
+    const recipientCount = Array.isArray(config.recipients) ? config.recipients.length : 1;
 
     // 接收者越多，时间越长
     const time = baseTime[config.type] || 1;

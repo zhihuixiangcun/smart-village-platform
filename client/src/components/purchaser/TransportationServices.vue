@@ -99,35 +99,23 @@
       <!-- 空状态 -->
       <div v-else-if="filteredServices.length === 0" class="empty-container">
         <el-empty :description="`附近暂无${currentTypeLabel}信息`">
-          <el-button type="primary" @click="expandSearch">
-            扩大搜索范围
-          </el-button>
+          <el-button type="primary" @click="expandSearch"> 扩大搜索范围 </el-button>
         </el-empty>
       </div>
 
       <!-- 航班列表 -->
       <div v-else-if="activeType === 'flight'" class="flights-container">
-        <div
-          v-for="flight in filteredServices"
-          :key="flight._id"
-          class="flight-card"
-        >
+        <div v-for="flight in filteredServices" :key="flight._id" class="flight-card">
           <div class="flight-header">
             <div class="airport-info">
               <div class="airport-name">
                 <el-icon><Location /></el-icon>
                 {{ flight.airportName }}
               </div>
-              <div class="airport-distance">
-                距离 {{ flight.distance?.toFixed(1) }}km
-              </div>
+              <div class="airport-distance">距离 {{ flight.distance?.toFixed(1) }}km</div>
             </div>
-            <el-tag type="success" size="small" v-if="flight.available">
-              有票
-            </el-tag>
-            <el-tag type="danger" size="small" v-else>
-              售罄
-            </el-tag>
+            <el-tag type="success" size="small" v-if="flight.available"> 有票 </el-tag>
+            <el-tag type="danger" size="small" v-else> 售罄 </el-tag>
           </div>
 
           <div class="flight-info">
@@ -171,20 +159,14 @@
 
       <!-- 高铁列表 -->
       <div v-else-if="activeType === 'train'" class="trains-container">
-        <div
-          v-for="train in filteredServices"
-          :key="train._id"
-          class="train-card"
-        >
+        <div v-for="train in filteredServices" :key="train._id" class="train-card">
           <div class="train-header">
             <div class="station-info">
               <div class="station-name">
                 <el-icon><Location /></el-icon>
                 {{ train.stationName }}
               </div>
-              <div class="station-distance">
-                距离 {{ train.distance?.toFixed(1) }}km
-              </div>
+              <div class="station-distance">距离 {{ train.distance?.toFixed(1) }}km</div>
             </div>
             <el-tag :type="train.available ? 'success' : 'danger'" size="small">
               {{ train.available ? '有票' : '售罄' }}
@@ -224,9 +206,7 @@
           </div>
 
           <div class="train-footer">
-            <div class="price-range">
-              最低 ¥{{ train.lowestPrice }}
-            </div>
+            <div class="price-range">最低 ¥{{ train.lowestPrice }}</div>
             <div class="train-actions">
               <el-button size="small" @click="handleNavigate(train)">
                 <el-icon><Location /></el-icon>
@@ -243,24 +223,16 @@
 
       <!-- 巴士列表 -->
       <div v-else-if="activeType === 'bus'" class="buses-container">
-        <div
-          v-for="bus in filteredServices"
-          :key="bus._id"
-          class="bus-card"
-        >
+        <div v-for="bus in filteredServices" :key="bus._id" class="bus-card">
           <div class="bus-header">
             <div class="station-info">
               <div class="station-name">
                 <el-icon><Location /></el-icon>
                 {{ bus.stationName }}
               </div>
-              <div class="station-distance">
-                距离 {{ bus.distance?.toFixed(1) }}km
-              </div>
+              <div class="station-distance">距离 {{ bus.distance?.toFixed(1) }}km</div>
             </div>
-            <el-tag type="info" size="small">
-              客运站
-            </el-tag>
+            <el-tag type="info" size="small"> 客运站 </el-tag>
           </div>
 
           <div class="bus-info">
@@ -280,9 +252,7 @@
                     <div class="route-schedule">
                       首班：{{ route.firstBus }} | 末班：{{ route.lastBus }}
                     </div>
-                    <div class="route-price">
-                      票价：¥{{ route.price }}
-                    </div>
+                    <div class="route-price">票价：¥{{ route.price }}</div>
                   </div>
                 </div>
               </div>
@@ -304,19 +274,12 @@
 
       <!-- 加载更多 -->
       <div class="load-more" v-if="hasMore && !loading">
-        <el-button @click="loadMore" :loading="loadingMore">
-          加载更多
-        </el-button>
+        <el-button @click="loadMore" :loading="loadingMore"> 加载更多 </el-button>
       </div>
     </el-card>
 
     <!-- 地图视图对话框 -->
-    <el-dialog
-      v-model="mapDialogVisible"
-      title="附近交通设施地图"
-      width="90%"
-      top="5vh"
-    >
+    <el-dialog v-model="mapDialogVisible" title="附近交通设施地图" width="90%" top="5vh">
       <div class="map-container" id="transportMap">
         <div class="map-placeholder">
           <el-icon><MapLocation /></el-icon>
@@ -337,10 +300,16 @@
     >
       <el-form :model="bookingForm" label-width="100px" v-if="currentBooking">
         <el-form-item label="班次">
-          <el-input :value="currentBooking.item.flightNumber || currentBooking.item.trainNumber" disabled />
+          <el-input
+            :value="currentBooking.item.flightNumber || currentBooking.item.trainNumber"
+            disabled
+          />
         </el-form-item>
         <el-form-item label="出发时间">
-          <el-input :value="`${currentBooking.item.departureTime} - ${currentBooking.item.arrivalTime}`" disabled />
+          <el-input
+            :value="`${currentBooking.item.departureTime} - ${currentBooking.item.arrivalTime}`"
+            disabled
+          />
         </el-form-item>
         <el-form-item label="乘客姓名" required>
           <el-input v-model="bookingForm.name" placeholder="请输入姓名" />
@@ -375,49 +344,57 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { ElMessage } from 'element-plus';
 import {
-  Van, Refresh, MapLocation, Location, Search, Loading,
-  DArrowRight, ShoppingCart, Right, Phone
-} from '@element-plus/icons-vue'
-import api from '@/api'
+  Van,
+  Refresh,
+  MapLocation,
+  Location,
+  Search,
+  Loading,
+  DArrowRight,
+  ShoppingCart,
+  Right,
+  Phone,
+} from '@element-plus/icons-vue';
+import api from '@/api';
 
-const router = useRouter()
+const router = useRouter();
 
 const props = defineProps({
   purchaserId: {
     type: String,
-    default: ''
-  }
-})
+    default: '',
+  },
+});
 
-const emit = defineEmits(['navigate', 'book'])
+const emit = defineEmits(['navigate', 'book']);
 
-const loading = ref(false)
-const loadingMore = ref(false)
-const activeType = ref('all')
-const mapDialogVisible = ref(false)
-const bookingDialogVisible = ref(false)
-const currentBooking = ref(null)
-const locationInfo = ref({ city: '杭州市' })
-const hasMore = ref(true)
+const loading = ref(false);
+const loadingMore = ref(false);
+const activeType = ref('all');
+const mapDialogVisible = ref(false);
+const bookingDialogVisible = ref(false);
+const currentBooking = ref(null);
+const locationInfo = ref({ city: '杭州市' });
+const hasMore = ref(true);
 
 const filters = reactive({
   distance: 20,
   sortBy: 'time',
   priceRange: null,
-  date: new Date()
-})
+  date: new Date(),
+});
 
 const bookingForm = reactive({
   name: '',
   idCard: '',
   phone: '',
   seatType: '',
-  count: 1
-})
+  count: 1,
+});
 
 const transportTypes = [
   {
@@ -425,30 +402,30 @@ const transportTypes = [
     label: '全部',
     icon: Location,
     color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    count: 0
+    count: 0,
   },
   {
     key: 'flight',
     label: '航班',
     icon: Van,
     color: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-    count: 5
+    count: 5,
   },
   {
     key: 'train',
     label: '高铁',
     icon: Location,
     color: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-    count: 8
+    count: 8,
   },
   {
     key: 'bus',
     label: '巴士',
     icon: Van,
     color: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-    count: 12
-  }
-]
+    count: 12,
+  },
+];
 
 // 模拟航班数据
 const flightsData = ref([
@@ -465,7 +442,7 @@ const flightsData = ref([
     arrivalTime: '11:00',
     duration: 2.5,
     price: 680,
-    available: true
+    available: true,
   },
   {
     _id: 'f2',
@@ -480,7 +457,7 @@ const flightsData = ref([
     arrivalTime: '15:30',
     duration: 1.2,
     price: 380,
-    available: true
+    available: true,
   },
   {
     _id: 'f3',
@@ -495,9 +472,9 @@ const flightsData = ref([
     arrivalTime: '22:15',
     duration: 2.5,
     price: 890,
-    available: false
-  }
-])
+    available: false,
+  },
+]);
 
 // 模拟高铁数据
 const trainsData = ref([
@@ -517,8 +494,8 @@ const trainsData = ref([
     seats: [
       { type: '二等座', price: 73, count: 120 },
       { type: '一等座', price: 117, count: 25 },
-      { type: '商务座', price: 219, count: 5 }
-    ]
+      { type: '商务座', price: 219, count: 5 },
+    ],
   },
   {
     _id: 't2',
@@ -536,8 +513,8 @@ const trainsData = ref([
     seats: [
       { type: '二等座', price: 87, count: 89 },
       { type: '一等座', price: 139, count: 12 },
-      { type: '商务座', price: 260, count: 0 }
-    ]
+      { type: '商务座', price: 260, count: 0 },
+    ],
   },
   {
     _id: 't3',
@@ -554,10 +531,10 @@ const trainsData = ref([
     available: true,
     seats: [
       { type: '二等座', price: 98, count: 200 },
-      { type: '一等座', price: 157, count: 45 }
-    ]
-  }
-])
+      { type: '一等座', price: 157, count: 45 },
+    ],
+  },
+]);
 
 // 模拟巴士数据
 const busesData = ref([
@@ -574,7 +551,7 @@ const busesData = ref([
         firstBus: '07:00',
         lastBus: '19:30',
         frequency: '30分钟一班',
-        price: 68
+        price: 68,
       },
       {
         _id: 'r2',
@@ -584,7 +561,7 @@ const busesData = ref([
         firstBus: '06:30',
         lastBus: '20:00',
         frequency: '20分钟一班',
-        price: 35
+        price: 35,
       },
       {
         _id: 'r3',
@@ -594,9 +571,9 @@ const busesData = ref([
         firstBus: '07:30',
         lastBus: '18:30',
         frequency: '40分钟一班',
-        price: 42
-      }
-    ]
+        price: 42,
+      },
+    ],
   },
   {
     _id: 'b2',
@@ -611,7 +588,7 @@ const busesData = ref([
         firstBus: '08:00',
         lastBus: '17:30',
         frequency: '1小时一班',
-        price: 55
+        price: 55,
       },
       {
         _id: 'r5',
@@ -621,9 +598,9 @@ const busesData = ref([
         firstBus: '09:00',
         lastBus: '16:00',
         frequency: '2小时一班',
-        price: 48
-      }
-    ]
+        price: 48,
+      },
+    ],
   },
   {
     _id: 'b3',
@@ -638,148 +615,148 @@ const busesData = ref([
         firstBus: '07:15',
         lastBus: '18:15',
         frequency: '45分钟一班',
-        price: 95
-      }
-    ]
-  }
-])
+        price: 95,
+      },
+    ],
+  },
+]);
 
-const filteredServices = ref([])
+const filteredServices = ref([]);
 
 // 当前类型标签
 const currentTypeLabel = computed(() => {
-  const type = transportTypes.find(t => t.key === activeType.value)
-  return type?.label || '交通'
-})
+  const type = transportTypes.find(t => t.key === activeType.value);
+  return type?.label || '交通';
+});
 
 // 切换类型
-const switchType = (key) => {
-  activeType.value = key
-  handleFilter()
-}
+const switchType = key => {
+  activeType.value = key;
+  handleFilter();
+};
 
 // 筛选服务
 const handleFilter = () => {
-  loading.value = true
+  loading.value = true;
 
   setTimeout(() => {
-    let filtered = []
+    let filtered = [];
 
     // 按类型筛选
     switch (activeType.value) {
       case 'flight':
-        filtered = [...flightsData.value]
-        break
+        filtered = [...flightsData.value];
+        break;
       case 'train':
-        filtered = [...trainsData.value]
-        break
+        filtered = [...trainsData.value];
+        break;
       case 'bus':
-        filtered = [...busesData.value]
-        break
+        filtered = [...busesData.value];
+        break;
       case 'all':
         filtered = [
           ...flightsData.value.map(item => ({ ...item, type: 'flight' })),
           ...trainsData.value.map(item => ({ ...item, type: 'train' })),
-          ...busesData.value.map(item => ({ ...item, type: 'bus' }))
-        ]
-        break
+          ...busesData.value.map(item => ({ ...item, type: 'bus' })),
+        ];
+        break;
     }
 
     // 按距离筛选
     if (filters.distance && activeType.value !== 'all') {
-      filtered = filtered.filter(s => s.distance <= filters.distance)
+      filtered = filtered.filter(s => s.distance <= filters.distance);
     }
 
     // 按价格筛选
     if (filters.priceRange && activeType.value !== 'bus') {
       filtered = filtered.filter(s => {
-        const price = s.lowestPrice || s.price
-        return price >= filters.priceRange.min && price <= filters.priceRange.max
-      })
+        const price = s.lowestPrice || s.price;
+        return price >= filters.priceRange.min && price <= filters.priceRange.max;
+      });
     }
 
     // 排序
     if (activeType.value === 'flight' || activeType.value === 'all') {
       if (filters.sortBy === 'price') {
-        filtered.sort((a, b) => (a.price || 0) - (b.price || 0))
+        filtered.sort((a, b) => (a.price || 0) - (b.price || 0));
       } else if (filters.sortBy === 'time') {
         filtered.sort((a, b) => {
-          const timeA = parseInt(a.departureTime?.replace(':', '') || 0)
-          const timeB = parseInt(b.departureTime?.replace(':', '') || 0)
-          return timeA - timeB
-        })
+          const timeA = parseInt(a.departureTime?.replace(':', '') || 0);
+          const timeB = parseInt(b.departureTime?.replace(':', '') || 0);
+          return timeA - timeB;
+        });
       }
     }
 
     if (activeType.value === 'all') {
-      filtered.sort((a, b) => a.distance - b.distance)
+      filtered.sort((a, b) => a.distance - b.distance);
     }
 
-    filteredServices.value = filtered.slice(0, 10)
-    hasMore.value = filtered.length > 10
+    filteredServices.value = filtered.slice(0, 10);
+    hasMore.value = filtered.length > 10;
 
-    loading.value = false
-  }, 300)
-}
+    loading.value = false;
+  }, 300);
+};
 
 // 刷新
 const handleRefresh = () => {
-  handleFilter()
-}
+  handleFilter();
+};
 
 // 扩大搜索范围
 const expandSearch = () => {
-  filters.distance = Math.min(filters.distance + 20, 100)
-  handleFilter()
-}
+  filters.distance = Math.min(filters.distance + 20, 100);
+  handleFilter();
+};
 
 // 地图视图
 const handleMapView = () => {
-  mapDialogVisible.value = true
-}
+  mapDialogVisible.value = true;
+};
 
 // 加载更多
 const loadMore = () => {
-  loadingMore.value = true
+  loadingMore.value = true;
   setTimeout(() => {
-    loadingMore.value = false
-    hasMore.value = false
-    ElMessage.success('没有更多了')
-  }, 1000)
-}
+    loadingMore.value = false;
+    hasMore.value = false;
+    ElMessage.success('没有更多了');
+  }, 1000);
+};
 
 // 导航
-const handleNavigate = (service) => {
-  emit('navigate', service)
-  ElMessage.success(`正在为您导航到${service.airportName || service.stationName}...`)
-}
+const handleNavigate = service => {
+  emit('navigate', service);
+  ElMessage.success(`正在为您导航到${service.airportName || service.stationName}...`);
+};
 
 // 预订
 const handleBook = (item, type) => {
-  currentBooking.value = { item, type }
-  bookingDialogVisible.value = true
-}
+  currentBooking.value = { item, type };
+  bookingDialogVisible.value = true;
+};
 
 // 咨询电话
-const handleCall = (service) => {
-  ElMessage.success(`正在拨打${service.stationName}咨询电话...`)
-}
+const handleCall = service => {
+  ElMessage.success(`正在拨打${service.stationName}咨询电话...`);
+};
 
 // 确认预订
 const confirmBooking = () => {
   if (!bookingForm.name || !bookingForm.idCard || !bookingForm.phone) {
-    ElMessage.warning('请填写完整信息')
-    return
+    ElMessage.warning('请填写完整信息');
+    return;
   }
 
   emit('book', {
     ...bookingForm,
     item: currentBooking.value.item,
-    type: currentBooking.value.type
-  })
+    type: currentBooking.value.type,
+  });
 
-  ElMessage.success('预订成功！')
-  bookingDialogVisible.value = false
+  ElMessage.success('预订成功！');
+  bookingDialogVisible.value = false;
 
   // 重置表单
   Object.assign(bookingForm, {
@@ -787,13 +764,13 @@ const confirmBooking = () => {
     idCard: '',
     phone: '',
     seatType: '',
-    count: 1
-  })
-}
+    count: 1,
+  });
+};
 
 onMounted(() => {
-  handleFilter()
-})
+  handleFilter();
+});
 </script>
 
 <style scoped>

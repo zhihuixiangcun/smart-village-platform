@@ -49,7 +49,9 @@
                 </el-select>
               </el-col>
               <el-col :span="4">
-                <el-button type="primary" @click="searchAnnouncements" icon="Search">搜索</el-button>
+                <el-button type="primary" @click="searchAnnouncements" icon="Search"
+                  >搜索</el-button
+                >
               </el-col>
             </el-row>
           </el-card>
@@ -60,10 +62,18 @@
               <div class="card-header">
                 <span class="card-title">公告列表</span>
                 <div class="header-actions">
-                  <el-button size="small" @click="batchPublish" :disabled="!selectedAnnouncements.length">
+                  <el-button
+                    size="small"
+                    @click="batchPublish"
+                    :disabled="!selectedAnnouncements.length"
+                  >
                     批量发布
                   </el-button>
-                  <el-button size="small" @click="batchWithdraw" :disabled="!selectedAnnouncements.length">
+                  <el-button
+                    size="small"
+                    @click="batchWithdraw"
+                    :disabled="!selectedAnnouncements.length"
+                  >
                     批量撤回
                   </el-button>
                 </div>
@@ -209,14 +219,17 @@
                 </template>
               </el-table-column>
               <el-table-column prop="participation" label="参与率" width="100">
-                <template #default="scope">
-                  {{ scope.row.participation }}%
-                </template>
+                <template #default="scope"> {{ scope.row.participation }}% </template>
               </el-table-column>
               <el-table-column label="操作" width="150" fixed="right">
                 <template #default="scope">
                   <el-button link type="primary" @click="viewVote(scope.row)">查看</el-button>
-                  <el-button link type="success" @click="publishVote(scope.row)" v-if="scope.row.status === 'draft'">
+                  <el-button
+                    link
+                    type="success"
+                    @click="publishVote(scope.row)"
+                    v-if="scope.row.status === 'draft'"
+                  >
                     发布
                   </el-button>
                 </template>
@@ -229,7 +242,12 @@
 
     <!-- 发布公告对话框 -->
     <el-dialog v-model="publishDialogVisible" title="发布公告" width="800px">
-      <el-form :model="announcementForm" :rules="announcementRules" ref="announcementFormRef" label-width="100px">
+      <el-form
+        :model="announcementForm"
+        :rules="announcementRules"
+        ref="announcementFormRef"
+        label-width="100px"
+      >
         <el-form-item label="公告标题" prop="title">
           <el-input v-model="announcementForm.title" placeholder="请输入公告标题" />
         </el-form-item>
@@ -276,9 +294,7 @@
           >
             <el-button icon="Upload">点击上传</el-button>
             <template #tip>
-              <div class="el-upload__tip">
-                支持jpg/png/pdf文件，单个文件不超过10MB
-              </div>
+              <div class="el-upload__tip">支持jpg/png/pdf文件，单个文件不超过10MB</div>
             </template>
           </el-upload>
         </el-form-item>
@@ -319,7 +335,9 @@
       <template #footer>
         <el-button @click="publishDialogVisible = false">取消</el-button>
         <el-button @click="saveDraft" :loading="saving">保存草稿</el-button>
-        <el-button type="primary" @click="publishAnnouncement" :loading="saving">立即发布</el-button>
+        <el-button type="primary" @click="publishAnnouncement" :loading="saving"
+          >立即发布</el-button
+        >
       </template>
     </el-dialog>
 
@@ -333,7 +351,9 @@
               {{ getAnnouncementTypeText(currentAnnouncement.type) }}
             </el-tag>
             <span class="meta-item">发布人：{{ currentAnnouncement.author }}</span>
-            <span class="meta-item">发布时间：{{ formatDateTime(currentAnnouncement.publishTime) }}</span>
+            <span class="meta-item"
+              >发布时间：{{ formatDateTime(currentAnnouncement.publishTime) }}</span
+            >
             <span class="meta-item">阅读量：{{ currentAnnouncement.views }}</span>
           </div>
         </div>
@@ -341,7 +361,10 @@
         <div class="detail-content">
           <div class="content-text">{{ currentAnnouncement.content }}</div>
 
-          <div v-if="currentAnnouncement.attachments && currentAnnouncement.attachments.length" class="attachments">
+          <div
+            v-if="currentAnnouncement.attachments && currentAnnouncement.attachments.length"
+            class="attachments"
+          >
             <h4>附件下载</h4>
             <div class="attachment-list">
               <el-link
@@ -364,52 +387,52 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { axiosInstance as api } from '@/api'
-import { useUserStore } from '@/stores/userStore'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { axiosInstance as api } from '@/api';
+import { useUserStore } from '@/stores/userStore';
 
-const userStore = useUserStore()
+const userStore = useUserStore();
 
 // 从数据库加载公告数据
 const loadAnnouncements = async () => {
   try {
-    const response = await api.get('/api/v1/announcements')
+    const response = await api.get('/api/v1/announcements');
     if (response.success) {
-      announcements.value = response.data || []
+      announcements.value = response.data || [];
     }
   } catch (error) {
-    console.error('加载公告数据失败:', error)
-    ElMessage.warning('加载数据失败，显示模拟数据')
+    console.error('加载公告数据失败:', error);
+    ElMessage.warning('加载数据失败，显示模拟数据');
   }
-}
+};
 
 // 响应式数据
-const activeTab = ref('announcements')
-const publishDialogVisible = ref(false)
-const detailDialogVisible = ref(false)
-const saving = ref(false)
-const currentAnnouncement = ref(null)
-const announcementFormRef = ref()
-const selectedAnnouncements = ref([])
+const activeTab = ref('announcements');
+const publishDialogVisible = ref(false);
+const detailDialogVisible = ref(false);
+const saving = ref(false);
+const currentAnnouncement = ref(null);
+const announcementFormRef = ref();
+const selectedAnnouncements = ref([]);
 
 // 搜索和筛选
 const searchQuery = reactive({
-  announcement: ''
-})
+  announcement: '',
+});
 
 const filterQuery = reactive({
   type: '',
-  status: ''
-})
+  status: '',
+});
 
 // 分页
 const currentPage = reactive({
   announcements: 1,
   meetings: 1,
-  voting: 1
-})
-const pageSize = ref(20)
+  voting: 1,
+});
+const pageSize = ref(20);
 
 // 公告表单
 const announcementForm = reactive({
@@ -420,15 +443,15 @@ const announcementForm = reactive({
   attachments: [],
   publishTime: '',
   withdrawTime: '',
-  channels: ['app']
-})
+  channels: ['app'],
+});
 
 // 表单验证规则
 const announcementRules = {
   title: [{ required: true, message: '请输入公告标题', trigger: 'blur' }],
   type: [{ required: true, message: '请选择公告类型', trigger: 'change' }],
-  content: [{ required: true, message: '请输入公告内容', trigger: 'blur' }]
-}
+  content: [{ required: true, message: '请输入公告内容', trigger: 'blur' }],
+};
 
 // 模拟数据
 const announcements = ref([
@@ -444,8 +467,8 @@ const announcements = ref([
     views: 156,
     attachments: [
       { name: '春节放假安排.pdf', url: '#' },
-      { name: '值班表.xlsx', url: '#' }
-    ]
+      { name: '值班表.xlsx', url: '#' },
+    ],
   },
   {
     id: 2,
@@ -457,7 +480,7 @@ const announcements = ref([
     status: 'published',
     priority: 'normal',
     views: 89,
-    attachments: []
+    attachments: [],
   },
   {
     id: 3,
@@ -469,9 +492,9 @@ const announcements = ref([
     status: 'draft',
     priority: 'urgent',
     views: 0,
-    attachments: []
-  }
-])
+    attachments: [],
+  },
+]);
 
 const meetings = ref([
   {
@@ -482,7 +505,7 @@ const meetings = ref([
     organizer: '村支书',
     status: 'scheduled',
     participants: 8,
-    agenda: ['总结四季度工作', '部署明年计划', '讨论重点项目']
+    agenda: ['总结四季度工作', '部署明年计划', '讨论重点项目'],
   },
   {
     id: 2,
@@ -492,9 +515,9 @@ const meetings = ref([
     organizer: '村主任',
     status: 'scheduled',
     participants: 35,
-    agenda: ['村务公开', '财务报告', '项目表决']
-  }
-])
+    agenda: ['村务公开', '财务报告', '项目表决'],
+  },
+]);
 
 const votes = ref([
   {
@@ -505,7 +528,7 @@ const votes = ref([
     status: 'active',
     participation: 65,
     options: ['支持', '反对', '弃权'],
-    results: { '支持': 156, '反对': 12, '弃权': 8 }
+    results: { 支持: 156, 反对: 12, 弃权: 8 },
   },
   {
     id: 2,
@@ -515,137 +538,138 @@ const votes = ref([
     status: 'draft',
     participation: 0,
     options: ['同意', '反对'],
-    results: {}
-  }
-])
+    results: {},
+  },
+]);
 
 // 计算属性
 const filteredAnnouncements = computed(() => {
   return announcements.value.filter(item => {
-    const matchSearch = !searchQuery.announcement ||
+    const matchSearch =
+      !searchQuery.announcement ||
       item.title.includes(searchQuery.announcement) ||
-      item.content.includes(searchQuery.announcement)
-    const matchType = !filterQuery.type || item.type === filterQuery.type
-    const matchStatus = !filterQuery.status || item.status === filterQuery.status
-    return matchSearch && matchType && matchStatus
-  })
-})
+      item.content.includes(searchQuery.announcement);
+    const matchType = !filterQuery.type || item.type === filterQuery.type;
+    const matchStatus = !filterQuery.status || item.status === filterQuery.status;
+    return matchSearch && matchType && matchStatus;
+  });
+});
 
 const paginatedAnnouncements = computed(() => {
-  const start = (currentPage.announcements - 1) * pageSize.value
-  const end = start + pageSize.value
-  return filteredAnnouncements.value.slice(start, end)
-})
+  const start = (currentPage.announcements - 1) * pageSize.value;
+  const end = start + pageSize.value;
+  return filteredAnnouncements.value.slice(start, end);
+});
 
 // 方法
-const handleTabChange = (tabName) => {
-  console.log('切换到标签页:', tabName)
-}
+const handleTabChange = tabName => {
+  console.log('切换到标签页:', tabName);
+};
 
-const getAnnouncementTypeColor = (type) => {
+const getAnnouncementTypeColor = type => {
   const colorMap = {
-    'notice': 'primary',
-    'policy': 'success',
-    'activity': 'warning',
-    'emergency': 'danger'
-  }
-  return colorMap[type] || 'info'
-}
+    notice: 'primary',
+    policy: 'success',
+    activity: 'warning',
+    emergency: 'danger',
+  };
+  return colorMap[type] || 'info';
+};
 
-const getAnnouncementTypeText = (type) => {
+const getAnnouncementTypeText = type => {
   const textMap = {
-    'notice': '通知公告',
-    'policy': '政策宣传',
-    'activity': '活动通知',
-    'emergency': '应急通知'
-  }
-  return textMap[type] || '未知'
-}
+    notice: '通知公告',
+    policy: '政策宣传',
+    activity: '活动通知',
+    emergency: '应急通知',
+  };
+  return textMap[type] || '未知';
+};
 
-const getStatusColor = (status) => {
+const getStatusColor = status => {
   const colorMap = {
-    'published': 'success',
-    'draft': 'info',
-    'withdrawn': 'danger'
-  }
-  return colorMap[status] || 'info'
-}
+    published: 'success',
+    draft: 'info',
+    withdrawn: 'danger',
+  };
+  return colorMap[status] || 'info';
+};
 
-const getStatusText = (status) => {
+const getStatusText = status => {
   const textMap = {
-    'published': '已发布',
-    'draft': '草稿',
-    'withdrawn': '已撤回'
-  }
-  return textMap[status] || '未知'
-}
+    published: '已发布',
+    draft: '草稿',
+    withdrawn: '已撤回',
+  };
+  return textMap[status] || '未知';
+};
 
-const getMeetingStatusColor = (status) => {
+const getMeetingStatusColor = status => {
   const colorMap = {
-    'scheduled': 'primary',
-    'ongoing': 'success',
-    'completed': 'info',
-    'cancelled': 'danger'
-  }
-  return colorMap[status] || 'info'
-}
+    scheduled: 'primary',
+    ongoing: 'success',
+    completed: 'info',
+    cancelled: 'danger',
+  };
+  return colorMap[status] || 'info';
+};
 
-const getMeetingStatusText = (status) => {
+const getMeetingStatusText = status => {
   const textMap = {
-    'scheduled': '已安排',
-    'ongoing': '进行中',
-    'completed': '已结束',
-    'cancelled': '已取消'
-  }
-  return textMap[status] || '未知'
-}
+    scheduled: '已安排',
+    ongoing: '进行中',
+    completed: '已结束',
+    cancelled: '已取消',
+  };
+  return textMap[status] || '未知';
+};
 
-const getVoteStatusColor = (status) => {
+const getVoteStatusColor = status => {
   const colorMap = {
-    'active': 'success',
-    'draft': 'info',
-    'completed': 'info',
-    'cancelled': 'danger'
-  }
-  return colorMap[status] || 'info'
-}
+    active: 'success',
+    draft: 'info',
+    completed: 'info',
+    cancelled: 'danger',
+  };
+  return colorMap[status] || 'info';
+};
 
-const getVoteStatusText = (status) => {
+const getVoteStatusText = status => {
   const textMap = {
-    'active': '进行中',
-    'draft': '草稿',
-    'completed': '已结束',
-    'cancelled': '已取消'
-  }
-  return textMap[status] || '未知'
-}
+    active: '进行中',
+    draft: '草稿',
+    completed: '已结束',
+    cancelled: '已取消',
+  };
+  return textMap[status] || '未知';
+};
 
-const formatDateTime = (dateTime) => {
-  if (!dateTime) return '-'
-  return new Date(dateTime).toLocaleString('zh-CN')
-}
+const formatDateTime = dateTime => {
+  if (!dateTime) return '-';
+  return new Date(dateTime).toLocaleString('zh-CN');
+};
 
 const searchAnnouncements = () => {
-  currentPage.announcements = 1
-}
+  currentPage.announcements = 1;
+};
 
-const handleSelectionChange = (selection) => {
-  selectedAnnouncements.value = selection
-}
+const handleSelectionChange = selection => {
+  selectedAnnouncements.value = selection;
+};
 
-const handleSizeChange = (size) => {
-  pageSize.value = size
-  currentPage.announcements = 1
-}
+const handleSizeChange = size => {
+  pageSize.value = size;
+  currentPage.announcements = 1;
+};
 
-const handleCurrentChange = (page) => {
-  currentPage.announcements = page
-}
+const handleCurrentChange = page => {
+  currentPage.announcements = page;
+};
 
 const showPublishDialog = () => {
-  resetAnnouncementForm()
-  publishDialogVisible.value = true
-}
+  resetAnnouncementForm();
+  publishDialogVisible.value = true;
+};
 
 const resetAnnouncementForm = () => {
   Object.assign(announcementForm, {
@@ -656,23 +680,23 @@ const resetAnnouncementForm = () => {
     attachments: [],
     publishTime: '',
     withdrawTime: '',
-    channels: ['app']
-  })
-}
+    channels: ['app'],
+  });
+};
 
 const handleFileChange = (file, fileList) => {
-  announcementForm.attachments = fileList
-}
+  announcementForm.attachments = fileList;
+};
 
 const saveDraft = async () => {
-  if (!announcementFormRef.value) return
+  if (!announcementFormRef.value) return;
 
   try {
-    await announcementFormRef.value.validate()
-    saving.value = true
+    await announcementFormRef.value.validate();
+    saving.value = true;
 
     // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     const newAnnouncement = {
       ...announcementForm,
@@ -680,85 +704,83 @@ const saveDraft = async () => {
       author: '当前用户',
       status: 'draft',
       views: 0,
-      publishTime: announcementForm.publishTime || null
-    }
+      publishTime: announcementForm.publishTime || null,
+    };
 
-    announcements.value.push(newAnnouncement)
-    ElMessage.success('保存草稿成功')
-    publishDialogVisible.value = false
+    announcements.value.push(newAnnouncement);
+    ElMessage.success('保存草稿成功');
+    publishDialogVisible.value = false;
   } catch (error) {
-    ElMessage.error('保存失败：' + (error.message || '未知错误'))
+    ElMessage.error('保存失败：' + (error.message || '未知错误'));
   } finally {
-    saving.value = false
+    saving.value = false;
   }
-}
+};
 
 const publishAnnouncement = async () => {
-  if (!announcementFormRef.value) return
+  if (!announcementFormRef.value) return;
 
   try {
-    await announcementFormRef.value.validate()
-    saving.value = true
+    await announcementFormRef.value.validate();
+    saving.value = true;
 
     // 调用API发布公告
     const response = await api.post('/api/v1/announcements', {
       ...announcementForm,
       publisher: userStore.userInfo?.name || '系统管理员',
-      villageId: userStore.userInfo?.villageId || null
-    })
+      villageId: userStore.userInfo?.villageId || null,
+    });
 
     if (response.success) {
-      announcements.value.unshift(response.data)
-      ElMessage.success('公告发布成功')
-      publishDialogVisible.value = false
-      resetAnnouncementForm()
+      announcements.value.unshift(response.data);
+      ElMessage.success('公告发布成功');
+      publishDialogVisible.value = false;
+      resetAnnouncementForm();
     } else {
-      ElMessage.error(response.message || '发布失败')
+      ElMessage.error(response.message || '发布失败');
     }
   } catch (error) {
-    console.error('发布公告失败:', error)
-    ElMessage.error(error.response?.data?.error || error.message || '发布失败')
+    console.error('发布公告失败:', error);
+    ElMessage.error(error.response?.data?.error || error.message || '发布失败');
   } finally {
-    saving.value = false
+    saving.value = false;
   }
-}
+};
 
-const viewAnnouncement = (announcement) => {
-  currentAnnouncement.value = announcement
-  detailDialogVisible.value = true
+const viewAnnouncement = announcement => {
+  currentAnnouncement.value = announcement;
+  detailDialogVisible.value = true;
 
   // 增加阅读量
-  announcement.views++
-}
+  announcement.views++;
+};
 
-const editAnnouncement = (announcement) => {
-  Object.assign(announcementForm, announcement)
-  publishDialogVisible.value = true
-}
+const editAnnouncement = announcement => {
+  Object.assign(announcementForm, announcement);
+  publishDialogVisible.value = true;
+};
 
-const withdrawAnnouncement = async (announcement) => {
+const withdrawAnnouncement = async announcement => {
   try {
-    await ElMessageBox.confirm(
-      `确定要撤回公告"${announcement.title}"吗？`,
-      '确认撤回',
-      { type: 'warning' }
-    )
+    await ElMessageBox.confirm(`确定要撤回公告"${announcement.title}"吗？`, '确认撤回', {
+      type: 'warning',
+    });
 
     // 调用API撤回公告
-    const response = await api.put(`/api/v1/announcements/${announcement.id}/withdraw`)
+    const response = await api.put(`/api/v1/announcements/${announcement.id}/withdraw`);
     if (response.success) {
-      announcement.status = 'withdrawn'
-      ElMessage.success('公告已撤回')
+      announcement.status = 'withdrawn';
+      ElMessage.success('公告已撤回');
     } else {
-      ElMessage.error(response.message || '撤回失败')
+      ElMessage.error(response.message || '撤回失败');
     }
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('撤回公告失败:', error)
-      ElMessage.error(error.response?.data?.error || error.message || '撤回失败')
+      console.error('撤回公告失败:', error);
+      ElMessage.error(error.response?.data?.error || error.message || '撤回失败');
     }
   }
-}
+};
 
 const batchPublish = async () => {
   try {
@@ -766,21 +788,21 @@ const batchPublish = async () => {
       `确定要发布选中的 ${selectedAnnouncements.value.length} 个公告吗？`,
       '确认发布',
       { type: 'warning' }
-    )
+    );
 
     selectedAnnouncements.value.forEach(item => {
       if (item.status === 'draft') {
-        item.status = 'published'
-        item.publishTime = new Date().toISOString()
+        item.status = 'published';
+        item.publishTime = new Date().toISOString();
       }
-    })
+    });
 
-    ElMessage.success(`已成功发布 ${selectedAnnouncements.value.length} 个公告`)
-    selectedAnnouncements.value = []
+    ElMessage.success(`已成功发布 ${selectedAnnouncements.value.length} 个公告`);
+    selectedAnnouncements.value = [];
   } catch {
     // 用户取消
   }
-}
+};
 
 const batchWithdraw = async () => {
   try {
@@ -788,50 +810,50 @@ const batchWithdraw = async () => {
       `确定要撤回选中的 ${selectedAnnouncements.value.length} 个公告吗？`,
       '确认撤回',
       { type: 'warning' }
-    )
+    );
 
     selectedAnnouncements.value.forEach(item => {
       if (item.status === 'published') {
-        item.status = 'withdrawn'
+        item.status = 'withdrawn';
       }
-    })
+    });
 
-    ElMessage.success(`已成功撤回 ${selectedAnnouncements.value.length} 个公告`)
-    selectedAnnouncements.value = []
+    ElMessage.success(`已成功撤回 ${selectedAnnouncements.value.length} 个公告`);
+    selectedAnnouncements.value = [];
   } catch {
     // 用户取消
   }
-}
+};
 
 const showMeetingDialog = () => {
-  ElMessage.info('会议管理功能开发中...')
-}
+  ElMessage.info('会议管理功能开发中...');
+};
 
 const showVoteDialog = () => {
-  ElMessage.info('投票管理功能开发中...')
-}
+  ElMessage.info('投票管理功能开发中...');
+};
 
-const viewMeeting = (meeting) => {
-  ElMessage.info(`查看会议：${meeting.title}`)
-}
+const viewMeeting = meeting => {
+  ElMessage.info(`查看会议：${meeting.title}`);
+};
 
-const editMeeting = (meeting) => {
-  ElMessage.info(`编辑会议：${meeting.title}`)
-}
+const editMeeting = meeting => {
+  ElMessage.info(`编辑会议：${meeting.title}`);
+};
 
-const viewVote = (vote) => {
-  ElMessage.info(`查看投票：${vote.title}`)
-}
+const viewVote = vote => {
+  ElMessage.info(`查看投票：${vote.title}`);
+};
 
-const publishVote = (vote) => {
-  ElMessage.info(`发布投票：${vote.title}`)
-}
+const publishVote = vote => {
+  ElMessage.info(`发布投票：${vote.title}`);
+};
 
 onMounted(() => {
-  console.log('村务协同管理模块加载完成')
+  console.log('村务协同管理模块加载完成');
   // 加载公告数据
-  loadAnnouncements()
-})
+  loadAnnouncements();
+});
 </script>
 
 <style lang="scss" scoped>
@@ -900,7 +922,7 @@ onMounted(() => {
       }
 
       .announcement-title {
-        color: #409EFF;
+        color: #409eff;
         cursor: pointer;
 
         &:hover {

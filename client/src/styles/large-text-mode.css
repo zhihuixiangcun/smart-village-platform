@@ -59,7 +59,8 @@ body.large-text-mode {
     font-size: 1.4em !important;
   }
 
-  h5, h6 {
+  h5,
+  h6 {
     font-size: 1.2em !important;
   }
 
@@ -442,14 +443,17 @@ body {
 }
 
 body.large-text-mode * {
-  transition: font-size 0.3s ease, padding 0.3s ease, height 0.3s ease;
+  transition:
+    font-size 0.3s ease,
+    padding 0.3s ease,
+    height 0.3s ease;
 }
 
 /* 可访问性增强 */
 body.large-text-mode {
   /* 增加点击区域 */
   .clickable,
-  [role="button"],
+  [role='button'],
   button,
   a {
     min-width: 44px !important;

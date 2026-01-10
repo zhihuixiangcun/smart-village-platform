@@ -23,29 +23,29 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useUserStore } from '@/stores/user'
-import { generateMenuItems } from '@/utils/routeUtils'
-import MenuItem from './MenuItem.vue'
+import { ref, computed, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/user';
+import { generateMenuItems } from '@/utils/routeUtils';
+import MenuItem from './MenuItem.vue';
 
 const props = defineProps({
   isCollapse: {
     type: Boolean,
-    default: false
-  }
-})
+    default: false,
+  },
+});
 
-const route = useRoute()
-const router = useRouter()
-const userStore = useUserStore()
+const route = useRoute();
+const router = useRouter();
+const userStore = useUserStore();
 
 // 当前激活的菜单项
-const activeMenu = ref('')
+const activeMenu = ref('');
 
 // 计算菜单路由
 const menuRoutes = computed(() => {
-  const routes = router.getRoutes()
+  const routes = router.getRoutes();
 
   // 过滤顶级路由，排除认证、错误页面等
   const topLevelRoutes = routes.filter(route => {
@@ -61,47 +61,49 @@ const menuRoutes = computed(() => {
       route.path !== '/404' &&
       route.path !== '/500' &&
       route.path !== '/profile' // 个人中心单独处理
-    )
-  })
+    );
+  });
 
-  return generateMenuItems(topLevelRoutes, userStore)
-})
+  return generateMenuItems(topLevelRoutes, userStore);
+});
 
 // 获取当前激活的菜单项
 const getCurrentActiveMenu = () => {
-  const { path } = route
+  const { path } = route;
 
   // 如果是子路由，需要找到对应的父级菜单
   if (path.includes('/finance/')) {
-    return '/finance'
+    return '/finance';
   } else if (path.includes('/affairs/')) {
-    return '/affairs'
+    return '/affairs';
   } else if (path.includes('/services/')) {
-    return '/services'
+    return '/services';
   } else if (path.includes('/system/')) {
-    return '/system'
+    return '/system';
   } else if (path.includes('/residents/')) {
-    return '/residents'
+    return '/residents';
+  } else if (path.includes('/ai/')) {
+    return '/ai';
   } else {
-    return path
+    return path;
   }
-}
+};
 
 // 处理菜单选择
-const handleMenuSelect = (index) => {
+const handleMenuSelect = index => {
   if (index !== route.path) {
-    router.push(index)
+    router.push(index);
   }
-}
+};
 
 // 监听路由变化，更新激活菜单
 watch(
   () => route.path,
   () => {
-    activeMenu.value = getCurrentActiveMenu()
+    activeMenu.value = getCurrentActiveMenu();
   },
   { immediate: true }
-)
+);
 
 // 监听用户权限变化，重新计算菜单
 watch(
@@ -110,7 +112,7 @@ watch(
     // 权限变化时，菜单会自动重新计算
   },
   { deep: true }
-)
+);
 </script>
 
 <style lang="scss" scoped>

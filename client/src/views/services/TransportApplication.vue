@@ -15,47 +15,47 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
-import StepForm from '@/components/common/StepForm.vue'
-import { useLargeText } from '@/composables/useLargeText'
-import { profileApi } from '@/api/residentProfile'
-import { serviceApi } from '@/api/service'
-import { encryptionService } from '@/utils/encryption'
-import { auditLogService } from '@/utils/security'
+import { ref, reactive, onMounted } from 'vue';
+import { ElMessage } from 'element-plus';
+import StepForm from '@/components/common/StepForm.vue';
+import { useLargeText } from '@/composables/useLargeText';
+import { profileApi } from '@/api/residentProfile';
+import { serviceApi } from '@/api/service';
+import { encryptionService } from '@/utils/encryption';
+import { auditLogService } from '@/utils/security';
 
 const props = defineProps({
   service: {
     type: Object,
-    required: true
-  }
-})
+    required: true,
+  },
+});
 
-const emit = defineEmits(['close', 'submitted'])
+const emit = defineEmits(['close', 'submitted']);
 
-const { isLargeText } = useLargeText()
+const { isLargeText } = useLargeText();
 
-const stepFormRef = ref(null)
+const stepFormRef = ref(null);
 
 // 步骤配置
 const steps = [
   {
     title: '基本信息',
-    description: '填写申请人基本资料'
+    description: '填写申请人基本资料',
   },
   {
     title: '补贴详情',
-    description: '填写补贴相关信息'
+    description: '填写补贴相关信息',
   },
   {
     title: '材料上传',
-    description: '上传证明材料'
+    description: '上传证明材料',
   },
   {
     title: '确认提交',
-    description: '核对信息并提交'
-  }
-]
+    description: '核对信息并提交',
+  },
+];
 
 // 表单数据
 const formData = reactive({
@@ -92,29 +92,22 @@ const formData = reactive({
   otherMaterials: [],
 
   // 备注
-  remark: ''
-})
+  remark: '',
+});
 
 // 补贴类型选项
 const subsidyTypes = [
   { label: '公交补贴', value: 'bus' },
   { label: '铁路优惠', value: 'railway' },
   { label: '航空优惠', value: 'aviation' },
-  { label: '其他', value: 'other' }
-]
+  { label: '其他', value: 'other' },
+];
 
 // 出行目的选项
-const tripPurposes = [
-  '上班通勤',
-  '上学',
-  '就医',
-  '探亲',
-  '购物',
-  '其他'
-]
+const tripPurposes = ['上班通勤', '上学', '就医', '探亲', '购物', '其他'];
 
 // 出行频率选项
-const tripFrequencies = ['每天', '每周', '每月', '偶尔']
+const tripFrequencies = ['每天', '每周', '每月', '偶尔'];
 
 // 特殊情况选项
 const specialConditions = [
@@ -122,8 +115,8 @@ const specialConditions = [
   { label: '老年(60周岁以上)', value: 'elderly' },
   { label: '学生', value: 'student' },
   { label: '孕妇', value: 'pregnant' },
-  { label: '其他', value: 'other' }
-]
+  { label: '其他', value: 'other' },
+];
 
 // 组件
 const BasicInfoStep = {
@@ -196,45 +189,49 @@ const BasicInfoStep = {
   props: ['formData'],
   emits: ['update', 'validate', 'voice-input'],
   setup(props, { emit }) {
-    const { Phone } = useElementPlusIcons()
+    const { Phone } = useElementPlusIcons();
 
     const rules = {
       applicantName: [{ required: true, message: '请输入申请人姓名', trigger: 'blur' }],
       applicantIdCard: [
         { required: true, message: '请输入身份证号', trigger: 'blur' },
-        { pattern: /^(\d{15}$|^\d{18}$|^\d{17}(\d|X|x)$)/, message: '请输入正确的身份证号', trigger: 'blur' }
+        {
+          pattern: /^(\d{15}$|^\d{18}$|^\d{17}(\d|X|x)$)/,
+          message: '请输入正确的身份证号',
+          trigger: 'blur',
+        },
       ],
       applicantPhone: [
         { required: true, message: '请输入联系电话', trigger: 'blur' },
-        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
+        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' },
       ],
-      address: [{ required: true, message: '请输入现住址', trigger: 'blur' }]
-    }
+      address: [{ required: true, message: '请输入现住址', trigger: 'blur' }],
+    };
 
     // 加载用户信息
     const loadUserInfo = async () => {
       try {
-        const response = await profileApi.getMyProfile()
-        const profile = response.data
+        const response = await profileApi.getMyProfile();
+        const profile = response.data;
 
         if (profile) {
-          props.formData.applicantName = profile.personalInfo?.name || ''
-          props.formData.applicantIdCard = profile.personalInfo?.idCard || ''
-          props.formData.applicantPhone = profile.contact?.phone || ''
-          props.formData.address = profile.contact?.address || ''
+          props.formData.applicantName = profile.personalInfo?.name || '';
+          props.formData.applicantIdCard = profile.personalInfo?.idCard || '';
+          props.formData.applicantPhone = profile.contact?.phone || '';
+          props.formData.address = profile.contact?.address || '';
         }
       } catch (error) {
-        console.error('Load user info error:', error)
+        console.error('Load user info error:', error);
       }
-    }
+    };
 
     onMounted(() => {
-      loadUserInfo()
-    })
+      loadUserInfo();
+    });
 
-    return { rules, Phone }
-  }
-}
+    return { rules, Phone };
+  },
+};
 
 const SubsidyDetailStep = {
   template: `
@@ -359,39 +356,32 @@ const SubsidyDetailStep = {
       { label: '公交补贴', value: 'bus' },
       { label: '铁路优惠', value: 'railway' },
       { label: '航空优惠', value: 'aviation' },
-      { label: '其他', value: 'other' }
-    ]
+      { label: '其他', value: 'other' },
+    ];
 
-    const tripPurposes = [
-      '上班通勤',
-      '上学',
-      '就医',
-      '探亲',
-      '购物',
-      '其他'
-    ]
+    const tripPurposes = ['上班通勤', '上学', '就医', '探亲', '购物', '其他'];
 
-    const tripFrequencies = ['每天', '每周', '每月', '偶尔']
+    const tripFrequencies = ['每天', '每周', '每月', '偶尔'];
 
     const specialConditions = [
       { label: '残疾', value: 'disability' },
       { label: '老年(60周岁以上)', value: 'elderly' },
       { label: '学生', value: 'student' },
       { label: '孕妇', value: 'pregnant' },
-      { label: '其他', value: 'other' }
-    ]
+      { label: '其他', value: 'other' },
+    ];
 
     const rules = {
       subsidyType: [{ required: true, message: '请选择补贴类型', trigger: 'change' }],
       tripPurpose: [{ required: true, message: '请选择出行目的', trigger: 'change' }],
       tripRoute: [{ required: true, message: '请输入出行路线', trigger: 'blur' }],
       tripFrequency: [{ required: true, message: '请选择出行频率', trigger: 'change' }],
-      specialCondition: [{ required: true, message: '请选择特殊情况', trigger: 'change' }]
-    }
+      specialCondition: [{ required: true, message: '请选择特殊情况', trigger: 'change' }],
+    };
 
-    return { subsidyTypes, tripPurposes, tripFrequencies, specialConditions, rules }
-  }
-}
+    return { subsidyTypes, tripPurposes, tripFrequencies, specialConditions, rules };
+  },
+};
 
 const UploadStep = {
   template: `
@@ -506,16 +496,16 @@ const UploadStep = {
   emits: ['update', 'validate'],
   setup(props, { emit }) {
     const handleUpdate = () => {
-      emit('update', { ...props.formData })
-    }
+      emit('update', { ...props.formData });
+    };
 
-    const handleValidate = (isValid) => {
-      emit('validate', isValid)
-    }
+    const handleValidate = isValid => {
+      emit('validate', isValid);
+    };
 
-    return { handleUpdate, handleValidate }
-  }
-}
+    return { handleUpdate, handleValidate };
+  },
+};
 
 const ConfirmStep = {
   template: `
@@ -594,73 +584,73 @@ const ConfirmStep = {
   props: ['formData'],
   emits: ['validate'],
   setup(props, { emit }) {
-    const confirmed = ref(false)
+    const confirmed = ref(false);
 
-    const maskIdCard = (idCard) => {
-      if (!idCard) return ''
-      return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2')
-    }
+    const maskIdCard = idCard => {
+      if (!idCard) return '';
+      return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2');
+    };
 
-    const maskPhone = (phone) => {
-      if (!phone) return ''
-      return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')
-    }
+    const maskPhone = phone => {
+      if (!phone) return '';
+      return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
+    };
 
-    const maskBankCard = (card) => {
-      if (!card) return ''
-      return card.replace(/(\d{4})\d+(\d{4})/, '$1 **** **** $2')
-    }
+    const maskBankCard = card => {
+      if (!card) return '';
+      return card.replace(/(\d{4})\d+(\d{4})/, '$1 **** **** $2');
+    };
 
-    const getSubsidyTypeLabel = (type) => {
+    const getSubsidyTypeLabel = type => {
       const map = {
         bus: '公交补贴',
         railway: '铁路优惠',
         aviation: '航空优惠',
-        other: '其他'
-      }
-      return map[type] || type
-    }
+        other: '其他',
+      };
+      return map[type] || type;
+    };
 
-    const getSpecialConditionLabel = (condition) => {
+    const getSpecialConditionLabel = condition => {
       const map = {
         disability: '残疾',
         elderly: '老年(60周岁以上)',
         student: '学生',
         pregnant: '孕妇',
-        other: '其他'
-      }
-      return map[condition] || condition
-    }
+        other: '其他',
+      };
+      return map[condition] || condition;
+    };
 
     const getUploadedFiles = () => {
-      const files = []
+      const files = [];
       if (props.formData.idCardPhotos?.length) {
-        files.push({ name: '身份证照片' })
+        files.push({ name: '身份证照片' });
       }
       if (props.formData.householdPhotos?.length) {
-        files.push({ name: '户口本照片' })
+        files.push({ name: '户口本照片' });
       }
       if (props.formData.bankCardPhotos?.length) {
-        files.push({ name: '银行卡照片' })
+        files.push({ name: '银行卡照片' });
       }
       if (props.formData.disabilityCard?.length) {
-        files.push({ name: '残疾证' })
+        files.push({ name: '残疾证' });
       }
       if (props.formData.studentCard?.length) {
-        files.push({ name: '学生证' })
+        files.push({ name: '学生证' });
       }
       if (props.formData.elderlyCard?.length) {
-        files.push({ name: '老人证' })
+        files.push({ name: '老人证' });
       }
       if (props.formData.otherMaterials?.length) {
-        files.push({ name: '其他材料' })
+        files.push({ name: '其他材料' });
       }
-      return files
-    }
+      return files;
+    };
 
-    const handleConfirmChange = (val) => {
-      emit('validate', val)
-    }
+    const handleConfirmChange = val => {
+      emit('validate', val);
+    };
 
     return {
       confirmed,
@@ -670,55 +660,55 @@ const ConfirmStep = {
       getSubsidyTypeLabel,
       getSpecialConditionLabel,
       getUploadedFiles,
-      handleConfirmChange
-    }
-  }
-}
+      handleConfirmChange,
+    };
+  },
+};
 
 // 处理数据更新
-const handleUpdate = (data) => {
-  Object.assign(formData, data)
-}
+const handleUpdate = data => {
+  Object.assign(formData, data);
+};
 
 // 处理语音输入
 const handleVoiceInput = (field, text) => {
   if (field === 'applicantName') {
-    const nameMatch = text.match(/(?:我叫|我是|姓名是)([\u4e00-\u9fa5]{2,4})/)
+    const nameMatch = text.match(/(?:我叫|我是|姓名是)([\u4e00-\u9fa5]{2,4})/);
     if (nameMatch) {
-      formData.applicantName = nameMatch[1]
-      ElMessage.success(`已识别姓名: ${formData.applicantName}`)
+      formData.applicantName = nameMatch[1];
+      ElMessage.success(`已识别姓名: ${formData.applicantName}`);
     }
   }
-}
+};
 
 // 提交申请
-const handleSubmit = async (data) => {
+const handleSubmit = async data => {
   try {
     // 加密敏感信息
     const encryptedData = {
       ...data,
       applicantIdCard: encryptionService.encrypt(data.applicantIdCard),
       applicantPhone: encryptionService.encrypt(data.applicantPhone),
-      bankAccount: encryptionService.encrypt(data.bankAccount)
-    }
+      bankAccount: encryptionService.encrypt(data.bankAccount),
+    };
 
     await serviceApi.submitTransportApplication({
       ...encryptedData,
       serviceType: 'transport',
-      serviceName: '交通补贴申请'
-    })
+      serviceName: '交通补贴申请',
+    });
 
     // 记录操作日志
-    await auditLogService.logApplicationSubmit('transport', '交通补贴申请')
+    await auditLogService.logApplicationSubmit('transport', '交通补贴申请');
 
-    ElMessage.success('申请已提交,请耐心等待审核')
-    emit('submitted', data)
-    emit('close')
+    ElMessage.success('申请已提交,请耐心等待审核');
+    emit('submitted', data);
+    emit('close');
   } catch (error) {
-    ElMessage.error('提交失败: ' + error.message)
-    throw error
+    ElMessage.error('提交失败: ' + error.message);
+    throw error;
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>

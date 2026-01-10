@@ -20,8 +20,8 @@ const DB_CONFIG = {
     cache: { keyPath: 'key' },
     forms: { keyPath: 'id' },
     announcements: { keyPath: 'id' },
-    residents: { keyPath: 'id' }
-  }
+    residents: { keyPath: 'id' },
+  },
 };
 
 /**
@@ -31,7 +31,7 @@ export const SYNC_STATUS = {
   PENDING: 'pending',
   SYNCING: 'syncing',
   SUCCESS: 'success',
-  FAILED: 'failed'
+  FAILED: 'failed',
 };
 
 /**
@@ -40,7 +40,7 @@ export const SYNC_STATUS = {
 export const OPERATION_TYPES = {
   CREATE: 'create',
   UPDATE: 'update',
-  DELETE: 'delete'
+  DELETE: 'delete',
 };
 
 class OfflineStorage {
@@ -77,7 +77,7 @@ class OfflineStorage {
         resolve(this.db);
       };
 
-      request.onupgradeneeded = (event) => {
+      request.onupgradeneeded = event => {
         const db = event.target.result;
 
         // 创建对象存储
@@ -113,7 +113,7 @@ class OfflineStorage {
         ...data,
         status: SYNC_STATUS.PENDING,
         createdAt: new Date().toISOString(),
-        retryCount: 0
+        retryCount: 0,
       };
 
       const request = store.add(record);
@@ -146,7 +146,7 @@ class OfflineStorage {
         ...data,
         status: SYNC_STATUS.PENDING,
         createdAt: new Date().toISOString(),
-        retryCount: 0
+        retryCount: 0,
       }));
 
       let completed = 0;
@@ -277,8 +277,8 @@ class OfflineStorage {
         metadata: {
           ...metadata,
           createdAt: new Date().toISOString(),
-          expiresAt: metadata.expiresAt || null
-        }
+          expiresAt: metadata.expiresAt || null,
+        },
       };
 
       const request = store.put(record);
@@ -360,7 +360,7 @@ class OfflineStorage {
       let deletedCount = 0;
       const now = new Date();
 
-      request.onsuccess = (event) => {
+      request.onsuccess = event => {
         const cursor = event.target.result;
         if (cursor) {
           const record = cursor.value;
@@ -397,7 +397,7 @@ class OfflineStorage {
       const record = {
         id: formId,
         data,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       };
 
       const request = store.put(record);
@@ -459,7 +459,7 @@ class OfflineStorage {
         return {
           usage: estimate.usage || 0,
           quota: estimate.quota || 0,
-          usagePercent: estimate.quota ? ((estimate.usage / estimate.quota) * 100).toFixed(2) : 0
+          usagePercent: estimate.quota ? ((estimate.usage / estimate.quota) * 100).toFixed(2) : 0,
         };
       } catch (error) {
         console.error('获取存储配额失败:', error);
@@ -468,7 +468,7 @@ class OfflineStorage {
     return {
       usage: 0,
       quota: 0,
-      usagePercent: 0
+      usagePercent: 0,
     };
   }
 
@@ -510,12 +510,12 @@ class OfflineStorage {
         pending: 0,
         syncing: 0,
         success: 0,
-        failed: 0
+        failed: 0,
       };
 
       const request = store.openCursor();
 
-      request.onsuccess = (event) => {
+      request.onsuccess = event => {
         const cursor = event.target.result;
         if (cursor) {
           stats.total++;

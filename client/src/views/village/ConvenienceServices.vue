@@ -162,10 +162,7 @@
             />
           </el-tab-pane>
           <el-tab-pane label="处理中" name="processing">
-            <ApplicationList
-              :applications="processingApplications"
-              @view="viewApplication"
-            />
+            <ApplicationList :applications="processingApplications" @view="viewApplication" />
           </el-tab-pane>
           <el-tab-pane label="已完成" name="completed">
             <ApplicationList
@@ -271,9 +268,18 @@
       width="800px"
       @close="resetApplicationForm"
     >
-      <el-form :model="applicationForm" :rules="applicationRules" ref="applicationFormRef" label-width="100px">
+      <el-form
+        :model="applicationForm"
+        :rules="applicationRules"
+        ref="applicationFormRef"
+        label-width="100px"
+      >
         <el-form-item label="服务类型" prop="serviceType">
-          <el-select v-model="applicationForm.serviceType" placeholder="请选择服务类型" @change="handleServiceTypeChange">
+          <el-select
+            v-model="applicationForm.serviceType"
+            placeholder="请选择服务类型"
+            @change="handleServiceTypeChange"
+          >
             <el-option label="证件办理" value="certificate" />
             <el-option label="福利申请" value="welfare" />
             <el-option label="医保服务" value="medical" />
@@ -330,9 +336,7 @@
           >
             <el-button type="primary">选择文件</el-button>
             <template #tip>
-              <div class="el-upload__tip">
-                支持jpg/png/pdf/doc/docx格式，单个文件不超过10MB
-              </div>
+              <div class="el-upload__tip">支持jpg/png/pdf/doc/docx格式，单个文件不超过10MB</div>
             </template>
           </el-upload>
         </el-form-item>
@@ -399,10 +403,17 @@
             <p>{{ currentApplication.reason }}</p>
           </div>
 
-          <div class="detail-section" v-if="currentApplication.attachments && currentApplication.attachments.length > 0">
+          <div
+            class="detail-section"
+            v-if="currentApplication.attachments && currentApplication.attachments.length > 0"
+          >
             <h4>申请材料</h4>
             <div class="attachment-list">
-              <div v-for="file in currentApplication.attachments" :key="file.id" class="attachment-item">
+              <div
+                v-for="file in currentApplication.attachments"
+                :key="file.id"
+                class="attachment-item"
+              >
                 <el-icon><Document /></el-icon>
                 <span>{{ file.name }}</span>
                 <span class="file-size">({{ formatFileSize(file.size) }})</span>
@@ -411,7 +422,10 @@
             </div>
           </div>
 
-          <div class="detail-section" v-if="currentApplication.processHistory && currentApplication.processHistory.length > 0">
+          <div
+            class="detail-section"
+            v-if="currentApplication.processHistory && currentApplication.processHistory.length > 0"
+          >
             <h4>处理进度</h4>
             <el-timeline>
               <el-timeline-item
@@ -431,10 +445,18 @@
         </div>
 
         <div class="detail-actions">
-          <el-button v-if="currentApplication.status === 'pending'" type="danger" @click="cancelApplication">
+          <el-button
+            v-if="currentApplication.status === 'pending'"
+            type="danger"
+            @click="cancelApplication"
+          >
             撤销申请
           </el-button>
-          <el-button v-if="currentApplication.status === 'completed'" type="primary" @click="rateApplication">
+          <el-button
+            v-if="currentApplication.status === 'completed'"
+            type="primary"
+            @click="rateApplication"
+          >
             评价服务
           </el-button>
         </div>
@@ -442,11 +464,7 @@
     </el-dialog>
 
     <!-- 申请状态查看对话框 -->
-    <el-dialog
-      v-model="statusDialogVisible"
-      title="申请进度"
-      width="600px"
-    >
+    <el-dialog v-model="statusDialogVisible" title="申请进度" width="600px">
       <div class="status-overview">
         <div class="status-stats">
           <div class="status-item">

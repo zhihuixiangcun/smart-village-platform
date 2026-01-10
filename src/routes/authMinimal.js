@@ -20,8 +20,8 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    const uniqueSuffix = `${Date.now()  }-${  Math.round(Math.random() * 1E9)}`;
+    cb(null, `${file.fieldname  }-${  uniqueSuffix  }${path.extname(file.originalname)}`);
   }
 });
 
@@ -107,7 +107,7 @@ router.post('/login-test', async (req, res) => {
         userId: user._id.toString(),  // 必须是字符串
         username: user.username,
         role: user.role,
-        sessionId: sessionId,  // 会话ID
+        sessionId,  // 会话ID
         permissions: user.permissions || []  // 用户权限
       },
       auth.jwtSecret,  // 使用auth中间件的密钥（已在上面require）

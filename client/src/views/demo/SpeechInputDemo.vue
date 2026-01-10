@@ -91,11 +91,7 @@
       <!-- 语音命令演示 -->
       <div class="demo-section">
         <h3>语音命令演示</h3>
-        <el-alert
-          title="支持的语音命令"
-          type="info"
-          :closable="false"
-        >
+        <el-alert title="支持的语音命令" type="info" :closable="false">
           <ul class="command-list">
             <li>🗣️ "删除XXX" - 删除特定内容</li>
             <li>🗣️ "清空" - 清空输入框</li>
@@ -146,11 +142,7 @@
           </el-tag>
         </el-descriptions-item>
         <el-descriptions-item v-if="speechStatus.confidence > 0" label="置信度">
-          <el-progress
-            :percentage="speechStatus.confidence"
-            :stroke-width="8"
-            :show-text="true"
-          />
+          <el-progress :percentage="speechStatus.confidence" :stroke-width="8" :show-text="true" />
         </el-descriptions-item>
       </el-descriptions>
     </el-card>
@@ -158,123 +150,134 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
-import { ElMessage } from 'element-plus'
-import SpeechInput from '@/components/common/SpeechInput.vue'
+import { ref, reactive } from 'vue';
+import { ElMessage } from 'element-plus';
+import SpeechInput from '@/components/common/SpeechInput.vue';
 
 // 表单数据
 const formData = reactive({
   description: '',
   amount: '',
-  applicant: ''
-})
+  applicant: '',
+});
 
 // 搜索关键词
-const searchKeyword = ref('')
+const searchKeyword = ref('');
 
 // 输入框引用
-const descriptionRef = ref()
-const searchRef = ref()
-const amountRef = ref()
-const applicantRef = ref()
+const descriptionRef = ref();
+const searchRef = ref();
+const amountRef = ref();
+const applicantRef = ref();
 
 // 语音识别状态
 const speechStatus = reactive({
   isActive: false,
   isListening: false,
-  confidence: 0
-})
+  confidence: 0,
+});
 
 // 方法
-const handleDescriptionConfirmed = (text) => {
-  ElMessage.success(`语音输入完成: ${text}`)
-}
+const handleDescriptionConfirmed = text => {
+  ElMessage.success(`语音输入完成: ${text}`);
+};
 
-const handleSearchConfirmed = (text) => {
-  ElMessage.success(`搜索关键词: ${text}`)
-  performSearch()
-}
+const handleSearchConfirmed = text => {
+  ElMessage.success(`搜索关键词: ${text}`);
+  performSearch();
+};
 
-const handleAmountConfirmed = (text) => {
+const handleAmountConfirmed = text => {
   // 处理数字转换
-  const processedAmount = processNumberFromSpeech(text)
+  const processedAmount = processNumberFromSpeech(text);
   if (processedAmount) {
-    formData.amount = processedAmount
-    ElMessage.success(`金额识别: ¥${processedAmount}`)
+    formData.amount = processedAmount;
+    ElMessage.success(`金额识别: ¥${processedAmount}`);
   } else {
-    ElMessage.warning('无法识别金额，请重新输入')
+    ElMessage.warning('无法识别金额，请重新输入');
   }
-}
+};
 
-const handleApplicantConfirmed = (text) => {
-  ElMessage.success(`申请人: ${text}`)
-}
+const handleApplicantConfirmed = text => {
+  ElMessage.success(`申请人: ${text}`);
+};
 
-const handleSpeechError = (error) => {
-  ElMessage.error(`语音识别错误: ${error}`)
-}
+const handleSpeechError = error => {
+  ElMessage.error(`语音识别错误: ${error}`);
+};
 
 // 处理语音识别的数字
-const processNumberFromSpeech = (text) => {
+const processNumberFromSpeech = text => {
   // 数字转换映射
   const numberMap = {
-    '零': '0', '一': '1', '二': '2', '三': '3', '四': '4',
-    '五': '5', '六': '6', '七': '7', '八': '8', '九': '9',
-    '十': '10', '百': '100', '千': '1000', '万': '10000'
-  }
+    零: '0',
+    一: '1',
+    二: '2',
+    三: '3',
+    四: '4',
+    五: '5',
+    六: '6',
+    七: '7',
+    八: '8',
+    九: '9',
+    十: '10',
+    百: '100',
+    千: '1000',
+    万: '10000',
+  };
 
   // 简单的数字识别逻辑
-  let processedText = text.replace(/[，。]/g, '')
+  let processedText = text.replace(/[，。]/g, '');
 
   // 替换中文数字
   Object.entries(numberMap).forEach(([chinese, arabic]) => {
-    processedText = processedText.replace(new RegExp(chinese, 'g'), arabic)
-  })
+    processedText = processedText.replace(new RegExp(chinese, 'g'), arabic);
+  });
 
   // 提取数字
-  const numbers = processedText.match(/\d+/g)
+  const numbers = processedText.match(/\d+/g);
   if (numbers && numbers.length > 0) {
-    return numbers[0]
+    return numbers[0];
   }
 
-  return null
-}
+  return null;
+};
 
 const performSearch = () => {
   if (searchKeyword.value.trim()) {
-    ElMessage.info(`执行搜索: ${searchKeyword.value}`)
+    ElMessage.info(`执行搜索: ${searchKeyword.value}`);
   }
-}
+};
 
 const clearForm = () => {
   Object.assign(formData, {
     description: '',
     amount: '',
-    applicant: ''
-  })
-  searchKeyword.value = ''
-  ElMessage.success('表单已清空')
-}
+    applicant: '',
+  });
+  searchKeyword.value = '';
+  ElMessage.success('表单已清空');
+};
 
 const fillDemoData = () => {
   Object.assign(formData, {
     description: '村道维修费用申请，包括路面修补和护栏更换',
     amount: '15000',
-    applicant: '张建设'
-  })
-  searchKeyword.value = '维修'
-  ElMessage.success('已填入示例数据')
-}
+    applicant: '张建设',
+  });
+  searchKeyword.value = '维修';
+  ElMessage.success('已填入示例数据');
+};
 
 const simulateSubmit = () => {
   if (!formData.description || !formData.amount || !formData.applicant) {
-    ElMessage.warning('请完善表单信息')
-    return
+    ElMessage.warning('请完善表单信息');
+    return;
   }
 
-  ElMessage.success('模拟提交成功!')
-  console.log('提交的表单数据:', formData)
-}
+  ElMessage.success('模拟提交成功!');
+  console.log('提交的表单数据:', formData);
+};
 </script>
 
 <style lang="scss" scoped>

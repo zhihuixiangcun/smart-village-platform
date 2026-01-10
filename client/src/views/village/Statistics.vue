@@ -96,11 +96,7 @@
       <van-cell-group inset title="资料类别分布">
         <div class="chart-container">
           <div class="category-chart">
-            <div
-              v-for="(item, index) in categoryData"
-              :key="index"
-              class="category-item"
-            >
+            <div v-for="(item, index) in categoryData" :key="index" class="category-item">
               <div class="category-info">
                 <span class="category-name">{{ item.name }}</span>
                 <span class="category-count">{{ item.count }}</span>
@@ -110,7 +106,7 @@
                   class="category-progress"
                   :style="{
                     width: `${(item.count / categoryTotal) * 100}%`,
-                    backgroundColor: item.color
+                    backgroundColor: item.color,
                   }"
                 ></div>
               </div>
@@ -124,15 +120,11 @@
         <div class="chart-container">
           <div class="trend-chart">
             <div class="trend-grid">
-              <div
-                v-for="(day, index) in trendData"
-                :key="index"
-                class="trend-day"
-              >
+              <div v-for="(day, index) in trendData" :key="index" class="trend-day">
                 <div
                   class="trend-bar"
                   :style="{
-                    height: `${(day.value / maxTrendValue) * 100}%`
+                    height: `${(day.value / maxTrendValue) * 100}%`,
                   }"
                 ></div>
                 <div class="trend-label">{{ day.label }}</div>
@@ -147,19 +139,9 @@
         <div class="chart-container">
           <div class="user-activity">
             <div class="activity-list">
-              <div
-                v-for="(user, index) in userActivityData"
-                :key="index"
-                class="activity-item"
-              >
+              <div v-for="(user, index) in userActivityData" :key="index" class="activity-item">
                 <div class="user-avatar">
-                  <van-image
-                    :src="user.avatar"
-                    width="40"
-                    height="40"
-                    round
-                    fit="cover"
-                  >
+                  <van-image :src="user.avatar" width="40" height="40" round fit="cover">
                     <template #error>
                       <van-icon name="user-o" size="20" />
                     </template>
@@ -193,28 +175,28 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { showToast } from 'vant'
-import villageApi from '@/api/villageManagement'
+import { ref, reactive, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { showToast } from 'vant';
+import villageApi from '@/api/villageManagement';
 
-const router = useRouter()
+const router = useRouter();
 
 // 响应式数据
-const activeTimeTab = ref('today')
-const showDateRangePicker = ref(false)
-const customDateRange = ref([])
+const activeTimeTab = ref('today');
+const showDateRangePicker = ref(false);
+const customDateRange = ref([]);
 
 // 统计数据
-const totalDocuments = ref(156)
-const completedTasks = ref(89)
-const activeUsers = ref(24)
-const avgResponseTime = ref('2.5小时')
+const totalDocuments = ref(156);
+const completedTasks = ref(89);
+const activeUsers = ref(24);
+const avgResponseTime = ref('2.5小时');
 
 // 趋势数据
-const documentTrend = ref(12)
-const taskTrend = ref(-5)
-const userTrend = ref(8)
+const documentTrend = ref(12);
+const taskTrend = ref(-5);
+const userTrend = ref(8);
 
 // 类别数据
 const categoryData = ref([
@@ -222,8 +204,8 @@ const categoryData = ref([
   { name: '村民信息', count: 38, color: '#67C23A' },
   { name: '财务', count: 32, color: '#E6A23C' },
   { name: '项目', count: 25, color: '#F56C6C' },
-  { name: '会议', count: 16, color: '#909399' }
-])
+  { name: '会议', count: 16, color: '#909399' },
+]);
 
 // 趋势数据
 const trendData = ref([
@@ -233,8 +215,8 @@ const trendData = ref([
   { label: '周四', value: 25 },
   { label: '周五', value: 22 },
   { label: '周六', value: 18 },
-  { label: '周日', value: 14 }
-])
+  { label: '周日', value: 14 },
+]);
 
 // 用户活跃度数据
 const userActivityData = ref([
@@ -242,144 +224,144 @@ const userActivityData = ref([
     name: '张三',
     role: '村主任',
     count: 45,
-    avatar: ''
+    avatar: '',
   },
   {
     name: '李四',
     role: '会计',
     count: 38,
-    avatar: ''
+    avatar: '',
   },
   {
     name: '王五',
     role: '副主任',
     count: 32,
-    avatar: ''
+    avatar: '',
   },
   {
     name: '赵六',
     role: '文书',
     count: 28,
-    avatar: ''
-  }
-])
+    avatar: '',
+  },
+]);
 
 // 计算属性
 const categoryTotal = computed(() => {
-  return categoryData.value.reduce((sum, item) => sum + item.count, 0)
-})
+  return categoryData.value.reduce((sum, item) => sum + item.count, 0);
+});
 
 const maxTrendValue = computed(() => {
-  return Math.max(...trendData.value.map(item => item.value))
-})
+  return Math.max(...trendData.value.map(item => item.value));
+});
 
 // 方法
-const getTrendClass = (trend) => {
-  return trend >= 0 ? 'positive' : 'negative'
-}
+const getTrendClass = trend => {
+  return trend >= 0 ? 'positive' : 'negative';
+};
 
-const getTrendIcon = (trend) => {
-  return trend >= 0 ? 'arrow-up' : 'arrow-down'
-}
+const getTrendIcon = trend => {
+  return trend >= 0 ? 'arrow-up' : 'arrow-down';
+};
 
-const getDateRangeText = (dateRange) => {
-  if (!dateRange || dateRange.length === 0) return '选择日期范围'
-  if (dateRange.length === 1) return formatDate(dateRange[0])
-  return `${formatDate(dateRange[0])} - ${formatDate(dateRange[1])}`
-}
+const getDateRangeText = dateRange => {
+  if (!dateRange || dateRange.length === 0) return '选择日期范围';
+  if (dateRange.length === 1) return formatDate(dateRange[0]);
+  return `${formatDate(dateRange[0])} - ${formatDate(dateRange[1])}`;
+};
 
-const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString()
-}
+const formatDate = dateString => {
+  return new Date(dateString).toLocaleDateString();
+};
 
-const onTimeChange = async (tabName) => {
+const onTimeChange = async tabName => {
   try {
     // 根据时间范围加载统计数据
-    const params = { timeRange: tabName }
+    const params = { timeRange: tabName };
 
     if (tabName === 'custom' && customDateRange.value.length > 0) {
-      params.startDate = customDateRange.value[0]
-      params.endDate = customDateRange.value[1]
+      params.startDate = customDateRange.value[0];
+      params.endDate = customDateRange.value[1];
     }
 
-    const response = await villageApi.getStatistics(params)
-    updateStatistics(response.data.data)
+    const response = await villageApi.getStatistics(params);
+    updateStatistics(response.data.data);
   } catch (error) {
-    console.error('加载统计数据失败:', error)
-    showToast('加载失败')
+    console.error('加载统计数据失败:', error);
+    showToast('加载失败');
   }
-}
+};
 
-const onDateRangeConfirm = (dateRange) => {
-  customDateRange.value = dateRange
-  showDateRangePicker.value = false
-  onTimeChange('custom')
-}
+const onDateRangeConfirm = dateRange => {
+  customDateRange.value = dateRange;
+  showDateRangePicker.value = false;
+  onTimeChange('custom');
+};
 
 const exportData = async () => {
   try {
     const params = {
       timeRange: activeTimeTab.value,
-      format: 'excel'
-    }
+      format: 'excel',
+    };
 
     if (activeTimeTab.value === 'custom' && customDateRange.value.length > 0) {
-      params.startDate = customDateRange.value[0]
-      params.endDate = customDateRange.value[1]
+      params.startDate = customDateRange.value[0];
+      params.endDate = customDateRange.value[1];
     }
 
-    showToast('正在导出数据...')
+    showToast('正在导出数据...');
 
-    const response = await villageApi.exportStatistics(params)
+    const response = await villageApi.exportStatistics(params);
 
     // 模拟下载
     const blob = new Blob([response.data], {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    })
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `统计数据_${formatDate(new Date())}.xlsx`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    window.URL.revokeObjectURL(url)
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `统计数据_${formatDate(new Date())}.xlsx`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
 
-    showToast('导出成功')
+    showToast('导出成功');
   } catch (error) {
-    console.error('导出失败:', error)
-    showToast('导出失败')
+    console.error('导出失败:', error);
+    showToast('导出失败');
   }
-}
+};
 
-const updateStatistics = (data) => {
-  totalDocuments.value = data.totalDocuments || 0
-  completedTasks.value = data.completedTasks || 0
-  activeUsers.value = data.activeUsers || 0
-  avgResponseTime.value = data.avgResponseTime || '0小时'
+const updateStatistics = data => {
+  totalDocuments.value = data.totalDocuments || 0;
+  completedTasks.value = data.completedTasks || 0;
+  activeUsers.value = data.activeUsers || 0;
+  avgResponseTime.value = data.avgResponseTime || '0小时';
 
-  documentTrend.value = data.documentTrend || 0
-  taskTrend.value = data.taskTrend || 0
-  userTrend.value = data.userTrend || 0
+  documentTrend.value = data.documentTrend || 0;
+  taskTrend.value = data.taskTrend || 0;
+  userTrend.value = data.userTrend || 0;
 
-  categoryData.value = data.categoryDistribution || []
-  trendData.value = data.dailyTrend || []
-  userActivityData.value = data.userActivity || []
-}
+  categoryData.value = data.categoryDistribution || [];
+  trendData.value = data.dailyTrend || [];
+  userActivityData.value = data.userActivity || [];
+};
 
 const loadStatistics = async () => {
   try {
-    const response = await villageApi.getStatistics({ timeRange: 'today' })
-    updateStatistics(response.data.data)
+    const response = await villageApi.getStatistics({ timeRange: 'today' });
+    updateStatistics(response.data.data);
   } catch (error) {
-    console.error('加载统计数据失败:', error)
+    console.error('加载统计数据失败:', error);
   }
-}
+};
 
 // 生命周期
 onMounted(() => {
-  loadStatistics()
-})
+  loadStatistics();
+});
 </script>
 
 <style scoped>
@@ -436,11 +418,11 @@ onMounted(() => {
 }
 
 .stat-trend.positive {
-  color: #67C23A;
+  color: #67c23a;
 }
 
 .stat-trend.negative {
-  color: #F56C6C;
+  color: #f56c6c;
 }
 
 .charts-section {
@@ -512,7 +494,7 @@ onMounted(() => {
 
 .trend-bar {
   width: 100%;
-  background-color: #409EFF;
+  background-color: #409eff;
   border-radius: 4px 4px 0 0;
   min-height: 4px;
 }

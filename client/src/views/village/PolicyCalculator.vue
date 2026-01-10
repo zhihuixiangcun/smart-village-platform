@@ -1,11 +1,7 @@
 <template>
   <div class="policy-calculator">
     <!-- 顶部导航 -->
-    <van-nav-bar
-      title="政策计算器"
-      left-arrow
-      @click-left="$router.go(-1)"
-    >
+    <van-nav-bar title="政策计算器" left-arrow @click-left="$router.go(-1)">
       <template #right>
         <van-icon name="upgrade" size="20" @click="showSyncDialog = true" />
       </template>
@@ -72,7 +68,10 @@
         <van-cell
           title="耕地补贴计算"
           is-link
-          @click="showQuickCalc = true; quickCalcType = 'land'"
+          @click="
+            showQuickCalc = true;
+            quickCalcType = 'land';
+          "
         >
           <template #icon>
             <van-icon name="flower-o" class="cell-icon" />
@@ -81,7 +80,10 @@
         <van-cell
           title="家庭人口补贴"
           is-link
-          @click="showQuickCalc = true; quickCalcType = 'household'"
+          @click="
+            showQuickCalc = true;
+            quickCalcType = 'household';
+          "
         >
           <template #icon>
             <van-icon name="friends-o" class="cell-icon" />
@@ -90,7 +92,10 @@
         <van-cell
           title="教育补贴"
           is-link
-          @click="showQuickCalc = true; quickCalcType = 'education'"
+          @click="
+            showQuickCalc = true;
+            quickCalcType = 'education';
+          "
         >
           <template #icon>
             <van-icon name="bookmark-o" class="cell-icon" />
@@ -199,7 +204,11 @@
           <van-collapse v-model="activeCollapse" accordion>
             <van-collapse-item title="计算详情" name="details">
               <div class="calc-details">
-                <div v-for="step in calcResult?.calculations?.steps" :key="step.step" class="calc-step">
+                <div
+                  v-for="step in calcResult?.calculations?.steps"
+                  :key="step.step"
+                  class="calc-step"
+                >
                   <div class="step-title">{{ step.step }}. {{ step.title }}</div>
                   <div class="step-desc">{{ step.description }}</div>
                 </div>
@@ -208,9 +217,7 @@
           </van-collapse>
 
           <div class="result-actions">
-            <van-button type="primary" block @click="handleApplyFromResult">
-              立即申请
-            </van-button>
+            <van-button type="primary" block @click="handleApplyFromResult"> 立即申请 </van-button>
           </div>
         </div>
       </div>
@@ -231,17 +238,10 @@
           </van-cell-group>
         </div>
         <div class="sync-actions">
-          <van-button
-            type="primary"
-            block
-            :loading="syncing"
-            @click="handleSyncPolicies"
-          >
+          <van-button type="primary" block :loading="syncing" @click="handleSyncPolicies">
             立即同步
           </van-button>
-          <van-button block @click="showSyncDialog = false">
-            取消
-          </van-button>
+          <van-button block @click="showSyncDialog = false"> 取消 </van-button>
         </div>
       </div>
     </van-popup>
@@ -252,16 +252,16 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { showToast } from 'vant'
-import policyCalculatorApi from '@/api/policyCalculator'
-import { useUserStore } from '@/stores/user'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { showToast } from 'vant';
+import policyCalculatorApi from '@/api/policyCalculator';
+import { useUserStore } from '@/stores/user';
 
 // 子组件
 const PolicyCard = {
   props: {
-    policy: Object
+    policy: Object,
   },
   emits: ['calculate', 'apply'],
   template: `
@@ -279,67 +279,67 @@ const PolicyCard = {
         </van-button>
       </div>
     </div>
-  `
-}
+  `,
+};
 
-const router = useRouter()
-const userStore = useUserStore()
+const router = useRouter();
+const userStore = useUserStore();
 
 // ============ 响应式数据 ============
-const activeTab = ref('agriculture')
-const loadingPolicies = ref(false)
-const calculating = ref(false)
-const syncing = ref(false)
-const policies = ref([])
+const activeTab = ref('agriculture');
+const loadingPolicies = ref(false);
+const calculating = ref(false);
+const syncing = ref(false);
+const policies = ref([]);
 
 // 弹窗控制
-const showQuickCalc = ref(false)
-const showCalcResult = ref(false)
-const showSyncDialog = ref(false)
+const showQuickCalc = ref(false);
+const showCalcResult = ref(false);
+const showSyncDialog = ref(false);
 
 // 表单数据
-const quickCalcType = ref('')
+const quickCalcType = ref('');
 const quickCalcForm = reactive({
   landArea: '',
   householdSize: '',
-  educationLevel: 'primary'
-})
+  educationLevel: 'primary',
+});
 
 // 计算结果
-const calcResult = ref(null)
-const selectedPolicy = ref(null)
-const activeCollapse = ref([])
+const calcResult = ref(null);
+const selectedPolicy = ref(null);
+const activeCollapse = ref([]);
 
 // 同步状态
-const lastPolicyUpdate = ref(localStorage.getItem('lastPolicyUpdate') || '从未同步')
-const policyCount = ref(0)
+const lastPolicyUpdate = ref(localStorage.getItem('lastPolicyUpdate') || '从未同步');
+const policyCount = ref(0);
 
 // ============ 计算属性 ============
 const quickCalcTitle = computed(() => {
   const titles = {
     land: '耕地补贴计算',
     household: '家庭人口补贴',
-    education: '教育补贴计算'
-  }
-  return titles[quickCalcType.value] || '快速计算'
-})
+    education: '教育补贴计算',
+  };
+  return titles[quickCalcType.value] || '快速计算';
+});
 
 // 按类别分类的政策
 const agriculturePolicies = computed(() =>
   policies.value.filter(p => p.policyInfo?.category === 'agriculture' || p.tags?.includes('农业'))
-)
+);
 const housingPolicies = computed(() =>
   policies.value.filter(p => p.policyInfo?.category === 'housing' || p.tags?.includes('住房'))
-)
+);
 const educationPolicies = computed(() =>
   policies.value.filter(p => p.policyInfo?.category === 'education' || p.tags?.includes('教育'))
-)
+);
 const medicalPolicies = computed(() =>
   policies.value.filter(p => p.policyInfo?.category === 'medical' || p.tags?.includes('医疗'))
-)
+);
 const elderlyPolicies = computed(() =>
   policies.value.filter(p => p.policyInfo?.category === 'elderly' || p.tags?.includes('养老'))
-)
+);
 
 // ============ 方法 ============
 
@@ -348,188 +348,190 @@ const elderlyPolicies = computed(() =>
  */
 const loadPolicies = async () => {
   try {
-    loadingPolicies.value = true
-    const villageId = userStore.userInfo?.villageId
-    const response = await policyCalculatorApi.getAvailablePolicies(villageId)
+    loadingPolicies.value = true;
+    const villageId = userStore.userInfo?.villageId;
+    const response = await policyCalculatorApi.getAvailablePolicies(villageId);
     if (response.success) {
-      policies.value = response.data || []
-      policyCount.value = policies.value.length
+      policies.value = response.data || [];
+      policyCount.value = policies.value.length;
     }
   } catch (error) {
-    console.error('加载政策失败:', error)
-    showToast('加载政策失败')
+    console.error('加载政策失败:', error);
+    showToast('加载政策失败');
   } finally {
-    loadingPolicies.value = false
+    loadingPolicies.value = false;
   }
-}
+};
 
 /**
  * 处理计算
  */
-const handleCalculate = (policy) => {
-  selectedPolicy.value = policy
-  showQuickCalc.value = true
+const handleCalculate = policy => {
+  selectedPolicy.value = policy;
+  showQuickCalc.value = true;
 
   // 根据政策类型选择快速计算类型
   if (policy.policyInfo?.category === 'agriculture' || policy.tags?.includes('耕地')) {
-    quickCalcType.value = 'land'
+    quickCalcType.value = 'land';
   } else if (policy.policyInfo?.category === 'elderly' || policy.tags?.includes('人口')) {
-    quickCalcType.value = 'household'
+    quickCalcType.value = 'household';
   } else if (policy.policyInfo?.category === 'education' || policy.tags?.includes('教育')) {
-    quickCalcType.value = 'education'
+    quickCalcType.value = 'education';
   }
-}
+};
 
 /**
  * 处理申请
  */
-const handleApply = (policy) => {
-  selectedPolicy.value = policy
-  showToast('跳转到申请页面')
-}
+const handleApply = policy => {
+  selectedPolicy.value = policy;
+  showToast('跳转到申请页面');
+};
 
 /**
  * 耕地补贴快速计算
  */
 const handleQuickCalcLand = async () => {
   try {
-    calculating.value = true
+    calculating.value = true;
     const result = await policyCalculatorApi.quickCalculateLandSubsidy(
       parseFloat(quickCalcForm.landArea),
       parseInt(quickCalcForm.householdSize)
-    )
+    );
 
     if (result.success) {
-      calcResult.value = result.data
-      showCalcResult.value = true
-      showQuickCalc.value = false
+      calcResult.value = result.data;
+      showCalcResult.value = true;
+      showQuickCalc.value = false;
     } else {
-      showToast(result.reason || '计算失败')
+      showToast(result.reason || '计算失败');
     }
   } catch (error) {
-    console.error('计算失败:', error)
-    showToast(error.message || '计算失败')
+    console.error('计算失败:', error);
+    showToast(error.message || '计算失败');
   } finally {
-    calculating.value = false
+    calculating.value = false;
   }
-}
+};
 
 /**
  * 家庭人口补贴计算
  */
 const handleQuickCalcHousehold = async () => {
   try {
-    calculating.value = true
-    const policy = policies.value.find(p =>
-      p.policyInfo?.category === 'elderly' || p.tags?.includes('人口')
-    )
+    calculating.value = true;
+    const policy = policies.value.find(
+      p => p.policyInfo?.category === 'elderly' || p.tags?.includes('人口')
+    );
 
     if (!policy) {
-      showToast('未找到相关补贴政策')
-      return
+      showToast('未找到相关补贴政策');
+      return;
     }
 
     const result = await policyCalculatorApi.calculateSubsidy(policy._id, {
       applicantInfo: { name: '申请人', idNumber: '110101199001011234' },
-      householdInfo: { registeredHouseholdSize: parseInt(quickCalcForm.householdSize) }
-    })
+      householdInfo: { registeredHouseholdSize: parseInt(quickCalcForm.householdSize) },
+    });
 
     if (result.success) {
-      calcResult.value = result.data
-      showCalcResult.value = true
-      showQuickCalc.value = false
+      calcResult.value = result.data;
+      showCalcResult.value = true;
+      showQuickCalc.value = false;
     }
   } catch (error) {
-    console.error('计算失败:', error)
-    showToast('计算失败')
+    console.error('计算失败:', error);
+    showToast('计算失败');
   } finally {
-    calculating.value = false
+    calculating.value = false;
   }
-}
+};
 
 /**
  * 教育补贴计算
  */
 const handleQuickCalcEducation = async () => {
   try {
-    calculating.value = true
-    const policy = policies.value.find(p =>
-      p.policyInfo?.category === 'education' || p.tags?.includes('教育')
-    )
+    calculating.value = true;
+    const policy = policies.value.find(
+      p => p.policyInfo?.category === 'education' || p.tags?.includes('教育')
+    );
 
     if (!policy) {
-      showToast('未找到相关补贴政策')
-      return
+      showToast('未找到相关补贴政策');
+      return;
     }
 
     const result = await policyCalculatorApi.calculateSubsidy(policy._id, {
       applicantInfo: { name: '学生', idNumber: '110101201001011234' },
       householdInfo: { registeredHouseholdSize: 1 },
-      metadata: { educationLevel: quickCalcForm.educationLevel }
-    })
+      metadata: { educationLevel: quickCalcForm.educationLevel },
+    });
 
     if (result.success) {
-      calcResult.value = result.data
-      showCalcResult.value = true
-      showQuickCalc.value = false
+      calcResult.value = result.data;
+      showCalcResult.value = true;
+      showQuickCalc.value = false;
     }
   } catch (error) {
-    console.error('计算失败:', error)
-    showToast('计算失败')
+    console.error('计算失败:', error);
+    showToast('计算失败');
   } finally {
-    calculating.value = false
+    calculating.value = false;
   }
-}
+};
 
 /**
  * 从结果申请
  */
 const handleApplyFromResult = () => {
-  showCalcResult.value = false
+  showCalcResult.value = false;
   router.push({
     path: '/policy-application',
     query: {
       policyId: selectedPolicy.value?._id,
-      calcResult: JSON.stringify(calcResult.value)
-    }
-  })
-}
+      calcResult: JSON.stringify(calcResult.value),
+    },
+  });
+};
 
 /**
  * 同步政府政策
  */
 const handleSyncPolicies = async () => {
   try {
-    syncing.value = true
+    syncing.value = true;
 
     const response = await policyCalculatorApi.syncGovernmentPolicies({
       region: 'national',
-      forceUpdate: false
-    })
+      forceUpdate: false,
+    });
 
     if (response.success) {
-      const now = new Date().toLocaleString('zh-CN')
-      lastPolicyUpdate.value = now
-      localStorage.setItem('lastPolicyUpdate', now)
+      const now = new Date().toLocaleString('zh-CN');
+      lastPolicyUpdate.value = now;
+      localStorage.setItem('lastPolicyUpdate', now);
 
-      showToast(`同步成功：新建 ${response.data.summary.created} 条，更新 ${response.data.summary.updated} 条`)
-      showSyncDialog.value = false
+      showToast(
+        `同步成功：新建 ${response.data.summary.created} 条，更新 ${response.data.summary.updated} 条`
+      );
+      showSyncDialog.value = false;
 
       // 重新加载政策列表
-      await loadPolicies()
+      await loadPolicies();
     }
   } catch (error) {
-    console.error('同步失败:', error)
-    showToast('同步失败，请稍后重试')
+    console.error('同步失败:', error);
+    showToast('同步失败，请稍后重试');
   } finally {
-    syncing.value = false
+    syncing.value = false;
   }
-}
+};
 
 // ============ 生命周期 ============
 onMounted(() => {
-  loadPolicies()
-})
+  loadPolicies();
+});
 </script>
 
 <style scoped>

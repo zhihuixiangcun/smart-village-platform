@@ -4,12 +4,12 @@
 import request from '@/utils/request';
 
 // 用户登录
-export const login = (data) => {
+export const login = data => {
   return request.post('/auth/login', data);
 };
 
 // 用户注册
-export const register = (data) => {
+export const register = data => {
   return request.post('/auth/register', data);
 };
 
@@ -19,7 +19,7 @@ export const logout = () => {
 };
 
 // 刷新Token
-export const refreshToken = (refreshToken) => {
+export const refreshToken = refreshToken => {
   return request.post('/auth/refresh-token', { refreshToken });
 };
 
@@ -29,52 +29,52 @@ export const getUserProfile = () => {
 };
 
 // 更新用户信息
-export const updateUserProfile = (data) => {
+export const updateUserProfile = data => {
   return request.put('/auth/profile', data);
 };
 
 // 修改密码
-export const changePassword = (data) => {
+export const changePassword = data => {
   return request.post('/auth/change-password', data);
 };
 
 // 忘记密码
-export const forgotPassword = (data) => {
+export const forgotPassword = data => {
   return request.post('/auth/forgot-password', data);
 };
 
 // 重置密码
-export const resetPassword = (data) => {
+export const resetPassword = data => {
   return request.post('/auth/reset-password', data);
 };
 
 // 验证邮箱
-export const verifyEmail = (token) => {
+export const verifyEmail = token => {
   return request.post('/auth/verify-email', { token });
 };
 
 // 发送验证码
-export const sendVerificationCode = (data) => {
+export const sendVerificationCode = data => {
   return request.post('/auth/send-verification-code', data);
 };
 
 // 验证码验证
-export const verifyCode = (data) => {
+export const verifyCode = data => {
   return request.post('/auth/verify-code', data);
 };
 
 // 人脸识别登录
-export const faceLogin = (data) => {
+export const faceLogin = data => {
   return request.post('/auth/face-login', data);
 };
 
 // 亲属代理登录
-export const proxyLogin = (data) => {
+export const proxyLogin = data => {
   return request.post('/auth/proxy-login', data);
 };
 
 // 人脸注册
-export const registerFace = (data) => {
+export const registerFace = data => {
   return request.post('/auth/register-face', data);
 };
 
@@ -93,5 +93,5 @@ export const userAPI = {
   verifyCode,
   faceLogin,
   proxyLogin,
-  registerFace
+  registerFace,
 };

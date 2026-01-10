@@ -1,12 +1,6 @@
 <template>
   <div class="profile-form">
-    <el-form
-      ref="formRef"
-      :model="formData"
-      :rules="formRules"
-      label-width="120px"
-      size="default"
-    >
+    <el-form ref="formRef" :model="formData" :rules="formRules" label-width="120px" size="default">
       <!-- 基本信息 -->
       <div class="form-section">
         <h3>基本信息</h3>
@@ -359,43 +353,41 @@
     <!-- 表单操作 -->
     <div class="form-actions" v-if="canEdit">
       <el-button @click="handleCancel">取消</el-button>
-      <el-button type="primary" @click="handleSubmit" :loading="submitting">
-        保存
-      </el-button>
+      <el-button type="primary" @click="handleSubmit" :loading="submitting"> 保存 </el-button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, watch, computed } from 'vue'
-import { ElMessage } from 'element-plus'
-import { validatePhone } from '@/utils/validate'
+import { ref, reactive, watch, computed } from 'vue';
+import { ElMessage } from 'element-plus';
+import { validatePhone } from '@/utils/validate';
 
 // Props
 const props = defineProps({
   profile: {
     type: Object,
-    default: () => ({})
+    default: () => ({}),
   },
   mode: {
     type: String,
-    default: 'view' // view | edit
-  }
-})
+    default: 'view', // view | edit
+  },
+});
 
 // Emits
-const emit = defineEmits(['submit', 'cancel'])
+const emit = defineEmits(['submit', 'cancel']);
 
 // 表单引用
-const formRef = ref(null)
+const formRef = ref(null);
 
 // 提交状态
-const submitting = ref(false)
+const submitting = ref(false);
 
 // 是否可编辑
 const canEdit = computed(() => {
-  return props.mode === 'edit'
-})
+  return props.mode === 'edit';
+});
 
 // 表单数据
 const formData = reactive({
@@ -409,83 +401,80 @@ const formData = reactive({
     maritalStatus: '',
     healthStatus: '',
     bloodType: '',
-    photo: ''
+    photo: '',
   },
   contact: {
     phone: '',
     email: '',
     address: '',
     wechat: '',
-    qq: ''
+    qq: '',
   },
   education: {
     degree: '',
     school: '',
     major: '',
-    graduationYear: ''
+    graduationYear: '',
   },
   employment: {
     status: '',
     employer: '',
     position: '',
     income: {
-      monthly: null
-    }
+      monthly: null,
+    },
   },
   socialSecurity: {
     hasMedicalInsurance: false,
     medicalInsuranceType: '',
     hasPensionInsurance: false,
-    hasUnemploymentInsurance: false
+    hasUnemploymentInsurance: false,
   },
-  familyRelations: []
-})
+  familyRelations: [],
+});
 
 // 表单验证规则
 const formRules = {
   'personalInfo.name': [
     { required: true, message: '请输入姓名', trigger: 'blur' },
-    { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
+    { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' },
   ],
-  'personalInfo.gender': [
-    { required: true, message: '请选择性别', trigger: 'change' }
-  ],
-  'personalInfo.ethnicity': [
-    { required: true, message: '请选择民族', trigger: 'change' }
-  ],
+  'personalInfo.gender': [{ required: true, message: '请选择性别', trigger: 'change' }],
+  'personalInfo.ethnicity': [{ required: true, message: '请选择民族', trigger: 'change' }],
   'contact.phone': [
     { required: true, message: '请输入手机号码', trigger: 'blur' },
-    { validator: (rule, value, callback) => {
-      if (!validatePhone(value)) {
-        callback(new Error('请输入正确的手机号'))
-      } else {
-        callback()
-      }
-    }, trigger: 'blur' }
+    {
+      validator: (rule, value, callback) => {
+        if (!validatePhone(value)) {
+          callback(new Error('请输入正确的手机号'));
+        } else {
+          callback();
+        }
+      },
+      trigger: 'blur',
+    },
   ],
-  'contact.address': [
-    { required: true, message: '请输入家庭住址', trigger: 'blur' }
-  ],
+  'contact.address': [{ required: true, message: '请输入家庭住址', trigger: 'blur' }],
   'contact.email': [
-    { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
-  ]
-}
+    { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] },
+  ],
+};
 
 // 初始化表单数据
 const initFormData = () => {
   if (props.profile) {
     // 深拷贝避免直接修改props
-    Object.assign(formData, JSON.parse(JSON.stringify(props.profile)))
+    Object.assign(formData, JSON.parse(JSON.stringify(props.profile)));
   }
-}
+};
 
 // 提交表单
 const handleSubmit = async () => {
   // 表单验证
-  const valid = await formRef.value.validate().catch(() => false)
-  if (!valid) return
+  const valid = await formRef.value.validate().catch(() => false);
+  if (!valid) return;
 
-  submitting.value = true
+  submitting.value = true;
 
   try {
     // 准备提交数据
@@ -495,29 +484,33 @@ const handleSubmit = async () => {
       employment: {
         ...formData.employment,
         income: {
-          monthly: formData.employment.income.monthly || 0
-        }
-      }
-    }
+          monthly: formData.employment.income.monthly || 0,
+        },
+      },
+    };
 
-    emit('submit', submitData)
+    emit('submit', submitData);
   } catch (error) {
-    ElMessage.error('保存失败')
-    console.error(error)
+    ElMessage.error('保存失败');
+    console.error(error);
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
-}
+};
 
 // 取消
 const handleCancel = () => {
-  emit('cancel')
-}
+  emit('cancel');
+};
 
 // 监听档案数据变化
-watch(() => props.profile, () => {
-  initFormData()
-}, { immediate: true })
+watch(
+  () => props.profile,
+  () => {
+    initFormData();
+  },
+  { immediate: true }
+);
 </script>
 
 <style lang="scss" scoped>

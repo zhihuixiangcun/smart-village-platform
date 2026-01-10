@@ -26,15 +26,9 @@
       <!-- 拼车类型切换 -->
       <div class="type-tabs">
         <el-radio-group v-model="activeType" @change="handleFilter">
-          <el-radio-button label="all">
-            全部
-          </el-radio-button>
-          <el-radio-button label="driver">
-            我要开车
-          </el-radio-button>
-          <el-radio-button label="passenger">
-            我要乘车
-          </el-radio-button>
+          <el-radio-button label="all"> 全部 </el-radio-button>
+          <el-radio-button label="driver"> 我要开车 </el-radio-button>
+          <el-radio-button label="passenger"> 我要乘车 </el-radio-button>
         </el-radio-group>
       </div>
 
@@ -109,19 +103,13 @@
       <!-- 空状态 -->
       <div v-else-if="filteredCarpools.length === 0" class="empty-container">
         <el-empty description="暂无拼车信息">
-          <el-button type="primary" @click="showPublishDialog">
-            发布拼车信息
-          </el-button>
+          <el-button type="primary" @click="showPublishDialog"> 发布拼车信息 </el-button>
         </el-empty>
       </div>
 
       <!-- 拼车列表 -->
       <div v-else class="carpools-container">
-        <div
-          v-for="carpool in filteredCarpools"
-          :key="carpool._id"
-          class="carpool-card"
-        >
+        <div v-for="carpool in filteredCarpools" :key="carpool._id" class="carpool-card">
           <!-- 用户信息 -->
           <div class="carpool-header">
             <div class="user-info">
@@ -141,10 +129,7 @@
                   />
                 </div>
                 <div class="user-meta">
-                  <el-tag
-                    :type="carpool.type === 'driver' ? 'success' : 'warning'"
-                    size="small"
-                  >
+                  <el-tag :type="carpool.type === 'driver' ? 'success' : 'warning'" size="small">
                     {{ carpool.type === 'driver' ? '车主' : '乘客' }}
                   </el-tag>
                   <span class="publish-time">
@@ -198,7 +183,9 @@
               <el-icon><User /></el-icon>
               <div class="info-content">
                 <span class="info-label">可载人数</span>
-                <span class="info-value">{{ carpool.availableSeats }}/{{ carpool.totalSeats }}人</span>
+                <span class="info-value"
+                  >{{ carpool.availableSeats }}/{{ carpool.totalSeats }}人</span
+                >
               </div>
             </div>
             <div class="info-item" v-else>
@@ -259,18 +246,12 @@
 
       <!-- 加载更多 -->
       <div class="load-more" v-if="hasMore && !loading">
-        <el-button @click="loadMore" :loading="loadingMore">
-          加载更多
-        </el-button>
+        <el-button @click="loadMore" :loading="loadingMore"> 加载更多 </el-button>
       </div>
     </el-card>
 
     <!-- 发布拼车对话框 -->
-    <el-dialog
-      v-model="publishDialogVisible"
-      title="发布拼车信息"
-      width="600px"
-    >
+    <el-dialog v-model="publishDialogVisible" title="发布拼车信息" width="600px">
       <el-form :model="publishForm" label-width="100px" ref="publishFormRef">
         <el-form-item label="拼车类型" required>
           <el-radio-group v-model="publishForm.type">
@@ -293,11 +274,7 @@
           />
         </el-form-item>
         <el-form-item label="出发时间" required>
-          <el-time-picker
-            v-model="publishForm.time"
-            placeholder="选择时间"
-            style="width: 100%"
-          />
+          <el-time-picker v-model="publishForm.time" placeholder="选择时间" style="width: 100%" />
         </el-form-item>
         <el-form-item label="座位数" required v-if="publishForm.type === 'driver'">
           <el-input-number v-model="publishForm.availableSeats" :min="1" :max="7" />
@@ -332,11 +309,7 @@
     </el-dialog>
 
     <!-- 拼车详情对话框 -->
-    <el-dialog
-      v-model="detailDialogVisible"
-      title="拼车详情"
-      width="700px"
-    >
+    <el-dialog v-model="detailDialogVisible" title="拼车详情" width="700px">
       <div class="carpool-detail" v-if="currentCarpool">
         <!-- 发布者信息 -->
         <div class="detail-publisher">
@@ -377,14 +350,13 @@
             {{ currentCarpool.departureTime }}
           </el-descriptions-item>
           <el-descriptions-item label="座位/人数">
-            {{ currentCarpool.type === 'driver'
-              ? `${currentCarpool.availableSeats}/${currentCarpool.totalSeats}座`
-              : `${currentCarpool.passengerCount}人`
+            {{
+              currentCarpool.type === 'driver'
+                ? `${currentCarpool.availableSeats}/${currentCarpool.totalSeats}座`
+                : `${currentCarpool.passengerCount}人`
             }}
           </el-descriptions-item>
-          <el-descriptions-item label="费用">
-            ¥{{ currentCarpool.price }}/人
-          </el-descriptions-item>
+          <el-descriptions-item label="费用"> ¥{{ currentCarpool.price }}/人 </el-descriptions-item>
           <el-descriptions-item label="车型" v-if="currentCarpool.type === 'driver'">
             {{ currentCarpool.vehicle?.model || '-' }}
           </el-descriptions-item>
@@ -407,45 +379,58 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { ElMessage } from 'element-plus';
 import {
-  Van, Refresh, Plus, Location, Search, Loading, Right, Clock,
-  Wallet, ChatDotRound, View, Check, CircleCheck, User
-} from '@element-plus/icons-vue'
-import api from '@/api'
+  Van,
+  Refresh,
+  Plus,
+  Location,
+  Search,
+  Loading,
+  Right,
+  Clock,
+  Wallet,
+  ChatDotRound,
+  View,
+  Check,
+  CircleCheck,
+  User,
+} from '@element-plus/icons-vue';
+import api from '@/api';
 
-const router = useRouter()
+const router = useRouter();
 
 const props = defineProps({
   purchaserId: {
     type: String,
-    default: ''
-  }
-})
+    default: '',
+  },
+});
 
-const emit = defineEmits(['contact', 'join', 'publish'])
+const emit = defineEmits(['contact', 'join', 'publish']);
 
-const loading = ref(false)
-const loadingMore = ref(false)
-const publishing = ref(false)
-const activeType = ref('all')
-const publishDialogVisible = ref(false)
-const detailDialogVisible = ref(false)
-const currentCarpool = ref(null)
-const locationInfo = ref({ city: '杭州市' })
-const hasMore = ref(true)
+const loading = ref(false);
+const loadingMore = ref(false);
+const publishing = ref(false);
+const activeType = ref('all');
+const publishDialogVisible = ref(false);
+const detailDialogVisible = ref(false);
+const currentCarpool = ref(null);
+const locationInfo = ref({ city: '杭州市' });
+const hasMore = ref(true);
 
-const defaultAvatar = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ccircle cx="50" cy="50" r="50" fill="%23e0e0e0"/%3E%3C/svg%3E'
+const defaultAvatar =
+  'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ccircle cx="50" cy="50" r="50" fill="%23e0e0e0"/%3E%3C/svg%3E';
 
 const filters = reactive({
   departure: '',
   destination: '',
   date: null,
   seats: null,
-  priceRange: null
-})
+  priceRange: null,
+});
 
 const publishForm = reactive({
   type: 'driver',
@@ -458,8 +443,8 @@ const publishForm = reactive({
   price: 50,
   vehicleModel: '',
   plateNumber: '',
-  remark: ''
-})
+  remark: '',
+});
 
 // 模拟拼车数据
 const carpoolData = ref([
@@ -480,13 +465,13 @@ const carpoolData = ref([
       avatar: '',
       rating: 4.8,
       successRate: 98,
-      verified: true
+      verified: true,
     },
     vehicle: {
       model: '大众帕萨特',
       plateNumber: '浙A·12345',
-      color: '黑色'
-    }
+      color: '黑色',
+    },
   },
   {
     _id: '2',
@@ -504,8 +489,8 @@ const carpoolData = ref([
       avatar: '',
       rating: 4.6,
       successRate: 95,
-      verified: true
-    }
+      verified: true,
+    },
   },
   {
     _id: '3',
@@ -524,13 +509,13 @@ const carpoolData = ref([
       avatar: '',
       rating: 4.9,
       successRate: 99,
-      verified: true
+      verified: true,
     },
     vehicle: {
       model: '别克GL8',
       plateNumber: '浙A·67890',
-      color: '白色'
-    }
+      color: '白色',
+    },
   },
   {
     _id: '4',
@@ -548,8 +533,8 @@ const carpoolData = ref([
       avatar: '',
       rating: 4.5,
       successRate: 92,
-      verified: false
-    }
+      verified: false,
+    },
   },
   {
     _id: '5',
@@ -568,103 +553,103 @@ const carpoolData = ref([
       avatar: '',
       rating: 4.7,
       successRate: 96,
-      verified: true
+      verified: true,
     },
     vehicle: {
       model: '丰田凯美瑞',
       plateNumber: '浙A·24680',
-      color: '银色'
-    }
-  }
-])
+      color: '银色',
+    },
+  },
+]);
 
-const filteredCarpools = ref([])
+const filteredCarpools = ref([]);
 
 // 格式化时间
-const formatTime = (time) => {
-  const now = new Date()
-  const diff = now - new Date(time)
-  const hours = Math.floor(diff / (1000 * 60 * 60))
-  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+const formatTime = time => {
+  const now = new Date();
+  const diff = now - new Date(time);
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
 
   if (hours < 1) {
-    return `${minutes}分钟前`
+    return `${minutes}分钟前`;
   } else if (hours < 24) {
-    return `${hours}小时前`
+    return `${hours}小时前`;
   } else {
-    return new Date(time).toLocaleDateString()
+    return new Date(time).toLocaleDateString();
   }
-}
+};
 
 // 筛选拼车
 const handleFilter = () => {
-  loading.value = true
+  loading.value = true;
 
   setTimeout(() => {
-    let filtered = [...carpoolData.value]
+    let filtered = [...carpoolData.value];
 
     // 按类型筛选
     if (activeType.value !== 'all') {
-      filtered = filtered.filter(c => c.type === activeType.value)
+      filtered = filtered.filter(c => c.type === activeType.value);
     }
 
     // 按出发地筛选
     if (filters.departure) {
-      filtered = filtered.filter(c =>
-        c.departure.includes(filters.departure)
-      )
+      filtered = filtered.filter(c => c.departure.includes(filters.departure));
     }
 
     // 按目的地筛选
     if (filters.destination) {
-      filtered = filtered.filter(c =>
-        c.destination.includes(filters.destination)
-      )
+      filtered = filtered.filter(c => c.destination.includes(filters.destination));
     }
 
     // 按价格筛选
     if (filters.priceRange) {
-      filtered = filtered.filter(c =>
-        c.price >= filters.priceRange.min && c.price <= filters.priceRange.max
-      )
+      filtered = filtered.filter(
+        c => c.price >= filters.priceRange.min && c.price <= filters.priceRange.max
+      );
     }
 
     // 按座位数筛选
     if (filters.seats && activeType.value !== 'passenger') {
       filtered = filtered.filter(c =>
         c.type === 'driver' ? c.availableSeats >= filters.seats : true
-      )
+      );
     }
 
     // 按发布时间排序
-    filtered.sort((a, b) => new Date(b.publishTime) - new Date(a.publishTime))
+    filtered.sort((a, b) => new Date(b.publishTime) - new Date(a.publishTime));
 
-    filteredCarpools.value = filtered.slice(0, 10)
-    hasMore.value = filtered.length > 10
+    filteredCarpools.value = filtered.slice(0, 10);
+    hasMore.value = filtered.length > 10;
 
-    loading.value = false
-  }, 300)
-}
+    loading.value = false;
+  }, 300);
+};
 
 // 刷新
 const handleRefresh = () => {
-  handleFilter()
-}
+  handleFilter();
+};
 
 // 显示发布对话框
 const showPublishDialog = () => {
-  publishDialogVisible.value = true
-}
+  publishDialogVisible.value = true;
+};
 
 // 发布拼车
 const handlePublish = () => {
-  if (!publishForm.departure || !publishForm.destination ||
-      !publishForm.date || !publishForm.time) {
-    ElMessage.warning('请填写完整信息')
-    return
+  if (
+    !publishForm.departure ||
+    !publishForm.destination ||
+    !publishForm.date ||
+    !publishForm.time
+  ) {
+    ElMessage.warning('请填写完整信息');
+    return;
   }
 
-  publishing.value = true
+  publishing.value = true;
 
   // 模拟发布
   setTimeout(() => {
@@ -686,24 +671,24 @@ const handlePublish = () => {
         avatar: '',
         rating: 5.0,
         successRate: 100,
-        verified: true
-      }
-    }
+        verified: true,
+      },
+    };
 
     if (publishForm.type === 'driver') {
       newCarpool.vehicle = {
         model: publishForm.vehicleModel,
         plateNumber: publishForm.plateNumber,
-        color: '未知'
-      }
+        color: '未知',
+      };
     }
 
-    carpoolData.value.unshift(newCarpool)
-    emit('publish', newCarpool)
+    carpoolData.value.unshift(newCarpool);
+    emit('publish', newCarpool);
 
-    ElMessage.success('发布成功！')
-    publishing.value = false
-    publishDialogVisible.value = false
+    ElMessage.success('发布成功！');
+    publishing.value = false;
+    publishDialogVisible.value = false;
 
     // 重置表单
     Object.assign(publishForm, {
@@ -717,48 +702,49 @@ const handlePublish = () => {
       price: 50,
       vehicleModel: '',
       plateNumber: '',
-      remark: ''
-    })
+      remark: '',
+    });
 
-    handleFilter()
-  }, 1000)
-}
+    handleFilter();
+  }, 1000);
+};
 
 // 联系
-const handleContact = (carpool) => {
-  emit('contact', carpool)
-  ElMessage.success(`正在联系${carpool.publisher.name}...`)
-}
+const handleContact = carpool => {
+  emit('contact', carpool);
+  ElMessage.success(`正在联系${carpool.publisher.name}...`);
+};
 
 // 查看详情
-const handleViewDetail = (carpool) => {
-  currentCarpool.value = carpool
-  detailDialogVisible.value = true
-}
+const handleViewDetail = carpool => {
+  currentCarpool.value = carpool;
+  detailDialogVisible.value = true;
+};
 
 // 加入拼车
-const handleJoin = (carpool) => {
-  emit('join', carpool)
-  ElMessage.success(carpool.type === 'driver'
-    ? `已向${carpool.publisher.name}发送乘车请求`
-    : `已接受${carpool.publisher.name}的拼车请求`
-  )
-  detailDialogVisible.value = false
-}
+const handleJoin = carpool => {
+  emit('join', carpool);
+  ElMessage.success(
+    carpool.type === 'driver'
+      ? `已向${carpool.publisher.name}发送乘车请求`
+      : `已接受${carpool.publisher.name}的拼车请求`
+  );
+  detailDialogVisible.value = false;
+};
 
 // 加载更多
 const loadMore = () => {
-  loadingMore.value = true
+  loadingMore.value = true;
   setTimeout(() => {
-    loadingMore.value = false
-    hasMore.value = false
-    ElMessage.success('没有更多了')
-  }, 1000)
-}
+    loadingMore.value = false;
+    hasMore.value = false;
+    ElMessage.success('没有更多了');
+  }, 1000);
+};
 
 onMounted(() => {
-  handleFilter()
-})
+  handleFilter();
+});
 </script>
 
 <style scoped>

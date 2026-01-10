@@ -36,6 +36,9 @@ require('../src/models');
 const app = express();
 const server = http.createServer(app);
 
+// 导入Socket.IO认证中间件
+const { socketAuthMiddleware, trackUserActivity } = require('../middleware/socketAuth');
+
 // Socket.IO setup
 const io = new Server(server, {
   cors: {
@@ -55,6 +58,10 @@ const io = new Server(server, {
   pingTimeout: 60000,
   pingInterval: 25000
 });
+
+// 🔒 安全增强：添加JWT认证中间件
+io.use(socketAuthMiddleware);
+io.use(trackUserActivity());
 
 const PORT = process.env.VILLAGE_PORT || 5000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
@@ -81,8 +88,8 @@ app.use(cors({
   ],
   credentials: true
 }));
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(express.json({ limit: '5mb' }));
+app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 
 // Logging
 if (NODE_ENV === 'production') {
@@ -172,11 +179,11 @@ const announcements = [];
 const suggestions = [];
 const onlineUsers = new Map();
 
-// Socket.IO connection handling
+// Socket.IO connection handling - 已认证用户
 io.on('connection', (socket) => {
-  console.log(`Socket.IO client connected: ${socket.id}`);
+  console.log(`🔒 Authenticated user connected: ${socket.user?.username} (${socket.user?.role}) - Socket: ${socket.id}`);
 
-  // Join village room
+  // Join village room - 增加权限检查
   socket.on('join-village', (data) => {
     const { villageId, userId } = data;
     const room = `village-${villageId}`;

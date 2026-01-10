@@ -38,7 +38,7 @@ export function useMobileAdaptation() {
    * 添加设备信息变化监听器
    * @param {Function} listener - 监听器函数
    */
-  const addDeviceListener = (listener) => {
+  const addDeviceListener = listener => {
     listeners.add(listener);
     return () => listeners.delete(listener);
   };
@@ -47,7 +47,7 @@ export function useMobileAdaptation() {
    * 移除设备信息变化监听器
    * @param {Function} listener - 监听器函数
    */
-  const removeDeviceListener = (listener) => {
+  const removeDeviceListener = listener => {
     listeners.delete(listener);
   };
 
@@ -55,7 +55,7 @@ export function useMobileAdaptation() {
    * 触觉反馈
    * @param {string} type - 反馈类型
    */
-  const hapticFeedback = (type) => {
+  const hapticFeedback = type => {
     mobileAdaptationService.hapticFeedback(type);
   };
 
@@ -91,7 +91,7 @@ export function useMobileAdaptation() {
    * @param {Object} breakpoints - 断点配置
    * @returns {*} 匹配的值
    */
-  const getResponsiveValue = (breakpoints) => {
+  const getResponsiveValue = breakpoints => {
     if (isSmallScreen.value && breakpoints.mobile) {
       return breakpoints.mobile;
     } else if (isMediumScreen.value && breakpoints.tablet) {
@@ -114,7 +114,7 @@ export function useMobileAdaptation() {
    * 更新主题配置
    * @param {Object} theme - 主题配置
    */
-  const updateTheme = (theme) => {
+  const updateTheme = theme => {
     mobileAdaptationService.updateThemeConfig(theme);
   };
 
@@ -136,7 +136,7 @@ export function useMobileAdaptation() {
       top: computedStyle.getPropertyValue('env(safe-area-inset-top)') || '0px',
       right: computedStyle.getPropertyValue('env(safe-area-inset-right)') || '0px',
       bottom: computedStyle.getPropertyValue('env(safe-area-inset-bottom)') || '0px',
-      left: computedStyle.getPropertyValue('env(safe-area-inset-left)') || '0px'
+      left: computedStyle.getPropertyValue('env(safe-area-inset-left)') || '0px',
     };
   };
 
@@ -149,7 +149,7 @@ export function useMobileAdaptation() {
   const useMediaQuery = (query, callback) => {
     const mediaQuery = window.matchMedia(query);
 
-    const handler = (e) => callback(e.matches);
+    const handler = e => callback(e.matches);
 
     if (mediaQuery.addEventListener) {
       mediaQuery.addEventListener('change', handler);
@@ -171,13 +171,13 @@ export function useMobileAdaptation() {
   // 响应式断点监听
   const setupBreakpointListeners = () => {
     // 移动设备检测
-    const cleanupMobile = useMediaQuery('(max-width: 767px)', (matches) => {
+    const cleanupMobile = useMediaQuery('(max-width: 767px)', matches => {
       deviceInfo.isMobile = matches;
       deviceInfo.deviceType = matches ? 'mobile' : 'tablet';
     });
 
     // 平板设备检测
-    const cleanupTablet = useMediaQuery('(min-width: 768px) and (max-width: 1023px)', (matches) => {
+    const cleanupTablet = useMediaQuery('(min-width: 768px) and (max-width: 1023px)', matches => {
       deviceInfo.isTablet = matches;
       if (matches) {
         deviceInfo.deviceType = 'tablet';
@@ -185,7 +185,7 @@ export function useMobileAdaptation() {
     });
 
     // 桌面设备检测
-    const cleanupDesktop = useMediaQuery('(min-width: 1024px)', (matches) => {
+    const cleanupDesktop = useMediaQuery('(min-width: 1024px)', matches => {
       deviceInfo.isDesktop = matches;
       if (matches) {
         deviceInfo.deviceType = 'desktop';
@@ -193,7 +193,7 @@ export function useMobileAdaptation() {
     });
 
     // 小屏幕检测
-    const cleanupSmall = useMediaQuery('(max-width: 480px)', (matches) => {
+    const cleanupSmall = useMediaQuery('(max-width: 480px)', matches => {
       deviceInfo.isSmallScreen = matches;
       if (matches) {
         deviceInfo.screenSize = 'small';
@@ -201,7 +201,7 @@ export function useMobileAdaptation() {
     });
 
     // 中等屏幕检测
-    const cleanupMedium = useMediaQuery('(min-width: 481px) and (max-width: 1023px)', (matches) => {
+    const cleanupMedium = useMediaQuery('(min-width: 481px) and (max-width: 1023px)', matches => {
       deviceInfo.isMediumScreen = matches;
       if (matches) {
         deviceInfo.screenSize = 'medium';
@@ -209,7 +209,7 @@ export function useMobileAdaptation() {
     });
 
     // 大屏幕检测
-    const cleanupLarge = useMediaQuery('(min-width: 1024px)', (matches) => {
+    const cleanupLarge = useMediaQuery('(min-width: 1024px)', matches => {
       deviceInfo.isLargeScreen = matches;
       if (matches) {
         deviceInfo.screenSize = 'large';
@@ -217,12 +217,12 @@ export function useMobileAdaptation() {
     });
 
     // 方向检测
-    const cleanupOrientation = useMediaQuery('(orientation: portrait)', (matches) => {
+    const cleanupOrientation = useMediaQuery('(orientation: portrait)', matches => {
       deviceInfo.orientation = matches ? 'portrait' : 'landscape';
     });
 
     // 触摸支持检测
-    const cleanupTouch = useMediaQuery('(hover: none)', (matches) => {
+    const cleanupTouch = useMediaQuery('(hover: none)', matches => {
       deviceInfo.touchSupported = matches;
     });
 
@@ -296,7 +296,7 @@ export function useMobileAdaptation() {
     getSafeArea,
     addDeviceListener,
     removeDeviceListener,
-    useMediaQuery
+    useMediaQuery,
   };
 }
 

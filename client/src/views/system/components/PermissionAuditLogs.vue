@@ -119,10 +119,7 @@
           <h3>权限审计日志</h3>
           <div class="header-actions">
             <el-button-group>
-              <el-button
-                :type="viewMode === 'table' ? 'primary' : ''"
-                @click="viewMode = 'table'"
-              >
+              <el-button :type="viewMode === 'table' ? 'primary' : ''" @click="viewMode = 'table'">
                 <el-icon><List /></el-icon>
                 表格视图
               </el-button>
@@ -217,10 +214,7 @@
 
           <el-table-column prop="result" label="结果" width="100">
             <template #default="{ row }">
-              <el-tag
-                :type="row.result === 'ALLOWED' ? 'success' : 'danger'"
-                size="small"
-              >
+              <el-tag :type="row.result === 'ALLOWED' ? 'success' : 'danger'" size="small">
                 {{ row.result === 'ALLOWED' ? '允许' : '拒绝' }}
               </el-tag>
             </template>
@@ -236,11 +230,7 @@
 
           <el-table-column label="风险等级" width="100">
             <template #default="{ row }">
-              <el-tag
-                v-if="row.riskLevel"
-                :type="getRiskTagType(row.riskLevel)"
-                size="small"
-              >
+              <el-tag v-if="row.riskLevel" :type="getRiskTagType(row.riskLevel)" size="small">
                 {{ getRiskLabel(row.riskLevel) }}
               </el-tag>
             </template>
@@ -248,13 +238,7 @@
 
           <el-table-column label="操作" width="120" fixed="right">
             <template #default="{ row }">
-              <el-button
-                type="primary"
-                size="small"
-                @click="showLogDetail(row)"
-              >
-                详情
-              </el-button>
+              <el-button type="primary" size="small" @click="showLogDetail(row)"> 详情 </el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -286,10 +270,7 @@
             <div class="timeline-content">
               <div class="timeline-header">
                 <span class="user-name">{{ log.userName }}</span>
-                <el-tag
-                  :type="log.result === 'ALLOWED' ? 'success' : 'danger'"
-                  size="small"
-                >
+                <el-tag :type="log.result === 'ALLOWED' ? 'success' : 'danger'" size="small">
                   {{ log.result === 'ALLOWED' ? '允许' : '拒绝' }}
                 </el-tag>
                 <el-tag size="small" type="info">{{ log.resource }}</el-tag>
@@ -300,7 +281,8 @@
                   <span>IP: {{ log.ipAddress }}</span>
                   <span v-if="log.duration">响应: {{ log.duration }}ms</span>
                   <span v-if="log.riskLevel">
-                    风险: <el-tag :type="getRiskTagType(log.riskLevel)" size="small">
+                    风险:
+                    <el-tag :type="getRiskTagType(log.riskLevel)" size="small">
                       {{ getRiskLabel(log.riskLevel) }}
                     </el-tag>
                   </span>
@@ -312,14 +294,12 @@
 
         <!-- 时间线分页 -->
         <div class="timeline-pagination">
-          <el-button
-            :disabled="pagination.currentPage <= 1"
-            @click="pagination.currentPage--"
-          >
+          <el-button :disabled="pagination.currentPage <= 1" @click="pagination.currentPage--">
             上一页
           </el-button>
           <span class="page-info">
-            第 {{ pagination.currentPage }} 页，共 {{ Math.ceil(pagination.total / pagination.pageSize) }} 页
+            第 {{ pagination.currentPage }} 页，共
+            {{ Math.ceil(pagination.total / pagination.pageSize) }} 页
           </span>
           <el-button
             :disabled="pagination.currentPage >= Math.ceil(pagination.total / pagination.pageSize)"
@@ -366,9 +346,7 @@
             {{ currentLog.action }}
           </el-descriptions-item>
           <el-descriptions-item label="结果">
-            <el-tag
-              :type="currentLog.result === 'ALLOWED' ? 'success' : 'danger'"
-            >
+            <el-tag :type="currentLog.result === 'ALLOWED' ? 'success' : 'danger'">
               {{ currentLog.result === 'ALLOWED' ? '允许' : '拒绝' }}
             </el-tag>
           </el-descriptions-item>
@@ -391,18 +369,11 @@
 
         <div class="detail-section">
           <h4>应用策略</h4>
-          <el-table
-            :data="currentLog.appliedPolicies || []"
-            size="small"
-            style="width: 100%"
-          >
+          <el-table :data="currentLog.appliedPolicies || []" size="small" style="width: 100%">
             <el-table-column prop="policyName" label="策略名称" />
             <el-table-column prop="decision" label="决策" width="100">
               <template #default="{ row }">
-                <el-tag
-                  :type="row.decision === 'ALLOWED' ? 'success' : 'danger'"
-                  size="small"
-                >
+                <el-tag :type="row.decision === 'ALLOWED' ? 'success' : 'danger'" size="small">
                   {{ row.decision === 'ALLOWED' ? '允许' : '拒绝' }}
                 </el-tag>
               </template>
@@ -475,10 +446,7 @@
             <el-table-column prop="action" label="操作" width="100" />
             <el-table-column prop="result" label="结果" width="100">
               <template #default="{ row }">
-                <el-tag
-                  :type="row.result === 'ALLOWED' ? 'success' : 'danger'"
-                  size="small"
-                >
+                <el-tag :type="row.result === 'ALLOWED' ? 'success' : 'danger'" size="small">
                   {{ row.result === 'ALLOWED' ? '允许' : '拒绝' }}
                 </el-tag>
               </template>
@@ -492,21 +460,28 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { ElMessage } from 'element-plus';
 import {
-  Search, Refresh, Download,
-  List, Clock, ArrowUp, ArrowDown,
-  DataAnalysis, Warning, Lock
-} from '@element-plus/icons-vue'
-import enhancedPermissionService from '@/services/enhancedPermissionService'
+  Search,
+  Refresh,
+  Download,
+  List,
+  Clock,
+  ArrowUp,
+  ArrowDown,
+  DataAnalysis,
+  Warning,
+  Lock,
+} from '@element-plus/icons-vue';
+import enhancedPermissionService from '@/services/enhancedPermissionService';
 
 // 响应式数据
-const viewMode = ref('table')
-const detailDialogVisible = ref(false)
-const userDialogVisible = ref(false)
-const currentLog = ref(null)
-const currentUser = ref(null)
+const viewMode = ref('table');
+const detailDialogVisible = ref(false);
+const userDialogVisible = ref(false);
+const currentLog = ref(null);
+const currentUser = ref(null);
 
 // 筛选表单
 const filterForm = reactive({
@@ -514,23 +489,23 @@ const filterForm = reactive({
   userId: '',
   action: '',
   resource: '',
-  result: ''
-})
+  result: '',
+});
 
 // 分页数据
 const pagination = reactive({
   currentPage: 1,
   pageSize: 20,
-  total: 0
-})
+  total: 0,
+});
 
 // 用户选项
 const userOptions = ref([
   { id: '1', name: '张管理员' },
   { id: '2', name: '李主管' },
   { id: '3', name: '王工作人员' },
-  { id: '4', name: '赵村民' }
-])
+  { id: '4', name: '赵村民' },
+]);
 
 // 审计统计数据
 const auditStats = ref([
@@ -540,7 +515,7 @@ const auditStats = ref([
     value: 15680,
     icon: 'DataAnalysis',
     type: 'primary',
-    trend: 12.5
+    trend: 12.5,
   },
   {
     key: 'allowed',
@@ -548,7 +523,7 @@ const auditStats = ref([
     value: 14250,
     icon: 'Lock',
     type: 'success',
-    trend: 8.3
+    trend: 8.3,
   },
   {
     key: 'denied',
@@ -556,7 +531,7 @@ const auditStats = ref([
     value: 1430,
     icon: 'Warning',
     type: 'danger',
-    trend: -5.2
+    trend: -5.2,
   },
   {
     key: 'highRisk',
@@ -564,63 +539,63 @@ const auditStats = ref([
     value: 125,
     icon: 'Warning',
     type: 'warning',
-    trend: 2.1
-  }
-])
+    trend: 2.1,
+  },
+]);
 
 // 审计日志数据
-const auditLogs = ref([])
+const auditLogs = ref([]);
 
 // 计算属性
 const filteredLogs = computed(() => {
-  let result = auditLogs.value
+  let result = auditLogs.value;
 
   // 应用筛选条件
   if (filterForm.dateRange?.length === 2) {
-    const [start, end] = filterForm.dateRange
+    const [start, end] = filterForm.dateRange;
     result = result.filter(log => {
-      const logTime = new Date(log.timestamp)
-      return logTime >= new Date(start) && logTime <= new Date(end)
-    })
+      const logTime = new Date(log.timestamp);
+      return logTime >= new Date(start) && logTime <= new Date(end);
+    });
   }
 
   if (filterForm.userId) {
-    result = result.filter(log => log.userId === filterForm.userId)
+    result = result.filter(log => log.userId === filterForm.userId);
   }
 
   if (filterForm.action) {
-    result = result.filter(log => log.action === filterForm.action)
+    result = result.filter(log => log.action === filterForm.action);
   }
 
   if (filterForm.resource) {
     result = result.filter(log =>
       log.resource.toLowerCase().includes(filterForm.resource.toLowerCase())
-    )
+    );
   }
 
   if (filterForm.result) {
-    result = result.filter(log => log.result === filterForm.result)
+    result = result.filter(log => log.result === filterForm.result);
   }
 
-  pagination.total = result.length
+  pagination.total = result.length;
 
   // 分页
-  const start = (pagination.currentPage - 1) * pagination.pageSize
-  const end = start + pagination.pageSize
-  return result.slice(start, end)
-})
+  const start = (pagination.currentPage - 1) * pagination.pageSize;
+  const end = start + pagination.pageSize;
+  return result.slice(start, end);
+});
 
 // 方法
 const fetchAuditLogs = async () => {
   try {
     // 生成模拟数据
-    const mockLogs = []
-    const now = new Date()
+    const mockLogs = [];
+    const now = new Date();
 
     for (let i = 0; i < 500; i++) {
-      const timestamp = new Date(now - i * 60000) // 每分钟一条
-      const isAllowed = Math.random() > 0.1 // 90% 允许
-      const hasRisk = Math.random() < 0.05 // 5% 高风险
+      const timestamp = new Date(now - i * 60000); // 每分钟一条
+      const isAllowed = Math.random() > 0.1; // 90% 允许
+      const hasRisk = Math.random() < 0.05; // 5% 高风险
 
       mockLogs.push({
         id: `log_${i}`,
@@ -630,39 +605,43 @@ const fetchAuditLogs = async () => {
         resource: ['user', 'resident', 'finance', 'system'][Math.floor(Math.random() * 4)],
         action: ['read', 'write', 'delete', 'approve'][Math.floor(Math.random() * 4)],
         result: isAllowed ? 'ALLOWED' : 'DENIED',
-        reason: isAllowed ? '权限验证通过' : ['权限不足', '时间限制', '设备未信任', '位置限制'][Math.floor(Math.random() * 4)],
+        reason: isAllowed
+          ? '权限验证通过'
+          : ['权限不足', '时间限制', '设备未信任', '位置限制'][Math.floor(Math.random() * 4)],
         ipAddress: `192.168.1.${Math.floor(Math.random() * 255)}`,
         userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         deviceId: hasRisk ? null : `device_${Math.floor(Math.random() * 100)}`,
         duration: Math.floor(Math.random() * 100) + 10,
         riskLevel: hasRisk ? ['high', 'medium', 'low'][Math.floor(Math.random() * 3)] : null,
-        appliedPolicies: isAllowed ? [] : [
-          {
-            policyId: '1',
-            policyName: '时间访问控制',
-            decision: 'DENIED',
-            reason: '非工作时间访问'
-          }
-        ],
+        appliedPolicies: isAllowed
+          ? []
+          : [
+              {
+                policyId: '1',
+                policyName: '时间访问控制',
+                decision: 'DENIED',
+                reason: '非工作时间访问',
+              },
+            ],
         context: {
           location: '村委会办公室',
           device: 'Desktop PC',
-          network: 'Internal'
-        }
-      })
+          network: 'Internal',
+        },
+      });
     }
 
-    auditLogs.value = mockLogs
+    auditLogs.value = mockLogs;
   } catch (error) {
-    console.error('获取审计日志失败:', error)
-    ElMessage.error('获取审计日志失败')
+    console.error('获取审计日志失败:', error);
+    ElMessage.error('获取审计日志失败');
   }
-}
+};
 
 const handleSearch = () => {
-  pagination.currentPage = 1
+  pagination.currentPage = 1;
   // 搜索逻辑已通过计算属性实现
-}
+};
 
 const resetFilter = () => {
   Object.assign(filterForm, {
@@ -670,99 +649,99 @@ const resetFilter = () => {
     userId: '',
     action: '',
     resource: '',
-    result: ''
-  })
-  pagination.currentPage = 1
-}
+    result: '',
+  });
+  pagination.currentPage = 1;
+};
 
 const exportLogs = () => {
-  ElMessage.info('导出功能待实现')
-}
+  ElMessage.info('导出功能待实现');
+};
 
 const handleSortChange = ({ prop, order }) => {
   // 处理排序
-  console.log('排序:', prop, order)
-}
+  console.log('排序:', prop, order);
+};
 
-const handleSizeChange = (size) => {
-  pagination.pageSize = size
-  pagination.currentPage = 1
-}
+const handleSizeChange = size => {
+  pagination.pageSize = size;
+  pagination.currentPage = 1;
+};
 
-const handleCurrentChange = (page) => {
-  pagination.currentPage = page
-}
+const handleCurrentChange = page => {
+  pagination.currentPage = page;
+};
 
-const getActionTagType = (action) => {
+const getActionTagType = action => {
   const types = {
     read: 'info',
     write: 'primary',
     delete: 'danger',
     approve: 'warning',
-    create: 'success'
-  }
-  return types[action] || 'info'
-}
+    create: 'success',
+  };
+  return types[action] || 'info';
+};
 
-const getActionLabel = (action) => {
+const getActionLabel = action => {
   const labels = {
     read: '读取',
     write: '写入',
     delete: '删除',
     approve: '审批',
-    create: '创建'
-  }
-  return labels[action] || action
-}
+    create: '创建',
+  };
+  return labels[action] || action;
+};
 
-const getRiskTagType = (risk) => {
+const getRiskTagType = risk => {
   const types = {
     high: 'danger',
     medium: 'warning',
-    low: 'info'
-  }
-  return types[risk] || 'info'
-}
+    low: 'info',
+  };
+  return types[risk] || 'info';
+};
 
-const getRiskLabel = (risk) => {
+const getRiskLabel = risk => {
   const labels = {
     high: '高风险',
     medium: '中风险',
-    low: '低风险'
-  }
-  return labels[risk] || risk
-}
+    low: '低风险',
+  };
+  return labels[risk] || risk;
+};
 
-const getTimelineType = (log) => {
-  if (log.result === 'DENIED') return 'danger'
-  if (log.riskLevel === 'high') return 'warning'
-  return 'primary'
-}
+const getTimelineType = log => {
+  if (log.result === 'DENIED') return 'danger';
+  if (log.riskLevel === 'high') return 'warning';
+  return 'primary';
+};
 
-const getTimelineColor = (log) => {
-  if (log.result === 'DENIED') return '#f56c6c'
-  if (log.riskLevel === 'high') return '#e6a23c'
-  return '#409eff'
-}
+const getTimelineColor = log => {
+  if (log.result === 'DENIED') return '#f56c6c';
+  if (log.riskLevel === 'high') return '#e6a23c';
+  return '#409eff';
+};
 
-const formatDateTime = (date) => {
-  return new Date(date).toLocaleString()
-}
+const formatDateTime = date => {
+  return new Date(date).toLocaleString();
+};
 
-const formatContext = (context) => {
-  return context ? JSON.stringify(context, null, 2) : '{}'
-}
+const formatContext = context => {
+  return context ? JSON.stringify(context, null, 2) : '{}';
+};
 
-const showLogDetail = (log) => {
+const showLogDetail = log => {
   currentLog.value = {
     ...log,
-    userRoles: ['村级管理员', '财务主管']
-  }
-  detailDialogVisible.value = true
-}
+    userRoles: ['村级管理员', '财务主管'],
+  };
+  detailDialogVisible.value = true;
+};
 
-const showUserDetail = async (userId) => {
-  const user = userOptions.value.find(u => u.id === userId)
+const showUserDetail = async userId => {
+  const user = userOptions.value.find(u => u.id === userId);
   if (user) {
     currentUser.value = {
       id: userId,
@@ -772,20 +751,18 @@ const showUserDetail = async (userId) => {
         total: 1250,
         success: 1180,
         failed: 70,
-        successRate: 94.4
+        successRate: 94.4,
       },
-      recentActivities: auditLogs.value
-        .filter(log => log.userId === userId)
-        .slice(0, 10)
-    }
-    userDialogVisible.value = true
+      recentActivities: auditLogs.value.filter(log => log.userId === userId).slice(0, 10),
+    };
+    userDialogVisible.value = true;
   }
-}
+};
 
 // 生命周期
 onMounted(() => {
-  fetchAuditLogs()
-})
+  fetchAuditLogs();
+});
 </script>
 
 <style lang="scss" scoped>

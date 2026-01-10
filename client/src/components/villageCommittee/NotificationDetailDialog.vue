@@ -44,9 +44,7 @@
         <el-button @click="handleMarkAsRead" v-if="!notice.read" type="primary">
           标记为已读
         </el-button>
-        <el-button @click="handleDelete" type="danger" plain>
-          删除通知
-        </el-button>
+        <el-button @click="handleDelete" type="danger" plain> 删除通知 </el-button>
       </div>
     </div>
 
@@ -57,109 +55,105 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Document } from '@element-plus/icons-vue'
+import { ref, computed, watch } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { Document } from '@element-plus/icons-vue';
 
 const props = defineProps({
   modelValue: {
     type: Boolean,
-    default: false
+    default: false,
   },
   notice: {
     type: Object,
-    default: null
-  }
-})
+    default: null,
+  },
+});
 
-const emit = defineEmits(['update:modelValue', 'marked-read', 'deleted'])
+const emit = defineEmits(['update:modelValue', 'marked-read', 'deleted']);
 
 const visible = computed({
   get: () => props.modelValue,
-  set: (val) => emit('update:modelValue', val)
-})
+  set: val => emit('update:modelValue', val),
+});
 
-const isMobile = computed(() => window.innerWidth < 768)
+const isMobile = computed(() => window.innerWidth < 768);
 
-const getNoticeTypeTag = (level) => {
+const getNoticeTypeTag = level => {
   const typeMap = {
-    '紧急': 'danger',
-    '重要': 'warning',
-    '一般': 'info',
-    '通知': 'primary',
-    'emergency': 'danger',
-    'important': 'warning',
-    'normal': 'info'
-  }
-  return typeMap[level] || 'info'
-}
+    紧急: 'danger',
+    重要: 'warning',
+    一般: 'info',
+    通知: 'primary',
+    emergency: 'danger',
+    important: 'warning',
+    normal: 'info',
+  };
+  return typeMap[level] || 'info';
+};
 
-const getNoticeLevelText = (level) => {
+const getNoticeLevelText = level => {
   const textMap = {
-    '紧急': '🚨 紧急',
-    '重要': '⚠️ 重要',
-    '一般': '📄 一般',
-    '通知': '📢 通知',
-    'emergency': '🚨 紧急',
-    'important': '⚠️ 重要',
-    'normal': '📄 一般'
-  }
-  return textMap[level] || level
-}
+    紧急: '🚨 紧急',
+    重要: '⚠️ 重要',
+    一般: '📄 一般',
+    通知: '📢 通知',
+    emergency: '🚨 紧急',
+    important: '⚠️ 重要',
+    normal: '📄 一般',
+  };
+  return textMap[level] || level;
+};
 
-const formatDateTime = (date) => {
-  if (!date) return ''
-  const d = new Date(date)
-  const year = d.getFullYear()
-  const month = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  const hours = String(d.getHours()).padStart(2, '0')
-  const minutes = String(d.getMinutes()).padStart(2, '0')
-  return `${year}-${month}-${day} ${hours}:${minutes}`
-}
+const formatDateTime = date => {
+  if (!date) return '';
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  return `${year}-${month}-${day} ${hours}:${minutes}`;
+};
 
-const formatContent = (content) => {
-  if (!content) return ''
+const formatContent = content => {
+  if (!content) return '';
   // 将换行符转换为 HTML 换行
-  return content.replace(/\n/g, '<br>')
-}
+  return content.replace(/\n/g, '<br>');
+};
 
 const handleMarkAsRead = async () => {
   try {
-    emit('marked-read', props.notice)
-    ElMessage.success('已标记为已读')
+    emit('marked-read', props.notice);
+    ElMessage.success('已标记为已读');
   } catch (error) {
-    ElMessage.error('操作失败')
+    ElMessage.error('操作失败');
   }
-}
+};
 
 const handleDelete = async () => {
   try {
-    await ElMessageBox.confirm(
-      '确定要删除这条通知吗？',
-      '确认删除',
-      {
-        confirmButtonText: '删除',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
-    emit('deleted', props.notice)
-    visible.value = false
-    ElMessage.success('通知已删除')
+    await ElMessageBox.confirm('确定要删除这条通知吗？', '确认删除', {
+      confirmButtonText: '删除',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
+    emit('deleted', props.notice);
+    visible.value = false;
+    ElMessage.success('通知已删除');
   } catch {
     // 用户取消
   }
-}
+};
 
-const downloadAttachment = (attachment) => {
+const downloadAttachment = attachment => {
   // TODO: 实现附件下载
-  ElMessage.info(`下载附件: ${attachment.name}`)
-}
+  ElMessage.info(`下载附件: ${attachment.name}`);
+};
 
 const handleClose = () => {
   // 对话框关闭时的处理
-}
+};
 </script>
 
 <style lang="scss" scoped>

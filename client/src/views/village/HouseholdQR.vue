@@ -10,9 +10,7 @@
           </div>
         </template>
         <template #extra>
-          <el-button type="primary" :icon="Wallet" @click="showMyQR">
-            我的户码
-          </el-button>
+          <el-button type="primary" :icon="Wallet" @click="showMyQR"> 我的户码 </el-button>
         </template>
       </el-page-header>
     </div>
@@ -24,9 +22,7 @@
         <template #header>
           <div class="card-header">
             <span class="card-title">我的户码</span>
-            <el-tag type="primary" size="large">
-              {{ myHousehold.memberCount || 1 }}人家庭
-            </el-tag>
+            <el-tag type="primary" size="large"> {{ myHousehold.memberCount || 1 }}人家庭 </el-tag>
           </div>
         </template>
 
@@ -46,21 +42,15 @@
         </div>
 
         <div class="card-actions">
-          <el-button type="primary" :icon="View" @click="showQRCode = true">
-            查看二维码
-          </el-button>
-          <el-button :icon="Document" @click="showDetail = true">
-            查看详情
-          </el-button>
+          <el-button type="primary" :icon="View" @click="showQRCode = true"> 查看二维码 </el-button>
+          <el-button :icon="Document" @click="showDetail = true"> 查看详情 </el-button>
         </div>
       </el-card>
 
       <!-- 空状态 -->
       <el-card v-else class="empty-card" shadow="never">
         <el-empty description="暂无户码信息">
-          <el-button type="primary" @click="loadMyHousehold">
-            重新加载
-          </el-button>
+          <el-button type="primary" @click="loadMyHousehold"> 重新加载 </el-button>
         </el-empty>
       </el-card>
 
@@ -141,24 +131,12 @@
     </el-dialog>
 
     <!-- 扫码对话框 -->
-    <el-dialog
-      v-model="showScanner"
-      title="扫码查看户信息"
-      width="500px"
-      center
-    >
+    <el-dialog v-model="showScanner" title="扫码查看户信息" width="500px" center>
       <el-form label-position="top">
         <el-form-item label="户码编号">
-          <el-input
-            v-model="scanCodeInput"
-            placeholder="请输入或扫描户码"
-            clearable
-            size="large"
-          >
+          <el-input v-model="scanCodeInput" placeholder="请输入或扫描户码" clearable size="large">
             <template #append>
-              <el-button :icon="Grid" @click="handleScan">
-                扫码
-              </el-button>
+              <el-button :icon="Grid" @click="handleScan"> 扫码 </el-button>
             </template>
           </el-input>
         </el-form-item>
@@ -171,12 +149,7 @@
     </el-dialog>
 
     <!-- 家庭成员对话框 -->
-    <el-dialog
-      v-model="showMembers"
-      title="家庭成员"
-      width="600px"
-      center
-    >
+    <el-dialog v-model="showMembers" title="家庭成员" width="600px" center>
       <div v-if="loadingMembers" class="loading-container">
         <el-icon class="is-loading" :size="40"><Loading /></el-icon>
         <p>加载中...</p>
@@ -193,9 +166,7 @@
         <el-table-column prop="gender" label="性别" width="80" />
         <el-table-column label="操作" width="100">
           <template #default="scope">
-            <el-button size="small" @click="viewMemberDetail(scope.row)">
-              查看
-            </el-button>
+            <el-button size="small" @click="viewMemberDetail(scope.row)"> 查看 </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -206,12 +177,7 @@
     </el-dialog>
 
     <!-- 添加成员对话框 -->
-    <el-dialog
-      v-model="showAddMember"
-      title="添加家庭成员"
-      width="500px"
-      center
-    >
+    <el-dialog v-model="showAddMember" title="添加家庭成员" width="500px" center>
       <el-form :model="newMember" label-width="100px" size="large">
         <el-form-item label="姓名" required>
           <el-input v-model="newMember.name" placeholder="请输入姓名" />
@@ -242,12 +208,7 @@
     </el-dialog>
 
     <!-- 更新信息对话框 -->
-    <el-dialog
-      v-model="showUpdateForm"
-      title="更新信息"
-      width="600px"
-      center
-    >
+    <el-dialog v-model="showUpdateForm" title="更新信息" width="600px" center>
       <el-tabs v-model="updateTabActive">
         <el-tab-pane label="地址" name="address">
           <el-form :model="updateForm.address" label-width="100px">
@@ -259,9 +220,7 @@
               />
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="handleUpdateAddress">
-                更新地址
-              </el-button>
+              <el-button type="primary" @click="handleUpdateAddress"> 更新地址 </el-button>
             </el-form-item>
           </el-form>
         </el-tab-pane>
@@ -277,9 +236,7 @@
               </el-checkbox-group>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="handleUpdateTags">
-                更新标签
-              </el-button>
+              <el-button type="primary" @click="handleUpdateTags"> 更新标签 </el-button>
             </el-form-item>
           </el-form>
         </el-tab-pane>
@@ -287,16 +244,10 @@
         <el-tab-pane label="联系方式" name="contact">
           <el-form :model="updateForm.contact" label-width="100px">
             <el-form-item label="联系电话">
-              <el-input
-                v-model="updateForm.contact.phone"
-                placeholder="请输入电话"
-                type="tel"
-              />
+              <el-input v-model="updateForm.contact.phone" placeholder="请输入电话" type="tel" />
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="handleUpdateContact">
-                更新联系方式
-              </el-button>
+              <el-button type="primary" @click="handleUpdateContact"> 更新联系方式 </el-button>
             </el-form-item>
           </el-form>
         </el-tab-pane>
@@ -308,12 +259,7 @@
     </el-dialog>
 
     <!-- 扫码结果对话框 -->
-    <el-dialog
-      v-model="showScanResult"
-      title="户信息"
-      width="500px"
-      center
-    >
+    <el-dialog v-model="showScanResult" title="户信息" width="500px" center>
       <el-descriptions v-if="scanResult" :column="1" border>
         <el-descriptions-item label="户主姓名">
           {{ scanResult.household?.householder?.name }}
@@ -335,12 +281,7 @@
     </el-dialog>
 
     <!-- 详情对话框 -->
-    <el-dialog
-      v-model="showDetail"
-      title="家庭详细信息"
-      width="700px"
-      center
-    >
+    <el-dialog v-model="showDetail" title="家庭详细信息" width="700px" center>
       <div v-if="myHousehold">
         <el-descriptions :column="2" border>
           <el-descriptions-item label="户码" :span="2">
@@ -368,10 +309,11 @@
   </div>
 </template>
 
-<script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
+<script setup lang="ts">
+import { ref, reactive, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import type { FormInstance, FormRules } from 'element-plus';
 import {
   Wallet,
   View,
@@ -384,47 +326,92 @@ import {
   DataAnalysis,
   Refresh,
   List,
-  Grid
-} from '@element-plus/icons-vue'
-import householdQRApi from '@/api/householdQR'
-import { useUserStore } from '@/stores/user'
+  Grid,
+} from '@element-plus/icons-vue';
+import householdQRApi from '@/api/householdQR';
+import familyApi from '@/api/family';
+import { useUserStore } from '@/stores/user';
 
-const router = useRouter()
-const userStore = useUserStore()
+// 类型定义
+interface Household {
+  codeId: string;
+  householder: string;
+  address: string;
+  memberCount: number;
+  createdAt: string;
+}
+
+interface Member {
+  id: string;
+  name: string;
+  relationship: string;
+  phone: string;
+  gender: string;
+}
+
+interface NewMemberForm {
+  name: string;
+  idCard: string;
+  relationship: string;
+  phone: string;
+}
+
+const router = useRouter();
+const userStore = useUserStore();
 
 // ============ 响应式数据 ============
-const myHousehold = ref(null)
-const qrImageUrl = ref('')
-const qrLoading = ref(false)
-const loadingMembers = ref(false)
-const members = ref([])
-const scanResult = ref(null)
+const myHousehold = ref<Household | null>(null);
+const qrImageUrl = ref('');
+const qrLoading = ref(false);
+const loadingMembers = ref(false);
+const members = ref<Member[]>([]);
+const scanResult = ref<{ household: Household } | null>(null);
 
 // 弹窗控制
-const showQRCode = ref(false)
-const showScanner = ref(false)
-const showMembers = ref(false)
-const showAddMember = ref(false)
-const showUpdateForm = ref(false)
-const showScanResult = ref(false)
-const showDetail = ref(false)
-const showHistory = ref(false)
-const showStats = ref(false)
+const showQRCode = ref(false);
+const showScanner = ref(false);
+const showMembers = ref(false);
+const showAddMember = ref(false);
+const showUpdateForm = ref(false);
+const showScanResult = ref(false);
+const showDetail = ref(false);
+const showHistory = ref(false);
+const showStats = ref(false);
+const error = ref<string | null>(null);
 
 // 表单数据
-const scanCodeInput = ref('')
-const newMember = reactive({
+const scanCodeInput = ref('');
+const newMember = reactive<NewMemberForm>({
   name: '',
   idCard: '',
   relationship: '',
-  phone: ''
-})
+  phone: '',
+});
+
 const updateForm = reactive({
   address: { detailed: '' },
   tags: [],
-  contact: { phone: '' }
-})
-const updateTabActive = ref('address')
+  contact: { phone: '' },
+});
+const updateTabActive = ref('address');
+
+const formRef = ref<FormInstance | null>(null);
+
+// 表单验证规则
+const idCardRules: FormRules = {
+  idCard: [
+    { required: true, message: '请输入身份证号', trigger: 'blur' },
+    {
+      pattern: /^[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[1-2]\d|3[0-1])\d{3}(\d|X)$/i,
+      message: '请输入正确的身份证号',
+      trigger: 'blur',
+    },
+  ],
+};
+
+const phoneRules: FormRules = {
+  phone: [{ pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }],
+};
 
 // 功能菜单
 const menuItems = [
@@ -433,280 +420,381 @@ const menuItems = [
   { id: 'update', text: '更新信息', icon: Edit },
   { id: 'history', text: '变更历史', icon: List },
   { id: 'stats', text: '统计信息', icon: DataAnalysis },
-  { id: 'refresh', text: '刷新二维码', icon: Refresh }
-]
+  { id: 'refresh', text: '刷新二维码', icon: Refresh },
+];
 
 // ============ 方法 ============
+
+/**
+ * 验证身份证号格式
+ */
+const validateIdCard = (idCard: string): boolean => {
+  const pattern = /^[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[1-2]\d|3[0-1])\d{3}(\d|X)$/i;
+  return pattern.test(idCard);
+};
 
 /**
  * 加载我的户码信息
  */
 const loadMyHousehold = async () => {
+  error.value = null;
   try {
-    // 使用当前登录用户的ID来查找户码
-    const userId = userStore.userInfo?.id
-    if (!userId) {
-      ElMessage.warning('用户信息不存在，请重新登录')
-      return
+    const userInfo = userStore.userInfo;
+    if (!userInfo) {
+      ElMessage.warning('请先登录');
+      return;
     }
 
-    console.log('[加载户码] 用户ID:', userId)
+    console.log('[加载户码] 开始加载用户信息:', userInfo);
 
-    const response = await householdQRApi.generateQR(userId, { includeImage: true })
-    if (response.success) {
+    const response = await householdQRApi.getMyHousehold();
+    console.log('[加载户码] API响应:', response);
+
+    if (response.success || response.data) {
+      const householdData = response.data || response;
       myHousehold.value = {
-        ...response.data.household,
-        codeId: response.data.codeId,
-        address: response.data.household.address,
-        householder: response.data.household.householder,
-        memberCount: response.data.household.memberCount
+        codeId: householdData.codeId || householdData.household?.codeId,
+        householder: householdData.householder || householdData.household?.householder,
+        address: householdData.address || householdData.household?.address,
+        memberCount: householdData.memberCount || householdData.household?.memberCount || 1,
+        createdAt: householdData.createdAt || householdData.household?.createdAt,
+      };
+
+      if (householdData.qrCodeUrl || householdData.qrImageUrl) {
+        qrImageUrl.value = householdData.qrCodeUrl || householdData.qrImageUrl;
       }
-      qrImageUrl.value = response.data.qrImageUrl
-      console.log('[加载户码] 成功:', myHousehold.value)
+
+      console.log('[加载户码] 成功:', myHousehold.value);
     } else {
-      console.error('[加载户码] 失败:', response.error)
-      ElMessage.error(response.error || '加载户码失败')
+      throw new Error(response.error || response.message || '加载户码失败');
     }
-  } catch (error) {
-    console.error('[加载户码] 异常:', error)
-    ElMessage.error('加载失败，请稍后重试')
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : '未知错误';
+    ElMessage.error('加载失败，请稍后重试');
+    console.error('[加载户码] 异常:', err);
   }
-}
+};
 
 /**
  * 显示我的二维码
  */
 const showMyQR = () => {
   if (!myHousehold.value) {
-    ElMessage.warning('请先加载户码信息')
-    loadMyHousehold()
-    return
+    ElMessage.warning('请先加载户码信息');
+    loadMyHousehold();
+    return;
   }
-  showQRCode.value = true
-}
+  showQRCode.value = true;
+};
 
 /**
  * 生成二维码
  */
 const generateQRCode = async () => {
-  qrLoading.value = true
+  qrLoading.value = true;
   try {
-    const userId = userStore.userInfo?.id
-    const response = await householdQRApi.generateQR(userId, { includeImage: true })
+    const userId = userStore.userInfo?.id;
+    if (!userId) {
+      ElMessage.warning('用户信息不存在');
+      qrLoading.value = false;
+      return;
+    }
 
-    if (response.success) {
-      qrImageUrl.value = response.data.qrImageUrl
-      ElMessage.success('二维码生成成功')
+    const response = await householdQRApi.generateQR(userId, { includeImage: true });
+    console.log('[生成二维码] API响应:', response);
+
+    if (response.success || response.data) {
+      const data = response.data || response;
+      qrImageUrl.value = data.qrCodeUrl || data.qrImageUrl || data.qrData?.qrImageUrl;
+      ElMessage.success('二维码生成成功');
+    } else {
+      throw new Error(response.error || response.message || '生成失败');
     }
   } catch (error) {
-    ElMessage.error('生成失败')
+    ElMessage.error(error.message || '生成失败');
+    console.error('[生成二维码] 异常:', error);
   } finally {
-    qrLoading.value = false
+    qrLoading.value = false;
   }
-}
+};
 
 /**
  * 下载二维码
  */
 const downloadQR = () => {
   if (!qrImageUrl.value) {
-    ElMessage.warning('请先生成二维码')
-    return
+    ElMessage.warning('请先生成二维码');
+    return;
   }
 
   try {
-    const link = document.createElement('a')
-    link.href = qrImageUrl.value
-    link.download = `户码_${myHousehold.value?.codeId}.png`
-    link.click()
-    ElMessage.success('下载成功')
+    const link = document.createElement('a');
+    link.href = qrImageUrl.value;
+    link.download = `户码_${myHousehold.value?.codeId}.png`;
+    link.click();
+    ElMessage.success('下载成功');
   } catch (error) {
-    ElMessage.error('下载失败')
+    ElMessage.error('下载失败');
   }
-}
+};
 
 /**
  * 处理扫码
  */
 const handleScan = async () => {
-  const codeId = scanCodeInput.value.trim()
+  const codeId = scanCodeInput.value.trim();
   if (!codeId) {
-    ElMessage.warning('请输入户码')
-    return
+    ElMessage.warning('请输入户码');
+    return;
   }
 
   try {
-    const response = await householdQRApi.publicScanQR(codeId)
+    const response = await householdQRApi.publicScanQR(codeId);
     if (response.success) {
-      scanResult.value = response.data
-      showScanResult.value = true
-      showScanner.value = false
-      scanCodeInput.value = ''
+      scanResult.value = response.data;
+      showScanResult.value = true;
+      showScanner.value = false;
+      scanCodeInput.value = '';
     }
   } catch (error) {
-    ElMessage.error(error.message || '扫码失败')
+    ElMessage.error(error.message || '扫码失败');
   }
-}
+};
 
 /**
  * 添加成员
  */
 const handleAddMember = async () => {
+  if (!formRef.value) return;
+
   try {
-    const codeId = myHousehold.value?.codeId
+    await formRef.value.validate();
+
+    const codeId = myHousehold.value?.codeId;
     if (!codeId) {
-      ElMessage.warning('户码不存在')
-      return
+      ElMessage.warning('户码不存在');
+      return;
     }
 
-    const response = await householdQRApi.addMember(codeId, newMember)
+    // 身份证格式验证
+    if (!validateIdCard(newMember.idCard)) {
+      ElMessage.error('请输入正确的身份证号');
+      return;
+    }
+
+    const response = await householdQRApi.addMember(codeId, {
+      name: newMember.name,
+      idCard: newMember.idCard,
+      relationship: newMember.relationship,
+      phone: newMember.phone,
+    });
+
     if (response.success) {
-      ElMessage.success('添加成功')
-      showAddMember.value = false
-      // 重置表单
+      ElMessage.success('添加成功');
+      showAddMember.value = false;
       Object.assign(newMember, {
         name: '',
         idCard: '',
         relationship: '',
-        phone: ''
-      })
-      // 重新加载成员列表
-      loadMembers()
+        phone: '',
+      });
+      loadMembers();
+    } else {
+      throw new Error(response.error || '添加失败');
     }
   } catch (error) {
-    ElMessage.error(error.message || '添加失败')
+    ElMessage.error(error instanceof Error ? error.message : '添加失败');
+    console.error('[handleAddMember] Error:', error);
   }
-}
+};
 
 /**
  * 更新地址
  */
 const handleUpdateAddress = async () => {
   try {
-    const codeId = myHousehold.value?.codeId
-    const response = await householdQRApi.updateAddress(codeId, updateForm.address)
-    if (response.success) {
-      ElMessage.success('更新成功')
-      showUpdateForm.value = false
+    const codeId = myHousehold.value?.codeId;
+    if (!codeId) {
+      ElMessage.warning('户码不存在');
+      return;
+    }
+
+    const response = await householdQRApi.updateAddress(codeId, updateForm.address);
+    if (response.success || response.data) {
+      ElMessage.success('更新成功');
+      showUpdateForm.value = false;
+      loadMyHousehold();
+    } else {
+      throw new Error(response.error || response.message || '更新失败');
     }
   } catch (error) {
-    ElMessage.error(error.message || '更新失败')
+    ElMessage.error(error.message || '更新失败');
+    console.error('[更新地址] 异常:', error);
   }
-}
+};
 
 /**
  * 更新标签
  */
 const handleUpdateTags = async () => {
   try {
-    const codeId = myHousehold.value?.codeId
-    const response = await householdQRApi.updateTags(codeId, updateForm.tags)
-    if (response.success) {
-      ElMessage.success('更新成功')
-      showUpdateForm.value = false
+    const codeId = myHousehold.value?.codeId;
+    if (!codeId) {
+      ElMessage.warning('户码不存在');
+      return;
+    }
+
+    const response = await householdQRApi.updateTags(codeId, updateForm.tags);
+    if (response.success || response.data) {
+      ElMessage.success('更新成功');
+      showUpdateForm.value = false;
+    } else {
+      throw new Error(response.error || response.message || '更新失败');
     }
   } catch (error) {
-    ElMessage.error(error.message || '更新失败')
+    ElMessage.error(error.message || '更新失败');
+    console.error('[更新标签] 异常:', error);
   }
-}
+};
 
 /**
  * 更新联系方式
  */
 const handleUpdateContact = async () => {
   try {
-    const codeId = myHousehold.value?.codeId
-    const response = await householdQRApi.updateContact(codeId, updateForm.contact.phone)
-    if (response.success) {
-      ElMessage.success('更新成功')
-      showUpdateForm.value = false
+    const codeId = myHousehold.value?.codeId;
+    if (!codeId) {
+      ElMessage.warning('户码不存在');
+      return;
+    }
+
+    const response = await householdQRApi.updateContact(codeId, updateForm.contact.phone);
+    if (response.success || response.data) {
+      ElMessage.success('更新成功');
+      showUpdateForm.value = false;
+      loadMyHousehold();
+    } else {
+      throw new Error(response.error || response.message || '更新失败');
     }
   } catch (error) {
-    ElMessage.error(error.message || '更新失败')
+    ElMessage.error(error.message || '更新失败');
+    console.error('[更新联系方式] 异常:', error);
   }
-}
+};
 
 /**
  * 查看成员详情
  */
-const viewMemberDetail = (member) => {
-  ElMessageBox.alert(`
+const viewMemberDetail = member => {
+  ElMessageBox.alert(
+    `
     姓名: ${member.name}
     关系: ${member.relationship}
     电话: ${member.phone || '未设置'}
     性别: ${member.gender || '未设置'}
-  `, '成员详情')
-}
+  `,
+    '成员详情'
+  );
+};
 
 /**
  * 加载成员列表
  */
 const loadMembers = async () => {
-  // TODO: 实现加载成员列表的逻辑
-  members.value = []
-}
+  if (!myHousehold.value?.codeId) {
+    ElMessage.warning('户码信息不存在');
+    return;
+  }
+
+  loadingMembers.value = true;
+  try {
+    const response = await householdQRApi.getMembers(myHousehold.value.codeId);
+    console.log('[加载成员] API响应:', response);
+
+    if (response.success || response.data) {
+      const membersData = response.data || response;
+      members.value = Array.isArray(membersData) ? membersData : membersData.members || [];
+    } else if (Array.isArray(response)) {
+      members.value = response;
+    } else {
+      members.value = [];
+    }
+  } catch (err) {
+    console.error('[加载成员] 异常:', err);
+    ElMessage.error('加载成员列表失败');
+    members.value = [];
+  } finally {
+    loadingMembers.value = false;
+  }
+};
 
 /**
  * 菜单点击处理
  */
-const handleMenuClick = (item) => {
+const handleMenuClick = item => {
   switch (item.id) {
     case 'scan':
-      showScanner.value = true
-      break
+      showScanner.value = true;
+      break;
     case 'members':
-      showMembers.value = true
-      loadMembers()
-      break
+      showMembers.value = true;
+      loadMembers();
+      break;
     case 'update':
-      showUpdateForm.value = true
-      break
+      showUpdateForm.value = true;
+      break;
     case 'history':
-      ElMessage.info('变更历史功能开发中')
-      break
+      ElMessage.info('变更历史功能开发中');
+      break;
     case 'stats':
-      ElMessage.info('统计信息功能开发中')
-      break
+      ElMessage.info('统计信息功能开发中');
+      break;
     case 'refresh':
-      refreshQRCode()
-      break
+      refreshQRCode();
+      break;
   }
-}
+};
 
 /**
  * 刷新二维码
  */
 const refreshQRCode = async () => {
   try {
-    const userId = userStore.userInfo?.id
+    const userId = userStore.userInfo?.id;
     if (!userId) {
-      ElMessage.warning('用户信息不存在')
-      return
+      ElMessage.warning('用户信息不存在');
+      return;
     }
 
-    ElMessage.info('正在刷新二维码...')
-    const response = await householdQRApi.generateQR(userId, { includeImage: true })
-    if (response.success) {
-      qrImageUrl.value = response.data.qrData.qrImageUrl
-      ElMessage.success('刷新成功')
+    ElMessage.info('正在刷新二维码...');
+    const response = await householdQRApi.generateQR(userId, { includeImage: true });
+    console.log('[刷新二维码] API响应:', response);
+
+    if (response.success || response.data) {
+      const data = response.data || response;
+      qrImageUrl.value = data.qrCodeUrl || data.qrImageUrl || data.qrData?.qrImageUrl;
+      ElMessage.success('刷新成功');
+    } else {
+      throw new Error(response.error || response.message || '刷新失败');
     }
   } catch (error) {
-    ElMessage.error('刷新失败')
+    ElMessage.error(error.message || '刷新失败');
+    console.error('[刷新二维码] 异常:', error);
   }
-}
+};
 
 /**
  * 格式化日期
  */
-const formatDate = (date) => {
-  if (!date) return '未设置'
-  return new Date(date).toLocaleDateString('zh-CN')
-}
+const formatDate = date => {
+  if (!date) return '未设置';
+  return new Date(date).toLocaleDateString('zh-CN');
+};
 
 // ============ 生命周期 ============
 onMounted(() => {
-  loadMyHousehold()
-})
+  loadMyHousehold();
+});
 </script>
 
 <style scoped>

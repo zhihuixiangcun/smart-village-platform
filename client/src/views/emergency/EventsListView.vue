@@ -12,7 +12,11 @@
             <p class="page-description">管理和查看应急事件上报及处理状态</p>
           </div>
           <div class="action-section">
-            <el-button type="danger" @click="emergencyBroadcast" v-if="hasPermission('emergency:broadcast')">
+            <el-button
+              type="danger"
+              @click="emergencyBroadcast"
+              v-if="hasPermission('emergency:broadcast')"
+            >
               <el-icon><Bell /></el-icon>
               应急广播
             </el-button>
@@ -240,7 +244,7 @@
                     <el-icon><Tools /></el-icon>
                     处理
                   </el-button>
-                  <el-dropdown @command="(command) => handleAction(command, row)">
+                  <el-dropdown @command="command => handleAction(command, row)">
                     <el-button type="text" size="small">
                       更多<el-icon><ArrowDown /></el-icon>
                     </el-button>
@@ -281,24 +285,43 @@
     <el-dialog v-model="eventDetailVisible" title="事件详情" width="70%">
       <div v-if="selectedEvent" class="event-detail">
         <el-descriptions :column="2" border>
-          <el-descriptions-item label="事件标题" span="2">{{ selectedEvent.title }}</el-descriptions-item>
-          <el-descriptions-item label="事件类型">{{ getTypeLabel(selectedEvent.type) }}</el-descriptions-item>
+          <el-descriptions-item label="事件标题" span="2">{{
+            selectedEvent.title
+          }}</el-descriptions-item>
+          <el-descriptions-item label="事件类型">{{
+            getTypeLabel(selectedEvent.type)
+          }}</el-descriptions-item>
           <el-descriptions-item label="优先级">
-            <el-tag :type="getPriorityTagType(selectedEvent.priority)">{{ getPriorityLabel(selectedEvent.priority) }}</el-tag>
+            <el-tag :type="getPriorityTagType(selectedEvent.priority)">{{
+              getPriorityLabel(selectedEvent.priority)
+            }}</el-tag>
           </el-descriptions-item>
           <el-descriptions-item label="状态">
-            <el-tag :type="getStatusTagType(selectedEvent.status)">{{ getStatusLabel(selectedEvent.status) }}</el-tag>
+            <el-tag :type="getStatusTagType(selectedEvent.status)">{{
+              getStatusLabel(selectedEvent.status)
+            }}</el-tag>
           </el-descriptions-item>
           <el-descriptions-item label="上报人">{{ selectedEvent.reporter }}</el-descriptions-item>
           <el-descriptions-item label="联系电话">{{ selectedEvent.phone }}</el-descriptions-item>
-          <el-descriptions-item label="事发地点" span="2">{{ selectedEvent.location }}</el-descriptions-item>
-          <el-descriptions-item label="上报时间">{{ formatDateTime(selectedEvent.reportTime) }}</el-descriptions-item>
-          <el-descriptions-item label="处理人">{{ selectedEvent.assignee || '未分配' }}</el-descriptions-item>
-          <el-descriptions-item label="事件描述" span="2">{{ selectedEvent.description }}</el-descriptions-item>
+          <el-descriptions-item label="事发地点" span="2">{{
+            selectedEvent.location
+          }}</el-descriptions-item>
+          <el-descriptions-item label="上报时间">{{
+            formatDateTime(selectedEvent.reportTime)
+          }}</el-descriptions-item>
+          <el-descriptions-item label="处理人">{{
+            selectedEvent.assignee || '未分配'
+          }}</el-descriptions-item>
+          <el-descriptions-item label="事件描述" span="2">{{
+            selectedEvent.description
+          }}</el-descriptions-item>
         </el-descriptions>
 
         <!-- 处理记录 -->
-        <div class="handling-records" v-if="selectedEvent.records && selectedEvent.records.length > 0">
+        <div
+          class="handling-records"
+          v-if="selectedEvent.records && selectedEvent.records.length > 0"
+        >
           <h4>处理记录</h4>
           <el-timeline>
             <el-timeline-item
@@ -346,8 +369,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
   WarningFilled,
   Bell,
@@ -360,32 +383,32 @@ import {
   View,
   Edit,
   ArrowDown,
-  Tools
-} from '@element-plus/icons-vue'
+  Tools,
+} from '@element-plus/icons-vue';
 
 // 响应式数据
-const loading = ref(false)
-const events = ref([])
-const searchQuery = ref('')
-const filterStatus = ref('')
-const filterPriority = ref('')
-const filterType = ref('')
-const currentPage = ref(1)
-const pageSize = ref(10)
-const sortField = ref('')
-const sortOrder = ref('')
+const loading = ref(false);
+const events = ref([]);
+const searchQuery = ref('');
+const filterStatus = ref('');
+const filterPriority = ref('');
+const filterType = ref('');
+const currentPage = ref(1);
+const pageSize = ref(10);
+const sortField = ref('');
+const sortOrder = ref('');
 
 // 对话框状态
-const eventDetailVisible = ref(false)
-const handleEventVisible = ref(false)
-const selectedEvent = ref(null)
-const submitting = ref(false)
+const eventDetailVisible = ref(false);
+const handleEventVisible = ref(false);
+const selectedEvent = ref(null);
+const submitting = ref(false);
 
 // 处理表单
 const handleForm = ref({
   status: '',
-  description: ''
-})
+  description: '',
+});
 
 // 实时警报
 const activeAlerts = ref([
@@ -393,12 +416,12 @@ const activeAlerts = ref([
     id: 1,
     type: 'error',
     title: '紧急事件',
-    description: '凤凰村发生山体滑坡，需要立即处理'
-  }
-])
+    description: '凤凰村发生山体滑坡，需要立即处理',
+  },
+]);
 
 // WebSocket连接
-let socket = null
+let socket = null;
 
 // 模拟事件数据
 const mockEvents = [
@@ -421,16 +444,16 @@ const mockEvents = [
         action: '事件上报',
         description: '村民发现山体滑坡迹象，立即上报',
         handler: '张大爷',
-        time: '2025-12-14 08:30:00'
+        time: '2025-12-14 08:30:00',
       },
       {
         id: 2,
         action: '应急响应',
         description: '启动应急预案，组织人员疏散',
         handler: '李应急员',
-        time: '2025-12-14 08:35:00'
-      }
-    ]
+        time: '2025-12-14 08:35:00',
+      },
+    ],
   },
   {
     id: 2,
@@ -451,16 +474,16 @@ const mockEvents = [
         action: '火灾报警',
         description: '厨房油锅起火引发火灾',
         handler: '王大妈',
-        time: '2025-12-14 06:15:00'
+        time: '2025-12-14 06:15:00',
       },
       {
         id: 2,
         action: '火势扑灭',
         description: '使用灭火器成功扑灭火势',
         handler: '赵消防员',
-        time: '2025-12-14 06:45:00'
-      }
-    ]
+        time: '2025-12-14 06:45:00',
+      },
+    ],
   },
   {
     id: 3,
@@ -481,9 +504,9 @@ const mockEvents = [
         action: '故障上报',
         description: '发现5盏路灯不工作',
         handler: '李师傅',
-        time: '2025-12-14 14:20:00'
-      }
-    ]
+        time: '2025-12-14 14:20:00',
+      },
+    ],
   },
   {
     id: 4,
@@ -504,9 +527,9 @@ const mockEvents = [
         action: '医疗报告',
         description: '村民集体出现腹痛、呕吐症状',
         handler: '陈医生',
-        time: '2025-12-14 12:30:00'
-      }
-    ]
+        time: '2025-12-14 12:30:00',
+      },
+    ],
   },
   {
     id: 5,
@@ -527,11 +550,11 @@ const mockEvents = [
         action: '纠纷调解',
         description: '双方达成和解协议',
         handler: '刘调解员',
-        time: '2025-12-14 10:30:00'
-      }
-    ]
-  }
-]
+        time: '2025-12-14 10:30:00',
+      },
+    ],
+  },
+];
 
 // 计算属性
 const eventStats = computed(() => {
@@ -542,301 +565,296 @@ const eventStats = computed(() => {
     resolved: events.value.filter(event => event.status === 'resolved').length,
     pending: events.value.filter(event => event.status === 'pending').length,
     today: events.value.filter(event => {
-      const eventDate = new Date(event.reportTime)
-      const today = new Date()
-      return eventDate.toDateString() === today.toDateString()
-    }).length
-  }
-  return stats
-})
+      const eventDate = new Date(event.reportTime);
+      const today = new Date();
+      return eventDate.toDateString() === today.toDateString();
+    }).length,
+  };
+  return stats;
+});
 
 const filteredEvents = computed(() => {
-  let filtered = [...events.value]
+  let filtered = [...events.value];
 
   // 搜索过滤
   if (searchQuery.value) {
-    filtered = filtered.filter(event =>
-      event.title.includes(searchQuery.value) ||
-      event.reporter.includes(searchQuery.value)
-    )
+    filtered = filtered.filter(
+      event => event.title.includes(searchQuery.value) || event.reporter.includes(searchQuery.value)
+    );
   }
 
   // 状态过滤
   if (filterStatus.value) {
-    filtered = filtered.filter(event => event.status === filterStatus.value)
+    filtered = filtered.filter(event => event.status === filterStatus.value);
   }
 
   // 优先级过滤
   if (filterPriority.value) {
-    filtered = filtered.filter(event => event.priority === filterPriority.value)
+    filtered = filtered.filter(event => event.priority === filterPriority.value);
   }
 
   // 类型过滤
   if (filterType.value) {
-    filtered = filtered.filter(event => event.type === filterType.value)
+    filtered = filtered.filter(event => event.type === filterType.value);
   }
 
-  return filtered
-})
+  return filtered;
+});
 
 const hasActiveAlerts = computed(() => {
-  return activeAlerts.value.length > 0
-})
+  return activeAlerts.value.length > 0;
+});
 
 // 生命周期
 onMounted(() => {
-  loadEvents()
-  initWebSocket()
-})
+  loadEvents();
+  initWebSocket();
+});
 
 onUnmounted(() => {
   if (socket) {
-    socket.disconnect()
+    socket.disconnect();
   }
-})
+});
 
 // 方法
 const loadEvents = async () => {
-  loading.value = true
+  loading.value = true;
   try {
     // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 500))
-    events.value = mockEvents
+    await new Promise(resolve => setTimeout(resolve, 500));
+    events.value = mockEvents;
   } catch (error) {
-    ElMessage.error('加载事件列表失败')
-    console.error('Load events error:', error)
+    ElMessage.error('加载事件列表失败');
+    console.error('Load events error:', error);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const initWebSocket = () => {
   // 模拟WebSocket连接，用于实时接收应急事件
   // 实际项目中应该连接到真实的WebSocket服务器
-  console.log('WebSocket连接已建立，可实时接收应急事件')
-}
+  console.log('WebSocket连接已建立，可实时接收应急事件');
+};
 
 const handleSearch = () => {
-  currentPage.value = 1
-}
+  currentPage.value = 1;
+};
 
 const handleFilter = () => {
-  currentPage.value = 1
-}
+  currentPage.value = 1;
+};
 
 const handleSortChange = ({ prop, order }) => {
-  sortField.value = prop
-  sortOrder.value = order
-}
+  sortField.value = prop;
+  sortOrder.value = order;
+};
 
-const handleSizeChange = (size) => {
-  pageSize.value = size
-  currentPage.value = 1
-}
+const handleSizeChange = size => {
+  pageSize.value = size;
+  currentPage.value = 1;
+};
 
-const handleCurrentChange = (page) => {
-  currentPage.value = page
-}
+const handleCurrentChange = page => {
+  currentPage.value = page;
+};
 
-const viewEvent = (id) => {
-  const event = events.value.find(e => e.id === id)
+const viewEvent = id => {
+  const event = events.value.find(e => e.id === id);
   if (event) {
-    selectedEvent.value = event
-    eventDetailVisible.value = true
+    selectedEvent.value = event;
+    eventDetailVisible.value = true;
   }
-}
+};
 
-const handleEvent = (id) => {
-  const event = events.value.find(e => e.id === id)
+const handleEvent = id => {
+  const event = events.value.find(e => e.id === id);
   if (event) {
-    selectedEvent.value = event
+    selectedEvent.value = event;
     handleForm.value = {
       status: event.status === 'pending' ? 'processing' : 'resolved',
-      description: ''
-    }
-    handleEventVisible.value = true
+      description: '',
+    };
+    handleEventVisible.value = true;
   }
-}
+};
 
 const submitHandleEvent = async () => {
   if (!handleForm.value.description) {
-    ElMessage.warning('请输入处理描述')
-    return
+    ElMessage.warning('请输入处理描述');
+    return;
   }
 
-  submitting.value = true
+  submitting.value = true;
   try {
     // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     // 更新事件状态
-    const event = events.value.find(e => e.id === selectedEvent.value.id)
+    const event = events.value.find(e => e.id === selectedEvent.value.id);
     if (event) {
-      event.status = handleForm.value.status
+      event.status = handleForm.value.status;
       if (!event.records) {
-        event.records = []
+        event.records = [];
       }
       event.records.push({
         id: event.records.length + 1,
         action: '事件处理',
         description: handleForm.value.description,
         handler: '当前用户',
-        time: new Date().toISOString()
-      })
+        time: new Date().toISOString(),
+      });
     }
 
-    ElMessage.success('事件处理记录已提交')
-    handleEventVisible.value = false
+    ElMessage.success('事件处理记录已提交');
+    handleEventVisible.value = false;
   } catch (error) {
-    ElMessage.error('提交失败，请重试')
+    ElMessage.error('提交失败，请重试');
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
-}
+};
 
 const reportEvent = () => {
-  ElMessage.info('事件上报功能开发中')
-}
+  ElMessage.info('事件上报功能开发中');
+};
 
 const emergencyBroadcast = () => {
-  ElMessage.info('应急广播功能开发中')
-}
+  ElMessage.info('应急广播功能开发中');
+};
 
 const exportEvents = () => {
-  ElMessage.info('导出事件功能开发中')
-}
+  ElMessage.info('导出事件功能开发中');
+};
 
-const dismissAlert = (alertId) => {
-  const index = activeAlerts.value.findIndex(alert => alert.id === alertId)
+const dismissAlert = alertId => {
+  const index = activeAlerts.value.findIndex(alert => alert.id === alertId);
   if (index > -1) {
-    activeAlerts.value.splice(index, 1)
+    activeAlerts.value.splice(index, 1);
   }
-}
+};
 
 const handleAction = async (command, event) => {
   switch (command) {
     case 'assign':
-      ElMessage.info(`指派处理人: ${event.title}`)
-      break
+      ElMessage.info(`指派处理人: ${event.title}`);
+      break;
     case 'escalate':
-      ElMessage.info(`事件升级: ${event.title}`)
-      break
+      ElMessage.info(`事件升级: ${event.title}`);
+      break;
     case 'track':
-      ElMessage.info(`跟踪进度: ${event.title}`)
-      break
+      ElMessage.info(`跟踪进度: ${event.title}`);
+      break;
     case 'report':
-      ElMessage.info(`生成报告: ${event.title}`)
-      break
+      ElMessage.info(`生成报告: ${event.title}`);
+      break;
     case 'close':
       try {
-        await ElMessageBox.confirm(
-          `确定要关闭事件"${event.title}"吗？`,
-          '确认关闭',
-          {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }
-        )
+        await ElMessageBox.confirm(`确定要关闭事件"${event.title}"吗？`, '确认关闭', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+        });
 
-        const index = events.value.findIndex(e => e.id === event.id)
+        const index = events.value.findIndex(e => e.id === event.id);
         if (index > -1) {
-          events.value[index].status = 'closed'
+          events.value[index].status = 'closed';
         }
 
-        ElMessage.success('事件已关闭')
+        ElMessage.success('事件已关闭');
       } catch (error) {
         // 用户取消
       }
-      break
+      break;
   }
-}
+};
 
 // 辅助方法
-const formatDateTime = (dateTimeString) => {
-  if (!dateTimeString) return '-'
-  return new Date(dateTimeString).toLocaleString('zh-CN')
-}
+const formatDateTime = dateTimeString => {
+  if (!dateTimeString) return '-';
+  return new Date(dateTimeString).toLocaleString('zh-CN');
+};
 
 const getRowClassName = ({ row }) => {
   if (row.priority === 'critical') {
-    return 'critical-row'
+    return 'critical-row';
   }
   if (row.status === 'pending') {
-    return 'pending-row'
+    return 'pending-row';
   }
-  return ''
-}
+  return '';
+};
 
-const getTypeTagType = (type) => {
+const getTypeTagType = type => {
   const typeMap = {
     natural: 'danger',
     safety: 'warning',
     health: 'primary',
     security: 'info',
-    other: ''
-  }
-  return typeMap[type] || ''
-}
+    other: '',
+  };
+  return typeMap[type] || '';
+};
 
-const getTypeLabel = (type) => {
+const getTypeLabel = type => {
   const typeMap = {
     natural: '自然灾害',
     safety: '安全事故',
     health: '公共卫生',
     security: '社会治安',
-    other: '其他'
-  }
-  return typeMap[type] || type
-}
+    other: '其他',
+  };
+  return typeMap[type] || type;
+};
 
-const getPriorityTagType = (priority) => {
+const getPriorityTagType = priority => {
   const priorityMap = {
     low: 'info',
     medium: 'warning',
     high: 'danger',
-    critical: 'danger'
-  }
-  return priorityMap[priority] || ''
-}
+    critical: 'danger',
+  };
+  return priorityMap[priority] || '';
+};
 
-const getPriorityLabel = (priority) => {
+const getPriorityLabel = priority => {
   const priorityMap = {
     low: '低',
     medium: '中',
     high: '高',
-    critical: '紧急'
-  }
-  return priorityMap[priority] || priority
-}
+    critical: '紧急',
+  };
+  return priorityMap[priority] || priority;
+};
 
-const getStatusTagType = (status) => {
+const getStatusTagType = status => {
   const statusMap = {
     pending: 'info',
     processing: 'warning',
     resolved: 'success',
     closed: '',
-    escalated: 'danger'
-  }
-  return statusMap[status] || ''
-}
+    escalated: 'danger',
+  };
+  return statusMap[status] || '';
+};
 
-const getStatusLabel = (status) => {
+const getStatusLabel = status => {
   const statusMap = {
     pending: '待处理',
     processing: '处理中',
     resolved: '已解决',
     closed: '已关闭',
-    escalated: '已升级'
-  }
-  return statusMap[status] || status
-}
+    escalated: '已升级',
+  };
+  return statusMap[status] || status;
+};
 
 // 权限检查
-const hasPermission = (permission) => {
+const hasPermission = permission => {
   // 模拟权限检查
-  return true
-}
+  return true;
+};
 </script>
 
 <style lang="scss" scoped>

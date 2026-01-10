@@ -1,10 +1,5 @@
 <template>
-  <el-dialog
-    v-model="visible"
-    title="编辑资料"
-    width="600px"
-    @close="handleClose"
-  >
+  <el-dialog v-model="visible" title="编辑资料" width="600px" @close="handleClose">
     <el-form
       ref="formRef"
       :model="formData"
@@ -98,10 +93,7 @@
         <div class="form-section">
           <h4 class="section-title">企业信息</h4>
           <el-form-item label="企业名称" prop="businessInfo.companyName">
-            <el-input
-              v-model="formData.businessInfo.companyName"
-              placeholder="请输入企业名称"
-            />
+            <el-input v-model="formData.businessInfo.companyName" placeholder="请输入企业名称" />
           </el-form-item>
           <el-form-item label="信用代码">
             <el-input
@@ -141,10 +133,7 @@
             </el-select>
           </el-form-item>
           <el-form-item label="企业规模">
-            <el-select
-              v-model="formData.businessInfo.scale"
-              placeholder="请选择企业规模"
-            >
+            <el-select v-model="formData.businessInfo.scale" placeholder="请选择企业规模">
               <el-option label="微型企业" value="micro" />
               <el-option label="小型企业" value="small" />
               <el-option label="中型企业" value="medium" />
@@ -196,37 +185,37 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ref, reactive, computed, watch } from 'vue';
+import { ElMessage } from 'element-plus';
 
 const props = defineProps({
   modelValue: {
     type: Boolean,
-    default: false
+    default: false,
   },
   purchaserInfo: {
     type: Object,
-    default: () => ({})
-  }
-})
+    default: () => ({}),
+  },
+});
 
-const emit = defineEmits(['update:modelValue', 'save'])
+const emit = defineEmits(['update:modelValue', 'save']);
 
-const formRef = ref(null)
-const saving = ref(false)
-const locationPath = ref([])
+const formRef = ref(null);
+const saving = ref(false);
+const locationPath = ref([]);
 
 const visible = computed({
   get: () => props.modelValue,
-  set: (val) => emit('update:modelValue', val)
-})
+  set: val => emit('update:modelValue', val),
+});
 
 const formData = reactive({
   purchaserType: 'individual',
   basicInfo: {
     name: '',
     phone: '',
-    idCard: ''
+    idCard: '',
   },
   individualInfo: {
     location: {
@@ -234,14 +223,14 @@ const formData = reactive({
       city: '',
       district: '',
       address: '',
-      coordinates: null
+      coordinates: null,
     },
     purchaseCategories: [],
     budgetRange: {
       min: 0,
-      max: 0
+      max: 0,
     },
-    bio: ''
+    bio: '',
   },
   businessInfo: {
     companyName: '',
@@ -251,7 +240,7 @@ const formData = reactive({
       city: '',
       district: '',
       address: '',
-      coordinates: null
+      coordinates: null,
     },
     purchaseCategories: [],
     scale: '',
@@ -260,23 +249,27 @@ const formData = reactive({
       name: '',
       phone: '',
       email: '',
-      position: ''
-    }
-  }
-})
+      position: '',
+    },
+  },
+});
 
 const rules = {
-  'basicInfo.name': [
-    { required: true, message: '请输入姓名', trigger: 'blur' }
-  ],
-  'businessInfo.companyName': [
-    { required: true, message: '请输入企业名称', trigger: 'blur' }
-  ]
-}
+  'basicInfo.name': [{ required: true, message: '请输入姓名', trigger: 'blur' }],
+  'businessInfo.companyName': [{ required: true, message: '请输入企业名称', trigger: 'blur' }],
+};
 
 const productCategories = [
-  '蔬菜', '水果', '粮食', '畜禽', '水产', '干货', '茶叶', '中药材', '其他'
-]
+  '蔬菜',
+  '水果',
+  '粮食',
+  '畜禽',
+  '水产',
+  '干货',
+  '茶叶',
+  '中药材',
+  '其他',
+];
 
 const regionOptions = [
   {
@@ -289,71 +282,76 @@ const regionOptions = [
         children: [
           { value: '西湖区', label: '西湖区' },
           { value: '余杭区', label: '余杭区' },
-          { value: '临平区', label: '临平区' }
-        ]
-      }
-    ]
-  }
-]
+          { value: '临平区', label: '临平区' },
+        ],
+      },
+    ],
+  },
+];
 
 // 初始化表单数据
-watch(() => props.purchaserInfo, (newInfo) => {
-  if (newInfo && Object.keys(newInfo).length > 0) {
-    formData.purchaserType = newInfo.purchaserType || 'individual'
-    Object.assign(formData.basicInfo, newInfo.basicInfo || {})
+watch(
+  () => props.purchaserInfo,
+  newInfo => {
+    if (newInfo && Object.keys(newInfo).length > 0) {
+      formData.purchaserType = newInfo.purchaserType || 'individual';
+      Object.assign(formData.basicInfo, newInfo.basicInfo || {});
 
-    if (newInfo.purchaserType === 'individual' && newInfo.individualInfo) {
-      Object.assign(formData.individualInfo, newInfo.individualInfo)
-      if (newInfo.individualInfo.location) {
-        const loc = newInfo.individualInfo.location
-        locationPath.value = [loc.province, loc.city, loc.district].filter(Boolean)
+      if (newInfo.purchaserType === 'individual' && newInfo.individualInfo) {
+        Object.assign(formData.individualInfo, newInfo.individualInfo);
+        if (newInfo.individualInfo.location) {
+          const loc = newInfo.individualInfo.location;
+          locationPath.value = [loc.province, loc.city, loc.district].filter(Boolean);
+        }
+      }
+
+      if (newInfo.purchaserType === 'business' && newInfo.businessInfo) {
+        Object.assign(formData.businessInfo, newInfo.businessInfo);
+        if (newInfo.businessInfo.location) {
+          const loc = newInfo.businessInfo.location;
+          locationPath.value = [loc.province, loc.city, loc.district].filter(Boolean);
+        }
       }
     }
-
-    if (newInfo.purchaserType === 'business' && newInfo.businessInfo) {
-      Object.assign(formData.businessInfo, newInfo.businessInfo)
-      if (newInfo.businessInfo.location) {
-        const loc = newInfo.businessInfo.location
-        locationPath.value = [loc.province, loc.city, loc.district].filter(Boolean)
-      }
-    }
-  }
-}, { immediate: true })
+  },
+  { immediate: true }
+);
 
 // 处理地区变化
-const handleLocationChange = (value) => {
-  const target = formData.purchaserType === 'individual'
-    ? formData.individualInfo.location
-    : formData.businessInfo.location
+const handleLocationChange = value => {
+  const target =
+    formData.purchaserType === 'individual'
+      ? formData.individualInfo.location
+      : formData.businessInfo.location;
 
   if (value && value.length >= 2) {
-    target.province = value[0]
-    target.city = value[1]
-    target.district = value[2] || ''
+    target.province = value[0];
+    target.city = value[1];
+    target.district = value[2] || '';
   }
-}
+};
 
 // 保存
 const handleSave = async () => {
   try {
-    await formRef.value.validate()
-    saving.value = true
+    await formRef.value.validate();
+    saving.value = true;
 
     // 这里应该调用API保存数据
-    emit('save', formData)
+    emit('save', formData);
 
-    visible.value = false
+    visible.value = false;
   } catch (error) {
-    console.error('表单验证失败', error)
+    console.error('表单验证失败', error);
   } finally {
-    saving.value = false
+    saving.value = false;
   }
-}
+};
 
 // 关闭对话框
 const handleClose = () => {
-  visible.value = false
-}
+  visible.value = false;
+};
 </script>
 
 <style scoped>

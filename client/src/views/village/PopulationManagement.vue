@@ -58,7 +58,12 @@
       <el-tab-pane label="分组管理" name="groups">
         <div class="tab-header">
           <div class="filter-options">
-            <el-select v-model="groupFilter.type" placeholder="分组类型" clearable @change="loadGroups">
+            <el-select
+              v-model="groupFilter.type"
+              placeholder="分组类型"
+              clearable
+              @change="loadGroups"
+            >
               <el-option label="全部" value="" />
               <el-option label="特殊关怀组" value="special_care" />
               <el-option label="动态监测户" value="dynamic_monitoring" />
@@ -87,13 +92,13 @@
                   </el-button>
                   <template #dropdown>
                     <el-dropdown-menu>
-                      <el-dropdown-item :command="{action: 'members', group}">
+                      <el-dropdown-item :command="{ action: 'members', group }">
                         <el-icon><User /></el-icon> 管理成员
                       </el-dropdown-item>
-                      <el-dropdown-item :command="{action: 'edit', group}">
+                      <el-dropdown-item :command="{ action: 'edit', group }">
                         <el-icon><Edit /></el-icon> 编辑
                       </el-dropdown-item>
-                      <el-dropdown-item :command="{action: 'delete', group}" divided>
+                      <el-dropdown-item :command="{ action: 'delete', group }" divided>
                         <el-icon><Delete /></el-icon> 删除
                       </el-dropdown-item>
                     </el-dropdown-menu>
@@ -127,7 +132,12 @@
       <el-tab-pane label="人口变动" name="changes">
         <div class="tab-header">
           <div class="filter-options">
-            <el-select v-model="changeFilter.type" placeholder="变动类型" clearable @change="loadChanges">
+            <el-select
+              v-model="changeFilter.type"
+              placeholder="变动类型"
+              clearable
+              @change="loadChanges"
+            >
               <el-option label="全部" value="" />
               <el-option label="新生儿出生" value="birth" />
               <el-option label="婚入" value="marriage_in" />
@@ -136,7 +146,12 @@
               <el-option label="迁入" value="move_in" />
               <el-option label="迁出" value="move_out" />
             </el-select>
-            <el-select v-model="changeFilter.status" placeholder="状态" clearable @change="loadChanges">
+            <el-select
+              v-model="changeFilter.status"
+              placeholder="状态"
+              clearable
+              @change="loadChanges"
+            >
               <el-option label="全部" value="" />
               <el-option label="待审核" value="pending" />
               <el-option label="已通过" value="approved" />
@@ -163,9 +178,7 @@
                 >
                   审核
                 </el-button>
-                <el-button size="small" @click="viewChangeDetail(change)">
-                  详情
-                </el-button>
+                <el-button size="small" @click="viewChangeDetail(change)"> 详情 </el-button>
               </div>
             </div>
             <div class="change-content">
@@ -314,18 +327,16 @@
     </el-dialog>
 
     <!-- 审核变动对话框 -->
-    <el-dialog
-      v-model="reviewChangeDialogVisible"
-      title="审核人口变动"
-      width="500px"
-    >
+    <el-dialog v-model="reviewChangeDialogVisible" title="审核人口变动" width="500px">
       <div v-if="currentChange" class="review-content">
         <el-descriptions :column="1" border>
           <el-descriptions-item label="变动ID">{{ currentChange.changeId }}</el-descriptions-item>
           <el-descriptions-item label="变动类型">
             {{ getChangeTypeName(currentChange.changeType) }}
           </el-descriptions-item>
-          <el-descriptions-item label="姓名">{{ currentChange.personInfo?.name }}</el-descriptions-item>
+          <el-descriptions-item label="姓名">{{
+            currentChange.personInfo?.name
+          }}</el-descriptions-item>
           <el-descriptions-item label="身份证">
             {{ currentChange.personInfo?.idCard }}
           </el-descriptions-item>
@@ -375,11 +386,7 @@
           </el-table-column>
           <el-table-column label="操作" width="100">
             <template #default="scope">
-              <el-button
-                type="danger"
-                size="small"
-                @click="removeGroupMember(scope.row)"
-              >
+              <el-button type="danger" size="small" @click="removeGroupMember(scope.row)">
                 移除
               </el-button>
             </template>
@@ -394,50 +401,43 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import {
-  Plus,
-  DocumentAdd,
-  MoreFilled,
-  User,
-  Edit,
-  Delete
-} from '@element-plus/icons-vue'
-import axios from 'axios'
+import { ref, reactive, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { Plus, DocumentAdd, MoreFilled, User, Edit, Delete } from '@element-plus/icons-vue';
+import axios from 'axios';
 
 // API基础URL
-const API_BASE = 'http://localhost:3001/api'
+const API_BASE = 'http://localhost:3001/api';
 
 // 响应式数据
-const activeTab = ref('groups')
-const groupDialogVisible = ref(false)
-const changeDialogVisible = ref(false)
-const reviewChangeDialogVisible = ref(false)
-const membersDialogVisible = ref(false)
+const activeTab = ref('groups');
+const groupDialogVisible = ref(false);
+const changeDialogVisible = ref(false);
+const reviewChangeDialogVisible = ref(false);
+const membersDialogVisible = ref(false);
 
-const groups = ref([])
-const changes = ref([])
-const currentGroup = ref(null)
-const currentChange = ref(null)
+const groups = ref([]);
+const changes = ref([]);
+const currentGroup = ref(null);
+const currentChange = ref(null);
 
 // 统计数据
 const populationStats = reactive({
   totalGroups: 0,
   totalGroupMembers: 0,
   total: 0,
-  changesByStatus: {}
-})
+  changesByStatus: {},
+});
 
 // 筛选条件
 const groupFilter = reactive({
-  type: ''
-})
+  type: '',
+});
 
 const changeFilter = reactive({
   type: '',
-  status: ''
-})
+  status: '',
+});
 
 // 分组表单
 const groupForm = reactive({
@@ -446,16 +446,16 @@ const groupForm = reactive({
   villageId: '',
   description: '',
   carePlanEnabled: false,
-  carePlanFrequency: 'weekly'
-})
+  carePlanFrequency: 'weekly',
+});
 
 const groupRules = {
   groupName: [{ required: true, message: '请输入分组名称', trigger: 'blur' }],
   groupType: [{ required: true, message: '请选择分组类型', trigger: 'change' }],
-  villageId: [{ required: true, message: '请输入村庄ID', trigger: 'blur' }]
-}
+  villageId: [{ required: true, message: '请输入村庄ID', trigger: 'blur' }],
+};
 
-const groupFormRef = ref(null)
+const groupFormRef = ref(null);
 
 // 变动表单
 const changeForm = reactive({
@@ -469,8 +469,8 @@ const changeForm = reactive({
   relation: '',
   changeDate: '',
   autoUpdateHousehold: true,
-  notes: ''
-})
+  notes: '',
+});
 
 const changeRules = {
   changeType: [{ required: true, message: '请选择变动类型', trigger: 'change' }],
@@ -480,103 +480,103 @@ const changeRules = {
   idCard: [{ required: true, message: '请输入身份证号', trigger: 'blur' }],
   gender: [{ required: true, message: '请选择性别', trigger: 'change' }],
   relation: [{ required: true, message: '请选择关系', trigger: 'change' }],
-  changeDate: [{ required: true, message: '请选择变动日期', trigger: 'change' }]
-}
+  changeDate: [{ required: true, message: '请选择变动日期', trigger: 'change' }],
+};
 
-const changeFormRef = ref(null)
+const changeFormRef = ref(null);
 
 // 审核表单
 const reviewForm = reactive({
-  comments: ''
-})
+  comments: '',
+});
 
 // 获取Token
 const getToken = () => {
-  return localStorage.getItem('token') || ''
-}
+  return localStorage.getItem('token') || '';
+};
 
 // Axios配置
 const apiClient = axios.create({
   baseURL: API_BASE,
   headers: {
-    'Content-Type': 'application/json'
-  }
-})
+    'Content-Type': 'application/json',
+  },
+});
 
 // 请求拦截器
 apiClient.interceptors.request.use(config => {
-  const token = getToken()
+  const token = getToken();
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`
+    config.headers.Authorization = `Bearer ${token}`;
   }
-  return config
-})
+  return config;
+});
 
 // 响应拦截器
 apiClient.interceptors.response.use(
   response => response,
   error => {
     if (error.response?.status === 401) {
-      ElMessage.error('登录已过期,请重新登录')
+      ElMessage.error('登录已过期,请重新登录');
     } else if (error.response?.status === 403) {
-      ElMessage.error('权限不足')
+      ElMessage.error('权限不足');
     } else {
-      ElMessage.error(error.response?.data?.message || '请求失败')
+      ElMessage.error(error.response?.data?.message || '请求失败');
     }
-    return Promise.reject(error)
+    return Promise.reject(error);
   }
-)
+);
 
 // 加载统计数据
 const loadStatistics = async () => {
   try {
-    const response = await apiClient.get('/population/statistics')
+    const response = await apiClient.get('/population/statistics');
     if (response.data.success) {
-      Object.assign(populationStats, response.data.data)
+      Object.assign(populationStats, response.data.data);
     }
   } catch (error) {
-    console.error('加载统计数据失败:', error)
+    console.error('加载统计数据失败:', error);
   }
-}
+};
 
 // 加载分组列表
 const loadGroups = async () => {
   try {
-    const params = {}
+    const params = {};
     if (groupFilter.type) {
-      params.groupType = groupFilter.type
+      params.groupType = groupFilter.type;
     }
-    const response = await apiClient.get('/population/groups', { params })
+    const response = await apiClient.get('/population/groups', { params });
     if (response.data.success) {
-      groups.value = response.data.data.groups || []
+      groups.value = response.data.data.groups || [];
     }
   } catch (error) {
-    console.error('加载分组列表失败:', error)
+    console.error('加载分组列表失败:', error);
   }
-}
+};
 
 // 加载变动列表
 const loadChanges = async () => {
   try {
-    const params = {}
-    if (changeFilter.type) params.changeType = changeFilter.type
-    if (changeFilter.status) params.status = changeFilter.status
+    const params = {};
+    if (changeFilter.type) params.changeType = changeFilter.type;
+    if (changeFilter.status) params.status = changeFilter.status;
 
-    const response = await apiClient.get('/population/changes', { params })
+    const response = await apiClient.get('/population/changes', { params });
     if (response.data.success) {
-      changes.value = response.data.data.changes || []
+      changes.value = response.data.data.changes || [];
     }
   } catch (error) {
-    console.error('加载变动列表失败:', error)
+    console.error('加载变动列表失败:', error);
   }
-}
+};
 
 // 提交分组
 const submitGroup = async () => {
-  if (!groupFormRef.value) return
+  if (!groupFormRef.value) return;
 
   try {
-    await groupFormRef.value.validate()
+    await groupFormRef.value.validate();
     const data = {
       groupName: groupForm.groupName,
       groupType: groupForm.groupType,
@@ -584,28 +584,28 @@ const submitGroup = async () => {
       description: groupForm.description,
       carePlan: {
         enabled: groupForm.carePlanEnabled,
-        frequency: groupForm.carePlanFrequency
-      }
-    }
-    const response = await apiClient.post('/population/groups', data)
+        frequency: groupForm.carePlanFrequency,
+      },
+    };
+    const response = await apiClient.post('/population/groups', data);
     if (response.data.success) {
-      ElMessage.success('分组创建成功')
-      groupDialogVisible.value = false
-      resetGroupForm()
-      loadGroups()
-      loadStatistics()
+      ElMessage.success('分组创建成功');
+      groupDialogVisible.value = false;
+      resetGroupForm();
+      loadGroups();
+      loadStatistics();
     }
   } catch (error) {
-    console.error('创建分组失败:', error)
+    console.error('创建分组失败:', error);
   }
-}
+};
 
 // 提交变动
 const submitChange = async () => {
-  if (!changeFormRef.value) return
+  if (!changeFormRef.value) return;
 
   try {
-    await changeFormRef.value.validate()
+    await changeFormRef.value.validate();
     const data = {
       changeType: changeForm.changeType,
       villageId: changeForm.villageId,
@@ -615,56 +615,56 @@ const submitChange = async () => {
         idCard: changeForm.idCard,
         gender: changeForm.gender,
         birthDate: changeForm.birthDate,
-        relation: changeForm.relation
+        relation: changeForm.relation,
       },
       changeDate: changeForm.changeDate,
       autoUpdateHousehold: changeForm.autoUpdateHousehold,
-      notes: changeForm.notes
-    }
-    const response = await apiClient.post('/population/changes', data)
+      notes: changeForm.notes,
+    };
+    const response = await apiClient.post('/population/changes', data);
     if (response.data.success) {
-      ElMessage.success('变动申请提交成功')
-      changeDialogVisible.value = false
-      resetChangeForm()
-      loadChanges()
-      loadStatistics()
+      ElMessage.success('变动申请提交成功');
+      changeDialogVisible.value = false;
+      resetChangeForm();
+      loadChanges();
+      loadStatistics();
     }
   } catch (error) {
-    console.error('提交变动失败:', error)
+    console.error('提交变动失败:', error);
   }
-}
+};
 
 // 审核变动
-const reviewChange = (change) => {
-  currentChange.value = change
-  reviewChangeDialogVisible.value = true
-}
+const reviewChange = change => {
+  currentChange.value = change;
+  reviewChangeDialogVisible.value = true;
+};
 
-const handleReviewChange = async (decision) => {
-  if (!currentChange.value) return
+const handleReviewChange = async decision => {
+  if (!currentChange.value) return;
 
   try {
     const response = await apiClient.put(
       `/population/changes/${currentChange.value.changeId}/review`,
       {
         decision,
-        reviewNotes: reviewForm.comments
+        reviewNotes: reviewForm.comments,
       }
-    )
+    );
     if (response.data.success) {
-      ElMessage.success(decision === 'approve' ? '审核通过' : '已驳回')
-      reviewChangeDialogVisible.value = false
-      reviewForm.comments = ''
-      loadChanges()
-      loadStatistics()
+      ElMessage.success(decision === 'approve' ? '审核通过' : '已驳回');
+      reviewChangeDialogVisible.value = false;
+      reviewForm.comments = '';
+      loadChanges();
+      loadStatistics();
     }
   } catch (error) {
-    console.error('审核失败:', error)
+    console.error('审核失败:', error);
   }
-}
+};
 
 // 查看详情
-const viewChangeDetail = (change) => {
+const viewChangeDetail = change => {
   ElMessageBox.alert(
     `
     <p><strong>变动ID:</strong> ${change.changeId}</p>
@@ -679,177 +679,177 @@ const viewChangeDetail = (change) => {
     '变动详情',
     {
       dangerouslyUseHTMLString: true,
-      confirmButtonText: '关闭'
+      confirmButtonText: '关闭',
     }
-  )
-}
+  );
+};
 
 // 处理分组操作
 const handleGroupAction = ({ action, group }) => {
   switch (action) {
     case 'members':
-      manageMembers(group)
-      break
+      manageMembers(group);
+      break;
     case 'edit':
-      ElMessage.info('编辑功能开发中')
-      break
+      ElMessage.info('编辑功能开发中');
+      break;
     case 'delete':
-      deleteGroup(group)
-      break
+      deleteGroup(group);
+      break;
   }
-}
+};
 
 // 管理成员
-const manageMembers = async (group) => {
+const manageMembers = async group => {
   try {
-    const response = await apiClient.get(`/population/groups/${group.groupId}`)
+    const response = await apiClient.get(`/population/groups/${group.groupId}`);
     if (response.data.success) {
-      currentGroup.value = response.data.data
-      membersDialogVisible.value = true
+      currentGroup.value = response.data.data;
+      membersDialogVisible.value = true;
     }
   } catch (error) {
-    console.error('加载分组详情失败:', error)
+    console.error('加载分组详情失败:', error);
   }
-}
+};
 
 // 删除分组
-const deleteGroup = async (group) => {
+const deleteGroup = async group => {
   try {
     await ElMessageBox.confirm(`确定要删除分组 "${group.groupName}" 吗?`, '确认操作', {
-      type: 'warning'
-    })
-    const response = await apiClient.delete(`/population/groups/${group.groupId}`)
+      type: 'warning',
+    });
+    const response = await apiClient.delete(`/population/groups/${group.groupId}`);
     if (response.data.success) {
-      ElMessage.success('分组已删除')
-      loadGroups()
-      loadStatistics()
+      ElMessage.success('分组已删除');
+      loadGroups();
+      loadStatistics();
     }
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('删除分组失败:', error)
+      console.error('删除分组失败:', error);
     }
   }
-}
+};
 
 // 移除分组成员
-const removeGroupMember = async (member) => {
-  if (!currentGroup.value) return
+const removeGroupMember = async member => {
+  if (!currentGroup.value) return;
 
   try {
     await ElMessageBox.confirm('确定要移除此成员吗?', '确认操作', {
-      type: 'warning'
-    })
+      type: 'warning',
+    });
     const response = await apiClient.delete(
       `/population/groups/${currentGroup.value.groupId}/members/${member.userId}`
-    )
+    );
     if (response.data.success) {
-      ElMessage.success('成员已移除')
-      manageMembers(currentGroup.value)
+      ElMessage.success('成员已移除');
+      manageMembers(currentGroup.value);
     }
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('移除成员失败:', error)
+      console.error('移除成员失败:', error);
     }
   }
-}
+};
 
 // 工具函数
-const getGroupIcon = (type) => {
+const getGroupIcon = type => {
   const iconMap = {
-    'special_care': '❤️',
-    'dynamic_monitoring': '👁️',
-    'party_member': '🌟',
-    'volunteer': '🤝',
-    'grid_responsibility': '🏘️',
-    'custom': '📁'
-  }
-  return iconMap[type] || '👥'
-}
+    special_care: '❤️',
+    dynamic_monitoring: '👁️',
+    party_member: '🌟',
+    volunteer: '🤝',
+    grid_responsibility: '🏘️',
+    custom: '📁',
+  };
+  return iconMap[type] || '👥';
+};
 
-const getGroupTypeName = (type) => {
+const getGroupTypeName = type => {
   const nameMap = {
-    'special_care': '特殊关怀组',
-    'dynamic_monitoring': '动态监测户',
-    'party_member': '党员',
-    'volunteer': '志愿者',
-    'grid_responsibility': '网格责任',
-    'custom': '自定义'
-  }
-  return nameMap[type] || type
-}
+    special_care: '特殊关怀组',
+    dynamic_monitoring: '动态监测户',
+    party_member: '党员',
+    volunteer: '志愿者',
+    grid_responsibility: '网格责任',
+    custom: '自定义',
+  };
+  return nameMap[type] || type;
+};
 
-const getGroupTypeColor = (type) => {
+const getGroupTypeColor = type => {
   const colorMap = {
-    'special_care': 'danger',
-    'dynamic_monitoring': 'warning',
-    'party_member': 'success',
-    'volunteer': 'primary',
-    'grid_responsibility': 'info',
-    'custom': ''
-  }
-  return colorMap[type] || ''
-}
+    special_care: 'danger',
+    dynamic_monitoring: 'warning',
+    party_member: 'success',
+    volunteer: 'primary',
+    grid_responsibility: 'info',
+    custom: '',
+  };
+  return colorMap[type] || '';
+};
 
-const getChangeIcon = (type) => {
+const getChangeIcon = type => {
   const iconMap = {
-    'birth': '👶',
-    'marriage_in': '💒',
-    'marriage_out': '💔',
-    'death': '🕊️',
-    'move_in': '📥',
-    'move_out': '📤'
-  }
-  return iconMap[type] || '📝'
-}
+    birth: '👶',
+    marriage_in: '💒',
+    marriage_out: '💔',
+    death: '🕊️',
+    move_in: '📥',
+    move_out: '📤',
+  };
+  return iconMap[type] || '📝';
+};
 
-const getChangeTypeName = (type) => {
+const getChangeTypeName = type => {
   const nameMap = {
-    'birth': '新生儿出生',
-    'marriage_in': '婚入',
-    'marriage_out': '婚出',
-    'death': '死亡',
-    'move_in': '迁入',
-    'move_out': '迁出'
-  }
-  return nameMap[type] || type
-}
+    birth: '新生儿出生',
+    marriage_in: '婚入',
+    marriage_out: '婚出',
+    death: '死亡',
+    move_in: '迁入',
+    move_out: '迁出',
+  };
+  return nameMap[type] || type;
+};
 
-const getChangeStatusType = (status) => {
+const getChangeStatusType = status => {
   const typeMap = {
-    'pending': 'warning',
-    'approved': 'success',
-    'rejected': 'danger'
-  }
-  return typeMap[status] || 'info'
-}
+    pending: 'warning',
+    approved: 'success',
+    rejected: 'danger',
+  };
+  return typeMap[status] || 'info';
+};
 
-const getChangeStatusText = (status) => {
+const getChangeStatusText = status => {
   const textMap = {
-    'pending': '待审核',
-    'approved': '已通过',
-    'rejected': '已驳回'
-  }
-  return textMap[status] || '未知'
-}
+    pending: '待审核',
+    approved: '已通过',
+    rejected: '已驳回',
+  };
+  return textMap[status] || '未知';
+};
 
-const formatDate = (dateString) => {
-  if (!dateString) return '-'
-  return new Date(dateString).toLocaleDateString('zh-CN')
-}
+const formatDate = dateString => {
+  if (!dateString) return '-';
+  return new Date(dateString).toLocaleDateString('zh-CN');
+};
 
-const maskIdCard = (idCard) => {
-  if (!idCard) return '-'
-  return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2')
-}
+const maskIdCard = idCard => {
+  if (!idCard) return '-';
+  return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2');
+};
 
-const maskPhone = (phone) => {
-  if (!phone) return '-'
-  return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')
-}
+const maskPhone = phone => {
+  if (!phone) return '-';
+  return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
+};
 
-const canReviewChange = (change) => {
-  return change.status === 'pending'
-}
+const canReviewChange = change => {
+  return change.status === 'pending';
+};
 
 // 重置表单
 const resetGroupForm = () => {
@@ -859,12 +859,12 @@ const resetGroupForm = () => {
     villageId: '',
     description: '',
     carePlanEnabled: false,
-    carePlanFrequency: 'weekly'
-  })
+    carePlanFrequency: 'weekly',
+  });
   if (groupFormRef.value) {
-    groupFormRef.value.resetFields()
+    groupFormRef.value.resetFields();
   }
-}
+};
 
 const resetChangeForm = () => {
   Object.assign(changeForm, {
@@ -878,31 +878,31 @@ const resetChangeForm = () => {
     relation: '',
     changeDate: '',
     autoUpdateHousehold: true,
-    notes: ''
-  })
+    notes: '',
+  });
   if (changeFormRef.value) {
-    changeFormRef.value.resetFields()
+    changeFormRef.value.resetFields();
   }
-}
+};
 
 const showGroupDialog = () => {
-  groupDialogVisible.value = true
-}
+  groupDialogVisible.value = true;
+};
 
 const showChangeDialog = () => {
-  changeDialogVisible.value = true
-}
+  changeDialogVisible.value = true;
+};
 
 const showAddMembersDialog = () => {
-  ElMessage.info('添加成员功能开发中，请使用用户ID添加')
-}
+  ElMessage.info('添加成员功能开发中，请使用用户ID添加');
+};
 
 // 生命周期
 onMounted(() => {
-  loadStatistics()
-  loadGroups()
-  loadChanges()
-})
+  loadStatistics();
+  loadGroups();
+  loadChanges();
+});
 </script>
 
 <style scoped>

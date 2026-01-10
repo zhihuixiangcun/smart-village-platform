@@ -1,4 +1,9 @@
-import { LazyImageLoader, PerformanceMonitor, NetworkMonitor, CacheManager } from '../utils/mobilePerformance';
+import {
+  LazyImageLoader,
+  PerformanceMonitor,
+  NetworkMonitor,
+  CacheManager,
+} from '../utils/mobilePerformance';
 
 // 移动端优化插件
 export default {
@@ -8,7 +13,7 @@ export default {
       enablePerformanceMonitor = false,
       enableNetworkMonitor = true,
       enableCache = true,
-      cacheOptions = {}
+      cacheOptions = {},
     } = options;
 
     // 全局混入
@@ -36,9 +41,11 @@ export default {
 
         // 检测移动端
         $isMobile() {
-          return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-            navigator.userAgent
-          ) || window.innerWidth <= 768;
+          return (
+            /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+              navigator.userAgent
+            ) || window.innerWidth <= 768
+          );
         },
 
         // 触摸优化
@@ -90,18 +97,20 @@ export default {
             if (!inThrottle) {
               func.apply(this, args);
               inThrottle = true;
-              setTimeout(() => inThrottle = false, limit);
+              setTimeout(() => (inThrottle = false), limit);
             }
           };
-        }
-      }
+        },
+      },
     });
 
     // 全局属性
     app.config.globalProperties.$isMobile = () => {
-      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent
-      ) || window.innerWidth <= 768;
+      return (
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          navigator.userAgent
+        ) || window.innerWidth <= 768
+      );
     };
 
     // 提供注入
@@ -109,7 +118,7 @@ export default {
       isMobile: app.config.globalProperties.$isMobile,
       performanceMonitor: enablePerformanceMonitor ? new PerformanceMonitor() : null,
       networkMonitor: enableNetworkMonitor ? new NetworkMonitor() : null,
-      cacheManager: enableCache ? new CacheManager(cacheOptions.name, cacheOptions.version) : null
+      cacheManager: enableCache ? new CacheManager(cacheOptions.name, cacheOptions.version) : null,
     });
 
     // 初始化
@@ -152,7 +161,7 @@ export default {
       // 输入优化
       optimizeInput();
     }
-  }
+  },
 };
 
 // 视口优化
@@ -183,13 +192,17 @@ function optimizeViewport() {
 function optimizeTouch() {
   // 禁用双击缩放
   let lastTouchEnd = 0;
-  document.addEventListener('touchend', (e) => {
-    const now = Date.now();
-    if (now - lastTouchEnd <= 300) {
-      e.preventDefault();
-    }
-    lastTouchEnd = now;
-  }, false);
+  document.addEventListener(
+    'touchend',
+    e => {
+      const now = Date.now();
+      if (now - lastTouchEnd <= 300) {
+        e.preventDefault();
+      }
+      lastTouchEnd = now;
+    },
+    false
+  );
 
   // 优化点击延迟
   document.addEventListener('touchstart', () => {
@@ -201,13 +214,13 @@ function optimizeTouch() {
 function optimizeScroll() {
   // 平滑滚动
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', (e) => {
+    anchor.addEventListener('click', e => {
       e.preventDefault();
       const target = document.querySelector(anchor.getAttribute('href'));
       if (target) {
         target.scrollIntoView({
           behavior: 'smooth',
-          block: 'start'
+          block: 'start',
         });
       }
     });
@@ -231,7 +244,9 @@ function optimizeScroll() {
 // 输入优化
 function optimizeInput() {
   // 防止iOS缩放
-  const inputs = document.querySelectorAll('input[type="text"], input[type="email"], input[type="password"], textarea');
+  const inputs = document.querySelectorAll(
+    'input[type="text"], input[type="email"], input[type="password"], textarea'
+  );
   inputs.forEach(input => {
     input.style.fontSize = '16px';
   });
@@ -243,7 +258,7 @@ function optimizeInput() {
       setTimeout(() => {
         input.scrollIntoView({
           behavior: 'smooth',
-          block: 'center'
+          block: 'center',
         });
       }, 300);
     });

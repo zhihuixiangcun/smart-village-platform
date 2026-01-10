@@ -16,9 +16,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref } from 'vue';
 
-const title = ref('找回密码')
+const title = ref('找回密码');
 </script>
 
 <style lang="scss" scoped>

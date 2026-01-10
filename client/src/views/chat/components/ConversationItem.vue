@@ -35,110 +35,110 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { Top, Bell } from '@element-plus/icons-vue'
-import { useUserStore } from '@/stores/user'
+import { computed } from 'vue';
+import { Top, Bell } from '@element-plus/icons-vue';
+import { useUserStore } from '@/stores/user';
 
 const props = defineProps({
   conversation: {
     type: Object,
-    required: true
+    required: true,
   },
   currentId: {
     type: String,
-    default: null
+    default: null,
   },
   isActive: {
     type: Boolean,
-    default: false
-  }
-})
+    default: false,
+  },
+});
 
-defineEmits(['click'])
+defineEmits(['click']);
 
-const userStore = useUserStore()
-const currentUserId = userStore.user?.id
+const userStore = useUserStore();
+const currentUserId = userStore.user?.id;
 
 // 获取私聊对方的用户信息
 const otherUser = computed(() => {
   if (props.conversation.type === 'private') {
-    return props.conversation.participants.find(p => p._id !== currentUserId)
+    return props.conversation.participants.find(p => p._id !== currentUserId);
   }
-  return null
-})
+  return null;
+});
 
 // 显示名称
 const displayName = computed(() => {
   if (props.conversation.type === 'group') {
-    return props.conversation.groupInfo?.name || '群聊'
+    return props.conversation.groupInfo?.name || '群聊';
   } else {
-    return otherUser.value?.profile?.nickName || otherUser.value?.username || '未知用户'
+    return otherUser.value?.profile?.nickName || otherUser.value?.username || '未知用户';
   }
-})
+});
 
 // 格式化时间
 const formattedTime = computed(() => {
-  const lastMessageAt = props.conversation.lastMessageAt
-  if (!lastMessageAt) return ''
+  const lastMessageAt = props.conversation.lastMessageAt;
+  if (!lastMessageAt) return '';
 
-  const now = new Date()
-  const msgDate = new Date(lastMessageAt)
-  const diffMs = now - msgDate
-  const diffMins = Math.floor(diffMs / 60000)
-  const diffHours = Math.floor(diffMs / 3600000)
-  const diffDays = Math.floor(diffMs / 86400000)
+  const now = new Date();
+  const msgDate = new Date(lastMessageAt);
+  const diffMs = now - msgDate;
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
 
-  if (diffMins < 1) return '刚刚'
-  if (diffMins < 60) return `${diffMins}分钟前`
-  if (diffHours < 24) return `${diffHours}小时前`
-  if (diffDays < 7) return `${diffDays}天前`
+  if (diffMins < 1) return '刚刚';
+  if (diffMins < 60) return `${diffMins}分钟前`;
+  if (diffHours < 24) return `${diffHours}小时前`;
+  if (diffDays < 7) return `${diffDays}天前`;
 
   // 超过一周显示具体日期
-  return msgDate.toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' })
-})
+  return msgDate.toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' });
+});
 
 // 最后一条消息预览
 const lastMessagePreview = computed(() => {
-  const lastMessage = props.conversation.lastMessage
-  if (!lastMessage) return '暂无消息'
+  const lastMessage = props.conversation.lastMessage;
+  if (!lastMessage) return '暂无消息';
 
   // 根据消息类型返回不同预览
   switch (lastMessage.type) {
     case 'text':
-      return lastMessage.content?.text || '[文本]'
+      return lastMessage.content?.text || '[文本]';
     case 'image':
-      return '[图片]'
+      return '[图片]';
     case 'voice':
-      return '[语音]'
+      return '[语音]';
     case 'video':
-      return '[视频]'
+      return '[视频]';
     case 'file':
-      return '[文件]'
+      return '[文件]';
     case 'location':
-      return '[位置]'
+      return '[位置]';
     case 'system':
-      return '[系统消息]'
+      return '[系统消息]';
     case 'recall':
-      return '[撤回了一条消息]'
+      return '[撤回了一条消息]';
     default:
-      return '[消息]'
+      return '[消息]';
   }
-})
+});
 
 // 未读数
 const unreadCount = computed(() => {
-  return props.conversation.getUnreadCount?.(currentUserId) || 0
-})
+  return props.conversation.getUnreadCount?.(currentUserId) || 0;
+});
 
 // 是否置顶
 const isPinned = computed(() => {
-  return props.conversation.pinnedBy?.some(p => p.user === currentUserId)
-})
+  return props.conversation.pinnedBy?.some(p => p.user === currentUserId);
+});
 
 // 是否静音
 const isMuted = computed(() => {
-  return props.conversation.mutedBy?.includes(currentUserId)
-})
+  return props.conversation.mutedBy?.includes(currentUserId);
+});
 </script>
 
 <style scoped>

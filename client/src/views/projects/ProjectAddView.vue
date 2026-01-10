@@ -41,11 +41,7 @@
               <el-row :gutter="24">
                 <el-col :span="12">
                   <el-form-item label="项目名称" prop="name">
-                    <el-input
-                      v-model="projectForm.name"
-                      placeholder="请输入项目名称"
-                      clearable
-                    />
+                    <el-input v-model="projectForm.name" placeholder="请输入项目名称" clearable />
                   </el-form-item>
                 </el-col>
                 <el-col :span="12">
@@ -172,7 +168,7 @@
                   :step="5"
                   show-input
                   input-size="small"
-                  :format-tooltip="(val) => `${val}%`"
+                  :format-tooltip="val => `${val}%`"
                 />
               </el-form-item>
             </div>
@@ -181,22 +177,20 @@
             <div class="form-section">
               <h3 class="section-title">项目里程碑</h3>
 
-              <div v-for="(milestone, index) in projectForm.milestones" :key="index" class="milestone-item">
+              <div
+                v-for="(milestone, index) in projectForm.milestones"
+                :key="index"
+                class="milestone-item"
+              >
                 <el-row :gutter="24">
                   <el-col :span="6">
                     <el-form-item :label="`里程碑${index + 1}名称`">
-                      <el-input
-                        v-model="milestone.name"
-                        placeholder="里程碑名称"
-                      />
+                      <el-input v-model="milestone.name" placeholder="里程碑名称" />
                     </el-form-item>
                   </el-col>
                   <el-col :span="8">
                     <el-form-item label="描述">
-                      <el-input
-                        v-model="milestone.description"
-                        placeholder="里程碑描述"
-                      />
+                      <el-input v-model="milestone.description" placeholder="里程碑描述" />
                     </el-form-item>
                   </el-col>
                   <el-col :span="6">
@@ -226,11 +220,7 @@
                 </el-row>
               </div>
 
-              <el-button
-                type="dashed"
-                @click="addMilestone"
-                style="width: 100%; margin-top: 10px;"
-              >
+              <el-button type="dashed" @click="addMilestone" style="width: 100%; margin-top: 10px">
                 <el-icon><Plus /></el-icon>
                 添加里程碑
               </el-button>
@@ -238,18 +228,9 @@
 
             <!-- 表单操作 -->
             <div class="form-actions">
-              <el-button size="large" @click="resetForm">
-                重置
-              </el-button>
-              <el-button size="large" @click="saveDraft">
-                保存草稿
-              </el-button>
-              <el-button
-                type="primary"
-                size="large"
-                @click="submitForm"
-                :loading="submitting"
-              >
+              <el-button size="large" @click="resetForm"> 重置 </el-button>
+              <el-button size="large" @click="saveDraft"> 保存草稿 </el-button>
+              <el-button type="primary" size="large" @click="submitForm" :loading="submitting">
                 创建项目
               </el-button>
             </div>
@@ -261,15 +242,15 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus, ArrowLeft } from '@element-plus/icons-vue'
+import { ref, reactive } from 'vue';
+import { useRouter } from 'vue-router';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { Plus, ArrowLeft } from '@element-plus/icons-vue';
 
 // 响应式数据
-const router = useRouter()
-const projectFormRef = ref()
-const submitting = ref(false)
+const router = useRouter();
+const projectFormRef = ref();
+const submitting = ref(false);
 
 const projectForm = reactive({
   name: '',
@@ -286,105 +267,94 @@ const projectForm = reactive({
     {
       name: '',
       description: '',
-      expectedDate: ''
-    }
-  ]
-})
+      expectedDate: '',
+    },
+  ],
+});
 
 // 表单验证规则
 const formRules = {
   name: [
     { required: true, message: '请输入项目名称', trigger: 'blur' },
-    { min: 2, max: 50, message: '项目名称长度在 2 到 50 个字符', trigger: 'blur' }
+    { min: 2, max: 50, message: '项目名称长度在 2 到 50 个字符', trigger: 'blur' },
   ],
-  type: [
-    { required: true, message: '请选择项目类型', trigger: 'change' }
-  ],
+  type: [{ required: true, message: '请选择项目类型', trigger: 'change' }],
   description: [
     { required: true, message: '请输入项目描述', trigger: 'blur' },
-    { min: 10, max: 500, message: '项目描述长度在 10 到 500 个字符', trigger: 'blur' }
+    { min: 10, max: 500, message: '项目描述长度在 10 到 500 个字符', trigger: 'blur' },
   ],
-  manager: [
-    { required: true, message: '请输入项目负责人', trigger: 'blur' }
-  ],
-  status: [
-    { required: true, message: '请选择项目状态', trigger: 'change' }
-  ],
-  startDate: [
-    { required: true, message: '请选择开始时间', trigger: 'change' }
-  ],
-  expectedEndDate: [
-    { required: true, message: '请选择预计完成时间', trigger: 'change' }
-  ],
+  manager: [{ required: true, message: '请输入项目负责人', trigger: 'blur' }],
+  status: [{ required: true, message: '请选择项目状态', trigger: 'change' }],
+  startDate: [{ required: true, message: '请选择开始时间', trigger: 'change' }],
+  expectedEndDate: [{ required: true, message: '请选择预计完成时间', trigger: 'change' }],
   budget: [
     { required: true, message: '请输入项目预算', trigger: 'blur' },
-    { type: 'number', min: 0, message: '预算必须大于等于0', trigger: 'blur' }
-  ]
-}
+    { type: 'number', min: 0, message: '预算必须大于等于0', trigger: 'blur' },
+  ],
+};
 
 // 方法
 const addMilestone = () => {
   projectForm.milestones.push({
     name: '',
     description: '',
-    expectedDate: ''
-  })
-}
+    expectedDate: '',
+  });
+};
 
-const removeMilestone = (index) => {
-  projectForm.milestones.splice(index, 1)
-}
+const removeMilestone = index => {
+  projectForm.milestones.splice(index, 1);
+};
 
 const resetForm = () => {
-  projectFormRef.value?.resetFields()
+  projectFormRef.value?.resetFields();
   projectForm.milestones = [
     {
       name: '',
       description: '',
-      expectedDate: ''
-    }
-  ]
-}
+      expectedDate: '',
+    },
+  ];
+};
 
 const saveDraft = () => {
-  ElMessage.success('草稿保存成功（功能开发中）')
-}
+  ElMessage.success('草稿保存成功（功能开发中）');
+};
 
 const submitForm = async () => {
   try {
     // 表单验证
-    const valid = await projectFormRef.value?.validate()
-    if (!valid) return
+    const valid = await projectFormRef.value?.validate();
+    if (!valid) return;
 
     // 日期验证
     if (projectForm.startDate && projectForm.expectedEndDate) {
       if (new Date(projectForm.startDate) > new Date(projectForm.expectedEndDate)) {
-        ElMessage.error('开始时间不能晚于预计完成时间')
-        return
+        ElMessage.error('开始时间不能晚于预计完成时间');
+        return;
       }
     }
 
     // 预算验证
     if (projectForm.spent > projectForm.budget) {
-      ElMessage.error('已使用预算不能超过总预算')
-      return
+      ElMessage.error('已使用预算不能超过总预算');
+      return;
     }
 
-    submitting.value = true
+    submitting.value = true;
 
     // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 1500))
+    await new Promise(resolve => setTimeout(resolve, 1500));
 
-    ElMessage.success('项目创建成功')
-    router.push('/projects')
-
+    ElMessage.success('项目创建成功');
+    router.push('/projects');
   } catch (error) {
-    console.error('Submit form error:', error)
-    ElMessage.error('创建失败，请重试')
+    console.error('Submit form error:', error);
+    ElMessage.error('创建失败，请重试');
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>

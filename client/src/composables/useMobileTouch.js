@@ -12,8 +12,8 @@ export function useMobileTouch() {
     const userAgent = navigator.userAgent.toLowerCase();
     const mobileKeywords = ['mobile', 'android', 'iphone', 'ipad', 'tablet'];
 
-    isMobile.value = mobileKeywords.some(keyword => userAgent.includes(keyword)) ||
-                    window.innerWidth <= 768;
+    isMobile.value =
+      mobileKeywords.some(keyword => userAgent.includes(keyword)) || window.innerWidth <= 768;
     touchDevice.value = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
   };
 
@@ -26,7 +26,7 @@ export function useMobileTouch() {
         heavy: [30],
         double: [10, 50, 10],
         success: [10, 30, 10],
-        error: [50, 50, 50]
+        error: [50, 50, 50],
       };
       navigator.vibrate(patterns[type] || patterns.light);
     }
@@ -55,7 +55,7 @@ export function useMobileTouch() {
     isMobile,
     touchDevice,
     hapticFeedback,
-    addHapticClass
+    addHapticClass,
   };
 }
 
@@ -71,14 +71,14 @@ export function useSwipeAction() {
   let currentX = 0;
   let isDragging = false;
 
-  const handleTouchStart = (event) => {
+  const handleTouchStart = event => {
     startX = event.touches[0].clientX;
     currentX = startX;
     isDragging = true;
     isSwipeActive.value = true;
   };
 
-  const handleTouchMove = (event) => {
+  const handleTouchMove = event => {
     if (!isDragging) return;
 
     currentX = event.touches[0].clientX;
@@ -115,7 +115,7 @@ export function useSwipeAction() {
     handleTouchStart,
     handleTouchMove,
     handleTouchEnd,
-    resetSwipe
+    resetSwipe,
   };
 }
 
@@ -126,7 +126,7 @@ export function useLongPress(callback, delay = 500) {
   let timeout = null;
   const isPressed = ref(false);
 
-  const handleTouchStart = (event) => {
+  const handleTouchStart = event => {
     isPressed.value = true;
     timeout = setTimeout(() => {
       if (isPressed.value) {
@@ -159,7 +159,7 @@ export function useLongPress(callback, delay = 500) {
     isPressed,
     handleTouchStart,
     handleTouchEnd,
-    handleTouchCancel
+    handleTouchCancel,
   };
 }
 
@@ -170,7 +170,7 @@ export function useDoubleTap(callback, delay = 300) {
   let lastTap = 0;
   let timeout = null;
 
-  const handleTap = (event) => {
+  const handleTap = event => {
     const currentTime = new Date().getTime();
     const tapLength = currentTime - lastTap;
 
@@ -193,7 +193,7 @@ export function useDoubleTap(callback, delay = 300) {
   };
 
   return {
-    handleTap
+    handleTap,
   };
 }
 
@@ -205,11 +205,7 @@ export function useTouchEnhancement() {
 
   // 增强按钮点击反馈
   const enhanceButton = (buttonRef, options = {}) => {
-    const {
-      haptic = 'light',
-      scaleEffect = true,
-      rippleEffect = false
-    } = options;
+    const { haptic = 'light', scaleEffect = true, rippleEffect = false } = options;
 
     if (!buttonRef.value) return;
 
@@ -217,7 +213,7 @@ export function useTouchEnhancement() {
 
     // 添加触觉反馈
     const originalClick = button.onclick;
-    button.onclick = (event) => {
+    button.onclick = event => {
       if (touchDevice.value) {
         hapticFeedback(haptic);
         if (scaleEffect) {
@@ -290,6 +286,6 @@ export function useTouchEnhancement() {
     hapticFeedback,
     addHapticClass,
     enhanceButton,
-    createRippleEffect
+    createRippleEffect,
   };
 }

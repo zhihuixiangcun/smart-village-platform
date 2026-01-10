@@ -11,45 +11,45 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
-import QRCode from 'qrcode'
+import { ref, onMounted, watch } from 'vue';
+import QRCode from 'qrcode';
 
 const props = defineProps({
   text: {
     type: String,
-    required: true
+    required: true,
   },
   size: {
     type: Number,
-    default: 200
+    default: 200,
   },
   title: {
     type: String,
-    default: ''
+    default: '',
   },
   description: {
     type: String,
-    default: ''
+    default: '',
   },
   showInfo: {
     type: Boolean,
-    default: true
+    default: true,
   },
   color: {
     type: String,
-    default: '#000000'
+    default: '#000000',
   },
   backgroundColor: {
     type: String,
-    default: '#FFFFFF'
-  }
-})
+    default: '#FFFFFF',
+  },
+});
 
-const qrCanvas = ref()
-const qrContainer = ref()
+const qrCanvas = ref();
+const qrContainer = ref();
 
 const generateQRCode = async () => {
-  if (!qrCanvas.value || !props.text) return
+  if (!qrCanvas.value || !props.text) return;
 
   try {
     await QRCode.toCanvas(qrCanvas.value, props.text, {
@@ -57,41 +57,41 @@ const generateQRCode = async () => {
       margin: 2,
       color: {
         dark: props.color,
-        light: props.backgroundColor
+        light: props.backgroundColor,
       },
-      errorCorrectionLevel: 'M'
-    })
+      errorCorrectionLevel: 'M',
+    });
   } catch (error) {
-    console.error('QR Code generation failed:', error)
+    console.error('QR Code generation failed:', error);
   }
-}
+};
 
 const downloadQRCode = () => {
-  if (!qrCanvas.value) return
+  if (!qrCanvas.value) return;
 
-  const link = document.createElement('a')
-  link.download = `${props.title || 'qrcode'}.png`
-  link.href = qrCanvas.value.toDataURL()
-  link.click()
-}
+  const link = document.createElement('a');
+  link.download = `${props.title || 'qrcode'}.png`;
+  link.href = qrCanvas.value.toDataURL();
+  link.click();
+};
 
 const getQRCodeDataURL = () => {
-  return qrCanvas.value?.toDataURL() || ''
-}
+  return qrCanvas.value?.toDataURL() || '';
+};
 
 defineExpose({
   downloadQRCode,
-  getQRCodeDataURL
-})
+  getQRCodeDataURL,
+});
 
 onMounted(() => {
-  generateQRCode()
-})
+  generateQRCode();
+});
 
-watch(() => props.text, generateQRCode)
-watch(() => props.size, generateQRCode)
-watch(() => props.color, generateQRCode)
-watch(() => props.backgroundColor, generateQRCode)
+watch(() => props.text, generateQRCode);
+watch(() => props.size, generateQRCode);
+watch(() => props.color, generateQRCode);
+watch(() => props.backgroundColor, generateQRCode);
 </script>
 
 <style lang="scss" scoped>

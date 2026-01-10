@@ -7,7 +7,7 @@
           <video
             ref="videoElement"
             class="camera-feed"
-            :class="{ 'mirror': isMirrored }"
+            :class="{ mirror: isMirrored }"
             autoplay
             playsinline
           ></video>
@@ -48,11 +48,7 @@
               <i class="fas fa-camera"></i>
               {{ isProcessing ? '识别中...' : '拍照识别' }}
             </button>
-            <button
-              class="control-btn secondary"
-              @click="stopCamera"
-              v-if="cameraActive"
-            >
+            <button class="control-btn secondary" @click="stopCamera" v-if="cameraActive">
               <i class="fas fa-stop"></i>
               关闭摄像头
             </button>
@@ -68,7 +64,7 @@
 
           <!-- 摄像头状态 -->
           <div class="camera-status">
-            <span class="status-indicator" :class="{ 'active': cameraActive, 'error': cameraError }">
+            <span class="status-indicator" :class="{ active: cameraActive, error: cameraError }">
               {{ cameraStatus }}
             </span>
             <span class="camera-info" v-if="currentCamera">
@@ -96,8 +92,13 @@
             <div class="result-item">
               <label>置信度:</label>
               <div class="confidence-bar">
-                <div class="confidence-fill" :style="{ width: (recognitionResult.confidence * 100) + '%' }"></div>
-                <span class="confidence-text">{{ (recognitionResult.confidence * 100).toFixed(1) }}%</span>
+                <div
+                  class="confidence-fill"
+                  :style="{ width: recognitionResult.confidence * 100 + '%' }"
+                ></div>
+                <span class="confidence-text"
+                  >{{ (recognitionResult.confidence * 100).toFixed(1) }}%</span
+                >
               </div>
             </div>
 
@@ -124,19 +125,19 @@
               <h4>活体检测</h4>
               <div class="liveness-item">
                 <span class="liveness-label">眨眼检测:</span>
-                <span class="liveness-value" :class="{ 'passed': recognitionResult.liveness.blink }">
+                <span class="liveness-value" :class="{ passed: recognitionResult.liveness.blink }">
                   {{ recognitionResult.liveness.blink ? '通过' : '未通过' }}
                 </span>
               </div>
               <div class="liveness-item">
                 <span class="liveness-label">头部动作:</span>
-                <span class="liveness-value" :class="{ 'passed': recognitionResult.liveness.head }">
+                <span class="liveness-value" :class="{ passed: recognitionResult.liveness.head }">
                   {{ recognitionResult.liveness.head ? '通过' : '未通过' }}
                 </span>
               </div>
               <div class="liveness-item">
                 <span class="liveness-label"> mouth动作:</span>
-                <span class="liveness-value" :class="{ 'passed': recognitionResult.liveness.mouth }">
+                <span class="liveness-value" :class="{ passed: recognitionResult.liveness.mouth }">
                   {{ recognitionResult.liveness.mouth ? '通过' : '未通过' }}
                 </span>
               </div>
@@ -174,7 +175,11 @@
             <i class="fas fa-save"></i>
             保存结果
           </button>
-          <button class="action-btn secondary" @click="shareResult" v-if="recognitionResult.success">
+          <button
+            class="action-btn secondary"
+            @click="shareResult"
+            v-if="recognitionResult.success"
+          >
             <i class="fas fa-share"></i>
             分享结果
           </button>
@@ -258,11 +263,7 @@
       >
         <i class="fas fa-history"></i>
       </button>
-      <button
-        class="floating-btn upload-btn"
-        @click="$refs.fileInput?.click()"
-        title="上传图片"
-      >
+      <button class="floating-btn upload-btn" @click="$refs.fileInput?.click()" title="上传图片">
         <i class="fas fa-upload"></i>
       </button>
       <input
@@ -277,100 +278,102 @@
 </template>
 
 <script>
-import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
+import { ElMessage } from 'element-plus';
 
 export default {
   name: 'FaceRecognition',
   props: {
     userId: {
       type: String,
-      default: null
+      default: null,
     },
     mode: {
       type: String,
       default: 'recognition', // recognition, registration, comparison
-      validator: (value) => ['recognition', 'registration', 'comparison'].includes(value)
-    }
+      validator: value => ['recognition', 'registration', 'comparison'].includes(value),
+    },
   },
   emits: ['recognition-complete', 'registration-complete', 'comparison-complete'],
   setup(props, { emit }) {
     // 摄像头相关
-    const videoElement = ref(null)
-    const canvasElement = ref(null)
-    const fileInput = ref(null)
-    const stream = ref(null)
-    const cameras = ref([])
-    const currentCamera = ref(null)
-    const cameraActive = ref(false)
-    const cameraError = ref(false)
-    const isMirrored = ref(true)
-    const showCanvas = ref(false)
-    const isCameraReady = ref(false)
+    const videoElement = ref(null);
+    const canvasElement = ref(null);
+    const fileInput = ref(null);
+    const stream = ref(null);
+    const cameras = ref([]);
+    const currentCamera = ref(null);
+    const cameraActive = ref(false);
+    const cameraError = ref(false);
+    const isMirrored = ref(true);
+    const showCanvas = ref(false);
+    const isCameraReady = ref(false);
 
     // 识别相关
-    const isProcessing = ref(false)
-    const detectionResult = ref(null)
-    const recognitionResult = ref(null)
-    const recognitionHistory = ref([])
+    const isProcessing = ref(false);
+    const detectionResult = ref(null);
+    const recognitionResult = ref(null);
+    const recognitionHistory = ref([]);
 
     // 界面控制
-    const showSettings = ref(false)
-    const showHistory = ref(false)
+    const showSettings = ref(false);
+    const showHistory = ref(false);
 
     // 设置
     const settings = reactive({
       provider: 'baidu',
       livenessCheck: true,
       qualityCheck: true,
-      confidenceThreshold: 0.8
-    })
+      confidenceThreshold: 0.8,
+    });
 
     // 计算属性
     const cameraStatus = computed(() => {
-      if (cameraError.value) return '摄像头错误'
-      if (cameraActive.value) return '摄像头已开启'
-      return '摄像头未开启'
-    })
+      if (cameraError.value) return '摄像头错误';
+      if (cameraActive.value) return '摄像头已开启';
+      return '摄像头未开启';
+    });
 
     const detectionBoxStyle = computed(() => {
-      if (!detectionResult.value?.location) return {}
+      if (!detectionResult.value?.location) return {};
 
-      const { x, y, width, height } = detectionResult.value.location
+      const { x, y, width, height } = detectionResult.value.location;
       return {
         left: x + 'px',
         top: y + 'px',
         width: width + 'px',
-        height: height + 'px'
-      }
-    })
+        height: height + 'px',
+      };
+    });
 
     onMounted(() => {
-      loadRecognitionHistory()
-    })
+      loadRecognitionHistory();
+    });
 
     onUnmounted(() => {
-      stopCamera()
-    })
+      stopCamera();
+    });
 
     // 启动摄像头
     const startCamera = async () => {
       try {
-        cameraError.value = false
+        cameraError.value = false;
 
         // 获取可用摄像头
-        const devices = await navigator.mediaDevices.enumerateDevices()
-        cameras.value = devices.filter(device => device.kind === 'videoinput')
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        cameras.value = devices.filter(device => device.kind === 'videoinput');
 
         if (cameras.value.length === 0) {
-          throw new Error('未找到可用摄像头')
+          throw new Error('未找到可用摄像头');
         }
 
         // 选择后置摄像头（如果有）
-        const backCamera = cameras.value.find(camera =>
-          camera.label.toLowerCase().includes('back') ||
-          camera.label.toLowerCase().includes('后置')
-        ) || cameras.value[0]
+        const backCamera =
+          cameras.value.find(
+            camera =>
+              camera.label.toLowerCase().includes('back') ||
+              camera.label.toLowerCase().includes('后置')
+          ) || cameras.value[0];
 
         // 获取视频流
         stream.value = await navigator.mediaDevices.getUserMedia({
@@ -378,78 +381,80 @@ export default {
             deviceId: backCamera.deviceId,
             width: { ideal: 1280 },
             height: { ideal: 720 },
-            facingMode: 'user'
-          }
-        })
+            facingMode: 'user',
+          },
+        });
 
         // 设置视频流
         if (videoElement.value) {
-          videoElement.value.srcObject = stream.value
-          currentCamera.value = backCamera
-          cameraActive.value = true
-          isCameraReady.value = true
-          isMirrored.value = backCamera.label.toLowerCase().includes('front') || backCamera.facingMode === 'user'
+          videoElement.value.srcObject = stream.value;
+          currentCamera.value = backCamera;
+          cameraActive.value = true;
+          isCameraReady.value = true;
+          isMirrored.value =
+            backCamera.label.toLowerCase().includes('front') || backCamera.facingMode === 'user';
 
           // 等待摄像头准备就绪
           videoElement.value.onloadedmetadata = () => {
-            isCameraReady.value = true
-            startDetection()
-          }
+            isCameraReady.value = true;
+            startDetection();
+          };
         }
 
-        ElMessage.success('摄像头开启成功')
-
+        ElMessage.success('摄像头开启成功');
       } catch (error) {
-        console.error('启动摄像头失败:', error)
-        cameraError.value = true
-        ElMessage.error('启动摄像头失败: ' + error.message)
+        console.error('启动摄像头失败:', error);
+        cameraError.value = true;
+        ElMessage.error('启动摄像头失败: ' + error.message);
       }
-    }
+    };
 
     // 停止摄像头
     const stopCamera = () => {
       if (stream.value) {
-        stream.value.getTracks().forEach(track => track.stop())
-        stream.value = null
+        stream.value.getTracks().forEach(track => track.stop());
+        stream.value = null;
       }
 
       if (videoElement.value) {
-        videoElement.value.srcObject = null
+        videoElement.value.srcObject = null;
       }
 
-      cameraActive.value = false
-      isCameraReady.value = false
-      detectionResult.value = null
-    }
+      cameraActive.value = false;
+      isCameraReady.value = false;
+      detectionResult.value = null;
+    };
 
     // 切换摄像头
     const switchCamera = async () => {
-      const currentIndex = cameras.value.findIndex(camera => camera.deviceId === currentCamera.value?.deviceId)
-      const nextIndex = (currentIndex + 1) % cameras.value.length
-      const nextCamera = cameras.value[nextIndex]
+      const currentIndex = cameras.value.findIndex(
+        camera => camera.deviceId === currentCamera.value?.deviceId
+      );
+      const nextIndex = (currentIndex + 1) % cameras.value.length;
+      const nextCamera = cameras.value[nextIndex];
 
-      stopCamera()
-      currentCamera.value = nextCamera
+      stopCamera();
+      currentCamera.value = nextCamera;
 
       // 重新启动摄像头
-      await startCamera()
-    }
+      await startCamera();
+    };
 
     // 开始人脸检测
     const startDetection = () => {
-      if (!videoElement.value || !isCameraReady.value) return
+      if (!videoElement.value || !isCameraReady.value) return;
 
-      const canvas = canvasElement.value
-      const video = videoElement.value
-      const ctx = canvas.getContext('2d')
+      const canvas = canvasElement.value;
+      const video = videoElement.value;
+      const ctx = canvas.getContext('2d');
 
-      canvas.width = video.videoWidth
-      canvas.height = video.videoHeight
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
 
       const detect = () => {
-        if (!cameraActive.value || !isCameraReady.value) return
+        if (!cameraActive.value || !isCameraReady.value) return;
 
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
         // 这里应该调用实际的人脸检测API
         // 简化实现，模拟检测
@@ -459,91 +464,89 @@ export default {
               x: canvas.width * 0.3,
               y: canvas.height * 0.2,
               width: canvas.width * 0.4,
-              height: canvas.height * 0.5
+              height: canvas.height * 0.5,
             },
-            confidence: 0.9 + Math.random() * 0.1
-          }
+            confidence: 0.9 + Math.random() * 0.1,
+          };
         }
 
-        requestAnimationFrame(detect)
-      }
+        requestAnimationFrame(detect);
+      };
 
-      detect()
-    }
+      detect();
+    };
 
     // 拍照识别
     const captureImage = async () => {
-      if (!isCameraReady.value || isProcessing.value) return
+      if (!isCameraReady.value || isProcessing.value) return;
 
-      isProcessing.value = true
-      showCanvas.value = true
+      isProcessing.value = true;
+      showCanvas.value = true;
 
       try {
-        const canvas = canvasElement.value
-        const video = videoElement.value
-        const ctx = canvas.getContext('2d')
+        const canvas = canvasElement.value;
+        const video = videoElement.value;
+        const ctx = canvas.getContext('2d');
 
         // 捕获当前帧
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
         // 转换为Blob
         const blob = await new Promise(resolve => {
-          canvas.toBlob(resolve, 'image/jpeg', 0.9)
-        })
+          canvas.toBlob(resolve, 'image/jpeg', 0.9);
+        });
 
         // 转换为ArrayBuffer
-        const arrayBuffer = await blob.arrayBuffer()
+        const arrayBuffer = await blob.arrayBuffer();
 
         // 调用人脸识别API
-        const result = await performFaceRecognition(arrayBuffer)
+        const result = await performFaceRecognition(arrayBuffer);
 
-        recognitionResult.value = result
+        recognitionResult.value = result;
 
         // 触发事件
         if (props.mode === 'recognition') {
-          emit('recognition-complete', result)
+          emit('recognition-complete', result);
         } else if (props.mode === 'registration') {
-          emit('registration-complete', result)
+          emit('registration-complete', result);
         } else if (props.mode === 'comparison') {
-          emit('comparison-complete', result)
+          emit('comparison-complete', result);
         }
 
         // 添加到历史记录
-        addToHistory(result, canvas.toDataURL('image/jpeg'))
+        addToHistory(result, canvas.toDataURL('image/jpeg'));
 
-        ElMessage.success(result.success ? '人脸识别成功' : '人脸识别失败')
-
+        ElMessage.success(result.success ? '人脸识别成功' : '人脸识别失败');
       } catch (error) {
-        console.error('人脸识别失败:', error)
-        ElMessage.error('人脸识别失败: ' + error.message)
+        console.error('人脸识别失败:', error);
+        ElMessage.error('人脸识别失败: ' + error.message);
       } finally {
-        isProcessing.value = false
+        isProcessing.value = false;
         setTimeout(() => {
-          showCanvas.value = false
-        }, 2000)
+          showCanvas.value = false;
+        }, 2000);
       }
-    }
+    };
 
     // 执行人脸识别
-    const performFaceRecognition = async (imageBuffer) => {
+    const performFaceRecognition = async imageBuffer => {
       try {
-        const formData = new FormData()
-        formData.append('image', new Blob([imageBuffer], { type: 'image/jpeg' }), 'face.jpg')
-        formData.append('userId', props.userId || '')
-        formData.append('livenessCheck', settings.livenessCheck)
-        formData.append('qualityCheck', settings.qualityCheck)
-        formData.append('provider', settings.provider)
+        const formData = new FormData();
+        formData.append('image', new Blob([imageBuffer], { type: 'image/jpeg' }), 'face.jpg');
+        formData.append('userId', props.userId || '');
+        formData.append('livenessCheck', settings.livenessCheck);
+        formData.append('qualityCheck', settings.qualityCheck);
+        formData.append('provider', settings.provider);
 
         const response = await fetch('/api/v1/computer-vision/face/recognize', {
           method: 'POST',
-          body: formData
-        })
+          body: formData,
+        });
 
-        const data = await response.json()
-        return data.data || { success: false, error: '识别失败' }
-
+        const data = await response.json();
+        return data.data || { success: false, error: '识别失败' };
       } catch (error) {
-        console.error('人脸识别API调用失败:', error)
+        console.error('人脸识别API调用失败:', error);
 
         // 模拟返回结果
         return {
@@ -552,62 +555,63 @@ export default {
           age: Math.floor(20 + Math.random() * 50),
           gender: Math.random() > 0.5 ? 'male' : 'female',
           verified: props.userId && Math.random() > 0.3,
-          liveness: settings.livenessCheck ? {
-            blink: Math.random() > 0.1,
-            head: Math.random() > 0.05,
-            mouth: Math.random() > 0.1
-          } : null
-        }
+          liveness: settings.livenessCheck
+            ? {
+                blink: Math.random() > 0.1,
+                head: Math.random() > 0.05,
+                mouth: Math.random() > 0.1,
+              }
+            : null,
+        };
       }
-    }
+    };
 
     // 重新拍照
     const retakePhoto = () => {
-      recognitionResult.value = null
-      detectionResult.value = null
-      showCanvas.value = false
-    }
+      recognitionResult.value = null;
+      detectionResult.value = null;
+      showCanvas.value = false;
+    };
 
     // 保存结果
     const saveResult = () => {
-      if (!recognitionResult.value?.success) return
+      if (!recognitionResult.value?.success) return;
 
       // 这里应该调用API保存识别结果
-      ElMessage.success('识别结果已保存')
-    }
+      ElMessage.success('识别结果已保存');
+    };
 
     // 分享结果
     const shareResult = () => {
-      if (!recognitionResult.value?.success) return
+      if (!recognitionResult.value?.success) return;
 
       // 分享功能
-      ElMessage.info('分享功能开发中')
-    }
+      ElMessage.info('分享功能开发中');
+    };
 
     // 处理文件上传
-    const handleFileUpload = async (event) => {
-      const file = event.target.files[0]
-      if (!file) return
+    const handleFileUpload = async event => {
+      const file = event.target.files[0];
+      if (!file) return;
 
-      isProcessing.value = true
+      isProcessing.value = true;
 
       try {
-        const arrayBuffer = await file.arrayBuffer()
-        const result = await performFaceRecognition(arrayBuffer)
+        const arrayBuffer = await file.arrayBuffer();
+        const result = await performFaceRecognition(arrayBuffer);
 
-        recognitionResult.value = result
-        addToHistory(result, URL.createObjectURL(file))
+        recognitionResult.value = result;
+        addToHistory(result, URL.createObjectURL(file));
 
-        ElMessage.success(result.success ? '图片识别成功' : '图片识别失败')
-
+        ElMessage.success(result.success ? '图片识别成功' : '图片识别失败');
       } catch (error) {
-        console.error('图片识别失败:', error)
-        ElMessage.error('图片识别失败: ' + error.message)
+        console.error('图片识别失败:', error);
+        ElMessage.error('图片识别失败: ' + error.message);
       } finally {
-        isProcessing.value = false
-        event.target.value = ''
+        isProcessing.value = false;
+        event.target.value = '';
       }
-    }
+    };
 
     // 添加到历史记录
     const addToHistory = (result, imageData) => {
@@ -617,78 +621,78 @@ export default {
         confidence: result.confidence || 0,
         image: imageData,
         provider: settings.provider,
-        livenessCheck: settings.livenessCheck
-      }
+        livenessCheck: settings.livenessCheck,
+      };
 
-      recognitionHistory.value.unshift(historyItem)
+      recognitionHistory.value.unshift(historyItem);
 
       // 限制历史记录数量
       if (recognitionHistory.value.length > 20) {
-        recognitionHistory.value = recognitionHistory.value.slice(0, 20)
+        recognitionHistory.value = recognitionHistory.value.slice(0, 20);
       }
 
       // 保存到本地存储
       try {
-        localStorage.setItem('faceRecognitionHistory', JSON.stringify(recognitionHistory.value))
+        localStorage.setItem('faceRecognitionHistory', JSON.stringify(recognitionHistory.value));
       } catch (error) {
-        console.error('保存历史记录失败:', error)
+        console.error('保存历史记录失败:', error);
       }
-    }
+    };
 
     // 加载历史记录
     const loadRecognitionHistory = () => {
       try {
-        const saved = localStorage.getItem('faceRecognitionHistory')
+        const saved = localStorage.getItem('faceRecognitionHistory');
         if (saved) {
-          recognitionHistory.value = JSON.parse(saved)
+          recognitionHistory.value = JSON.parse(saved);
         }
       } catch (error) {
-        console.error('加载历史记录失败:', error)
+        console.error('加载历史记录失败:', error);
       }
-    }
+    };
 
     // 加载历史项
-    const loadHistoryItem = (item) => {
+    const loadHistoryItem = item => {
       recognitionResult.value = {
         success: item.success,
         confidence: item.confidence,
-        timestamp: item.timestamp
-      }
+        timestamp: item.timestamp,
+      };
 
-      showCanvas.value = true
-      const canvas = canvasElement.value
-      const ctx = canvas.getContext('2d')
+      showCanvas.value = true;
+      const canvas = canvasElement.value;
+      const ctx = canvas.getContext('2d');
 
-      const img = new Image()
+      const img = new Image();
       img.onload = () => {
-        canvas.width = img.width
-        canvas.height = img.height
-        ctx.drawImage(img, 0, 0)
-      }
-      img.src = item.image
-    }
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+      };
+      img.src = item.image;
+    };
 
     // 切换设置面板
     const toggleSettings = () => {
-      showSettings.value = !showSettings.value
-      showHistory.value = false
-    }
+      showSettings.value = !showSettings.value;
+      showHistory.value = false;
+    };
 
     // 切换历史面板
     const toggleHistory = () => {
-      showHistory.value = !showHistory.value
-      showSettings.value = false
-    }
+      showHistory.value = !showHistory.value;
+      showSettings.value = false;
+    };
 
     // 格式化置信度
-    const formatConfidence = (value) => {
-      return (value * 100).toFixed(0) + '%'
-    }
+    const formatConfidence = value => {
+      return (value * 100).toFixed(0) + '%';
+    };
 
     // 格式化时间
-    const formatTime = (timestamp) => {
-      return new Date(timestamp).toLocaleString()
-    }
+    const formatTime = timestamp => {
+      return new Date(timestamp).toLocaleString();
+    };
 
     return {
       // refs
@@ -729,10 +733,10 @@ export default {
       toggleSettings,
       toggleHistory,
       formatConfidence,
-      formatTime
-    }
-  }
-}
+      formatTime,
+    };
+  },
+};
 </script>
 
 <style scoped>
@@ -775,7 +779,7 @@ export default {
 
 .detection-box {
   position: absolute;
-  border: 2px solid #4CAF50;
+  border: 2px solid #4caf50;
   background: rgba(76, 175, 80, 0.1);
 }
 
@@ -783,7 +787,7 @@ export default {
   position: absolute;
   top: -30px;
   left: 0;
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
   padding: 4px 8px;
   border-radius: 4px;
@@ -818,7 +822,7 @@ export default {
 }
 
 .control-btn.primary {
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
 }
 
@@ -865,7 +869,7 @@ export default {
 }
 
 .status-indicator.active {
-  background: #4CAF50;
+  background: #4caf50;
 }
 
 .status-indicator.error {
@@ -906,7 +910,7 @@ export default {
 
 .result-status.success {
   background: #e8f5e8;
-  color: #4CAF50;
+  color: #4caf50;
 }
 
 .result-status.error {
@@ -943,7 +947,7 @@ export default {
 
 .confidence-fill {
   height: 100%;
-  background: linear-gradient(90deg, #4CAF50, #45a049);
+  background: linear-gradient(90deg, #4caf50, #45a049);
   transition: width 0.3s ease;
 }
 
@@ -961,7 +965,7 @@ export default {
 }
 
 .verified-badge {
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
   padding: 4px 12px;
   border-radius: 4px;
@@ -1008,7 +1012,7 @@ export default {
 }
 
 .liveness-value.passed {
-  color: #4CAF50;
+  color: #4caf50;
 }
 
 .liveness-value:not(.passed) {
@@ -1068,9 +1072,9 @@ export default {
 
 .action-btn {
   padding: 10px 20px;
-  border: 1px solid #2196F3;
+  border: 1px solid #2196f3;
   background: white;
-  color: #2196F3;
+  color: #2196f3;
   border-radius: 6px;
   font-size: 14px;
   font-weight: 500;
@@ -1082,14 +1086,14 @@ export default {
 }
 
 .action-btn:hover {
-  background: #2196F3;
+  background: #2196f3;
   color: white;
 }
 
 .action-btn.primary {
-  background: #2196F3;
+  background: #2196f3;
   color: white;
-  border-color: #2196F3;
+  border-color: #2196f3;
 }
 
 .floating-actions {
@@ -1107,7 +1111,7 @@ export default {
   height: 48px;
   border-radius: 50%;
   border: none;
-  background: #2196F3;
+  background: #2196f3;
   color: white;
   cursor: pointer;
   transition: all 0.3s;
@@ -1123,11 +1127,11 @@ export default {
 }
 
 .floating-btn.active {
-  background: #1976D2;
+  background: #1976d2;
 }
 
 .upload-btn {
-  background: #4CAF50;
+  background: #4caf50;
 }
 
 .upload-btn:hover {
@@ -1220,7 +1224,7 @@ export default {
 }
 
 .history-result.success {
-  color: #4CAF50;
+  color: #4caf50;
 }
 
 .history-confidence {

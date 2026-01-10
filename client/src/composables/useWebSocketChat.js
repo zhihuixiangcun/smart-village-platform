@@ -320,7 +320,7 @@ export function useWebSocketChat() {
   function sendChatMessage(conversationId, messageData) {
     return send('chat_message', {
       conversationId,
-      ...messageData
+      ...messageData,
     });
   }
 
@@ -368,7 +368,7 @@ export function useWebSocketChat() {
     // 好友相关
     sendFriendRequest,
     acceptFriendRequest,
-    declineFriendRequest
+    declineFriendRequest,
   };
 }
 

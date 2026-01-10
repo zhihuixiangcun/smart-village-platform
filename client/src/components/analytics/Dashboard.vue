@@ -12,7 +12,7 @@
           format="YYYY-MM-DD"
           value-format="YYYY-MM-DD"
           @change="handleDateRangeChange"
-          style="margin-right: 10px;"
+          style="margin-right: 10px"
         />
         <el-button type="primary" @click="refreshData">
           <el-icon><Refresh /></el-icon>
@@ -70,8 +70,13 @@
             <div class="card-info">
               <div class="card-value">{{ overview.totalTransactions }}</div>
               <div class="card-label">交易数量</div>
-              <div class="card-trend" :class="overview.transactionTrend > 0 ? 'positive' : 'negative'">
-                <el-icon><ArrowUp v-if="overview.transactionTrend > 0" /><ArrowDown v-else /></el-icon>
+              <div
+                class="card-trend"
+                :class="overview.transactionTrend > 0 ? 'positive' : 'negative'"
+              >
+                <el-icon
+                  ><ArrowUp v-if="overview.transactionTrend > 0" /><ArrowDown v-else
+                /></el-icon>
                 {{ Math.abs(overview.transactionTrend) }}%
               </div>
             </div>
@@ -87,8 +92,13 @@
             <div class="card-info">
               <div class="card-value">{{ overview.totalEmergencies }}</div>
               <div class="card-label">应急事件</div>
-              <div class="card-trend" :class="overview.emergencyTrend < 0 ? 'positive' : 'negative'">
-                <el-icon><ArrowUp v-if="overview.emergencyTrend > 0" /><ArrowDown v-else /></el-icon>
+              <div
+                class="card-trend"
+                :class="overview.emergencyTrend < 0 ? 'positive' : 'negative'"
+              >
+                <el-icon
+                  ><ArrowUp v-if="overview.emergencyTrend > 0" /><ArrowDown v-else
+                /></el-icon>
                 {{ Math.abs(overview.emergencyTrend) }}%
               </div>
             </div>
@@ -212,13 +222,7 @@
               </el-radio-group>
             </div>
           </template>
-          <el-table
-            :data="tableData"
-            v-loading="tableLoading"
-            stripe
-            border
-            style="width: 100%"
-          >
+          <el-table :data="tableData" v-loading="tableLoading" stripe border style="width: 100%">
             <!-- 动态列根据tableView变化 -->
             <el-table-column
               v-for="column in tableColumns"
@@ -246,11 +250,7 @@
     </el-row>
 
     <!-- 导出报告对话框 -->
-    <el-dialog
-      v-model="exportDialog.visible"
-      title="导出分析报告"
-      width="600px"
-    >
+    <el-dialog v-model="exportDialog.visible" title="导出分析报告" width="600px">
       <el-form :model="exportForm" label-width="100px">
         <el-form-item label="报告类型">
           <el-select v-model="exportForm.type" placeholder="请选择报告类型" style="width: 100%">
@@ -285,11 +285,7 @@
           <el-switch v-model="exportForm.includeCharts" />
         </el-form-item>
         <el-form-item label="邮件发送">
-          <el-input
-            v-model="exportForm.email"
-            placeholder="输入邮箱地址（可选）"
-            type="email"
-          />
+          <el-input v-model="exportForm.email" placeholder="输入邮箱地址（可选）" type="email" />
         </el-form-item>
       </el-form>
 
@@ -309,8 +305,14 @@
 import { ref, reactive, onMounted, onUnmounted, nextTick } from 'vue';
 import { ElMessage } from 'element-plus';
 import {
-  Refresh, Download, User, Money, DocumentCopy, Warning,
-  ArrowUp, ArrowDown
+  Refresh,
+  Download,
+  User,
+  Money,
+  DocumentCopy,
+  Warning,
+  ArrowUp,
+  ArrowDown,
 } from '@element-plus/icons-vue';
 import * as echarts from 'echarts';
 import apiService from '@/services/apiService';
@@ -340,7 +342,7 @@ const overview = reactive({
   totalTransactions: 0,
   transactionTrend: 0,
   totalEmergencies: 0,
-  emergencyTrend: 0
+  emergencyTrend: 0,
 });
 
 // 实时数据
@@ -348,7 +350,7 @@ const realtimeData = reactive({
   onlineUsers: 0,
   todayTransactions: 0,
   systemLoad: 0,
-  responseTime: 0
+  responseTime: 0,
 });
 
 // 表格数据
@@ -356,12 +358,12 @@ const tableData = ref([]);
 const tablePagination = reactive({
   page: 1,
   limit: 20,
-  total: 0
+  total: 0,
 });
 
 // 导出对话框
 const exportDialog = reactive({
-  visible: false
+  visible: false,
 });
 
 const exportForm = reactive({
@@ -369,7 +371,7 @@ const exportForm = reactive({
   formats: ['pdf'],
   dateRange: [],
   includeCharts: true,
-  email: ''
+  email: '',
 });
 
 // 图表实例
@@ -391,29 +393,29 @@ const tableColumnsConfig = {
     { prop: 'newUsers', label: '新增用户', width: '100' },
     { prop: 'activeUsers', label: '活跃用户', width: '100' },
     { prop: 'retentionRate', label: '留存率', width: '100', formatter: formatPercentage },
-    { prop: 'growthRate', label: '增长率', width: '100', formatter: formatPercentage }
+    { prop: 'growthRate', label: '增长率', width: '100', formatter: formatPercentage },
   ],
   transactions: [
     { prop: 'date', label: '日期', width: '120' },
     { prop: 'totalAmount', label: '交易总额', width: '120', formatter: formatCurrency },
     { prop: 'transactionCount', label: '交易数量', width: '100' },
     { prop: 'avgAmount', label: '平均金额', width: '100', formatter: formatCurrency },
-    { prop: 'category', label: '主要分类', width: '120' }
+    { prop: 'category', label: '主要分类', width: '120' },
   ],
   emergencies: [
     { prop: 'date', label: '日期', width: '120' },
     { prop: 'emergencyCount', label: '事件数量', width: '100' },
     { prop: 'type', label: '主要类型', width: '120' },
     { prop: 'avgResolutionTime', label: '平均解决时间', width: '140' },
-    { prop: 'resolvedCount', label: '已解决', width: '100' }
+    { prop: 'resolvedCount', label: '已解决', width: '100' },
   ],
   activities: [
     { prop: 'date', label: '日期', width: '120' },
     { prop: 'activityCount', label: '活动数量', width: '100' },
     { prop: 'participants', label: '参与人数', width: '100' },
     { prop: 'engagementRate', label: '参与率', width: '100', formatter: formatPercentage },
-    { prop: 'satisfaction', label: '满意度', width: '100', formatter: formatScore }
-  ]
+    { prop: 'satisfaction', label: '满意度', width: '100', formatter: formatScore },
+  ],
 };
 
 const tableColumns = ref(tableColumnsConfig.users);
@@ -458,21 +460,21 @@ const initUserGrowthChart = () => {
   const option = {
     title: {
       text: '用户增长趋势',
-      left: 'center'
+      left: 'center',
     },
     tooltip: {
-      trigger: 'axis'
+      trigger: 'axis',
     },
     legend: {
       data: ['新增用户', '活跃用户'],
-      bottom: 0
+      bottom: 0,
     },
     xAxis: {
       type: 'category',
-      data: generateDateLabels(userChartPeriod.value)
+      data: generateDateLabels(userChartPeriod.value),
     },
     yAxis: {
-      type: 'value'
+      type: 'value',
     },
     series: [
       {
@@ -480,16 +482,16 @@ const initUserGrowthChart = () => {
         type: 'line',
         data: generateRandomData(30, 5, 20),
         smooth: true,
-        itemStyle: { color: '#409eff' }
+        itemStyle: { color: '#409eff' },
       },
       {
         name: '活跃用户',
         type: 'line',
         data: generateRandomData(30, 50, 150),
         smooth: true,
-        itemStyle: { color: '#67c23a' }
-      }
-    ]
+        itemStyle: { color: '#67c23a' },
+      },
+    ],
   };
 
   userGrowthChart.setOption(option);
@@ -503,42 +505,42 @@ const initFinanceChart = () => {
   const option = {
     title: {
       text: '财务收支趋势',
-      left: 'center'
+      left: 'center',
     },
     tooltip: {
       trigger: 'axis',
       axisPointer: {
-        type: 'cross'
-      }
+        type: 'cross',
+      },
     },
     legend: {
       data: ['收入', '支出'],
-      bottom: 0
+      bottom: 0,
     },
     xAxis: {
       type: 'category',
-      data: generateDateLabels(financeChartPeriod.value)
+      data: generateDateLabels(financeChartPeriod.value),
     },
     yAxis: {
       type: 'value',
       axisLabel: {
-        formatter: '¥{value}'
-      }
+        formatter: '¥{value}',
+      },
     },
     series: [
       {
         name: '收入',
         type: 'bar',
         data: generateRandomData(30, 1000, 5000),
-        itemStyle: { color: '#67c23a' }
+        itemStyle: { color: '#67c23a' },
       },
       {
         name: '支出',
         type: 'bar',
         data: generateRandomData(30, 800, 4000),
-        itemStyle: { color: '#f56c6c' }
-      }
-    ]
+        itemStyle: { color: '#f56c6c' },
+      },
+    ],
   };
 
   financeChart.setOption(option);
@@ -552,15 +554,15 @@ const initEventTypeChart = () => {
   const option = {
     title: {
       text: '事件类型分布',
-      left: 'center'
+      left: 'center',
     },
     tooltip: {
       trigger: 'item',
-      formatter: '{a} <br/>{b}: {c} ({d}%)'
+      formatter: '{a} <br/>{b}: {c} ({d}%)',
     },
     legend: {
       bottom: 0,
-      data: ['医疗急救', '火灾报警', '安全事件', '自然灾害', '设施故障', '其他']
+      data: ['医疗急救', '火灾报警', '安全事件', '自然灾害', '设施故障', '其他'],
     },
     series: [
       {
@@ -570,17 +572,17 @@ const initEventTypeChart = () => {
         avoidLabelOverlap: false,
         label: {
           show: false,
-          position: 'center'
+          position: 'center',
         },
         emphasis: {
           label: {
             show: true,
             fontSize: '18',
-            fontWeight: 'bold'
-          }
+            fontWeight: 'bold',
+          },
         },
         labelLine: {
-          show: false
+          show: false,
         },
         data: [
           { value: 335, name: '医疗急救', itemStyle: { color: '#f56c6c' } },
@@ -588,10 +590,10 @@ const initEventTypeChart = () => {
           { value: 234, name: '安全事件', itemStyle: { color: '#409eff' } },
           { value: 135, name: '自然灾害', itemStyle: { color: '#67c23a' } },
           { value: 154, name: '设施故障', itemStyle: { color: '#909399' } },
-          { value: 85, name: '其他', itemStyle: { color: '#d3d3d3' } }
-        ]
-      }
-    ]
+          { value: 85, name: '其他', itemStyle: { color: '#d3d3d3' } },
+        ],
+      },
+    ],
   };
 
   eventTypeChart.setOption(option);
@@ -602,8 +604,32 @@ const initActivityHeatmap = () => {
 
   activityHeatmap = echarts.init(activityHeatmapRef.value);
 
-  const hours = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11',
-                 '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23'];
+  const hours = [
+    '00',
+    '01',
+    '02',
+    '03',
+    '04',
+    '05',
+    '06',
+    '07',
+    '08',
+    '09',
+    '10',
+    '11',
+    '12',
+    '13',
+    '14',
+    '15',
+    '16',
+    '17',
+    '18',
+    '19',
+    '20',
+    '21',
+    '22',
+    '23',
+  ];
   const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
 
   const data = [];
@@ -616,31 +642,31 @@ const initActivityHeatmap = () => {
   const option = {
     title: {
       text: '活动热力图',
-      left: 'center'
+      left: 'center',
     },
     tooltip: {
       position: 'top',
       formatter: function (params) {
         return `${days[params.value[1]]} ${hours[params.value[0]]}:00<br/>活跃度: ${params.value[2]}`;
-      }
+      },
     },
     grid: {
       height: '70%',
-      top: '10%'
+      top: '10%',
     },
     xAxis: {
       type: 'category',
       data: hours,
       splitArea: {
-        show: true
-      }
+        show: true,
+      },
     },
     yAxis: {
       type: 'category',
       data: days,
       splitArea: {
-        show: true
-      }
+        show: true,
+      },
     },
     visualMap: {
       min: 0,
@@ -650,23 +676,25 @@ const initActivityHeatmap = () => {
       left: 'center',
       bottom: '5%',
       inRange: {
-        color: ['#e0f3ff', '#006eff']
-      }
-    },
-    series: [{
-      name: '活跃度',
-      type: 'heatmap',
-      data: data,
-      label: {
-        show: true
+        color: ['#e0f3ff', '#006eff'],
       },
-      emphasis: {
-        itemStyle: {
-          shadowBlur: 10,
-          shadowColor: 'rgba(0, 0, 0, 0.5)'
-        }
-      }
-    }]
+    },
+    series: [
+      {
+        name: '活跃度',
+        type: 'heatmap',
+        data: data,
+        label: {
+          show: true,
+        },
+        emphasis: {
+          itemStyle: {
+            shadowBlur: 10,
+            shadowColor: 'rgba(0, 0, 0, 0.5)',
+          },
+        },
+      },
+    ],
   };
 
   activityHeatmap.setOption(option);
@@ -681,7 +709,7 @@ const connectRealtime = () => {
       console.log('实时数据连接已建立');
     };
 
-    websocket.onmessage = (event) => {
+    websocket.onmessage = event => {
       try {
         const data = JSON.parse(event.data);
         if (data.type === 'realtimeMetrics') {
@@ -699,7 +727,7 @@ const connectRealtime = () => {
       setTimeout(connectRealtime, 5000);
     };
 
-    websocket.onerror = (error) => {
+    websocket.onerror = error => {
       console.error('WebSocket连接错误:', error);
       realtimeConnected.value = false;
     };
@@ -724,16 +752,16 @@ const updateUserChart = () => {
   if (userGrowthChart) {
     const option = {
       xAxis: {
-        data: generateDateLabels(userChartPeriod.value)
+        data: generateDateLabels(userChartPeriod.value),
       },
       series: [
         {
-          data: generateRandomData(getDataPointCount(userChartPeriod.value), 5, 20)
+          data: generateRandomData(getDataPointCount(userChartPeriod.value), 5, 20),
         },
         {
-          data: generateRandomData(getDataPointCount(userChartPeriod.value), 50, 150)
-        }
-      ]
+          data: generateRandomData(getDataPointCount(userChartPeriod.value), 50, 150),
+        },
+      ],
     };
     userGrowthChart.setOption(option);
   }
@@ -743,22 +771,22 @@ const updateFinanceChart = () => {
   if (financeChart) {
     const option = {
       xAxis: {
-        data: generateDateLabels(financeChartPeriod.value)
+        data: generateDateLabels(financeChartPeriod.value),
       },
       series: [
         {
-          data: generateRandomData(getDataPointCount(financeChartPeriod.value), 1000, 5000)
+          data: generateRandomData(getDataPointCount(financeChartPeriod.value), 1000, 5000),
         },
         {
-          data: generateRandomData(getDataPointCount(financeChartPeriod.value), 800, 4000)
-        }
-      ]
+          data: generateRandomData(getDataPointCount(financeChartPeriod.value), 800, 4000),
+        },
+      ],
     };
     financeChart.setOption(option);
   }
 };
 
-const handleDateRangeChange = (dates) => {
+const handleDateRangeChange = dates => {
   loadOverviewData();
   loadTableData();
 };
@@ -785,7 +813,7 @@ const handleExport = async () => {
       formats: exportForm.formats,
       dateRange: exportForm.dateRange,
       includeCharts: exportForm.includeCharts,
-      email: exportForm.email
+      email: exportForm.email,
     };
 
     const response = await apiService.generateReport(exportData);
@@ -810,7 +838,7 @@ const loadTableData = async () => {
     const params = {
       page: tablePagination.page,
       limit: tablePagination.limit,
-      type: tableView
+      type: tableView,
     };
 
     if (dateRange.value && dateRange.value.length === 2) {
@@ -825,7 +853,6 @@ const loadTableData = async () => {
     const mockData = generateMockTableData(tableView.value, tablePagination.limit);
     tableData.value = mockData.data;
     tablePagination.total = mockData.total;
-
   } catch (error) {
     console.error('加载表格数据失败:', error);
   } finally {
@@ -833,18 +860,18 @@ const loadTableData = async () => {
   }
 };
 
-const handleTableSizeChange = (size) => {
+const handleTableSizeChange = size => {
   tablePagination.limit = size;
   loadTableData();
 };
 
-const handleTableCurrentChange = (page) => {
+const handleTableCurrentChange = page => {
   tablePagination.page = page;
   loadTableData();
 };
 
 // 工具函数
-const formatAmount = (amount) => {
+const formatAmount = amount => {
   if (!amount) return '0';
   return parseFloat(amount).toLocaleString('zh-CN');
 };
@@ -861,7 +888,7 @@ const formatScore = (row, column, cellValue) => {
   return `${cellValue}/5`;
 };
 
-const generateDateLabels = (period) => {
+const generateDateLabels = period => {
   const labels = [];
   const days = period === '7d' ? 7 : period === '30d' ? 30 : 90;
   const now = new Date();
@@ -878,7 +905,7 @@ const generateRandomData = (count, min, max) => {
   return Array.from({ length: count }, () => Math.floor(Math.random() * (max - min + 1)) + min);
 };
 
-const getDataPointCount = (period) => {
+const getDataPointCount = period => {
   return period === '7d' ? 7 : period === '30d' ? 30 : 90;
 };
 
@@ -890,29 +917,29 @@ const generateMockTableData = (type, limit) => {
       newUsers: Math.floor(Math.random() * 20) + 5,
       activeUsers: Math.floor(Math.random() * 150) + 50,
       retentionRate: (Math.random() * 30 + 60).toFixed(1),
-      growthRate: (Math.random() * 20 - 5).toFixed(1)
+      growthRate: (Math.random() * 20 - 5).toFixed(1),
     }),
     transactions: () => ({
       date: generateDate(),
       totalAmount: Math.floor(Math.random() * 10000) + 1000,
       transactionCount: Math.floor(Math.random() * 50) + 10,
       avgAmount: Math.floor(Math.random() * 500) + 100,
-      category: ['行政支出', '基础设施', '社会福利', '农业补贴'][Math.floor(Math.random() * 4)]
+      category: ['行政支出', '基础设施', '社会福利', '农业补贴'][Math.floor(Math.random() * 4)],
     }),
     emergencies: () => ({
       date: generateDate(),
       emergencyCount: Math.floor(Math.random() * 10) + 1,
       type: ['医疗急救', '火灾报警', '安全事件'][Math.floor(Math.random() * 3)],
       avgResolutionTime: `${Math.floor(Math.random() * 120) + 30}分钟`,
-      resolvedCount: Math.floor(Math.random() * 8) + 1
+      resolvedCount: Math.floor(Math.random() * 8) + 1,
     }),
     activities: () => ({
       date: generateDate(),
       activityCount: Math.floor(Math.random() * 5) + 1,
       participants: Math.floor(Math.random() * 100) + 20,
       engagementRate: (Math.random() * 50 + 30).toFixed(1),
-      satisfaction: (Math.random() * 2 + 3).toFixed(1)
-    })
+      satisfaction: (Math.random() * 2 + 3).toFixed(1),
+    }),
   };
 
   const generator = generators[type] || generators.users;
@@ -923,7 +950,7 @@ const generateMockTableData = (type, limit) => {
 
   return {
     data,
-    total: 200
+    total: 200,
   };
 };
 

@@ -157,13 +157,9 @@
       </template>
 
       <template #actions="{ row }">
-        <el-button type="primary" size="small" @click="handleView(row)">
-          查看
-        </el-button>
-        <el-button type="success" size="small" @click="handleEdit(row)">
-          编辑
-        </el-button>
-        <el-dropdown @command="(command) => handleMenuAction(command, row)">
+        <el-button type="primary" size="small" @click="handleView(row)"> 查看 </el-button>
+        <el-button type="success" size="small" @click="handleEdit(row)"> 编辑 </el-button>
+        <el-dropdown @command="command => handleMenuAction(command, row)">
           <el-button type="info" size="small">
             更多<el-icon class="ml-1"><ArrowDown /></el-icon>
           </el-button>
@@ -194,12 +190,7 @@
     />
 
     <!-- 成员详情对话框 -->
-    <el-dialog
-      v-model="detailVisible"
-      title="成员详情"
-      width="900px"
-      destroy-on-close
-    >
+    <el-dialog v-model="detailVisible" title="成员详情" width="900px" destroy-on-close>
       <MemberDetail
         v-if="detailVisible"
         :member="currentMember"
@@ -209,26 +200,12 @@
     </el-dialog>
 
     <!-- 工作职责对话框 -->
-    <el-dialog
-      v-model="dutiesVisible"
-      title="工作职责"
-      width="800px"
-      destroy-on-close
-    >
-      <WorkDuties
-        v-if="dutiesVisible"
-        :member="currentMember"
-        @close="dutiesVisible = false"
-      />
+    <el-dialog v-model="dutiesVisible" title="工作职责" width="800px" destroy-on-close>
+      <WorkDuties v-if="dutiesVisible" :member="currentMember" @close="dutiesVisible = false" />
     </el-dialog>
 
     <!-- 职务调动对话框 -->
-    <el-dialog
-      v-model="transferVisible"
-      title="职务调动"
-      width="600px"
-      destroy-on-close
-    >
+    <el-dialog v-model="transferVisible" title="职务调动" width="600px" destroy-on-close>
       <PositionTransfer
         v-if="transferVisible"
         :member="currentMember"
@@ -240,57 +217,50 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import {
-  User,
-  OfficeBuilding,
-  UserFilled,
-  Star,
-  Edit,
-  ArrowDown
-} from '@element-plus/icons-vue'
-import DataTable from '@/components/common/DataTable.vue'
-import FormDialog from '@/components/common/FormDialog.vue'
-import MemberDetail from './components/MemberDetail.vue'
-import WorkDuties from './components/WorkDuties.vue'
-import PositionTransfer from './components/PositionTransfer.vue'
-import { committeeApi } from '@/api/committee'
-import { formatDate } from '@/utils/common'
-import { required, phone, idCard, length } from '@/utils/validation'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { User, OfficeBuilding, UserFilled, Star, Edit, ArrowDown } from '@element-plus/icons-vue';
+import DataTable from '@/components/common/DataTable.vue';
+import FormDialog from '@/components/common/FormDialog.vue';
+import MemberDetail from './components/MemberDetail.vue';
+import WorkDuties from './components/WorkDuties.vue';
+import PositionTransfer from './components/PositionTransfer.vue';
+import { committeeApi } from '@/api/committee';
+import { formatDate } from '@/utils/common';
+import { required, phone, idCard, length } from '@/utils/validation';
 
 // 响应式数据
-const tableRef = ref()
-const loading = ref(false)
-const formLoading = ref(false)
-const dialogVisible = ref(false)
-const detailVisible = ref(false)
-const dutiesVisible = ref(false)
-const transferVisible = ref(false)
-const isEdit = ref(false)
-const currentMember = ref({})
+const tableRef = ref();
+const loading = ref(false);
+const formLoading = ref(false);
+const dialogVisible = ref(false);
+const detailVisible = ref(false);
+const dutiesVisible = ref(false);
+const transferVisible = ref(false);
+const isEdit = ref(false);
+const currentMember = ref({});
 
 // 列表数据
-const memberList = ref([])
+const memberList = ref([]);
 const pagination = reactive({
   page: 1,
   pageSize: 10,
-  total: 0
-})
+  total: 0,
+});
 
 // 统计数据
 const statistics = reactive({
   totalMembers: 0,
   departments: 0,
   onDuty: 0,
-  partyMembers: 0
-})
+  partyMembers: 0,
+});
 
 // 组织架构数据
-const partyCommittee = ref([])
-const villageCommittee = ref([])
-const supervisoryCommittee = ref([])
-const departments = ref([])
+const partyCommittee = ref([]);
+const villageCommittee = ref([]);
+const supervisoryCommittee = ref([]);
+const departments = ref([]);
 
 // 搜索条件
 const searchParams = reactive({
@@ -298,8 +268,8 @@ const searchParams = reactive({
   position: '',
   department: '',
   status: '',
-  politicalStatus: ''
-})
+  politicalStatus: '',
+});
 
 // 表单数据
 const formData = reactive({
@@ -317,13 +287,13 @@ const formData = reactive({
   politicalStatus: '',
   workExperience: '',
   specialties: '',
-  remarks: ''
-})
+  remarks: '',
+});
 
 // 计算属性
 const dialogTitle = computed(() => {
-  return isEdit.value ? '编辑村委成员' : '新增村委成员'
-})
+  return isEdit.value ? '编辑村委成员' : '新增村委成员';
+});
 
 // 表格列定义
 const tableColumns = [
@@ -331,61 +301,61 @@ const tableColumns = [
     prop: 'avatar',
     label: '头像',
     width: 80,
-    slot: 'avatar'
+    slot: 'avatar',
   },
   {
     prop: 'name',
     label: '姓名',
     width: 100,
-    sortable: true
+    sortable: true,
   },
   {
     prop: 'position',
     label: '职务',
     width: 120,
-    slot: 'position'
+    slot: 'position',
   },
   {
     prop: 'department',
     label: '部门',
     width: 120,
-    slot: 'department'
+    slot: 'department',
   },
   {
     prop: 'phone',
     label: '联系电话',
-    width: 130
+    width: 130,
   },
   {
     prop: 'appointmentDate',
     label: '任职时间',
     width: 120,
-    formatter: (row) => formatDate(row.appointmentDate)
+    formatter: row => formatDate(row.appointmentDate),
   },
   {
     prop: 'status',
     label: '状态',
     width: 80,
-    slot: 'status'
+    slot: 'status',
   },
   {
     prop: 'politicalStatus',
     label: '政治面貌',
     width: 100,
-    slot: 'politicalStatus'
+    slot: 'politicalStatus',
   },
   {
     prop: 'education',
     label: '学历',
-    width: 100
+    width: 100,
   },
   {
     prop: 'workExperience',
     label: '工作经验',
     minWidth: 150,
-    showOverflowTooltip: true
-  }
-]
+    showOverflowTooltip: true,
+  },
+];
 
 // 搜索字段定义
 const searchFields = [
@@ -401,8 +371,8 @@ const searchFields = [
       { label: '委员', value: '委员' },
       { label: '会计', value: '会计' },
       { label: '出纳', value: '出纳' },
-      { label: '文书', value: '文书' }
-    ]
+      { label: '文书', value: '文书' },
+    ],
   },
   {
     prop: 'department',
@@ -414,8 +384,8 @@ const searchFields = [
       { label: '村委会', value: '村委会' },
       { label: '监督委员会', value: '监督委员会' },
       { label: '妇联', value: '妇联' },
-      { label: '团支部', value: '团支部' }
-    ]
+      { label: '团支部', value: '团支部' },
+    ],
   },
   {
     prop: 'status',
@@ -425,8 +395,8 @@ const searchFields = [
     options: [
       { label: '在职', value: '在职' },
       { label: '离职', value: '离职' },
-      { label: '调动', value: '调动' }
-    ]
+      { label: '调动', value: '调动' },
+    ],
   },
   {
     prop: 'politicalStatus',
@@ -436,10 +406,10 @@ const searchFields = [
     options: [
       { label: '党员', value: '党员' },
       { label: '团员', value: '团员' },
-      { label: '群众', value: '群众' }
-    ]
-  }
-]
+      { label: '群众', value: '群众' },
+    ],
+  },
+];
 
 // 表单字段定义
 const formFields = [
@@ -449,7 +419,7 @@ const formFields = [
     type: 'input',
     placeholder: '请输入姓名',
     span: 12,
-    required: true
+    required: true,
   },
   {
     prop: 'gender',
@@ -459,8 +429,8 @@ const formFields = [
     required: true,
     options: [
       { label: '男', value: '男' },
-      { label: '女', value: '女' }
-    ]
+      { label: '女', value: '女' },
+    ],
   },
   {
     prop: 'birthday',
@@ -468,7 +438,7 @@ const formFields = [
     type: 'date',
     placeholder: '请选择出生日期',
     span: 12,
-    required: true
+    required: true,
   },
   {
     prop: 'idCard',
@@ -476,7 +446,7 @@ const formFields = [
     type: 'input',
     placeholder: '请输入身份证号',
     span: 12,
-    required: true
+    required: true,
   },
   {
     prop: 'phone',
@@ -484,7 +454,7 @@ const formFields = [
     type: 'input',
     placeholder: '请输入联系电话',
     span: 12,
-    required: true
+    required: true,
   },
   {
     prop: 'address',
@@ -492,7 +462,7 @@ const formFields = [
     type: 'input',
     placeholder: '请输入住址',
     span: 12,
-    required: true
+    required: true,
   },
   {
     prop: 'position',
@@ -508,8 +478,8 @@ const formFields = [
       { label: '委员', value: '委员' },
       { label: '会计', value: '会计' },
       { label: '出纳', value: '出纳' },
-      { label: '文书', value: '文书' }
-    ]
+      { label: '文书', value: '文书' },
+    ],
   },
   {
     prop: 'department',
@@ -523,8 +493,8 @@ const formFields = [
       { label: '村委会', value: '村委会' },
       { label: '监督委员会', value: '监督委员会' },
       { label: '妇联', value: '妇联' },
-      { label: '团支部', value: '团支部' }
-    ]
+      { label: '团支部', value: '团支部' },
+    ],
   },
   {
     prop: 'appointmentDate',
@@ -532,7 +502,7 @@ const formFields = [
     type: 'date',
     placeholder: '请选择任职时间',
     span: 12,
-    required: true
+    required: true,
   },
   {
     prop: 'education',
@@ -546,8 +516,8 @@ const formFields = [
       { label: '高中', value: '高中' },
       { label: '大专', value: '大专' },
       { label: '本科', value: '本科' },
-      { label: '研究生', value: '研究生' }
-    ]
+      { label: '研究生', value: '研究生' },
+    ],
   },
   {
     prop: 'politicalStatus',
@@ -559,8 +529,8 @@ const formFields = [
     options: [
       { label: '党员', value: '党员' },
       { label: '团员', value: '团员' },
-      { label: '群众', value: '群众' }
-    ]
+      { label: '群众', value: '群众' },
+    ],
   },
   {
     prop: 'workExperience',
@@ -568,7 +538,7 @@ const formFields = [
     type: 'textarea',
     placeholder: '请输入工作经验',
     span: 24,
-    rows: 3
+    rows: 3,
   },
   {
     prop: 'specialties',
@@ -576,7 +546,7 @@ const formFields = [
     type: 'textarea',
     placeholder: '请输入专业特长',
     span: 24,
-    rows: 2
+    rows: 2,
   },
   {
     prop: 'remarks',
@@ -584,9 +554,9 @@ const formFields = [
     type: 'textarea',
     placeholder: '请输入备注信息',
     span: 24,
-    rows: 2
-  }
-]
+    rows: 2,
+  },
+];
 
 // 表单验证规则
 const formRules = {
@@ -599,84 +569,84 @@ const formRules = {
   position: required('请选择职务'),
   department: required('请选择部门'),
   appointmentDate: required('请选择任职时间'),
-  politicalStatus: required('请选择政治面貌')
-}
+  politicalStatus: required('请选择政治面貌'),
+};
 
 // 工具方法
-const getPositionTag = (position) => {
+const getPositionTag = position => {
   const tagMap = {
-    '村支书': 'danger',
-    '村主任': 'success',
-    '副主任': 'warning',
-    '委员': 'info',
-    '会计': 'primary',
-    '出纳': 'primary',
-    '文书': ''
-  }
-  return tagMap[position] || ''
-}
+    村支书: 'danger',
+    村主任: 'success',
+    副主任: 'warning',
+    委员: 'info',
+    会计: 'primary',
+    出纳: 'primary',
+    文书: '',
+  };
+  return tagMap[position] || '';
+};
 
 // 数据加载方法
 const loadMemberList = async () => {
   try {
-    loading.value = true
+    loading.value = true;
 
     const params = {
       page: pagination.page,
       pageSize: pagination.pageSize,
-      ...searchParams
-    }
+      ...searchParams,
+    };
 
-    const response = await committeeApi.getMembers(params)
+    const response = await committeeApi.getMembers(params);
 
-    memberList.value = response.data
-    pagination.total = response.total
+    memberList.value = response.data;
+    pagination.total = response.total;
 
     // 更新统计数据
-    updateStatistics()
+    updateStatistics();
   } catch (error) {
-    ElMessage.error('获取成员列表失败')
+    ElMessage.error('获取成员列表失败');
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const loadStatistics = async () => {
   try {
-    const response = await committeeApi.getStatistics()
-    Object.assign(statistics, response)
+    const response = await committeeApi.getStatistics();
+    Object.assign(statistics, response);
   } catch (error) {
-    console.error('获取统计数据失败:', error)
+    console.error('获取统计数据失败:', error);
   }
-}
+};
 
 const loadOrganization = async () => {
   try {
-    const response = await committeeApi.getOrganization()
+    const response = await committeeApi.getOrganization();
 
-    partyCommittee.value = response.partyCommittee || []
-    villageCommittee.value = response.villageCommittee || []
-    supervisoryCommittee.value = response.supervisoryCommittee || []
-    departments.value = response.departments || []
+    partyCommittee.value = response.partyCommittee || [];
+    villageCommittee.value = response.villageCommittee || [];
+    supervisoryCommittee.value = response.supervisoryCommittee || [];
+    departments.value = response.departments || [];
   } catch (error) {
-    console.error('获取组织架构失败:', error)
+    console.error('获取组织架构失败:', error);
 
     // 使用模拟数据
     partyCommittee.value = [
       { id: 1, name: '张书记', position: '书记' },
-      { id: 2, name: '李副书记', position: '副书记' }
-    ]
+      { id: 2, name: '李副书记', position: '副书记' },
+    ];
 
     villageCommittee.value = [
       { id: 3, name: '王主任', position: '主任' },
       { id: 4, name: '刘副主任', position: '副主任' },
-      { id: 5, name: '陈委员', position: '委员' }
-    ]
+      { id: 5, name: '陈委员', position: '委员' },
+    ];
 
     supervisoryCommittee.value = [
       { id: 6, name: '赵主任', position: '主任' },
-      { id: 7, name: '钱委员', position: '委员' }
-    ]
+      { id: 7, name: '钱委员', position: '委员' },
+    ];
 
     departments.value = [
       {
@@ -684,189 +654,189 @@ const loadOrganization = async () => {
         name: '妇联',
         members: [
           { id: 8, name: '孙主任' },
-          { id: 9, name: '周委员' }
-        ]
+          { id: 9, name: '周委员' },
+        ],
       },
       {
         id: 2,
         name: '团支部',
         members: [
           { id: 10, name: '吴书记' },
-          { id: 11, name: '郑委员' }
-        ]
-      }
-    ]
+          { id: 11, name: '郑委员' },
+        ],
+      },
+    ];
   }
-}
+};
 
 const updateStatistics = () => {
-  statistics.totalMembers = memberList.value.length
-  statistics.onDuty = memberList.value.filter(m => m.status === '在职').length
-  statistics.partyMembers = memberList.value.filter(m => m.politicalStatus === '党员').length
+  statistics.totalMembers = memberList.value.length;
+  statistics.onDuty = memberList.value.filter(m => m.status === '在职').length;
+  statistics.partyMembers = memberList.value.filter(m => m.politicalStatus === '党员').length;
 
   // 计算部门数量
-  const depts = new Set(memberList.value.map(m => m.department))
-  statistics.departments = depts.size
-}
+  const depts = new Set(memberList.value.map(m => m.department));
+  statistics.departments = depts.size;
+};
 
 // 事件处理方法
-const handleSearch = (params) => {
+const handleSearch = params => {
   if (typeof params === 'string') {
-    searchParams.keyword = params
+    searchParams.keyword = params;
   } else {
-    Object.assign(searchParams, params)
+    Object.assign(searchParams, params);
   }
-  pagination.page = 1
-  loadMemberList()
-}
+  pagination.page = 1;
+  loadMemberList();
+};
 
 const handleReset = () => {
   Object.keys(searchParams).forEach(key => {
-    searchParams[key] = ''
-  })
-  pagination.page = 1
-  loadMemberList()
-}
+    searchParams[key] = '';
+  });
+  pagination.page = 1;
+  loadMemberList();
+};
 
 const handleAdd = () => {
-  isEdit.value = false
+  isEdit.value = false;
   Object.keys(formData).forEach(key => {
-    formData[key] = ''
-  })
-  formData.status = '在职'
-  dialogVisible.value = true
-}
+    formData[key] = '';
+  });
+  formData.status = '在职';
+  dialogVisible.value = true;
+};
 
-const handleEdit = (row) => {
-  isEdit.value = true
-  Object.assign(formData, row)
-  dialogVisible.value = true
-}
+const handleEdit = row => {
+  isEdit.value = true;
+  Object.assign(formData, row);
+  dialogVisible.value = true;
+};
 
-const handleView = (row) => {
-  currentMember.value = row
-  detailVisible.value = true
-}
+const handleView = row => {
+  currentMember.value = row;
+  detailVisible.value = true;
+};
 
-const handleDelete = (row) => {
+const handleDelete = row => {
   ElMessageBox.confirm(`确定要删除成员 "${row.name}" 的信息吗？`, '删除确认', {
-    type: 'warning'
+    type: 'warning',
   }).then(async () => {
     try {
-      await committeeApi.deleteMember(row.id)
-      ElMessage.success('删除成功')
-      loadMemberList()
+      await committeeApi.deleteMember(row.id);
+      ElMessage.success('删除成功');
+      loadMemberList();
     } catch (error) {
-      ElMessage.error('删除失败')
+      ElMessage.error('删除失败');
     }
-  })
-}
+  });
+};
 
-const handleBatchDelete = (rows) => {
-  const ids = rows.map(row => row.id)
+const handleBatchDelete = rows => {
+  const ids = rows.map(row => row.id);
   ElMessageBox.confirm(`确定要删除选中的 ${rows.length} 条记录吗？`, '批量删除', {
-    type: 'warning'
+    type: 'warning',
   }).then(async () => {
     try {
-      await committeeApi.batchDeleteMembers(ids)
-      ElMessage.success('批量删除成功')
-      loadMemberList()
+      await committeeApi.batchDeleteMembers(ids);
+      ElMessage.success('批量删除成功');
+      loadMemberList();
     } catch (error) {
-      ElMessage.error('批量删除失败')
+      ElMessage.error('批量删除失败');
     }
-  })
-}
+  });
+};
 
 const handleExport = () => {
-  ElMessage.info('导出功能开发中...')
-}
+  ElMessage.info('导出功能开发中...');
+};
 
 const handleRefresh = () => {
-  loadMemberList()
-  loadOrganization()
-}
+  loadMemberList();
+  loadOrganization();
+};
 
 const handlePageChange = ({ page, size }) => {
-  pagination.page = page
-  pagination.pageSize = size
-  loadMemberList()
-}
+  pagination.page = page;
+  pagination.pageSize = size;
+  loadMemberList();
+};
 
-const handleSubmit = async (data) => {
+const handleSubmit = async data => {
   try {
-    formLoading.value = true
+    formLoading.value = true;
 
     if (isEdit.value) {
-      await committeeApi.updateMember(data.id, data)
-      ElMessage.success('更新成功')
+      await committeeApi.updateMember(data.id, data);
+      ElMessage.success('更新成功');
     } else {
-      await committeeApi.createMember(data)
-      ElMessage.success('新增成功')
+      await committeeApi.createMember(data);
+      ElMessage.success('新增成功');
     }
 
-    dialogVisible.value = false
-    loadMemberList()
-    loadOrganization()
+    dialogVisible.value = false;
+    loadMemberList();
+    loadOrganization();
   } catch (error) {
-    ElMessage.error(isEdit.value ? '更新失败' : '新增失败')
+    ElMessage.error(isEdit.value ? '更新失败' : '新增失败');
   } finally {
-    formLoading.value = false
+    formLoading.value = false;
   }
-}
+};
 
 const handleDialogClose = () => {
-  dialogVisible.value = false
-}
+  dialogVisible.value = false;
+};
 
 const handleMenuAction = (command, row) => {
-  currentMember.value = row
+  currentMember.value = row;
 
   switch (command) {
     case 'duties':
-      dutiesVisible.value = true
-      break
+      dutiesVisible.value = true;
+      break;
     case 'performance':
-      ElMessage.info('工作表现功能开发中...')
-      break
+      ElMessage.info('工作表现功能开发中...');
+      break;
     case 'transfer':
-      transferVisible.value = true
-      break
+      transferVisible.value = true;
+      break;
     case 'retire':
-      handleRetire(row)
-      break
+      handleRetire(row);
+      break;
   }
-}
+};
 
-const handleRetire = (row) => {
+const handleRetire = row => {
   ElMessageBox.confirm(`确定要为 "${row.name}" 办理离职手续吗？`, '离职确认', {
-    type: 'warning'
+    type: 'warning',
   }).then(async () => {
     try {
-      await committeeApi.retireMember(row.id)
-      ElMessage.success('离职手续办理成功')
-      loadMemberList()
+      await committeeApi.retireMember(row.id);
+      ElMessage.success('离职手续办理成功');
+      loadMemberList();
     } catch (error) {
-      ElMessage.error('离职手续办理失败')
+      ElMessage.error('离职手续办理失败');
     }
-  })
-}
+  });
+};
 
 const handleTransferSuccess = () => {
-  transferVisible.value = false
-  loadMemberList()
-  loadOrganization()
-}
+  transferVisible.value = false;
+  loadMemberList();
+  loadOrganization();
+};
 
 const editOrganization = () => {
-  ElMessage.info('编辑组织架构功能开发中...')
-}
+  ElMessage.info('编辑组织架构功能开发中...');
+};
 
 // 生命周期
 onMounted(() => {
-  loadMemberList()
-  loadStatistics()
-  loadOrganization()
-})
+  loadMemberList();
+  loadStatistics();
+  loadOrganization();
+});
 </script>
 
 <style scoped>

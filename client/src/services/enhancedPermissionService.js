@@ -21,11 +21,15 @@ class EnhancedPermissionService {
    */
   async enhancedAuthenticate(authData) {
     try {
-      const response = await axios.post(`${this.baseURL}/api/v1/enhanced-permissions/authenticate`, authData, {
-        headers: {
-          'Content-Type': 'application/json'
+      const response = await axios.post(
+        `${this.baseURL}/api/v1/enhanced-permissions/authenticate`,
+        authData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
         }
-      });
+      );
 
       if (response.data.success) {
         const { data } = response.data;
@@ -49,7 +53,6 @@ class EnhancedPermissionService {
       }
 
       return response.data;
-
     } catch (error) {
       this.handleError(error, '用户认证失败');
       throw error;
@@ -70,18 +73,17 @@ class EnhancedPermissionService {
         action,
         context: {
           ...context,
-          timestamp: new Date().toISOString()
-        }
+          timestamp: new Date().toISOString(),
+        },
       });
 
       return response.data;
-
     } catch (error) {
       this.handleError(error, '权限检查失败');
       return {
         success: false,
         allowed: false,
-        reason: 'NETWORK_ERROR'
+        reason: 'NETWORK_ERROR',
       };
     }
   }
@@ -94,16 +96,15 @@ class EnhancedPermissionService {
   async batchCheckPermissions(permissions) {
     try {
       const response = await axios.post(`${this.baseURL}/api/v1/enhanced-permissions/batch-check`, {
-        permissions
+        permissions,
       });
 
       return response.data;
-
     } catch (error) {
       this.handleError(error, '批量权限检查失败');
       return {
         success: false,
-        results: []
+        results: [],
       };
     }
   }
@@ -117,21 +118,22 @@ class EnhancedPermissionService {
       // 检查缓存
       const cacheKey = 'user_permissions';
       const cached = this.cache.get(cacheKey);
-      if (cached && (Date.now() - cached.timestamp) < this.cacheTimeout) {
+      if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
         return cached.permissions;
       }
 
-      const response = await axios.get(`${this.baseURL}/api/v1/enhanced-permissions/user/permissions`);
+      const response = await axios.get(
+        `${this.baseURL}/api/v1/enhanced-permissions/user/permissions`
+      );
 
       if (response.data.success) {
         this.cache.set(cacheKey, {
           permissions: response.data.data.permissions,
-          timestamp: Date.now()
+          timestamp: Date.now(),
         });
       }
 
       return response.data.data.permissions;
-
     } catch (error) {
       this.handleError(error, '获取用户权限失败');
       return [];
@@ -151,7 +153,6 @@ class EnhancedPermissionService {
       );
 
       return response.data;
-
     } catch (error) {
       this.handleError(error, '创建权限策略失败');
       throw error;
@@ -166,7 +167,6 @@ class EnhancedPermissionService {
     try {
       const response = await axios.get(`${this.baseURL}/api/v1/enhanced-permissions/policies`);
       return response.data.data;
-
     } catch (error) {
       this.handleError(error, '获取权限策略失败');
       return [];
@@ -186,7 +186,6 @@ class EnhancedPermissionService {
       );
 
       return response.data;
-
     } catch (error) {
       this.handleError(error, '配置权限继承失败');
       throw error;
@@ -204,7 +203,6 @@ class EnhancedPermissionService {
       );
 
       return response.data.data;
-
     } catch (error) {
       this.handleError(error, '获取权限继承配置失败');
       return {};
@@ -223,12 +221,11 @@ class EnhancedPermissionService {
         `${this.baseURL}/api/v1/enhanced-permissions/sessions/manage`,
         {
           sessionId,
-          sessionData
+          sessionData,
         }
       );
 
       return response.data;
-
     } catch (error) {
       this.handleError(error, '会话管理失败');
       throw error;
@@ -246,7 +243,7 @@ class EnhancedPermissionService {
       const response = await axios.put(
         `${this.baseURL}/api/v1/enhanced-permissions/users/${userId}/permissions`,
         {
-          permissions
+          permissions,
         }
       );
 
@@ -254,7 +251,6 @@ class EnhancedPermissionService {
       this.cache.clear();
 
       return response.data;
-
     } catch (error) {
       this.handleError(error, '实时更新权限失败');
       throw error;
@@ -268,13 +264,11 @@ class EnhancedPermissionService {
    */
   async generatePermissionAuditReport(filters = {}) {
     try {
-      const response = await axios.get(
-        `${this.baseURL}/api/v1/enhanced-permissions/audit/report`,
-        { params: filters }
-      );
+      const response = await axios.get(`${this.baseURL}/api/v1/enhanced-permissions/audit/report`, {
+        params: filters,
+      });
 
       return response.data;
-
     } catch (error) {
       this.handleError(error, '生成权限审计报告失败');
       throw error;
@@ -287,12 +281,9 @@ class EnhancedPermissionService {
    */
   async getPermissionStats() {
     try {
-      const response = await axios.get(
-        `${this.baseURL}/api/v1/enhanced-permissions/stats`
-      );
+      const response = await axios.get(`${this.baseURL}/api/v1/enhanced-permissions/stats`);
 
       return response.data.data;
-
     } catch (error) {
       this.handleError(error, '获取权限统计失败');
       return {};
@@ -307,12 +298,9 @@ class EnhancedPermissionService {
     try {
       this.cache.clear();
 
-      const response = await axios.delete(
-        `${this.baseURL}/api/v1/enhanced-permissions/cache`
-      );
+      const response = await axios.delete(`${this.baseURL}/api/v1/enhanced-permissions/cache`);
 
       return response.data;
-
     } catch (error) {
       this.handleError(error, '清理权限缓存失败');
       return { success: false };
@@ -343,10 +331,8 @@ class EnhancedPermissionService {
       // 检查资源级权限
       return permissions.some(permission => {
         const [res, acts] = permission.split(':');
-        return (res === resource || res === '*') &&
-               acts.split(',').includes(action);
+        return (res === resource || res === '*') && acts.split(',').includes(action);
       });
-
     } catch (error) {
       console.error('本地权限检查失败:', error);
       return false;
@@ -369,7 +355,6 @@ class EnhancedPermissionService {
 
       const requiredRoles = Array.isArray(roles) ? roles : [roles];
       return requiredRoles.includes(userRole);
-
     } catch (error) {
       console.error('角色检查失败:', error);
       return false;
@@ -385,7 +370,7 @@ class EnhancedPermissionService {
       deviceId: localStorage.getItem('deviceId') || this.generateDeviceId(),
       deviceFingerprint: this.generateDeviceFingerprint(),
       userAgent: navigator.userAgent,
-      platform: navigator.platform
+      platform: navigator.platform,
     };
   }
 
@@ -394,7 +379,7 @@ class EnhancedPermissionService {
    * @returns {String} 设备ID
    */
   generateDeviceId() {
-    const deviceId = `device_${  Date.now()  }_${  Math.random().toString(36).substr(2, 9)}`;
+    const deviceId = `device_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     localStorage.setItem('deviceId', deviceId);
     return deviceId;
   }
@@ -413,9 +398,9 @@ class EnhancedPermissionService {
     const fingerprint = [
       navigator.userAgent,
       navigator.language,
-      `${screen.width  }x${  screen.height}`,
+      `${screen.width}x${screen.height}`,
       new Date().getTimezoneOffset(),
-      canvas.toDataURL()
+      canvas.toDataURL(),
     ].join('|');
 
     return this.hashCode(fingerprint);
@@ -426,27 +411,27 @@ class EnhancedPermissionService {
    * @returns {Promise<Object>} 地理位置信息
    */
   async getLocation() {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       if (!navigator.geolocation) {
         resolve(null);
         return;
       }
 
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        position => {
           resolve({
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
-            accuracy: position.coords.accuracy
+            accuracy: position.coords.accuracy,
           });
         },
-        (error) => {
+        error => {
           console.warn('获取地理位置失败:', error);
           resolve(null);
         },
         {
           timeout: 5000,
-          enableHighAccuracy: false
+          enableHighAccuracy: false,
         }
       );
     });
@@ -505,7 +490,7 @@ class EnhancedPermissionService {
 
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash; // Convert to 32bit integer
     }
 
@@ -518,7 +503,7 @@ class EnhancedPermissionService {
   setupInterceptors() {
     // 请求拦截器
     axios.interceptors.request.use(
-      (config) => {
+      config => {
         // 添加设备信息
         const deviceInfo = this.getDeviceInfo();
         config.headers['X-Device-Id'] = deviceInfo.deviceId;
@@ -526,17 +511,17 @@ class EnhancedPermissionService {
 
         return config;
       },
-      (error) => {
+      error => {
         return Promise.reject(error);
       }
     );
 
     // 响应拦截器
     axios.interceptors.response.use(
-      (response) => {
+      response => {
         return response;
       },
-      (error) => {
+      error => {
         if (error.response?.status === 401) {
           this.clearAuth();
           // 跳转到登录页

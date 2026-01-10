@@ -15,11 +15,7 @@
         <el-row :gutter="40">
           <el-col :span="6">
             <div class="avatar-section">
-              <el-avatar
-                :size="120"
-                :src="profile?.personalInfo?.photo"
-                class="profile-avatar"
-              >
+              <el-avatar :size="120" :src="profile?.personalInfo?.photo" class="profile-avatar">
                 <el-icon><User /></el-icon>
               </el-avatar>
               <div class="avatar-actions">
@@ -30,9 +26,7 @@
                   :on-success="handleAvatarSuccess"
                   :before-upload="beforeAvatarUpload"
                 >
-                  <el-button size="small" icon="Camera">
-                    更换头像
-                  </el-button>
+                  <el-button size="small" icon="Camera"> 更换头像 </el-button>
                 </el-upload>
               </div>
             </div>
@@ -300,112 +294,112 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
-import { User, Edit, Phone, Message, Location, Camera } from '@element-plus/icons-vue'
-import { profileApi } from '@/api/residentProfile'
-import ProfileForm from '@/components/resident/ProfileForm.vue'
+import { ref, onMounted } from 'vue';
+import { ElMessage } from 'element-plus';
+import { User, Edit, Phone, Message, Location, Camera } from '@element-plus/icons-vue';
+import { profileApi } from '@/api/residentProfile';
+import ProfileForm from '@/components/resident/ProfileForm.vue';
 
 // 响应式数据
-const profile = ref(null)
-const showEditDialog = ref(false)
-const uploadUrl = import.meta.env.VITE_API_URL + '/api/v1/upload'
+const profile = ref(null);
+const showEditDialog = ref(false);
+const uploadUrl = import.meta.env.VITE_API_URL + '/api/v1/upload';
 const uploadHeaders = {
-  Authorization: 'Bearer ' + localStorage.getItem('token')
-}
+  Authorization: 'Bearer ' + localStorage.getItem('token'),
+};
 
 // 加载个人资料
 const loadProfile = async () => {
   try {
-    const response = await profileApi.getMyProfile()
-    profile.value = response.data
+    const response = await profileApi.getMyProfile();
+    profile.value = response.data;
   } catch (error) {
-    ElMessage.error('加载个人资料失败')
-    console.error(error)
+    ElMessage.error('加载个人资料失败');
+    console.error(error);
   }
-}
+};
 
 // 头像上传前验证
-const beforeAvatarUpload = (file) => {
-  const isImage = file.type.startsWith('image/')
-  const isLt2M = file.size / 1024 / 1024 < 2
+const beforeAvatarUpload = file => {
+  const isImage = file.type.startsWith('image/');
+  const isLt2M = file.size / 1024 / 1024 < 2;
 
   if (!isImage) {
-    ElMessage.error('上传头像只能是图片格式!')
-    return false
+    ElMessage.error('上传头像只能是图片格式!');
+    return false;
   }
   if (!isLt2M) {
-    ElMessage.error('上传头像大小不能超过 2MB!')
-    return false
+    ElMessage.error('上传头像大小不能超过 2MB!');
+    return false;
   }
-  return true
-}
+  return true;
+};
 
 // 头像上传成功
-const handleAvatarSuccess = (response) => {
-  ElMessage.success('头像上传成功')
+const handleAvatarSuccess = response => {
+  ElMessage.success('头像上传成功');
   // 更新本地资料
   if (profile.value && response.data.data?.photo) {
-    profile.value.personalInfo.photo = response.data.data.photo
+    profile.value.personalInfo.photo = response.data.data.photo;
   }
-}
+};
 
 // 身份证号脱敏
-const maskIdCard = (idCard) => {
-  if (!idCard) return ''
-  return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2')
-}
+const maskIdCard = idCard => {
+  if (!idCard) return '';
+  return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2');
+};
 
 // 格式化收入
-const formatIncome = (income) => {
-  if (!income) return '未填写'
-  return `${income.toLocaleString()} 元`
-}
+const formatIncome = income => {
+  if (!income) return '未填写';
+  return `${income.toLocaleString()} 元`;
+};
 
 // 获取标签类型
-const getTagType = (tag) => {
+const getTagType = tag => {
   const tagTypeMap = {
-    '党员': 'danger',
-    '村干部': 'warning',
-    '退役军人': 'success',
-    '残疾人': 'info',
-    '低保户': 'danger',
-    '五保户': 'warning',
-    '留守儿童': 'primary',
-    '空巢老人': 'warning',
-    '独居老人': 'warning',
-    '大病家庭': 'danger',
-    '单亲家庭': 'info',
-    '失独家庭': 'danger',
-    '烈属': 'danger',
-    '优抚对象': 'success',
-    '困难党员': 'danger',
-    '返乡创业': 'success',
-    '农民工': '',
-    '大学生': 'primary',
-    '专业技术人才': 'success',
-    '其他': ''
-  }
-  return tagTypeMap[tag] || ''
-}
+    党员: 'danger',
+    村干部: 'warning',
+    退役军人: 'success',
+    残疾人: 'info',
+    低保户: 'danger',
+    五保户: 'warning',
+    留守儿童: 'primary',
+    空巢老人: 'warning',
+    独居老人: 'warning',
+    大病家庭: 'danger',
+    单亲家庭: 'info',
+    失独家庭: 'danger',
+    烈属: 'danger',
+    优抚对象: 'success',
+    困难党员: 'danger',
+    返乡创业: 'success',
+    农民工: '',
+    大学生: 'primary',
+    专业技术人才: 'success',
+    其他: '',
+  };
+  return tagTypeMap[tag] || '';
+};
 
 // 更新资料
-const handleProfileUpdate = async (formData) => {
+const handleProfileUpdate = async formData => {
   try {
-    await profileApi.updateMyProfile(formData)
-    ElMessage.success('更新成功')
-    showEditDialog.value = false
-    loadProfile()
+    await profileApi.updateMyProfile(formData);
+    ElMessage.success('更新成功');
+    showEditDialog.value = false;
+    loadProfile();
   } catch (error) {
-    ElMessage.error('更新失败')
-    console.error(error)
+    ElMessage.error('更新失败');
+    console.error(error);
   }
-}
+};
 
 // 生命周期
 onMounted(() => {
-  loadProfile()
-})
+  loadProfile();
+});
 </script>
 
 <style lang="scss" scoped>

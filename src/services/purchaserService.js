@@ -723,7 +723,7 @@ class PurchaserService {
         _id: order._id,
         type: 'order',
         content: `订单 ${order.orderNumber} 状态更新为 ${this._getOrderStatusLabel(order.status)}`,
-        action: '/orders/' + order._id,
+        action: `/orders/${  order._id}`,
         actionText: '查看详情',
         createdAt: order.updatedAt
       }));
@@ -849,7 +849,7 @@ class PurchaserService {
       const LifestyleService = require('../models/LifestyleService');
       const maxDistance = distance * 1000; // 转换为米
 
-      let query = {
+      const query = {
         location: {
           $near: location.coordinates,
           $maxDistance: maxDistance

@@ -4,11 +4,7 @@
     <div class="voting-header">
       <h1>村务投票</h1>
       <div class="header-actions">
-        <el-button
-          type="primary"
-          @click="showCreateDialog = true"
-          v-if="canCreateVote"
-        >
+        <el-button type="primary" @click="showCreateDialog = true" v-if="canCreateVote">
           <i class="el-icon-plus"></i>
           创建投票
         </el-button>
@@ -65,26 +61,17 @@
           :key="vote._id"
           class="vote-card"
           :class="{
-            'active': vote.isActive,
-            'ended': vote.isEnded,
-            'upcoming': vote.isUpcoming
+            active: vote.isActive,
+            ended: vote.isEnded,
+            upcoming: vote.isUpcoming,
           }"
         >
           <div class="vote-card-header">
             <div class="vote-status">
-              <el-tag
-                :type="getStatusType(vote)"
-                size="small"
-              >
+              <el-tag :type="getStatusType(vote)" size="small">
                 {{ getStatusText(vote) }}
               </el-tag>
-              <el-tag
-                v-if="vote.hasVoted"
-                type="success"
-                size="small"
-              >
-                已投票
-              </el-tag>
+              <el-tag v-if="vote.hasVoted" type="success" size="small"> 已投票 </el-tag>
             </div>
             <div class="vote-priority">
               <el-rate
@@ -107,7 +94,9 @@
               <div class="vote-info">
                 <span><i class="el-icon-user"></i> {{ vote.creator }}</span>
                 <span><i class="el-icon-time"></i> {{ formatDate(vote.createdAt) }}</span>
-                <span><i class="el-icon-collection-tag"></i> {{ getVoteTypeText(vote.voteType) }}</span>
+                <span
+                  ><i class="el-icon-collection-tag"></i> {{ getVoteTypeText(vote.voteType) }}</span
+                >
               </div>
 
               <div class="vote-stats">
@@ -136,23 +125,13 @@
 
           <div class="vote-card-footer">
             <div class="vote-tags">
-              <el-tag
-                v-for="tag in vote.tags"
-                :key="tag"
-                size="mini"
-                type="info"
-              >
+              <el-tag v-for="tag in vote.tags" :key="tag" size="mini" type="info">
                 {{ tag }}
               </el-tag>
             </div>
 
             <div class="vote-actions">
-              <el-button
-                size="small"
-                @click="viewVote(vote._id)"
-              >
-                查看详情
-              </el-button>
+              <el-button size="small" @click="viewVote(vote._id)"> 查看详情 </el-button>
               <el-button
                 v-if="vote.isActive && !vote.hasVoted"
                 type="primary"
@@ -190,22 +169,19 @@
     </div>
 
     <!-- 创建投票对话框 -->
-    <VoteCreateDialog
-      :visible.sync="showCreateDialog"
-      @created="handleVoteCreated"
-    />
+    <VoteCreateDialog :visible.sync="showCreateDialog" @created="handleVoteCreated" />
   </div>
 </template>
 
 <script>
-import { votingAPI } from '@/api/voting'
-import VoteCreateDialog from './VoteCreateDialog.vue'
-import { formatDate } from '@/utils/dateUtils'
+import { votingAPI } from '@/api/voting';
+import VoteCreateDialog from './VoteCreateDialog.vue';
+import { formatDate } from '@/utils/dateUtils';
 
 export default {
   name: 'VotingList',
   components: {
-    VoteCreateDialog
+    VoteCreateDialog,
   },
   data() {
     return {
@@ -215,46 +191,48 @@ export default {
       filters: {
         status: 'all',
         category: '',
-        search: ''
+        search: '',
       },
       pagination: {
         page: 1,
         limit: 20,
         total: 0,
-        pages: 0
-      }
-    }
+        pages: 0,
+      },
+    };
   },
   computed: {
     canCreateVote() {
       // 检查用户是否有创建投票权限
-      return this.$store.getters.userRole === 'committee' || this.$store.getters.userRole === 'admin'
-    }
+      return (
+        this.$store.getters.userRole === 'committee' || this.$store.getters.userRole === 'admin'
+      );
+    },
   },
   mounted() {
-    this.loadVotes()
+    this.loadVotes();
   },
   methods: {
     async loadVotes() {
-      this.loading = true
+      this.loading = true;
       try {
         const params = {
           page: this.pagination.page,
           limit: this.pagination.limit,
-          ...this.filters
-        }
+          ...this.filters,
+        };
 
-        const response = await votingAPI.getVoteList(params)
+        const response = await votingAPI.getVoteList(params);
 
         if (response.data.success) {
-          this.votes = response.data.data.votes
-          this.pagination = response.data.data.pagination
+          this.votes = response.data.data.votes;
+          this.pagination = response.data.data.pagination;
         }
       } catch (error) {
-        this.$message.error('加载投票列表失败')
-        console.error(error)
+        this.$message.error('加载投票列表失败');
+        console.error(error);
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
 
@@ -262,90 +240,90 @@ export default {
       this.filters = {
         status: 'all',
         category: '',
-        search: ''
-      }
-      this.pagination.page = 1
-      this.loadVotes()
+        search: '',
+      };
+      this.pagination.page = 1;
+      this.loadVotes();
     },
 
     handleSizeChange(newSize) {
-      this.pagination.limit = newSize
-      this.pagination.page = 1
-      this.loadVotes()
+      this.pagination.limit = newSize;
+      this.pagination.page = 1;
+      this.loadVotes();
     },
 
     handleCurrentChange(newPage) {
-      this.pagination.page = newPage
-      this.loadVotes()
+      this.pagination.page = newPage;
+      this.loadVotes();
     },
 
     handleVoteCreated() {
-      this.showCreateDialog = false
-      this.loadVotes()
+      this.showCreateDialog = false;
+      this.loadVotes();
     },
 
     viewVote(voteId) {
-      this.$router.push(`/voting/${voteId}`)
+      this.$router.push(`/voting/${voteId}`);
     },
 
     participateVote(voteId) {
-      this.$router.push(`/voting/${voteId}/participate`)
+      this.$router.push(`/voting/${voteId}/participate`);
     },
 
     viewResults(voteId) {
-      this.$router.push(`/voting/${voteId}/results`)
+      this.$router.push(`/voting/${voteId}/results`);
     },
 
     getStatusType(vote) {
-      if (vote.isActive) return 'success'
-      if (vote.isEnded) return 'info'
-      if (vote.isUpcoming) return 'warning'
-      return 'info'
+      if (vote.isActive) return 'success';
+      if (vote.isEnded) return 'info';
+      if (vote.isUpcoming) return 'warning';
+      return 'info';
     },
 
     getStatusText(vote) {
-      if (vote.isActive) return '进行中'
-      if (vote.isEnded) return '已结束'
-      if (vote.isUpcoming) return '即将开始'
-      return '未知状态'
+      if (vote.isActive) return '进行中';
+      if (vote.isEnded) return '已结束';
+      if (vote.isUpcoming) return '即将开始';
+      return '未知状态';
     },
 
     getVoteTypeText(voteType) {
       const types = {
-        'single_choice': '单选投票',
-        'multiple_choice': '多选投票',
-        'ranking': '排序投票',
-        'rating': '评分投票',
-        'yes_no': '是否投票'
-      }
-      return types[voteType] || '未知类型'
+        single_choice: '单选投票',
+        multiple_choice: '多选投票',
+        ranking: '排序投票',
+        rating: '评分投票',
+        yes_no: '是否投票',
+      };
+      return types[voteType] || '未知类型';
     },
 
     getProgressPercentage(vote) {
-      if (!vote.timeRemaining) return 100
+      if (!vote.timeRemaining) return 100;
 
-      const totalDuration = new Date(vote.endTime) - new Date(vote.startTime)
-      const remainingTime = vote.timeRemaining.totalMinutes * 60 * 1000
-      const elapsed = totalDuration - remainingTime
+      const totalDuration = new Date(vote.endTime) - new Date(vote.startTime);
+      const remainingTime = vote.timeRemaining.totalMinutes * 60 * 1000;
+      const elapsed = totalDuration - remainingTime;
 
-      return Math.max(0, Math.min(100, (elapsed / totalDuration) * 100))
+      return Math.max(0, Math.min(100, (elapsed / totalDuration) * 100));
     },
 
     formatTimeRemaining(timeRemaining) {
-      if (!timeRemaining) return ''
+      if (!timeRemaining) return '';
 
       if (timeRemaining.days > 0) {
-        return `${timeRemaining.days}天${timeRemaining.hours}小时`
+        return `${timeRemaining.days}天${timeRemaining.hours}小时`;
       } else if (timeRemaining.hours > 0) {
-        return `${timeRemaining.hours}小时${timeRemaining.minutes}分钟`
+        return `${timeRemaining.hours}小时${timeRemaining.minutes}分钟`;
       } else {
-        return `${timeRemaining.minutes}分钟`
+        return `${timeRemaining.minutes}分钟`;
       }
     },
 
-    formatDate
-  }
-}
+    formatDate,
+  },
+};
 </script>
 
 <style scoped>

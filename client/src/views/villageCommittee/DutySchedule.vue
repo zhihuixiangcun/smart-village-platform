@@ -234,12 +234,7 @@
       width="600px"
       :fullscreen="isMobile"
     >
-      <el-form
-        ref="dutyFormRef"
-        :model="dutyForm"
-        :rules="dutyRules"
-        label-width="100px"
-      >
+      <el-form ref="dutyFormRef" :model="dutyForm" :rules="dutyRules" label-width="100px">
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="值班日期" prop="date">
@@ -315,7 +310,12 @@
       width="700px"
       :fullscreen="isMobile"
     >
-      <el-form ref="generateFormRef" :model="generateForm" :rules="generateRules" label-width="120px">
+      <el-form
+        ref="generateFormRef"
+        :model="generateForm"
+        :rules="generateRules"
+        label-width="120px"
+      >
         <el-form-item label="排班周期" prop="cycle">
           <el-radio-group v-model="generateForm.cycle">
             <el-radio label="week">按周排班</el-radio>
@@ -380,16 +380,13 @@
     </el-dialog>
 
     <!-- 交换值班对话框 -->
-    <el-dialog
-      v-model="showSwapDialog"
-      title="交换值班"
-      width="500px"
-      :fullscreen="isMobile"
-    >
+    <el-dialog v-model="showSwapDialog" title="交换值班" width="500px" :fullscreen="isMobile">
       <el-form ref="swapFormRef" :model="swapForm" :rules="swapRules" label-width="100px">
         <el-form-item label="原值班安排">
           <el-descriptions :column="2" border size="small">
-            <el-descriptions-item label="日期">{{ formatDate(swapForm.originalDate) }}</el-descriptions-item>
+            <el-descriptions-item label="日期">{{
+              formatDate(swapForm.originalDate)
+            }}</el-descriptions-item>
             <el-descriptions-item label="时段">{{ swapForm.originalPeriod }}</el-descriptions-item>
             <el-descriptions-item label="人员">{{ swapForm.originalMember }}</el-descriptions-item>
           </el-descriptions>
@@ -429,57 +426,50 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useCommitteeStore } from '@/stores/villageCommittee/committeeStore'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import {
-  Search,
-  Refresh,
-  Plus,
-  Download,
-  MagicStick,
-  Phone
-} from '@element-plus/icons-vue'
-import dayjs from 'dayjs'
+import { ref, computed, onMounted } from 'vue';
+import { useCommitteeStore } from '@/stores/villageCommittee/committeeStore';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { Search, Refresh, Plus, Download, MagicStick, Phone } from '@element-plus/icons-vue';
+import dayjs from 'dayjs';
 
-const committeeStore = useCommitteeStore()
+const committeeStore = useCommitteeStore();
 
 // 响应式数据
 const searchForm = ref({
-  memberId: ''
-})
+  memberId: '',
+});
 
-const dateRange = ref([])
-const currentDate = ref(new Date())
-const viewType = ref('calendar')
+const dateRange = ref([]);
+const currentDate = ref(new Date());
+const viewType = ref('calendar');
 
-const showAddDialog = ref(false)
-const showGenerateDialog = ref(false)
-const showSwapDialog = ref(false)
-const isEdit = ref(false)
-const submitting = ref(false)
-const generating = ref(false)
-const isMobile = ref(false)
+const showAddDialog = ref(false);
+const showGenerateDialog = ref(false);
+const showSwapDialog = ref(false);
+const isEdit = ref(false);
+const submitting = ref(false);
+const generating = ref(false);
+const isMobile = ref(false);
 
-const dutyFormRef = ref()
-const generateFormRef = ref()
-const swapFormRef = ref()
+const dutyFormRef = ref();
+const generateFormRef = ref();
+const swapFormRef = ref();
 
-const currentDuty = ref(null)
+const currentDuty = ref(null);
 
 const pagination = ref({
   page: 1,
   size: 20,
-  total: 0
-})
+  total: 0,
+});
 
 const dutyForm = ref({
   date: '',
   period: '',
   memberId: '',
   responsibilities: '',
-  remark: ''
-})
+  remark: '',
+});
 
 const generateForm = ref({
   cycle: 'week',
@@ -487,305 +477,281 @@ const generateForm = ref({
   endDate: '',
   periods: ['上午班', '下午班', '晚上班'],
   members: [],
-  rules: ['average', 'avoidContinuous']
-})
+  rules: ['average', 'avoidContinuous'],
+});
 
 const swapForm = ref({
   originalDate: '',
   originalPeriod: '',
   originalMember: '',
   targetDutyId: '',
-  reason: ''
-})
+  reason: '',
+});
 
 // 表单验证规则
 const dutyRules = {
-  date: [
-    { required: true, message: '请选择值班日期', trigger: 'change' }
-  ],
-  period: [
-    { required: true, message: '请选择值班时段', trigger: 'change' }
-  ],
-  memberId: [
-    { required: true, message: '请选择值班人员', trigger: 'change' }
-  ],
-  responsibilities: [
-    { required: true, message: '请输入主要职责', trigger: 'blur' }
-  ]
-}
+  date: [{ required: true, message: '请选择值班日期', trigger: 'change' }],
+  period: [{ required: true, message: '请选择值班时段', trigger: 'change' }],
+  memberId: [{ required: true, message: '请选择值班人员', trigger: 'change' }],
+  responsibilities: [{ required: true, message: '请输入主要职责', trigger: 'blur' }],
+};
 
 const generateRules = {
-  startDate: [
-    { required: true, message: '请选择开始日期', trigger: 'change' }
-  ],
-  endDate: [
-    { required: true, message: '请选择结束日期', trigger: 'change' }
-  ],
-  periods: [
-    { type: 'array', required: true, message: '请选择至少一个时段', trigger: 'change' }
-  ],
-  members: [
-    { type: 'array', required: true, message: '请选择值班人员', trigger: 'change' }
-  ]
-}
+  startDate: [{ required: true, message: '请选择开始日期', trigger: 'change' }],
+  endDate: [{ required: true, message: '请选择结束日期', trigger: 'change' }],
+  periods: [{ type: 'array', required: true, message: '请选择至少一个时段', trigger: 'change' }],
+  members: [{ type: 'array', required: true, message: '请选择值班人员', trigger: 'change' }],
+};
 
 const swapRules = {
-  targetDutyId: [
-    { required: true, message: '请选择要交换的值班安排', trigger: 'change' }
-  ],
-  reason: [
-    { required: true, message: '请输入交换原因', trigger: 'blur' }
-  ]
-}
+  targetDutyId: [{ required: true, message: '请选择要交换的值班安排', trigger: 'change' }],
+  reason: [{ required: true, message: '请输入交换原因', trigger: 'blur' }],
+};
 
 // 计算属性
-const onDutyToday = computed(() => committeeStore.onDutyToday)
+const onDutyToday = computed(() => committeeStore.onDutyToday);
 
 const filteredSchedule = computed(() => {
-  let result = committeeStore.dutySchedule
+  let result = committeeStore.dutySchedule;
 
   // 日期范围过滤
   if (dateRange.value && dateRange.value.length === 2) {
-    const [start, end] = dateRange.value
+    const [start, end] = dateRange.value;
     result = result.filter(duty => {
-      return duty.date >= start && duty.date <= end
-    })
+      return duty.date >= start && duty.date <= end;
+    });
   }
 
   // 人员过滤
   if (searchForm.value.memberId) {
-    result = result.filter(duty => duty.memberId === searchForm.value.memberId)
+    result = result.filter(duty => duty.memberId === searchForm.value.memberId);
   }
 
-  pagination.value.total = result.length
-  const start = (pagination.value.page - 1) * pagination.value.size
-  const end = start + pagination.value.size
-  return result.slice(start, end)
-})
+  pagination.value.total = result.length;
+  const start = (pagination.value.page - 1) * pagination.value.size;
+  const end = start + pagination.value.size;
+  return result.slice(start, end);
+});
 
 const timelineData = computed(() => {
   return filteredSchedule.value.sort((a, b) => {
-    const dateA = new Date(a.date)
-    const dateB = new Date(b.date)
-    return dateA - dateB
-  })
-})
+    const dateA = new Date(a.date);
+    const dateB = new Date(b.date);
+    return dateA - dateB;
+  });
+});
 
 const memberTransferData = computed(() => {
   return committeeStore.activeMembers.map(member => ({
     id: member.id,
-    name: `${member.name} - ${member.position}`
-  }))
-})
+    name: `${member.name} - ${member.position}`,
+  }));
+});
 
 const availableSwapDuties = computed(() => {
-  if (!currentDuty.value) return []
+  if (!currentDuty.value) return [];
   return committeeStore.dutySchedule.filter(duty => {
-    return duty.id !== currentDuty.value.id && duty.date >= dayjs().format('YYYY-MM-DD')
-  })
-})
+    return duty.id !== currentDuty.value.id && duty.date >= dayjs().format('YYYY-MM-DD');
+  });
+});
 
 // 方法
 const handleDateChange = () => {
   // 日期范围改变时重新查询
-}
+};
 
 const handleSearch = () => {
-  pagination.value.page = 1
-}
+  pagination.value.page = 1;
+};
 
 const handleReset = () => {
   searchForm.value = {
-    memberId: ''
-  }
-  dateRange.value = []
-  pagination.value.page = 1
-}
+    memberId: '',
+  };
+  dateRange.value = [];
+  pagination.value.page = 1;
+};
 
-const handleViewChange = (type) => {
-  viewType.value = type
-}
+const handleViewChange = type => {
+  viewType.value = type;
+};
 
-const handleSizeChange = (size) => {
-  pagination.value.size = size
-  pagination.value.page = 1
-}
+const handleSizeChange = size => {
+  pagination.value.size = size;
+  pagination.value.page = 1;
+};
 
-const handleCurrentChange = (page) => {
-  pagination.value.page = page
-}
+const handleCurrentChange = page => {
+  pagination.value.page = page;
+};
 
-const handleEdit = (row) => {
-  isEdit.value = true
-  currentDuty.value = row
-  dutyForm.value = { ...row }
-  showAddDialog.value = true
-}
+const handleEdit = row => {
+  isEdit.value = true;
+  currentDuty.value = row;
+  dutyForm.value = { ...row };
+  showAddDialog.value = true;
+};
 
-const handleDelete = (row) => {
+const handleDelete = row => {
   ElMessageBox.confirm(
     `确定要删除 ${row.memberName} 在 ${formatDate(row.date)} ${row.period} 的值班安排吗？`,
     '删除确认',
     {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
-      type: 'warning'
+      type: 'warning',
     }
   ).then(async () => {
     try {
-      await committeeStore.deleteDutySchedule(row.id)
-      ElMessage.success('删除成功')
-      await committeeStore.fetchDutySchedule()
+      await committeeStore.deleteDutySchedule(row.id);
+      ElMessage.success('删除成功');
+      await committeeStore.fetchDutySchedule();
     } catch (error) {
-      ElMessage.error('删除失败')
+      ElMessage.error('删除失败');
     }
-  })
-}
+  });
+};
 
-const handleSwap = (row) => {
-  currentDuty.value = row
+const handleSwap = row => {
+  currentDuty.value = row;
   swapForm.value = {
     originalDate: row.date,
     originalPeriod: row.period,
     originalMember: row.memberName,
     targetDutyId: '',
-    reason: ''
-  }
-  showSwapDialog.value = true
-}
+    reason: '',
+  };
+  showSwapDialog.value = true;
+};
 
 const handleSubmit = async () => {
-  if (!dutyFormRef.value) return
+  if (!dutyFormRef.value) return;
 
-  await dutyFormRef.value.validate(async (valid) => {
+  await dutyFormRef.value.validate(async valid => {
     if (valid) {
-      submitting.value = true
+      submitting.value = true;
       try {
         if (isEdit.value) {
-          await committeeStore.updateDutySchedule(currentDuty.value.id, dutyForm.value)
-          ElMessage.success('更新成功')
+          await committeeStore.updateDutySchedule(currentDuty.value.id, dutyForm.value);
+          ElMessage.success('更新成功');
         } else {
-          await committeeStore.createDutySchedule(dutyForm.value)
-          ElMessage.success('添加成功')
+          await committeeStore.createDutySchedule(dutyForm.value);
+          ElMessage.success('添加成功');
         }
-        showAddDialog.value = false
-        await committeeStore.fetchDutySchedule()
+        showAddDialog.value = false;
+        await committeeStore.fetchDutySchedule();
       } catch (error) {
-        ElMessage.error('操作失败')
+        ElMessage.error('操作失败');
       } finally {
-        submitting.value = false
+        submitting.value = false;
       }
     }
-  })
-}
+  });
+};
 
 const handleGenerateSchedule = async () => {
-  if (!generateFormRef.value) return
+  if (!generateFormRef.value) return;
 
-  await generateFormRef.value.validate(async (valid) => {
+  await generateFormRef.value.validate(async valid => {
     if (valid) {
-      generating.value = true
+      generating.value = true;
       try {
-        await committeeStore.generateDutySchedule(generateForm.value)
-        ElMessage.success('智能排班成功')
-        showGenerateDialog.value = false
-        await committeeStore.fetchDutySchedule()
+        await committeeStore.generateDutySchedule(generateForm.value);
+        ElMessage.success('智能排班成功');
+        showGenerateDialog.value = false;
+        await committeeStore.fetchDutySchedule();
       } catch (error) {
-        ElMessage.error('排班失败')
+        ElMessage.error('排班失败');
       } finally {
-        generating.value = false
+        generating.value = false;
       }
     }
-  })
-}
+  });
+};
 
 const handleSwapSubmit = async () => {
-  if (!swapFormRef.value) return
+  if (!swapFormRef.value) return;
 
-  await swapFormRef.value.validate(async (valid) => {
+  await swapFormRef.value.validate(async valid => {
     if (valid) {
       try {
         // 实现交换逻辑
-        ElMessage.success('值班交换成功')
-        showSwapDialog.value = false
-        await committeeStore.fetchDutySchedule()
+        ElMessage.success('值班交换成功');
+        showSwapDialog.value = false;
+        await committeeStore.fetchDutySchedule();
       } catch (error) {
-        ElMessage.error('交换失败')
+        ElMessage.error('交换失败');
       }
     }
-  })
-}
+  });
+};
 
 const handleExport = () => {
-  ElMessage.success('导出成功')
-}
+  ElMessage.success('导出成功');
+};
 
-const callMember = (duty) => {
-  ElMessageBox.confirm(
-    `确定要呼叫 ${duty.memberName} 吗？\n电话：${duty.contact}`,
-    '呼叫确认',
-    {
-      confirmButtonText: '呼叫',
-      cancelButtonText: '取消',
-      type: 'info'
-    }
-  ).then(() => {
-    window.location.href = `tel:${duty.contact}`
-    ElMessage.success(`正在呼叫 ${duty.memberName}`)
-  })
-}
+const callMember = duty => {
+  ElMessageBox.confirm(`确定要呼叫 ${duty.memberName} 吗？\n电话：${duty.contact}`, '呼叫确认', {
+    confirmButtonText: '呼叫',
+    cancelButtonText: '取消',
+    type: 'info',
+  }).then(() => {
+    window.location.href = `tel:${duty.contact}`;
+    ElMessage.success(`正在呼叫 ${duty.memberName}`);
+  });
+};
 
 // 辅助函数
-const formatDate = (date) => {
-  return date ? dayjs(date).format('YYYY-MM-DD') : ''
-}
+const formatDate = date => {
+  return date ? dayjs(date).format('YYYY-MM-DD') : '';
+};
 
 const formatDateTime = (date, period) => {
-  return `${formatDate(date)} ${period}`
-}
+  return `${formatDate(date)} ${period}`;
+};
 
-const getWeekday = (date) => {
-  const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
-  return weekdays[dayjs(date).day()]
-}
+const getWeekday = date => {
+  const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+  return weekdays[dayjs(date).day()];
+};
 
-const getDutyByDate = (date) => {
-  return committeeStore.dutySchedule.filter(duty => duty.date === date)
-}
+const getDutyByDate = date => {
+  return committeeStore.dutySchedule.filter(duty => duty.date === date);
+};
 
-const getDutyTagType = (period) => {
+const getDutyTagType = period => {
   const typeMap = {
-    '上午班': 'success',
-    '下午班': 'primary',
-    '晚上班': 'warning',
-    '全天班': 'danger',
-    '应急班': 'info'
-  }
-  return typeMap[period] || ''
-}
+    上午班: 'success',
+    下午班: 'primary',
+    晚上班: 'warning',
+    全天班: 'danger',
+    应急班: 'info',
+  };
+  return typeMap[period] || '';
+};
 
-const getTimelineType = (period) => {
+const getTimelineType = period => {
   const typeMap = {
-    '上午班': 'success',
-    '下午班': 'primary',
-    '晚上班': 'warning',
-    '全天班': 'danger',
-    '应急班': 'info'
-  }
-  return typeMap[period] || 'primary'
-}
+    上午班: 'success',
+    下午班: 'primary',
+    晚上班: 'warning',
+    全天班: 'danger',
+    应急班: 'info',
+  };
+  return typeMap[period] || 'primary';
+};
 
 // 生命周期
 onMounted(async () => {
-  isMobile.value = window.innerWidth < 768
+  isMobile.value = window.innerWidth < 768;
 
   try {
-    await committeeStore.fetchDutySchedule()
-    await committeeStore.fetchMembers()
+    await committeeStore.fetchDutySchedule();
+    await committeeStore.fetchMembers();
   } catch (error) {
-    console.error('加载数据失败:', error)
+    console.error('加载数据失败:', error);
   }
-})
+});
 </script>
 
 <style lang="scss" scoped>

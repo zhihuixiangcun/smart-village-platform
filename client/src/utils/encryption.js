@@ -133,7 +133,7 @@ export const encryptionService = {
     if (name.length <= 1) return name;
 
     const firstChar = name[0];
-    return `${firstChar  }*`;
+    return `${firstChar}*`;
   },
 
   /**
@@ -145,25 +145,22 @@ export const encryptionService = {
     if (!address) return '';
 
     // 保留到村或街道一级
-    const patterns = [
-      /^(.{6}?(村|街道|社区))(.*)$/,
-      /^(.{10}?(镇|乡|区))(.*)$/
-    ];
+    const patterns = [/^(.{6}?(村|街道|社区))(.*)$/, /^(.{10}?(镇|乡|区))(.*)$/];
 
     for (const pattern of patterns) {
       const match = address.match(pattern);
       if (match) {
-        return `${match[1]  }****`;
+        return `${match[1]}****`;
       }
     }
 
     // 如果匹配不到,保留前6个字符
     if (address.length > 6) {
-      return `${address.substring(0, 6)  }****`;
+      return `${address.substring(0, 6)}****`;
     }
 
     return address;
-  }
+  },
 };
 
 /**
@@ -180,7 +177,7 @@ export const sensitiveFields = {
   finance: ['bankAccount', 'amount', 'income', 'expense'],
 
   // 证件敏感字段
-  document: ['idCard', 'issueDate', 'expiryDate', 'documentNo']
+  document: ['idCard', 'issueDate', 'expiryDate', 'documentNo'],
 };
 
 export default encryptionService;

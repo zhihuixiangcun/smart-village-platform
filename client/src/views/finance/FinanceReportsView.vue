@@ -24,9 +24,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref } from 'vue';
 
-const title = ref('财务报表')
+const title = ref('财务报表');
 </script>
 
 <style lang="scss" scoped>

@@ -20,7 +20,7 @@ const speechApi = {
     if (options.domain) formData.append('domain', options.domain);
 
     return request.post('/api/v1/speech/recognize', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+      headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
 
@@ -31,17 +31,21 @@ const speechApi = {
    * @returns {Promise} 音频数据
    */
   synthesize(text, options = {}) {
-    return request.post('/api/v1/speech/synthesize', {
-      text,
-      voice: options.voice || 'mandarin',
-      speed: options.speed || 50,
-      pitch: options.pitch || 50,
-      volume: options.volume || 50,
-      emotion: options.emotion || 'neutral',
-      format: options.format || 'mp3'
-    }, {
-      responseType: 'blob'
-    });
+    return request.post(
+      '/api/v1/speech/synthesize',
+      {
+        text,
+        voice: options.voice || 'mandarin',
+        speed: options.speed || 50,
+        pitch: options.pitch || 50,
+        volume: options.volume || 50,
+        emotion: options.emotion || 'neutral',
+        format: options.format || 'mp3',
+      },
+      {
+        responseType: 'blob',
+      }
+    );
   },
 
   /**
@@ -54,7 +58,7 @@ const speechApi = {
     formData.append('audio', audioFile);
 
     return request.post('/api/v1/speech/detect-dialect', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+      headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
 
@@ -97,7 +101,7 @@ const speechApi = {
     if (options.dialect) formData.append('dialect', options.dialect);
 
     return request.post('/api/v1/speech/batch-recognize', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+      headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
 
@@ -114,7 +118,8 @@ const speechApi = {
     const queryParams = new URLSearchParams();
 
     if (options.dialect) queryParams.append('dialect', options.dialect);
-    if (options.interimResults !== undefined) queryParams.append('interimResults', options.interimResults);
+    if (options.interimResults !== undefined)
+      queryParams.append('interimResults', options.interimResults);
     if (options.silenceTimeout) queryParams.append('silenceTimeout', options.silenceTimeout);
 
     const wsUrl = `${protocol}//${host}/api/v1/speech/real-time-recognize?${queryParams.toString()}`;
@@ -158,7 +163,7 @@ const speechApi = {
     const voiceMap = {
       cantonese: 'cantonese',
       shanghainese: 'shanghainese',
-      sichuanese: 'sichuanese'
+      sichuanese: 'sichuanese',
     };
 
     const voice = voiceMap[dialect] || 'mandarin';
@@ -176,7 +181,7 @@ const speechApi = {
     const audioBlob = await this.synthesize(text, {
       voice: 'elderly',
       speed: 40,
-      volume: 60
+      volume: 60,
     });
 
     return URL.createObjectURL(audioBlob);
@@ -192,11 +197,11 @@ const speechApi = {
       voice: 'child',
       speed: 55,
       pitch: 60,
-      emotion: 'happy'
+      emotion: 'happy',
     });
 
     return URL.createObjectURL(audioBlob);
-  }
+  },
 };
 
 export default speechApi;

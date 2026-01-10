@@ -18,9 +18,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref } from 'vue';
 
-const title = ref('连接测试')
+const title = ref('连接测试');
 </script>
 
 <style lang="scss" scoped>

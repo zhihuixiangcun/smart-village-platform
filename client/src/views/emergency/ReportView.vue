@@ -20,10 +20,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref } from 'vue';
 
-const title = ref('事件上报')
-const name = ref('ReportView')
+const title = ref('事件上报');
+const name = ref('ReportView');
 </script>
 
 <style lang="scss" scoped>

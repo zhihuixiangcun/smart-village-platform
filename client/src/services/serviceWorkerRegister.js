@@ -24,9 +24,7 @@ export function register(config) {
         checkValidServiceWorker(swUrl, config);
 
         navigator.serviceWorker.ready.then(() => {
-          console.log(
-            '本网页应用在本地服务器上运行，Service Worker 已启用'
-          );
+          console.log('本网页应用在本地服务器上运行，Service Worker 已启用');
         });
       } else {
         // 生产环境注册 Service Worker
@@ -39,7 +37,7 @@ export function register(config) {
 function registerValidSW(swUrl, config) {
   navigator.serviceWorker
     .register(swUrl)
-    .then((registration) => {
+    .then(registration => {
       console.log('Service Worker 注册成功:', registration);
 
       // 检查更新
@@ -73,16 +71,16 @@ function registerValidSW(swUrl, config) {
         };
       };
     })
-    .catch((error) => {
+    .catch(error => {
       console.error('Service Worker 注册失败:', error);
     });
 }
 
 function checkValidServiceWorker(swUrl, config) {
   fetch(swUrl, {
-    headers: { 'Service-Worker': 'script' }
+    headers: { 'Service-Worker': 'script' },
   })
-    .then((response) => {
+    .then(response => {
       const contentType = response.headers.get('content-type');
 
       if (
@@ -90,7 +88,7 @@ function checkValidServiceWorker(swUrl, config) {
         (contentType != null && contentType.indexOf('javascript') === -1)
       ) {
         // Service Worker 不存在，需要重新注册
-        navigator.serviceWorker.ready.then((registration) => {
+        navigator.serviceWorker.ready.then(registration => {
           registration.unregister().then(() => {
             window.location.reload();
           });
@@ -108,10 +106,10 @@ function checkValidServiceWorker(swUrl, config) {
 export function unregister() {
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.ready
-      .then((registration) => {
+      .then(registration => {
         registration.unregister();
       })
-      .catch((error) => {
+      .catch(error => {
         console.error(error.message);
       });
   }
@@ -128,17 +126,14 @@ export async function sendMessageToSW(type, payload) {
     return null;
   }
 
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     const messageChannel = new MessageChannel();
 
-    messageChannel.port1.onmessage = (event) => {
+    messageChannel.port1.onmessage = event => {
       resolve(event.data);
     };
 
-    navigator.serviceWorker.controller.postMessage(
-      { type, payload },
-      [messageChannel.port2]
-    );
+    navigator.serviceWorker.controller.postMessage({ type, payload }, [messageChannel.port2]);
   });
 }
 

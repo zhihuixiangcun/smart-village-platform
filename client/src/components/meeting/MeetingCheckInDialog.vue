@@ -67,13 +67,11 @@
           <div v-if="!showScanner" class="scanner-placeholder">
             <i class="el-icon-camera"></i>
             <p>点击启动摄像头扫描二维码</p>
-            <el-button type="primary" @click="startScanner">
-              启动扫描
-            </el-button>
+            <el-button type="primary" @click="startScanner"> 启动扫描 </el-button>
           </div>
           <div v-else class="scanner-container">
             <video ref="video" autoplay></video>
-            <canvas ref="canvas" style="display: none;"></canvas>
+            <canvas ref="canvas" style="display: none"></canvas>
             <div class="scanner-overlay">
               <div class="scanner-frame"></div>
             </div>
@@ -118,9 +116,7 @@
 
       <!-- 位置信息 -->
       <div v-if="!hasCheckedIn" class="location-info">
-        <el-checkbox v-model="enableLocation">
-          包含位置信息（用于验证签到地点）
-        </el-checkbox>
+        <el-checkbox v-model="enableLocation"> 包含位置信息（用于验证签到地点） </el-checkbox>
         <div v-if="enableLocation && currentLocation" class="location-display">
           <p>
             <i class="el-icon-location-information"></i>
@@ -163,20 +159,20 @@
 </template>
 
 <script>
-import { meetingAPI } from '@/api/meeting'
-import { formatDateTime } from '@/utils/dateUtils'
+import { meetingAPI } from '@/api/meeting';
+import { formatDateTime } from '@/utils/dateUtils';
 
 export default {
   name: 'MeetingCheckInDialog',
   props: {
     visible: {
       type: Boolean,
-      default: false
+      default: false,
     },
     meetingId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   data() {
     return {
@@ -191,203 +187,201 @@ export default {
       stream: null,
       checkInForm: {
         location: {
-          venue: ''
+          venue: '',
         },
-        notes: ''
-      }
-    }
+        notes: '',
+      },
+    };
   },
   computed: {
     dialogVisible: {
       get() {
-        return this.visible
+        return this.visible;
       },
       set(val) {
-        this.$emit('update:visible', val)
-      }
+        this.$emit('update:visible', val);
+      },
     },
     hasCheckedIn() {
-      return this.meeting?.userCheckInStatus?.hasCheckedIn || false
+      return this.meeting?.userCheckInStatus?.hasCheckedIn || false;
     },
     userCheckIn() {
-      return this.meeting?.userCheckInStatus || {}
+      return this.meeting?.userCheckInStatus || {};
     },
     checkInStatus() {
-      if (!this.meeting) return null
+      if (!this.meeting) return null;
 
-      const now = new Date()
-      const startTime = new Date(this.meeting.scheduledTime.startTime)
-      const checkInStart = new Date(this.meeting.settings.checkIn.startTime)
-      const checkInEnd = new Date(this.meeting.settings.checkIn.endTime)
+      const now = new Date();
+      const startTime = new Date(this.meeting.scheduledTime.startTime);
+      const checkInStart = new Date(this.meeting.settings.checkIn.startTime);
+      const checkInEnd = new Date(this.meeting.settings.checkIn.endTime);
 
       if (this.hasCheckedIn) {
         return {
           title: '您已成功签到',
           description: this.userCheckIn.isLate ? '签到成功，但已迟到' : '签到成功，准时到达',
-          type: this.userCheckIn.isLate ? 'warning' : 'success'
-        }
+          type: this.userCheckIn.isLate ? 'warning' : 'success',
+        };
       }
 
       if (now < checkInStart) {
         return {
           title: '签到尚未开始',
           description: `签到将于 ${formatDateTime(checkInStart)} 开始`,
-          type: 'info'
-        }
+          type: 'info',
+        };
       }
 
       if (now > checkInEnd && !this.meeting.settings.checkIn.allowLateCheckIn) {
         return {
           title: '签到已结束',
           description: '签到时间已过，无法进行签到',
-          type: 'error'
-        }
+          type: 'error',
+        };
       }
 
       if (now > startTime) {
         return {
           title: '会议已开始',
           description: '您可以迟到签到，但会被标记为迟到',
-          type: 'warning'
-        }
+          type: 'warning',
+        };
       }
 
       return {
         title: '可以签到',
         description: '请选择签到方式完成签到',
-        type: 'success'
-      }
+        type: 'success',
+      };
     },
     canCheckIn() {
-      if (this.hasCheckedIn) return false
+      if (this.hasCheckedIn) return false;
 
       if (this.checkInMethod === 'qr_code') {
-        return this.qrCode.trim().length > 0
+        return this.qrCode.trim().length > 0;
       }
 
       if (this.checkInMethod === 'manual') {
-        return this.checkInForm.location.venue.trim().length > 0
+        return this.checkInForm.location.venue.trim().length > 0;
       }
 
-      return false
-    }
+      return false;
+    },
   },
   watch: {
     visible(newVal) {
       if (newVal && this.meetingId) {
-        this.loadMeetingDetails()
+        this.loadMeetingDetails();
       } else {
-        this.cleanup()
+        this.cleanup();
       }
-    }
+    },
   },
   methods: {
     async loadMeetingDetails() {
-      this.loading = true
+      this.loading = true;
       try {
-        const response = await meetingAPI.getMeetingDetails(this.meetingId)
+        const response = await meetingAPI.getMeetingDetails(this.meetingId);
 
         if (response.data.success) {
-          this.meeting = response.data.data
-          this.checkInForm.location.venue = this.meeting.location.venue
+          this.meeting = response.data.data;
+          this.checkInForm.location.venue = this.meeting.location.venue;
         }
 
         if (this.enableLocation) {
-          this.getCurrentLocation()
+          this.getCurrentLocation();
         }
       } catch (error) {
-        this.$message.error('加载会议信息失败')
-        console.error(error)
+        this.$message.error('加载会议信息失败');
+        console.error(error);
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
 
     async getCurrentLocation() {
       if (!navigator.geolocation) {
-        console.warn('浏览器不支持地理位置')
-        return
+        console.warn('浏览器不支持地理位置');
+        return;
       }
 
       try {
         const position = await new Promise((resolve, reject) => {
           navigator.geolocation.getCurrentPosition(resolve, reject, {
             timeout: 10000,
-            enableHighAccuracy: false
-          })
-        })
+            enableHighAccuracy: false,
+          });
+        });
 
         this.currentLocation = {
           longitude: position.coords.longitude,
           latitude: position.coords.latitude,
-          address: '获取中...'
-        }
+          address: '获取中...',
+        };
 
         // 这里可以调用地理编码API获取地址
         // 简化处理，显示坐标
-        this.currentLocation.address =
-          `${position.coords.latitude.toFixed(6)}, ${position.coords.longitude.toFixed(6)}`
-
+        this.currentLocation.address = `${position.coords.latitude.toFixed(6)}, ${position.coords.longitude.toFixed(6)}`;
       } catch (error) {
-        console.warn('获取位置失败:', error)
-        this.enableLocation = false
+        console.warn('获取位置失败:', error);
+        this.enableLocation = false;
       }
     },
 
     handleMethodChange() {
-      this.qrCode = ''
-      this.stopScanner()
+      this.qrCode = '';
+      this.stopScanner();
     },
 
     async startScanner() {
       try {
         this.stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment' }
-        })
-        this.$refs.video.srcObject = this.stream
-        this.showScanner = true
+          video: { facingMode: 'environment' },
+        });
+        this.$refs.video.srcObject = this.stream;
+        this.showScanner = true;
       } catch (error) {
-        this.$message.error('无法启动摄像头')
-        console.error(error)
+        this.$message.error('无法启动摄像头');
+        console.error(error);
       }
     },
 
     stopScanner() {
       if (this.stream) {
-        this.stream.getTracks().forEach(track => track.stop())
-        this.stream = null
+        this.stream.getTracks().forEach(track => track.stop());
+        this.stream = null;
       }
-      this.showScanner = false
+      this.showScanner = false;
     },
 
     captureQR() {
       // 简化的二维码识别，实际应该使用专业的二维码识别库
-      const canvas = this.$refs.canvas
-      const video = this.$refs.video
-      const context = canvas.getContext('2d')
+      const canvas = this.$refs.canvas;
+      const video = this.$refs.video;
+      const context = canvas.getContext('2d');
 
-      canvas.width = video.videoWidth
-      canvas.height = video.videoHeight
-      context.drawImage(video, 0, 0)
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0);
 
       // 这里应该调用二维码识别库
-      this.$message.info('请手动输入二维码内容或使用专业扫码应用')
+      this.$message.info('请手动输入二维码内容或使用专业扫码应用');
     },
 
     async performCheckIn() {
-      this.checkingIn = true
+      this.checkingIn = true;
       try {
         const checkInData = {
           checkInMethod: this.checkInMethod,
-          notes: this.checkInForm.notes
-        }
+          notes: this.checkInForm.notes,
+        };
 
         if (this.checkInMethod === 'qr_code') {
-          checkInData.qrCode = this.qrCode
+          checkInData.qrCode = this.qrCode;
         }
 
         if (this.checkInMethod === 'manual') {
-          checkInData.location = this.checkInForm.location
+          checkInData.location = this.checkInForm.location;
         }
 
         if (this.enableLocation && this.currentLocation) {
@@ -395,59 +389,59 @@ export default {
             ...checkInData.location,
             coordinates: {
               longitude: this.currentLocation.longitude,
-              latitude: this.currentLocation.latitude
-            }
-          }
+              latitude: this.currentLocation.latitude,
+            },
+          };
         }
 
-        const response = await meetingAPI.checkInMeeting(this.meetingId, checkInData)
+        const response = await meetingAPI.checkInMeeting(this.meetingId, checkInData);
 
         if (response.data.success) {
-          this.$message.success(response.data.message)
-          this.$emit('checked-in', response.data.data)
+          this.$message.success(response.data.message);
+          this.$emit('checked-in', response.data.data);
 
           // 重新加载会议信息以更新签到状态
-          await this.loadMeetingDetails()
+          await this.loadMeetingDetails();
         }
       } catch (error) {
-        const message = error.response?.data?.message || '签到失败'
-        this.$message.error(message)
-        console.error(error)
+        const message = error.response?.data?.message || '签到失败';
+        this.$message.error(message);
+        console.error(error);
       } finally {
-        this.checkingIn = false
+        this.checkingIn = false;
       }
     },
 
     handleClose() {
-      this.cleanup()
-      this.dialogVisible = false
+      this.cleanup();
+      this.dialogVisible = false;
     },
 
     cleanup() {
-      this.stopScanner()
-      this.qrCode = ''
+      this.stopScanner();
+      this.qrCode = '';
       this.checkInForm = {
         location: { venue: '' },
-        notes: ''
-      }
-      this.currentLocation = null
-      this.enableLocation = true
-      this.checkInMethod = 'manual'
+        notes: '',
+      };
+      this.currentLocation = null;
+      this.enableLocation = true;
+      this.checkInMethod = 'manual';
     },
 
     getCheckInMethodText(method) {
       const methods = {
-        'qr_code': '二维码扫描',
-        'manual': '手动签到',
-        'face_recognition': '人脸识别',
-        'nfc': 'NFC签到'
-      }
-      return methods[method] || '未知方式'
+        qr_code: '二维码扫描',
+        manual: '手动签到',
+        face_recognition: '人脸识别',
+        nfc: 'NFC签到',
+      };
+      return methods[method] || '未知方式';
     },
 
-    formatDateTime
-  }
-}
+    formatDateTime,
+  },
+};
 </script>
 
 <style scoped>

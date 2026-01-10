@@ -48,7 +48,10 @@
             <el-table-column prop="basicInfo.phone" label="手机号" width="140" />
             <el-table-column prop="purchaserType" label="类型" width="120">
               <template #default="{ row }">
-                <el-tag :type="row.purchaserType === 'individual' ? 'success' : 'warning'" size="small">
+                <el-tag
+                  :type="row.purchaserType === 'individual' ? 'success' : 'warning'"
+                  size="small"
+                >
                   {{ row.purchaserType === 'individual' ? '个人' : '商家' }}
                 </el-tag>
               </template>
@@ -110,27 +113,27 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus, Search, CircleCheck } from '@element-plus/icons-vue'
-import api from '@/api'
+import { ref, reactive, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { Plus, Search, CircleCheck } from '@element-plus/icons-vue';
+import api from '@/api';
 
-const router = useRouter()
+const router = useRouter();
 
-const loading = ref(false)
-const searchText = ref('')
-const filterType = ref('')
-const filterStatus = ref('')
-const currentPage = ref(1)
-const pageSize = ref(10)
-const total = ref(0)
+const loading = ref(false);
+const searchText = ref('');
+const filterType = ref('');
+const filterStatus = ref('');
+const currentPage = ref(1);
+const pageSize = ref(10);
+const total = ref(0);
 
-const purchaserList = ref([])
+const purchaserList = ref([]);
 
 // 获取采购商列表
 const fetchPurchaserList = async () => {
-  loading.value = true
+  loading.value = true;
   try {
     // 这里暂时使用模拟数据，实际应该调用API
     purchaserList.value = [
@@ -141,7 +144,7 @@ const fetchPurchaserList = async () => {
         status: 'active',
         verification: { isVerified: true },
         statistics: { totalOrders: 15 },
-        createdAt: new Date('2024-01-15')
+        createdAt: new Date('2024-01-15'),
       },
       {
         _id: '2',
@@ -150,93 +153,93 @@ const fetchPurchaserList = async () => {
         status: 'pending',
         verification: { isVerified: false },
         statistics: { totalOrders: 0 },
-        createdAt: new Date('2024-03-20')
-      }
-    ]
-    total.value = 2
+        createdAt: new Date('2024-03-20'),
+      },
+    ];
+    total.value = 2;
   } catch (error) {
-    console.error('获取采购商列表失败', error)
-    ElMessage.error('获取采购商列表失败')
+    console.error('获取采购商列表失败', error);
+    ElMessage.error('获取采购商列表失败');
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 // 搜索
 const handleSearch = () => {
-  currentPage.value = 1
-  fetchPurchaserList()
-}
+  currentPage.value = 1;
+  fetchPurchaserList();
+};
 
 // 重置
 const handleReset = () => {
-  searchText.value = ''
-  filterType.value = ''
-  filterStatus.value = ''
-  currentPage.value = 1
-  fetchPurchaserList()
-}
+  searchText.value = '';
+  filterType.value = '';
+  filterStatus.value = '';
+  currentPage.value = 1;
+  fetchPurchaserList();
+};
 
 // 分页
-const handleSizeChange = (size) => {
-  pageSize.value = size
-  fetchPurchaserList()
-}
+const handleSizeChange = size => {
+  pageSize.value = size;
+  fetchPurchaserList();
+};
 
-const handlePageChange = (page) => {
-  currentPage.value = page
-  fetchPurchaserList()
-}
+const handlePageChange = page => {
+  currentPage.value = page;
+  fetchPurchaserList();
+};
 
 // 获取状态类型
-const getStatusType = (status) => {
-  const types = { pending: 'info', active: 'success', suspended: 'warning', deleted: 'danger' }
-  return types[status] || 'info'
-}
+const getStatusType = status => {
+  const types = { pending: 'info', active: 'success', suspended: 'warning', deleted: 'danger' };
+  return types[status] || 'info';
+};
 
 // 获取状态标签
-const getStatusLabel = (status) => {
-  const labels = { pending: '待审核', active: '已激活', suspended: '已暂停', deleted: '已删除' }
-  return labels[status] || status
-}
+const getStatusLabel = status => {
+  const labels = { pending: '待审核', active: '已激活', suspended: '已暂停', deleted: '已删除' };
+  return labels[status] || status;
+};
 
 // 格式化日期
-const formatDate = (date) => {
-  if (!date) return ''
-  return new Date(date).toLocaleDateString('zh-CN')
-}
+const formatDate = date => {
+  if (!date) return '';
+  return new Date(date).toLocaleDateString('zh-CN');
+};
 
 // 查看个人中心
-const viewProfile = (row) => {
-  router.push(`/purchaser/profile`)
-}
+const viewProfile = row => {
+  router.push(`/purchaser/profile`);
+};
 
 // 添加采购商
 const handleAddPurchaser = () => {
-  router.push('/auth/registration-wizard')
-}
+  router.push('/auth/registration-wizard');
+};
 
 // 编辑采购商
-const editPurchaser = (row) => {
-  ElMessage.info('编辑功能开发中')
-}
+const editPurchaser = row => {
+  ElMessage.info('编辑功能开发中');
+};
 
 // 审核采购商
-const approvePurchaser = async (row) => {
+const approvePurchaser = async row => {
   try {
     await ElMessageBox.confirm(`确认审核通过 ${row.basicInfo.name}？`, '审核确认', {
-      type: 'warning'
-    })
-    ElMessage.success('审核通过')
-    await fetchPurchaserList()
+      type: 'warning',
+    });
+    ElMessage.success('审核通过');
+    await fetchPurchaserList();
   } catch (error) {
     // 用户取消
   }
-}
+};
 
 onMounted(() => {
-  fetchPurchaserList()
-})
+  fetchPurchaserList();
+});
 </script>
 
 <style lang="scss" scoped>

@@ -12,18 +12,14 @@
       <div class="video-container" v-if="!imageCaptured">
         <video
           ref="videoElement"
-          :class="{ 'mirror': mirrorMode }"
+          :class="{ mirror: mirrorMode }"
           autoplay
           playsinline
           muted
         ></video>
 
         <!-- 人脸检测框 -->
-        <canvas
-          ref="overlayCanvas"
-          class="overlay-canvas"
-          :class="{ 'mirror': mirrorMode }"
-        ></canvas>
+        <canvas ref="overlayCanvas" class="overlay-canvas" :class="{ mirror: mirrorMode }"></canvas>
 
         <!-- 活体检测提示 -->
         <div v-if="livenessActive && currentAction" class="liveness-prompt">
@@ -140,28 +136,28 @@ export default {
   props: {
     title: {
       type: String,
-      default: '人脸识别'
+      default: '人脸识别',
     },
     instruction: {
       type: String,
-      default: '请将面部对准摄像头，保持光线充足'
+      default: '请将面部对准摄像头，保持光线充足',
     },
     enableLiveness: {
       type: Boolean,
-      default: true
+      default: true,
     },
     enableFaceDetection: {
       type: Boolean,
-      default: true
+      default: true,
     },
     mirrorMode: {
       type: Boolean,
-      default: true
+      default: true,
     },
     captureTimeout: {
       type: Number,
-      default: 30000
-    }
+      default: 30000,
+    },
   },
   data() {
     return {
@@ -191,15 +187,15 @@ export default {
       videoConstraints: {
         width: { ideal: 640 },
         height: { ideal: 480 },
-        facingMode: 'user'
-      }
+        facingMode: 'user',
+      },
     };
   },
   computed: {
     canCapture() {
       if (!this.enableFaceDetection) return true;
       return this.faceDetected && this.faceQuality >= 70;
-    }
+    },
   },
   async mounted() {
     await this.loadModels();
@@ -221,7 +217,7 @@ export default {
         await Promise.all([
           faceApi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
           faceApi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
-          faceApi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
+          faceApi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
         ]);
 
         this.isProcessing = false;
@@ -242,7 +238,7 @@ export default {
         const video = this.$refs.videoElement;
         this.stream = await navigator.mediaDevices.getUserMedia({
           video: this.videoConstraints,
-          audio: false
+          audio: false,
         });
 
         video.srcObject = this.stream;
@@ -260,7 +256,6 @@ export default {
             this.startLivenessDetection();
           }
         };
-
       } catch (error) {
         console.error('启动摄像头失败:', error);
         this.errorMessage = this.getCameraErrorMessage(error);
@@ -306,15 +301,13 @@ export default {
               box,
               quality: this.faceQuality,
               landmarks: detection.landmarks,
-              descriptor: detection.descriptor
+              descriptor: detection.descriptor,
             });
-
           } else {
             this.faceDetected = false;
             this.faceQuality = 0;
             this.faceBox = null;
           }
-
         } catch (error) {
           console.error('人脸检测错误:', error);
         }
@@ -336,7 +329,7 @@ export default {
 
     // 执行活体检测动作
     async performLivenessAction(action) {
-      return new Promise((resolve) => {
+      return new Promise(resolve => {
         this.currentAction = action;
         this.livenessProgress = 0;
 
@@ -352,7 +345,7 @@ export default {
           if (elapsed >= duration) {
             this.livenessResults[action] = {
               success: Math.random() > 0.1, // 90%成功率
-              confidence: 0.8 + Math.random() * 0.2
+              confidence: 0.8 + Math.random() * 0.2,
             };
 
             clearInterval(checkAction);
@@ -391,9 +384,8 @@ export default {
         this.$emit('photoCaptured', {
           imageData: this.capturedImage,
           faceBox: this.faceBox,
-          quality: this.faceQuality
+          quality: this.faceQuality,
         });
-
       } catch (error) {
         console.error('拍摄照片失败:', error);
         this.errorMessage = '拍摄失败，请重试';
@@ -417,7 +409,7 @@ export default {
     confirmCapture() {
       this.$emit('confirm', {
         imageData: this.capturedImage,
-        livenessResults: this.livenessResults
+        livenessResults: this.livenessResults,
       });
     },
 
@@ -469,7 +461,7 @@ export default {
       const minSize = 100 * 100;
       const maxSize = 300 * 300;
       if (faceSize >= minSize && faceSize <= maxSize) {
-        quality += 30 * (faceSize - minSize) / (maxSize - minSize);
+        quality += (30 * (faceSize - minSize)) / (maxSize - minSize);
       }
 
       // 基于人脸位置的评分 (0-20分)
@@ -479,12 +471,8 @@ export default {
       const idealX = video.videoWidth / 2;
       const idealY = video.videoHeight / 2;
 
-      const distance = Math.sqrt(
-        Math.pow(centerX - idealX, 2) + Math.pow(centerY - idealY, 2)
-      );
-      const maxDistance = Math.sqrt(
-        Math.pow(idealX, 2) + Math.pow(idealY, 2)
-      );
+      const distance = Math.sqrt(Math.pow(centerX - idealX, 2) + Math.pow(centerY - idealY, 2));
+      const maxDistance = Math.sqrt(Math.pow(idealX, 2) + Math.pow(idealY, 2));
 
       quality += 20 * (1 - distance / maxDistance);
 
@@ -507,9 +495,10 @@ export default {
       const meanX = points.reduce((sum, p) => sum + p.x, 0) / points.length;
       const meanY = points.reduce((sum, p) => sum + p.y, 0) / points.length;
 
-      const variance = points.reduce((sum, p) => {
-        return sum + Math.pow(p.x - meanX, 2) + Math.pow(p.y - meanY, 2);
-      }, 0) / points.length;
+      const variance =
+        points.reduce((sum, p) => {
+          return sum + Math.pow(p.x - meanX, 2) + Math.pow(p.y - meanY, 2);
+        }, 0) / points.length;
 
       return variance;
     },
@@ -528,7 +517,7 @@ export default {
         mouth: 'fas fa-mouth',
         head: 'fas fa-arrows-alt',
         left: 'fas fa-arrow-left',
-        right: 'fas fa-arrow-right'
+        right: 'fas fa-arrow-right',
       };
       return icons[action] || 'fas fa-question';
     },
@@ -540,7 +529,7 @@ export default {
         mouth: '请张嘴',
         head: '请摇头',
         left: '请向左转头',
-        right: '请向右转头'
+        right: '请向右转头',
       };
       return texts[action] || '请配合验证';
     },
@@ -548,16 +537,16 @@ export default {
     // 获取摄像头错误信息
     getCameraErrorMessage(error) {
       const errorMessages = {
-        'NotAllowedError': '摄像头权限被拒绝，请在浏览器设置中允许摄像头访问',
-        'NotFoundError': '未找到摄像头设备，请检查摄像头连接',
-        'NotReadableError': '摄像头被其他应用占用，请关闭其他使用摄像头的应用',
-        'OverconstrainedError': '摄像头不满足要求，请尝试其他摄像头',
-        'SecurityError': '摄像头访问被安全策略阻止'
+        NotAllowedError: '摄像头权限被拒绝，请在浏览器设置中允许摄像头访问',
+        NotFoundError: '未找到摄像头设备，请检查摄像头连接',
+        NotReadableError: '摄像头被其他应用占用，请关闭其他使用摄像头的应用',
+        OverconstrainedError: '摄像头不满足要求，请尝试其他摄像头',
+        SecurityError: '摄像头访问被安全策略阻止',
       };
 
       return errorMessages[error.name] || '摄像头启动失败，请检查设备连接和权限设置';
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -706,7 +695,9 @@ export default {
   margin-top: 20px;
 }
 
-.capture-btn, .confirm-btn, .cancel-btn {
+.capture-btn,
+.confirm-btn,
+.cancel-btn {
   padding: 12px 24px;
   border: none;
   border-radius: 6px;
@@ -793,8 +784,12 @@ export default {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .settings-panel {

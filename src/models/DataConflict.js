@@ -275,35 +275,35 @@ dataConflictSchema.methods.autoResolve = function(rule, confidence = 0.8) {
 
   // 根据规则自动选择解决方案
   switch(rule) {
-    case 'server_wins':
-      return this.resolveServerWins(null, 'Auto-resolved: server wins');
-    case 'client_wins':
-      return this.resolveClientWins(null, 'Auto-resolved: client wins');
-    case 'latest_timestamp':
-      const clientTime = new Date(this.clientData.updatedAt || 0);
-      const serverTime = new Date(this.serverData.updatedAt || 0);
-      if (clientTime > serverTime) {
-        return this.resolveClientWins(null, 'Auto-resolved: client has latest data');
-      } else {
-        return this.resolveServerWins(null, 'Auto-resolved: server has latest data');
+  case 'server_wins':
+    return this.resolveServerWins(null, 'Auto-resolved: server wins');
+  case 'client_wins':
+    return this.resolveClientWins(null, 'Auto-resolved: client wins');
+  case 'latest_timestamp':
+    const clientTime = new Date(this.clientData.updatedAt || 0);
+    const serverTime = new Date(this.serverData.updatedAt || 0);
+    if (clientTime > serverTime) {
+      return this.resolveClientWins(null, 'Auto-resolved: client has latest data');
+    } else {
+      return this.resolveServerWins(null, 'Auto-resolved: server has latest data');
+    }
+  case 'merge_non_conflicting':
+    // 合并非冲突字段
+    const merged = { ...this.serverData };
+    let hasMerge = false;
+    Object.keys(this.clientData).forEach(key => {
+      if (this.conflictDetails.conflictedFields.indexOf(key) === -1) {
+        merged[key] = this.clientData[key];
+        hasMerge = true;
       }
-    case 'merge_non_conflicting':
-      // 合并非冲突字段
-      const merged = { ...this.serverData };
-      let hasMerge = false;
-      Object.keys(this.clientData).forEach(key => {
-        if (this.conflictDetails.conflictedFields.indexOf(key) === -1) {
-          merged[key] = this.clientData[key];
-          hasMerge = true;
-        }
-      });
-      if (hasMerge) {
-        return this.resolveMerge(merged, null, 'Auto-resolved: merged non-conflicting fields');
-      } else {
-        return this.resolveServerWins(null, 'Auto-resolved: all fields conflicted, server wins');
-      }
-    default:
-      throw new Error(`Unknown auto-resolution rule: ${rule}`);
+    });
+    if (hasMerge) {
+      return this.resolveMerge(merged, null, 'Auto-resolved: merged non-conflicting fields');
+    } else {
+      return this.resolveServerWins(null, 'Auto-resolved: all fields conflicted, server wins');
+    }
+  default:
+    throw new Error(`Unknown auto-resolution rule: ${rule}`);
   }
 };
 
@@ -367,9 +367,9 @@ dataConflictSchema.statics.getOpenConflicts = function(villageId) {
     villageId,
     status: { $in: ['open', 'in_progress'] }
   })
-  .sort({ severity: -1, createdAt: 1 })
-  .populate('userId', 'username name')
-  .populate('resolvedBy', 'username name');
+    .sort({ severity: -1, createdAt: 1 })
+    .populate('userId', 'username name')
+    .populate('resolvedBy', 'username name');
 };
 
 /**
@@ -508,18 +508,18 @@ dataConflictSchema.pre('save', function(next) {
   // 根据冲突类型自动设置严重程度
   if (this.isNew && !this.severity || this.severity === 'medium') {
     switch(this.conflictType) {
-      case 'permission_error':
-        this.severity = 'high';
-        break;
-      case 'delete_modify':
-        this.severity = 'high';
-        break;
-      case 'validation_error':
-        this.severity = 'medium';
-        break;
-      case 'version_mismatch':
-        this.severity = 'low';
-        break;
+    case 'permission_error':
+      this.severity = 'high';
+      break;
+    case 'delete_modify':
+      this.severity = 'high';
+      break;
+    case 'validation_error':
+      this.severity = 'medium';
+      break;
+    case 'version_mismatch':
+      this.severity = 'low';
+      break;
     }
   }
 

@@ -7,13 +7,7 @@
     :close-on-press-escape="false"
     @close="handleClose"
   >
-    <el-form
-      ref="formRef"
-      :model="form"
-      :rules="rules"
-      label-width="120px"
-      @submit.prevent
-    >
+    <el-form ref="formRef" :model="form" :rules="rules" label-width="120px" @submit.prevent>
       <el-steps :active="currentStep" align-center class="steps-container">
         <el-step title="基本信息" />
         <el-step title="预算资金" />
@@ -25,7 +19,7 @@
       <!-- 步骤1: 基本信息 -->
       <div v-show="currentStep === 0" class="step-content">
         <h3>项目基本信息</h3>
-        
+
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="项目名称" prop="projectName">
@@ -37,7 +31,7 @@
               />
             </el-form-item>
           </el-col>
-          
+
           <el-col :span="12">
             <el-form-item label="项目类型" prop="projectType">
               <el-select v-model="form.projectType" placeholder="请选择项目类型">
@@ -71,7 +65,7 @@
               </el-select>
             </el-form-item>
           </el-col>
-          
+
           <el-col :span="8">
             <el-form-item label="优先级" prop="priority">
               <el-select v-model="form.priority" placeholder="请选择优先级">
@@ -82,13 +76,10 @@
               </el-select>
             </el-form-item>
           </el-col>
-          
+
           <el-col :span="8">
             <el-form-item label="子分类" prop="subType">
-              <el-input
-                v-model="form.subType"
-                placeholder="请输入子分类（可选）"
-              />
+              <el-input v-model="form.subType" placeholder="请输入子分类（可选）" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -136,7 +127,7 @@
       <!-- 步骤2: 预算资金 -->
       <div v-show="currentStep === 1" class="step-content">
         <h3>预算与资金</h3>
-        
+
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="项目总预算" prop="budgetInfo.totalBudget">
@@ -156,8 +147,8 @@
 
         <el-form-item label="资金来源">
           <div class="funding-sources">
-            <div 
-              v-for="(source, index) in form.budgetInfo.fundingSources" 
+            <div
+              v-for="(source, index) in form.budgetInfo.fundingSources"
               :key="index"
               class="funding-source-item"
             >
@@ -191,9 +182,9 @@
                   </el-select>
                 </el-col>
                 <el-col :span="4">
-                  <el-button 
-                    type="danger" 
-                    size="small" 
+                  <el-button
+                    type="danger"
+                    size="small"
                     @click="removeFundingSource(index)"
                     :disabled="form.budgetInfo.fundingSources.length <= 1"
                   >
@@ -207,7 +198,7 @@
                 class="source-notes"
               />
             </div>
-            
+
             <el-button @click="addFundingSource" type="primary" plain>
               <el-icon><Plus /></el-icon>
               添加资金来源
@@ -219,7 +210,7 @@
       <!-- 步骤3: 时间计划 -->
       <div v-show="currentStep === 2" class="step-content">
         <h3>时间计划</h3>
-        
+
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="计划开始日期" prop="timeline.plannedStartDate">
@@ -233,7 +224,7 @@
               />
             </el-form-item>
           </el-col>
-          
+
           <el-col :span="12">
             <el-form-item label="计划结束日期" prop="timeline.plannedEndDate">
               <el-date-picker
@@ -250,18 +241,14 @@
 
         <el-form-item label="项目阶段">
           <div class="project-phases">
-            <div 
-              v-for="(phase, index) in form.phases" 
-              :key="index"
-              class="phase-item"
-            >
+            <div v-for="(phase, index) in form.phases" :key="index" class="phase-item">
               <el-card>
                 <template #header>
                   <div class="phase-header">
                     <span>阶段 {{ index + 1 }}</span>
-                    <el-button 
-                      type="danger" 
-                      size="small" 
+                    <el-button
+                      type="danger"
+                      size="small"
                       text
                       @click="removePhase(index)"
                       :disabled="form.phases.length <= 1"
@@ -270,14 +257,14 @@
                     </el-button>
                   </div>
                 </template>
-                
+
                 <el-row :gutter="20">
                   <el-col :span="12">
                     <el-form-item label="阶段名称">
                       <el-input v-model="phase.phaseName" placeholder="阶段名称" />
                     </el-form-item>
                   </el-col>
-                  
+
                   <el-col :span="12">
                     <el-form-item label="阶段类型">
                       <el-select v-model="phase.phaseType" placeholder="选择类型">
@@ -293,7 +280,7 @@
                     </el-form-item>
                   </el-col>
                 </el-row>
-                
+
                 <el-row :gutter="20">
                   <el-col :span="12">
                     <el-form-item label="计划开始">
@@ -307,7 +294,7 @@
                       />
                     </el-form-item>
                   </el-col>
-                  
+
                   <el-col :span="12">
                     <el-form-item label="计划结束">
                       <el-date-picker
@@ -321,7 +308,7 @@
                     </el-form-item>
                   </el-col>
                 </el-row>
-                
+
                 <el-form-item label="交付物">
                   <el-select
                     v-model="phase.deliverables"
@@ -338,7 +325,7 @@
                 </el-form-item>
               </el-card>
             </div>
-            
+
             <el-button @click="addPhase" type="primary" plain>
               <el-icon><Plus /></el-icon>
               添加阶段
@@ -350,28 +337,34 @@
       <!-- 步骤4: 团队配置 -->
       <div v-show="currentStep === 3" class="step-content">
         <h3>团队配置</h3>
-        
+
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="项目经理">
-              <el-select v-model="form.projectTeam.projectManager.userId" placeholder="选择项目经理">
-                <el-option 
-                  v-for="member in availableMembers" 
+              <el-select
+                v-model="form.projectTeam.projectManager.userId"
+                placeholder="选择项目经理"
+              >
+                <el-option
+                  v-for="member in availableMembers"
                   :key="member._id"
-                  :label="member.realName" 
+                  :label="member.realName"
                   :value="member._id"
                 />
               </el-select>
             </el-form-item>
           </el-col>
-          
+
           <el-col :span="12">
             <el-form-item label="技术负责人">
-              <el-select v-model="form.projectTeam.technicalLeader.userId" placeholder="选择技术负责人">
-                <el-option 
-                  v-for="member in availableMembers" 
+              <el-select
+                v-model="form.projectTeam.technicalLeader.userId"
+                placeholder="选择技术负责人"
+              >
+                <el-option
+                  v-for="member in availableMembers"
                   :key="member._id"
-                  :label="member.realName" 
+                  :label="member.realName"
                   :value="member._id"
                 />
               </el-select>
@@ -381,18 +374,18 @@
 
         <el-form-item label="团队成员">
           <div class="team-members">
-            <div 
-              v-for="(member, index) in form.projectTeam.members" 
+            <div
+              v-for="(member, index) in form.projectTeam.members"
               :key="index"
               class="member-item"
             >
               <el-row :gutter="10">
                 <el-col :span="6">
                   <el-select v-model="member.userId" placeholder="选择成员">
-                    <el-option 
-                      v-for="person in availableMembers" 
+                    <el-option
+                      v-for="person in availableMembers"
                       :key="person._id"
-                      :label="person.realName" 
+                      :label="person.realName"
                       :value="person._id"
                     />
                   </el-select>
@@ -404,17 +397,13 @@
                   <el-input v-model="member.contact" placeholder="联系方式" />
                 </el-col>
                 <el-col :span="4">
-                  <el-button 
-                    type="danger" 
-                    size="small" 
-                    @click="removeMember(index)"
-                  >
+                  <el-button type="danger" size="small" @click="removeMember(index)">
                     删除
                   </el-button>
                 </el-col>
               </el-row>
             </div>
-            
+
             <el-button @click="addMember" type="primary" plain>
               <el-icon><Plus /></el-icon>
               添加成员
@@ -426,7 +415,7 @@
       <!-- 步骤5: 附件上传 -->
       <div v-show="currentStep === 4" class="step-content">
         <h3>附件上传</h3>
-        
+
         <el-form-item label="项目方案">
           <el-upload
             ref="proposalUpload"
@@ -438,9 +427,7 @@
           >
             <el-button type="primary">选择文件</el-button>
             <template #tip>
-              <div class="el-upload__tip">
-                支持 PDF、Word、PPT 格式，单个文件不超过 20MB
-              </div>
+              <div class="el-upload__tip">支持 PDF、Word、PPT 格式，单个文件不超过 20MB</div>
             </template>
           </el-upload>
         </el-form-item>
@@ -456,9 +443,7 @@
           >
             <el-button type="primary">选择文件</el-button>
             <template #tip>
-              <div class="el-upload__tip">
-                支持 Excel、PDF、Word 格式，单个文件不超过 20MB
-              </div>
+              <div class="el-upload__tip">支持 Excel、PDF、Word 格式，单个文件不超过 20MB</div>
             </template>
           </el-upload>
         </el-form-item>
@@ -474,9 +459,7 @@
           >
             <el-button type="primary">选择文件</el-button>
             <template #tip>
-              <div class="el-upload__tip">
-                支持 PDF、CAD、图片格式，单个文件不超过 20MB
-              </div>
+              <div class="el-upload__tip">支持 PDF、CAD、图片格式，单个文件不超过 20MB</div>
             </template>
           </el-upload>
         </el-form-item>
@@ -491,9 +474,7 @@
           >
             <el-button type="primary">选择文件</el-button>
             <template #tip>
-              <div class="el-upload__tip">
-                其他相关文档，单个文件不超过 20MB
-              </div>
+              <div class="el-upload__tip">其他相关文档，单个文件不超过 20MB</div>
             </template>
           </el-upload>
         </el-form-item>
@@ -503,22 +484,11 @@
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="handleClose">取消</el-button>
-        <el-button 
-          v-if="currentStep > 0" 
-          @click="prevStep"
-        >
-          上一步
-        </el-button>
-        <el-button 
-          v-if="currentStep < 4" 
-          type="primary" 
-          @click="nextStep"
-        >
-          下一步
-        </el-button>
-        <el-button 
-          v-if="currentStep === 4" 
-          type="primary" 
+        <el-button v-if="currentStep > 0" @click="prevStep"> 上一步 </el-button>
+        <el-button v-if="currentStep < 4" type="primary" @click="nextStep"> 下一步 </el-button>
+        <el-button
+          v-if="currentStep === 4"
+          type="primary"
           @click="submitForm"
           :loading="submitting"
         >
@@ -530,34 +500,34 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch } from 'vue'
-import { ElMessage } from 'element-plus'
-import { Plus } from '@element-plus/icons-vue'
-import { projectApi } from '@/api/project'
-import { useUserStore } from '@/store/user'
+import { ref, reactive, computed, watch } from 'vue';
+import { ElMessage } from 'element-plus';
+import { Plus } from '@element-plus/icons-vue';
+import { projectApi } from '@/api/project';
+import { useUserStore } from '@/store/user';
 
 const props = defineProps({
   modelValue: {
     type: Boolean,
-    default: false
-  }
-})
+    default: false,
+  },
+});
 
-const emit = defineEmits(['update:modelValue', 'created'])
+const emit = defineEmits(['update:modelValue', 'created']);
 
-const userStore = useUserStore()
-const formRef = ref()
-const currentStep = ref(0)
-const submitting = ref(false)
+const userStore = useUserStore();
+const formRef = ref();
+const currentStep = ref(0);
+const submitting = ref(false);
 
 // 文件列表
-const proposalFiles = ref([])
-const budgetFiles = ref([])
-const designFiles = ref([])
-const otherFiles = ref([])
+const proposalFiles = ref([]);
+const budgetFiles = ref([]);
+const designFiles = ref([]);
+const otherFiles = ref([]);
 
 // 可用成员列表（需要从后端获取）
-const availableMembers = ref([])
+const availableMembers = ref([]);
 
 // 表单数据
 const form = reactive({
@@ -575,13 +545,13 @@ const form = reactive({
         source: '',
         amount: 0,
         status: 'pending',
-        notes: ''
-      }
-    ]
+        notes: '',
+      },
+    ],
   },
   timeline: {
     plannedStartDate: '',
-    plannedEndDate: ''
+    plannedEndDate: '',
   },
   phases: [
     {
@@ -589,67 +559,59 @@ const form = reactive({
       phaseType: 'planning',
       plannedStartDate: '',
       plannedEndDate: '',
-      deliverables: []
-    }
+      deliverables: [],
+    },
   ],
   projectTeam: {
     projectManager: {
-      userId: ''
+      userId: '',
     },
     technicalLeader: {
-      userId: ''
+      userId: '',
     },
-    members: []
+    members: [],
   },
   application: {
     applicationReason: '',
-    expectedBenefits: []
-  }
-})
+    expectedBenefits: [],
+  },
+});
 
 // 表单验证规则
 const rules = {
   projectName: [
     { required: true, message: '请输入项目名称', trigger: 'blur' },
-    { min: 2, max: 200, message: '项目名称长度在 2 到 200 个字符', trigger: 'blur' }
+    { min: 2, max: 200, message: '项目名称长度在 2 到 200 个字符', trigger: 'blur' },
   ],
   projectDescription: [
     { required: true, message: '请输入项目描述', trigger: 'blur' },
-    { min: 10, max: 2000, message: '项目描述长度在 10 到 2000 个字符', trigger: 'blur' }
+    { min: 10, max: 2000, message: '项目描述长度在 10 到 2000 个字符', trigger: 'blur' },
   ],
-  projectType: [
-    { required: true, message: '请选择项目类型', trigger: 'change' }
-  ],
-  projectScale: [
-    { required: true, message: '请选择项目规模', trigger: 'change' }
-  ],
-  priority: [
-    { required: true, message: '请选择优先级', trigger: 'change' }
-  ],
+  projectType: [{ required: true, message: '请选择项目类型', trigger: 'change' }],
+  projectScale: [{ required: true, message: '请选择项目规模', trigger: 'change' }],
+  priority: [{ required: true, message: '请选择优先级', trigger: 'change' }],
   'budgetInfo.totalBudget': [
     { required: true, message: '请输入项目总预算', trigger: 'blur' },
-    { type: 'number', min: 1, message: '预算金额必须大于0', trigger: 'blur' }
+    { type: 'number', min: 1, message: '预算金额必须大于0', trigger: 'blur' },
   ],
   'timeline.plannedStartDate': [
-    { required: true, message: '请选择计划开始日期', trigger: 'change' }
+    { required: true, message: '请选择计划开始日期', trigger: 'change' },
   ],
-  'timeline.plannedEndDate': [
-    { required: true, message: '请选择计划结束日期', trigger: 'change' }
-  ]
-}
+  'timeline.plannedEndDate': [{ required: true, message: '请选择计划结束日期', trigger: 'change' }],
+};
 
 // 计算属性
 const visible = computed({
   get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
-})
+  set: value => emit('update:modelValue', value),
+});
 
 // 监听弹窗显示
-watch(visible, (newVal) => {
+watch(visible, newVal => {
   if (newVal) {
-    loadAvailableMembers()
+    loadAvailableMembers();
   }
-})
+});
 
 // 方法
 const loadAvailableMembers = async () => {
@@ -657,34 +619,34 @@ const loadAvailableMembers = async () => {
     // 这里应该调用 API 获取村委成员列表
     // const response = await villageCommitteeApi.getMembers(userStore.currentVillage._id)
     // availableMembers.value = response.data
-    
+
     // 模拟数据
     availableMembers.value = [
       { _id: '1', realName: '张三', position: '村主任' },
       { _id: '2', realName: '李四', position: '村会计' },
-      { _id: '3', realName: '王五', position: '技术员' }
-    ]
+      { _id: '3', realName: '王五', position: '技术员' },
+    ];
   } catch (error) {
-    console.error('加载成员列表失败:', error)
+    console.error('加载成员列表失败:', error);
   }
-}
+};
 
 const nextStep = () => {
   // 验证当前步骤
   if (!validateCurrentStep()) {
-    return
+    return;
   }
-  
+
   if (currentStep.value < 4) {
-    currentStep.value++
+    currentStep.value++;
   }
-}
+};
 
 const prevStep = () => {
   if (currentStep.value > 0) {
-    currentStep.value--
+    currentStep.value--;
   }
-}
+};
 
 const validateCurrentStep = () => {
   // 根据当前步骤验证不同的字段
@@ -693,19 +655,19 @@ const validateCurrentStep = () => {
     1: ['budgetInfo.totalBudget'],
     2: ['timeline.plannedStartDate', 'timeline.plannedEndDate'],
     3: [], // 团队配置可选
-    4: []  // 附件上传可选
-  }
-  
-  const fieldsToValidate = stepFields[currentStep.value] || []
-  
-  if (fieldsToValidate.length === 0) return true
-  
-  return new Promise((resolve) => {
-    formRef.value.validateField(fieldsToValidate, (valid) => {
-      resolve(valid)
-    })
-  })
-}
+    4: [], // 附件上传可选
+  };
+
+  const fieldsToValidate = stepFields[currentStep.value] || [];
+
+  if (fieldsToValidate.length === 0) return true;
+
+  return new Promise(resolve => {
+    formRef.value.validateField(fieldsToValidate, valid => {
+      resolve(valid);
+    });
+  });
+};
 
 // 资金来源管理
 const addFundingSource = () => {
@@ -713,13 +675,13 @@ const addFundingSource = () => {
     source: '',
     amount: 0,
     status: 'pending',
-    notes: ''
-  })
-}
+    notes: '',
+  });
+};
 
-const removeFundingSource = (index) => {
-  form.budgetInfo.fundingSources.splice(index, 1)
-}
+const removeFundingSource = index => {
+  form.budgetInfo.fundingSources.splice(index, 1);
+};
 
 // 阶段管理
 const addPhase = () => {
@@ -728,102 +690,101 @@ const addPhase = () => {
     phaseType: 'implementation',
     plannedStartDate: '',
     plannedEndDate: '',
-    deliverables: []
-  })
-}
+    deliverables: [],
+  });
+};
 
-const removePhase = (index) => {
-  form.phases.splice(index, 1)
-}
+const removePhase = index => {
+  form.phases.splice(index, 1);
+};
 
 // 团队成员管理
 const addMember = () => {
   form.projectTeam.members.push({
     userId: '',
     role: '',
-    contact: ''
-  })
-}
+    contact: '',
+  });
+};
 
-const removeMember = (index) => {
-  form.projectTeam.members.splice(index, 1)
-}
+const removeMember = index => {
+  form.projectTeam.members.splice(index, 1);
+};
 
 // 文件上传处理
 const handleProposalChange = (file, fileList) => {
-  proposalFiles.value = fileList
-}
+  proposalFiles.value = fileList;
+};
 
 const handleBudgetChange = (file, fileList) => {
-  budgetFiles.value = fileList
-}
+  budgetFiles.value = fileList;
+};
 
 const handleDesignChange = (file, fileList) => {
-  designFiles.value = fileList
-}
+  designFiles.value = fileList;
+};
 
 const handleOtherChange = (file, fileList) => {
-  otherFiles.value = fileList
-}
+  otherFiles.value = fileList;
+};
 
 // 提交表单
 const submitForm = async () => {
   try {
-    const valid = await formRef.value.validate()
-    if (!valid) return
-    
-    submitting.value = true
-    
+    const valid = await formRef.value.validate();
+    if (!valid) return;
+
+    submitting.value = true;
+
     // 准备表单数据
-    const formData = new FormData()
-    
+    const formData = new FormData();
+
     // 添加基本信息
     Object.keys(form).forEach(key => {
       if (typeof form[key] === 'object' && form[key] !== null) {
-        formData.append(key, JSON.stringify(form[key]))
+        formData.append(key, JSON.stringify(form[key]));
       } else {
-        formData.append(key, form[key])
+        formData.append(key, form[key]);
       }
-    })
-    
+    });
+
     // 添加文件
     proposalFiles.value.forEach(file => {
-      formData.append('proposalDocuments', file.raw)
-    })
+      formData.append('proposalDocuments', file.raw);
+    });
     budgetFiles.value.forEach(file => {
-      formData.append('budgetDocuments', file.raw)
-    })
+      formData.append('budgetDocuments', file.raw);
+    });
     designFiles.value.forEach(file => {
-      formData.append('designDocuments', file.raw)
-    })
+      formData.append('designDocuments', file.raw);
+    });
     otherFiles.value.forEach(file => {
-      formData.append('otherDocuments', file.raw)
-    })
-    
-    await projectApi.createProject(formData)
-    
-    ElMessage.success('项目创建成功')
-    emit('created')
-    handleClose()
-    
+      formData.append('otherDocuments', file.raw);
+    });
+
+    await projectApi.createProject(formData);
+
+    ElMessage.success('项目创建成功');
+    emit('created');
+    handleClose();
   } catch (error) {
-    ElMessage.error('创建项目失败：' + error.message)
+    ElMessage.error('创建项目失败：' + error.message);
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
-}
+};
 
 const handleClose = () => {
-  visible.value = false
-  currentStep.value = 0
-  formRef.value?.resetFields()
-  
+  visible.value = false;
+  currentStep.value = 0;
+  formRef.value?.resetFields();
+
   // 清理文件列表
-  proposalFiles.value = []
-  budgetFiles.value = []
-  designFiles.value = []
-  otherFiles.value = []
-}
+  proposalFiles.value = [];
+  budgetFiles.value = [];
+  designFiles.value = [];
+  otherFiles.value = [];
+};
 </script>
 
 <style scoped>
@@ -847,14 +808,17 @@ const handleClose = () => {
   width: 100%;
 }
 
-.funding-sources, .project-phases, .team-members {
+.funding-sources,
+.project-phases,
+.team-members {
   border: 1px solid #dcdfe6;
   border-radius: 6px;
   padding: 16px;
   background-color: #fafafa;
 }
 
-.funding-source-item, .member-item {
+.funding-source-item,
+.member-item {
   margin-bottom: 16px;
   padding: 12px;
   background-color: white;
@@ -890,16 +854,16 @@ const handleClose = () => {
     width: 95% !important;
     margin: 5px auto !important;
   }
-  
+
   .step-content {
     padding: 16px 0;
   }
-  
+
   .funding-source-item .el-row,
   .member-item .el-row {
     flex-direction: column;
   }
-  
+
   .funding-source-item .el-col,
   .member-item .el-col {
     margin-bottom: 12px;

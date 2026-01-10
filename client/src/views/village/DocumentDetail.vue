@@ -58,7 +58,7 @@
             :before-read="beforeFileRead"
             multiple
             :preview-size="0"
-            style="display: none;"
+            style="display: none"
             ref="fileUploader"
           >
             <van-button size="mini" type="primary">上传文件</van-button>
@@ -101,7 +101,7 @@
             :key="tag"
             type="primary"
             size="medium"
-            style="margin-right: 8px; margin-bottom: 8px;"
+            style="margin-right: 8px; margin-bottom: 8px"
           >
             {{ tag }}
           </van-tag>
@@ -161,13 +161,7 @@
       >
         提交审核
       </van-button>
-      <van-button
-        type="default"
-        block
-        @click="showStatusActions = true"
-      >
-        更新状态
-      </van-button>
+      <van-button type="default" block @click="showStatusActions = true"> 更新状态 </van-button>
     </div>
 
     <!-- 状态选择弹窗 -->
@@ -188,284 +182,288 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { showToast, showConfirmDialog } from 'vant'
-import { useUserStore } from '@/stores/user'
-import villageApi from '@/api/villageManagement'
+import { ref, computed, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { showToast, showConfirmDialog } from 'vant';
+import { useUserStore } from '@/stores/user';
+import villageApi from '@/api/villageManagement';
 
-const route = useRoute()
-const router = useRouter()
-const userStore = useUserStore()
+const route = useRoute();
+const router = useRouter();
+const userStore = useUserStore();
 
 // 响应式数据
-const document = ref({})
-const showStatusActions = ref(false)
-const showImagePreview = ref(false)
-const previewImages = ref([])
-const previewIndex = ref(0)
-const fileUploader = ref(null)
+const document = ref({});
+const showStatusActions = ref(false);
+const showImagePreview = ref(false);
+const previewImages = ref([]);
+const previewIndex = ref(0);
+const fileUploader = ref(null);
 
 // 计算属性
 const canEdit = computed(() => {
-  return document.value.collector?.userId === userStore.userInfo?.id ||
-         document.value.createdBy === userStore.userInfo?.id
-})
+  return (
+    document.value.collector?.userId === userStore.userInfo?.id ||
+    document.value.createdBy === userStore.userInfo?.id
+  );
+});
 
 const statusActions = computed(() => {
   const actions = [
     { name: '收集中', value: 'collecting' },
-    { name: '审核中', value: 'reviewing' }
-  ]
+    { name: '审核中', value: 'reviewing' },
+  ];
 
   if (document.value.status !== 'approved' && document.value.status !== 'archived') {
-    actions.push({ name: '已归档', value: 'archived' })
+    actions.push({ name: '已归档', value: 'archived' });
   }
 
-  return actions
-})
+  return actions;
+});
 
 // 方法
 const loadDocumentDetail = async () => {
   try {
-    const response = await villageApi.getDocumentDetail(route.params.id)
-    document.value = response.data.data
+    const response = await villageApi.getDocumentDetail(route.params.id);
+    document.value = response.data.data;
   } catch (error) {
-    console.error('获取文档详情失败:', error)
-    showToast('获取详情失败')
+    console.error('获取文档详情失败:', error);
+    showToast('获取详情失败');
   }
-}
+};
 
 const handleEdit = () => {
-  router.push(`/village/documents/${route.params.id}/edit`)
-}
+  router.push(`/village/documents/${route.params.id}/edit`);
+};
 
-const beforeFileRead = (file) => {
+const beforeFileRead = file => {
   // 文件大小限制 10MB
-  const maxSize = 10 * 1024 * 1024
+  const maxSize = 10 * 1024 * 1024;
   if (file.size > maxSize) {
-    showToast('文件大小不能超过10MB')
-    return false
+    showToast('文件大小不能超过10MB');
+    return false;
   }
 
   // 文件类型检查
   const allowedTypes = [
-    'image/jpeg', 'image/png', 'image/gif',
+    'image/jpeg',
+    'image/png',
+    'image/gif',
     'application/pdf',
     'application/msword',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     'application/vnd.ms-excel',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-  ]
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  ];
 
   if (!allowedTypes.includes(file.type)) {
-    showToast('不支持的文件类型')
-    return false
+    showToast('不支持的文件类型');
+    return false;
   }
 
-  return true
-}
+  return true;
+};
 
-const handleFileUpload = async (files) => {
+const handleFileUpload = async files => {
   try {
-    showToast('上传中...')
+    showToast('上传中...');
 
-    const formData = new FormData()
+    const formData = new FormData();
     files.forEach(file => {
-      formData.append('files', file.file)
-    })
+      formData.append('files', file.file);
+    });
 
-    await villageApi.uploadFiles(route.params.id, formData)
+    await villageApi.uploadFiles(route.params.id, formData);
 
-    showToast('上传成功')
-    loadDocumentDetail() // 重新加载详情
+    showToast('上传成功');
+    loadDocumentDetail(); // 重新加载详情
   } catch (error) {
-    console.error('文件上传失败:', error)
-    showToast('上传失败')
+    console.error('文件上传失败:', error);
+    showToast('上传失败');
   }
-}
+};
 
-const handleFileClick = (file) => {
+const handleFileClick = file => {
   if (isImageFile(file)) {
-    previewImages.value = [file.path]
-    previewIndex.value = 0
-    showImagePreview.value = true
+    previewImages.value = [file.path];
+    previewIndex.value = 0;
+    showImagePreview.value = true;
   } else {
-    downloadFile(file)
+    downloadFile(file);
   }
-}
+};
 
-const previewFile = (file) => {
+const previewFile = file => {
   if (isImageFile(file)) {
-    previewImages.value = [file.path]
-    previewIndex.value = 0
-    showImagePreview.value = true
+    previewImages.value = [file.path];
+    previewIndex.value = 0;
+    showImagePreview.value = true;
   } else {
-    showToast('该文件类型不支持预览')
+    showToast('该文件类型不支持预览');
   }
-}
+};
 
-const downloadFile = async (file) => {
+const downloadFile = async file => {
   try {
-    const response = await villageApi.downloadDocumentFile(route.params.id, file._id)
+    const response = await villageApi.downloadDocumentFile(route.params.id, file._id);
 
     // 创建下载链接
-    const blob = new Blob([response.data])
-    const url = window.URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = file.originalName
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    window.URL.revokeObjectURL(url)
+    const blob = new Blob([response.data]);
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = file.originalName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
 
-    showToast('下载成功')
+    showToast('下载成功');
   } catch (error) {
-    console.error('下载失败:', error)
-    showToast('下载失败')
+    console.error('下载失败:', error);
+    showToast('下载失败');
   }
-}
+};
 
-const deleteFile = async (file) => {
+const deleteFile = async file => {
   try {
     await showConfirmDialog({
       title: '确认删除',
       message: `确定要删除文件 "${file.originalName}" 吗？`,
-    })
+    });
 
-    await villageApi.deleteDocumentFile(route.params.id, file._id)
-    showToast('删除成功')
-    loadDocumentDetail()
+    await villageApi.deleteDocumentFile(route.params.id, file._id);
+    showToast('删除成功');
+    loadDocumentDetail();
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('删除失败:', error)
-      showToast('删除失败')
+      console.error('删除失败:', error);
+      showToast('删除失败');
     }
   }
-}
+};
 
 const submitForReview = async () => {
   try {
     await villageApi.updateDocumentStatus(route.params.id, {
       status: 'reviewing',
-      notes: '提交审核'
-    })
+      notes: '提交审核',
+    });
 
-    showToast('已提交审核')
-    loadDocumentDetail()
+    showToast('已提交审核');
+    loadDocumentDetail();
   } catch (error) {
-    console.error('提交审核失败:', error)
-    showToast('提交失败')
+    console.error('提交审核失败:', error);
+    showToast('提交失败');
   }
-}
+};
 
-const handleStatusChange = async (action) => {
+const handleStatusChange = async action => {
   try {
     await villageApi.updateDocumentStatus(route.params.id, {
       status: action.value,
-      notes: `状态更新为：${action.name}`
-    })
+      notes: `状态更新为：${action.name}`,
+    });
 
-    showToast('状态更新成功')
-    loadDocumentDetail()
+    showToast('状态更新成功');
+    loadDocumentDetail();
   } catch (error) {
-    console.error('状态更新失败:', error)
-    showToast('更新失败')
+    console.error('状态更新失败:', error);
+    showToast('更新失败');
   }
-}
+};
 
 // 辅助方法
-const formatDate = (dateString) => {
-  if (!dateString) return ''
-  return new Date(dateString).toLocaleDateString()
-}
+const formatDate = dateString => {
+  if (!dateString) return '';
+  return new Date(dateString).toLocaleDateString();
+};
 
-const isImageFile = (file) => {
-  return file.mimeType.startsWith('image/')
-}
+const isImageFile = file => {
+  return file.mimeType.startsWith('image/');
+};
 
-const formatFileInfo = (file) => {
-  const size = (file.size / 1024).toFixed(2)
-  return `${size} KB - ${formatDate(file.uploadTime)}`
-}
+const formatFileInfo = file => {
+  const size = (file.size / 1024).toFixed(2);
+  return `${size} KB - ${formatDate(file.uploadTime)}`;
+};
 
-const formatFieldValue = (field) => {
+const formatFieldValue = field => {
   if (field.fieldType === 'date') {
-    return formatDate(field.value)
+    return formatDate(field.value);
   } else if (field.fieldType === 'boolean') {
-    return field.value ? '是' : '否'
+    return field.value ? '是' : '否';
   } else if (Array.isArray(field.value)) {
-    return field.value.join(', ')
+    return field.value.join(', ');
   }
-  return field.value
-}
+  return field.value;
+};
 
-const getCategoryText = (category) => {
+const getCategoryText = category => {
   const categoryMap = {
-    'village_affairs': '村务',
-    'resident_info': '村民信息',
-    'financial': '财务',
-    'project': '项目',
-    'meeting': '会议',
-    'policy': '政策',
-    'emergency': '应急',
-    'statistics': '统计',
-    'construction': '建设',
-    'environment': '环境',
-    'social_welfare': '社会福利',
-    'public_service': '公共服务',
-    'other': '其他'
-  }
-  return categoryMap[category] || category
-}
+    village_affairs: '村务',
+    resident_info: '村民信息',
+    financial: '财务',
+    project: '项目',
+    meeting: '会议',
+    policy: '政策',
+    emergency: '应急',
+    statistics: '统计',
+    construction: '建设',
+    environment: '环境',
+    social_welfare: '社会福利',
+    public_service: '公共服务',
+    other: '其他',
+  };
+  return categoryMap[category] || category;
+};
 
-const getStatusType = (status) => {
+const getStatusType = status => {
   const statusMap = {
-    'collecting': 'primary',
-    'reviewing': 'warning',
-    'approved': 'success',
-    'rejected': 'danger',
-    'archived': 'default'
-  }
-  return statusMap[status] || 'default'
-}
+    collecting: 'primary',
+    reviewing: 'warning',
+    approved: 'success',
+    rejected: 'danger',
+    archived: 'default',
+  };
+  return statusMap[status] || 'default';
+};
 
-const getStatusText = (status) => {
+const getStatusText = status => {
   const statusMap = {
-    'collecting': '收集中',
-    'reviewing': '审核中',
-    'approved': '已完成',
-    'rejected': '已拒绝',
-    'archived': '已归档'
-  }
-  return statusMap[status] || status
-}
+    collecting: '收集中',
+    reviewing: '审核中',
+    approved: '已完成',
+    rejected: '已拒绝',
+    archived: '已归档',
+  };
+  return statusMap[status] || status;
+};
 
-const getPriorityType = (priority) => {
+const getPriorityType = priority => {
   const priorityMap = {
-    'low': 'default',
-    'medium': 'primary',
-    'high': 'warning',
-    'urgent': 'danger'
-  }
-  return priorityMap[priority] || 'default'
-}
+    low: 'default',
+    medium: 'primary',
+    high: 'warning',
+    urgent: 'danger',
+  };
+  return priorityMap[priority] || 'default';
+};
 
-const getPriorityText = (priority) => {
+const getPriorityText = priority => {
   const priorityMap = {
-    'low': '低',
-    'medium': '中',
-    'high': '高',
-    'urgent': '紧急'
-  }
-  return priorityMap[priority] || priority
-}
+    low: '低',
+    medium: '中',
+    high: '高',
+    urgent: '紧急',
+  };
+  return priorityMap[priority] || priority;
+};
 
 // 生命周期
 onMounted(() => {
-  loadDocumentDetail()
-})
+  loadDocumentDetail();
+});
 </script>
 
 <style scoped>

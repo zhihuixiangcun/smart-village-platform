@@ -180,7 +180,7 @@ const dutyPersonnelSchema = new mongoose.Schema({
     // 过期时间
     expiresAt: {
       type: Date,
-      default: function() {
+      default() {
         // 默认1年后过期
         const date = new Date();
         date.setFullYear(date.getFullYear() + 1);

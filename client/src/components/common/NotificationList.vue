@@ -5,7 +5,7 @@
       v-for="notification in notifications"
       :key="notification.id"
       class="notification-item"
-      :class="{ 'unread': !notification.read, 'urgent': notification.priority === 'high' }"
+      :class="{ unread: !notification.read, urgent: notification.priority === 'high' }"
       @click="handleNotificationClick(notification)"
     >
       <div class="notification-avatar">
@@ -25,18 +25,14 @@
 
         <!-- 操作按钮 -->
         <div class="notification-actions" v-if="notification.action">
-          <van-button
-            size="mini"
-            type="primary"
-            @click.stop="handleAction(notification)"
-          >
+          <van-button size="mini" type="primary" @click.stop="handleAction(notification)">
             {{ notification.actionText || '查看' }}
           </van-button>
         </div>
       </div>
 
       <div class="notification-meta">
-        <div class="status-indicator" :class="{ 'read': notification.read }"></div>
+        <div class="status-indicator" :class="{ read: notification.read }"></div>
         <van-icon
           name="delete-o"
           size="16"
@@ -69,118 +65,118 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from 'vue'
-import { useRouter } from 'vue-router'
-import { showToast } from 'vant'
+import { defineProps, defineEmits } from 'vue';
+import { useRouter } from 'vue-router';
+import { showToast } from 'vant';
 
 const props = defineProps({
   notifications: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   loading: {
     type: Boolean,
-    default: false
+    default: false,
   },
   hasMore: {
     type: Boolean,
-    default: true
-  }
-})
+    default: true,
+  },
+});
 
-const emit = defineEmits(['markRead', 'delete', 'loadMore'])
+const emit = defineEmits(['markRead', 'delete', 'loadMore']);
 
-const router = useRouter()
+const router = useRouter();
 
 // 方法
-const handleNotificationClick = (notification) => {
+const handleNotificationClick = notification => {
   // 标记为已读
   if (!notification.read) {
-    emit('markRead', notification.id)
+    emit('markRead', notification.id);
   }
 
   // 处理点击事件
-  handleNotificationAction(notification)
-}
+  handleNotificationAction(notification);
+};
 
-const handleAction = (notification) => {
-  handleNotificationAction(notification)
-}
+const handleAction = notification => {
+  handleNotificationAction(notification);
+};
 
-const handleNotificationAction = (notification) => {
+const handleNotificationAction = notification => {
   switch (notification.action) {
     case 'handle_emergency':
-      router.push('/village/emergency')
-      break
+      router.push('/village/emergency');
+      break;
     case 'view_document':
       if (notification.data?.collectionId) {
-        router.push(`/village/documents/${notification.data.collectionId}`)
+        router.push(`/village/documents/${notification.data.collectionId}`);
       }
-      break
+      break;
     case 'view_user':
       if (notification.data?.userId) {
-        router.push(`/village/users/${notification.data.userId}`)
+        router.push(`/village/users/${notification.data.userId}`);
       }
-      break
+      break;
     default:
       // 默认跳转到相关页面
       if (notification.data?.url) {
-        router.push(notification.data.url)
+        router.push(notification.data.url);
       }
   }
-}
+};
 
-const deleteNotification = (notificationId) => {
-  emit('delete', notificationId)
-}
+const deleteNotification = notificationId => {
+  emit('delete', notificationId);
+};
 
-const getNotificationIcon = (type) => {
+const getNotificationIcon = type => {
   const iconMap = {
-    'document_created': 'add-o',
-    'document_updated': 'edit',
-    'document_approved': 'passed',
-    'document_rejected': 'close',
-    'emergency_call': 'warning-o',
-    'duty_assigned': 'calendar-o',
-    'user_registered': 'user-o',
-    'system': 'info-o',
-    'permission_update': 'shield-o',
-    'task_completed': 'checked',
-    'reminder': 'clock-o'
-  }
-  return iconMap[type] || 'info-o'
-}
+    document_created: 'add-o',
+    document_updated: 'edit',
+    document_approved: 'passed',
+    document_rejected: 'close',
+    emergency_call: 'warning-o',
+    duty_assigned: 'calendar-o',
+    user_registered: 'user-o',
+    system: 'info-o',
+    permission_update: 'shield-o',
+    task_completed: 'checked',
+    reminder: 'clock-o',
+  };
+  return iconMap[type] || 'info-o';
+};
 
-const getNotificationColor = (notification) => {
+const getNotificationColor = notification => {
   if (notification.priority === 'high') {
-    return '#ff4d4f'
+    return '#ff4d4f';
   } else if (notification.type?.includes('document')) {
-    return '#1890ff'
+    return '#1890ff';
   } else if (notification.type?.includes('emergency')) {
-    return '#ff4d4f'
+    return '#ff4d4f';
   } else if (notification.type === 'system') {
-    return '#52c41a'
+    return '#52c41a';
   }
-  return '#666'
-}
+  return '#666';
+};
 
-const formatTime = (time) => {
-  const now = new Date()
-  const notificationTime = new Date(time)
-  const diff = now - notificationTime
+const formatTime = time => {
+  const now = new Date();
+  const notificationTime = new Date(time);
+  const diff = now - notificationTime;
 
   if (diff < 60000) {
-    return '刚刚'
+    return '刚刚';
   } else if (diff < 3600000) {
-    return `${Math.floor(diff / 60000)}分钟前`
+    return `${Math.floor(diff / 60000)}分钟前`;
   } else if (diff < 86400000) {
-    return `${Math.floor(diff / 3600000)}小时前`
+    return `${Math.floor(diff / 3600000)}小时前`;
   } else if (diff < 604800000) {
-    return `${Math.floor(diff / 86400000)}天前`
+    return `${Math.floor(diff / 86400000)}天前`;
   } else {
-    return notificationTime.toLocaleDateString()
+    return notificationTime.toLocaleDateString();
   }
-}
+};
 </script>
 
 <style scoped>

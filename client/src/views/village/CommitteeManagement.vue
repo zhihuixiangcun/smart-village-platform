@@ -77,7 +77,12 @@
           </el-input>
         </div>
         <div class="filter-options">
-          <el-select v-model="filterPosition" placeholder="职务筛选" clearable @change="handleFilter">
+          <el-select
+            v-model="filterPosition"
+            placeholder="职务筛选"
+            clearable
+            @change="handleFilter"
+          >
             <el-option label="全部" value="" />
             <el-option label="村支书" value="村支书" />
             <el-option label="村主任" value="村主任" />
@@ -86,7 +91,12 @@
             <el-option label="妇女主任" value="妇女主任" />
             <el-option label="治保主任" value="治保主任" />
           </el-select>
-          <el-select v-model="filterPartyStatus" placeholder="党员状态" clearable @change="handleFilter">
+          <el-select
+            v-model="filterPartyStatus"
+            placeholder="党员状态"
+            clearable
+            @change="handleFilter"
+          >
             <el-option label="全部" value="" />
             <el-option label="党员" value="是" />
             <el-option label="群众" value="否" />
@@ -127,16 +137,16 @@
                 </el-button>
                 <template #dropdown>
                   <el-dropdown-menu>
-                    <el-dropdown-item :command="{action: 'edit', member}">
+                    <el-dropdown-item :command="{ action: 'edit', member }">
                       <el-icon><Edit /></el-icon> 编辑
                     </el-dropdown-item>
-                    <el-dropdown-item :command="{action: 'transfer', member}">
+                    <el-dropdown-item :command="{ action: 'transfer', member }">
                       <el-icon><Switch /></el-icon> 调任
                     </el-dropdown-item>
-                    <el-dropdown-item :command="{action: 'schedule', member}">
+                    <el-dropdown-item :command="{ action: 'schedule', member }">
                       <el-icon><Calendar /></el-icon> 安排值班
                     </el-dropdown-item>
-                    <el-dropdown-item :command="{action: 'delete', member}" divided>
+                    <el-dropdown-item :command="{ action: 'delete', member }" divided>
                       <el-icon><Delete /></el-icon> 删除
                     </el-dropdown-item>
                   </el-dropdown-menu>
@@ -260,11 +270,7 @@
     </el-dialog>
 
     <!-- 智能值班表对话框 -->
-    <el-dialog
-      v-model="scheduleDialogVisible"
-      title="智能值班表"
-      width="800px"
-    >
+    <el-dialog v-model="scheduleDialogVisible" title="智能值班表" width="800px">
       <div class="schedule-content">
         <div class="schedule-header">
           <el-button type="primary" @click="generateSchedule">
@@ -289,8 +295,8 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
   Plus,
   Download,
@@ -306,26 +312,26 @@ import {
   Delete,
   Phone,
   Message,
-  MagicStick
-} from '@element-plus/icons-vue'
+  MagicStick,
+} from '@element-plus/icons-vue';
 
 // 响应式数据
-const searchKeyword = ref('')
-const filterPosition = ref('')
-const filterPartyStatus = ref('')
-const filterStatus = ref('')
-const memberDialogVisible = ref(false)
-const scheduleDialogVisible = ref(false)
-const currentDate = ref(new Date())
-const isEditing = ref(false)
+const searchKeyword = ref('');
+const filterPosition = ref('');
+const filterPartyStatus = ref('');
+const filterStatus = ref('');
+const memberDialogVisible = ref(false);
+const scheduleDialogVisible = ref(false);
+const currentDate = ref(new Date());
+const isEditing = ref(false);
 
 // 统计数据
 const statistics = reactive({
   total: 8,
   partyMembers: 6,
   onDuty: 2,
-  active: 7
-})
+  active: 7,
+});
 
 // 村委成员数据
 const members = ref([
@@ -340,7 +346,7 @@ const members = ref([
     isOnDuty: false,
     joinDate: '2020-01-15',
     education: '本科',
-    avatar: ''
+    avatar: '',
   },
   {
     id: 2,
@@ -353,7 +359,7 @@ const members = ref([
     isOnDuty: true,
     joinDate: '2019-03-20',
     education: '大专',
-    avatar: ''
+    avatar: '',
   },
   {
     id: 3,
@@ -366,9 +372,9 @@ const members = ref([
     isOnDuty: true,
     joinDate: '2018-06-10',
     education: '本科',
-    avatar: ''
-  }
-])
+    avatar: '',
+  },
+]);
 
 // 表单数据
 const memberForm = reactive({
@@ -379,88 +385,86 @@ const memberForm = reactive({
   politicalStatus: '群众',
   joinDate: '',
   education: '高中',
-  avatar: ''
-})
+  avatar: '',
+});
 
 // 表单验证规则
 const memberRules = {
-  name: [
-    { required: true, message: '请输入姓名', trigger: 'blur' }
-  ],
-  position: [
-    { required: true, message: '请选择职务', trigger: 'change' }
-  ],
+  name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
+  position: [{ required: true, message: '请选择职务', trigger: 'change' }],
   phone: [
     { required: true, message: '请输入手机号', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
+    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' },
   ],
   idCard: [
     { required: true, message: '请输入身份证号', trigger: 'blur' },
-    { pattern: /^\d{17}[\dX]$/, message: '请输入正确的身份证号', trigger: 'blur' }
-  ]
-}
+    { pattern: /^\d{17}[\dX]$/, message: '请输入正确的身份证号', trigger: 'blur' },
+  ],
+};
 
-const memberFormRef = ref(null)
+const memberFormRef = ref(null);
 
 // 计算属性
 const filteredMembers = computed(() => {
   return members.value.filter(member => {
-    const matchSearch = !searchKeyword.value ||
+    const matchSearch =
+      !searchKeyword.value ||
       member.name.includes(searchKeyword.value) ||
       member.position.includes(searchKeyword.value) ||
-      member.phone.includes(searchKeyword.value)
+      member.phone.includes(searchKeyword.value);
 
-    const matchPosition = !filterPosition.value || member.position === filterPosition.value
-    const matchPartyStatus = !filterPartyStatus.value ||
+    const matchPosition = !filterPosition.value || member.position === filterPosition.value;
+    const matchPartyStatus =
+      !filterPartyStatus.value ||
       (filterPartyStatus.value === '是' && member.isPartyMember) ||
-      (filterPartyStatus.value === '否' && !member.isPartyMember)
-    const matchStatus = !filterStatus.value || member.status === filterStatus.value
+      (filterPartyStatus.value === '否' && !member.isPartyMember);
+    const matchStatus = !filterStatus.value || member.status === filterStatus.value;
 
-    return matchSearch && matchPosition && matchPartyStatus && matchStatus
-  })
-})
+    return matchSearch && matchPosition && matchPartyStatus && matchStatus;
+  });
+});
 
 // 方法
-const getStatusType = (status) => {
+const getStatusType = status => {
   const typeMap = {
-    'active': 'success',
-    'transferred': 'warning',
-    'retired': 'info'
-  }
-  return typeMap[status] || 'info'
-}
+    active: 'success',
+    transferred: 'warning',
+    retired: 'info',
+  };
+  return typeMap[status] || 'info';
+};
 
-const getStatusText = (status) => {
+const getStatusText = status => {
   const textMap = {
-    'active': '在职',
-    'transferred': '调离',
-    'retired': '退休'
-  }
-  return textMap[status] || '未知'
-}
+    active: '在职',
+    transferred: '调离',
+    retired: '退休',
+  };
+  return textMap[status] || '未知';
+};
 
-const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString()
-}
+const formatDate = dateString => {
+  return new Date(dateString).toLocaleDateString();
+};
 
-const maskIdCard = (idCard) => {
-  if (!idCard) return ''
-  return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2')
-}
+const maskIdCard = idCard => {
+  if (!idCard) return '';
+  return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2');
+};
 
 const handleSearch = () => {
   // 搜索逻辑已在计算属性中实现
-}
+};
 
 const handleFilter = () => {
   // 筛选逻辑已在计算属性中实现
-}
+};
 
 const showAddMemberDialog = () => {
-  isEditing.value = false
-  memberDialogVisible.value = true
-  resetMemberForm()
-}
+  isEditing.value = false;
+  memberDialogVisible.value = true;
+  resetMemberForm();
+};
 
 const resetMemberForm = () => {
   Object.assign(memberForm, {
@@ -471,30 +475,30 @@ const resetMemberForm = () => {
     politicalStatus: '群众',
     joinDate: '',
     education: '高中',
-    avatar: ''
-  })
+    avatar: '',
+  });
   if (memberFormRef.value) {
-    memberFormRef.value.resetFields()
+    memberFormRef.value.resetFields();
   }
-}
+};
 
 const saveMember = async () => {
-  if (!memberFormRef.value) return
+  if (!memberFormRef.value) return;
 
   try {
-    await memberFormRef.value.validate()
+    await memberFormRef.value.validate();
 
     if (isEditing.value) {
       // 编辑成员
-      const index = members.value.findIndex(m => m.id === memberForm.id)
+      const index = members.value.findIndex(m => m.id === memberForm.id);
       if (index !== -1) {
         members.value[index] = {
           ...members.value[index],
           ...memberForm,
-          isPartyMember: memberForm.politicalStatus === '党员'
-        }
+          isPartyMember: memberForm.politicalStatus === '党员',
+        };
       }
-      ElMessage.success('成员信息更新成功')
+      ElMessage.success('成员信息更新成功');
     } else {
       // 添加成员
       const newMember = {
@@ -502,137 +506,133 @@ const saveMember = async () => {
         ...memberForm,
         isPartyMember: memberForm.politicalStatus === '党员',
         status: 'active',
-        isOnDuty: false
-      }
-      members.value.push(newMember)
-      ElMessage.success('成员添加成功')
+        isOnDuty: false,
+      };
+      members.value.push(newMember);
+      ElMessage.success('成员添加成功');
     }
 
-    memberDialogVisible.value = false
-    updateStatistics()
+    memberDialogVisible.value = false;
+    updateStatistics();
   } catch (error) {
-    console.error('表单验证失败:', error)
+    console.error('表单验证失败:', error);
   }
-}
+};
 
 const handleAction = ({ action, member }) => {
   switch (action) {
     case 'edit':
-      editMember(member)
-      break
+      editMember(member);
+      break;
     case 'transfer':
-      transferMember(member)
-      break
+      transferMember(member);
+      break;
     case 'schedule':
-      viewSchedule(member)
-      break
+      viewSchedule(member);
+      break;
     case 'delete':
-      deleteMember(member)
-      break
+      deleteMember(member);
+      break;
   }
-}
+};
 
-const editMember = (member) => {
-  isEditing.value = true
+const editMember = member => {
+  isEditing.value = true;
   Object.assign(memberForm, {
     ...member,
-    politicalStatus: member.isPartyMember ? '党员' : '群众'
+    politicalStatus: member.isPartyMember ? '党员' : '群众',
+  });
+  memberDialogVisible.value = true;
+};
+
+const transferMember = member => {
+  ElMessageBox.confirm(`确定要将 ${member.name} 调离当前职务吗？`, '调任确认', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
   })
-  memberDialogVisible.value = true
-}
+    .then(() => {
+      member.status = 'transferred';
+      member.isOnDuty = false;
+      ElMessage.success('调任操作成功');
+      updateStatistics();
+    })
+    .catch(() => {});
+};
 
-const transferMember = (member) => {
-  ElMessageBox.confirm(
-    `确定要将 ${member.name} 调离当前职务吗？`,
-    '调任确认',
-    {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }
-  ).then(() => {
-    member.status = 'transferred'
-    member.isOnDuty = false
-    ElMessage.success('调任操作成功')
-    updateStatistics()
-  }).catch(() => {})
-}
+const deleteMember = member => {
+  ElMessageBox.confirm(`确定要删除 ${member.name} 的信息吗？此操作不可恢复。`, '删除确认', {
+    confirmButtonText: '确定删除',
+    cancelButtonText: '取消',
+    type: 'error',
+  })
+    .then(() => {
+      const index = members.value.findIndex(m => m.id === member.id);
+      if (index !== -1) {
+        members.value.splice(index, 1);
+        ElMessage.success('删除成功');
+        updateStatistics();
+      }
+    })
+    .catch(() => {});
+};
 
-const deleteMember = (member) => {
-  ElMessageBox.confirm(
-    `确定要删除 ${member.name} 的信息吗？此操作不可恢复。`,
-    '删除确认',
-    {
-      confirmButtonText: '确定删除',
-      cancelButtonText: '取消',
-      type: 'error'
-    }
-  ).then(() => {
-    const index = members.value.findIndex(m => m.id === member.id)
-    if (index !== -1) {
-      members.value.splice(index, 1)
-      ElMessage.success('删除成功')
-      updateStatistics()
-    }
-  }).catch(() => {})
-}
+const callMember = phone => {
+  ElMessage.info(`正在呼叫 ${phone}...`);
+};
 
-const callMember = (phone) => {
-  ElMessage.info(`正在呼叫 ${phone}...`)
-}
+const sendMessage = member => {
+  ElMessage.success(`已向 ${member.name} 发送短信通知`);
+};
 
-const sendMessage = (member) => {
-  ElMessage.success(`已向 ${member.name} 发送短信通知`)
-}
-
-const viewSchedule = (member) => {
-  scheduleDialogVisible.value = true
-}
+const viewSchedule = member => {
+  scheduleDialogVisible.value = true;
+};
 
 const generateSchedule = () => {
-  ElMessage.success('智能值班表生成成功')
-}
+  ElMessage.success('智能值班表生成成功');
+};
 
-const getDutyPerson = (date) => {
+const getDutyPerson = date => {
   // 简单的值班分配逻辑
-  const dayIndex = new Date(date).getDay()
-  const dutyMembers = members.value.filter(m => m.status === 'active')
-  if (dutyMembers.length === 0) return null
-  return dutyMembers[dayIndex % dutyMembers.length]?.name
-}
+  const dayIndex = new Date(date).getDay();
+  const dutyMembers = members.value.filter(m => m.status === 'active');
+  if (dutyMembers.length === 0) return null;
+  return dutyMembers[dayIndex % dutyMembers.length]?.name;
+};
 
 const exportData = () => {
-  ElMessage.success('数据导出成功')
-}
+  ElMessage.success('数据导出成功');
+};
 
 const updateStatistics = () => {
-  statistics.total = members.value.length
-  statistics.partyMembers = members.value.filter(m => m.isPartyMember).length
-  statistics.onDuty = members.value.filter(m => m.isOnDuty).length
-  statistics.active = members.value.filter(m => m.status === 'active').length
-}
+  statistics.total = members.value.length;
+  statistics.partyMembers = members.value.filter(m => m.isPartyMember).length;
+  statistics.onDuty = members.value.filter(m => m.isOnDuty).length;
+  statistics.active = members.value.filter(m => m.status === 'active').length;
+};
 
-const handleAvatarSuccess = (response) => {
-  memberForm.avatar = response.url
-}
+const handleAvatarSuccess = response => {
+  memberForm.avatar = response.url;
+};
 
-const beforeAvatarUpload = (file) => {
-  const isJPG = file.type === 'image/jpeg' || file.type === 'image/png'
-  const isLt2M = file.size / 1024 / 1024 < 2
+const beforeAvatarUpload = file => {
+  const isJPG = file.type === 'image/jpeg' || file.type === 'image/png';
+  const isLt2M = file.size / 1024 / 1024 < 2;
 
   if (!isJPG) {
-    ElMessage.error('上传头像图片只能是 JPG/PNG 格式!')
+    ElMessage.error('上传头像图片只能是 JPG/PNG 格式!');
   }
   if (!isLt2M) {
-    ElMessage.error('上传头像图片大小不能超过 2MB!')
+    ElMessage.error('上传头像图片大小不能超过 2MB!');
   }
-  return isJPG && isLt2M
-}
+  return isJPG && isLt2M;
+};
 
 // 生命周期
 onMounted(() => {
-  updateStatistics()
-})
+  updateStatistics();
+});
 </script>
 
 <style scoped>

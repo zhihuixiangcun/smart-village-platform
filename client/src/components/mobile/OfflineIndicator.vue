@@ -11,9 +11,7 @@
     <!-- 状态文本 -->
     <div class="status-text">
       <span class="status-label">{{ statusLabel }}</span>
-      <span v-if="pendingSyncs > 0" class="sync-info">
-        待同步: {{ pendingSyncs }} 条
-      </span>
+      <span v-if="pendingSyncs > 0" class="sync-info"> 待同步: {{ pendingSyncs }} 条 </span>
     </div>
 
     <!-- 同步按钮 -->
@@ -30,11 +28,7 @@
 
     <!-- 进度条 -->
     <div v-if="isSyncing" class="sync-progress">
-      <el-progress
-        :percentage="syncProgress"
-        :stroke-width="4"
-        :show-text="false"
-      />
+      <el-progress :percentage="syncProgress" :stroke-width="4" :show-text="false" />
     </div>
   </div>
 </template>
@@ -61,13 +55,13 @@ const props = defineProps({
   // 是否显示同步按钮
   showSyncButton: {
     type: Boolean,
-    default: true
+    default: true,
   },
   // 自动同步间隔（毫秒）
   autoSyncInterval: {
     type: Number,
-    default: 30000 // 30秒
-  }
+    default: 30000, // 30秒
+  },
 });
 
 // Emits
@@ -219,7 +213,7 @@ defineExpose({
   sync: handleSync,
   updatePendingSyncs,
   isOffline,
-  pendingSyncs
+  pendingSyncs,
 });
 </script>
 

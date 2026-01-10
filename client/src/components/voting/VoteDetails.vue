@@ -28,10 +28,7 @@
             <div class="status-card">
               <h3>投票状态</h3>
               <div class="status-content">
-                <el-tag
-                  :type="getStatusType(vote)"
-                  size="large"
-                >
+                <el-tag :type="getStatusType(vote)" size="large">
                   {{ getStatusText(vote) }}
                 </el-tag>
                 <p v-if="vote.voteStatus.timeRemaining" class="time-remaining">
@@ -80,7 +77,9 @@
                 </div>
                 <div class="setting-item">
                   <span class="label">选民范围:</span>
-                  <span class="value">{{ getEligibleVotersText(vote.settings.eligibleVoters) }}</span>
+                  <span class="value">{{
+                    getEligibleVotersText(vote.settings.eligibleVoters)
+                  }}</span>
                 </div>
               </div>
             </div>
@@ -95,12 +94,7 @@
 
         <div v-if="vote.tags && vote.tags.length" class="vote-tags">
           <span class="tags-label">标签:</span>
-          <el-tag
-            v-for="tag in vote.tags"
-            :key="tag"
-            size="small"
-            type="info"
-          >
+          <el-tag v-for="tag in vote.tags" :key="tag" size="small" type="info">
             {{ tag }}
           </el-tag>
         </div>
@@ -137,13 +131,8 @@
             <!-- 投票结果显示（如果可见） -->
             <div v-if="showResults && option.voteCount !== undefined" class="option-result">
               <div class="result-bar">
-                <div
-                  class="result-fill"
-                  :style="{ width: option.percentage + '%' }"
-                ></div>
-                <div class="result-text">
-                  {{ option.voteCount }} 票 ({{ option.percentage }}%)
-                </div>
+                <div class="result-fill" :style="{ width: option.percentage + '%' }"></div>
+                <div class="result-text">{{ option.voteCount }} 票 ({{ option.percentage }}%)</div>
               </div>
             </div>
           </div>
@@ -186,24 +175,17 @@
           :loading="voting"
         >
           <i class="el-icon-check"></i>
-          {{ vote.userVoteStatus.hasVoted && vote.userVoteStatus.canModify ? '修改投票' : '立即投票' }}
+          {{
+            vote.userVoteStatus.hasVoted && vote.userVoteStatus.canModify ? '修改投票' : '立即投票'
+          }}
         </el-button>
 
-        <el-button
-          v-if="canViewResults"
-          type="success"
-          size="large"
-          @click="viewResults"
-        >
+        <el-button v-if="canViewResults" type="success" size="large" @click="viewResults">
           <i class="el-icon-s-data"></i>
           查看结果
         </el-button>
 
-        <el-button
-          size="large"
-          @click="refreshData"
-          :loading="loading"
-        >
+        <el-button size="large" @click="refreshData" :loading="loading">
           <i class="el-icon-refresh"></i>
           刷新数据
         </el-button>
@@ -232,8 +214,8 @@
 </template>
 
 <script>
-import { votingAPI } from '@/api/voting'
-import { formatDate } from '@/utils/dateUtils'
+import { votingAPI } from '@/api/voting';
+import { formatDate } from '@/utils/dateUtils';
 
 export default {
   name: 'VoteDetails',
@@ -241,140 +223,146 @@ export default {
     return {
       loading: false,
       voting: false,
-      vote: null
-    }
+      vote: null,
+    };
   },
   computed: {
     voteId() {
-      return this.$route.params.id
+      return this.$route.params.id;
     },
     showResults() {
-      if (!this.vote) return false
-      return this.vote.userVoteStatus.hasVoted ||
-             this.vote.voteStatus.isExpired ||
-             this.vote.settings.showResultsBeforeEnd
+      if (!this.vote) return false;
+      return (
+        this.vote.userVoteStatus.hasVoted ||
+        this.vote.voteStatus.isExpired ||
+        this.vote.settings.showResultsBeforeEnd
+      );
     },
     canVote() {
-      if (!this.vote) return false
-      return this.vote.voteStatus.isActive &&
-             (!this.vote.userVoteStatus.hasVoted || this.vote.userVoteStatus.canModify)
+      if (!this.vote) return false;
+      return (
+        this.vote.voteStatus.isActive &&
+        (!this.vote.userVoteStatus.hasVoted || this.vote.userVoteStatus.canModify)
+      );
     },
     canViewResults() {
-      if (!this.vote) return false
-      return this.vote.userVoteStatus.hasVoted ||
-             this.vote.voteStatus.isExpired ||
-             this.vote.settings.showResultsBeforeEnd
+      if (!this.vote) return false;
+      return (
+        this.vote.userVoteStatus.hasVoted ||
+        this.vote.voteStatus.isExpired ||
+        this.vote.settings.showResultsBeforeEnd
+      );
     },
     formattedDescription() {
-      if (!this.vote) return ''
-      return this.vote.description.replace(/\n/g, '<br>')
-    }
+      if (!this.vote) return '';
+      return this.vote.description.replace(/\n/g, '<br>');
+    },
   },
   created() {
-    this.loadVoteDetails()
+    this.loadVoteDetails();
   },
   methods: {
     async loadVoteDetails() {
-      this.loading = true
+      this.loading = true;
       try {
         const response = await votingAPI.getVoteDetails(this.voteId, {
-          includeResults: this.showResults
-        })
+          includeResults: this.showResults,
+        });
 
         if (response.data.success) {
-          this.vote = response.data.data
+          this.vote = response.data.data;
         }
       } catch (error) {
-        this.$message.error('加载投票详情失败')
-        console.error(error)
+        this.$message.error('加载投票详情失败');
+        console.error(error);
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
 
     async refreshData() {
-      await this.loadVoteDetails()
-      this.$message.success('数据已刷新')
+      await this.loadVoteDetails();
+      this.$message.success('数据已刷新');
     },
 
     participateVote() {
-      this.$router.push(`/voting/${this.voteId}/participate`)
+      this.$router.push(`/voting/${this.voteId}/participate`);
     },
 
     viewResults() {
-      this.$router.push(`/voting/${this.voteId}/results`)
+      this.$router.push(`/voting/${this.voteId}/results`);
     },
 
     isUserSelectedOption(optionId) {
-      if (!this.vote.userVoteStatus.hasVoted) return false
+      if (!this.vote.userVoteStatus.hasVoted) return false;
 
       return this.vote.userVoteStatus.selectedOptions.some(
         selected => selected.optionId === optionId
-      )
+      );
     },
 
     getOptionTitle(optionId) {
-      const option = this.vote.options.find(opt => opt.optionId === optionId)
-      return option ? option.title : '未知选项'
+      const option = this.vote.options.find(opt => opt.optionId === optionId);
+      return option ? option.title : '未知选项';
     },
 
     getStatusType(vote) {
-      if (vote.voteStatus.isActive) return 'success'
-      if (vote.voteStatus.isExpired) return 'info'
-      return 'warning'
+      if (vote.voteStatus.isActive) return 'success';
+      if (vote.voteStatus.isExpired) return 'info';
+      return 'warning';
     },
 
     getStatusText(vote) {
-      if (vote.voteStatus.isActive) return '进行中'
-      if (vote.voteStatus.isExpired) return '已结束'
-      return '即将开始'
+      if (vote.voteStatus.isActive) return '进行中';
+      if (vote.voteStatus.isExpired) return '已结束';
+      return '即将开始';
     },
 
     getVoteTypeText(voteType) {
       const types = {
-        'single_choice': '单选投票',
-        'multiple_choice': '多选投票',
-        'ranking': '排序投票',
-        'rating': '评分投票',
-        'yes_no': '是否投票'
-      }
-      return types[voteType] || '未知类型'
+        single_choice: '单选投票',
+        multiple_choice: '多选投票',
+        ranking: '排序投票',
+        rating: '评分投票',
+        yes_no: '是否投票',
+      };
+      return types[voteType] || '未知类型';
     },
 
     getAnonymousTypeText(anonymousType) {
       const types = {
-        'real_name': '实名投票',
-        'anonymous': '匿名投票',
-        'semi_anonymous': '半匿名投票'
-      }
-      return types[anonymousType] || '未知类型'
+        real_name: '实名投票',
+        anonymous: '匿名投票',
+        semi_anonymous: '半匿名投票',
+      };
+      return types[anonymousType] || '未知类型';
     },
 
     getEligibleVotersText(eligibleVoters) {
       const types = {
-        'all_residents': '全体村民',
-        'household_heads': '户主',
-        'age_restricted': '年龄限制',
-        'custom_group': '自定义群体'
-      }
-      return types[eligibleVoters] || '未知范围'
+        all_residents: '全体村民',
+        household_heads: '户主',
+        age_restricted: '年龄限制',
+        custom_group: '自定义群体',
+      };
+      return types[eligibleVoters] || '未知范围';
     },
 
     formatTimeRemaining(timeRemaining) {
-      if (!timeRemaining) return ''
+      if (!timeRemaining) return '';
 
       if (timeRemaining.days > 0) {
-        return `${timeRemaining.days}天${timeRemaining.hours}小时`
+        return `${timeRemaining.days}天${timeRemaining.hours}小时`;
       } else if (timeRemaining.hours > 0) {
-        return `${timeRemaining.hours}小时${timeRemaining.minutes}分钟`
+        return `${timeRemaining.hours}小时${timeRemaining.minutes}分钟`;
       } else {
-        return `${timeRemaining.minutes}分钟`
+        return `${timeRemaining.minutes}分钟`;
       }
     },
 
-    formatDate
-  }
-}
+    formatDate,
+  },
+};
 </script>
 
 <style scoped>
@@ -436,7 +424,8 @@ export default {
   margin-bottom: 10px;
 }
 
-.stat-item, .setting-item {
+.stat-item,
+.setting-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -458,7 +447,9 @@ export default {
   font-weight: 500;
 }
 
-.vote-description, .vote-options, .vote-timeline {
+.vote-description,
+.vote-options,
+.vote-timeline {
   background: white;
   padding: 25px;
   border-radius: 8px;
@@ -466,7 +457,9 @@ export default {
   margin-bottom: 20px;
 }
 
-.vote-description h2, .vote-options h2, .vote-timeline h2 {
+.vote-description h2,
+.vote-options h2,
+.vote-timeline h2 {
   margin: 0 0 20px 0;
   color: #333;
   font-size: 20px;

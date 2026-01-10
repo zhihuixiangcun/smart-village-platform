@@ -3,10 +3,13 @@
 @tailwind utilities;
 
 /* 保留现有的全局样式和Element Plus兼容性 */
-html, body {
+html,
+body {
   width: 100%;
   height: 100%;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', sans-serif;
   font-size: 14px;
   color: #333;
   background-color: #f5f7fa;
@@ -22,7 +25,7 @@ html, body {
   .card {
     @apply bg-white rounded-lg shadow-md p-5 mb-5;
   }
-  
+
   .btn-primary {
     @apply bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded;
   }

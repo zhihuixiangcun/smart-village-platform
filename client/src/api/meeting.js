@@ -4,17 +4,17 @@ const API_BASE = '/api/v1/meetings';
 
 export const meetingAPI = {
   // 获取会议列表
-  getMeetingList: (params) => {
+  getMeetingList: params => {
     return axios.get(API_BASE, { params });
   },
 
   // 获取会议详情
-  getMeetingDetails: (meetingId) => {
+  getMeetingDetails: meetingId => {
     return axios.get(`${API_BASE}/${meetingId}`);
   },
 
   // 创建会议
-  createMeeting: (meetingData) => {
+  createMeeting: meetingData => {
     return axios.post(API_BASE, meetingData);
   },
 
@@ -29,12 +29,12 @@ export const meetingAPI = {
   },
 
   // 获取签到二维码
-  getCheckInQR: (meetingId) => {
+  getCheckInQR: meetingId => {
     return axios.get(`${API_BASE}/${meetingId}/checkin/qr`);
   },
 
   // 获取出席情况
-  getAttendance: (meetingId) => {
+  getAttendance: meetingId => {
     return axios.get(`${API_BASE}/${meetingId}/attendance`);
   },
 
@@ -69,21 +69,21 @@ export const meetingAPI = {
   },
 
   // 获取会议纪要
-  getMeetingMinutes: (meetingId) => {
+  getMeetingMinutes: meetingId => {
     return axios.get(`${API_BASE}/${meetingId}/minutes`);
   },
 
   // 导出会议纪要
-  exportMeetingMinutes: (meetingId) => {
+  exportMeetingMinutes: meetingId => {
     return axios.get(`${API_BASE}/${meetingId}/minutes/export`, {
-      responseType: 'blob'
+      responseType: 'blob',
     });
   },
 
   // 审核会议纪要
   approveMeetingMinutes: (meetingId, approvalData) => {
     return axios.post(`${API_BASE}/${meetingId}/minutes/approve`, approvalData);
-  }
+  },
 };
 
 export default meetingAPI;

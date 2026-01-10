@@ -88,7 +88,9 @@
                 >
                   <template slot="default">
                     <div class="progress-content">
-                      <div class="progress-number">{{ Math.round(statistics.avgParticipationRate || 0) }}%</div>
+                      <div class="progress-number">
+                        {{ Math.round(statistics.avgParticipationRate || 0) }}%
+                      </div>
                       <div class="progress-label">平均参与率</div>
                     </div>
                   </template>
@@ -167,7 +169,10 @@
                 <div class="quality-factors">
                   <div class="factor">
                     <span class="factor-name">参与度</span>
-                    <el-progress :percentage="Math.round(statistics.avgParticipationRate || 0)" :show-text="false"></el-progress>
+                    <el-progress
+                      :percentage="Math.round(statistics.avgParticipationRate || 0)"
+                      :show-text="false"
+                    ></el-progress>
                   </div>
                   <div class="factor">
                     <span class="factor-name">完成率</span>
@@ -224,8 +229,8 @@
 </template>
 
 <script>
-import { votingAPI } from '@/api/voting'
-import * as echarts from 'echarts'
+import { votingAPI } from '@/api/voting';
+import * as echarts from 'echarts';
 
 export default {
   name: 'VotingDashboard',
@@ -237,80 +242,80 @@ export default {
       participationChart: null,
       voteTypeChart: null,
       categoryChart: null,
-      trendChart: null
-    }
+      trendChart: null,
+    };
   },
   computed: {
     highestParticipation() {
       // 模拟数据，实际应从API获取
-      return 85
+      return 85;
     },
     lowestParticipation() {
       // 模拟数据，实际应从API获取
-      return 45
-    }
+      return 45;
+    },
   },
   created() {
-    this.loadStatistics()
+    this.loadStatistics();
   },
   mounted() {
     this.$nextTick(() => {
-      this.initCharts()
-    })
+      this.initCharts();
+    });
   },
   beforeDestroy() {
-    this.destroyCharts()
+    this.destroyCharts();
   },
   methods: {
     async loadStatistics() {
-      this.loading = true
+      this.loading = true;
       try {
-        const response = await votingAPI.getVotingStatistics()
+        const response = await votingAPI.getVotingStatistics();
 
         if (response.data.success) {
-          this.statistics = response.data.data
+          this.statistics = response.data.data;
           this.$nextTick(() => {
-            this.updateCharts()
-          })
+            this.updateCharts();
+          });
         }
       } catch (error) {
-        this.$message.error('加载统计数据失败')
-        console.error(error)
+        this.$message.error('加载统计数据失败');
+        console.error(error);
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
 
     async refreshData() {
-      await this.loadStatistics()
-      this.$message.success('数据已刷新')
+      await this.loadStatistics();
+      this.$message.success('数据已刷新');
     },
 
     initCharts() {
       if (this.$refs.participationChart) {
-        this.participationChart = echarts.init(this.$refs.participationChart)
+        this.participationChart = echarts.init(this.$refs.participationChart);
       }
       if (this.$refs.voteTypeChart) {
-        this.voteTypeChart = echarts.init(this.$refs.voteTypeChart)
+        this.voteTypeChart = echarts.init(this.$refs.voteTypeChart);
       }
       if (this.$refs.categoryChart) {
-        this.categoryChart = echarts.init(this.$refs.categoryChart)
+        this.categoryChart = echarts.init(this.$refs.categoryChart);
       }
       if (this.$refs.trendChart) {
-        this.trendChart = echarts.init(this.$refs.trendChart)
+        this.trendChart = echarts.init(this.$refs.trendChart);
       }
-      this.updateCharts()
+      this.updateCharts();
     },
 
     updateCharts() {
-      this.updateParticipationChart()
-      this.updateVoteTypeChart()
-      this.updateCategoryChart()
-      this.updateTrendChart()
+      this.updateParticipationChart();
+      this.updateVoteTypeChart();
+      this.updateCategoryChart();
+      this.updateTrendChart();
     },
 
     updateParticipationChart() {
-      if (!this.participationChart) return
+      if (!this.participationChart) return;
 
       // 模拟参与率分布数据
       const data = [
@@ -318,12 +323,12 @@ export default {
         { name: '21-40%', value: 5 },
         { name: '41-60%', value: 8 },
         { name: '61-80%', value: 12 },
-        { name: '81-100%', value: 6 }
-      ]
+        { name: '81-100%', value: 6 },
+      ];
 
       const option = {
         tooltip: {
-          trigger: 'item'
+          trigger: 'item',
         },
         series: [
           {
@@ -334,18 +339,18 @@ export default {
               itemStyle: {
                 shadowBlur: 10,
                 shadowOffsetX: 0,
-                shadowColor: 'rgba(0, 0, 0, 0.5)'
-              }
-            }
-          }
-        ]
-      }
+                shadowColor: 'rgba(0, 0, 0, 0.5)',
+              },
+            },
+          },
+        ],
+      };
 
-      this.participationChart.setOption(option)
+      this.participationChart.setOption(option);
     },
 
     updateVoteTypeChart() {
-      if (!this.voteTypeChart) return
+      if (!this.voteTypeChart) return;
 
       // 模拟投票类型数据
       const data = [
@@ -353,16 +358,16 @@ export default {
         { name: '多选投票', value: 8 },
         { name: '是否投票', value: 12 },
         { name: '评分投票', value: 5 },
-        { name: '排序投票', value: 3 }
-      ]
+        { name: '排序投票', value: 3 },
+      ];
 
       const option = {
         tooltip: {
-          trigger: 'item'
+          trigger: 'item',
         },
         legend: {
           top: '5%',
-          left: 'center'
+          left: 'center',
         },
         series: [
           {
@@ -371,53 +376,53 @@ export default {
             avoidLabelOverlap: false,
             label: {
               show: false,
-              position: 'center'
+              position: 'center',
             },
             emphasis: {
               label: {
                 show: true,
                 fontSize: '16',
-                fontWeight: 'bold'
-              }
+                fontWeight: 'bold',
+              },
             },
-            data: data
-          }
-        ]
-      }
+            data: data,
+          },
+        ],
+      };
 
-      this.voteTypeChart.setOption(option)
+      this.voteTypeChart.setOption(option);
     },
 
     updateCategoryChart() {
-      if (!this.categoryChart) return
+      if (!this.categoryChart) return;
 
       // 模拟分类统计数据
-      const categories = ['村务事项', '基础设施', '财务决策', '政策表决', '其他']
-      const values = [18, 12, 8, 6, 3]
+      const categories = ['村务事项', '基础设施', '财务决策', '政策表决', '其他'];
+      const values = [18, 12, 8, 6, 3];
 
       const option = {
         tooltip: {
           trigger: 'axis',
           axisPointer: {
-            type: 'shadow'
-          }
+            type: 'shadow',
+          },
         },
         grid: {
           left: '3%',
           right: '4%',
           bottom: '3%',
-          containLabel: true
+          containLabel: true,
         },
         xAxis: {
           type: 'category',
           data: categories,
           axisLabel: {
             interval: 0,
-            rotate: 45
-          }
+            rotate: 45,
+          },
         },
         yAxis: {
-          type: 'value'
+          type: 'value',
         },
         series: [
           {
@@ -427,64 +432,64 @@ export default {
               color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
                 { offset: 0, color: '#83bff6' },
                 { offset: 0.5, color: '#188df0' },
-                { offset: 1, color: '#188df0' }
-              ])
-            }
-          }
-        ]
-      }
+                { offset: 1, color: '#188df0' },
+              ]),
+            },
+          },
+        ],
+      };
 
-      this.categoryChart.setOption(option)
+      this.categoryChart.setOption(option);
     },
 
     updateTrendChart() {
-      if (!this.trendChart) return
+      if (!this.trendChart) return;
 
       // 模拟趋势数据
-      const dates = []
-      const voteData = []
-      const participationData = []
+      const dates = [];
+      const voteData = [];
+      const participationData = [];
 
       for (let i = 29; i >= 0; i--) {
-        const date = new Date()
-        date.setDate(date.getDate() - i)
-        dates.push(date.toLocaleDateString())
-        voteData.push(Math.floor(Math.random() * 5) + 1)
-        participationData.push(Math.floor(Math.random() * 30) + 50)
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        dates.push(date.toLocaleDateString());
+        voteData.push(Math.floor(Math.random() * 5) + 1);
+        participationData.push(Math.floor(Math.random() * 30) + 50);
       }
 
       const option = {
         tooltip: {
-          trigger: 'axis'
+          trigger: 'axis',
         },
         legend: {
-          data: ['投票数量', '平均参与率']
+          data: ['投票数量', '平均参与率'],
         },
         grid: {
           left: '3%',
           right: '4%',
           bottom: '3%',
-          containLabel: true
+          containLabel: true,
         },
         xAxis: {
           type: 'category',
           boundaryGap: false,
           data: dates,
           axisLabel: {
-            interval: 5
-          }
+            interval: 5,
+          },
         },
         yAxis: [
           {
             type: 'value',
             name: '投票数量',
-            position: 'left'
+            position: 'left',
           },
           {
             type: 'value',
             name: '参与率(%)',
-            position: 'right'
-          }
+            position: 'right',
+          },
         ],
         series: [
           {
@@ -494,8 +499,8 @@ export default {
             data: voteData,
             smooth: true,
             itemStyle: {
-              color: '#5470c6'
-            }
+              color: '#5470c6',
+            },
           },
           {
             name: '平均参与率',
@@ -504,75 +509,75 @@ export default {
             data: participationData,
             smooth: true,
             itemStyle: {
-              color: '#91cc75'
-            }
-          }
-        ]
-      }
+              color: '#91cc75',
+            },
+          },
+        ],
+      };
 
-      this.trendChart.setOption(option)
+      this.trendChart.setOption(option);
     },
 
     destroyCharts() {
       if (this.participationChart) {
-        this.participationChart.dispose()
-        this.participationChart = null
+        this.participationChart.dispose();
+        this.participationChart = null;
       }
       if (this.voteTypeChart) {
-        this.voteTypeChart.dispose()
-        this.voteTypeChart = null
+        this.voteTypeChart.dispose();
+        this.voteTypeChart = null;
       }
       if (this.categoryChart) {
-        this.categoryChart.dispose()
-        this.categoryChart = null
+        this.categoryChart.dispose();
+        this.categoryChart = null;
       }
       if (this.trendChart) {
-        this.trendChart.dispose()
-        this.trendChart = null
+        this.trendChart.dispose();
+        this.trendChart = null;
       }
     },
 
     getParticipationColor(rate) {
-      if (rate >= 80) return '#67c23a'
-      if (rate >= 60) return '#e6a23c'
-      return '#f56c6c'
+      if (rate >= 80) return '#67c23a';
+      if (rate >= 60) return '#e6a23c';
+      return '#f56c6c';
     },
 
     getQualityScore() {
       // 简化的质量评分计算
-      const participation = this.statistics.avgParticipationRate || 0
-      const completion = this.getCompletionRate()
-      return Math.round((participation * 0.6 + completion * 0.4))
+      const participation = this.statistics.avgParticipationRate || 0;
+      const completion = this.getCompletionRate();
+      return Math.round(participation * 0.6 + completion * 0.4);
     },
 
     getCompletionRate() {
-      const total = this.statistics.totalVotes || 1
-      const completed = this.statistics.completedVotes || 0
-      return Math.round((completed / total) * 100)
+      const total = this.statistics.totalVotes || 1;
+      const completed = this.statistics.completedVotes || 0;
+      return Math.round((completed / total) * 100);
     },
 
     getDailyAverage() {
-      const days = parseInt(this.timeRange)
-      const total = this.statistics.totalVotes || 0
-      return Math.round((total / days) * 10) / 10
+      const days = parseInt(this.timeRange);
+      const total = this.statistics.totalVotes || 0;
+      return Math.round((total / days) * 10) / 10;
     },
 
     getActiveUsers() {
       // 模拟活跃用户数
-      return Math.floor((this.statistics.totalParticipants || 0) * 0.8)
+      return Math.floor((this.statistics.totalParticipants || 0) * 0.8);
     },
 
     getAverageVoteDuration() {
       // 模拟平均投票时长
-      return 5.2
+      return 5.2;
     },
 
     getAverageResponseTime() {
       // 模拟平均响应时间
-      return 2.5
-    }
-  }
-}
+      return 2.5;
+    },
+  },
+};
 </script>
 
 <style scoped>

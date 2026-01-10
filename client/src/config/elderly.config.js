@@ -17,27 +17,27 @@ export default {
         name: '标准',
         base: 16,
         scale: 1,
-        lineHeight: 1.5
+        lineHeight: 1.5,
       },
       large: {
         name: '大字',
         base: 20,
         scale: 1.25,
-        lineHeight: 1.6
+        lineHeight: 1.6,
       },
       extraLarge: {
         name: '特大',
         base: 24,
         scale: 1.5,
-        lineHeight: 1.7
-      }
+        lineHeight: 1.7,
+      },
     },
 
     // 字体系列
     fontFamily: {
       sans: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
       serif: 'Georgia, "Times New Roman", Times, serif',
-      mono: 'Monaco, "Courier New", monospace'
+      mono: 'Monaco, "Courier New", monospace',
     },
 
     // 字重
@@ -45,8 +45,8 @@ export default {
       normal: 400,
       medium: 500,
       semibold: 600,
-      bold: 700
-    }
+      bold: 700,
+    },
   },
 
   // 颜色配置
@@ -63,15 +63,15 @@ export default {
         primary: '#303133',
         regular: '#606266',
         secondary: '#909399',
-        placeholder: '#c0c4cc'
+        placeholder: '#c0c4cc',
       },
 
       background: {
         base: '#f5f7fa',
-        page: '#ffffff'
+        page: '#ffffff',
       },
 
-      border: '#dcdfe6'
+      border: '#dcdfe6',
     },
 
     // 高对比度模式
@@ -86,16 +86,16 @@ export default {
         primary: '#000000',
         regular: '#000000',
         secondary: '#333333',
-        placeholder: '#666666'
+        placeholder: '#666666',
       },
 
       background: {
         base: '#ffffff',
-        page: '#ffffff'
+        page: '#ffffff',
       },
 
-      border: '#000000'
-    }
+      border: '#000000',
+    },
   },
 
   // 布局配置
@@ -107,13 +107,13 @@ export default {
       md: 16,
       lg: 20,
       xl: 24,
-      xxl: 32
+      xxl: 32,
     },
 
     // 触控区域最小尺寸
     touchTarget: {
       minSize: 44,
-      recommended: 48
+      recommended: 48,
     },
 
     // 按钮尺寸
@@ -121,23 +121,23 @@ export default {
       small: {
         height: 40,
         padding: '10px 20px',
-        fontSize: 14
+        fontSize: 14,
       },
       medium: {
         height: 48,
         padding: '12px 24px',
-        fontSize: 16
+        fontSize: 16,
       },
       large: {
         height: 56,
         padding: '16px 32px',
-        fontSize: 18
+        fontSize: 18,
       },
       xlarge: {
         height: 64,
         padding: '20px 40px',
-        fontSize: 20
-      }
+        fontSize: 20,
+      },
     },
 
     // 输入框尺寸
@@ -145,24 +145,24 @@ export default {
       small: {
         height: 40,
         fontSize: 14,
-        padding: '0 12px'
+        padding: '0 12px',
       },
       medium: {
         height: 48,
         fontSize: 16,
-        padding: '0 16px'
+        padding: '0 16px',
       },
       large: {
         height: 56,
         fontSize: 18,
-        padding: '0 20px'
+        padding: '0 20px',
       },
       xlarge: {
         height: 64,
         fontSize: 20,
-        padding: '0 24px'
-      }
-    }
+        padding: '0 24px',
+      },
+    },
   },
 
   // 动画配置
@@ -174,14 +174,14 @@ export default {
     duration: {
       fast: 200,
       normal: 300,
-      slow: 500
+      slow: 500,
     },
 
     // 是否启用过渡动画
     transitions: true,
 
     // 是否启用微动画
-    microAnimations: true
+    microAnimations: true,
   },
 
   // 交互配置
@@ -194,8 +194,8 @@ export default {
         tap: [50],
         success: [100, 50, 100],
         error: [200, 100, 200],
-        warning: [100]
-      }
+        warning: [100],
+      },
     },
 
     // 语音提示
@@ -203,15 +203,15 @@ export default {
       enabled: false,
       rate: 0.9,
       pitch: 1,
-      volume: 1
+      volume: 1,
     },
 
     // 读屏功能
     screenReader: {
       enabled: false,
       autoRead: false,
-      readDelay: 500
-    }
+      readDelay: 500,
+    },
   },
 
   // 简化模式配置
@@ -226,7 +226,7 @@ export default {
     largeIcons: true,
 
     // 减少动画
-    reduceMotion: false
+    reduceMotion: false,
   },
 
   // 无障碍配置
@@ -241,7 +241,7 @@ export default {
     keyboardNav: true,
 
     // 高对比度
-    highContrast: false
+    highContrast: false,
   },
 
   // 存储配置
@@ -252,16 +252,16 @@ export default {
       fontSize: 'elderly_font_size',
       highContrast: 'high_contrast_mode',
       screenReader: 'screen_reader_enabled',
-      simplifiedMode: 'simplified_mode'
-    }
+      simplifiedMode: 'simplified_mode',
+    },
   },
 
   // 响应式断点
   breakpoints: {
     mobile: '768px',
     tablet: '1024px',
-    desktop: '1280px'
-  }
+    desktop: '1280px',
+  },
 };
 
 // 导出预设配置
@@ -273,7 +273,7 @@ export const presets = {
     screenReader: false,
     simplifiedMode: true,
     vibrate: true,
-    speech: false
+    speech: false,
   },
 
   // 视障辅助预设
@@ -283,7 +283,7 @@ export const presets = {
     screenReader: true,
     simplifiedMode: true,
     vibrate: true,
-    speech: true
+    speech: true,
   },
 
   // 极简模式预设
@@ -293,6 +293,6 @@ export const presets = {
     screenReader: false,
     simplifiedMode: true,
     vibrate: false,
-    speech: false
-  }
+    speech: false,
+  },
 };

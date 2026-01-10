@@ -16,12 +16,7 @@
         </div>
       </template>
 
-      <el-table
-        :data="privacyRules"
-        v-loading="loading"
-        stripe
-        style="width: 100%"
-      >
+      <el-table :data="privacyRules" v-loading="loading" stripe style="width: 100%">
         <el-table-column prop="name" label="规则名称" width="200" />
         <el-table-column prop="code" label="规则代码" width="180" />
         <el-table-column prop="ruleType" label="数据类型" width="120">
@@ -39,22 +34,13 @@
         </el-table-column>
         <el-table-column prop="enabled" label="状态" width="100">
           <template #default="{ row }">
-            <el-switch
-              v-model="row.enabled"
-              @change="toggleRule(row)"
-            />
+            <el-switch v-model="row.enabled" @change="toggleRule(row)" />
           </template>
         </el-table-column>
         <el-table-column label="操作" width="180" fixed="right">
           <template #default="{ row }">
             <el-button size="small" @click="editRule(row)">编辑</el-button>
-            <el-button
-              size="small"
-              type="danger"
-              @click="deleteRule(row)"
-            >
-              删除
-            </el-button>
+            <el-button size="small" type="danger" @click="deleteRule(row)"> 删除 </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -76,12 +62,7 @@
         </div>
       </template>
 
-      <el-table
-        :data="viewHistory"
-        v-loading="historyLoading"
-        stripe
-        style="width: 100%"
-      >
+      <el-table :data="viewHistory" v-loading="historyLoading" stripe style="width: 100%">
         <el-table-column prop="operationName" label="操作" width="150" />
         <el-table-column prop="target.targetName" label="查看内容" width="150" />
         <el-table-column prop="operator.userName" label="操作人" width="120" />
@@ -188,18 +169,12 @@
       </el-form>
       <template #footer>
         <el-button @click="showRuleDialog = false">取消</el-button>
-        <el-button type="primary" @click="saveRule" :loading="saving">
-          保存
-        </el-button>
+        <el-button type="primary" @click="saveRule" :loading="saving"> 保存 </el-button>
       </template>
     </el-dialog>
 
     <!-- 查看完整信息对话框 -->
-    <el-dialog
-      v-model="showViewDialog"
-      title="查看完整信息"
-      width="400px"
-    >
+    <el-dialog v-model="showViewDialog" title="查看完整信息" width="400px">
       <el-alert
         type="warning"
         title="此操作将被记录"
@@ -229,12 +204,7 @@
         >
           开始人脸识别
         </el-button>
-        <el-button
-          v-else
-          type="primary"
-          @click="confirmView"
-          :loading="viewing"
-        >
+        <el-button v-else type="primary" @click="confirmView" :loading="viewing">
           确认查看
         </el-button>
       </template>
@@ -243,30 +213,30 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus } from '@element-plus/icons-vue'
-import { securityApi } from '@/api/security'
+import { ref, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { Plus } from '@element-plus/icons-vue';
+import { securityApi } from '@/api/security';
 
 // 隐私规则
-const privacyRules = ref([])
-const loading = ref(false)
+const privacyRules = ref([]);
+const loading = ref(false);
 
 // 查看历史
-const viewHistory = ref([])
-const historyLoading = ref(false)
-const dateRange = ref([])
+const viewHistory = ref([]);
+const historyLoading = ref(false);
+const dateRange = ref([]);
 const historyPagination = ref({
   page: 1,
   limit: 20,
-  total: 0
-})
+  total: 0,
+});
 
 // 规则编辑
-const showRuleDialog = ref(false)
-const editingRule = ref(null)
-const saving = ref(false)
-const ruleFormRef = ref(null)
+const showRuleDialog = ref(false);
+const editingRule = ref(null);
+const saving = ref(false);
+const ruleFormRef = ref(null);
 const ruleForm = ref({
   name: '',
   code: '',
@@ -275,147 +245,139 @@ const ruleForm = ref({
   displayRule: {
     keepFirst: 0,
     keepLast: 0,
-    maskChar: '*'
+    maskChar: '*',
   },
   allowedRoles: [],
   requireFaceAuth: false,
   viewLimit: 0,
-  description: ''
-})
+  description: '',
+});
 
 const ruleRules = {
-  name: [
-    { required: true, message: '请输入规则名称', trigger: 'blur' }
-  ],
-  code: [
-    { required: true, message: '请输入规则代码', trigger: 'blur' }
-  ],
-  ruleType: [
-    { required: true, message: '请选择数据类型', trigger: 'change' }
-  ],
-  maskPattern: [
-    { required: true, message: '请输入脱敏模式', trigger: 'blur' }
-  ]
-}
+  name: [{ required: true, message: '请输入规则名称', trigger: 'blur' }],
+  code: [{ required: true, message: '请输入规则代码', trigger: 'blur' }],
+  ruleType: [{ required: true, message: '请选择数据类型', trigger: 'change' }],
+  maskPattern: [{ required: true, message: '请输入脱敏模式', trigger: 'blur' }],
+};
 
 // 查看完整信息
-const showViewDialog = ref(false)
-const viewing = ref(false)
+const showViewDialog = ref(false);
+const viewing = ref(false);
 const viewRequest = ref({
   fieldType: '',
   recordId: '',
   requireFaceAuth: false,
-  faceVerified: false
-})
+  faceVerified: false,
+});
 
 // 获取规则类型名称
-const getRuleTypeName = (type) => {
+const getRuleTypeName = type => {
   const nameMap = {
     id_card: '身份证号',
     phone: '手机号',
     bank_card: '银行卡号',
     address: '地址',
     email: '邮箱',
-    name: '姓名'
-  }
-  return nameMap[type] || type
-}
+    name: '姓名',
+  };
+  return nameMap[type] || type;
+};
 
 // 获取敏感级别标签类型
-const getSensitivityTagType = (level) => {
+const getSensitivityTagType = level => {
   const typeMap = {
     low: 'info',
     medium: 'warning',
     high: 'danger',
-    critical: 'danger'
-  }
-  return typeMap[level] || 'info'
-}
+    critical: 'danger',
+  };
+  return typeMap[level] || 'info';
+};
 
 // 获取敏感级别名称
-const getSensitivityName = (level) => {
+const getSensitivityName = level => {
   const nameMap = {
     low: '低',
     medium: '中',
     high: '高',
-    critical: '极高'
-  }
-  return nameMap[level] || level
-}
+    critical: '极高',
+  };
+  return nameMap[level] || level;
+};
 
 // 格式化日期
-const formatDate = (date) => {
-  if (!date) return ''
-  return new Date(date).toLocaleString('zh-CN')
-}
+const formatDate = date => {
+  if (!date) return '';
+  return new Date(date).toLocaleString('zh-CN');
+};
 
 // 加载隐私规则
 const loadPrivacyRules = async () => {
   try {
-    loading.value = true
-    const response = await securityApi.getPrivacyRules()
+    loading.value = true;
+    const response = await securityApi.getPrivacyRules();
 
     if (response.success) {
-      privacyRules.value = response.data
+      privacyRules.value = response.data;
     }
   } catch (error) {
-    ElMessage.error('加载失败')
-    console.error(error)
+    ElMessage.error('加载失败');
+    console.error(error);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 // 加载查看历史
 const loadViewHistory = async () => {
   try {
-    historyLoading.value = true
+    historyLoading.value = true;
     const response = await securityApi.getViewHistory({
       startDate: dateRange.value?.[0],
       endDate: dateRange.value?.[1],
       page: historyPagination.value.page,
-      limit: historyPagination.value.limit
-    })
+      limit: historyPagination.value.limit,
+    });
 
     if (response.success) {
-      viewHistory.value = response.data
+      viewHistory.value = response.data;
       // 假设API返回分页信息
-      historyPagination.value.total = response.data?.length || 0
+      historyPagination.value.total = response.data?.length || 0;
     }
   } catch (error) {
-    ElMessage.error('加载失败')
-    console.error(error)
+    ElMessage.error('加载失败');
+    console.error(error);
   } finally {
-    historyLoading.value = false
+    historyLoading.value = false;
   }
-}
+};
 
 // 切换规则状态
-const toggleRule = async (rule) => {
+const toggleRule = async rule => {
   try {
     const response = await securityApi.upsertPrivacyRule({
       ...rule,
-      _id: rule._id
-    })
+      _id: rule._id,
+    });
 
     if (response.success) {
-      ElMessage.success('状态更新成功')
+      ElMessage.success('状态更新成功');
     } else {
       // 恢复原状态
-      rule.enabled = !rule.enabled
-      ElMessage.error(response.message || '更新失败')
+      rule.enabled = !rule.enabled;
+      ElMessage.error(response.message || '更新失败');
     }
   } catch (error) {
     // 恢复原状态
-    rule.enabled = !rule.enabled
-    ElMessage.error('更新失败')
-    console.error(error)
+    rule.enabled = !rule.enabled;
+    ElMessage.error('更新失败');
+    console.error(error);
   }
-}
+};
 
 // 编辑规则
-const editRule = (rule) => {
-  editingRule.value = rule
+const editRule = rule => {
+  editingRule.value = rule;
   ruleForm.value = {
     name: rule.name,
     code: rule.code,
@@ -426,96 +388,96 @@ const editRule = (rule) => {
     requireFaceAuth: rule.requireFaceAuth,
     viewLimit: rule.viewLimit,
     description: rule.description || '',
-    _id: rule._id
-  }
-  showRuleDialog.value = true
-}
+    _id: rule._id,
+  };
+  showRuleDialog.value = true;
+};
 
 // 保存规则
 const saveRule = async () => {
   try {
-    await ruleFormRef.value.validate()
+    await ruleFormRef.value.validate();
 
-    saving.value = true
-    const response = await securityApi.upsertPrivacyRule(ruleForm.value)
+    saving.value = true;
+    const response = await securityApi.upsertPrivacyRule(ruleForm.value);
 
     if (response.success) {
-      ElMessage.success(editingRule.value ? '更新成功' : '添加成功')
-      showRuleDialog.value = false
-      editingRule.value = null
-      loadPrivacyRules()
+      ElMessage.success(editingRule.value ? '更新成功' : '添加成功');
+      showRuleDialog.value = false;
+      editingRule.value = null;
+      loadPrivacyRules();
     } else {
-      ElMessage.error(response.message || '保存失败')
+      ElMessage.error(response.message || '保存失败');
     }
   } catch (error) {
-    console.error(error)
+    console.error(error);
   } finally {
-    saving.value = false
+    saving.value = false;
   }
-}
+};
 
 // 删除规则
-const deleteRule = async (rule) => {
+const deleteRule = async rule => {
   try {
     await ElMessageBox.confirm('确认删除此规则？', '确认', {
-      type: 'warning'
-    })
+      type: 'warning',
+    });
 
-    const response = await securityApi.deletePrivacyRule(rule._id)
+    const response = await securityApi.deletePrivacyRule(rule._id);
 
     if (response.success) {
-      ElMessage.success('删除成功')
-      loadPrivacyRules()
+      ElMessage.success('删除成功');
+      loadPrivacyRules();
     } else {
-      ElMessage.error(response.message || '删除失败')
+      ElMessage.error(response.message || '删除失败');
     }
   } catch (error) {
     if (error !== 'cancel') {
-      console.error(error)
+      console.error(error);
     }
   }
-}
+};
 
 // 开始人脸识别
 const startFaceAuth = () => {
   // 这里应该调用人脸识别组件
-  ElMessage.info('人脸识别功能开发中...')
+  ElMessage.info('人脸识别功能开发中...');
   // 模拟人脸识别成功
   setTimeout(() => {
-    viewRequest.value.faceVerified = true
-    ElMessage.success('人脸识别成功')
-  }, 2000)
-}
+    viewRequest.value.faceVerified = true;
+    ElMessage.success('人脸识别成功');
+  }, 2000);
+};
 
 // 确认查看
 const confirmView = async () => {
   try {
-    viewing.value = true
+    viewing.value = true;
     const response = await securityApi.requestViewFullInfo({
       fieldType: viewRequest.value.fieldType,
       recordId: viewRequest.value.recordId,
-      faceVerified: viewRequest.value.faceVerified
-    })
+      faceVerified: viewRequest.value.faceVerified,
+    });
 
     if (response.success) {
-      ElMessage.success('验证通过')
-      showViewDialog.value = false
+      ElMessage.success('验证通过');
+      showViewDialog.value = false;
       // 这里应该显示完整信息
     } else {
-      ElMessage.error(response.message || '验证失败')
+      ElMessage.error(response.message || '验证失败');
     }
   } catch (error) {
-    ElMessage.error('请求失败')
-    console.error(error)
+    ElMessage.error('请求失败');
+    console.error(error);
   } finally {
-    viewing.value = false
+    viewing.value = false;
   }
-}
+};
 
 onMounted(() => {
-  loadPrivacyRules()
-  loadViewHistory()
-})
+  loadPrivacyRules();
+  loadViewHistory();
+});
 </script>
 
 <style scoped>

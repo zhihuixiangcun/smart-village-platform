@@ -40,22 +40,10 @@
     <div v-if="showResult && recognizedText" class="result-display">
       <div class="result-text">{{ recognizedText }}</div>
       <div class="result-actions">
-        <el-button
-          type="text"
-          size="small"
-          @click="handleCopy"
-          icon="CopyDocument"
-        >
+        <el-button type="text" size="small" @click="handleCopy" icon="CopyDocument">
           复制
         </el-button>
-        <el-button
-          type="text"
-          size="small"
-          @click="handleClear"
-          icon="Delete"
-        >
-          清除
-        </el-button>
+        <el-button type="text" size="small" @click="handleClear" icon="Delete"> 清除 </el-button>
       </div>
     </div>
 
@@ -92,33 +80,33 @@ const props = defineProps({
   // 是否显示状态提示
   showStatus: {
     type: Boolean,
-    default: true
+    default: true,
   },
   // 是否显示识别结果
   showResult: {
     type: Boolean,
-    default: true
+    default: true,
   },
   // 方言
   dialect: {
     type: String,
-    default: 'mandarin'
+    default: 'mandarin',
   },
   // 是否自动解析命令
   parseCommand: {
     type: Boolean,
-    default: false
+    default: false,
   },
   // 图标大小
   iconSize: {
     type: [String, Number],
-    default: 24
+    default: 24,
   },
   // 最大录音时长（秒）
   maxDuration: {
     type: Number,
-    default: 30
-  }
+    default: 30,
+  },
 });
 
 // Emits
@@ -127,7 +115,7 @@ const emit = defineEmits([
   'interim', // 临时结果事件
   'command', // 命令解析事件
   'error', // 错误事件
-  'statusChange' // 状态改变事件
+  'statusChange', // 状态改变事件
 ]);
 
 // 响应式数据
@@ -148,7 +136,7 @@ let recordingSeconds = 0;
  */
 onMounted(() => {
   recognizer.value = new SpeechRecognizer({
-    dialect: props.dialect
+    dialect: props.dialect,
   });
 
   // 监听事件
@@ -179,11 +167,14 @@ onUnmounted(() => {
 /**
  * 监听方言变化
  */
-watch(() => props.dialect, (newDialect) => {
-  if (recognizer.value) {
-    recognizer.value.setDialect(newDialect);
+watch(
+  () => props.dialect,
+  newDialect => {
+    if (recognizer.value) {
+      recognizer.value.setDialect(newDialect);
+    }
   }
-});
+);
 
 /**
  * 切换录音状态
@@ -247,7 +238,7 @@ const stopListening = () => {
 /**
  * 处理状态变化
  */
-const handleStatusChange = (status) => {
+const handleStatusChange = status => {
   isProcessing.value = status === 'processing';
   emit('statusChange', status);
 };
@@ -255,7 +246,7 @@ const handleStatusChange = (status) => {
 /**
  * 处理识别结果
  */
-const handleResult = (data) => {
+const handleResult = data => {
   const { text, isFinal, confidence } = data;
 
   if (isFinal) {
@@ -278,7 +269,7 @@ const handleResult = (data) => {
 /**
  * 处理临时结果
  */
-const handleInterim = (text) => {
+const handleInterim = text => {
   interimText.value = text;
   emit('interim', text);
 };
@@ -286,7 +277,7 @@ const handleInterim = (text) => {
 /**
  * 处理错误
  */
-const handleError = (error) => {
+const handleError = error => {
   errorMessage.value = error.message;
   emit('error', error);
 
@@ -319,7 +310,7 @@ defineExpose({
   startListening,
   stopListening,
   toggleListening,
-  clear: handleClear
+  clear: handleClear,
 });
 </script>
 
@@ -372,7 +363,8 @@ defineExpose({
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 0 0 rgba(240, 147, 251, 0.4);
   }
   50% {
@@ -423,7 +415,8 @@ defineExpose({
 }
 
 @keyframes wave {
-  0%, 100% {
+  0%,
+  100% {
     height: 10px;
   }
   50% {

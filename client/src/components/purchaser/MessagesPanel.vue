@@ -7,9 +7,7 @@
             <el-icon><ChatDotRound /></el-icon>
             <span>消息中心</span>
           </div>
-          <el-button type="primary" text @click="markAllRead">
-            全部标为已读
-          </el-button>
+          <el-button type="primary" text @click="markAllRead"> 全部标为已读 </el-button>
         </div>
       </template>
 
@@ -68,11 +66,7 @@
       </div>
       <template #footer>
         <el-button @click="detailDialogVisible = false">关闭</el-button>
-        <el-button
-          v-if="currentMessage?.actionUrl"
-          type="primary"
-          @click="handleAction"
-        >
+        <el-button v-if="currentMessage?.actionUrl" type="primary" @click="handleAction">
           查看详情
         </el-button>
       </template>
@@ -81,84 +75,85 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { ElMessage } from 'element-plus'
-import { ChatDotRound, User } from '@element-plus/icons-vue'
-import api from '@/api'
+import { ref } from 'vue';
+import { ElMessage } from 'element-plus';
+import { ChatDotRound, User } from '@element-plus/icons-vue';
+import api from '@/api';
 
 const props = defineProps({
   messages: {
     type: Array,
-    default: () => []
-  }
-})
+    default: () => [],
+  },
+});
 
-const emit = defineEmits(['mark-read'])
+const emit = defineEmits(['mark-read']);
 
-const detailDialogVisible = ref(false)
-const currentMessage = ref(null)
+const detailDialogVisible = ref(false);
+const currentMessage = ref(null);
 
-const defaultAvatar = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ccircle cx="50" cy="50" r="50" fill="%23e0e0e0"/%3E%3C/svg%3E'
+const defaultAvatar =
+  'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ccircle cx="50" cy="50" r="50" fill="%23e0e0e0"/%3E%3C/svg%3E';
 
-const formatTime = (date) => {
-  if (!date) return ''
-  const d = new Date(date)
-  const now = new Date()
-  const diff = now - d
+const formatTime = date => {
+  if (!date) return '';
+  const d = new Date(date);
+  const now = new Date();
+  const diff = now - d;
 
-  if (diff < 60000) return '刚刚'
-  if (diff < 3600000) return `${Math.floor(diff / 60000)}分钟前`
-  if (diff < 86400000) return `${Math.floor(diff / 3600000)}小时前`
-  if (diff < 604800000) return `${Math.floor(diff / 86400000)}天前`
+  if (diff < 60000) return '刚刚';
+  if (diff < 3600000) return `${Math.floor(diff / 60000)}分钟前`;
+  if (diff < 86400000) return `${Math.floor(diff / 3600000)}小时前`;
+  if (diff < 604800000) return `${Math.floor(diff / 86400000)}天前`;
 
-  return d.toLocaleDateString('zh-CN')
-}
+  return d.toLocaleDateString('zh-CN');
+};
 
-const getMessageType = (type) => {
+const getMessageType = type => {
   const types = {
     order: 'warning',
     system: 'info',
     supplier: 'success',
-    promotion: 'danger'
-  }
-  return types[type] || 'info'
-}
+    promotion: 'danger',
+  };
+  return types[type] || 'info';
+};
 
-const getMessageTypeLabel = (type) => {
+const getMessageTypeLabel = type => {
   const labels = {
     order: '订单通知',
     system: '系统通知',
     supplier: '供应商消息',
-    promotion: '促销活动'
-  }
-  return labels[type] || type
-}
+    promotion: '促销活动',
+  };
+  return labels[type] || type;
+};
 
-const handleClickMessage = (message) => {
-  currentMessage.value = message
-  detailDialogVisible.value = true
+const handleClickMessage = message => {
+  currentMessage.value = message;
+  detailDialogVisible.value = true;
   if (!message.read) {
-    emit('mark-read', message)
+    emit('mark-read', message);
   }
-}
+};
 
 const handleAction = () => {
   if (currentMessage.value?.actionUrl) {
-    window.location.href = currentMessage.value.actionUrl
+    window.location.href = currentMessage.value.actionUrl;
   }
-}
+};
 
 const markAllRead = async () => {
   try {
-    const response = await api.put('/api/v1/purchaser/messages/read-all')
+    const response = await api.put('/api/v1/purchaser/messages/read-all');
     if (response.success) {
-      ElMessage.success('已全部标记为已读')
+      ElMessage.success('已全部标记为已读');
     }
   } catch (error) {
-    console.error('操作失败', error)
-    ElMessage.error('操作失败')
+    console.error('操作失败', error);
+    ElMessage.error('操作失败');
   }
-}
+};
 </script>
 
 <style scoped>

@@ -180,7 +180,7 @@ transportationSchema.statics.findNearby = function(coordinates, maxDistance, fil
       $near: {
         $geometry: {
           type: 'Point',
-          coordinates: coordinates
+          coordinates
         },
         $maxDistance: maxDistance
       }

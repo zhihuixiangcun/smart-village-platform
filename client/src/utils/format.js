@@ -112,7 +112,7 @@ export function formatFileSize(bytes, decimals = 2) {
 
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))  } ${  sizes[i]}`;
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 }
 
 /**
@@ -146,14 +146,14 @@ export function formatNumber(num, separator = ',') {
  */
 export function formatGender(gender) {
   const genderMap = {
-    'male': '男',
-    'female': '女',
-    'M': '男',
-    'F': '女',
-    '1': '男',
-    '2': '女',
-    '男': '男',
-    '女': '女'
+    male: '男',
+    female: '女',
+    M: '男',
+    F: '女',
+    1: '男',
+    2: '女',
+    男: '男',
+    女: '女',
   };
   return genderMap[gender] || gender;
 }
@@ -165,14 +165,14 @@ export function formatGender(gender) {
  */
 export function formatMaritalStatus(status) {
   const statusMap = {
-    'single': '未婚',
-    'married': '已婚',
-    'divorced': '离异',
-    'widowed': '丧偶',
-    'unmarried': '未婚',
-    'married': '已婚',
-    'divorce': '离异',
-    'widow': '丧偶'
+    single: '未婚',
+    married: '已婚',
+    divorced: '离异',
+    widowed: '丧偶',
+    unmarried: '未婚',
+    married: '已婚',
+    divorce: '离异',
+    widow: '丧偶',
   };
   return statusMap[status] || status;
 }
@@ -184,22 +184,22 @@ export function formatMaritalStatus(status) {
  */
 export function formatEducation(education) {
   const educationMap = {
-    'primary': '小学',
-    'junior': '初中',
-    'high': '高中',
-    'college': '大专',
-    'bachelor': '本科',
-    'master': '研究生',
-    'doctor': '博士',
-    '小学': '小学',
-    '初中': '初中',
-    '高中': '高中',
-    '中专': '中专',
-    '大专': '大专',
-    '本科': '本科',
-    '研究生': '研究生',
-    '硕士': '硕士',
-    '博士': '博士'
+    primary: '小学',
+    junior: '初中',
+    high: '高中',
+    college: '大专',
+    bachelor: '本科',
+    master: '研究生',
+    doctor: '博士',
+    小学: '小学',
+    初中: '初中',
+    高中: '高中',
+    中专: '中专',
+    大专: '大专',
+    本科: '本科',
+    研究生: '研究生',
+    硕士: '硕士',
+    博士: '博士',
   };
   return educationMap[education] || education;
 }
@@ -211,14 +211,14 @@ export function formatEducation(education) {
  */
 export function formatPoliticalStatus(political) {
   const politicalMap = {
-    'party': '中共党员',
-    'league': '共青团员',
-    'democratic': '民主党派',
-    'masses': '群众',
-    '党员': '中共党员',
-    '团员': '共青团员',
-    '民主党派': '民主党派',
-    '群众': '群众'
+    party: '中共党员',
+    league: '共青团员',
+    democratic: '民主党派',
+    masses: '群众',
+    党员: '中共党员',
+    团员: '共青团员',
+    民主党派: '民主党派',
+    群众: '群众',
   };
   return politicalMap[political] || political;
 }
@@ -230,24 +230,24 @@ export function formatPoliticalStatus(political) {
  */
 export function formatOccupation(occupation) {
   const occupationMap = {
-    'farmer': '农民',
-    'worker': '工人',
-    'teacher': '教师',
-    'doctor': '医生',
-    'official': '公务员',
-    'business': '经商',
-    'student': '学生',
-    'retired': '退休',
-    'unemployed': '待业',
-    '农民': '农民',
-    '工人': '工人',
-    '教师': '教师',
-    '医生': '医生',
-    '公务员': '公务员',
-    '经商': '经商',
-    '学生': '学生',
-    '退休': '退休',
-    '待业': '待业'
+    farmer: '农民',
+    worker: '工人',
+    teacher: '教师',
+    doctor: '医生',
+    official: '公务员',
+    business: '经商',
+    student: '学生',
+    retired: '退休',
+    unemployed: '待业',
+    农民: '农民',
+    工人: '工人',
+    教师: '教师',
+    医生: '医生',
+    公务员: '公务员',
+    经商: '经商',
+    学生: '学生',
+    退休: '退休',
+    待业: '待业',
   };
   return occupationMap[occupation] || occupation;
 }
@@ -259,17 +259,17 @@ export function formatOccupation(occupation) {
  */
 export function formatHouseholdType(type) {
   const typeMap = {
-    'normal': '普通住户',
-    'lowIncome': '低保户',
-    'singleChild': '独生子女户',
-    'elderly': '独居老人',
-    'disabled': '残疾家庭',
-    'household': '普通住户',
-    '五保户': '五保户',
-    '低保户': '低保户',
-    '独生子女户': '独生子女户',
-    '独居老人': '独居老人',
-    '残疾家庭': '残疾家庭'
+    normal: '普通住户',
+    lowIncome: '低保户',
+    singleChild: '独生子女户',
+    elderly: '独居老人',
+    disabled: '残疾家庭',
+    household: '普通住户',
+    五保户: '五保户',
+    低保户: '低保户',
+    独生子女户: '独生子女户',
+    独居老人: '独居老人',
+    残疾家庭: '残疾家庭',
   };
   return typeMap[type] || type;
 }

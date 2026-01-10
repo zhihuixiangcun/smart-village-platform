@@ -8,9 +8,9 @@ export class FinanceNotificationService {
     this.notificationSystem = useNotificationSystem();
     this.thresholds = {
       budgetWarning: 0.8, // 预算使用率80%警告
-      budgetDanger: 0.9,  // 预算使用率90%危险
+      budgetDanger: 0.9, // 预算使用率90%危险
       largeExpense: 10000, // 大额支出阈值
-      urgentApproval: 24   // 紧急审批时长（小时）
+      urgentApproval: 24, // 紧急审批时长（小时）
     };
 
     this.init();
@@ -29,16 +29,22 @@ export class FinanceNotificationService {
    */
   startPeriodicChecks() {
     // 每30分钟检查一次
-    setInterval(() => {
-      this.checkBudgetStatus();
-      this.checkPendingApprovals();
-      this.checkUnusualExpenses();
-    }, 30 * 60 * 1000);
+    setInterval(
+      () => {
+        this.checkBudgetStatus();
+        this.checkPendingApprovals();
+        this.checkUnusualExpenses();
+      },
+      30 * 60 * 1000
+    );
 
     // 每天检查月度汇总
-    setInterval(() => {
-      this.checkMonthlyReports();
-    }, 24 * 60 * 60 * 1000);
+    setInterval(
+      () => {
+        this.checkMonthlyReports();
+      },
+      24 * 60 * 60 * 1000
+    );
   }
 
   /**
@@ -63,14 +69,14 @@ export class FinanceNotificationService {
               {
                 text: '查看详情',
                 type: 'primary',
-                handler: () => this.viewBudgetDetail(budget.id)
+                handler: () => this.viewBudgetDetail(budget.id),
               },
               {
                 text: '申请调整',
                 type: 'warning',
-                handler: () => this.requestBudgetAdjustment(budget.id)
-              }
-            ]
+                handler: () => this.requestBudgetAdjustment(budget.id),
+              },
+            ],
           });
         } else if (usageRate >= this.thresholds.budgetWarning) {
           this.notificationSystem.showBudgetWarning({
@@ -82,9 +88,9 @@ export class FinanceNotificationService {
               {
                 text: '查看详情',
                 type: 'primary',
-                handler: () => this.viewBudgetDetail(budget.id)
-              }
-            ]
+                handler: () => this.viewBudgetDetail(budget.id),
+              },
+            ],
           });
         }
 
@@ -94,7 +100,7 @@ export class FinanceNotificationService {
             title: '📊 预算执行异常',
             message: `${budget.category}预算执行进度异常，建议检查支出计划。`,
             priority: 'high',
-            data: { budgetId: budget.id, anomaly: true }
+            data: { budgetId: budget.id, anomaly: true },
           });
         }
       });
@@ -123,21 +129,21 @@ export class FinanceNotificationService {
               {
                 text: '立即审批',
                 type: 'primary',
-                handler: () => this.openApprovalDetail(approval.id)
+                handler: () => this.openApprovalDetail(approval.id),
               },
               {
                 text: '委托他人',
                 type: 'warning',
-                handler: () => this.delegateApproval(approval.id)
-              }
-            ]
+                handler: () => this.delegateApproval(approval.id),
+              },
+            ],
           });
         } else if (approval.priority === 'urgent' && pendingHours >= 2) {
           this.notificationSystem.showApprovalNotification({
             title: '⚡ 紧急审批提醒',
             message: `紧急审批${approval.title}已等待${pendingHours}小时，请优先处理！`,
             priority: 'urgent',
-            data: { approvalId: approval.id }
+            data: { approvalId: approval.id },
           });
         }
 
@@ -147,7 +153,7 @@ export class FinanceNotificationService {
             title: '💸 大额支出审批',
             message: `大额支出审批${approval.title}(¥${approval.amount.toLocaleString()})需要您的关注。`,
             priority: 'high',
-            data: { approvalId: approval.id, largeAmount: true }
+            data: { approvalId: approval.id, largeAmount: true },
           });
         }
       });
@@ -174,14 +180,14 @@ export class FinanceNotificationService {
             {
               text: '查看详情',
               type: 'primary',
-              handler: () => this.viewExpenseDetail(expense.id)
+              handler: () => this.viewExpenseDetail(expense.id),
             },
             {
               text: '标记正常',
               type: 'success',
-              handler: () => this.markExpenseNormal(expense.id)
-            }
-          ]
+              handler: () => this.markExpenseNormal(expense.id),
+            },
+          ],
         });
       });
     } catch (error) {
@@ -209,14 +215,14 @@ export class FinanceNotificationService {
           {
             text: '查看报告',
             type: 'primary',
-            handler: () => this.viewMonthlyReport(lastMonth)
+            handler: () => this.viewMonthlyReport(lastMonth),
           },
           {
             text: '导出数据',
             type: 'default',
-            handler: () => this.exportMonthlyData(lastMonth)
-          }
-        ]
+            handler: () => this.exportMonthlyData(lastMonth),
+          },
+        ],
       });
     }
   }
@@ -248,20 +254,20 @@ export class FinanceNotificationService {
       data: {
         approvalId: approval.id,
         aiSuggestion: suggestion,
-        isNew: true
+        isNew: true,
       },
       actions: [
         {
           text: '立即审批',
           type: 'primary',
-          handler: () => this.openApprovalDetail(approval.id)
+          handler: () => this.openApprovalDetail(approval.id),
         },
         {
           text: 'AI建议',
           type: 'info',
-          handler: () => this.showAISuggestion(suggestion)
-        }
-      ]
+          handler: () => this.showAISuggestion(suggestion),
+        },
+      ],
     });
   }
 
@@ -273,7 +279,7 @@ export class FinanceNotificationService {
       title: result === 'approved' ? '✅ 审批通过' : '❌ 审批驳回',
       message: `您的申请${approval.title}已${result === 'approved' ? '通过审批' : '被驳回'}。`,
       priority: 'normal',
-      data: { approvalId: approval.id, result }
+      data: { approvalId: approval.id, result },
     };
 
     if (result === 'approved') {
@@ -281,21 +287,21 @@ export class FinanceNotificationService {
         {
           text: '查看详情',
           type: 'primary',
-          handler: () => this.viewApprovalResult(approval.id)
-        }
+          handler: () => this.viewApprovalResult(approval.id),
+        },
       ];
     } else {
       applicantNotification.actions = [
         {
           text: '查看原因',
           type: 'primary',
-          handler: () => this.viewRejectionReason(approval.id)
+          handler: () => this.viewRejectionReason(approval.id),
         },
         {
           text: '重新申请',
           type: 'warning',
-          handler: () => this.reapplyApproval(approval.id)
-        }
+          handler: () => this.reapplyApproval(approval.id),
+        },
       ];
     }
 
@@ -335,14 +341,14 @@ export class FinanceNotificationService {
         {
           text: '立即处理',
           type: 'danger',
-          handler: () => this.handleEmergency(alert)
+          handler: () => this.handleEmergency(alert),
         },
         {
           text: '查看详情',
           type: 'primary',
-          handler: () => this.viewEmergencyDetail(alert.id)
-        }
-      ]
+          handler: () => this.viewEmergencyDetail(alert.id),
+        },
+      ],
     });
   }
 
@@ -351,7 +357,7 @@ export class FinanceNotificationService {
     // 模拟数据，实际项目中从API获取
     return [
       { id: 1, category: '基础设施', used: 220000, total: 300000, period: '2025-01' },
-      { id: 2, category: '日常运营', used: 85000, total: 100000, period: '2025-01' }
+      { id: 2, category: '日常运营', used: 85000, total: 100000, period: '2025-01' },
     ];
   }
 
@@ -363,8 +369,8 @@ export class FinanceNotificationService {
         title: '村道维修费用',
         amount: 25000,
         priority: 'urgent',
-        submitTime: new Date(Date.now() - 26 * 60 * 60 * 1000) // 26小时前
-      }
+        submitTime: new Date(Date.now() - 26 * 60 * 60 * 1000), // 26小时前
+      },
     ];
   }
 
@@ -413,7 +419,7 @@ export class FinanceNotificationService {
     // 简化的AI分析
     return {
       riskLevel: approval.amount > 20000 ? 'high' : 'low',
-      riskScore: approval.amount > 20000 ? 75 : 25
+      riskScore: approval.amount > 20000 ? 75 : 25,
     };
   }
 

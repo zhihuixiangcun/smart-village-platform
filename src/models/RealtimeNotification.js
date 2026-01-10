@@ -175,7 +175,7 @@ const realtimeNotificationSchema = new mongoose.Schema({
   // 过期时间
   expiresAt: {
     type: Date,
-    default: function() {
+    default() {
       // 默认30天后过期
       const date = new Date();
       date.setDate(date.getDate() + 30);

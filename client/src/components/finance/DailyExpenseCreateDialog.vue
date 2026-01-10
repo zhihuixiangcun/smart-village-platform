@@ -19,7 +19,7 @@
           <template #header>
             <span class="section-title">基本信息</span>
           </template>
-          
+
           <el-row :gutter="20">
             <el-col :span="24">
               <el-form-item label="开支标题" prop="expenseTitle">
@@ -32,11 +32,15 @@
               </el-form-item>
             </el-col>
           </el-row>
-          
+
           <el-row :gutter="20">
             <el-col :span="12">
               <el-form-item label="开支分类" prop="expenseCategory">
-                <el-select v-model="form.expenseCategory" placeholder="选择开支分类" class="full-width">
+                <el-select
+                  v-model="form.expenseCategory"
+                  placeholder="选择开支分类"
+                  class="full-width"
+                >
                   <el-option label="办公用品" value="office_supplies" />
                   <el-option label="水电费" value="utilities" />
                   <el-option label="通讯费" value="communication" />
@@ -58,14 +62,14 @@
                 </el-select>
               </el-form-item>
             </el-col>
-            
+
             <el-col :span="12">
               <el-form-item label="子分类">
                 <el-input v-model="form.subCategory" placeholder="子分类（可选）" />
               </el-form-item>
             </el-col>
           </el-row>
-          
+
           <el-row :gutter="20">
             <el-col :span="12">
               <el-form-item label="开支金额" prop="amount">
@@ -79,7 +83,7 @@
                 />
               </el-form-item>
             </el-col>
-            
+
             <el-col :span="12">
               <el-form-item label="开支日期" prop="expenseDate">
                 <el-date-picker
@@ -93,7 +97,7 @@
               </el-form-item>
             </el-col>
           </el-row>
-          
+
           <el-row :gutter="20">
             <el-col :span="12">
               <el-form-item label="紧急程度">
@@ -104,7 +108,7 @@
                 </el-radio-group>
               </el-form-item>
             </el-col>
-            
+
             <el-col :span="12">
               <el-form-item label="预算类型">
                 <el-radio-group v-model="form.budgetType">
@@ -115,7 +119,7 @@
               </el-form-item>
             </el-col>
           </el-row>
-          
+
           <el-form-item label="开支描述">
             <el-input
               v-model="form.description"
@@ -133,11 +137,15 @@
           <template #header>
             <span class="section-title">付款信息</span>
           </template>
-          
+
           <el-row :gutter="20">
             <el-col :span="12">
               <el-form-item label="付款方式">
-                <el-select v-model="form.paymentMethod" placeholder="选择付款方式" class="full-width">
+                <el-select
+                  v-model="form.paymentMethod"
+                  placeholder="选择付款方式"
+                  class="full-width"
+                >
                   <el-option label="现金" value="cash" />
                   <el-option label="银行转账" value="bank_transfer" />
                   <el-option label="信用卡" value="credit_card" />
@@ -148,14 +156,14 @@
                 </el-select>
               </el-form-item>
             </el-col>
-            
+
             <el-col :span="12">
               <el-form-item label="付款账户">
                 <el-input v-model="form.paymentAccount" placeholder="付款账户（可选）" />
               </el-form-item>
             </el-col>
           </el-row>
-          
+
           <el-row :gutter="20">
             <el-col :span="12">
               <el-form-item label="受益对象">
@@ -169,7 +177,7 @@
                 </el-select>
               </el-form-item>
             </el-col>
-            
+
             <el-col :span="12">
               <el-form-item label="受益详情">
                 <el-input v-model="form.beneficiaryDetails" placeholder="受益对象详情（可选）" />
@@ -188,17 +196,21 @@
               </el-button>
             </div>
           </template>
-          
+
           <el-row :gutter="20">
             <el-col :span="12">
               <el-form-item label="供应商名称">
                 <el-input v-model="form.vendor.vendorName" placeholder="供应商名称" />
               </el-form-item>
             </el-col>
-            
+
             <el-col :span="12">
               <el-form-item label="供应商类型">
-                <el-select v-model="form.vendor.vendorType" placeholder="选择类型" class="full-width">
+                <el-select
+                  v-model="form.vendor.vendorType"
+                  placeholder="选择类型"
+                  class="full-width"
+                >
                   <el-option label="个人" value="individual" />
                   <el-option label="公司" value="company" />
                   <el-option label="政府机构" value="government" />
@@ -207,21 +219,21 @@
               </el-form-item>
             </el-col>
           </el-row>
-          
+
           <el-row :gutter="20">
             <el-col :span="12">
               <el-form-item label="联系方式">
                 <el-input v-model="form.vendor.vendorContact" placeholder="电话/邮箱" />
               </el-form-item>
             </el-col>
-            
+
             <el-col :span="12">
               <el-form-item label="税务识别号">
                 <el-input v-model="form.vendor.taxId" placeholder="税务识别号（可选）" />
               </el-form-item>
             </el-col>
           </el-row>
-          
+
           <el-form-item label="供应商地址">
             <el-input v-model="form.vendor.vendorAddress" placeholder="供应商地址" />
           </el-form-item>
@@ -238,11 +250,11 @@
               </el-button>
             </div>
           </template>
-          
+
           <div v-if="form.items.length === 0" class="empty-items">
             <el-empty description="暂无物品信息" :image-size="80" />
           </div>
-          
+
           <div v-else class="items-list">
             <div v-for="(item, index) in form.items" :key="index" class="item-row">
               <el-row :gutter="12" align="middle">
@@ -310,12 +322,16 @@
               />
             </div>
           </template>
-          
+
           <div v-if="form.recurringInfo.isRecurring">
             <el-row :gutter="20">
               <el-col :span="12">
                 <el-form-item label="重复频率">
-                  <el-select v-model="form.recurringInfo.frequency" placeholder="选择频率" class="full-width">
+                  <el-select
+                    v-model="form.recurringInfo.frequency"
+                    placeholder="选择频率"
+                    class="full-width"
+                  >
                     <el-option label="每日" value="daily" />
                     <el-option label="每周" value="weekly" />
                     <el-option label="每月" value="monthly" />
@@ -324,7 +340,7 @@
                   </el-select>
                 </el-form-item>
               </el-col>
-              
+
               <el-col :span="12">
                 <el-form-item label="下次到期">
                   <el-date-picker
@@ -338,7 +354,7 @@
                 </el-form-item>
               </el-col>
             </el-row>
-            
+
             <el-row :gutter="20">
               <el-col :span="12">
                 <el-form-item label="定期金额">
@@ -351,7 +367,7 @@
                   />
                 </el-form-item>
               </el-col>
-              
+
               <el-col :span="12">
                 <el-form-item label="自动审批">
                   <el-switch
@@ -376,7 +392,7 @@
               </el-button>
             </div>
           </template>
-          
+
           <el-tabs v-model="activeVoucherTab">
             <el-tab-pane label="发票" name="invoices">
               <el-upload
@@ -399,7 +415,7 @@
                 </template>
               </el-upload>
             </el-tab-pane>
-            
+
             <el-tab-pane label="收据" name="receipts">
               <el-upload
                 ref="receiptUploadRef"
@@ -421,7 +437,7 @@
                 </template>
               </el-upload>
             </el-tab-pane>
-            
+
             <el-tab-pane label="审批文件" name="approvals">
               <el-upload
                 ref="approvalUploadRef"
@@ -451,7 +467,7 @@
           <template #header>
             <span class="section-title">其他信息</span>
           </template>
-          
+
           <el-form-item label="标签">
             <el-tag
               v-for="tag in form.tags"
@@ -476,7 +492,7 @@
               添加标签
             </el-button>
           </el-form-item>
-          
+
           <el-form-item label="备注">
             <el-input
               v-model="form.remarks"
@@ -495,65 +511,58 @@
       <div class="dialog-footer">
         <el-button @click="handleClose">取消</el-button>
         <el-button @click="handleSaveDraft" :loading="saving">保存草稿</el-button>
-        <el-button type="primary" @click="handleSubmit" :loading="submitting">
-          提交审批
-        </el-button>
+        <el-button type="primary" @click="handleSubmit" :loading="submitting"> 提交审批 </el-button>
       </div>
     </template>
 
     <!-- OCR识别对话框 -->
-    <invoice-o-c-r-dialog
-      v-model="showOCRDialog"
-      @recognized="handleOCRResult"
-    />
+    <invoice-o-c-r-dialog v-model="showOCRDialog" @recognized="handleOCRResult" />
   </el-dialog>
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch, nextTick } from 'vue'
-import { ElMessage } from 'element-plus'
-import { 
-  Plus, Delete, Upload, Camera 
-} from '@element-plus/icons-vue'
-import { dailyExpenseApi } from '@/api/dailyExpense'
-import { useUserStore } from '@/store/user'
-import InvoiceOCRDialog from './InvoiceOCRDialog.vue'
+import { ref, reactive, computed, watch, nextTick } from 'vue';
+import { ElMessage } from 'element-plus';
+import { Plus, Delete, Upload, Camera } from '@element-plus/icons-vue';
+import { dailyExpenseApi } from '@/api/dailyExpense';
+import { useUserStore } from '@/store/user';
+import InvoiceOCRDialog from './InvoiceOCRDialog.vue';
 
 const props = defineProps({
   modelValue: {
     type: Boolean,
-    default: false
+    default: false,
   },
   expense: {
     type: Object,
-    default: null
-  }
-})
+    default: null,
+  },
+});
 
-const emit = defineEmits(['update:modelValue', 'created'])
+const emit = defineEmits(['update:modelValue', 'created']);
 
-const userStore = useUserStore()
+const userStore = useUserStore();
 
 // 响应式数据
-const formRef = ref()
-const tagInputRef = ref()
+const formRef = ref();
+const tagInputRef = ref();
 const visible = computed({
   get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
-})
+  set: value => emit('update:modelValue', value),
+});
 
-const saving = ref(false)
-const submitting = ref(false)
-const showOCRDialog = ref(false)
-const showVendorSelector = ref(false)
-const activeVoucherTab = ref('invoices')
-const tagInputVisible = ref(false)
-const tagInputValue = ref('')
+const saving = ref(false);
+const submitting = ref(false);
+const showOCRDialog = ref(false);
+const showVendorSelector = ref(false);
+const activeVoucherTab = ref('invoices');
+const tagInputVisible = ref(false);
+const tagInputValue = ref('');
 
 // 文件列表
-const invoiceFileList = ref([])
-const receiptFileList = ref([])
-const approvalFileList = ref([])
+const invoiceFileList = ref([]);
+const receiptFileList = ref([]);
+const approvalFileList = ref([]);
 
 // 表单数据
 const form = reactive({
@@ -574,7 +583,7 @@ const form = reactive({
     vendorType: 'company',
     vendorContact: '',
     vendorAddress: '',
-    taxId: ''
+    taxId: '',
   },
   items: [],
   recurringInfo: {
@@ -582,69 +591,65 @@ const form = reactive({
     frequency: 'monthly',
     nextDueDate: '',
     recurringAmount: null,
-    autoApprove: false
+    autoApprove: false,
   },
   tags: [],
-  remarks: ''
-})
+  remarks: '',
+});
 
 // 表单验证规则
 const rules = {
   expenseTitle: [
     { required: true, message: '请输入开支标题', trigger: 'blur' },
-    { min: 2, max: 200, message: '标题长度在 2 到 200 个字符', trigger: 'blur' }
+    { min: 2, max: 200, message: '标题长度在 2 到 200 个字符', trigger: 'blur' },
   ],
-  expenseCategory: [
-    { required: true, message: '请选择开支分类', trigger: 'change' }
-  ],
+  expenseCategory: [{ required: true, message: '请选择开支分类', trigger: 'change' }],
   amount: [
     { required: true, message: '请输入开支金额', trigger: 'blur' },
-    { type: 'number', min: 0.01, message: '金额必须大于0', trigger: 'blur' }
+    { type: 'number', min: 0.01, message: '金额必须大于0', trigger: 'blur' },
   ],
-  expenseDate: [
-    { required: true, message: '请选择开支日期', trigger: 'change' }
-  ]
-}
+  expenseDate: [{ required: true, message: '请选择开支日期', trigger: 'change' }],
+};
 
 // 监听器
-watch(visible, (newVal) => {
+watch(visible, newVal => {
   if (newVal) {
-    initForm()
+    initForm();
   } else {
-    resetForm()
+    resetForm();
   }
-})
+});
 
 // 方法
 const initForm = () => {
   if (props.expense) {
     // 编辑模式
-    Object.assign(form, props.expense)
+    Object.assign(form, props.expense);
   } else {
     // 新建模式
-    form.villageId = userStore.currentVillage._id
-    form.villageName = userStore.currentVillage.villageName
+    form.villageId = userStore.currentVillage._id;
+    form.villageName = userStore.currentVillage.villageName;
   }
-}
+};
 
 const resetForm = () => {
-  formRef.value?.resetFields()
-  invoiceFileList.value = []
-  receiptFileList.value = []
-  approvalFileList.value = []
-  tagInputVisible.value = false
-  tagInputValue.value = ''
-}
+  formRef.value?.resetFields();
+  invoiceFileList.value = [];
+  receiptFileList.value = [];
+  approvalFileList.value = [];
+  tagInputVisible.value = false;
+  tagInputValue.value = '';
+};
 
-const handleRecurringToggle = (value) => {
+const handleRecurringToggle = value => {
   if (value && !form.recurringInfo.nextDueDate) {
     // 设置默认下次到期日期
-    const nextMonth = new Date()
-    nextMonth.setMonth(nextMonth.getMonth() + 1)
-    form.recurringInfo.nextDueDate = nextMonth.toISOString().split('T')[0]
-    form.recurringInfo.recurringAmount = form.amount
+    const nextMonth = new Date();
+    nextMonth.setMonth(nextMonth.getMonth() + 1);
+    form.recurringInfo.nextDueDate = nextMonth.toISOString().split('T')[0];
+    form.recurringInfo.recurringAmount = form.amount;
   }
-}
+};
 
 const addItem = () => {
   form.items.push({
@@ -656,175 +661,175 @@ const addItem = () => {
     totalPrice: 0,
     category: '',
     urgent: false,
-    notes: ''
-  })
-}
+    notes: '',
+  });
+};
 
-const removeItem = (index) => {
-  form.items.splice(index, 1)
-}
+const removeItem = index => {
+  form.items.splice(index, 1);
+};
 
-const calculateItemTotal = (item) => {
-  item.totalPrice = (item.quantity || 0) * (item.unitPrice || 0)
-}
+const calculateItemTotal = item => {
+  item.totalPrice = (item.quantity || 0) * (item.unitPrice || 0);
+};
 
 const showTagInput = () => {
-  tagInputVisible.value = true
+  tagInputVisible.value = true;
   nextTick(() => {
-    tagInputRef.value?.focus()
-  })
-}
+    tagInputRef.value?.focus();
+  });
+};
 
 const addTag = () => {
-  const tag = tagInputValue.value.trim()
+  const tag = tagInputValue.value.trim();
   if (tag && !form.tags.includes(tag)) {
-    form.tags.push(tag)
+    form.tags.push(tag);
   }
-  tagInputVisible.value = false
-  tagInputValue.value = ''
-}
+  tagInputVisible.value = false;
+  tagInputValue.value = '';
+};
 
-const removeTag = (tag) => {
-  const index = form.tags.indexOf(tag)
+const removeTag = tag => {
+  const index = form.tags.indexOf(tag);
   if (index > -1) {
-    form.tags.splice(index, 1)
+    form.tags.splice(index, 1);
   }
-}
+};
 
 const handleInvoiceChange = (file, fileList) => {
-  invoiceFileList.value = fileList
-}
+  invoiceFileList.value = fileList;
+};
 
 const handleInvoiceExceed = () => {
-  ElMessage.warning('最多只能上传5个发票文件')
-}
+  ElMessage.warning('最多只能上传5个发票文件');
+};
 
 const handleReceiptChange = (file, fileList) => {
-  receiptFileList.value = fileList
-}
+  receiptFileList.value = fileList;
+};
 
 const handleReceiptExceed = () => {
-  ElMessage.warning('最多只能上传10个收据文件')
-}
+  ElMessage.warning('最多只能上传10个收据文件');
+};
 
 const handleApprovalChange = (file, fileList) => {
-  approvalFileList.value = fileList
-}
+  approvalFileList.value = fileList;
+};
 
 const handleApprovalExceed = () => {
-  ElMessage.warning('最多只能上传3个审批文件')
-}
+  ElMessage.warning('最多只能上传3个审批文件');
+};
 
-const handleOCRResult = (ocrData) => {
+const handleOCRResult = ocrData => {
   // 将OCR识别结果填入表单
   if (ocrData.merchantName) {
-    form.vendor.vendorName = ocrData.merchantName
+    form.vendor.vendorName = ocrData.merchantName;
   }
   if (ocrData.amount) {
-    form.amount = ocrData.amount
+    form.amount = ocrData.amount;
   }
   if (ocrData.date) {
-    form.expenseDate = ocrData.date
+    form.expenseDate = ocrData.date;
   }
   if (ocrData.invoiceNumber) {
-    form.remarks = (form.remarks || '') + `\n发票号码：${ocrData.invoiceNumber}`
+    form.remarks = (form.remarks || '') + `\n发票号码：${ocrData.invoiceNumber}`;
   }
-  
-  ElMessage.success('OCR识别结果已填入表单')
-  showOCRDialog.value = false
-}
+
+  ElMessage.success('OCR识别结果已填入表单');
+  showOCRDialog.value = false;
+};
 
 const validateForm = async () => {
   try {
-    await formRef.value.validate()
-    return true
+    await formRef.value.validate();
+    return true;
   } catch (error) {
-    ElMessage.error('请检查表单填写是否完整')
-    return false
+    ElMessage.error('请检查表单填写是否完整');
+    return false;
   }
-}
+};
 
 const prepareFormData = () => {
-  const formData = new FormData()
-  
+  const formData = new FormData();
+
   // 添加表单数据
   Object.keys(form).forEach(key => {
     if (key === 'vendor' || key === 'recurringInfo') {
-      formData.append(key, JSON.stringify(form[key]))
+      formData.append(key, JSON.stringify(form[key]));
     } else if (key === 'items' || key === 'tags') {
-      formData.append(key, JSON.stringify(form[key]))
+      formData.append(key, JSON.stringify(form[key]));
     } else if (form[key] !== null && form[key] !== undefined && form[key] !== '') {
-      formData.append(key, form[key])
+      formData.append(key, form[key]);
     }
-  })
-  
+  });
+
   // 添加文件
   invoiceFileList.value.forEach(file => {
     if (file.raw) {
-      formData.append('invoices', file.raw)
+      formData.append('invoices', file.raw);
     }
-  })
-  
+  });
+
   receiptFileList.value.forEach(file => {
     if (file.raw) {
-      formData.append('receipts', file.raw)
+      formData.append('receipts', file.raw);
     }
-  })
-  
+  });
+
   approvalFileList.value.forEach(file => {
     if (file.raw) {
-      formData.append('approvalDocuments', file.raw)
+      formData.append('approvalDocuments', file.raw);
     }
-  })
-  
-  return formData
-}
+  });
+
+  return formData;
+};
 
 const handleSaveDraft = async () => {
-  const isValid = await validateForm()
-  if (!isValid) return
-  
+  const isValid = await validateForm();
+  if (!isValid) return;
+
   try {
-    saving.value = true
-    const formData = prepareFormData()
-    formData.append('status', 'draft')
-    
-    const response = await dailyExpenseApi.createExpense(formData)
-    
-    ElMessage.success('草稿保存成功')
-    emit('created', response.data)
-    handleClose()
+    saving.value = true;
+    const formData = prepareFormData();
+    formData.append('status', 'draft');
+
+    const response = await dailyExpenseApi.createExpense(formData);
+
+    ElMessage.success('草稿保存成功');
+    emit('created', response.data);
+    handleClose();
   } catch (error) {
-    ElMessage.error('保存草稿失败：' + error.message)
+    ElMessage.error('保存草稿失败：' + error.message);
   } finally {
-    saving.value = false
+    saving.value = false;
   }
-}
+};
 
 const handleSubmit = async () => {
-  const isValid = await validateForm()
-  if (!isValid) return
-  
+  const isValid = await validateForm();
+  if (!isValid) return;
+
   try {
-    submitting.value = true
-    const formData = prepareFormData()
-    formData.append('status', 'pending_approval')
-    
-    const response = await dailyExpenseApi.createExpense(formData)
-    
-    ElMessage.success('开支记录创建成功，已提交审批')
-    emit('created', response.data)
-    handleClose()
+    submitting.value = true;
+    const formData = prepareFormData();
+    formData.append('status', 'pending_approval');
+
+    const response = await dailyExpenseApi.createExpense(formData);
+
+    ElMessage.success('开支记录创建成功，已提交审批');
+    emit('created', response.data);
+    handleClose();
   } catch (error) {
-    ElMessage.error('提交失败：' + error.message)
+    ElMessage.error('提交失败：' + error.message);
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
-}
+};
 
 const handleClose = () => {
-  visible.value = false
-}
+  visible.value = false;
+};
 </script>
 
 <style scoped>
@@ -901,23 +906,23 @@ const handleClose = () => {
   .create-expense-dialog {
     padding: 0;
   }
-  
+
   .section-header {
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
   }
-  
+
   .item-row .el-col {
     margin-bottom: 8px;
   }
-  
+
   .dialog-footer {
     display: flex;
     flex-direction: column;
     gap: 8px;
   }
-  
+
   .dialog-footer .el-button {
     margin-left: 0;
     width: 100%;

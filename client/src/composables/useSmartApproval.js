@@ -13,7 +13,7 @@ export function useSmartApproval() {
       approved: true,
       approvalTime: 2.5, // 小时
       riskFactors: ['amount_high'],
-      season: 'spring'
+      season: 'spring',
     },
     {
       category: 'office',
@@ -22,7 +22,7 @@ export function useSmartApproval() {
       approved: true,
       approvalTime: 0.5,
       riskFactors: [],
-      season: 'winter'
+      season: 'winter',
     },
     {
       category: 'culture',
@@ -31,7 +31,7 @@ export function useSmartApproval() {
       approved: true,
       approvalTime: 1.0,
       riskFactors: ['seasonal'],
-      season: 'spring'
+      season: 'spring',
     },
     // 更多历史数据...
   ]);
@@ -44,7 +44,7 @@ export function useSmartApproval() {
       high: { threshold: 20000, score: 70, message: '金额较大，建议仔细审核' },
       medium: { threshold: 10000, score: 40, message: '金额适中，常规审核' },
       low: { threshold: 5000, score: 20, message: '小额支出，可快速审批' },
-      veryLow: { threshold: 1000, score: 10, message: '小额支出，建议自动通过' }
+      veryLow: { threshold: 1000, score: 10, message: '小额支出，建议自动通过' },
     },
 
     // 申请人信用评级
@@ -52,7 +52,7 @@ export function useSmartApproval() {
       excellent: { score: 5, message: '申请人信用优秀' },
       good: { score: 15, message: '申请人信用良好' },
       fair: { score: 30, message: '申请人信用一般' },
-      poor: { score: 60, message: '申请人信用较差，需谨慎审核' }
+      poor: { score: 60, message: '申请人信用较差，需谨慎审核' },
     },
 
     // 支出类别风险
@@ -61,21 +61,21 @@ export function useSmartApproval() {
       infrastructure: { score: 50, message: '基础设施支出，需核实工程必要性' },
       operation: { score: 30, message: '日常运营支出，常规审核' },
       culture: { score: 25, message: '文化活动支出，核实活动合理性' },
-      office: { score: 20, message: '办公用品支出，低风险' }
+      office: { score: 20, message: '办公用品支出，低风险' },
     },
 
     // 时间风险
     timeRisk: {
       endOfYear: { score: 40, message: '年末支出，注意预算执行情况' },
       holiday: { score: 30, message: '节假日期间，注意必要性' },
-      normal: { score: 10, message: '正常时期支出' }
+      normal: { score: 10, message: '正常时期支出' },
     },
 
     // 频率风险
     frequencyRisk: {
       tooFrequent: { score: 50, message: '同类支出频繁，需注意是否合理' },
-      normal: { score: 10, message: '支出频率正常' }
-    }
+      normal: { score: 10, message: '支出频率正常' },
+    },
   };
 
   /**
@@ -83,14 +83,14 @@ export function useSmartApproval() {
    * @param {Object} application - 审批申请对象
    * @returns {Object} 审批建议结果
    */
-  const calculateApprovalSuggestion = (application) => {
+  const calculateApprovalSuggestion = application => {
     const {
       amount,
       category,
       applicant,
       submitTime,
       description,
-      urgency = 'normal'
+      urgency = 'normal',
     } = application;
 
     let totalRiskScore = 0;
@@ -145,12 +145,12 @@ export function useSmartApproval() {
       estimatedApprovalTime: estimateApprovalTime(totalRiskScore, amount),
       requiredApprovers: getRequiredApprovers(totalRiskScore, amount),
       warnings: generateWarnings(riskFactors),
-      nextSteps: generateNextSteps(finalRecommendation.action)
+      nextSteps: generateNextSteps(finalRecommendation.action),
     };
   };
 
   // 金额风险评估
-  const assessAmountRisk = (amount) => {
+  const assessAmountRisk = amount => {
     const rules = riskRules.amount;
 
     if (amount >= rules.veryHigh.threshold) {
@@ -167,44 +167,44 @@ export function useSmartApproval() {
   };
 
   // 申请人信用评估（简化版，实际项目中需要完整的信用评分系统）
-  const assessApplicantCredit = (applicant) => {
+  const assessApplicantCredit = applicant => {
     // 模拟信用评分逻辑
     const creditScores = {
-      '张建设': 'good',
-      '李文化': 'excellent',
-      '王会计': 'excellent',
-      '赵财务': 'good',
-      '孙清洁': 'fair'
+      张建设: 'good',
+      李文化: 'excellent',
+      王会计: 'excellent',
+      赵财务: 'good',
+      孙清洁: 'fair',
     };
 
     const creditLevel = creditScores[applicant] || 'fair';
     return {
       type: 'credit',
       level: creditLevel,
-      ...riskRules.applicantCredit[creditLevel]
+      ...riskRules.applicantCredit[creditLevel],
     };
   };
 
   // 支出类别风险评估
-  const assessCategoryRisk = (category) => {
+  const assessCategoryRisk = category => {
     const categoryMap = {
-      'infrastructure': 'infrastructure',
-      'operation': 'operation',
-      'culture': 'culture',
-      'office': 'office',
-      'emergency': 'emergency'
+      infrastructure: 'infrastructure',
+      operation: 'operation',
+      culture: 'culture',
+      office: 'office',
+      emergency: 'emergency',
     };
 
     const riskCategory = categoryMap[category] || 'operation';
     return {
       type: 'category',
       level: riskCategory,
-      ...riskRules.categoryRisk[riskCategory]
+      ...riskRules.categoryRisk[riskCategory],
     };
   };
 
   // 时间风险评估
-  const assessTimeRisk = (submitTime) => {
+  const assessTimeRisk = submitTime => {
     const date = new Date(submitTime);
     const month = date.getMonth() + 1;
     const day = date.getDate();
@@ -219,7 +219,7 @@ export function useSmartApproval() {
       { month: 1, days: [1] }, // 元旦
       { month: 2, days: [14] }, // 春节（简化）
       { month: 5, days: [1] }, // 劳动节
-      { month: 10, days: [1] }  // 国庆节
+      { month: 10, days: [1] }, // 国庆节
     ];
 
     for (const holiday of holidays) {
@@ -236,9 +236,11 @@ export function useSmartApproval() {
     // 统计最近30天内同类申请次数
     const recentApplications = historicalData.value.filter(item => {
       const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-      return item.applicant === applicant &&
-             item.category === category &&
-             new Date(item.submitTime) > thirtyDaysAgo;
+      return (
+        item.applicant === applicant &&
+        item.category === category &&
+        new Date(item.submitTime) > thirtyDaysAgo
+      );
     });
 
     if (recentApplications.length >= 3) {
@@ -249,30 +251,34 @@ export function useSmartApproval() {
   };
 
   // 查找相似案例
-  const findSimilarCases = (application) => {
-    return historicalData.value.filter(item => {
-      const amountSimilar = Math.abs(item.amount - application.amount) <= application.amount * 0.3;
-      const categorySame = item.category === application.category;
-      const applicantSame = item.applicant === application.applicant;
+  const findSimilarCases = application => {
+    return historicalData.value
+      .filter(item => {
+        const amountSimilar =
+          Math.abs(item.amount - application.amount) <= application.amount * 0.3;
+        const categorySame = item.category === application.category;
+        const applicantSame = item.applicant === application.applicant;
 
-      return amountSimilar && (categorySame || applicantSame);
-    }).slice(0, 5); // 返回最多5个相似案例
+        return amountSimilar && (categorySame || applicantSame);
+      })
+      .slice(0, 5); // 返回最多5个相似案例
   };
 
   // 分析相似案例
-  const analyzeSimilarCases = (similarCases) => {
+  const analyzeSimilarCases = similarCases => {
     if (similarCases.length === 0) {
       return {
         approvalRate: 0,
         averageApprovalTime: 0,
         commonRiskFactors: [],
-        recommendation: '无历史相似案例参考'
+        recommendation: '无历史相似案例参考',
       };
     }
 
     const approvedCases = similarCases.filter(case_ => case_.approved);
     const approvalRate = (approvedCases.length / similarCases.length) * 100;
-    const averageApprovalTime = approvedCases.reduce((sum, case_) => sum + case_.approvalTime, 0) / approvedCases.length;
+    const averageApprovalTime =
+      approvedCases.reduce((sum, case_) => sum + case_.approvalTime, 0) / approvedCases.length;
 
     // 统计常见风险因素
     const riskFactorCounts = {};
@@ -290,7 +296,7 @@ export function useSmartApproval() {
       approvalRate: Math.round(approvalRate),
       averageApprovalTime: Math.round(averageApprovalTime * 10) / 10,
       commonRiskFactors,
-      recommendation: generateHistoricalRecommendation(approvalRate, averageApprovalTime)
+      recommendation: generateHistoricalRecommendation(approvalRate, averageApprovalTime),
     };
   };
 
@@ -344,7 +350,7 @@ export function useSmartApproval() {
       priority,
       reason,
       confidence,
-      estimatedTime: estimateApprovalTime(riskScore, 0)
+      estimatedTime: estimateApprovalTime(riskScore, 0),
     };
   };
 
@@ -378,7 +384,7 @@ export function useSmartApproval() {
   };
 
   // 生成风险等级
-  const getRiskLevel = (score) => {
+  const getRiskLevel = score => {
     if (score <= 30) return 'low';
     if (score <= 50) return 'medium';
     if (score <= 70) return 'high';
@@ -386,7 +392,7 @@ export function useSmartApproval() {
   };
 
   // 生成警告信息
-  const generateWarnings = (riskFactors) => {
+  const generateWarnings = riskFactors => {
     const warnings = [];
 
     riskFactors.forEach(factor => {
@@ -394,13 +400,13 @@ export function useSmartApproval() {
         warnings.push({
           level: 'error',
           message: factor.message,
-          suggestion: getWarningActionSuggestion(factor.type)
+          suggestion: getWarningActionSuggestion(factor.type),
         });
       } else if (factor.score >= 40) {
         warnings.push({
           level: 'warning',
           message: factor.message,
-          suggestion: getWarningActionSuggestion(factor.type)
+          suggestion: getWarningActionSuggestion(factor.type),
         });
       }
     });
@@ -409,42 +415,24 @@ export function useSmartApproval() {
   };
 
   // 获取警告处理建议
-  const getWarningActionSuggestion = (type) => {
+  const getWarningActionSuggestion = type => {
     const suggestions = {
       amount: '建议核实支出必要性和预算情况',
       credit: '建议查看申请人历史记录',
       category: '建议核实该类别支出的合规性',
       time: '建议确认支出时间的合理性',
-      frequency: '建议核实是否存在重复申请'
+      frequency: '建议核实是否存在重复申请',
     };
     return suggestions[type] || '建议进一步核实';
   };
 
   // 生成后续步骤
-  const generateNextSteps = (action) => {
+  const generateNextSteps = action => {
     const steps = {
-      auto_approve: [
-        '系统自动审批通过',
-        '通知申请人',
-        '记录审批日志'
-      ],
-      fast_approve: [
-        '值班人员快速审核',
-        '确认基本信息无误',
-        '批准并通知申请人'
-      ],
-      careful_review: [
-        '主管部门仔细审核',
-        '核实相关材料',
-        '必要时进行实地核查',
-        '做出审批决定'
-      ],
-      detailed_review: [
-        '多级审批流程',
-        '详细核实所有材料',
-        '召开审批会议讨论',
-        '谨慎做出最终决定'
-      ]
+      auto_approve: ['系统自动审批通过', '通知申请人', '记录审批日志'],
+      fast_approve: ['值班人员快速审核', '确认基本信息无误', '批准并通知申请人'],
+      careful_review: ['主管部门仔细审核', '核实相关材料', '必要时进行实地核查', '做出审批决定'],
+      detailed_review: ['多级审批流程', '详细核实所有材料', '召开审批会议讨论', '谨慎做出最终决定'],
     };
     return steps[action] || ['按标准流程审批'];
   };
@@ -452,6 +440,6 @@ export function useSmartApproval() {
   return {
     calculateApprovalSuggestion,
     historicalData,
-    riskRules
+    riskRules,
   };
 }

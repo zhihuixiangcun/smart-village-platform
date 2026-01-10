@@ -17,7 +17,7 @@ export const useResidentStore = defineStore('resident', () => {
     households: 0,
     elderly: 0,
     children: 0,
-    partyMembers: 0
+    partyMembers: 0,
   });
 
   // 加载状态
@@ -29,7 +29,7 @@ export const useResidentStore = defineStore('resident', () => {
   const pagination = reactive({
     page: 1,
     pageSize: 10,
-    total: 0
+    total: 0,
   });
 
   // 搜索条件
@@ -38,7 +38,7 @@ export const useResidentStore = defineStore('resident', () => {
     gender: '',
     householdType: '',
     healthStatus: '',
-    ageRange: []
+    ageRange: [],
   });
 
   // 计算属性
@@ -58,7 +58,7 @@ export const useResidentStore = defineStore('resident', () => {
         page: pagination.page,
         pageSize: pagination.pageSize,
         ...searchParams,
-        ...params
+        ...params,
       };
 
       const response = await residentApi.getList(queryParams);
@@ -80,7 +80,7 @@ export const useResidentStore = defineStore('resident', () => {
    * @param {string|number} id 村民ID
    * @returns {Promise} 请求结果
    */
-  const getResidentDetail = async (id) => {
+  const getResidentDetail = async id => {
     try {
       const response = await residentApi.getDetail(id);
       currentResident.value = response;
@@ -96,7 +96,7 @@ export const useResidentStore = defineStore('resident', () => {
    * @param {Object} data 村民数据
    * @returns {Promise} 请求结果
    */
-  const createResident = async (data) => {
+  const createResident = async data => {
     try {
       const response = await residentApi.create(data);
 
@@ -146,7 +146,7 @@ export const useResidentStore = defineStore('resident', () => {
    * @param {string|number} id 村民ID
    * @returns {Promise} 请求结果
    */
-  const deleteResident = async (id) => {
+  const deleteResident = async id => {
     try {
       await residentApi.delete(id);
 
@@ -175,7 +175,7 @@ export const useResidentStore = defineStore('resident', () => {
    * @param {Array} ids 村民ID数组
    * @returns {Promise} 请求结果
    */
-  const batchDeleteResidents = async (ids) => {
+  const batchDeleteResidents = async ids => {
     try {
       await residentApi.batchDelete(ids);
 
@@ -257,7 +257,7 @@ export const useResidentStore = defineStore('resident', () => {
    * @param {string|number} residentId 村民ID
    * @returns {Promise} 请求结果
    */
-  const getFamilyMembers = async (residentId) => {
+  const getFamilyMembers = async residentId => {
     try {
       familyLoading.value = true;
       const response = await residentApi.getFamilyMembers(residentId);
@@ -343,7 +343,7 @@ export const useResidentStore = defineStore('resident', () => {
    * @param {string|number} residentId 村民ID
    * @returns {Promise} 请求结果
    */
-  const getHealthRecords = async (residentId) => {
+  const getHealthRecords = async residentId => {
     try {
       healthLoading.value = true;
       const response = await residentApi.getHealthRecords(residentId);
@@ -404,10 +404,7 @@ export const useResidentStore = defineStore('resident', () => {
    * 刷新数据
    */
   const refresh = async () => {
-    await Promise.all([
-      getResidentList(),
-      getStatistics()
-    ]);
+    await Promise.all([getResidentList(), getStatistics()]);
   };
 
   return {
@@ -446,7 +443,7 @@ export const useResidentStore = defineStore('resident', () => {
     addHealthRecord,
     exportResidents,
     clearCurrentResident,
-    refresh
+    refresh,
   };
 });
 

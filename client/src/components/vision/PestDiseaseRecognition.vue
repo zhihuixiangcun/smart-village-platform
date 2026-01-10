@@ -3,7 +3,7 @@
     <div class="recognition-container">
       <!-- 上传区域 -->
       <div class="upload-section">
-        <div class="upload-area" :class="{ 'has-image': uploadedImage, 'processing': isProcessing }">
+        <div class="upload-area" :class="{ 'has-image': uploadedImage, processing: isProcessing }">
           <input
             ref="fileInput"
             type="file"
@@ -132,7 +132,10 @@
         </div>
 
         <!-- 成功结果 -->
-        <div v-if="recognitionResult.success && recognitionResult.detections" class="success-result">
+        <div
+          v-if="recognitionResult.success && recognitionResult.detections"
+          class="success-result"
+        >
           <!-- 检测到的病虫害 -->
           <div class="detections-container">
             <h4>检测到的病虫害 ({{ recognitionResult.detections.length }})</h4>
@@ -141,7 +144,7 @@
                 v-for="(detection, index) in recognitionResult.detections"
                 :key="index"
                 class="detection-item"
-                :class="{ 'pest': detection.type === 'pest', 'disease': detection.type === 'disease' }"
+                :class="{ pest: detection.type === 'pest', disease: detection.type === 'disease' }"
               >
                 <div class="detection-header">
                   <div class="detection-name">
@@ -196,9 +199,16 @@
             </div>
 
             <div class="treatment-content">
-              <div v-if="activeTreatmentType && recognitionResult.treatmentRecommendations[activeTreatmentType]">
+              <div
+                v-if="
+                  activeTreatmentType &&
+                  recognitionResult.treatmentRecommendations[activeTreatmentType]
+                "
+              >
                 <div
-                  v-for="(item, index) in recognitionResult.treatmentRecommendations[activeTreatmentType]"
+                  v-for="(item, index) in recognitionResult.treatmentRecommendations[
+                    activeTreatmentType
+                  ]"
                   :key="index"
                   class="treatment-item"
                 >
@@ -325,7 +335,10 @@
             <div class="history-info">
               <div class="history-crop">{{ item.cropLabel }}</div>
               <div class="history-time">{{ formatTime(item.timestamp) }}</div>
-              <div class="history-result" :class="{ success: item.success, detection: item.detectionCount > 0 }">
+              <div
+                class="history-result"
+                :class="{ success: item.success, detection: item.detectionCount > 0 }"
+              >
                 {{ getHistoryStatusLabel(item) }}
               </div>
               <div class="history-detections" v-if="item.detectionCount > 0">
@@ -347,11 +360,7 @@
       >
         <i class="fas fa-history"></i>
       </button>
-      <button
-        class="floating-btn camera-btn"
-        @click="openCamera"
-        title="拍照识别"
-      >
+      <button class="floating-btn camera-btn" @click="openCamera" title="拍照识别">
         <i class="fas fa-camera"></i>
       </button>
     </div>
@@ -359,35 +368,35 @@
 </template>
 
 <script>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 
 export default {
   name: 'PestDiseaseRecognition',
   emits: ['recognition-complete'],
   setup(props, { emit }) {
     // 上传相关
-    const fileInput = ref(null)
-    const uploadedImage = ref(null)
-    const isProcessing = ref(false)
-    const isDragging = ref(false)
+    const fileInput = ref(null);
+    const uploadedImage = ref(null);
+    const isProcessing = ref(false);
+    const isDragging = ref(false);
 
     // 识别相关
-    const selectedCrop = ref('rice')
-    const recognitionResult = ref(null)
-    const activeTreatmentType = ref('chemical')
+    const selectedCrop = ref('rice');
+    const recognitionResult = ref(null);
+    const activeTreatmentType = ref('chemical');
 
     // 历史记录
-    const showHistory = ref(false)
-    const recognitionHistory = ref([])
+    const showHistory = ref(false);
+    const recognitionHistory = ref([]);
 
     // 设置
     const settings = reactive({
       provider: 'local',
       confidenceThreshold: 0.7,
       includeTreatment: true,
-      showDetectionBox: true
-    })
+      showDetectionBox: true,
+    });
 
     // 作物类型
     const cropTypes = [
@@ -395,177 +404,175 @@ export default {
         value: 'rice',
         label: '水稻',
         icon: 'fas fa-seedling',
-        description: '水稻常见病虫害识别'
+        description: '水稻常见病虫害识别',
       },
       {
         value: 'wheat',
         label: '小麦',
         icon: 'fas fa-wheat',
-        description: '小麦常见病虫害识别'
+        description: '小麦常见病虫害识别',
       },
       {
         value: 'corn',
         label: '玉米',
         icon: 'fas fa-corn',
-        description: '玉米常见病虫害识别'
+        description: '玉米常见病虫害识别',
       },
       {
         value: 'soybean',
         label: '大豆',
         icon: 'fas fa-circle',
-        description: '大豆常见病虫害识别'
+        description: '大豆常见病虫害识别',
       },
       {
         value: 'cotton',
         label: '棉花',
         icon: 'fas fa-leaf',
-        description: '棉花常见病虫害识别'
+        description: '棉花常见病虫害识别',
       },
       {
         value: 'vegetables',
         label: '蔬菜',
         icon: 'fas fa-carrot',
-        description: '蔬菜常见病虫害识别'
+        description: '蔬菜常见病虫害识别',
       },
       {
         value: 'fruits',
         label: '水果',
         icon: 'fas fa-apple-alt',
-        description: '水果常见病虫害识别'
-      }
-    ]
+        description: '水果常见病虫害识别',
+      },
+    ];
 
     // 选择作物类型
-    const selectCrop = (cropValue) => {
-      selectedCrop.value = cropValue
-    }
+    const selectCrop = cropValue => {
+      selectedCrop.value = cropValue;
+    };
 
     // 文件选择处理
-    const handleFileSelect = async (event) => {
-      const file = event.target.files[0]
-      if (!file) return
+    const handleFileSelect = async event => {
+      const file = event.target.files[0];
+      if (!file) return;
 
-      if (!validateFile(file)) return
+      if (!validateFile(file)) return;
 
       try {
-        isProcessing.value = true
-        const imageUrl = URL.createObjectURL(file)
-        uploadedImage.value = imageUrl
+        isProcessing.value = true;
+        const imageUrl = URL.createObjectURL(file);
+        uploadedImage.value = imageUrl;
       } catch (error) {
-        console.error('文件加载失败:', error)
-        ElMessage.error('文件加载失败')
+        console.error('文件加载失败:', error);
+        ElMessage.error('文件加载失败');
       } finally {
-        isProcessing.value = false
+        isProcessing.value = false;
       }
-    }
+    };
 
     // 文件验证
-    const validateFile = (file) => {
+    const validateFile = file => {
       // 检查文件类型
-      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
       if (!allowedTypes.includes(file.type)) {
-        ElMessage.error('请上传图片文件 (JPG, PNG, GIF, WebP)')
-        return false
+        ElMessage.error('请上传图片文件 (JPG, PNG, GIF, WebP)');
+        return false;
       }
 
       // 检查文件大小
-      const maxSize = 10 * 1024 * 1024 // 10MB
+      const maxSize = 10 * 1024 * 1024; // 10MB
       if (file.size > maxSize) {
-        ElMessage.error('文件大小不能超过10MB')
-        return false
+        ElMessage.error('文件大小不能超过10MB');
+        return false;
       }
 
-      return true
-    }
+      return true;
+    };
 
     // 拖拽处理
-    const handleDragOver = (event) => {
-      event.preventDefault()
-      isDragging.value = true
-    }
+    const handleDragOver = event => {
+      event.preventDefault();
+      isDragging.value = true;
+    };
 
     const handleDragLeave = () => {
-      isDragging.value = false
-    }
+      isDragging.value = false;
+    };
 
-    const handleDrop = async (event) => {
-      event.preventDefault()
-      isDragging.value = false
+    const handleDrop = async event => {
+      event.preventDefault();
+      isDragging.value = false;
 
-      const files = event.dataTransfer.files
-      if (files.length === 0) return
+      const files = event.dataTransfer.files;
+      if (files.length === 0) return;
 
-      const file = files[0]
-      if (!validateFile(file)) return
+      const file = files[0];
+      if (!validateFile(file)) return;
 
       try {
-        isProcessing.value = true
-        const imageUrl = URL.createObjectURL(file)
-        uploadedImage.value = imageUrl
+        isProcessing.value = true;
+        const imageUrl = URL.createObjectURL(file);
+        uploadedImage.value = imageUrl;
       } catch (error) {
-        console.error('文件加载失败:', error)
-        ElMessage.error('文件加载失败')
+        console.error('文件加载失败:', error);
+        ElMessage.error('文件加载失败');
       } finally {
-        isProcessing.value = false
+        isProcessing.value = false;
       }
-    }
+    };
 
     // 开始识别
     const startRecognition = async () => {
-      if (!uploadedImage.value || isProcessing.value) return
+      if (!uploadedImage.value || isProcessing.value) return;
 
-      isProcessing.value = true
+      isProcessing.value = true;
 
       try {
         // 将图片转换为ArrayBuffer
-        const response = await fetch(uploadedImage.value)
-        const arrayBuffer = await response.arrayBuffer()
+        const response = await fetch(uploadedImage.value);
+        const arrayBuffer = await response.arrayBuffer();
 
         // 调用识别API
-        const result = await performRecognition(arrayBuffer, selectedCrop.value)
+        const result = await performRecognition(arrayBuffer, selectedCrop.value);
 
-        recognitionResult.value = result
+        recognitionResult.value = result;
 
         // 添加到历史记录
-        addToHistory(result, uploadedImage.value)
+        addToHistory(result, uploadedImage.value);
 
         // 触发事件
-        emit('recognition-complete', result)
+        emit('recognition-complete', result);
 
         ElMessage.success(
           result.success
             ? `识别完成，检测到${result.detections ? result.detections.length : 0}个问题`
             : '识别完成，图片很健康'
-        )
-
+        );
       } catch (error) {
-        console.error('病虫害识别失败:', error)
-        ElMessage.error('识别失败: ' + error.message)
+        console.error('病虫害识别失败:', error);
+        ElMessage.error('识别失败: ' + error.message);
       } finally {
-        isProcessing.value = false
+        isProcessing.value = false;
       }
-    }
+    };
 
     // 执行识别
     const performRecognition = async (imageBuffer, cropType) => {
       try {
-        const formData = new FormData()
-        formData.append('image', new Blob([imageBuffer], { type: 'image/jpeg' }), 'pest.jpg')
-        formData.append('cropType', cropType)
-        formData.append('provider', settings.provider)
-        formData.append('confidenceThreshold', settings.confidenceThreshold)
-        formData.append('includeTreatment', settings.includeTreatment)
+        const formData = new FormData();
+        formData.append('image', new Blob([imageBuffer], { type: 'image/jpeg' }), 'pest.jpg');
+        formData.append('cropType', cropType);
+        formData.append('provider', settings.provider);
+        formData.append('confidenceThreshold', settings.confidenceThreshold);
+        formData.append('includeTreatment', settings.includeTreatment);
 
         const response = await fetch('/api/v1/computer-vision/agriculture/pest-disease', {
           method: 'POST',
-          body: formData
-        })
+          body: formData,
+        });
 
-        const data = await response.json()
-        return data.data || { success: false, error: '识别失败' }
-
+        const data = await response.json();
+        return data.data || { success: false, error: '识别失败' };
       } catch (error) {
-        console.error('病虫害识别API调用失败:', error)
+        console.error('病虫害识别API调用失败:', error);
 
         // 模拟返回结果
         const mockDetections = [
@@ -578,9 +585,9 @@ export default {
               x: 120,
               y: 80,
               width: 60,
-              height: 40
+              height: 40,
             },
-            description: '水稻常见害虫，主要危害稻株基部，吸食汁液'
+            description: '水稻常见害虫，主要危害稻株基部，吸食汁液',
           },
           {
             name: '纹枯病',
@@ -591,11 +598,11 @@ export default {
               x: 200,
               y: 150,
               width: 80,
-              height: 60
+              height: 60,
             },
-            description: '水稻真菌病害，造成叶片枯死和产量损失'
-          }
-        ]
+            description: '水稻真菌病害，造成叶片枯死和产量损失',
+          },
+        ];
 
         return {
           success: true,
@@ -611,7 +618,7 @@ export default {
                 timing: '害虫发生初期',
                 effectiveness: 95,
                 type: 'chemical',
-                precautions: ['避免开花期使用', '注意安全间隔期', '佩戴防护装备']
+                precautions: ['避免开花期使用', '注意安全间隔期', '佩戴防护装备'],
               },
               {
                 name: '噻虫嗪',
@@ -620,137 +627,137 @@ export default {
                 timing: '害虫发生初期',
                 effectiveness: 90,
                 type: 'chemical',
-                precautions: ['避免高温时段使用', '注意蜜蜂安全']
-              }
+                precautions: ['避免高温时段使用', '注意蜜蜂安全'],
+              },
             ],
             biological: [
               {
                 name: '释放天敌瓢虫',
-                description: '每亩释放100-200头瓢虫'
+                description: '每亩释放100-200头瓢虫',
               },
               {
                 name: '使用赤眼蜂',
-                description: '生物防治稻纵卷叶螟'
-              }
+                description: '生物防治稻纵卷叶螟',
+              },
             ],
             cultural: [
               '及时清除田边杂草',
               '合理密植，通风透光',
               '科学施肥，增强抗性',
-              '稻田养鱼，生态控制'
-            ]
-          }
-        }
+              '稻田养鱼，生态控制',
+            ],
+          },
+        };
       }
-    }
+    };
 
     // 重新识别
     const recognizeAgain = () => {
-      recognitionResult.value = null
-      startRecognition()
-    }
+      recognitionResult.value = null;
+      startRecognition();
+    };
 
     // 保存结果
     const saveResult = () => {
-      if (!recognitionResult.value?.success) return
+      if (!recognitionResult.value?.success) return;
 
       // 这里应该调用API保存识别结果
-      ElMessage.success('识别结果已保存')
-    }
+      ElMessage.success('识别结果已保存');
+    };
 
     // 分享结果
     const shareResult = () => {
-      if (!recognitionResult.value?.success) return
+      if (!recognitionResult.value?.success) return;
 
       // 分享功能
-      ElMessage.info('分享功能开发中')
-    }
+      ElMessage.info('分享功能开发中');
+    };
 
     // 咨询专家
     const consultExpert = () => {
-      if (!recognitionResult.value?.success) return
+      if (!recognitionResult.value?.success) return;
 
       // 跳转到专家咨询页面
-      ElMessage.info('正在连接农业专家...')
-    }
+      ElMessage.info('正在连接农业专家...');
+    };
 
     // 打开摄像头
     const openCamera = () => {
       // 调用摄像头功能
-      ElMessage.info('摄像头功能开发中')
-    }
+      ElMessage.info('摄像头功能开发中');
+    };
 
     // 获取检测框样式
-    const getBboxStyle = (bbox) => {
-      const uploadSection = document.querySelector('.uploaded-image-container')
-      if (!uploadSection) return {}
+    const getBboxStyle = bbox => {
+      const uploadSection = document.querySelector('.uploaded-image-container');
+      if (!uploadSection) return {};
 
-      const rect = uploadSection.getBoundingClientRect()
-      const scaleX = rect.width / 640 // 假设图片宽度
-      const scaleY = rect.height / 480 // 假设图片高度
+      const rect = uploadSection.getBoundingClientRect();
+      const scaleX = rect.width / 640; // 假设图片宽度
+      const scaleY = rect.height / 480; // 假设图片高度
 
       return {
-        left: (bbox.x * scaleX) + 'px',
-        top: (bbox.y * scaleY) + 'px',
-        width: (bbox.width * scaleX) + 'px',
-        height: (bbox.height * scaleY) + 'px'
-      }
-    }
+        left: bbox.x * scaleX + 'px',
+        top: bbox.y * scaleY + 'px',
+        width: bbox.width * scaleX + 'px',
+        height: bbox.height * scaleY + 'px',
+      };
+    };
 
     // 获取严重度标签
-    const getSeverityLabel = (severity) => {
+    const getSeverityLabel = severity => {
       const labels = {
         mild: '轻微',
         moderate: '中等',
-        severe: '严重'
-      }
-      return labels[severity] || severity
-    }
+        severe: '严重',
+      };
+      return labels[severity] || severity;
+    };
 
     // 获取治疗类型图标
-    const getTreatmentIcon = (type) => {
+    const getTreatmentIcon = type => {
       const icons = {
         chemical: 'fas fa-flask',
         biological: 'fas fa-bug',
-        cultural: 'fas fa-seedling'
-      }
-      return icons[type] || 'fas fa-medkit'
-    }
+        cultural: 'fas fa-seedling',
+      };
+      return icons[type] || 'fas fa-medkit';
+    };
 
     // 获取治疗类型标签
-    const getTreatmentLabel = (type) => {
+    const getTreatmentLabel = type => {
       const labels = {
         chemical: '化学防治',
         biological: '生物防治',
-        cultural: '农业防治'
-      }
-      return labels[type] || type
-    }
+        cultural: '农业防治',
+      };
+      return labels[type] || type;
+    };
 
     // 获取方法标签
-    const getMethodLabel = (type) => {
+    const getMethodLabel = type => {
       const labels = {
         chemical: '化学',
         biological: '生物',
-        cultural: '农业'
-      }
-      return labels[type] || type
-    }
+        cultural: '农业',
+      };
+      return labels[type] || type;
+    };
 
     // 重新拍照
     const retakePhoto = () => {
-      uploadedImage.value = null
-      recognitionResult.value = null
-    }
+      uploadedImage.value = null;
+      recognitionResult.value = null;
+    };
 
     // 切换历史记录
     const toggleHistory = () => {
-      showHistory.value = !showHistory.value
-    }
+      showHistory.value = !showHistory.value;
+    };
 
     // 添加到历史记录
     const addToHistory = (result, imageUrl) => {
-      const cropInfo = cropTypes.find(c => c.value === result.cropType)
+      const cropInfo = cropTypes.find(c => c.value === result.cropType);
       const historyItem = {
         timestamp: new Date(),
         cropType: result.cropType,
@@ -759,74 +766,77 @@ export default {
         detectionCount: result.detections ? result.detections.length : 0,
         image: imageUrl,
         provider: settings.provider,
-        confidence: result.confidence || 0
-      }
+        confidence: result.confidence || 0,
+      };
 
-      recognitionHistory.value.unshift(historyItem)
+      recognitionHistory.value.unshift(historyItem);
 
       // 限制历史记录数量
       if (recognitionHistory.value.length > 20) {
-        recognitionHistory.value = recognitionHistory.value.slice(0, 20)
+        recognitionHistory.value = recognitionHistory.value.slice(0, 20);
       }
 
       // 保存到本地存储
       try {
-        localStorage.setItem('pestDiseaseHistory', JSON.stringify(recognitionHistory.value))
+        localStorage.setItem('pestDiseaseHistory', JSON.stringify(recognitionHistory.value));
       } catch (error) {
-        console.error('保存历史记录失败:', error)
+        console.error('保存历史记录失败:', error);
       }
-    }
+    };
 
     // 加载历史记录
     const loadRecognitionHistory = () => {
       try {
-        const saved = localStorage.getItem('pestDiseaseHistory')
+        const saved = localStorage.getItem('pestDiseaseHistory');
         if (saved) {
-          recognitionHistory.value = JSON.parse(saved)
+          recognitionHistory.value = JSON.parse(saved);
         }
       } catch (error) {
-        console.error('加载历史记录失败:', error)
+        console.error('加载历史记录失败:', error);
       }
-    }
+    };
 
     // 加载历史项
-    const loadHistoryItem = (item) => {
-      selectedCrop.value = item.cropType
-      uploadedImage.value = item.image
+    const loadHistoryItem = item => {
+      selectedCrop.value = item.cropType;
+      uploadedImage.value = item.image;
       recognitionResult.value = {
         success: item.success,
         cropType: item.cropType,
-        detections: item.detectionCount > 0 ? [
-          {
-            name: '历史记录数据',
-            confidence: item.confidence,
-            type: 'pest'
-          }
-        ] : null
-      }
-    }
+        detections:
+          item.detectionCount > 0
+            ? [
+                {
+                  name: '历史记录数据',
+                  confidence: item.confidence,
+                  type: 'pest',
+                },
+              ]
+            : null,
+      };
+    };
 
     // 获取历史状态标签
-    const getHistoryStatusLabel = (item) => {
+    const getHistoryStatusLabel = item => {
       if (item.success) {
-        return item.detectionCount > 0 ? '发现问题' : '健康'
+        return item.detectionCount > 0 ? '发现问题' : '健康';
       }
-      return '失败'
-    }
+      return '失败';
+    };
 
     // 格式化置信度
-    const formatConfidence = (value) => {
-      return (value * 100).toFixed(0) + '%'
-    }
+    const formatConfidence = value => {
+      return (value * 100).toFixed(0) + '%';
+    };
 
     // 格式化时间
-    const formatTime = (timestamp) => {
-      return new Date(timestamp).toLocaleString()
-    }
+    const formatTime = timestamp => {
+      return new Date(timestamp).toLocaleString();
+    };
 
     onMounted(() => {
-      loadRecognitionHistory()
-    })
+      loadRecognitionHistory();
+    });
 
     return {
       // refs
@@ -867,10 +877,10 @@ export default {
       loadHistoryItem,
       getHistoryStatusLabel,
       formatConfidence,
-      formatTime
-    }
-  }
-}
+      formatTime,
+    };
+  },
+};
 </script>
 
 <style scoped>
@@ -903,7 +913,7 @@ export default {
 
 .upload-area.has-image {
   border-style: solid;
-  border-color: #4CAF50;
+  border-color: #4caf50;
   background: white;
 }
 
@@ -921,12 +931,12 @@ export default {
 
 .upload-placeholder:hover {
   background: #f0f8ff;
-  border-color: #2196F3;
+  border-color: #2196f3;
 }
 
 .upload-icon {
   font-size: 48px;
-  color: #2196F3;
+  color: #2196f3;
   margin-bottom: 16px;
 }
 
@@ -985,8 +995,12 @@ export default {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .image-actions {
@@ -1025,8 +1039,8 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #2196F3;
-  border: 2px dashed #2196F3;
+  color: #2196f3;
+  border: 2px dashed #2196f3;
   border-radius: 12px;
   transition: all 0.3s;
 }
@@ -1070,12 +1084,12 @@ export default {
 }
 
 .crop-card:hover {
-  border-color: #4CAF50;
+  border-color: #4caf50;
   box-shadow: 0 4px 12px rgba(76, 175, 80, 0.1);
 }
 
 .crop-card.selected {
-  border-color: #4CAF50;
+  border-color: #4caf50;
   background: #f0f7f0;
 }
 
@@ -1088,7 +1102,7 @@ export default {
   align-items: center;
   justify-content: center;
   font-size: 20px;
-  color: #4CAF50;
+  color: #4caf50;
 }
 
 .crop-info h4 {
@@ -1138,7 +1152,7 @@ export default {
   width: 100%;
   padding: 12px 24px;
   border: none;
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
   border-radius: 8px;
   font-size: 16px;
@@ -1191,7 +1205,7 @@ export default {
 
 .result-status.success {
   background: #e8f5e8;
-  color: #4CAF50;
+  color: #4caf50;
 }
 
 .result-status.error {
@@ -1305,7 +1319,7 @@ export default {
 
 .detection-bbox {
   position: absolute;
-  border: 2px solid #4CAF50;
+  border: 2px solid #4caf50;
   background: rgba(76, 175, 80, 0.1);
 }
 
@@ -1313,7 +1327,7 @@ export default {
   position: absolute;
   top: -28px;
   left: 0;
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
   padding: 2px 6px;
   border-radius: 4px;
@@ -1359,14 +1373,14 @@ export default {
 }
 
 .tab-btn.active {
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
-  border-color: #4CAF50;
+  border-color: #4caf50;
 }
 
 .tab-btn:hover {
   background: #f0f7f0;
-  border-color: #4CAF50;
+  border-color: #4caf50;
 }
 
 .tab-btn .badge {
@@ -1424,7 +1438,7 @@ export default {
 
 .method-type.biological {
   background: #e8f5e8;
-  color: #4CAF50;
+  color: #4caf50;
 }
 
 .method-type.cultural {
@@ -1433,7 +1447,7 @@ export default {
 }
 
 .effectiveness {
-  color: #4CAF50;
+  color: #4caf50;
   font-size: 12px;
   font-weight: 500;
 }
@@ -1499,7 +1513,7 @@ export default {
   background: #f0f8ff;
   border-radius: 4px;
   font-size: 14px;
-  color: #1976D2;
+  color: #1976d2;
 }
 
 .no-detection-result {
@@ -1512,7 +1526,7 @@ export default {
 
 .no-detection-icon {
   font-size: 48px;
-  color: #4CAF50;
+  color: #4caf50;
   margin-bottom: 16px;
 }
 
@@ -1534,12 +1548,12 @@ export default {
   background: #f0f8ff;
   padding: 16px;
   border-radius: 8px;
-  border-left: 4px solid #2196F3;
+  border-left: 4px solid #2196f3;
 }
 
 .healthy-tips h5 {
   margin: 0 0 8px;
-  color: #1976D2;
+  color: #1976d2;
   font-size: 14px;
 }
 
@@ -1550,7 +1564,7 @@ export default {
 
 .healthy-tips li {
   margin: 4px 0;
-  color: #1976D2;
+  color: #1976d2;
   font-size: 14px;
   line-height: 1.4;
 }
@@ -1616,9 +1630,9 @@ export default {
 
 .result-actions .action-btn {
   padding: 10px 20px;
-  border: 1px solid #4CAF50;
+  border: 1px solid #4caf50;
   background: white;
-  color: #4CAF50;
+  color: #4caf50;
   border-radius: 6px;
   font-size: 14px;
   font-weight: 500;
@@ -1630,14 +1644,14 @@ export default {
 }
 
 .result-actions .action-btn:hover {
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
 }
 
 .result-actions .action-btn.primary {
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
-  border-color: #4CAF50;
+  border-color: #4caf50;
 }
 
 .result-actions .action-btn.secondary {
@@ -1726,7 +1740,7 @@ export default {
 }
 
 .history-result.success {
-  color: #4CAF50;
+  color: #4caf50;
 }
 
 .history-result.detection {
@@ -1757,7 +1771,7 @@ export default {
   height: 48px;
   border-radius: 50%;
   border: none;
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
   cursor: pointer;
   transition: all 0.3s;
@@ -1773,7 +1787,7 @@ export default {
 }
 
 .floating-btn.active {
-  background: #1976D2;
+  background: #1976d2;
 }
 
 .camera-btn {

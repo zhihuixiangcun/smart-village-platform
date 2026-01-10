@@ -4,32 +4,16 @@
     <div class="page-header">
       <div class="header-left">
         <h1 class="page-title">智能值班表管理</h1>
-        <p class="page-description">
-          高效管理值班安排，支持智能排班和快速调班
-        </p>
+        <p class="page-description">高效管理值班安排，支持智能排班和快速调班</p>
       </div>
       <div class="header-actions">
-        <el-button
-          type="primary"
-          :icon="Plus"
-          @click="showQuickScheduleDialog = true"
-        >
+        <el-button type="primary" :icon="Plus" @click="showQuickScheduleDialog = true">
           快速排班
         </el-button>
-        <el-button
-          type="success"
-          :icon="User"
-          @click="showPersonnelDialog = true"
-        >
+        <el-button type="success" :icon="User" @click="showPersonnelDialog = true">
           添加人员
         </el-button>
-        <el-button
-          type="info"
-          :icon="Download"
-          @click="exportReport"
-        >
-          导出报表
-        </el-button>
+        <el-button type="info" :icon="Download" @click="exportReport"> 导出报表 </el-button>
       </div>
     </div>
 
@@ -99,19 +83,13 @@
               <span>值班日历</span>
               <div class="header-controls">
                 <el-button-group>
-                  <el-button
-                    size="small"
-                    @click="previousMonth"
-                  >
+                  <el-button size="small" @click="previousMonth">
                     <el-icon><ArrowLeft /></el-icon>
                   </el-button>
                   <el-button size="small" disabled>
                     {{ currentMonthText }}
                   </el-button>
-                  <el-button
-                    size="small"
-                    @click="nextMonth"
-                  >
+                  <el-button size="small" @click="nextMonth">
                     <el-icon><ArrowRight /></el-icon>
                   </el-button>
                 </el-button-group>
@@ -136,11 +114,7 @@
           <template #header>
             <div class="card-header">
               <span>值班人员</span>
-              <el-button
-                type="text"
-                size="small"
-                @click="showPersonnelDialog = true"
-              >
+              <el-button type="text" size="small" @click="showPersonnelDialog = true">
                 管理人员
               </el-button>
             </div>
@@ -162,15 +136,10 @@
                 </div>
               </div>
               <div class="personnel-status">
-                <el-tag
-                  :type="person.isActive ? 'success' : 'info'"
-                  size="small"
-                >
+                <el-tag :type="person.isActive ? 'success' : 'info'" size="small">
                   {{ person.isActive ? '在岗' : '离岗' }}
                 </el-tag>
-                <div class="duty-count">
-                  本月: {{ getPersonnelDutyCount(person.id) }}次
-                </div>
+                <div class="duty-count">本月: {{ getPersonnelDutyCount(person.id) }}次</div>
               </div>
             </div>
           </div>
@@ -194,12 +163,7 @@
     />
 
     <!-- 值班详情抽屉 -->
-    <el-drawer
-      v-model="showScheduleDetail"
-      title="值班详情"
-      direction="rtl"
-      size="500px"
-    >
+    <el-drawer v-model="showScheduleDetail" title="值班详情" direction="rtl" size="500px">
       <div v-if="selectedSchedule" class="schedule-detail">
         <el-descriptions :column="1" border>
           <el-descriptions-item label="日期">
@@ -224,26 +188,16 @@
           </el-descriptions-item>
         </el-descriptions>
 
-        <div class="detail-actions" style="margin-top: 20px;">
-          <el-button type="primary" @click="editSchedule">
-            编辑
-          </el-button>
-          <el-button type="warning" @click="initiateSwap">
-            调班
-          </el-button>
-          <el-button type="danger" @click="deleteSchedule">
-            删除
-          </el-button>
+        <div class="detail-actions" style="margin-top: 20px">
+          <el-button type="primary" @click="editSchedule"> 编辑 </el-button>
+          <el-button type="warning" @click="initiateSwap"> 调班 </el-button>
+          <el-button type="danger" @click="deleteSchedule"> 删除 </el-button>
         </div>
       </div>
     </el-drawer>
 
     <!-- 调班对话框 -->
-    <el-dialog
-      v-model="showSwapDialog"
-      title="选择调班目标"
-      width="500px"
-    >
+    <el-dialog v-model="showSwapDialog" title="选择调班目标" width="500px">
       <div class="swap-dialog-content">
         <p>当前值班：{{ selectedSchedule?.date }} {{ selectedSchedule?.personnelName }}</p>
         <p>请选择要调换的班次：</p>
@@ -271,11 +225,7 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="showSwapDialog = false">取消</el-button>
-          <el-button
-            type="primary"
-            :disabled="!selectedSwapSchedule"
-            @click="confirmSwap"
-          >
+          <el-button type="primary" :disabled="!selectedSwapSchedule" @click="confirmSwap">
             确认调班
           </el-button>
         </span>
@@ -293,9 +243,9 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
-import { useDutyStore } from '@/stores/dutyStore'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, computed, onMounted, watch } from 'vue';
+import { useDutyStore } from '@/stores/dutyStore';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
   Plus,
   User,
@@ -305,197 +255,187 @@ import {
   Clock,
   UserFilled,
   ArrowLeft,
-  ArrowRight
-} from '@element-plus/icons-vue'
-import DutyCalendar from '@/components/duty/DutyCalendar.vue'
-import DutyPersonnelForm from '@/components/duty/DutyPersonnelForm.vue'
-import QuickScheduleDialog from '@/components/duty/QuickScheduleDialog.vue'
-import DutyStatistics from '@/components/duty/DutyStatistics.vue'
+  ArrowRight,
+} from '@element-plus/icons-vue';
+import DutyCalendar from '@/components/duty/DutyCalendar.vue';
+import DutyPersonnelForm from '@/components/duty/DutyPersonnelForm.vue';
+import QuickScheduleDialog from '@/components/duty/QuickScheduleDialog.vue';
+import DutyStatistics from '@/components/duty/DutyStatistics.vue';
 
 // Store
-const dutyStore = useDutyStore()
+const dutyStore = useDutyStore();
 
 // 响应式数据
-const selectedDate = ref(null)
-const showQuickScheduleDialog = ref(false)
-const showPersonnelDialog = ref(false)
-const showScheduleDetail = ref(false)
-const showSwapDialog = ref(false)
-const showStatistics = ref(false)
-const editingPersonnel = ref(null)
-const selectedSchedule = ref(null)
-const selectedSwapSchedule = ref(null)
+const selectedDate = ref(null);
+const showQuickScheduleDialog = ref(false);
+const showPersonnelDialog = ref(false);
+const showScheduleDetail = ref(false);
+const showSwapDialog = ref(false);
+const showStatistics = ref(false);
+const editingPersonnel = ref(null);
+const selectedSchedule = ref(null);
+const selectedSwapSchedule = ref(null);
 
 // 计算属性
-const { dutyPersonnel, currentMonth, statistics, calendarLoading } = dutyStore
-const { currentMonthSchedules, personnelById, availablePersonnel } = dutyStore
+const { dutyPersonnel, currentMonth, statistics, calendarLoading } = dutyStore;
+const { currentMonthSchedules, personnelById, availablePersonnel } = dutyStore;
 
 const currentMonthText = computed(() => {
-  const year = currentMonth.value.getFullYear()
-  const month = currentMonth.value.getMonth() + 1
-  return `${year}年${month}月`
-})
+  const year = currentMonth.value.getFullYear();
+  const month = currentMonth.value.getMonth() + 1;
+  return `${year}年${month}月`;
+});
 
 const swapableSchedules = computed(() => {
-  if (!selectedSchedule.value) return []
-  return currentMonthSchedules.value.filter(
-    schedule => schedule.id !== selectedSchedule.value.id
-  )
-})
+  if (!selectedSchedule.value) return [];
+  return currentMonthSchedules.value.filter(schedule => schedule.id !== selectedSchedule.value.id);
+});
 
 // 方法
 const previousMonth = () => {
-  const newDate = new Date(currentMonth.value)
-  newDate.setMonth(newDate.getMonth() - 1)
-  dutyStore.changeMonth(newDate)
-}
+  const newDate = new Date(currentMonth.value);
+  newDate.setMonth(newDate.getMonth() - 1);
+  dutyStore.changeMonth(newDate);
+};
 
 const nextMonth = () => {
-  const newDate = new Date(currentMonth.value)
-  newDate.setMonth(newDate.getMonth() + 1)
-  dutyStore.changeMonth(newDate)
-}
+  const newDate = new Date(currentMonth.value);
+  newDate.setMonth(newDate.getMonth() + 1);
+  dutyStore.changeMonth(newDate);
+};
 
-const handleDateSelect = (date) => {
-  selectedDate.value = date
-  showQuickScheduleDialog.value = true
-}
+const handleDateSelect = date => {
+  selectedDate.value = date;
+  showQuickScheduleDialog.value = true;
+};
 
-const handleScheduleClick = (schedule) => {
-  selectedSchedule.value = schedule
-  showScheduleDetail.value = true
-}
+const handleScheduleClick = schedule => {
+  selectedSchedule.value = schedule;
+  showScheduleDetail.value = true;
+};
 
 const handleScheduleDrop = async (draggedSchedule, targetDate) => {
   try {
     await dutyStore.updateSchedule(draggedSchedule.id, {
-      date: targetDate
-    })
-    ElMessage.success('调班成功')
+      date: targetDate,
+    });
+    ElMessage.success('调班成功');
   } catch (error) {
-    ElMessage.error('调班失败')
+    ElMessage.error('调班失败');
   }
-}
+};
 
-const handleQuickSchedule = async (scheduleData) => {
+const handleQuickSchedule = async scheduleData => {
   try {
     if (scheduleData.type === 'single') {
-      await dutyStore.createSchedule(scheduleData.data)
+      await dutyStore.createSchedule(scheduleData.data);
     } else {
-      await dutyStore.batchCreateSchedules(scheduleData.data)
+      await dutyStore.batchCreateSchedules(scheduleData.data);
     }
   } catch (error) {
     // 错误已在store中处理
   }
-}
+};
 
-const handlePersonnelSave = async (personnelData) => {
+const handlePersonnelSave = async personnelData => {
   try {
     if (editingPersonnel.value) {
-      await dutyStore.updatePersonnel(editingPersonnel.value.id, personnelData)
+      await dutyStore.updatePersonnel(editingPersonnel.value.id, personnelData);
     } else {
-      await dutyStore.addPersonnel(personnelData)
+      await dutyStore.addPersonnel(personnelData);
     }
-    showPersonnelDialog.value = false
-    editingPersonnel.value = null
+    showPersonnelDialog.value = false;
+    editingPersonnel.value = null;
   } catch (error) {
     // 错误已在store中处理
   }
-}
+};
 
-const getPersonnelDutyCount = (personnelId) => {
-  return currentMonthSchedules.value.filter(
-    schedule => schedule.personnelId === personnelId
-  ).length
-}
+const getPersonnelDutyCount = personnelId => {
+  return currentMonthSchedules.value.filter(schedule => schedule.personnelId === personnelId)
+    .length;
+};
 
-const formatDate = (dateString) => {
-  const date = new Date(dateString)
-  return `${date.getMonth() + 1}月${date.getDate()}日`
-}
+const formatDate = dateString => {
+  const date = new Date(dateString);
+  return `${date.getMonth() + 1}月${date.getDate()}日`;
+};
 
-const getShiftTypeName = (shiftType) => {
+const getShiftTypeName = shiftType => {
   const shiftMap = {
     morning: '早班',
     afternoon: '午班',
     evening: '晚班',
-    night: '夜班'
-  }
-  return shiftMap[shiftType] || shiftType
-}
+    night: '夜班',
+  };
+  return shiftMap[shiftType] || shiftType;
+};
 
-const getShiftTypeColor = (shiftType) => {
+const getShiftTypeColor = shiftType => {
   const colorMap = {
     morning: 'success',
     afternoon: 'warning',
     evening: 'danger',
-    night: 'info'
-  }
-  return colorMap[shiftType] || 'info'
-}
+    night: 'info',
+  };
+  return colorMap[shiftType] || 'info';
+};
 
 const editSchedule = () => {
   // 编辑值班安排
-  ElMessage.info('编辑功能开发中')
-}
+  ElMessage.info('编辑功能开发中');
+};
 
 const initiateSwap = () => {
-  showSwapDialog.value = true
-}
+  showSwapDialog.value = true;
+};
 
-const handleSwapSelection = (selection) => {
-  selectedSwapSchedule.value = selection[0]
-}
+const handleSwapSelection = selection => {
+  selectedSwapSchedule.value = selection[0];
+};
 
 const confirmSwap = async () => {
   try {
-    await dutyStore.swapSchedule(
-      selectedSchedule.value.id,
-      selectedSwapSchedule.value.id
-    )
-    showSwapDialog.value = false
-    showScheduleDetail.value = false
+    await dutyStore.swapSchedule(selectedSchedule.value.id, selectedSwapSchedule.value.id);
+    showSwapDialog.value = false;
+    showScheduleDetail.value = false;
   } catch (error) {
     // 错误已在store中处理
   }
-}
+};
 
 const deleteSchedule = async () => {
   try {
-    await ElMessageBox.confirm(
-      '确定要删除这个值班安排吗？',
-      '提示',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
+    await ElMessageBox.confirm('确定要删除这个值班安排吗？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
 
-    await dutyStore.deleteSchedule(selectedSchedule.value.id)
-    showScheduleDetail.value = false
+    await dutyStore.deleteSchedule(selectedSchedule.value.id);
+    showScheduleDetail.value = false;
   } catch (error) {
     if (error !== 'cancel') {
       // 错误已在store中处理
     }
   }
-}
+};
 
 const exportReport = () => {
-  showStatistics.value = true
-}
+  showStatistics.value = true;
+};
 
 // 监听选中日期变化
-watch(selectedDate, (newDate) => {
+watch(selectedDate, newDate => {
   if (newDate) {
     // 可以在这里添加日期选择后的逻辑
   }
-})
+});
 
 // 生命周期
 onMounted(() => {
-  dutyStore.init()
-})
+  dutyStore.init();
+});
 </script>
 
 <style lang="scss" scoped>

@@ -71,7 +71,7 @@ async function searchByPhone(req, res) {
     logger.error('通过手机号搜索用户失败:', error);
     res.status(500).json({
       success: false,
-      message: '搜索失败: ' + error.message
+      message: `搜索失败: ${  error.message}`
     });
   }
 }
@@ -129,7 +129,7 @@ async function searchByQRCode(req, res) {
     logger.error('通过乡村号搜索用户失败:', error);
     res.status(500).json({
       success: false,
-      message: '搜索失败: ' + error.message
+      message: `搜索失败: ${  error.message}`
     });
   }
 }
@@ -216,7 +216,7 @@ async function getPendingRequests(req, res) {
     logger.error('获取好友请求列表失败:', error);
     res.status(500).json({
       success: false,
-      message: '获取好友请求列表失败: ' + error.message
+      message: `获取好友请求列表失败: ${  error.message}`
     });
   }
 }
@@ -242,7 +242,7 @@ async function getSentRequests(req, res) {
     logger.error('获取发送的请求列表失败:', error);
     res.status(500).json({
       success: false,
-      message: '获取发送的请求列表失败: ' + error.message
+      message: `获取发送的请求列表失败: ${  error.message}`
     });
   }
 }
@@ -439,7 +439,7 @@ async function getFriends(req, res) {
     logger.error('获取好友列表失败:', error);
     res.status(500).json({
       success: false,
-      message: '获取好友列表失败: ' + error.message
+      message: `获取好友列表失败: ${  error.message}`
     });
   }
 }
@@ -480,7 +480,7 @@ async function updateFriendAlias(req, res) {
     logger.error('修改好友备注失败:', error);
     res.status(500).json({
       success: false,
-      message: '修改好友备注失败: ' + error.message
+      message: `修改好友备注失败: ${  error.message}`
     });
   }
 }
@@ -521,7 +521,7 @@ async function deleteFriend(req, res) {
     logger.error('删除好友失败:', error);
     res.status(500).json({
       success: false,
-      message: '删除好友失败: ' + error.message
+      message: `删除好友失败: ${  error.message}`
     });
   }
 }
@@ -558,7 +558,7 @@ async function getFriendStats(req, res) {
     logger.error('获取好友统计失败:', error);
     res.status(500).json({
       success: false,
-      message: '获取好友统计失败: ' + error.message
+      message: `获取好友统计失败: ${  error.message}`
     });
   }
 }
@@ -605,7 +605,7 @@ async function uploadAvatar(req, res) {
     logger.error('上传头像失败:', error);
     res.status(500).json({
       success: false,
-      message: '上传头像失败: ' + error.message
+      message: `上传头像失败: ${  error.message}`
     });
   }
 }

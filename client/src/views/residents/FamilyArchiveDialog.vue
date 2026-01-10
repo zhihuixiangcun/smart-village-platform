@@ -30,9 +30,7 @@
             <el-button type="success" @click="generateFamilyTree" icon="Share">
               生成族谱
             </el-button>
-            <el-button @click="exportArchive" icon="Download">
-              导出档案
-            </el-button>
+            <el-button @click="exportArchive" icon="Download"> 导出档案 </el-button>
           </div>
         </div>
       </div>
@@ -51,7 +49,7 @@
                     placeholder="姓名、身份证或电话"
                     prefix-icon="Search"
                     clearable
-                    style="width: 200px;"
+                    style="width: 200px"
                   />
                 </el-form-item>
                 <el-form-item label="世代">
@@ -78,12 +76,8 @@
                   </el-select>
                 </el-form-item>
                 <el-form-item>
-                  <el-button type="primary" @click="searchMembers" icon="Search">
-                    搜索
-                  </el-button>
-                  <el-button @click="resetSearch" icon="Refresh">
-                    重置
-                  </el-button>
+                  <el-button type="primary" @click="searchMembers" icon="Search"> 搜索 </el-button>
+                  <el-button @click="resetSearch" icon="Refresh"> 重置 </el-button>
                 </el-form-item>
               </el-form>
             </div>
@@ -133,7 +127,10 @@
 
               <el-table-column prop="livingStatus" label="状态" width="80">
                 <template #default="scope">
-                  <el-tag :type="scope.row.livingStatus === 'alive' ? 'success' : 'info'" size="small">
+                  <el-tag
+                    :type="scope.row.livingStatus === 'alive' ? 'success' : 'info'"
+                    size="small"
+                  >
                     {{ scope.row.livingStatus === 'alive' ? '在世' : '已故' }}
                   </el-tag>
                 </template>
@@ -143,7 +140,12 @@
 
               <el-table-column prop="education" label="学历" width="100" />
 
-              <el-table-column prop="achievements" label="成就荣誉" min-width="150" show-overflow-tooltip />
+              <el-table-column
+                prop="achievements"
+                label="成就荣誉"
+                min-width="150"
+                show-overflow-tooltip
+              />
 
               <el-table-column label="操作" width="200" fixed="right">
                 <template #default="scope">
@@ -153,14 +155,20 @@
                   <el-button type="success" size="small" @click="editMember(scope.row)" icon="Edit">
                     编辑
                   </el-button>
-                  <el-dropdown @command="(cmd) => handleMemberAction(cmd, scope.row)">
+                  <el-dropdown @command="cmd => handleMemberAction(cmd, scope.row)">
                     <el-button size="small" icon="MoreFilled" />
                     <template #dropdown>
                       <el-dropdown-menu>
                         <el-dropdown-item command="tree" icon="Share">查看族谱</el-dropdown-item>
                         <el-dropdown-item command="photo" icon="Picture">照片相册</el-dropdown-item>
-                        <el-dropdown-item command="story" icon="Document">生平故事</el-dropdown-item>
-                        <el-dropdown-item command="memorial" icon="Star" v-if="scope.row.livingStatus === 'deceased'">
+                        <el-dropdown-item command="story" icon="Document"
+                          >生平故事</el-dropdown-item
+                        >
+                        <el-dropdown-item
+                          command="memorial"
+                          icon="Star"
+                          v-if="scope.row.livingStatus === 'deceased'"
+                        >
                           纪念馆
                         </el-dropdown-item>
                       </el-dropdown-menu>
@@ -205,9 +213,7 @@
             <div class="tree-canvas" ref="treeCanvasRef">
               <div v-if="treeData.length === 0" class="no-tree-data">
                 <el-empty description="暂无族谱数据" />
-                <el-button type="primary" @click="generateInitialTree">
-                  生成初始族谱
-                </el-button>
+                <el-button type="primary" @click="generateInitialTree"> 生成初始族谱 </el-button>
               </div>
 
               <!-- 族谱节点 -->
@@ -217,8 +223,8 @@
                   :key="member.id"
                   class="tree-member-node"
                   :class="{
-                    'deceased': member.livingStatus === 'deceased',
-                    'selected': selectedMemberIds.includes(member.id)
+                    deceased: member.livingStatus === 'deceased',
+                    selected: selectedMemberIds.includes(member.id),
                   }"
                   :style="getNodePosition(member)"
                   @click="selectTreeNode(member)"
@@ -273,7 +279,7 @@
                       v-for="person in event.participants"
                       :key="person.id"
                       size="small"
-                      style="margin-right: 5px;"
+                      style="margin-right: 5px"
                     >
                       {{ person.name }}
                     </el-tag>
@@ -337,19 +343,19 @@
                   <template #header>
                     <span>年龄分布</span>
                   </template>
-                  <div ref="ageChartRef" style="height: 200px;"></div>
+                  <div ref="ageChartRef" style="height: 200px"></div>
                 </el-card>
               </el-col>
             </el-row>
 
-            <el-row :gutter="20" style="margin-top: 20px;">
+            <el-row :gutter="20" style="margin-top: 20px">
               <!-- 世代分布 -->
               <el-col :span="12">
                 <el-card class="stat-card">
                   <template #header>
                     <span>世代分布</span>
                   </template>
-                  <div ref="generationChartRef" style="height: 200px;"></div>
+                  <div ref="generationChartRef" style="height: 200px"></div>
                 </el-card>
               </el-col>
 
@@ -359,7 +365,7 @@
                   <template #header>
                     <span>职业分布</span>
                   </template>
-                  <div ref="occupationChartRef" style="height: 200px;"></div>
+                  <div ref="occupationChartRef" style="height: 200px"></div>
                 </el-card>
               </el-col>
             </el-row>
@@ -397,9 +403,7 @@
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="dialogVisible = false">关闭</el-button>
-        <el-button type="primary" @click="saveArchive" :loading="saving">
-          保存档案
-        </el-button>
+        <el-button type="primary" @click="saveArchive" :loading="saving"> 保存档案 </el-button>
       </div>
     </template>
 
@@ -412,81 +416,82 @@
     />
 
     <!-- 成员详情对话框 -->
-    <member-detail-dialog
-      v-model="memberDetailVisible"
-      :member="currentMember"
-    />
+    <member-detail-dialog v-model="memberDetailVisible" :member="currentMember" />
 
     <!-- 历史事件对话框 -->
-    <history-event-dialog
-      v-model="historyEventVisible"
-      @confirm="handleHistoryEventSave"
-    />
+    <history-event-dialog v-model="historyEventVisible" @confirm="handleHistoryEventSave" />
 
     <!-- 纪念馆对话框 -->
-    <memorial-dialog
-      v-model="memorialVisible"
-      :member="currentMember"
-    />
+    <memorial-dialog v-model="memorialVisible" :member="currentMember" />
   </el-dialog>
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch, onMounted, nextTick } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, reactive, computed, watch, onMounted, nextTick } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
-  UserFilled, Plus, Share, Download, Search, Refresh, View, Edit,
-  MoreFilled, Picture, Document, Star
-} from '@element-plus/icons-vue'
+  UserFilled,
+  Plus,
+  Share,
+  Download,
+  Search,
+  Refresh,
+  View,
+  Edit,
+  MoreFilled,
+  Picture,
+  Document,
+  Star,
+} from '@element-plus/icons-vue';
 
 // 导入组件
-import EnhancedMemberFormDialog from './EnhancedMemberFormDialog.vue'
-import MemberDetailDialog from './MemberDetailDialog.vue'
-import HistoryEventDialog from './HistoryEventDialog.vue'
-import MemorialDialog from './MemorialDialog.vue'
+import EnhancedMemberFormDialog from './EnhancedMemberFormDialog.vue';
+import MemberDetailDialog from './MemberDetailDialog.vue';
+import HistoryEventDialog from './HistoryEventDialog.vue';
+import MemorialDialog from './MemorialDialog.vue';
 
 const props = defineProps({
   modelValue: {
     type: Boolean,
-    default: false
+    default: false,
   },
   resident: {
     type: Object,
-    default: null
-  }
-})
+    default: null,
+  },
+});
 
-const emit = defineEmits(['update:modelValue', 'refresh'])
+const emit = defineEmits(['update:modelValue', 'refresh']);
 
 // 响应式数据
-const loading = ref(false)
-const saving = ref(false)
-const activeTab = ref('members')
-const treeViewMode = ref('vertical')
-const displayGenerations = ref([])
-const selectedMemberIds = ref([])
+const loading = ref(false);
+const saving = ref(false);
+const activeTab = ref('members');
+const treeViewMode = ref('vertical');
+const displayGenerations = ref([]);
+const selectedMemberIds = ref([]);
 
 // 对话框状态
-const memberFormVisible = ref(false)
-const memberDetailVisible = ref(false)
-const historyEventVisible = ref(false)
-const memorialVisible = ref(false)
-const memberFormMode = ref('add')
-const currentMember = ref(null)
+const memberFormVisible = ref(false);
+const memberDetailVisible = ref(false);
+const historyEventVisible = ref(false);
+const memorialVisible = ref(false);
+const memberFormMode = ref('add');
+const currentMember = ref(null);
 
 // 画布引用
-const treeCanvasRef = ref()
-const ageChartRef = ref()
-const generationChartRef = ref()
-const occupationChartRef = ref()
+const treeCanvasRef = ref();
+const ageChartRef = ref();
+const generationChartRef = ref();
+const occupationChartRef = ref();
 
 // 搜索表单
 const searchForm = reactive({
   keyword: '',
   generation: '',
   relationship: '',
-  livingStatus: ''
-})
+  livingStatus: '',
+});
 
 // 家族数据
 const familyData = reactive({
@@ -494,78 +499,79 @@ const familyData = reactive({
   avatar: '',
   memberCount: 0,
   generationCount: 0,
-  createTime: new Date()
-})
+  createTime: new Date(),
+});
 
 // 成员列表
-const familyMembers = ref([])
-const treeData = ref([])
-const familyHistory = ref([])
+const familyMembers = ref([]);
+const treeData = ref([]);
+const familyHistory = ref([]);
 
 // 对话框显示状态
 const dialogVisible = computed({
   get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
-})
+  set: value => emit('update:modelValue', value),
+});
 
 // 计算属性
 const generations = computed(() => {
-  const gens = [...new Set(familyMembers.value.map(m => m.generation))].sort()
-  return gens.map(gen => ({ value: gen, label: `第${gen}代` }))
-})
+  const gens = [...new Set(familyMembers.value.map(m => m.generation))].sort();
+  return gens.map(gen => ({ value: gen, label: `第${gen}代` }));
+});
 
 const filteredMembers = computed(() => {
-  let result = familyMembers.value
+  let result = familyMembers.value;
 
   if (searchForm.keyword) {
-    result = result.filter(member =>
-      member.name.includes(searchForm.keyword) ||
-      member.idCard?.includes(searchForm.keyword) ||
-      member.phone?.includes(searchForm.keyword)
-    )
+    result = result.filter(
+      member =>
+        member.name.includes(searchForm.keyword) ||
+        member.idCard?.includes(searchForm.keyword) ||
+        member.phone?.includes(searchForm.keyword)
+    );
   }
 
   if (searchForm.generation) {
-    result = result.filter(member => member.generation === searchForm.generation)
+    result = result.filter(member => member.generation === searchForm.generation);
   }
 
   if (searchForm.relationship) {
-    result = result.filter(member => member.relationshipType === searchForm.relationship)
+    result = result.filter(member => member.relationshipType === searchForm.relationship);
   }
 
   if (searchForm.livingStatus) {
-    result = result.filter(member => member.livingStatus === searchForm.livingStatus)
+    result = result.filter(member => member.livingStatus === searchForm.livingStatus);
   }
 
-  return result
-})
+  return result;
+});
 
 const deceasedMembers = computed(() => {
-  return familyMembers.value.filter(member => member.livingStatus === 'deceased')
-})
+  return familyMembers.value.filter(member => member.livingStatus === 'deceased');
+});
 
 const statistics = computed(() => {
-  const total = familyMembers.value.length
-  const alive = familyMembers.value.filter(m => m.livingStatus === 'alive').length
-  const male = familyMembers.value.filter(m => m.gender === 'male').length
-  const female = familyMembers.value.filter(m => m.gender === 'female').length
+  const total = familyMembers.value.length;
+  const alive = familyMembers.value.filter(m => m.livingStatus === 'alive').length;
+  const male = familyMembers.value.filter(m => m.gender === 'male').length;
+  const female = familyMembers.value.filter(m => m.gender === 'female').length;
 
   return {
     totalMembers: total,
     aliveMembers: alive,
     maleCount: male,
-    femaleCount: female
-  }
-})
+    femaleCount: female,
+  };
+});
 
 // 方法
 const loadFamilyData = async () => {
-  if (!props.resident?.id) return
+  if (!props.resident?.id) return;
 
-  loading.value = true
+  loading.value = true;
   try {
     // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     // 模拟数据
     familyMembers.value = [
@@ -583,7 +589,7 @@ const loadFamilyData = async () => {
         education: '小学',
         achievements: '村支书20年',
         avatar: '',
-        memorialTitle: '德高望重的老支书'
+        memorialTitle: '德高望重的老支书',
       },
       {
         id: 2,
@@ -597,7 +603,7 @@ const loadFamilyData = async () => {
         occupation: '教师',
         education: '大学',
         achievements: '优秀教师',
-        avatar: ''
+        avatar: '',
       },
       {
         id: 3,
@@ -610,26 +616,26 @@ const loadFamilyData = async () => {
         livingStatus: 'alive',
         occupation: props.resident.occupation,
         education: props.resident.education,
-        avatar: props.resident.avatar
-      }
-    ]
+        avatar: props.resident.avatar,
+      },
+    ];
 
     // 更新家族基本信息
-    familyData.memberCount = familyMembers.value.length
-    familyData.generationCount = Math.max(...familyMembers.value.map(m => m.generation))
+    familyData.memberCount = familyMembers.value.length;
+    familyData.generationCount = Math.max(...familyMembers.value.map(m => m.generation));
 
     // 生成族谱数据
-    generateTreeData()
+    generateTreeData();
 
     // 加载历史事件
-    loadFamilyHistory()
+    loadFamilyHistory();
   } catch (error) {
-    console.error('加载家族数据失败:', error)
-    ElMessage.error('加载家族数据失败')
+    console.error('加载家族数据失败:', error);
+    ElMessage.error('加载家族数据失败');
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const generateTreeData = () => {
   // 根据家族成员生成树形数据结构
@@ -637,23 +643,22 @@ const generateTreeData = () => {
     ...member,
     x: 0,
     y: 0,
-    children: familyMembers.value.filter(m =>
-      m.generation === member.generation + 1 &&
-      isChildOf(m, member)
-    )
-  }))
+    children: familyMembers.value.filter(
+      m => m.generation === member.generation + 1 && isChildOf(m, member)
+    ),
+  }));
 
   // 计算节点位置
-  calculateNodePositions()
-}
+  calculateNodePositions();
+};
 
 const calculateNodePositions = () => {
   // 简化的位置计算算法
   treeData.value.forEach((member, index) => {
-    member.x = (member.generation - 1) * 200
-    member.y = index * 100
-  })
-}
+    member.x = (member.generation - 1) * 200;
+    member.y = index * 100;
+  });
+};
 
 const loadFamilyHistory = () => {
   // 模拟历史事件数据
@@ -664,7 +669,7 @@ const loadFamilyHistory = () => {
       description: '家族第一代创始人出生于贫苦农家',
       date: '1920-03-15',
       type: 'birth',
-      participants: [{ id: 1, name: '张老爷子' }]
+      participants: [{ id: 1, name: '张老爷子' }],
     },
     {
       id: 2,
@@ -672,194 +677,197 @@ const loadFamilyHistory = () => {
       description: '张老爷子当选为村支书，开始为村民服务',
       date: '1960-01-01',
       type: 'achievement',
-      participants: [{ id: 1, name: '张老爷子' }]
-    }
-  ]
-}
+      participants: [{ id: 1, name: '张老爷子' }],
+    },
+  ];
+};
 
 const isChildOf = (child, parent) => {
   // 简化的父子关系判断
-  return child.generation === parent.generation + 1
-}
+  return child.generation === parent.generation + 1;
+};
 
 const showAddMemberDialog = () => {
-  currentMember.value = null
-  memberFormMode.value = 'add'
-  memberFormVisible.value = true
-}
+  currentMember.value = null;
+  memberFormMode.value = 'add';
+  memberFormVisible.value = true;
+};
 
-const editMember = (member) => {
-  currentMember.value = member
-  memberFormMode.value = 'edit'
-  memberFormVisible.value = true
-}
+const editMember = member => {
+  currentMember.value = member;
+  memberFormMode.value = 'edit';
+  memberFormVisible.value = true;
+};
 
-const viewMember = (member) => {
-  currentMember.value = member
-  memberDetailVisible.value = true
-}
+const viewMember = member => {
+  currentMember.value = member;
+  memberDetailVisible.value = true;
+};
 
 const handleMemberAction = (command, member) => {
-  currentMember.value = member
+  currentMember.value = member;
 
   switch (command) {
     case 'tree':
-      activeTab.value = 'tree'
-      selectTreeNode(member)
-      break
+      activeTab.value = 'tree';
+      selectTreeNode(member);
+      break;
     case 'photo':
-      ElMessage.info('照片相册功能开发中...')
-      break
+      ElMessage.info('照片相册功能开发中...');
+      break;
     case 'story':
-      ElMessage.info('生平故事功能开发中...')
-      break
+      ElMessage.info('生平故事功能开发中...');
+      break;
     case 'memorial':
-      memorialVisible.value = true
-      break
+      memorialVisible.value = true;
+      break;
   }
-}
+};
 
-const handleSelectionChange = (selection) => {
-  selectedMemberIds.value = selection.map(s => s.id)
-}
+const handleSelectionChange = selection => {
+  selectedMemberIds.value = selection.map(s => s.id);
+};
 
 const searchMembers = () => {
   // 搜索逻辑已在计算属性中实现
-}
+};
 
 const resetSearch = () => {
   Object.assign(searchForm, {
     keyword: '',
     generation: '',
     relationship: '',
-    livingStatus: ''
-  })
-}
+    livingStatus: '',
+  });
+};
 
 const generateFamilyTree = () => {
-  generateTreeData()
-  activeTab.value = 'tree'
-  ElMessage.success('族谱已生成')
-}
+  generateTreeData();
+  activeTab.value = 'tree';
+  ElMessage.success('族谱已生成');
+};
 
 const refreshTree = () => {
-  generateTreeData()
-  ElMessage.success('族谱已刷新')
-}
+  generateTreeData();
+  ElMessage.success('族谱已刷新');
+};
 
 const exportTree = () => {
-  ElMessage.info('导出族谱功能开发中...')
-}
+  ElMessage.info('导出族谱功能开发中...');
+};
 
 const generateInitialTree = () => {
-  generateTreeData()
-  ElMessage.success('初始族谱已生成')
-}
+  generateTreeData();
+  ElMessage.success('初始族谱已生成');
+};
 
-const selectTreeNode = (member) => {
-  const index = selectedMemberIds.value.indexOf(member.id)
+const selectTreeNode = member => {
+  const index = selectedMemberIds.value.indexOf(member.id);
   if (index > -1) {
-    selectedMemberIds.value.splice(index, 1)
+    selectedMemberIds.value.splice(index, 1);
   } else {
-    selectedMemberIds.value.push(member.id)
+    selectedMemberIds.value.push(member.id);
   }
-}
+};
 
-const getNodePosition = (member) => {
+const getNodePosition = member => {
   return {
     left: member.x + 'px',
-    top: member.y + 'px'
-  }
-}
+    top: member.y + 'px',
+  };
+};
 
 const showAddHistoryDialog = () => {
-  historyEventVisible.value = true
-}
+  historyEventVisible.value = true;
+};
 
-const openMemorial = (member) => {
-  currentMember.value = member
-  memorialVisible.value = true
-}
+const openMemorial = member => {
+  currentMember.value = member;
+  memorialVisible.value = true;
+};
 
 const exportArchive = () => {
-  ElMessage.info('导出家族档案功能开发中...')
-}
+  ElMessage.info('导出家族档案功能开发中...');
+};
 
 const saveArchive = async () => {
-  saving.value = true
+  saving.value = true;
   try {
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    ElMessage.success('家族档案保存成功')
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    ElMessage.success('家族档案保存成功');
   } catch (error) {
-    ElMessage.error('保存失败')
+    ElMessage.error('保存失败');
   } finally {
-    saving.value = false
+    saving.value = false;
   }
-}
+};
 
 const handleMemberSave = () => {
-  memberFormVisible.value = false
-  loadFamilyData()
-}
+  memberFormVisible.value = false;
+  loadFamilyData();
+};
 
 const handleHistoryEventSave = () => {
-  historyEventVisible.value = false
-  loadFamilyHistory()
-}
+  historyEventVisible.value = false;
+  loadFamilyHistory();
+};
 
 // 工具函数
-const formatDate = (date) => {
-  if (!date) return ''
-  return new Date(date).toLocaleDateString()
-}
+const formatDate = date => {
+  if (!date) return '';
+  return new Date(date).toLocaleDateString();
+};
 
-const formatYear = (date) => {
-  if (!date) return ''
-  return new Date(date).getFullYear()
-}
+const formatYear = date => {
+  if (!date) return '';
+  return new Date(date).getFullYear();
+};
 
-const getGenerationTagType = (generation) => {
-  const types = ['', 'success', 'primary', 'warning', 'danger', 'info']
-  return types[generation] || 'info'
-}
+const getGenerationTagType = generation => {
+  const types = ['', 'success', 'primary', 'warning', 'danger', 'info'];
+  return types[generation] || 'info';
+};
 
-const getEventType = (type) => {
+const getEventType = type => {
   const typeMap = {
     birth: 'success',
     death: 'info',
     marriage: 'warning',
-    achievement: 'primary'
-  }
-  return typeMap[type] || 'primary'
-}
+    achievement: 'primary',
+  };
+  return typeMap[type] || 'primary';
+};
 
-const getEventIcon = (type) => {
+const getEventIcon = type => {
   const iconMap = {
     birth: 'Plus',
     death: 'Star',
     marriage: 'Share',
-    achievement: 'Trophy'
-  }
-  return iconMap[type] || 'Document'
-}
+    achievement: 'Trophy',
+  };
+  return iconMap[type] || 'Document';
+};
 
 // 监听器
-watch(() => props.modelValue, (newVal) => {
-  if (newVal && props.resident) {
-    loadFamilyData()
+watch(
+  () => props.modelValue,
+  newVal => {
+    if (newVal && props.resident) {
+      loadFamilyData();
+    }
   }
-})
+);
 
 watch(displayGenerations, () => {
-  generateTreeData()
-})
+  generateTreeData();
+});
 
 // 生命周期
 onMounted(() => {
   if (props.modelValue && props.resident) {
-    loadFamilyData()
+    loadFamilyData();
   }
-})
+});
 </script>
 
 <style lang="scss" scoped>
@@ -991,7 +999,9 @@ onMounted(() => {
                   margin-bottom: 4px;
                 }
 
-                .generation, .relationship, .dates {
+                .generation,
+                .relationship,
+                .dates {
                   font-size: 12px;
                   color: #909399;
                   line-height: 1.4;

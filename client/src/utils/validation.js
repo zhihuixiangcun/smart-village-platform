@@ -12,7 +12,7 @@ export function required(message = '此项为必填项') {
   return {
     required: true,
     message,
-    trigger: ['blur', 'change']
+    trigger: ['blur', 'change'],
   };
 }
 
@@ -31,7 +31,7 @@ export function phone(isRequired = true) {
   rules.push({
     pattern: /^1[3-9]\d{9}$/,
     message: '请输入正确的手机号格式',
-    trigger: ['blur', 'change']
+    trigger: ['blur', 'change'],
   });
 
   return rules;
@@ -52,7 +52,7 @@ export function idCard(isRequired = true) {
   rules.push({
     pattern: /^[1-9]\d{5}(18|19|20)\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/,
     message: '请输入正确的身份证号格式',
-    trigger: ['blur', 'change']
+    trigger: ['blur', 'change'],
   });
 
   return rules;
@@ -73,7 +73,7 @@ export function email(isRequired = true) {
   rules.push({
     type: 'email',
     message: '请输入正确的邮箱格式',
-    trigger: ['blur', 'change']
+    trigger: ['blur', 'change'],
   });
 
   return rules;
@@ -95,7 +95,7 @@ export function password(minLength = 6, isRequired = true) {
   rules.push({
     min: minLength,
     message: `密码长度不能少于${minLength}位`,
-    trigger: ['blur', 'change']
+    trigger: ['blur', 'change'],
   });
 
   return rules;
@@ -120,8 +120,8 @@ export function confirmPassword(passwordField, formData) {
           callback();
         }
       },
-      trigger: ['blur', 'change']
-    }
+      trigger: ['blur', 'change'],
+    },
   ];
 }
 
@@ -144,19 +144,19 @@ export function length(min, max, isRequired = true) {
       min,
       max,
       message: `长度应在${min}到${max}个字符之间`,
-      trigger: ['blur', 'change']
+      trigger: ['blur', 'change'],
     });
   } else if (min !== undefined) {
     rules.push({
       min,
       message: `长度不能少于${min}个字符`,
-      trigger: ['blur', 'change']
+      trigger: ['blur', 'change'],
     });
   } else if (max !== undefined) {
     rules.push({
       max,
       message: `长度不能超过${max}个字符`,
-      trigger: ['blur', 'change']
+      trigger: ['blur', 'change'],
     });
   }
 
@@ -180,7 +180,7 @@ export function number(min, max, isRequired = true) {
   rules.push({
     type: 'number',
     message: '请输入正确的数字',
-    trigger: ['blur', 'change']
+    trigger: ['blur', 'change'],
   });
 
   if (min !== undefined && max !== undefined) {
@@ -188,19 +188,19 @@ export function number(min, max, isRequired = true) {
       min,
       max,
       message: `数值应在${min}到${max}之间`,
-      trigger: ['blur', 'change']
+      trigger: ['blur', 'change'],
     });
   } else if (min !== undefined) {
     rules.push({
       min,
       message: `数值不能小于${min}`,
-      trigger: ['blur', 'change']
+      trigger: ['blur', 'change'],
     });
   } else if (max !== undefined) {
     rules.push({
       max,
       message: `数值不能大于${max}`,
-      trigger: ['blur', 'change']
+      trigger: ['blur', 'change'],
     });
   }
 
@@ -222,7 +222,7 @@ export function positiveInteger(isRequired = true) {
   rules.push({
     pattern: /^[1-9]\d*$/,
     message: '请输入正整数',
-    trigger: ['blur', 'change']
+    trigger: ['blur', 'change'],
   });
 
   return rules;
@@ -241,16 +241,13 @@ export function money(isRequired = true, precision = 2) {
     rules.push(required('请输入金额'));
   }
 
-  const pattern = precision > 0
-    ? new RegExp(`^\\d+(\\.\\d{1,${precision}})?$`)
-    : /^\d+$/;
+  const pattern = precision > 0 ? new RegExp(`^\\d+(\\.\\d{1,${precision}})?$`) : /^\d+$/;
 
   rules.push({
     pattern,
-    message: precision > 0
-      ? `请输入正确的金额格式（最多${precision}位小数）`
-      : '请输入正确的金额格式',
-    trigger: ['blur', 'change']
+    message:
+      precision > 0 ? `请输入正确的金额格式（最多${precision}位小数）` : '请输入正确的金额格式',
+    trigger: ['blur', 'change'],
   });
 
   return rules;
@@ -271,7 +268,7 @@ export function url(isRequired = true) {
   rules.push({
     type: 'url',
     message: '请输入正确的URL格式',
-    trigger: ['blur', 'change']
+    trigger: ['blur', 'change'],
   });
 
   return rules;
@@ -299,7 +296,7 @@ export function custom(validator, message, isRequired = false) {
         callback(new Error(message));
       }
     },
-    trigger: ['blur', 'change']
+    trigger: ['blur', 'change'],
   });
 
   return rules;
@@ -320,7 +317,7 @@ export function date(isRequired = true) {
   rules.push({
     type: 'date',
     message: '请选择正确的日期',
-    trigger: ['blur', 'change']
+    trigger: ['blur', 'change'],
   });
 
   return rules;
@@ -358,7 +355,7 @@ export function dateRange(minDate, maxDate, isRequired = true) {
 
         callback();
       },
-      trigger: ['blur', 'change']
+      trigger: ['blur', 'change'],
     });
   }
 
@@ -382,7 +379,7 @@ export const rules = {
   url,
   custom,
   date,
-  dateRange
+  dateRange,
 };
 
 export default rules;

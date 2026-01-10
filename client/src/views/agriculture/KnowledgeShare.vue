@@ -54,14 +54,26 @@
       <el-col :span="16">
         <!-- 筛选栏 -->
         <div class="filter-bar">
-          <el-select v-model="filter.cropType" placeholder="作物类型" clearable @change="fetchPosts" size="small">
+          <el-select
+            v-model="filter.cropType"
+            placeholder="作物类型"
+            clearable
+            @change="fetchPosts"
+            size="small"
+          >
             <el-option label="水稻" value="rice" />
             <el-option label="小麦" value="wheat" />
             <el-option label="玉米" value="corn" />
             <el-option label="番茄" value="tomato" />
             <el-option label="黄瓜" value="cucumber" />
           </el-select>
-          <el-select v-model="filter.difficulty" placeholder="难度等级" clearable @change="fetchPosts" size="small">
+          <el-select
+            v-model="filter.difficulty"
+            placeholder="难度等级"
+            clearable
+            @change="fetchPosts"
+            size="small"
+          >
             <el-option label="初级" value="beginner" />
             <el-option label="中级" value="intermediate" />
             <el-option label="高级" value="advanced" />
@@ -147,7 +159,12 @@
                 <el-col :span="post.content.images?.length ? 16 : 24">
                   <div class="post-content">
                     <h4 class="post-title">
-                      <el-tag v-if="post.expertVerified?.isVerified" type="warning" size="small" class="expert-tag">
+                      <el-tag
+                        v-if="post.expertVerified?.isVerified"
+                        type="warning"
+                        size="small"
+                        class="expert-tag"
+                      >
                         <el-icon><Medal /></el-icon>
                         专家认证
                       </el-tag>
@@ -155,9 +172,15 @@
                     </h4>
                     <p class="post-excerpt">{{ post.content.text?.substring(0, 100) }}...</p>
                     <div class="post-tags">
-                      <el-tag size="small" type="info">{{ getCategoryLabel(post.category) }}</el-tag>
-                      <el-tag size="small" type="success">{{ getDifficultyLabel(post.difficulty) }}</el-tag>
-                      <el-tag size="small" v-for="tag in post.tags?.slice(0, 3)" :key="tag">{{ tag }}</el-tag>
+                      <el-tag size="small" type="info">{{
+                        getCategoryLabel(post.category)
+                      }}</el-tag>
+                      <el-tag size="small" type="success">{{
+                        getDifficultyLabel(post.difficulty)
+                      }}</el-tag>
+                      <el-tag size="small" v-for="tag in post.tags?.slice(0, 3)" :key="tag">{{
+                        tag
+                      }}</el-tag>
                     </div>
                     <div class="post-meta">
                       <span class="author">
@@ -251,7 +274,12 @@
     >
       <el-form :model="postData" :rules="postRules" ref="postFormRef" label-width="120px">
         <el-form-item label="标题" prop="title">
-          <el-input v-model="postData.title" placeholder="请输入知识标题" maxlength="200" show-word-limit />
+          <el-input
+            v-model="postData.title"
+            placeholder="请输入知识标题"
+            maxlength="200"
+            show-word-limit
+          />
         </el-form-item>
         <el-row :gutter="20">
           <el-col :span="12">
@@ -314,8 +342,17 @@
         <el-form-item label="技术要点">
           <div v-for="(tech, index) in postData.techniques" :key="index" class="technique-item">
             <el-input v-model="tech.name" placeholder="要点名称" style="width: 200px" />
-            <el-input v-model="tech.description" placeholder="描述" style="width: 400px; margin-left: 10px" />
-            <el-button type="danger" size="small" @click="removeTechnique(index)" style="margin-left: 10px">
+            <el-input
+              v-model="tech.description"
+              placeholder="描述"
+              style="width: 400px; margin-left: 10px"
+            />
+            <el-button
+              type="danger"
+              size="small"
+              @click="removeTechnique(index)"
+              style="margin-left: 10px"
+            >
               删除
             </el-button>
           </div>
@@ -330,12 +367,7 @@
             placeholder="请选择或输入标签"
             style="width: 100%"
           >
-            <el-option
-              v-for="tag in hotTags"
-              :key="tag._id"
-              :label="tag._id"
-              :value="tag._id"
-            />
+            <el-option v-for="tag in hotTags" :key="tag._id" :label="tag._id" :value="tag._id" />
           </el-select>
         </el-form-item>
       </el-form>
@@ -348,54 +380,61 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { ElMessage } from 'element-plus';
 import {
-  Plus, Search, Medal, View, Star, Check, TrendCharts, Trophy
-} from '@element-plus/icons-vue'
+  Plus,
+  Search,
+  Medal,
+  View,
+  Star,
+  Check,
+  TrendCharts,
+  Trophy,
+} from '@element-plus/icons-vue';
 import {
   getAgriculturePosts,
   getPopularPosts,
   getExpertVerifiedPosts,
   getTagCloud,
-  createAgriculturePost
-} from '@/api/agriculture'
+  createAgriculturePost,
+} from '@/api/agriculture';
 
-const router = useRouter()
-const loading = ref(false)
-const publishing = ref(false)
-const publishDialogVisible = ref(false)
-const postFormRef = ref(null)
+const router = useRouter();
+const loading = ref(false);
+const publishing = ref(false);
+const publishDialogVisible = ref(false);
+const postFormRef = ref(null);
 
 // 当前分类
-const activeCategory = ref('')
+const activeCategory = ref('');
 
 // 筛选条件
 const filter = ref({
   cropType: '',
   difficulty: '',
   sort: '-publishedAt',
-  keyword: ''
-})
+  keyword: '',
+});
 
 // 分页
 const pagination = ref({
   page: 1,
   limit: 10,
-  total: 0
-})
+  total: 0,
+});
 
 // 帖子列表
-const postList = ref([])
-const expertPosts = ref([])
-const popularPosts = ref([])
+const postList = ref([]);
+const expertPosts = ref([]);
+const popularPosts = ref([]);
 
 // 热门标签
-const hotTags = ref([])
+const hotTags = ref([]);
 
 // 图片列表
-const imageList = ref([])
+const imageList = ref([]);
 
 // 发布数据
 const postData = ref({
@@ -405,102 +444,102 @@ const postData = ref({
   content: '',
   difficulty: 'beginner',
   techniques: [],
-  tags: []
-})
+  tags: [],
+});
 
 // 表单验证规则
 const postRules = {
   title: [{ required: true, message: '请输入标题', trigger: 'blur' }],
   category: [{ required: true, message: '请选择分类', trigger: 'change' }],
-  content: [{ required: true, message: '请输入内容', trigger: 'blur' }]
-}
+  content: [{ required: true, message: '请输入内容', trigger: 'blur' }],
+};
 
 // 专家列表（模拟数据）
 const experts = ref([
   { _id: '1', name: '张农技', avatar: 'https://example.com/avatar1.jpg', postCount: 45 },
-  { _id: '2', name: '李种植', avatar: 'https://example.com/avatar2.jpg', postCount: 38 }
-])
+  { _id: '2', name: '李种植', avatar: 'https://example.com/avatar2.jpg', postCount: 38 },
+]);
 
 // 获取帖子列表
 const fetchPosts = async () => {
-  loading.value = true
+  loading.value = true;
   try {
     const params = {
       villageId: 'current-village-id',
       category: activeCategory.value || undefined,
       ...filter.value,
-      ...pagination.value
-    }
-    const res = await getAgriculturePosts(params)
+      ...pagination.value,
+    };
+    const res = await getAgriculturePosts(params);
     if (res.success) {
-      postList.value = res.data
-      pagination.value.total = res.pagination?.total || 0
+      postList.value = res.data;
+      pagination.value.total = res.pagination?.total || 0;
     }
   } catch (error) {
-    ElMessage.error('获取帖子列表失败')
+    ElMessage.error('获取帖子列表失败');
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 // 获取专家认证帖子
 const fetchExpertPosts = async () => {
   try {
-    const res = await getExpertVerifiedPosts({ villageId: 'current-village-id', limit: 4 })
+    const res = await getExpertVerifiedPosts({ villageId: 'current-village-id', limit: 4 });
     if (res.success) {
-      expertPosts.value = res.data
+      expertPosts.value = res.data;
     }
   } catch (error) {
-    console.error('获取专家认证帖子失败', error)
+    console.error('获取专家认证帖子失败', error);
   }
-}
+};
 
 // 获取热门帖子
 const fetchPopularPosts = async () => {
   try {
-    const res = await getPopularPosts({ villageId: 'current-village-id', limit: 10 })
+    const res = await getPopularPosts({ villageId: 'current-village-id', limit: 10 });
     if (res.success) {
-      popularPosts.value = res.data
+      popularPosts.value = res.data;
     }
   } catch (error) {
-    console.error('获取热门帖子失败', error)
+    console.error('获取热门帖子失败', error);
   }
-}
+};
 
 // 获取标签云
 const fetchTagCloud = async () => {
   try {
-    const res = await getTagCloud({ villageId: 'current-village-id', limit: 20 })
+    const res = await getTagCloud({ villageId: 'current-village-id', limit: 20 });
     if (res.success) {
-      hotTags.value = res.data
+      hotTags.value = res.data;
     }
   } catch (error) {
-    console.error('获取标签云失败', error)
+    console.error('获取标签云失败', error);
   }
-}
+};
 
 // 分类变化
 const handleCategoryChange = () => {
-  pagination.value.page = 1
-  fetchPosts()
-}
+  pagination.value.page = 1;
+  fetchPosts();
+};
 
 // 搜索
 const handleSearch = () => {
-  pagination.value.page = 1
-  fetchPosts()
-}
+  pagination.value.page = 1;
+  fetchPosts();
+};
 
 // 按标签搜索
-const searchByTag = (tag) => {
-  filter.value.keyword = tag
-  handleSearch()
-}
+const searchByTag = tag => {
+  filter.value.keyword = tag;
+  handleSearch();
+};
 
 // 查看帖子
-const viewPost = (post) => {
-  router.push(`/agriculture/knowledge/${post._id}`)
-}
+const viewPost = post => {
+  router.push(`/agriculture/knowledge/${post._id}`);
+};
 
 // 显示发布对话框
 const showPublishDialog = () => {
@@ -511,26 +550,26 @@ const showPublishDialog = () => {
     content: '',
     difficulty: 'beginner',
     techniques: [],
-    tags: []
-  }
-  imageList.value = []
-  publishDialogVisible.value = true
-}
+    tags: [],
+  };
+  imageList.value = [];
+  publishDialogVisible.value = true;
+};
 
 // 添加技术要点
 const addTechnique = () => {
-  postData.value.techniques.push({ name: '', description: '' })
-}
+  postData.value.techniques.push({ name: '', description: '' });
+};
 
 // 删除技术要点
-const removeTechnique = (index) => {
-  postData.value.techniques.splice(index, 1)
-}
+const removeTechnique = index => {
+  postData.value.techniques.splice(index, 1);
+};
 
 // 发布
 const handlePublish = async () => {
-  await postFormRef.value.validate()
-  publishing.value = true
+  await postFormRef.value.validate();
+  publishing.value = true;
   try {
     const data = {
       ...postData.value,
@@ -539,30 +578,30 @@ const handlePublish = async () => {
         text: postData.value.content,
         images: imageList.value.map(file => ({
           url: file.response?.url || file.url,
-          order: file.order || 0
-        }))
-      }
-    }
-    const res = await createAgriculturePost(data)
+          order: file.order || 0,
+        })),
+      },
+    };
+    const res = await createAgriculturePost(data);
     if (res.success) {
-      ElMessage.success('发布成功，等待审核')
-      publishDialogVisible.value = false
-      fetchPosts()
+      ElMessage.success('发布成功，等待审核');
+      publishDialogVisible.value = false;
+      fetchPosts();
     }
   } catch (error) {
-    ElMessage.error('发布失败')
+    ElMessage.error('发布失败');
   } finally {
-    publishing.value = false
+    publishing.value = false;
   }
-}
+};
 
 // 返回
 const goBack = () => {
-  router.back()
-}
+  router.back();
+};
 
 // 分类标签
-const getCategoryLabel = (category) => {
+const getCategoryLabel = category => {
   const map = {
     crop_farming: '粮食种植',
     vegetable: '蔬菜种植',
@@ -574,44 +613,44 @@ const getCategoryLabel = (category) => {
     machinery: '农机使用',
     processing: '农产品加工',
     market_info: '市场信息',
-    policy: '政策解读'
-  }
-  return map[category] || category
-}
+    policy: '政策解读',
+  };
+  return map[category] || category;
+};
 
 // 难度标签
-const getDifficultyLabel = (difficulty) => {
+const getDifficultyLabel = difficulty => {
   const map = {
     beginner: '初级',
     intermediate: '中级',
-    advanced: '高级'
-  }
-  return map[difficulty] || difficulty
-}
+    advanced: '高级',
+  };
+  return map[difficulty] || difficulty;
+};
 
 // 相对时间
-const formatRelativeTime = (date) => {
-  if (!date) return ''
-  const now = new Date()
-  const postDate = new Date(date)
-  const diff = now - postDate
-  const minutes = Math.floor(diff / 60000)
-  const hours = Math.floor(diff / 3600000)
-  const days = Math.floor(diff / 86400000)
+const formatRelativeTime = date => {
+  if (!date) return '';
+  const now = new Date();
+  const postDate = new Date(date);
+  const diff = now - postDate;
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
 
-  if (minutes < 1) return '刚刚'
-  if (minutes < 60) return `${minutes}分钟前`
-  if (hours < 24) return `${hours}小时前`
-  if (days < 7) return `${days}天前`
-  return postDate.toLocaleDateString('zh-CN')
-}
+  if (minutes < 1) return '刚刚';
+  if (minutes < 60) return `${minutes}分钟前`;
+  if (hours < 24) return `${hours}小时前`;
+  if (days < 7) return `${days}天前`;
+  return postDate.toLocaleDateString('zh-CN');
+};
 
 onMounted(() => {
-  fetchPosts()
-  fetchExpertPosts()
-  fetchPopularPosts()
-  fetchTagCloud()
-})
+  fetchPosts();
+  fetchExpertPosts();
+  fetchPopularPosts();
+  fetchTagCloud();
+});
 </script>
 
 <style scoped lang="scss">
@@ -849,9 +888,18 @@ onMounted(() => {
           font-weight: bold;
           margin-right: 10px;
 
-          &.rank-1 { background: #ff4757; color: white; }
-          &.rank-2 { background: #ff6b81; color: white; }
-          &.rank-3 { background: #ff7f50; color: white; }
+          &.rank-1 {
+            background: #ff4757;
+            color: white;
+          }
+          &.rank-2 {
+            background: #ff6b81;
+            color: white;
+          }
+          &.rank-3 {
+            background: #ff7f50;
+            color: white;
+          }
         }
 
         .hot-title {

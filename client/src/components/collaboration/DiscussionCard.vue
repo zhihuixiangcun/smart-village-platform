@@ -1,5 +1,5 @@
 <template>
-  <div class="discussion-card" :class="{ 'pinned': discussion.metadata.pinned }">
+  <div class="discussion-card" :class="{ pinned: discussion.metadata.pinned }">
     <el-card class="discussion-card-content" shadow="hover">
       <!-- 置顶标识 -->
       <div v-if="discussion.metadata.pinned" class="pinned-badge">
@@ -18,10 +18,12 @@
               <el-tag :type="getTypeColor(discussion.type)" size="small">
                 {{ getTypeName(discussion.type) }}
               </el-tag>
-              <el-tag v-if="discussion.priority === 'urgent'"
-                     type="danger"
-                     size="small"
-                     effect="dark">
+              <el-tag
+                v-if="discussion.priority === 'urgent'"
+                type="danger"
+                size="small"
+                effect="dark"
+              >
                 紧急
               </el-tag>
             </div>
@@ -36,10 +38,18 @@
                   <el-dropdown-item command="view">查看详情</el-dropdown-item>
                   <el-dropdown-item command="share">分享</el-dropdown-item>
                   <el-dropdown-item command="subscribe" v-if="!isSubscribed">订阅</el-dropdown-item>
-                  <el-dropdown-item command="unsubscribe" v-if="isSubscribed">取消订阅</el-dropdown-item>
-                  <el-dropdown-item command="pin" v-if="canPin && !discussion.metadata.pinned">置顶</el-dropdown-item>
-                  <el-dropdown-item command="unpin" v-if="canPin && discussion.metadata.pinned">取消置顶</el-dropdown-item>
-                  <el-dropdown-item command="close" v-if="canManage" divided>关闭讨论</el-dropdown-item>
+                  <el-dropdown-item command="unsubscribe" v-if="isSubscribed"
+                    >取消订阅</el-dropdown-item
+                  >
+                  <el-dropdown-item command="pin" v-if="canPin && !discussion.metadata.pinned"
+                    >置顶</el-dropdown-item
+                  >
+                  <el-dropdown-item command="unpin" v-if="canPin && discussion.metadata.pinned"
+                    >取消置顶</el-dropdown-item
+                  >
+                  <el-dropdown-item command="close" v-if="canManage" divided
+                    >关闭讨论</el-dropdown-item
+                  >
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -67,15 +77,20 @@
         </div>
 
         <!-- 附件预览 -->
-        <div class="attachments-preview" v-if="discussion.attachments && discussion.attachments.length > 0">
+        <div
+          class="attachments-preview"
+          v-if="discussion.attachments && discussion.attachments.length > 0"
+        >
           <div class="attachment-count">
             <el-icon><Paperclip /></el-icon>
             <span>{{ discussion.attachments.length }}个附件</span>
           </div>
           <div class="attachment-list">
-            <div v-for="attachment in discussion.attachments.slice(0, 3)"
-                 :key="attachment.url"
-                 class="attachment-item">
+            <div
+              v-for="attachment in discussion.attachments.slice(0, 3)"
+              :key="attachment.url"
+              class="attachment-item"
+            >
               <el-icon :class="getAttachmentIcon(attachment.type)">
                 <component :is="getAttachmentIcon(attachment.type)" />
               </el-icon>
@@ -89,11 +104,13 @@
 
         <!-- 标签 -->
         <div class="tags-container" v-if="discussion.tags && discussion.tags.length > 0">
-          <el-tag v-for="tag in discussion.tags.slice(0, 5)"
-                  :key="tag"
-                  size="small"
-                  effect="light"
-                  class="discussion-tag">
+          <el-tag
+            v-for="tag in discussion.tags.slice(0, 5)"
+            :key="tag"
+            size="small"
+            effect="light"
+            class="discussion-tag"
+          >
             {{ tag }}
           </el-tag>
           <span v-if="discussion.tags.length > 5" class="more-tags">
@@ -109,20 +126,21 @@
             <el-tag size="small" type="info" v-if="!isVotingExpired">
               {{ getVotingDeadline() }}
             </el-tag>
-            <el-tag size="small" type="danger" v-else>
-              已结束
-            </el-tag>
+            <el-tag size="small" type="danger" v-else> 已结束 </el-tag>
           </div>
           <div class="voting-progress">
-            <div v-for="(option, index) in discussion.voting.options.slice(0, 2)"
-                 :key="index"
-                 class="voting-option">
+            <div
+              v-for="(option, index) in discussion.voting.options.slice(0, 2)"
+              :key="index"
+              class="voting-option"
+            >
               <span class="option-text">{{ option.text }}</span>
               <el-progress
                 :percentage="getVotingPercentage(option.votes)"
                 :show-text="false"
                 :stroke-width="4"
-                class="option-progress" />
+                class="option-progress"
+              />
               <span class="option-votes">{{ option.votes }}票</span>
             </div>
           </div>
@@ -171,70 +189,90 @@
     <QuickReplyDialog
       v-model="replyDialogVisible"
       :discussion="discussion"
-      @replied="handleReplied" />
+      @replied="handleReplied"
+    />
 
     <!-- 分享弹窗 -->
-    <ShareDialog
-      v-model="shareDialogVisible"
-      :discussion="discussion" />
+    <ShareDialog v-model="shareDialogVisible" :discussion="discussion" />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, defineProps, defineEmits } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, computed, defineProps, defineEmits } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
-  Top, MoreFilled, View, ChatDotRound, User, Vote, Star, Share,
-  Paperclip, Document, Picture, VideoPlay
-} from '@element-plus/icons-vue'
-import QuickReplyDialog from './QuickReplyDialog.vue'
-import ShareDialog from './ShareDialog.vue'
-import { useUserStore } from '@/stores/user'
-import { formatDistanceToNow } from 'date-fns'
-import { zhCN } from 'date-fns/locale'
+  Top,
+  MoreFilled,
+  View,
+  ChatDotRound,
+  User,
+  Vote,
+  Star,
+  Share,
+  Paperclip,
+  Document,
+  Picture,
+  VideoPlay,
+} from '@element-plus/icons-vue';
+import QuickReplyDialog from './QuickReplyDialog.vue';
+import ShareDialog from './ShareDialog.vue';
+import { useUserStore } from '@/stores/user';
+import { formatDistanceToNow } from 'date-fns';
+import { zhCN } from 'date-fns/locale';
 
 // Props
 const props = defineProps({
   discussion: {
     type: Object,
-    required: true
-  }
-})
+    required: true,
+  },
+});
 
 // Emits
-const emit = defineEmits(['view', 'reply', 'like', 'share', 'subscribe', 'unsubscribe', 'pin', 'unpin', 'close'])
+const emit = defineEmits([
+  'view',
+  'reply',
+  'like',
+  'share',
+  'subscribe',
+  'unsubscribe',
+  'pin',
+  'unpin',
+  'close',
+]);
 
 // Store
-const userStore = useUserStore()
+const userStore = useUserStore();
 
 // Refs
-const replyDialogVisible = ref(false)
-const shareDialogVisible = ref(false)
+const replyDialogVisible = ref(false);
+const shareDialogVisible = ref(false);
 
 // Computed
 const isSubscribed = computed(() => {
-  return props.discussion.participants.some(p =>
-    p.userId.toString() === userStore.userId &&
-    p.notificationEnabled
-  )
-})
+  return props.discussion.participants.some(
+    p => p.userId.toString() === userStore.userId && p.notificationEnabled
+  );
+});
 
 const canPin = computed(() => {
-  return userStore.hasRole(['village_admin', 'department_head'])
-})
+  return userStore.hasRole(['village_admin', 'department_head']);
+});
 
 const canManage = computed(() => {
-  return userStore.hasRole(['village_admin', 'department_head']) ||
-         props.discussion.initiator.userId.toString() === userStore.userId
-})
+  return (
+    userStore.hasRole(['village_admin', 'department_head']) ||
+    props.discussion.initiator.userId.toString() === userStore.userId
+  );
+});
 
 const isVotingExpired = computed(() => {
-  if (!props.discussion.voting || !props.discussion.voting.deadline) return false
-  return new Date() > new Date(props.discussion.voting.deadline)
-})
+  if (!props.discussion.voting || !props.discussion.voting.deadline) return false;
+  return new Date() > new Date(props.discussion.voting.deadline);
+});
 
 // Methods
-const getTypeName = (type) => {
+const getTypeName = type => {
   const typeMap = {
     announcement: '公告',
     policy: '政策',
@@ -242,12 +280,12 @@ const getTypeName = (type) => {
     complaint: '投诉',
     suggestion: '建议',
     emergency: '应急',
-    daily_life: '日常'
-  }
-  return typeMap[type] || type
-}
+    daily_life: '日常',
+  };
+  return typeMap[type] || type;
+};
 
-const getTypeColor = (type) => {
+const getTypeColor = type => {
   const colorMap = {
     announcement: 'danger',
     policy: 'warning',
@@ -255,155 +293,157 @@ const getTypeColor = (type) => {
     complaint: 'info',
     suggestion: 'success',
     emergency: 'danger',
-    daily_life: ''
-  }
-  return colorMap[type] || ''
-}
+    daily_life: '',
+  };
+  return colorMap[type] || '';
+};
 
-const getRoleDisplayName = (role) => {
+const getRoleDisplayName = role => {
   const roleMap = {
     super_admin: '超级管理员',
     village_admin: '村管理员',
     department_head: '部门负责人',
     staff: '工作人员',
     villager: '村民',
-    guest: '访客'
-  }
-  return roleMap[role] || role
-}
+    guest: '访客',
+  };
+  return roleMap[role] || role;
+};
 
-const formatTime = (time) => {
+const formatTime = time => {
   try {
     return formatDistanceToNow(new Date(time), {
       addSuffix: true,
-      locale: zhCN
-    })
+      locale: zhCN,
+    });
   } catch {
-    return '时间未知'
+    return '时间未知';
   }
-}
+};
 
-const formatNumber = (num) => {
+const formatNumber = num => {
   if (num >= 1000) {
-    return (num / 1000).toFixed(1) + 'k'
+    return (num / 1000).toFixed(1) + 'k';
   }
-  return num.toString()
-}
+  return num.toString();
+};
 
-const getAttachmentIcon = (type) => {
+const getAttachmentIcon = type => {
   const iconMap = {
     image: Picture,
     document: Document,
-    video: VideoPlay
-  }
-  return iconMap[type] || Document
-}
+    video: VideoPlay,
+  };
+  return iconMap[type] || Document;
+};
 
 const getVotingDeadline = () => {
-  if (!props.discussion.voting.deadline) return ''
+  if (!props.discussion.voting.deadline) return '';
   try {
     return formatDistanceToNow(new Date(props.discussion.voting.deadline), {
-      locale: zhCN
-    })
+      locale: zhCN,
+    });
   } catch {
-    return ''
+    return '';
   }
-}
+};
 
-const getVotingPercentage = (votes) => {
-  const totalVotes = getTotalVotes()
-  if (totalVotes === 0) return 0
-  return Math.round((votes / totalVotes) * 100)
-}
+const getVotingPercentage = votes => {
+  const totalVotes = getTotalVotes();
+  if (totalVotes === 0) return 0;
+  return Math.round((votes / totalVotes) * 100);
+};
 
 const getTotalVotes = () => {
-  if (!props.discussion.voting || !props.discussion.voting.options) return 0
-  return props.discussion.voting.options.reduce((sum, option) => sum + option.votes, 0)
-}
+  if (!props.discussion.voting || !props.discussion.voting.options) return 0;
+  return props.discussion.voting.options.reduce((sum, option) => sum + option.votes, 0);
+};
 
-const handleCommand = (command) => {
+const handleCommand = command => {
   switch (command) {
     case 'view':
-      handleViewDiscussion()
-      break
+      handleViewDiscussion();
+      break;
     case 'share':
-      handleShare()
-      break
+      handleShare();
+      break;
     case 'subscribe':
-      handleSubscribe()
-      break
+      handleSubscribe();
+      break;
     case 'unsubscribe':
-      handleUnsubscribe()
-      break
+      handleUnsubscribe();
+      break;
     case 'pin':
-      handlePin()
-      break
+      handlePin();
+      break;
     case 'unpin':
-      handleUnpin()
-      break
+      handleUnpin();
+      break;
     case 'close':
-      handleCloseDiscussion()
-      break
+      handleCloseDiscussion();
+      break;
   }
-}
+};
 
 const handleViewDiscussion = () => {
-  emit('view', props.discussion)
-}
+  emit('view', props.discussion);
+};
 
 const handleReply = () => {
-  replyDialogVisible.value = true
-}
+  replyDialogVisible.value = true;
+};
 
 const handleLike = () => {
-  emit('like', props.discussion)
-}
+  emit('like', props.discussion);
+};
 
 const handleShare = () => {
-  shareDialogVisible.value = true
-}
+  shareDialogVisible.value = true;
+};
 
 const handleSubscribe = () => {
-  emit('subscribe', props.discussion)
-  ElMessage.success('订阅成功')
-}
+  emit('subscribe', props.discussion);
+  ElMessage.success('订阅成功');
+};
 
 const handleUnsubscribe = () => {
-  emit('unsubscribe', props.discussion)
-  ElMessage.success('取消订阅成功')
-}
+  emit('unsubscribe', props.discussion);
+  ElMessage.success('取消订阅成功');
+};
 
 const handlePin = () => {
-  emit('pin', props.discussion)
-  ElMessage.success('置顶成功')
-}
+  emit('pin', props.discussion);
+  ElMessage.success('置顶成功');
+};
 
 const handleUnpin = () => {
-  emit('unpin', props.discussion)
-  ElMessage.success('取消置顶成功')
-}
+  emit('unpin', props.discussion);
+  ElMessage.success('取消置顶成功');
+};
 
 const handleCloseDiscussion = () => {
   ElMessageBox.confirm('确定要关闭这个讨论吗？关闭后将无法再回复。', '确认关闭', {
     type: 'warning',
     confirmButtonText: '确定',
-    cancelButtonText: '取消'
-  }).then(() => {
-    emit('close', props.discussion)
-    ElMessage.success('讨论已关闭')
-  }).catch(() => {
-    // 用户取消
+    cancelButtonText: '取消',
   })
-}
+    .then(() => {
+      emit('close', props.discussion);
+      ElMessage.success('讨论已关闭');
+    })
+    .catch(() => {
+      // 用户取消
+    });
+};
 
-const handleReplied = (reply) => {
-  emit('reply', reply)
-  ElMessage.success('回复成功')
-}
+const handleReplied = reply => {
+  emit('reply', reply);
+  ElMessage.success('回复成功');
+};
 
 const handleShareSuccess = () => {
-  ElMessage.success('分享成功')
-}
+  ElMessage.success('分享成功');
+};
 </script>
 
 <style scoped>

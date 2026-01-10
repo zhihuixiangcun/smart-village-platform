@@ -281,85 +281,85 @@ class RegistrationWorkflowService {
       let user;
 
       switch (application.applicationType) {
-        case 'resident':
-          // 创建村民账号（使用Resident模型）
-          user = await Resident.create({
-            name: application.applicant.name,
-            phone: application.applicant.phone,
-            idCard: application.applicant.idCard,
-            villageId: application.residentInfo.villageId,
-            household: {
-              householdNumber: application.residentInfo.householdNumber || null
-            },
-            status: 'active',
-            metadata: {
-              registrationSource: 'registration_approval',
-              applicationId: application._id
-            }
-          });
+      case 'resident':
+        // 创建村民账号（使用Resident模型）
+        user = await Resident.create({
+          name: application.applicant.name,
+          phone: application.applicant.phone,
+          idCard: application.applicant.idCard,
+          villageId: application.residentInfo.villageId,
+          household: {
+            householdNumber: application.residentInfo.householdNumber || null
+          },
+          status: 'active',
+          metadata: {
+            registrationSource: 'registration_approval',
+            applicationId: application._id
+          }
+        });
 
-          // 同时创建User账号用于登录
-          const userLogin = await User.create({
-            username: application.applicant.phone,
-            phone: application.applicant.phone,
-            name: application.applicant.name,
-            role: 'resident',
-            villageId: application.residentInfo.villageId,
-            status: 'active',
-            residentProfile: user._id
-          });
+        // 同时创建User账号用于登录
+        const userLogin = await User.create({
+          username: application.applicant.phone,
+          phone: application.applicant.phone,
+          name: application.applicant.name,
+          role: 'resident',
+          villageId: application.residentInfo.villageId,
+          status: 'active',
+          residentProfile: user._id
+        });
 
-          return userLogin;
+        return userLogin;
 
-        case 'village_admin':
-          // 先创建User账号
-          user = await User.create({
-            username: application.applicant.phone,
-            phone: application.applicant.phone,
-            name: application.applicant.name,
-            role: 'village_admin',
-            villageId: application.villageAdminInfo.villageId,
-            status: 'active',
-            committeeProfile: {
-              position: application.villageAdminInfo.position,
-              isOnDuty: true,
-              committeeLevel: 'village'
-            }
-          });
+      case 'village_admin':
+        // 先创建User账号
+        user = await User.create({
+          username: application.applicant.phone,
+          phone: application.applicant.phone,
+          name: application.applicant.name,
+          role: 'village_admin',
+          villageId: application.villageAdminInfo.villageId,
+          status: 'active',
+          committeeProfile: {
+            position: application.villageAdminInfo.position,
+            isOnDuty: true,
+            committeeLevel: 'village'
+          }
+        });
 
-          // 创建或更新CommitteeMember
-          const committeeMember = await CommitteeMember.create({
-            name: application.applicant.name,
-            phone: application.applicant.phone,
-            idCard: application.applicant.idCard,
-            villageId: application.villageAdminInfo.villageId,
-            'position.current': application.villageAdminInfo.position,
-            'position.startDate': new Date(),
-            'position.appointmentDoc': application.villageAdminInfo.appointmentLetterUrl,
-            status: 'active',
-            userId: user._id
-          });
+        // 创建或更新CommitteeMember
+        const committeeMember = await CommitteeMember.create({
+          name: application.applicant.name,
+          phone: application.applicant.phone,
+          idCard: application.applicant.idCard,
+          villageId: application.villageAdminInfo.villageId,
+          'position.current': application.villageAdminInfo.position,
+          'position.startDate': new Date(),
+          'position.appointmentDoc': application.villageAdminInfo.appointmentLetterUrl,
+          status: 'active',
+          userId: user._id
+        });
 
-          // 更新User的committeeProfile关联
-          user.committeeProfile.memberId = committeeMember._id;
-          await user.save();
+        // 更新User的committeeProfile关联
+        user.committeeProfile.memberId = committeeMember._id;
+        await user.save();
 
-          break;
+        break;
 
-        case 'township_admin':
-          // 创建乡镇管理员账号
-          user = await User.create({
-            username: application.applicant.phone,
-            phone: application.applicant.phone,
-            name: application.applicant.name,
-            role: 'township_admin',
-            status: 'active',
-            committeeProfile: {
-              committeeLevel: 'township'
-            }
-          });
+      case 'township_admin':
+        // 创建乡镇管理员账号
+        user = await User.create({
+          username: application.applicant.phone,
+          phone: application.applicant.phone,
+          name: application.applicant.name,
+          role: 'township_admin',
+          status: 'active',
+          committeeProfile: {
+            committeeLevel: 'township'
+          }
+        });
 
-          break;
+        break;
       }
 
       return user;

@@ -306,15 +306,15 @@ class RecommendationService {
       // 时间范围
       const timeLimit = new Date();
       switch (timeRange) {
-        case '24h':
-          timeLimit.setHours(timeLimit.getHours() - 24);
-          break;
-        case '7d':
-          timeLimit.setDate(timeLimit.getDate() - 7);
-          break;
-        case '30d':
-          timeLimit.setDate(timeLimit.getDate() - 30);
-          break;
+      case '24h':
+        timeLimit.setHours(timeLimit.getHours() - 24);
+        break;
+      case '7d':
+        timeLimit.setDate(timeLimit.getDate() - 7);
+        break;
+      case '30d':
+        timeLimit.setDate(timeLimit.getDate() - 30);
+        break;
       }
       query.createdAt = { $gte: timeLimit };
 

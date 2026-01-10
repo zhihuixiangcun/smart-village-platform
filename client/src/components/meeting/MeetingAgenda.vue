@@ -2,12 +2,7 @@
   <div class="meeting-agenda">
     <div class="agenda-header">
       <h3>会议议程</h3>
-      <el-button
-        v-if="canEditAgenda"
-        type="primary"
-        size="small"
-        @click="showEditDialog = true"
-      >
+      <el-button v-if="canEditAgenda" type="primary" size="small" @click="showEditDialog = true">
         编辑议程
       </el-button>
     </div>
@@ -18,7 +13,7 @@
         v-for="(item, index) in agenda.items"
         :key="item.itemId"
         class="agenda-item"
-        :class="{ 'active': currentItemIndex === index, 'completed': item.status === 'completed' }"
+        :class="{ active: currentItemIndex === index, completed: item.status === 'completed' }"
       >
         <div class="item-header">
           <div class="item-order">{{ item.order }}</div>
@@ -53,10 +48,7 @@
         </div>
 
         <div class="item-status">
-          <el-tag
-            :type="getStatusType(item.status)"
-            size="small"
-          >
+          <el-tag :type="getStatusType(item.status)" size="small">
             {{ getStatusText(item.status) }}
           </el-tag>
           <span v-if="item.actualDuration" class="actual-duration">
@@ -73,9 +65,7 @@
     <div v-if="meeting.status === 'in_progress'" class="agenda-progress">
       <div class="progress-header">
         <h4>会议进度</h4>
-        <div class="current-item">
-          当前议程：{{ getCurrentItem()?.title || '暂无进行中议程' }}
-        </div>
+        <div class="current-item">当前议程：{{ getCurrentItem()?.title || '暂无进行中议程' }}</div>
       </div>
 
       <el-progress
@@ -122,22 +112,13 @@
             添加议程
           </el-button>
           <div class="agenda-summary">
-            总议程：{{ editingAgenda.length }}项 |
-            预计时长：{{ getTotalDuration() }}分钟
+            总议程：{{ editingAgenda.length }}项 | 预计时长：{{ getTotalDuration() }}分钟
           </div>
         </div>
 
-        <draggable
-          v-model="editingAgenda"
-          handle=".drag-handle"
-          @end="onDragEnd"
-        >
+        <draggable v-model="editingAgenda" handle=".drag-handle" @end="onDragEnd">
           <transition-group name="list" tag="div">
-            <div
-              v-for="(item, index) in editingAgenda"
-              :key="item.itemId"
-              class="edit-agenda-item"
-            >
+            <div v-for="(item, index) in editingAgenda" :key="item.itemId" class="edit-agenda-item">
               <div class="drag-handle">
                 <i class="el-icon-rank"></i>
               </div>
@@ -159,16 +140,12 @@
                           :step="5"
                           controls-position="right"
                         ></el-input-number>
-                        <span style="margin-left: 8px;">分钟</span>
+                        <span style="margin-left: 8px">分钟</span>
                       </el-form-item>
                     </el-col>
                     <el-col :span="6">
                       <el-form-item label="主讲人">
-                        <el-select
-                          v-model="item.presenterId"
-                          placeholder="选择主讲人"
-                          clearable
-                        >
+                        <el-select v-model="item.presenterId" placeholder="选择主讲人" clearable>
                           <el-option
                             v-for="participant in meetingParticipants"
                             :key="participant._id"
@@ -194,8 +171,8 @@
                       <el-upload
                         :action="uploadUrl"
                         :headers="uploadHeaders"
-                        :on-success="(response) => onDocumentUploaded(response, index)"
-                        :on-remove="(file) => onDocumentRemoved(file, index)"
+                        :on-success="response => onDocumentUploaded(response, index)"
+                        :on-remove="file => onDocumentRemoved(file, index)"
                         :file-list="item.documents || []"
                         multiple
                       >
@@ -221,32 +198,30 @@
 
       <div slot="footer" class="dialog-footer">
         <el-button @click="showEditDialog = false">取消</el-button>
-        <el-button type="primary" @click="saveAgenda" :loading="saving">
-          保存议程
-        </el-button>
+        <el-button type="primary" @click="saveAgenda" :loading="saving"> 保存议程 </el-button>
       </div>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import draggable from 'vuedraggable'
-import { meetingAPI } from '@/api/meeting'
+import draggable from 'vuedraggable';
+import { meetingAPI } from '@/api/meeting';
 
 export default {
   name: 'MeetingAgenda',
   components: {
-    draggable
+    draggable,
   },
   props: {
     meeting: {
       type: Object,
-      required: true
+      required: true,
     },
     agenda: {
       type: Object,
-      default: () => ({ items: [] })
-    }
+      default: () => ({ items: [] }),
+    },
   },
   data() {
     return {
@@ -254,66 +229,65 @@ export default {
       saving: false,
       editingAgenda: [],
       currentItemIndex: 0,
-      meetingParticipants: []
-    }
+      meetingParticipants: [],
+    };
   },
   computed: {
     canEditAgenda() {
-      const userRole = this.$store.getters.userRole
-      const userId = this.$store.getters.userId
+      const userRole = this.$store.getters.userRole;
+      const userId = this.$store.getters.userId;
 
-      return userRole === 'admin' ||
-             userRole === 'committee' ||
-             this.meeting.organizer._id === userId
+      return (
+        userRole === 'admin' || userRole === 'committee' || this.meeting.organizer._id === userId
+      );
     },
     canControlAgenda() {
-      return this.canEditAgenda && this.meeting.status === 'in_progress'
+      return this.canEditAgenda && this.meeting.status === 'in_progress';
     },
     progressPercentage() {
-      if (!this.agenda.items || this.agenda.items.length === 0) return 0
-      return Math.round((this.currentItemIndex / this.agenda.items.length) * 100)
+      if (!this.agenda.items || this.agenda.items.length === 0) return 0;
+      return Math.round((this.currentItemIndex / this.agenda.items.length) * 100);
     },
     progressStatus() {
-      if (this.currentItemIndex === this.agenda.items.length) return 'success'
-      return null
+      if (this.currentItemIndex === this.agenda.items.length) return 'success';
+      return null;
     },
     uploadUrl() {
-      return `/api/v1/meetings/${this.meeting._id}/documents`
+      return `/api/v1/meetings/${this.meeting._id}/documents`;
     },
     uploadHeaders() {
       return {
-        'Authorization': `Bearer ${this.$store.getters.token}`
-      }
-    }
+        Authorization: `Bearer ${this.$store.getters.token}`,
+      };
+    },
   },
   watch: {
-    'showEditDialog'(newVal) {
+    showEditDialog(newVal) {
       if (newVal) {
-        this.initEditingAgenda()
-        this.loadMeetingParticipants()
+        this.initEditingAgenda();
+        this.loadMeetingParticipants();
       }
-    }
+    },
   },
   methods: {
     initEditingAgenda() {
-      this.editingAgenda = this.agenda.items ?
-        JSON.parse(JSON.stringify(this.agenda.items)) : []
+      this.editingAgenda = this.agenda.items ? JSON.parse(JSON.stringify(this.agenda.items)) : [];
 
       // 确保每个议程项都有必要的字段
       this.editingAgenda.forEach((item, index) => {
         if (!item.itemId) {
-          item.itemId = `agenda_${index + 1}_${Date.now()}`
+          item.itemId = `agenda_${index + 1}_${Date.now()}`;
         }
         if (!item.order) {
-          item.order = index + 1
+          item.order = index + 1;
         }
         if (!item.estimatedDuration) {
-          item.estimatedDuration = 30
+          item.estimatedDuration = 30;
         }
         if (!item.status) {
-          item.status = 'pending'
+          item.status = 'pending';
         }
-      })
+      });
     },
 
     addAgendaItem() {
@@ -325,59 +299,59 @@ export default {
         order: this.editingAgenda.length + 1,
         status: 'pending',
         presenterId: null,
-        documents: []
-      }
-      this.editingAgenda.push(newItem)
+        documents: [],
+      };
+      this.editingAgenda.push(newItem);
     },
 
     removeAgendaItem(index) {
-      this.editingAgenda.splice(index, 1)
+      this.editingAgenda.splice(index, 1);
       // 重新排序
       this.editingAgenda.forEach((item, idx) => {
-        item.order = idx + 1
-      })
+        item.order = idx + 1;
+      });
     },
 
     onDragEnd() {
       // 重新排序
       this.editingAgenda.forEach((item, index) => {
-        item.order = index + 1
-      })
+        item.order = index + 1;
+      });
     },
 
     async loadMeetingParticipants() {
       // 简化处理，从会议参与者中获取
-      const participants = []
+      const participants = [];
 
       if (this.meeting.participants?.required) {
-        participants.push(...this.meeting.participants.required.map(p => p.userId))
+        participants.push(...this.meeting.participants.required.map(p => p.userId));
       }
 
       if (this.meeting.participants?.optional) {
-        participants.push(...this.meeting.participants.optional.map(p => p.userId))
+        participants.push(...this.meeting.participants.optional.map(p => p.userId));
       }
 
-      this.meetingParticipants = participants
+      this.meetingParticipants = participants;
     },
 
     onDocumentUploaded(response, itemIndex) {
       if (response.success) {
         if (!this.editingAgenda[itemIndex].documents) {
-          this.editingAgenda[itemIndex].documents = []
+          this.editingAgenda[itemIndex].documents = [];
         }
         this.editingAgenda[itemIndex].documents.push({
           name: response.data.fileName,
           url: response.data.fileUrl,
-          size: response.data.fileSize
-        })
+          size: response.data.fileSize,
+        });
       }
     },
 
     onDocumentRemoved(file, itemIndex) {
-      const documents = this.editingAgenda[itemIndex].documents || []
-      const index = documents.findIndex(doc => doc.name === file.name)
+      const documents = this.editingAgenda[itemIndex].documents || [];
+      const index = documents.findIndex(doc => doc.name === file.name);
       if (index > -1) {
-        documents.splice(index, 1)
+        documents.splice(index, 1);
       }
     },
 
@@ -385,134 +359,139 @@ export default {
       // 验证必填字段
       for (let item of this.editingAgenda) {
         if (!item.title.trim()) {
-          this.$message.error('请填写所有议程标题')
-          return
+          this.$message.error('请填写所有议程标题');
+          return;
         }
       }
 
-      this.saving = true
+      this.saving = true;
       try {
         const agendaData = {
           items: this.editingAgenda,
-          totalEstimatedDuration: this.getTotalDuration()
-        }
+          totalEstimatedDuration: this.getTotalDuration(),
+        };
 
-        const response = await meetingAPI.updateMeetingAgenda(this.meeting._id, agendaData)
+        const response = await meetingAPI.updateMeetingAgenda(this.meeting._id, agendaData);
 
         if (response.data.success) {
-          this.$message.success('议程保存成功')
-          this.showEditDialog = false
-          this.$emit('agenda-updated', response.data.data)
+          this.$message.success('议程保存成功');
+          this.showEditDialog = false;
+          this.$emit('agenda-updated', response.data.data);
         }
       } catch (error) {
-        this.$message.error('保存议程失败')
-        console.error(error)
+        this.$message.error('保存议程失败');
+        console.error(error);
       } finally {
-        this.saving = false
+        this.saving = false;
       }
     },
 
     getTotalDuration() {
       return this.editingAgenda.reduce((total, item) => {
-        return total + (item.estimatedDuration || 0)
-      }, 0)
+        return total + (item.estimatedDuration || 0);
+      }, 0);
     },
 
     getCurrentItem() {
       if (!this.agenda.items || this.currentItemIndex >= this.agenda.items.length) {
-        return null
+        return null;
       }
-      return this.agenda.items[this.currentItemIndex]
+      return this.agenda.items[this.currentItemIndex];
     },
 
     getElapsedTime() {
-      if (!this.meeting.actualStartTime) return '0分钟'
+      if (!this.meeting.actualStartTime) return '0分钟';
 
-      const now = new Date()
-      const start = new Date(this.meeting.actualStartTime)
-      const minutes = Math.round((now - start) / (1000 * 60))
+      const now = new Date();
+      const start = new Date(this.meeting.actualStartTime);
+      const minutes = Math.round((now - start) / (1000 * 60));
 
-      if (minutes < 60) return `${minutes}分钟`
-      const hours = Math.floor(minutes / 60)
-      const remainingMinutes = minutes % 60
-      return `${hours}小时${remainingMinutes}分钟`
+      if (minutes < 60) return `${minutes}分钟`;
+      const hours = Math.floor(minutes / 60);
+      const remainingMinutes = minutes % 60;
+      return `${hours}小时${remainingMinutes}分钟`;
     },
 
     getRemainingTime() {
-      const totalDuration = this.agenda.totalEstimatedDuration || 0
-      const elapsedMinutes = this.getElapsedMinutes()
-      const remaining = Math.max(0, totalDuration - elapsedMinutes)
+      const totalDuration = this.agenda.totalEstimatedDuration || 0;
+      const elapsedMinutes = this.getElapsedMinutes();
+      const remaining = Math.max(0, totalDuration - elapsedMinutes);
 
-      if (remaining < 60) return `${remaining}分钟`
-      const hours = Math.floor(remaining / 60)
-      const minutes = remaining % 60
-      return `${hours}小时${minutes}分钟`
+      if (remaining < 60) return `${remaining}分钟`;
+      const hours = Math.floor(remaining / 60);
+      const minutes = remaining % 60;
+      return `${hours}小时${minutes}分钟`;
     },
 
     getElapsedMinutes() {
-      if (!this.meeting.actualStartTime) return 0
+      if (!this.meeting.actualStartTime) return 0;
 
-      const now = new Date()
-      const start = new Date(this.meeting.actualStartTime)
-      return Math.round((now - start) / (1000 * 60))
+      const now = new Date();
+      const start = new Date(this.meeting.actualStartTime);
+      return Math.round((now - start) / (1000 * 60));
     },
 
     async nextAgendaItem() {
       if (this.currentItemIndex < this.agenda.items.length - 1) {
         try {
           await meetingAPI.updateAgendaProgress(this.meeting._id, {
-            currentItemIndex: this.currentItemIndex + 1
-          })
-          this.currentItemIndex += 1
-          this.$message.success('已切换到下一个议程')
+            currentItemIndex: this.currentItemIndex + 1,
+          });
+          this.currentItemIndex += 1;
+          this.$message.success('已切换到下一个议程');
         } catch (error) {
-          this.$message.error('切换议程失败')
-          console.error(error)
+          this.$message.error('切换议程失败');
+          console.error(error);
         }
       }
     },
 
     async markItemCompleted() {
-      const currentItem = this.getCurrentItem()
-      if (!currentItem) return
+      const currentItem = this.getCurrentItem();
+      if (!currentItem) return;
 
       try {
-        await meetingAPI.markAgendaItemCompleted(this.meeting._id, currentItem.itemId)
-        currentItem.status = 'completed'
-        currentItem.actualDuration = this.getItemActualDuration(currentItem)
-        this.$message.success('议程项已标记为完成')
+        await meetingAPI.markAgendaItemCompleted(this.meeting._id, currentItem.itemId);
+        currentItem.status = 'completed';
+        currentItem.actualDuration = this.getItemActualDuration(currentItem);
+        this.$message.success('议程项已标记为完成');
       } catch (error) {
-        this.$message.error('标记完成失败')
-        console.error(error)
+        this.$message.error('标记完成失败');
+        console.error(error);
       }
     },
 
     getItemActualDuration(item) {
       // 简化计算，实际应该记录每个议程项的开始时间
-      return item.estimatedDuration
+      return item.estimatedDuration;
     },
 
     getStatusType(status) {
       switch (status) {
-        case 'pending': return 'info'
-        case 'in_progress': return 'warning'
-        case 'completed': return 'success'
-        case 'skipped': return 'info'
-        default: return 'info'
+        case 'pending':
+          return 'info';
+        case 'in_progress':
+          return 'warning';
+        case 'completed':
+          return 'success';
+        case 'skipped':
+          return 'info';
+        default:
+          return 'info';
       }
     },
 
     getStatusText(status) {
       const statusMap = {
-        'pending': '待进行',
-        'in_progress': '进行中',
-        'completed': '已完成',
-        'skipped': '已跳过'
-      }
-      return statusMap[status] || '未知'
-    }
-  }
-}
+        pending: '待进行',
+        in_progress: '进行中',
+        completed: '已完成',
+        skipped: '已跳过',
+      };
+      return statusMap[status] || '未知';
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -727,11 +706,13 @@ export default {
   width: 100%;
 }
 
-.list-enter-active, .list-leave-active {
+.list-enter-active,
+.list-leave-active {
   transition: all 0.3s;
 }
 
-.list-enter, .list-leave-to {
+.list-enter,
+.list-leave-to {
   opacity: 0;
   transform: translateX(30px);
 }

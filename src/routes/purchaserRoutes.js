@@ -11,21 +11,21 @@ const path = require('path');
 
 // 配置文件上传
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
+  destination (req, file, cb) {
     cb(null, 'uploads/documents/');
   },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'purchaser-' + uniqueSuffix + path.extname(file.originalname));
+  filename (req, file, cb) {
+    const uniqueSuffix = `${Date.now()  }-${  Math.round(Math.random() * 1E9)}`;
+    cb(null, `purchaser-${  uniqueSuffix  }${path.extname(file.originalname)}`);
   }
 });
 
 const upload = multer({
-  storage: storage,
+  storage,
   limits: {
     fileSize: 10 * 1024 * 1024 // 10MB limit
   },
-  fileFilter: function (req, file, cb) {
+  fileFilter (req, file, cb) {
     const allowedTypes = /jpeg|jpg|png|pdf/;
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
     const mimetype = allowedTypes.test(file.mimetype);

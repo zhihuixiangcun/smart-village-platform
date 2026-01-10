@@ -166,20 +166,10 @@
 
     <!-- 表单操作按钮 -->
     <div v-if="showActions" class="elderly-form__actions">
-      <elderly-button
-        v-if="showCancel"
-        type="secondary"
-        size="large"
-        @click="handleCancel"
-      >
+      <elderly-button v-if="showCancel" type="secondary" size="large" @click="handleCancel">
         {{ cancelText }}
       </elderly-button>
-      <elderly-button
-        type="primary"
-        size="large"
-        :loading="submitting"
-        @click="handleSubmit"
-      >
+      <elderly-button type="primary" size="large" :loading="submitting" @click="handleSubmit">
         {{ submitText }}
       </elderly-button>
     </div>
@@ -187,166 +177,163 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch } from 'vue'
-import ElderlyButton from './ElderlyButton.vue'
+import { ref, reactive, computed, watch } from 'vue';
+import ElderlyButton from './ElderlyButton.vue';
 
 const props = defineProps({
   // 表单项配置
   items: {
     type: Array,
-    required: true
+    required: true,
   },
   // 表单数据
   modelValue: {
     type: Object,
-    default: () => ({})
+    default: () => ({}),
   },
   // 验证规则
   rules: {
     type: Object,
-    default: () => ({})
+    default: () => ({}),
   },
   // 标签位置
   labelPosition: {
     type: String,
     default: 'top',
-    validator: (value) => ['left', 'right', 'top'].includes(value)
+    validator: value => ['left', 'right', 'top'].includes(value),
   },
   // 标签宽度
   labelWidth: {
     type: String,
-    default: '120px'
+    default: '120px',
   },
   // 是否显示操作按钮
   showActions: {
     type: Boolean,
-    default: true
+    default: true,
   },
   // 是否显示取消按钮
   showCancel: {
     type: Boolean,
-    default: true
+    default: true,
   },
   // 提交按钮文本
   submitText: {
     type: String,
-    default: '提交'
+    default: '提交',
   },
   // 取消按钮文本
   cancelText: {
     type: String,
-    default: '取消'
-  }
-})
+    default: '取消',
+  },
+});
 
-const emit = defineEmits(['update:modelValue', 'submit', 'cancel', 'blur', 'focus'])
+const emit = defineEmits(['update:modelValue', 'submit', 'cancel', 'blur', 'focus']);
 
-const formRef = ref(null)
-const formData = reactive({ ...props.modelValue })
-const errors = reactive({})
-const submitting = ref(false)
+const formRef = ref(null);
+const formData = reactive({ ...props.modelValue });
+const errors = reactive({});
+const submitting = ref(false);
 
 // 表单项别名
-const formItems = computed(() => props.items)
+const formItems = computed(() => props.items);
 
 // 表单样式类
-const formClass = computed(() => [
-  'elderly-form',
-  `elderly-form--${props.labelPosition}`
-])
+const formClass = computed(() => ['elderly-form', `elderly-form--${props.labelPosition}`]);
 
 // 监听表单数据变化
 watch(
   () => props.modelValue,
-  (newVal) => {
-    Object.assign(formData, newVal)
+  newVal => {
+    Object.assign(formData, newVal);
   },
   { deep: true }
-)
+);
 
 // 监听表单数据变化，触发更新
 watch(
   formData,
-  (newVal) => {
-    emit('update:modelValue', { ...newVal })
+  newVal => {
+    emit('update:modelValue', { ...newVal });
   },
   { deep: true }
-)
+);
 
 // 处理提交
 const handleSubmit = async () => {
   try {
-    submitting.value = true
+    submitting.value = true;
 
     // 验证表单
-    const valid = await formRef.value?.validate()
+    const valid = await formRef.value?.validate();
     if (!valid) {
       // 触觉反馈
       if ('vibrate' in navigator) {
-        navigator.vibrate([50, 50, 50])
+        navigator.vibrate([50, 50, 50]);
       }
-      return
+      return;
     }
 
     // 清除错误提示
     Object.keys(errors).forEach(key => {
-      delete errors[key]
-    })
+      delete errors[key];
+    });
 
     // 触觉反馈
     if ('vibrate' in navigator) {
-      navigator.vibrate([10, 30, 10])
+      navigator.vibrate([10, 30, 10]);
     }
 
     // 触发提交事件
-    emit('submit', { ...formData })
+    emit('submit', { ...formData });
   } catch (err) {
-    console.error('表单验证失败:', err)
+    console.error('表单验证失败:', err);
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
-}
+};
 
 // 处理取消
 const handleCancel = () => {
-  emit('cancel')
-}
+  emit('cancel');
+};
 
 // 处理失焦
-const handleBlur = (prop) => {
-  emit('blur', prop, formData[prop])
-}
+const handleBlur = prop => {
+  emit('blur', prop, formData[prop]);
+};
 
 // 处理聚焦
-const handleFocus = (prop) => {
-  emit('focus', prop, formData[prop])
-}
+const handleFocus = prop => {
+  emit('focus', prop, formData[prop]);
+};
 
 // 暴露方法
 defineExpose({
   validate: () => formRef.value?.validate(),
   clearValidate: () => formRef.value?.clearValidate(),
-  resetFields: () => formRef.value?.resetFields()
-})
+  resetFields: () => formRef.value?.resetFields(),
+});
 </script>
 
 <style lang="scss" scoped>
 .elderly-form {
   padding: 24px;
-  background: #FFFFFF;
+  background: #ffffff;
   border-radius: 12px;
 
   // 标签样式
   :deep(.el-form-item__label) {
     font-size: 18px;
     font-weight: 600;
-    color: #1A1A1A;
+    color: #1a1a1a;
     line-height: 1.5;
   }
 
   // 必填标记
   :deep(.el-form-item.is-required:not(.is-no-asterisk) .el-form-item__label:before) {
-    color: #F56C6C;
+    color: #f56c6c;
     font-size: 20px;
     margin-right: 4px;
   }
@@ -356,17 +343,17 @@ defineExpose({
     height: 56px;
     padding: 14px 16px;
     font-size: 18px;
-    border: 2px solid #DCDFE6;
+    border: 2px solid #dcdfe6;
     border-radius: 8px;
 
     &:focus {
-      border-color: #E85D4C;
+      border-color: #e85d4c;
       box-shadow: 0 0 0 3px rgba(232, 93, 76, 0.1);
     }
 
     &::placeholder {
       font-size: 16px;
-      color: #C0C4CC;
+      color: #c0c4cc;
     }
   }
 
@@ -374,12 +361,12 @@ defineExpose({
   :deep(.el-textarea__inner) {
     padding: 14px 16px;
     font-size: 18px;
-    border: 2px solid #DCDFE6;
+    border: 2px solid #dcdfe6;
     border-radius: 8px;
     line-height: 1.8;
 
     &:focus {
-      border-color: #E85D4C;
+      border-color: #e85d4c;
       box-shadow: 0 0 0 3px rgba(232, 93, 76, 0.1);
     }
   }
@@ -466,7 +453,7 @@ defineExpose({
   :deep(.el-slider__button) {
     width: 24px;
     height: 24px;
-    border: 4px solid #E85D4C;
+    border: 4px solid #e85d4c;
   }
 
   // 表单项间距
@@ -494,7 +481,7 @@ defineExpose({
     align-items: center;
     margin-top: 12px;
     font-size: 16px;
-    color: #F56C6C;
+    color: #f56c6c;
 
     i {
       margin-right: 6px;
@@ -508,7 +495,7 @@ defineExpose({
     gap: 16px;
     margin-top: 32px;
     padding-top: 24px;
-    border-top: 2px solid #F5F7FA;
+    border-top: 2px solid #f5f7fa;
 
     .elderly-button {
       flex: 1;

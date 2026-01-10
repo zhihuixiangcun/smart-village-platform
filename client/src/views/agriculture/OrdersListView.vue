@@ -185,7 +185,7 @@
                     <el-icon><Edit /></el-icon>
                     更新
                   </el-button>
-                  <el-dropdown @command="(command) => handleAction(command, row)">
+                  <el-dropdown @command="command => handleAction(command, row)">
                     <el-button type="text" size="small">
                       更多<el-icon><ArrowDown /></el-icon>
                     </el-button>
@@ -197,7 +197,11 @@
                         <el-dropdown-item command="cancel" divided v-if="row.status === 'pending'">
                           取消订单
                         </el-dropdown-item>
-                        <el-dropdown-item command="delete" divided v-if="hasPermission('order:delete')">
+                        <el-dropdown-item
+                          command="delete"
+                          divided
+                          v-if="hasPermission('order:delete')"
+                        >
                           删除订单
                         </el-dropdown-item>
                       </el-dropdown-menu>
@@ -227,8 +231,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, computed, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
   Document,
   Download,
@@ -239,19 +243,19 @@ import {
   Search,
   View,
   Edit,
-  ArrowDown
-} from '@element-plus/icons-vue'
+  ArrowDown,
+} from '@element-plus/icons-vue';
 
 // 响应式数据
-const loading = ref(false)
-const orders = ref([])
-const searchQuery = ref('')
-const filterStatus = ref('')
-const filterDateRange = ref([])
-const currentPage = ref(1)
-const pageSize = ref(10)
-const sortField = ref('')
-const sortOrder = ref('')
+const loading = ref(false);
+const orders = ref([]);
+const searchQuery = ref('');
+const filterStatus = ref('');
+const filterDateRange = ref([]);
+const currentPage = ref(1);
+const pageSize = ref(10);
+const sortField = ref('');
+const sortOrder = ref('');
 
 // 模拟订单数据
 const mockOrders = [
@@ -267,8 +271,8 @@ const mockOrders = [
         quantity: 2,
         unit: '斤',
         price: 280,
-        subtotal: 560
-      }
+        subtotal: 560,
+      },
     ],
     itemsCount: 2,
     totalAmount: 560,
@@ -277,7 +281,7 @@ const mockOrders = [
     deliveryDate: '2025-12-12',
     deliveryAddress: '杭州市西湖区某某小区',
     paymentStatus: 'paid',
-    remark: '请小心包装'
+    remark: '请小心包装',
   },
   {
     id: 1002,
@@ -291,8 +295,8 @@ const mockOrders = [
         quantity: 5,
         unit: '斤',
         price: 120,
-        subtotal: 600
-      }
+        subtotal: 600,
+      },
     ],
     itemsCount: 5,
     totalAmount: 600,
@@ -301,7 +305,7 @@ const mockOrders = [
     deliveryDate: null,
     deliveryAddress: '杭州市拱墅区某某街道',
     paymentStatus: 'unpaid',
-    remark: ''
+    remark: '',
   },
   {
     id: 1003,
@@ -315,7 +319,7 @@ const mockOrders = [
         quantity: 30,
         unit: '个',
         price: 2.5,
-        subtotal: 75
+        subtotal: 75,
       },
       {
         productId: 4,
@@ -323,8 +327,8 @@ const mockOrders = [
         quantity: 10,
         unit: '斤',
         price: 8,
-        subtotal: 80
-      }
+        subtotal: 80,
+      },
     ],
     itemsCount: 40,
     totalAmount: 155,
@@ -333,7 +337,7 @@ const mockOrders = [
     deliveryDate: null,
     deliveryAddress: '杭州市滨江区某某小区',
     paymentStatus: 'unpaid',
-    remark: '希望尽快配送'
+    remark: '希望尽快配送',
   },
   {
     id: 1004,
@@ -347,8 +351,8 @@ const mockOrders = [
         quantity: 3,
         unit: '斤',
         price: 80,
-        subtotal: 240
-      }
+        subtotal: 240,
+      },
     ],
     itemsCount: 3,
     totalAmount: 240,
@@ -357,7 +361,7 @@ const mockOrders = [
     deliveryDate: null,
     deliveryAddress: '杭州市上城区某某路',
     paymentStatus: 'unpaid',
-    remark: ''
+    remark: '',
   },
   {
     id: 1005,
@@ -371,8 +375,8 @@ const mockOrders = [
         quantity: 8,
         unit: '斤',
         price: 15,
-        subtotal: 120
-      }
+        subtotal: 120,
+      },
     ],
     itemsCount: 8,
     totalAmount: 120,
@@ -381,9 +385,9 @@ const mockOrders = [
     deliveryDate: null,
     deliveryAddress: '杭州市下城区某某小区',
     paymentStatus: 'refunded',
-    remark: '客户取消订单'
-  }
-]
+    remark: '客户取消订单',
+  },
+];
 
 // 计算属性
 const orderStats = computed(() => {
@@ -395,208 +399,197 @@ const orderStats = computed(() => {
     cancelled: orders.value.filter(order => order.status === 'cancelled').length,
     totalRevenue: orders.value
       .filter(order => order.status === 'completed')
-      .reduce((sum, order) => sum + order.totalAmount, 0)
-  }
-  return stats
-})
+      .reduce((sum, order) => sum + order.totalAmount, 0),
+  };
+  return stats;
+});
 
 const filteredOrders = computed(() => {
-  let filtered = [...orders.value]
+  let filtered = [...orders.value];
 
   // 搜索过滤
   if (searchQuery.value) {
-    filtered = filtered.filter(order =>
-      order.id.toString().includes(searchQuery.value) ||
-      order.customerName.includes(searchQuery.value) ||
-      order.customerPhone.includes(searchQuery.value)
-    )
+    filtered = filtered.filter(
+      order =>
+        order.id.toString().includes(searchQuery.value) ||
+        order.customerName.includes(searchQuery.value) ||
+        order.customerPhone.includes(searchQuery.value)
+    );
   }
 
   // 状态过滤
   if (filterStatus.value) {
-    filtered = filtered.filter(order => order.status === filterStatus.value)
+    filtered = filtered.filter(order => order.status === filterStatus.value);
   }
 
   // 日期过滤
   if (filterDateRange.value && filterDate.value.length === 2) {
-    const [startDate, endDate] = filterDateRange.value
+    const [startDate, endDate] = filterDateRange.value;
     filtered = filtered.filter(order => {
-      const orderDate = new Date(order.orderDate)
-      return orderDate >= new Date(startDate) && orderDate <= new Date(endDate)
-    })
+      const orderDate = new Date(order.orderDate);
+      return orderDate >= new Date(startDate) && orderDate <= new Date(endDate);
+    });
   }
 
-  return filtered
-})
+  return filtered;
+});
 
 // 生命周期
 onMounted(() => {
-  loadOrders()
-})
+  loadOrders();
+});
 
 // 方法
 const loadOrders = async () => {
-  loading.value = true
+  loading.value = true;
   try {
     // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 500))
-    orders.value = mockOrders
+    await new Promise(resolve => setTimeout(resolve, 500));
+    orders.value = mockOrders;
   } catch (error) {
-    ElMessage.error('加载订单列表失败')
-    console.error('Load orders error:', error)
+    ElMessage.error('加载订单列表失败');
+    console.error('Load orders error:', error);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const handleSearch = () => {
-  currentPage.value = 1
-}
+  currentPage.value = 1;
+};
 
 const handleFilter = () => {
-  currentPage.value = 1
-}
+  currentPage.value = 1;
+};
 
 const handleSortChange = ({ prop, order }) => {
-  sortField.value = prop
-  sortOrder.value = order
-}
+  sortField.value = prop;
+  sortOrder.value = order;
+};
 
-const handleSizeChange = (size) => {
-  pageSize.value = size
-  currentPage.value = 1
-}
+const handleSizeChange = size => {
+  pageSize.value = size;
+  currentPage.value = 1;
+};
 
-const handleCurrentChange = (page) => {
-  currentPage.value = page
-}
+const handleCurrentChange = page => {
+  currentPage.value = page;
+};
 
-const viewOrder = (id) => {
-  ElMessage.info(`查看订单详情: #${id}`)
-}
+const viewOrder = id => {
+  ElMessage.info(`查看订单详情: #${id}`);
+};
 
-const updateOrderStatus = async (id) => {
+const updateOrderStatus = async id => {
   try {
-    const order = orders.value.find(o => o.id === id)
-    if (!order) return
+    const order = orders.value.find(o => o.id === id);
+    if (!order) return;
 
     const statusOptions = [
       { label: '待处理', value: 'pending' },
       { label: '处理中', value: 'processing' },
-      { label: '已完成', value: 'completed' }
-    ]
+      { label: '已完成', value: 'completed' },
+    ];
 
-    const { value } = await ElMessageBox.prompt(
-      '更新订单状态',
-      '请选择新的订单状态',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        inputType: 'select',
-        inputOptions: statusOptions,
-        inputValue: order.status
-      }
-    )
+    const { value } = await ElMessageBox.prompt('更新订单状态', '请选择新的订单状态', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      inputType: 'select',
+      inputOptions: statusOptions,
+      inputValue: order.status,
+    });
 
     if (value) {
-      order.status = value
-      ElMessage.success('订单状态更新成功')
+      order.status = value;
+      ElMessage.success('订单状态更新成功');
     }
   } catch (error) {
     // 用户取消
   }
-}
+};
 
 const exportOrders = () => {
-  ElMessage.info('导出订单功能开发中')
-}
+  ElMessage.info('导出订单功能开发中');
+};
 
 const handleAction = async (command, order) => {
   switch (command) {
     case 'details':
-      ElMessage.info(`查看订单详情: #${order.id}`)
-      break
+      ElMessage.info(`查看订单详情: #${order.id}`);
+      break;
     case 'track':
-      ElMessage.info(`物流跟踪: #${order.id}`)
-      break
+      ElMessage.info(`物流跟踪: #${order.id}`);
+      break;
     case 'invoice':
-      ElMessage.info(`开具发票: #${order.id}`)
-      break
+      ElMessage.info(`开具发票: #${order.id}`);
+      break;
     case 'cancel':
       try {
-        await ElMessageBox.confirm(
-          `确定要取消订单#${order.id}吗？`,
-          '确认取消',
-          {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }
-        )
+        await ElMessageBox.confirm(`确定要取消订单#${order.id}吗？`, '确认取消', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+        });
 
-        order.status = 'cancelled'
-        order.paymentStatus = 'refunded'
-        ElMessage.success('订单已取消')
+        order.status = 'cancelled';
+        order.paymentStatus = 'refunded';
+        ElMessage.success('订单已取消');
       } catch (error) {
         // 用户取消
       }
-      break
+      break;
     case 'delete':
       try {
-        await ElMessageBox.confirm(
-          `确定要删除订单#${order.id}吗？此操作不可恢复。`,
-          '确认删除',
-          {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }
-        )
+        await ElMessageBox.confirm(`确定要删除订单#${order.id}吗？此操作不可恢复。`, '确认删除', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+        });
 
-        const index = orders.value.findIndex(o => o.id === order.id)
+        const index = orders.value.findIndex(o => o.id === order.id);
         if (index > -1) {
-          orders.value.splice(index, 1)
+          orders.value.splice(index, 1);
         }
 
-        ElMessage.success('订单删除成功')
+        ElMessage.success('订单删除成功');
       } catch (error) {
         // 用户取消删除
       }
-      break
+      break;
   }
-}
+};
 
 // 辅助方法
-const formatDate = (dateString) => {
-  if (!dateString) return '-'
-  return new Date(dateString).toLocaleDateString('zh-CN')
-}
+const formatDate = dateString => {
+  if (!dateString) return '-';
+  return new Date(dateString).toLocaleDateString('zh-CN');
+};
 
-const getStatusTagType = (status) => {
+const getStatusTagType = status => {
   const statusMap = {
     pending: 'info',
     processing: 'warning',
     completed: 'success',
-    cancelled: 'danger'
-  }
-  return statusMap[status] || 'info'
-}
+    cancelled: 'danger',
+  };
+  return statusMap[status] || 'info';
+};
 
-const getStatusLabel = (status) => {
+const getStatusLabel = status => {
   const statusMap = {
     pending: '待处理',
     processing: '处理中',
     completed: '已完成',
-    cancelled: '已取消'
-  }
-  return statusMap[status] || status
-}
+    cancelled: '已取消',
+  };
+  return statusMap[status] || status;
+};
 
 // 权限检查
-const hasPermission = (permission) => {
+const hasPermission = permission => {
   // 模拟权限检查
-  return true
-}
+  return true;
+};
 </script>
 
 <style lang="scss" scoped>

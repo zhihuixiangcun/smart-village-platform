@@ -10,7 +10,11 @@
         <p class="subtitle">管理本村农产品、特产等产品信息，助力乡村电商发展</p>
       </div>
       <div class="header-actions">
-        <el-button type="success" @click="handleBatchPublish" :disabled="selectedProducts.length === 0">
+        <el-button
+          type="success"
+          @click="handleBatchPublish"
+          :disabled="selectedProducts.length === 0"
+        >
           <el-icon><CircleCheck /></el-icon>
           批量上架
         </el-button>
@@ -94,7 +98,12 @@
           </el-input>
         </el-form-item>
         <el-form-item label="产品分类">
-          <el-select v-model="filters.category" placeholder="选择分类" clearable style="width: 140px">
+          <el-select
+            v-model="filters.category"
+            placeholder="选择分类"
+            clearable
+            style="width: 140px"
+          >
             <el-option label="农产品" value="agriculture" />
             <el-option label="手工艺品" value="handicraft" />
             <el-option label="特色食品" value="food" />
@@ -144,7 +153,7 @@
               :src="row.image || '/placeholder-product.png'"
               :preview-src-list="[row.image]"
               fit="cover"
-              style="width: 60px; height: 60px; border-radius: 4px;"
+              style="width: 60px; height: 60px; border-radius: 4px"
             />
           </template>
         </el-table-column>
@@ -247,7 +256,11 @@
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="产品分类" prop="category">
-              <el-select v-model="productForm.category" placeholder="请选择分类" style="width: 100%">
+              <el-select
+                v-model="productForm.category"
+                placeholder="请选择分类"
+                style="width: 100%"
+              >
                 <el-option label="农产品" value="agriculture">
                   <div class="option-item">
                     <el-icon><Grape /></el-icon>
@@ -305,11 +318,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="库存" prop="stock">
-              <el-input-number
-                v-model="productForm.stock"
-                :min="0"
-                style="width: 100%"
-              />
+              <el-input-number v-model="productForm.stock" :min="0" style="width: 100%" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -383,7 +392,7 @@
                 :src="currentProduct.image || '/placeholder-product.png'"
                 :preview-src-list="[currentProduct.image]"
                 fit="cover"
-                style="width: 100%; border-radius: 8px;"
+                style="width: 100%; border-radius: 8px"
               />
             </div>
           </el-col>
@@ -393,19 +402,36 @@
               <el-tag :type="getStatusTagType(currentProduct.status)" size="large">
                 {{ getStatusLabel(currentProduct.status) }}
               </el-tag>
-              <el-tag type="info" size="large">{{ getCategoryLabel(currentProduct.category) }}</el-tag>
+              <el-tag type="info" size="large">{{
+                getCategoryLabel(currentProduct.category)
+              }}</el-tag>
             </div>
             <div class="product-price">
               <span class="price-label">价格：</span>
               <span class="price-value">¥{{ formatAmount(currentProduct.price) }}</span>
             </div>
             <el-descriptions :column="1" border class="product-info">
-              <el-descriptions-item label="产品编号">{{ currentProduct.productCode }}</el-descriptions-item>
-              <el-descriptions-item label="生产者">{{ currentProduct.producer }}</el-descriptions-item>
-              <el-descriptions-item label="规格">{{ currentProduct.specification || '-' }}</el-descriptions-item>
-              <el-descriptions-item label="产地">{{ currentProduct.origin || '-' }}</el-descriptions-item>
-              <el-descriptions-item label="库存">{{ currentProduct.stock }} {{ currentProduct.specification ? '/' + currentProduct.specification : '' }}</el-descriptions-item>
-              <el-descriptions-item label="销量">{{ currentProduct.sales }} 件</el-descriptions-item>
+              <el-descriptions-item label="产品编号">{{
+                currentProduct.productCode
+              }}</el-descriptions-item>
+              <el-descriptions-item label="生产者">{{
+                currentProduct.producer
+              }}</el-descriptions-item>
+              <el-descriptions-item label="规格">{{
+                currentProduct.specification || '-'
+              }}</el-descriptions-item>
+              <el-descriptions-item label="产地">{{
+                currentProduct.origin || '-'
+              }}</el-descriptions-item>
+              <el-descriptions-item label="库存"
+                >{{ currentProduct.stock }}
+                {{
+                  currentProduct.specification ? '/' + currentProduct.specification : ''
+                }}</el-descriptions-item
+              >
+              <el-descriptions-item label="销量"
+                >{{ currentProduct.sales }} 件</el-descriptions-item
+              >
             </el-descriptions>
           </el-col>
         </el-row>
@@ -443,50 +469,63 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, reactive, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
-  ShoppingCart, Plus, CircleCheck, Goods, List, Money,
-  Search, Refresh, View, Edit, Delete, Grape, Brush, Chicken,
-  Star, More
-} from '@element-plus/icons-vue'
-import { productApi } from '@/api/cadre'
+  ShoppingCart,
+  Plus,
+  CircleCheck,
+  Goods,
+  List,
+  Money,
+  Search,
+  Refresh,
+  View,
+  Edit,
+  Delete,
+  Grape,
+  Brush,
+  Chicken,
+  Star,
+  More,
+} from '@element-plus/icons-vue';
+import { productApi } from '@/api/cadre';
 
 // ==================== 响应式状态 ====================
-const loading = ref(false)
-const submitting = ref(false)
+const loading = ref(false);
+const submitting = ref(false);
 
 // 筛选条件
 const filters = reactive({
   search: '',
   category: '',
-  status: ''
-})
+  status: '',
+});
 
 // 分页信息
 const pagination = reactive({
   page: 1,
   limit: 20,
-  total: 0
-})
+  total: 0,
+});
 
 // 统计数据
 const stats = reactive({
   totalProducts: 0,
   onlineProducts: 0,
   totalOrders: 0,
-  totalRevenue: 0
-})
+  totalRevenue: 0,
+});
 
 // 产品列表
-const productList = ref([])
-const selectedProducts = ref([])
+const productList = ref([]);
+const selectedProducts = ref([]);
 
 // 对话框状态
-const showCreateDialog = ref(false)
-const showDetailDialog = ref(false)
-const editingProduct = ref(null)
-const currentProduct = ref(null)
+const showCreateDialog = ref(false);
+const showDetailDialog = ref(false);
+const editingProduct = ref(null);
+const currentProduct = ref(null);
 
 // ==================== 表单数据 ====================
 const productForm = reactive({
@@ -499,35 +538,29 @@ const productForm = reactive({
   origin: '',
   description: '',
   image: '',
-  status: 'active'
-})
+  status: 'active',
+});
 
 const productFormRules = {
   name: [
     { required: true, message: '请输入产品名称', trigger: 'blur' },
-    { min: 2, max: 100, message: '产品名称长度在2到100个字符', trigger: 'blur' }
+    { min: 2, max: 100, message: '产品名称长度在2到100个字符', trigger: 'blur' },
   ],
-  category: [
-    { required: true, message: '请选择产品分类', trigger: 'change' }
-  ],
-  producer: [
-    { required: true, message: '请输入生产者', trigger: 'blur' }
-  ],
+  category: [{ required: true, message: '请选择产品分类', trigger: 'change' }],
+  producer: [{ required: true, message: '请输入生产者', trigger: 'blur' }],
   price: [
     { required: true, message: '请输入价格', trigger: 'blur' },
-    { type: 'number', min: 0.01, message: '价格必须大于0', trigger: 'blur' }
+    { type: 'number', min: 0.01, message: '价格必须大于0', trigger: 'blur' },
   ],
   stock: [
     { required: true, message: '请输入库存', trigger: 'blur' },
-    { type: 'number', min: 0, message: '库存不能为负数', trigger: 'blur' }
+    { type: 'number', min: 0, message: '库存不能为负数', trigger: 'blur' },
   ],
-  description: [
-    { required: true, message: '请输入产品描述', trigger: 'blur' }
-  ]
-}
+  description: [{ required: true, message: '请输入产品描述', trigger: 'blur' }],
+};
 
 // 表单引用
-const productFormRef = ref(null)
+const productFormRef = ref(null);
 
 // ==================== 方法 ====================
 
@@ -535,55 +568,55 @@ const productFormRef = ref(null)
  * 加载产品列表
  */
 const loadProductList = async () => {
-  loading.value = true
+  loading.value = true;
   try {
     const params = {
       page: pagination.page,
       limit: pagination.limit,
-      ...filters
-    }
+      ...filters,
+    };
 
     // 清理空值参数
     Object.keys(params).forEach(key => {
       if (params[key] === '' || params[key] === null || params[key] === undefined) {
-        delete params[key]
+        delete params[key];
       }
-    })
+    });
 
-    const response = await productApi.getCadreProducts(params)
+    const response = await productApi.getCadreProducts(params);
 
     if (response.success) {
-      productList.value = response.data.products || []
-      pagination.total = response.pagination?.total || 0
+      productList.value = response.data.products || [];
+      pagination.total = response.pagination?.total || 0;
     } else {
-      ElMessage.error(response.message || '获取产品列表失败')
+      ElMessage.error(response.message || '获取产品列表失败');
     }
   } catch (error) {
-    console.error('加载产品列表失败:', error)
+    console.error('加载产品列表失败:', error);
     // 使用模拟数据
-    loadMockProducts()
+    loadMockProducts();
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 /**
  * 加载统计数据
  */
 const loadStats = async () => {
   try {
-    const response = await productApi.getCadreProductStats()
+    const response = await productApi.getCadreProductStats();
     if (response.success) {
-      Object.assign(stats, response.data)
+      Object.assign(stats, response.data);
     }
   } catch (error) {
     // 使用模拟数据
-    stats.totalProducts = 45
-    stats.onlineProducts = 38
-    stats.totalOrders = 256
-    stats.totalRevenue = 128680.50
+    stats.totalProducts = 45;
+    stats.onlineProducts = 38;
+    stats.totalOrders = 256;
+    stats.totalRevenue = 128680.5;
   }
-}
+};
 
 /**
  * 加载模拟数据
@@ -596,7 +629,7 @@ const loadMockProducts = () => {
       name: '有机大米',
       category: 'agriculture',
       producer: '张三家庭农场',
-      price: 68.00,
+      price: 68.0,
       stock: 500,
       specification: '5公斤/袋',
       origin: '浙江省杭州市余杭区',
@@ -607,7 +640,7 @@ const loadMockProducts = () => {
       views: 1234,
       favorites: 89,
       reviews: 42,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     },
     {
       _id: '2',
@@ -615,7 +648,7 @@ const loadMockProducts = () => {
       name: '手工竹编篮子',
       category: 'handicraft',
       producer: '李四竹编工艺',
-      price: 45.00,
+      price: 45.0,
       stock: 50,
       specification: '直径30cm',
       origin: '浙江省杭州市',
@@ -626,67 +659,67 @@ const loadMockProducts = () => {
       views: 856,
       favorites: 56,
       reviews: 28,
-      createdAt: new Date().toISOString()
-    }
-  ]
-  pagination.total = productList.value.length
-}
+      createdAt: new Date().toISOString(),
+    },
+  ];
+  pagination.total = productList.value.length;
+};
 
 /**
  * 搜索
  */
 const handleSearch = () => {
-  pagination.page = 1
-  loadProductList()
-}
+  pagination.page = 1;
+  loadProductList();
+};
 
 /**
  * 重置筛选
  */
 const handleReset = () => {
-  filters.search = ''
-  filters.category = ''
-  filters.status = ''
-  pagination.page = 1
-  loadProductList()
-}
+  filters.search = '';
+  filters.category = '';
+  filters.status = '';
+  pagination.page = 1;
+  loadProductList();
+};
 
 /**
  * 分页大小变化
  */
-const handleSizeChange = (size) => {
-  pagination.limit = size
-  loadProductList()
-}
+const handleSizeChange = size => {
+  pagination.limit = size;
+  loadProductList();
+};
 
 /**
  * 页码变化
  */
-const handleCurrentChange = (page) => {
-  pagination.page = page
-  loadProductList()
-}
+const handleCurrentChange = page => {
+  pagination.page = page;
+  loadProductList();
+};
 
 /**
  * 选择变化
  */
-const handleSelectionChange = (selection) => {
-  selectedProducts.value = selection
-}
+const handleSelectionChange = selection => {
+  selectedProducts.value = selection;
+};
 
 /**
  * 查看详情
  */
-const handleView = (row) => {
-  currentProduct.value = row
-  showDetailDialog.value = true
-}
+const handleView = row => {
+  currentProduct.value = row;
+  showDetailDialog.value = true;
+};
 
 /**
  * 编辑产品
  */
-const handleEdit = (row) => {
-  editingProduct.value = row
+const handleEdit = row => {
+  editingProduct.value = row;
   Object.assign(productForm, {
     name: row.name,
     category: row.category,
@@ -697,105 +730,97 @@ const handleEdit = (row) => {
     origin: row.origin || '',
     description: row.description,
     image: row.image || '',
-    status: row.status
-  })
-  showCreateDialog.value = true
-}
+    status: row.status,
+  });
+  showCreateDialog.value = true;
+};
 
 /**
  * 切换状态
  */
-const handleToggleStatus = async (row) => {
+const handleToggleStatus = async row => {
   try {
-    const newStatus = row.status === 'active' ? 'inactive' : 'active'
-    const action = newStatus === 'active' ? '上架' : '下架'
+    const newStatus = row.status === 'active' ? 'inactive' : 'active';
+    const action = newStatus === 'active' ? '上架' : '下架';
 
-    await ElMessageBox.confirm(
-      `确定要${action}产品 "${row.name}" 吗？`,
-      `确认${action}`,
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
+    await ElMessageBox.confirm(`确定要${action}产品 "${row.name}" 吗？`, `确认${action}`, {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
 
-    const response = await productApi.toggleProductStatus(row._id, newStatus)
+    const response = await productApi.toggleProductStatus(row._id, newStatus);
     if (response.success) {
-      row.status = newStatus
-      ElMessage.success(`${action}成功`)
-      loadStats()
+      row.status = newStatus;
+      ElMessage.success(`${action}成功`);
+      loadStats();
     }
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('操作失败')
+      ElMessage.error('操作失败');
     }
   }
-}
+};
 
 /**
  * 删除产品
  */
-const handleDelete = async (row) => {
+const handleDelete = async row => {
   try {
-    await ElMessageBox.confirm(
-      `确定要删除产品 "${row.name}" 吗？`,
-      '确认删除',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
+    await ElMessageBox.confirm(`确定要删除产品 "${row.name}" 吗？`, '确认删除', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
 
-    const response = await productApi.deleteProduct(row._id)
+    const response = await productApi.deleteProduct(row._id);
     if (response.success) {
-      ElMessage.success('删除成功')
-      loadProductList()
-      loadStats()
+      ElMessage.success('删除成功');
+      loadProductList();
+      loadStats();
     }
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('删除失败')
+      ElMessage.error('删除失败');
     }
   }
-}
+};
 
 /**
  * 提交产品
  */
 const handleSubmitProduct = async () => {
-  if (!productFormRef.value) return
+  if (!productFormRef.value) return;
 
   try {
-    await productFormRef.value.validate()
+    await productFormRef.value.validate();
 
-    submitting.value = true
+    submitting.value = true;
 
-    let response
+    let response;
     if (editingProduct.value) {
-      response = await productApi.updateProduct(editingProduct.value._id, productForm)
+      response = await productApi.updateProduct(editingProduct.value._id, productForm);
     } else {
-      response = await productApi.createProduct(productForm)
+      response = await productApi.createProduct(productForm);
     }
 
     if (response.success) {
-      ElMessage.success(editingProduct.value ? '产品更新成功' : '产品发布成功')
-      handleCloseCreateDialog()
-      loadProductList()
-      loadStats()
+      ElMessage.success(editingProduct.value ? '产品更新成功' : '产品发布成功');
+      handleCloseCreateDialog();
+      loadProductList();
+      loadStats();
     } else {
-      ElMessage.error(response.message || '操作失败')
+      ElMessage.error(response.message || '操作失败');
     }
   } catch (error) {
     if (error !== 'validation failed') {
-      ElMessage.error('操作失败')
-      console.error('提交产品失败:', error)
+      ElMessage.error('操作失败');
+      console.error('提交产品失败:', error);
     }
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
-}
+};
 
 /**
  * 批量上架
@@ -808,34 +833,34 @@ const handleBatchPublish = async () => {
       {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'info'
+        type: 'info',
       }
-    )
+    );
 
-    const ids = selectedProducts.value.map(p => p._id)
-    const response = await productApi.batchPublish(ids)
+    const ids = selectedProducts.value.map(p => p._id);
+    const response = await productApi.batchPublish(ids);
 
     if (response.success) {
-      ElMessage.success('批量上架成功')
-      loadProductList()
-      loadStats()
-      selectedProducts.value = []
+      ElMessage.success('批量上架成功');
+      loadProductList();
+      loadStats();
+      selectedProducts.value = [];
     }
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('批量上架失败')
+      ElMessage.error('批量上架失败');
     }
   }
-}
+};
 
 /**
  * 关闭创建对话框
  */
 const handleCloseCreateDialog = () => {
-  showCreateDialog.value = false
-  editingProduct.value = null
-  resetProductForm()
-}
+  showCreateDialog.value = false;
+  editingProduct.value = null;
+  resetProductForm();
+};
 
 /**
  * 重置产品表单
@@ -843,112 +868,112 @@ const handleCloseCreateDialog = () => {
 const resetProductForm = () => {
   Object.keys(productForm).forEach(key => {
     if (key === 'price' || key === 'stock') {
-      productForm[key] = 0
+      productForm[key] = 0;
     } else if (key === 'status') {
-      productForm[key] = 'active'
+      productForm[key] = 'active';
     } else {
-      productForm[key] = ''
+      productForm[key] = '';
     }
-  })
+  });
 
   if (productFormRef.value) {
-    productFormRef.value.resetFields()
+    productFormRef.value.resetFields();
   }
-}
+};
 
 /**
  * 关闭详情对话框
  */
 const handleCloseDetailDialog = () => {
-  showDetailDialog.value = false
-  currentProduct.value = null
-}
+  showDetailDialog.value = false;
+  currentProduct.value = null;
+};
 
 /**
  * 上传图片
  */
-const handleImageUpload = (file) => {
-  const reader = new FileReader()
-  reader.onload = (e) => {
-    productForm.image = e.target.result
-  }
-  reader.readAsDataURL(file)
-  return false
-}
+const handleImageUpload = file => {
+  const reader = new FileReader();
+  reader.onload = e => {
+    productForm.image = e.target.result;
+  };
+  reader.readAsDataURL(file);
+  return false;
+};
 
 // ==================== 工具函数 ====================
 
 /**
  * 格式化金额
  */
-const formatAmount = (amount) => {
-  if (!amount) return '0.00'
+const formatAmount = amount => {
+  if (!amount) return '0.00';
   return parseFloat(amount).toLocaleString('zh-CN', {
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  })
-}
+    maximumFractionDigits: 2,
+  });
+};
 
 /**
  * 格式化日期
  */
-const formatDate = (date) => {
-  if (!date) return ''
-  return new Date(date).toLocaleDateString('zh-CN')
-}
+const formatDate = date => {
+  if (!date) return '';
+  return new Date(date).toLocaleDateString('zh-CN');
+};
 
 /**
  * 获取分类标签
  */
-const getCategoryLabel = (category) => {
+const getCategoryLabel = category => {
   const labelMap = {
     agriculture: '农产品',
     handicraft: '手工艺品',
     food: '特色食品',
     specialty: '土特产',
-    other: '其他'
-  }
-  return labelMap[category] || category
-}
+    other: '其他',
+  };
+  return labelMap[category] || category;
+};
 
 /**
  * 获取状态标签类型
  */
-const getStatusTagType = (status) => {
+const getStatusTagType = status => {
   const typeMap = {
     active: 'success',
     inactive: 'info',
-    out_of_stock: 'danger'
-  }
-  return typeMap[status] || 'info'
-}
+    out_of_stock: 'danger',
+  };
+  return typeMap[status] || 'info';
+};
 
 /**
  * 获取状态标签文本
  */
-const getStatusLabel = (status) => {
+const getStatusLabel = status => {
   const labelMap = {
     active: '在售',
     inactive: '下架',
-    out_of_stock: '缺货'
-  }
-  return labelMap[status] || status
-}
+    out_of_stock: '缺货',
+  };
+  return labelMap[status] || status;
+};
 
 /**
  * 获取库存标签类型
  */
-const getStockTagType = (stock) => {
-  if (stock <= 10) return 'danger'
-  if (stock <= 50) return 'warning'
-  return 'success'
-}
+const getStockTagType = stock => {
+  if (stock <= 10) return 'danger';
+  if (stock <= 50) return 'warning';
+  return 'success';
+};
 
 // ==================== 生命周期 ====================
 onMounted(() => {
-  loadProductList()
-  loadStats()
-})
+  loadProductList();
+  loadStats();
+});
 </script>
 
 <style lang="scss" scoped>

@@ -7,7 +7,9 @@
           <div class="alert-header" :class="`risk-${alertData.riskLevel}`">
             <div class="alert-icon">
               <el-icon :size="48">
-                <Warning v-if="alertData.riskLevel === 'high' || alertData.riskLevel === 'critical'" />
+                <Warning
+                  v-if="alertData.riskLevel === 'high' || alertData.riskLevel === 'critical'"
+                />
                 <WarningFilled v-else />
               </el-icon>
             </div>
@@ -40,7 +42,10 @@
                 </el-descriptions-item>
               </el-descriptions>
 
-              <div v-if="alertData.preventionTips && alertData.preventionTips.length > 0" class="prevention-tips">
+              <div
+                v-if="alertData.preventionTips && alertData.preventionTips.length > 0"
+                class="prevention-tips"
+              >
                 <h4>防范建议：</h4>
                 <ul>
                   <li v-for="(tip, index) in alertData.preventionTips" :key="index">
@@ -51,7 +56,11 @@
             </div>
 
             <div v-else class="safe-info">
-              <el-result icon="success" title="未检测到风险" sub-title="该号码未在诈骗号码库中，但仍需保持警惕" />
+              <el-result
+                icon="success"
+                title="未检测到风险"
+                sub-title="该号码未在诈骗号码库中，但仍需保持警惕"
+              />
             </div>
           </div>
 
@@ -60,20 +69,10 @@
             <el-button size="large" @click="handleClose">
               {{ alertData.isFraud ? '立即挂断' : '我知道了' }}
             </el-button>
-            <el-button
-              v-if="alertData.isFraud"
-              type="danger"
-              size="large"
-              @click="handleReport"
-            >
+            <el-button v-if="alertData.isFraud" type="danger" size="large" @click="handleReport">
               举报此号码
             </el-button>
-            <el-button
-              v-if="alertData.isFraud"
-              type="primary"
-              size="large"
-              @click="handleBlock"
-            >
+            <el-button v-if="alertData.isFraud" type="primary" size="large" @click="handleBlock">
               拦截此号码
             </el-button>
           </div>
@@ -89,15 +88,15 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-import { ElMessage } from 'element-plus'
-import { Warning, WarningFilled, Phone } from '@element-plus/icons-vue'
-import { securityApi } from '@/api/security'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
+import { ElMessage } from 'element-plus';
+import { Warning, WarningFilled, Phone } from '@element-plus/icons-vue';
+import { securityApi } from '@/api/security';
 
 const props = defineProps({
   modelValue: {
     type: Boolean,
-    default: false
+    default: false,
   },
   alertData: {
     type: Object,
@@ -109,117 +108,120 @@ const props = defineProps({
       fraudTypeName: '',
       reportCount: 0,
       description: '',
-      preventionTips: []
-    })
+      preventionTips: [],
+    }),
   },
   autoClose: {
     type: Boolean,
-    default: true
+    default: true,
   },
   autoCloseDelay: {
     type: Number,
-    default: 10 // 秒
-  }
-})
+    default: 10, // 秒
+  },
+});
 
-const emit = defineEmits(['update:modelValue', 'report', 'block'])
+const emit = defineEmits(['update:modelValue', 'report', 'block']);
 
-const visible = ref(props.modelValue)
-const countdown = ref(props.autoClose ? props.autoCloseDelay : 0)
-let countdownTimer = null
+const visible = ref(props.modelValue);
+const countdown = ref(props.autoClose ? props.autoCloseDelay : 0);
+let countdownTimer = null;
 
 // 警告标题
 const alertTitle = computed(() => {
-  if (!props.alertData.isFraud) return '来电提醒'
+  if (!props.alertData.isFraud) return '来电提醒';
   return ['高危警告', '危险警告'].includes(props.alertData.riskLevel)
     ? '高危诈骗警告'
-    : '诈骗风险警告'
-})
+    : '诈骗风险警告';
+});
 
 // 警告副标题
 const alertSubtitle = computed(() => {
-  if (!props.alertData.isFraud) return '请注意识别来电身份'
-  return '检测到此号码可能是诈骗电话，请谨慎接听'
-})
+  if (!props.alertData.isFraud) return '请注意识别来电身份';
+  return '检测到此号码可能是诈骗电话，请谨慎接听';
+});
 
 // 获取风险等级标签类型
-const getRiskTagType = (level) => {
+const getRiskTagType = level => {
   const typeMap = {
     low: 'info',
     medium: 'warning',
     high: 'danger',
-    critical: 'danger'
-  }
-  return typeMap[level] || 'info'
-}
+    critical: 'danger',
+  };
+  return typeMap[level] || 'info';
+};
 
 // 关闭对话框
 const handleClose = () => {
-  visible.value = false
-  emit('update:modelValue', false)
-}
+  visible.value = false;
+  emit('update:modelValue', false);
+};
 
 // 举报号码
 const handleReport = () => {
-  emit('report', props.alertData.phoneNumber)
-  ElMessage.success('感谢您的举报')
-  handleClose()
-}
+  emit('report', props.alertData.phoneNumber);
+  ElMessage.success('感谢您的举报');
+  handleClose();
+};
 
 // 拦截号码
 const handleBlock = () => {
-  emit('block', props.alertData.phoneNumber)
-  ElMessage.success('已拦截该号码')
-  handleClose()
-}
+  emit('block', props.alertData.phoneNumber);
+  ElMessage.success('已拦截该号码');
+  handleClose();
+};
 
 // 开始倒计时
 const startCountdown = () => {
-  if (!props.autoClose) return
+  if (!props.autoClose) return;
 
-  countdown.value = props.autoCloseDelay
+  countdown.value = props.autoCloseDelay;
 
   countdownTimer = setInterval(() => {
-    countdown.value--
+    countdown.value--;
     if (countdown.value <= 0) {
-      clearInterval(countdownTimer)
-      handleClose()
+      clearInterval(countdownTimer);
+      handleClose();
     }
-  }, 1000)
-}
+  }, 1000);
+};
 
 // 停止倒计时
 const stopCountdown = () => {
   if (countdownTimer) {
-    clearInterval(countdownTimer)
-    countdownTimer = null
+    clearInterval(countdownTimer);
+    countdownTimer = null;
   }
-}
+};
 
 // 监听visible变化
-watch(() => props.modelValue, (newVal) => {
-  visible.value = newVal
-  if (newVal) {
-    startCountdown()
-  } else {
-    stopCountdown()
+watch(
+  () => props.modelValue,
+  newVal => {
+    visible.value = newVal;
+    if (newVal) {
+      startCountdown();
+    } else {
+      stopCountdown();
+    }
   }
-})
+);
 
 // 监听visible变化
-watch(visible, (newVal) => {
-  emit('update:modelValue', newVal)
-})
+watch(visible, newVal => {
+  emit('update:modelValue', newVal);
+});
 
 onMounted(() => {
   if (visible.value) {
-    startCountdown()
+    startCountdown();
   }
-})
+});
 
 onUnmounted(() => {
-  stopCountdown()
-})
+  stopCountdown();
+});
 </script>
 
 <style scoped>
@@ -289,7 +291,8 @@ onUnmounted(() => {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   50% {

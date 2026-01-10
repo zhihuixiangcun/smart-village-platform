@@ -56,13 +56,7 @@
         </el-table-column>
         <el-table-column label="操作" width="200">
           <template #default="scope">
-            <el-button
-              type="text"
-              size="small"
-              @click="checkConsent(scope.row)"
-            >
-              检查
-            </el-button>
+            <el-button type="text" size="small" @click="checkConsent(scope.row)"> 检查 </el-button>
             <el-button
               type="text"
               size="small"
@@ -76,12 +70,8 @@
       </el-table>
 
       <div class="consent-actions">
-        <el-button type="primary" @click="consentDialogVisible = true">
-          新增用户同意
-        </el-button>
-        <el-button type="warning" @click="batchRevokeConsents">
-          批量撤销过期同意
-        </el-button>
+        <el-button type="primary" @click="consentDialogVisible = true"> 新增用户同意 </el-button>
+        <el-button type="warning" @click="batchRevokeConsents"> 批量撤销过期同意 </el-button>
       </div>
     </div>
 
@@ -118,9 +108,7 @@
           <el-button type="primary" @click="performMasking" :loading="masking">
             执行脱敏
           </el-button>
-          <el-button @click="clearMaskingResult">
-            清空结果
-          </el-button>
+          <el-button @click="clearMaskingResult"> 清空结果 </el-button>
         </el-form-item>
       </el-form>
 
@@ -149,21 +137,11 @@
         <div class="result-comparison">
           <div class="comparison-item">
             <h5>原始数据:</h5>
-            <el-input
-              :value="maskingForm.testData"
-              type="textarea"
-              rows="3"
-              readonly
-            />
+            <el-input :value="maskingForm.testData" type="textarea" rows="3" readonly />
           </div>
           <div class="comparison-item">
             <h5>脱敏后数据:</h5>
-            <el-input
-              :value="maskingResult.maskedData"
-              type="textarea"
-              rows="3"
-              readonly
-            />
+            <el-input :value="maskingResult.maskedData" type="textarea" rows="3" readonly />
           </div>
         </div>
       </div>
@@ -183,13 +161,9 @@
             accept=".csv,.json,.xlsx"
           >
             <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-            <div class="el-upload__text">
-              将数据文件拖到此处，或<em>点击上传</em>
-            </div>
+            <div class="el-upload__text">将数据文件拖到此处，或<em>点击上传</em></div>
             <template #tip>
-              <div class="el-upload__tip">
-                支持CSV、JSON、Excel格式文件
-              </div>
+              <div class="el-upload__tip">支持CSV、JSON、Excel格式文件</div>
             </template>
           </el-upload>
         </el-form-item>
@@ -202,12 +176,8 @@
           </el-checkbox-group>
         </el-form-item>
         <el-form-item label="k-匿名值">
-          <el-input-number
-            v-model="anonymizationForm.kValue"
-            :min="2"
-            :max="100"
-          />
-          <span style="margin-left: 8px; color: #909399; font-size: 12px;">
+          <el-input-number v-model="anonymizationForm.kValue" :min="2" :max="100" />
+          <span style="margin-left: 8px; color: #909399; font-size: 12px">
             每个等价类至少包含k个记录
           </span>
         </el-form-item>
@@ -224,10 +194,7 @@
       <h3>隐私影响评估</h3>
       <el-form :model="assessmentForm" label-width="120px">
         <el-form-item label="处理活动">
-          <el-input
-            v-model="assessmentForm.processingActivity"
-            placeholder="请描述数据处理活动"
-          />
+          <el-input v-model="assessmentForm.processingActivity" placeholder="请描述数据处理活动" />
         </el-form-item>
         <el-form-item label="数据类型">
           <el-select v-model="assessmentForm.dataTypes" multiple placeholder="选择处理的数据类型">
@@ -354,11 +321,7 @@
     </div>
 
     <!-- 用户同意对话框 -->
-    <el-dialog
-      v-model="consentDialogVisible"
-      title="新增用户同意"
-      width="50%"
-    >
+    <el-dialog v-model="consentDialogVisible" title="新增用户同意" width="50%">
       <el-form :model="newConsentForm" label-width="120px">
         <el-form-item label="用户ID">
           <el-input v-model="newConsentForm.userId" placeholder="请输入用户ID" />
@@ -399,158 +362,158 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { UploadFilled } from '@element-plus/icons-vue'
-import axios from 'axios'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { UploadFilled } from '@element-plus/icons-vue';
+import axios from 'axios';
 
 // Props
 const props = defineProps({
   moduleData: {
     type: Object,
-    default: () => ({})
-  }
-})
+    default: () => ({}),
+  },
+});
 
 // Emits
-const emit = defineEmits(['refresh'])
+const emit = defineEmits(['refresh']);
 
 // 响应式数据
-const masking = ref(false)
-const anonymizing = ref(false)
-const assessing = ref(false)
-const consentDialogVisible = ref(false)
+const masking = ref(false);
+const anonymizing = ref(false);
+const assessing = ref(false);
+const consentDialogVisible = ref(false);
 
 // 隐私统计数据
 const privacyStats = reactive({
   totalConsents: 0,
   activeAudits: 0,
   anonymizedRecords: 0,
-  dataProcessings: 0
-})
+  dataProcessings: 0,
+});
 
 // 用户同意记录
-const consentRecords = ref([])
+const consentRecords = ref([]);
 
 // 脱敏表单
 const maskingForm = reactive({
   dataType: '',
   maskingLevel: 'standard',
-  testData: ''
-})
+  testData: '',
+});
 
 // 脱敏结果
-const maskingResult = ref(null)
+const maskingResult = ref(null);
 
 // 匿名化表单
 const anonymizationForm = reactive({
   strategies: ['generalization'],
   kValue: 5,
-  dataset: null
-})
+  dataset: null,
+});
 
 // 评估表单
 const assessmentForm = reactive({
   processingActivity: '',
   dataTypes: [],
   purpose: '',
-  legalBasis: ''
-})
+  legalBasis: '',
+});
 
 // 评估结果
-const assessmentResult = ref(null)
+const assessmentResult = ref(null);
 
 // 新用户同意表单
 const newConsentForm = reactive({
   userId: '',
   consentType: '',
   scope: '',
-  expiresAt: ''
-})
+  expiresAt: '',
+});
 
 // 日志过滤器
 const logFilter = reactive({
   eventType: '',
-  dateRange: []
-})
+  dateRange: [],
+});
 
 // 审计日志
-const auditLogs = ref([])
+const auditLogs = ref([]);
 
 // 计算属性
 const filteredLogs = computed(() => {
-  let logs = [...auditLogs.value]
+  let logs = [...auditLogs.value];
 
   if (logFilter.eventType) {
-    logs = logs.filter(log => log.eventType === logFilter.eventType)
+    logs = logs.filter(log => log.eventType === logFilter.eventType);
   }
 
   if (logFilter.dateRange && logFilter.dateRange.length === 2) {
-    const [startDate, endDate] = logFilter.dateRange
+    const [startDate, endDate] = logFilter.dateRange;
     logs = logs.filter(log => {
-      const logDate = new Date(log.timestamp).toISOString().split('T')[0]
-      return logDate >= startDate && logDate <= endDate
-    })
+      const logDate = new Date(log.timestamp).toISOString().split('T')[0];
+      return logDate >= startDate && logDate <= endDate;
+    });
   }
 
-  return logs
-})
+  return logs;
+});
 
 // 方法
-const formatDate = (date) => {
-  return new Date(date).toLocaleString('zh-CN')
-}
+const formatDate = date => {
+  return new Date(date).toLocaleString('zh-CN');
+};
 
-const getRiskLevelTitle = (level) => {
+const getRiskLevelTitle = level => {
   const titles = {
-    'LOW': '低风险 - 隐私影响较小',
-    'MEDIUM': '中等风险 - 需要采取措施',
-    'HIGH': '高风险 - 需要立即处理',
-    'CRITICAL': '极高风险 - 严重隐私威胁'
-  }
-  return titles[level] || '风险评估'
-}
+    LOW: '低风险 - 隐私影响较小',
+    MEDIUM: '中等风险 - 需要采取措施',
+    HIGH: '高风险 - 需要立即处理',
+    CRITICAL: '极高风险 - 严重隐私威胁',
+  };
+  return titles[level] || '风险评估';
+};
 
-const getRiskLevelType = (level) => {
+const getRiskLevelType = level => {
   const types = {
-    'LOW': 'success',
-    'MEDIUM': 'warning',
-    'HIGH': 'danger',
-    'CRITICAL': 'error'
-  }
-  return types[level] || 'info'
-}
+    LOW: 'success',
+    MEDIUM: 'warning',
+    HIGH: 'danger',
+    CRITICAL: 'error',
+  };
+  return types[level] || 'info';
+};
 
 // 获取隐私统计数据
 const fetchPrivacyStats = async () => {
   try {
-    const response = await axios.get('/api/v1/security/privacy-stats')
+    const response = await axios.get('/api/v1/security/privacy-stats');
 
     if (response.data.success) {
-      Object.assign(privacyStats, response.data.data)
+      Object.assign(privacyStats, response.data.data);
     }
   } catch (error) {
-    console.error('获取隐私统计失败:', error)
+    console.error('获取隐私统计失败:', error);
     // 使用模拟数据
     Object.assign(privacyStats, {
       totalConsents: 1245,
       activeAudits: 23,
       anonymizedRecords: 3847,
-      dataProcessings: 567
-    })
+      dataProcessings: 567,
+    });
   }
-}
+};
 
 // 获取同意记录
 const fetchConsentRecords = async () => {
   try {
-    const response = await axios.get('/api/v1/security/consent-records')
+    const response = await axios.get('/api/v1/security/consent-records');
 
     if (response.data.success) {
-      consentRecords.value = response.data.data || []
+      consentRecords.value = response.data.data || [];
     }
   } catch (error) {
-    console.error('获取同意记录失败:', error)
+    console.error('获取同意记录失败:', error);
     // 使用模拟数据
     consentRecords.value = [
       {
@@ -559,7 +522,7 @@ const fetchConsentRecords = async () => {
         scope: '个人基本信息收集',
         status: 'active',
         grantedAt: new Date('2024-01-01'),
-        expiresAt: new Date('2025-01-01')
+        expiresAt: new Date('2025-01-01'),
       },
       {
         userId: 'user_002',
@@ -567,22 +530,22 @@ const fetchConsentRecords = async () => {
         scope: '数据分析处理',
         status: 'revoked',
         grantedAt: new Date('2023-12-01'),
-        expiresAt: new Date('2024-12-01')
-      }
-    ]
+        expiresAt: new Date('2024-12-01'),
+      },
+    ];
   }
-}
+};
 
 // 获取审计日志
 const fetchAuditLogs = async () => {
   try {
-    const response = await axios.get('/api/v1/security/audit-logs')
+    const response = await axios.get('/api/v1/security/audit-logs');
 
     if (response.data.success) {
-      auditLogs.value = response.data.data || []
+      auditLogs.value = response.data.data || [];
     }
   } catch (error) {
-    console.error('获取审计日志失败:', error)
+    console.error('获取审计日志失败:', error);
     // 使用模拟数据
     auditLogs.value = [
       {
@@ -592,7 +555,7 @@ const fetchAuditLogs = async () => {
         result: 'success',
         userId: 'admin',
         timestamp: new Date(),
-        description: '管理员查看用户信息'
+        description: '管理员查看用户信息',
       },
       {
         eventType: 'dataProcessing',
@@ -601,98 +564,98 @@ const fetchAuditLogs = async () => {
         result: 'success',
         userId: 'system',
         timestamp: new Date(Date.now() - 3600000),
-        description: '系统自动脱敏处理'
-      }
-    ]
+        description: '系统自动脱敏处理',
+      },
+    ];
   }
-}
+};
 
 // 执行脱敏
 const performMasking = async () => {
   if (!maskingForm.dataType || !maskingForm.testData) {
-    ElMessage.warning('请填写完整的脱敏信息')
-    return
+    ElMessage.warning('请填写完整的脱敏信息');
+    return;
   }
 
-  masking.value = true
+  masking.value = true;
   try {
     const response = await axios.post('/api/v1/security/manage-privacy', {
       operation: 'maskData',
       dataType: maskingForm.dataType,
       maskingLevel: maskingForm.maskingLevel,
-      consentData: maskingForm.testData
-    })
+      consentData: maskingForm.testData,
+    });
 
     if (response.data.success) {
       maskingResult.value = {
         maskedData: JSON.stringify(response.data.data),
-        appliedRules: ['身份证号掩码', '姓名掩码', '地址部分隐藏']
-      }
-      ElMessage.success('数据脱敏完成')
+        appliedRules: ['身份证号掩码', '姓名掩码', '地址部分隐藏'],
+      };
+      ElMessage.success('数据脱敏完成');
     }
   } catch (error) {
-    console.error('数据脱敏失败:', error)
+    console.error('数据脱敏失败:', error);
     // 使用模拟结果
-    const testData = maskingForm.testData
-    const maskedData = testData.replace(/(\d{4})\d{10}(\d{4})/, '$1**********$2')
+    const testData = maskingForm.testData;
+    const maskedData = testData.replace(/(\d{4})\d{10}(\d{4})/, '$1**********$2');
     maskingResult.value = {
       maskedData,
-      appliedRules: ['身份证号掩码规则']
-    }
-    ElMessage.success('数据脱敏完成')
+      appliedRules: ['身份证号掩码规则'],
+    };
+    ElMessage.success('数据脱敏完成');
   } finally {
-    masking.value = false
+    masking.value = false;
   }
-}
+};
 
 // 清空脱敏结果
 const clearMaskingResult = () => {
-  maskingResult.value = null
-  maskingForm.testData = ''
-}
+  maskingResult.value = null;
+  maskingForm.testData = '';
+};
 
 // 处理数据上传
-const handleDataUpload = (file) => {
-  anonymizationForm.dataset = file
-  return false
-}
+const handleDataUpload = file => {
+  anonymizationForm.dataset = file;
+  return false;
+};
 
 // 执行匿名化
 const performAnonymization = async () => {
   if (!anonymizationForm.dataset) {
-    ElMessage.warning('请上传数据集')
-    return
+    ElMessage.warning('请上传数据集');
+    return;
   }
 
-  anonymizing.value = true
+  anonymizing.value = true;
   try {
-    ElMessage.success('数据匿名化已启动，处理完成后将通过系统通知告知结果')
+    ElMessage.success('数据匿名化已启动，处理完成后将通过系统通知告知结果');
   } catch (error) {
-    ElMessage.error('数据匿名化失败')
+    ElMessage.error('数据匿名化失败');
   } finally {
-    anonymizing.value = false
+    anonymizing.value = false;
   }
-}
+};
 
 // 执行评估
 const performAssessment = async () => {
   if (!assessmentForm.processingActivity || !assessmentForm.dataTypes.length) {
-    ElMessage.warning('请填写完整的评估信息')
-    return
+    ElMessage.warning('请填写完整的评估信息');
+    return;
   }
 
-  assessing.value = true
+  assessing.value = true;
   try {
     const response = await axios.post('/api/v1/security/privacy-impact-assessment', {
-      dataProcess: assessmentForm
-    })
+      dataProcess: assessmentForm,
+    });
 
     if (response.data.success) {
-      assessmentResult.value = response.data.data
-      ElMessage.success('隐私影响评估完成')
+      assessmentResult.value = response.data.data;
+      ElMessage.success('隐私影响评估完成');
     }
   } catch (error) {
-    console.error('隐私影响评估失败:', error)
+    console.error('隐私影响评估失败:', error);
     // 使用模拟结果
     assessmentResult.value = {
       riskLevel: 'MEDIUM',
@@ -704,143 +667,131 @@ const performAssessment = async () => {
         '加强数据加密保护',
         '实施访问控制措施',
         '定期进行隐私影响评估',
-        '建立数据泄露应急响应机制'
-      ]
-    }
-    ElMessage.success('隐私影响评估完成')
+        '建立数据泄露应急响应机制',
+      ],
+    };
+    ElMessage.success('隐私影响评估完成');
   } finally {
-    assessing.value = false
+    assessing.value = false;
   }
-}
+};
 
 // 检查同意
-const checkConsent = async (consent) => {
+const checkConsent = async consent => {
   try {
     const response = await axios.post('/api/v1/security/manage-privacy', {
       operation: 'checkConsent',
       userId: consent.userId,
       consentData: {
         consentType: consent.consentType,
-        scope: consent.scope
-      }
-    })
+        scope: consent.scope,
+      },
+    });
 
     if (response.data.success) {
-      const status = response.data.data.hasConsent ? '有效' : '无效'
-      ElMessage.info(`用户同意状态: ${status}`)
+      const status = response.data.data.hasConsent ? '有效' : '无效';
+      ElMessage.info(`用户同意状态: ${status}`);
     }
   } catch (error) {
-    ElMessage.error('检查同意状态失败')
+    ElMessage.error('检查同意状态失败');
   }
-}
+};
 
 // 撤销同意
-const revokeConsent = async (consent) => {
+const revokeConsent = async consent => {
   try {
-    await ElMessageBox.confirm(
-      `确定要撤销用户 ${consent.userId} 的同意记录吗？`,
-      '确认撤销',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
+    await ElMessageBox.confirm(`确定要撤销用户 ${consent.userId} 的同意记录吗？`, '确认撤销', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
 
     const response = await axios.post('/api/v1/security/manage-privacy', {
       operation: 'revokeConsent',
       userId: consent.userId,
       consentData: {
-        consentId: consent.consentId
-      }
-    })
+        consentId: consent.consentId,
+      },
+    });
 
     if (response.data.success) {
-      ElMessage.success('同意记录已撤销')
-      await fetchConsentRecords()
+      ElMessage.success('同意记录已撤销');
+      await fetchConsentRecords();
     }
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('撤销同意失败')
+      ElMessage.error('撤销同意失败');
     }
   }
-}
+};
 
 // 批量撤销过期同意
 const batchRevokeConsents = async () => {
   try {
-    await ElMessageBox.confirm(
-      '确定要撤销所有过期的同意记录吗？',
-      '确认批量撤销',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
+    await ElMessageBox.confirm('确定要撤销所有过期的同意记录吗？', '确认批量撤销', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
 
-    ElMessage.success('批量撤销操作已执行')
-    await fetchConsentRecords()
+    ElMessage.success('批量撤销操作已执行');
+    await fetchConsentRecords();
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('批量撤销失败')
+      ElMessage.error('批量撤销失败');
     }
   }
-}
+};
 
 // 添加同意
 const addConsent = async () => {
   if (!newConsentForm.userId || !newConsentForm.consentType) {
-    ElMessage.warning('请填写完整的同意信息')
-    return
+    ElMessage.warning('请填写完整的同意信息');
+    return;
   }
 
   try {
     const response = await axios.post('/api/v1/security/manage-privacy', {
       operation: 'consent',
       userId: newConsentForm.userId,
-      consentData: newConsentForm
-    })
+      consentData: newConsentForm,
+    });
 
     if (response.data.success) {
-      ElMessage.success('用户同意已添加')
-      consentDialogVisible.value = false
+      ElMessage.success('用户同意已添加');
+      consentDialogVisible.value = false;
       Object.assign(newConsentForm, {
         userId: '',
         consentType: '',
         scope: '',
-        expiresAt: ''
-      })
-      await fetchConsentRecords()
+        expiresAt: '',
+      });
+      await fetchConsentRecords();
     }
   } catch (error) {
-    ElMessage.error('添加同意失败')
+    ElMessage.error('添加同意失败');
   }
-}
+};
 
 // 筛选日志
 const filterLogs = () => {
   // filteredLogs 计算属性会自动处理
-  ElMessage.success('日志筛选已应用')
-}
+  ElMessage.success('日志筛选已应用');
+};
 
 // 清空过滤器
 const clearFilters = () => {
   Object.assign(logFilter, {
     eventType: '',
-    dateRange: []
-  })
-  ElMessage.success('筛选条件已清空')
-}
+    dateRange: [],
+  });
+  ElMessage.success('筛选条件已清空');
+};
 
 // 初始化
 onMounted(async () => {
-  await Promise.all([
-    fetchPrivacyStats(),
-    fetchConsentRecords(),
-    fetchAuditLogs()
-  ])
-})
+  await Promise.all([fetchPrivacyStats(), fetchConsentRecords(), fetchAuditLogs()]);
+});
 </script>
 
 <style scoped>

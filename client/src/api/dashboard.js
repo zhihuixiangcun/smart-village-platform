@@ -153,7 +153,7 @@ const dashboardApi = {
   exportReport(params = {}) {
     return request.get('/api/v1/dashboard/export', {
       params,
-      responseType: 'blob'
+      responseType: 'blob',
     });
   },
 
@@ -175,7 +175,7 @@ const dashboardApi = {
    */
   sendSMS(data) {
     return request.post('/api/v1/communications/sms', data);
-  }
+  },
 };
 
 export default dashboardApi;

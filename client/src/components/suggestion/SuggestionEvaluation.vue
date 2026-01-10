@@ -155,12 +155,7 @@
             <div class="overall-score">
               <el-form-item label="综合评分">
                 <div class="overall-display">
-                  <el-rate
-                    :value="overallScore"
-                    disabled
-                    show-score
-                    text-color="#ff9900"
-                  ></el-rate>
+                  <el-rate :value="overallScore" disabled show-score text-color="#ff9900"></el-rate>
                   <span class="score-text">{{ getScoreText(overallScore) }}</span>
                 </div>
               </el-form-item>
@@ -215,7 +210,7 @@
                 controls-position="right"
                 style="width: 150px"
               ></el-input-number>
-              <span style="margin-left: 10px;">天</span>
+              <span style="margin-left: 10px">天</span>
             </el-form-item>
 
             <el-form-item label="所需资源">
@@ -298,7 +293,9 @@
           <div class="history-item">
             <div class="history-header">
               <span class="reviewer">{{ suggestion.evaluation.reviewer?.realName }}</span>
-              <span class="review-date">{{ formatDateTime(suggestion.evaluation.reviewedAt) }}</span>
+              <span class="review-date">{{
+                formatDateTime(suggestion.evaluation.reviewedAt)
+              }}</span>
               <el-tag :type="getDecisionType(suggestion.evaluation.reviewDecision)" size="small">
                 {{ getDecisionText(suggestion.evaluation.reviewDecision) }}
               </el-tag>
@@ -329,8 +326,8 @@
 </template>
 
 <script>
-import { suggestionAPI } from '@/api/suggestion'
-import { formatDateTime } from '@/utils/dateUtils'
+import { suggestionAPI } from '@/api/suggestion';
+import { formatDateTime } from '@/utils/dateUtils';
 
 export default {
   name: 'SuggestionEvaluation',
@@ -344,7 +341,7 @@ export default {
           impact: 0,
           urgency: 0,
           innovation: 0,
-          cost: 0
+          cost: 0,
         },
         reviewComments: '',
         decision: '',
@@ -352,92 +349,93 @@ export default {
           estimatedDuration: 30,
           requiredResources: '',
           responsibleDepartment: '',
-          milestones: []
-        }
+          milestones: [],
+        },
       },
       evaluationRules: {
         'scores.feasibility': [
           { required: true, message: '请评分可行性', trigger: 'change' },
-          { type: 'number', min: 1, max: 5, message: '评分必须在1-5之间', trigger: 'change' }
+          { type: 'number', min: 1, max: 5, message: '评分必须在1-5之间', trigger: 'change' },
         ],
         'scores.impact': [
           { required: true, message: '请评分影响力', trigger: 'change' },
-          { type: 'number', min: 1, max: 5, message: '评分必须在1-5之间', trigger: 'change' }
+          { type: 'number', min: 1, max: 5, message: '评分必须在1-5之间', trigger: 'change' },
         ],
         'scores.urgency': [
           { required: true, message: '请评分紧急程度', trigger: 'change' },
-          { type: 'number', min: 1, max: 5, message: '评分必须在1-5之间', trigger: 'change' }
+          { type: 'number', min: 1, max: 5, message: '评分必须在1-5之间', trigger: 'change' },
         ],
         reviewComments: [
           { required: true, message: '请填写评审意见', trigger: 'blur' },
-          { min: 10, max: 1000, message: '评审意见长度在10-1000字符之间', trigger: 'blur' }
+          { min: 10, max: 1000, message: '评审意见长度在10-1000字符之间', trigger: 'blur' },
         ],
-        decision: [
-          { required: true, message: '请选择评审决定', trigger: 'change' }
-        ]
-      }
-    }
+        decision: [{ required: true, message: '请选择评审决定', trigger: 'change' }],
+      },
+    };
   },
   computed: {
     suggestionId() {
-      return this.$route.params.suggestionId
+      return this.$route.params.suggestionId;
     },
     overallScore() {
-      const scores = Object.values(this.evaluationData.scores).filter(score => score > 0)
-      return scores.length > 0 ? scores.reduce((sum, score) => sum + score, 0) / scores.length : 0
-    }
+      const scores = Object.values(this.evaluationData.scores).filter(score => score > 0);
+      return scores.length > 0 ? scores.reduce((sum, score) => sum + score, 0) / scores.length : 0;
+    },
   },
   async mounted() {
-    await this.loadSuggestion()
+    await this.loadSuggestion();
   },
   methods: {
     async loadSuggestion() {
       try {
-        const response = await suggestionAPI.getSuggestionDetails(this.suggestionId)
+        const response = await suggestionAPI.getSuggestionDetails(this.suggestionId);
         if (response.data.success) {
-          this.suggestion = response.data.data
+          this.suggestion = response.data.data;
 
           // 检查权限
           if (!this.canEvaluate()) {
-            this.$message.error('无权限评估此建议')
-            this.goBack()
-            return
+            this.$message.error('无权限评估此建议');
+            this.goBack();
+            return;
           }
 
           // 如果已有评估记录，加载到表单中
           if (this.suggestion.evaluation?.reviewedAt) {
-            this.loadExistingEvaluation()
+            this.loadExistingEvaluation();
           }
         }
       } catch (error) {
-        this.$message.error('获取建议详情失败')
-        console.error(error)
-        this.goBack()
+        this.$message.error('获取建议详情失败');
+        console.error(error);
+        this.goBack();
       }
     },
 
     loadExistingEvaluation() {
-      const evaluation = this.suggestion.evaluation
-      this.evaluationData.scores = { ...evaluation.score }
-      this.evaluationData.reviewComments = evaluation.reviewComments || ''
-      this.evaluationData.decision = evaluation.reviewDecision || ''
+      const evaluation = this.suggestion.evaluation;
+      this.evaluationData.scores = { ...evaluation.score };
+      this.evaluationData.reviewComments = evaluation.reviewComments || '';
+      this.evaluationData.decision = evaluation.reviewDecision || '';
 
       if (evaluation.implementationPlan) {
         this.evaluationData.implementationPlan = {
           ...this.evaluationData.implementationPlan,
-          ...evaluation.implementationPlan
-        }
+          ...evaluation.implementationPlan,
+        };
       }
     },
 
     canEvaluate() {
-      const userRole = this.$store.getters.userRole
-      return userRole === 'admin' || userRole === 'committee'
+      const userRole = this.$store.getters.userRole;
+      return userRole === 'admin' || userRole === 'committee';
     },
 
     handleDecisionChange(decision) {
-      if (decision === 'approve' && this.evaluationData.implementationPlan.milestones.length === 0) {
-        this.addMilestone()
+      if (
+        decision === 'approve' &&
+        this.evaluationData.implementationPlan.milestones.length === 0
+      ) {
+        this.addMilestone();
       }
     },
 
@@ -445,119 +443,122 @@ export default {
       this.evaluationData.implementationPlan.milestones.push({
         name: '',
         description: '',
-        targetDate: null
-      })
+        targetDate: null,
+      });
     },
 
     removeMilestone(index) {
-      this.evaluationData.implementationPlan.milestones.splice(index, 1)
+      this.evaluationData.implementationPlan.milestones.splice(index, 1);
     },
 
     async submitEvaluation() {
       try {
-        await this.$refs.evaluationForm.validate()
+        await this.$refs.evaluationForm.validate();
       } catch (error) {
-        this.$message.error('请完善评估信息')
-        return
+        this.$message.error('请完善评估信息');
+        return;
       }
 
-      this.submitting = true
+      this.submitting = true;
       try {
-        const response = await suggestionAPI.evaluateSuggestion(this.suggestionId, this.evaluationData)
+        const response = await suggestionAPI.evaluateSuggestion(
+          this.suggestionId,
+          this.evaluationData
+        );
 
         if (response.data.success) {
-          this.$message.success('评估提交成功')
-          this.$router.push(`/suggestions/${this.suggestionId}`)
+          this.$message.success('评估提交成功');
+          this.$router.push(`/suggestions/${this.suggestionId}`);
         }
       } catch (error) {
-        const message = error.response?.data?.message || '评估提交失败'
-        this.$message.error(message)
-        console.error(error)
+        const message = error.response?.data?.message || '评估提交失败';
+        this.$message.error(message);
+        console.error(error);
       } finally {
-        this.submitting = false
+        this.submitting = false;
       }
     },
 
     goBack() {
-      this.$router.go(-1)
+      this.$router.go(-1);
     },
 
     formatCurrency(amount) {
       return new Intl.NumberFormat('zh-CN', {
         style: 'currency',
-        currency: 'CNY'
-      }).format(amount)
+        currency: 'CNY',
+      }).format(amount);
     },
 
     getScoreText(score) {
-      if (score >= 4.5) return '优秀'
-      if (score >= 3.5) return '良好'
-      if (score >= 2.5) return '一般'
-      if (score >= 1.5) return '较差'
-      return '很差'
+      if (score >= 4.5) return '优秀';
+      if (score >= 3.5) return '良好';
+      if (score >= 2.5) return '一般';
+      if (score >= 1.5) return '较差';
+      return '很差';
     },
 
     getStatusType(status) {
       const types = {
-        'submitted': 'primary',
-        'under_review': 'warning',
-        'approved': 'success',
-        'rejected': 'danger'
-      }
-      return types[status] || 'info'
+        submitted: 'primary',
+        under_review: 'warning',
+        approved: 'success',
+        rejected: 'danger',
+      };
+      return types[status] || 'info';
     },
 
     getStatusText(status) {
       const texts = {
-        'submitted': '已提交',
-        'under_review': '审核中',
-        'approved': '已通过',
-        'rejected': '已拒绝'
-      }
-      return texts[status] || '未知'
+        submitted: '已提交',
+        under_review: '审核中',
+        approved: '已通过',
+        rejected: '已拒绝',
+      };
+      return texts[status] || '未知';
     },
 
     getPriorityType(priority) {
       const types = {
-        'low': 'info',
-        'medium': 'primary',
-        'high': 'warning',
-        'urgent': 'danger'
-      }
-      return types[priority] || 'info'
+        low: 'info',
+        medium: 'primary',
+        high: 'warning',
+        urgent: 'danger',
+      };
+      return types[priority] || 'info';
     },
 
     getPriorityText(priority) {
       const texts = {
-        'low': '低优先级',
-        'medium': '中优先级',
-        'high': '高优先级',
-        'urgent': '紧急'
-      }
-      return texts[priority] || '未知'
+        low: '低优先级',
+        medium: '中优先级',
+        high: '高优先级',
+        urgent: '紧急',
+      };
+      return texts[priority] || '未知';
     },
 
     getDecisionType(decision) {
       const types = {
-        'approve': 'success',
-        'reject': 'danger',
-        'needs_modification': 'warning'
-      }
-      return types[decision] || 'info'
+        approve: 'success',
+        reject: 'danger',
+        needs_modification: 'warning',
+      };
+      return types[decision] || 'info';
     },
 
     getDecisionText(decision) {
       const texts = {
-        'approve': '通过',
-        'reject': '拒绝',
-        'needs_modification': '需要修改'
-      }
-      return texts[decision] || '未知'
+        approve: '通过',
+        reject: '拒绝',
+        needs_modification: '需要修改',
+      };
+      return texts[decision] || '未知';
     },
 
-    formatDateTime
-  }
-}
+    formatDateTime,
+  },
+};
 </script>
 
 <style scoped>
@@ -721,9 +722,15 @@ export default {
   font-weight: bold;
 }
 
-.decision-text.approve { color: #67c23a; }
-.decision-text.reject { color: #f56c6c; }
-.decision-text.modify { color: #e6a23c; }
+.decision-text.approve {
+  color: #67c23a;
+}
+.decision-text.reject {
+  color: #f56c6c;
+}
+.decision-text.modify {
+  color: #e6a23c;
+}
 
 .implementation-plan {
   background: #f8f9fa;

@@ -107,7 +107,7 @@
       </el-row>
 
       <!-- 二维码信息 -->
-      <el-row :gutter="24" style="margin-top: 20px;">
+      <el-row :gutter="24" style="margin-top: 20px">
         <el-col :span="12">
           <el-card>
             <template #header>
@@ -156,7 +156,7 @@
       </el-row>
 
       <!-- 操作记录 -->
-      <el-row :gutter="24" style="margin-top: 20px;">
+      <el-row :gutter="24" style="margin-top: 20px">
         <el-col :span="24">
           <el-card>
             <template #header>
@@ -200,13 +200,23 @@
           <el-input v-model="editForm.idCard" placeholder="请输入身份证号" />
         </el-form-item>
         <el-form-item label="出生日期" prop="birthDate">
-          <el-date-picker v-model="editForm.birthDate" type="date" placeholder="请选择出生日期" style="width: 100%" />
+          <el-date-picker
+            v-model="editForm.birthDate"
+            type="date"
+            placeholder="请选择出生日期"
+            style="width: 100%"
+          />
         </el-form-item>
         <el-form-item label="联系电话" prop="phone">
           <el-input v-model="editForm.phone" placeholder="请输入联系电话" />
         </el-form-item>
         <el-form-item label="家庭住址" prop="address">
-          <el-input v-model="editForm.address" type="textarea" :rows="3" placeholder="请输入详细地址" />
+          <el-input
+            v-model="editForm.address"
+            type="textarea"
+            :rows="3"
+            placeholder="请输入详细地址"
+          />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -218,18 +228,18 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { useRoute } from 'vue-router'
+import { ref, reactive, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { useRoute } from 'vue-router';
 
-const route = useRoute()
-const resident = ref({})
-const familyMembers = ref([])
-const operationLogs = ref([])
-const loadingLogs = ref(false)
-const editDialogVisible = ref(false)
-const editFormRef = ref()
-const saving = ref(false)
+const route = useRoute();
+const resident = ref({});
+const familyMembers = ref([]);
+const operationLogs = ref([]);
+const loadingLogs = ref(false);
+const editDialogVisible = ref(false);
+const editFormRef = ref();
+const saving = ref(false);
 
 const editForm = reactive({
   name: '',
@@ -237,8 +247,8 @@ const editForm = reactive({
   idCard: '',
   birthDate: '',
   phone: '',
-  address: ''
-})
+  address: '',
+});
 
 const editRules = {
   name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
@@ -246,8 +256,8 @@ const editRules = {
   idCard: [{ required: true, message: '请输入身份证号', trigger: 'blur' }],
   birthDate: [{ required: true, message: '请选择出生日期', trigger: 'change' }],
   phone: [{ required: true, message: '请输入联系电话', trigger: 'blur' }],
-  address: [{ required: true, message: '请输入详细地址', trigger: 'blur' }]
-}
+  address: [{ required: true, message: '请输入详细地址', trigger: 'blur' }],
+};
 
 // 模拟数据
 const mockResident = {
@@ -265,133 +275,151 @@ const mockResident = {
   vaccination: '已完成基础免疫',
   specialHealth: '无',
   householdCode: 'VILLAGE001001',
-  avatar: ''
-}
+  avatar: '',
+};
 
 const mockFamilyMembers = [
   { id: 1, name: '张大明', relation: '户主', avatar: '' },
   { id: 2, name: '李四', relation: '配偶', avatar: '' },
-  { id: 3, name: '张小明', relation: '儿子', avatar: '' }
-]
+  { id: 3, name: '张小明', relation: '儿子', avatar: '' },
+];
 
 const mockOperationLogs = [
-  { date: '2024-01-15 10:30:00', operator: '管理员', action: '信息录入', description: '录入村民基本信息', status: '成功' },
-  { date: '2024-01-15 11:20:00', operator: '管理员', action: '档案更新', description: '更新健康档案信息', status: '成功' },
-  { date: '2024-01-15 14:15:00', operator: '管理员', action: '二维码生成', description: '生成户二维码', status: '成功' }
-]
+  {
+    date: '2024-01-15 10:30:00',
+    operator: '管理员',
+    action: '信息录入',
+    description: '录入村民基本信息',
+    status: '成功',
+  },
+  {
+    date: '2024-01-15 11:20:00',
+    operator: '管理员',
+    action: '档案更新',
+    description: '更新健康档案信息',
+    status: '成功',
+  },
+  {
+    date: '2024-01-15 14:15:00',
+    operator: '管理员',
+    action: '二维码生成',
+    description: '生成户二维码',
+    status: '成功',
+  },
+];
 
 // 计算年龄
-const calculateAge = (birthDate) => {
-  if (!birthDate) return 0
-  const today = new Date()
-  const birth = new Date(birthDate)
-  let age = today.getFullYear() - birth.getFullYear()
-  const monthDiff = today.getMonth() - birth.getMonth()
+const calculateAge = birthDate => {
+  if (!birthDate) return 0;
+  const today = new Date();
+  const birth = new Date(birthDate);
+  let age = today.getFullYear() - birth.getFullYear();
+  const monthDiff = today.getMonth() - birth.getMonth();
   if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-    age--
+    age--;
   }
-  return age
-}
+  return age;
+};
 
 // 脱敏身份证号
-const maskIdCard = (idCard) => {
-  if (!idCard || idCard.length < 8) return idCard
-  return idCard.substring(0, 4) + '********' + idCard.substring(idCard.length - 4)
-}
+const maskIdCard = idCard => {
+  if (!idCard || idCard.length < 8) return idCard;
+  return idCard.substring(0, 4) + '********' + idCard.substring(idCard.length - 4);
+};
 
 // 获取家庭类型颜色
-const getFamilyTypeColor = (type) => {
+const getFamilyTypeColor = type => {
   const colorMap = {
-    '低保户': 'danger',
-    '独生户': 'warning',
-    '普通户': 'info'
-  }
-  return colorMap[type] || 'info'
-}
+    低保户: 'danger',
+    独生户: 'warning',
+    普通户: 'info',
+  };
+  return colorMap[type] || 'info';
+};
 
 // 获取操作状态颜色
-const getOperationStatusColor = (status) => {
+const getOperationStatusColor = status => {
   const colorMap = {
-    '成功': 'success',
-    '失败': 'danger',
-    '处理中': 'warning'
-  }
-  return colorMap[status] || 'info'
-}
+    成功: 'success',
+    失败: 'danger',
+    处理中: 'warning',
+  };
+  return colorMap[status] || 'info';
+};
 
 // 生成二维码
-const generateQRCode = (code) => {
-  return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(code)}`
-}
+const generateQRCode = code => {
+  return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(code)}`;
+};
 
 // 加载村民详情
 const loadResidentDetail = async () => {
   try {
     // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 500))
-    resident.value = mockResident
-    familyMembers.value = mockFamilyMembers
-    operationLogs.value = mockOperationLogs
+    await new Promise(resolve => setTimeout(resolve, 500));
+    resident.value = mockResident;
+    familyMembers.value = mockFamilyMembers;
+    operationLogs.value = mockOperationLogs;
   } catch (error) {
-    ElMessage.error('加载村民详情失败')
-    console.error('加载村民详情失败:', error)
+    ElMessage.error('加载村民详情失败');
+    console.error('加载村民详情失败:', error);
   }
-}
+};
 
 // 加载操作记录
 const loadOperationLogs = async () => {
-  loadingLogs.value = true
+  loadingLogs.value = true;
   try {
     // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 500))
-    operationLogs.value = mockOperationLogs
+    await new Promise(resolve => setTimeout(resolve, 500));
+    operationLogs.value = mockOperationLogs;
   } catch (error) {
-    ElMessage.error('加载操作记录失败')
+    ElMessage.error('加载操作记录失败');
   } finally {
-    loadingLogs.value = false
+    loadingLogs.value = false;
   }
-}
+};
 
 // 编辑村民
 const editResident = () => {
-  Object.assign(editForm, resident.value)
-  editDialogVisible.value = true
-}
+  Object.assign(editForm, resident.value);
+  editDialogVisible.value = true;
+};
 
 // 保存村民信息
 const saveResident = async () => {
-  if (!editFormRef.value) return
+  if (!editFormRef.value) return;
 
   try {
-    await editFormRef.value.validate()
-    saving.value = true
+    await editFormRef.value.validate();
+    saving.value = true;
 
     // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     // 更新本地数据
-    Object.assign(resident.value, editForm)
+    Object.assign(resident.value, editForm);
 
-    ElMessage.success('保存成功')
-    editDialogVisible.value = false
+    ElMessage.success('保存成功');
+    editDialogVisible.value = false;
   } catch (error) {
-    ElMessage.error('保存失败：' + (error.message || '未知错误'))
+    ElMessage.error('保存失败：' + (error.message || '未知错误'));
   } finally {
-    saving.value = false
+    saving.value = false;
   }
-}
+};
 
 // 导出PDF
 const exportPDF = () => {
-  ElMessage.info('PDF导出功能开发中...')
-}
+  ElMessage.info('PDF导出功能开发中...');
+};
 
 onMounted(() => {
-  const residentId = route.params.id
+  const residentId = route.params.id;
   if (residentId) {
-    loadResidentDetail()
+    loadResidentDetail();
   }
-})
+});
 </script>
 
 <style lang="scss" scoped>

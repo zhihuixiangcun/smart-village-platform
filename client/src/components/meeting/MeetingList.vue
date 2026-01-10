@@ -4,11 +4,7 @@
     <div class="meeting-header">
       <h1>会议管理</h1>
       <div class="header-actions">
-        <el-button
-          type="primary"
-          @click="showCreateDialog = true"
-          v-if="canCreateMeeting"
-        >
+        <el-button type="primary" @click="showCreateDialog = true" v-if="canCreateMeeting">
           <i class="el-icon-plus"></i>
           创建会议
         </el-button>
@@ -66,12 +62,7 @@
 
     <!-- 即将举行的会议提醒 -->
     <div v-if="upcomingMeetings.length > 0" class="upcoming-meetings">
-      <el-alert
-        title="即将举行的会议"
-        type="warning"
-        :closable="false"
-        show-icon
-      >
+      <el-alert title="即将举行的会议" type="warning" :closable="false" show-icon>
         <div class="upcoming-list">
           <div
             v-for="meeting in upcomingMeetings.slice(0, 3)"
@@ -81,7 +72,9 @@
           >
             <div class="upcoming-info">
               <span class="meeting-title">{{ meeting.title }}</span>
-              <span class="meeting-time">{{ formatDateTime(meeting.scheduledTime.startTime) }}</span>
+              <span class="meeting-time">{{
+                formatDateTime(meeting.scheduledTime.startTime)
+              }}</span>
             </div>
             <div class="time-remaining">
               {{ getTimeRemaining(meeting.scheduledTime.startTime) }}
@@ -101,32 +94,19 @@
           :key="meeting._id"
           class="meeting-card"
           :class="{
-            'upcoming': meeting.isUpcoming,
-            'active': meeting.isActive,
-            'past': meeting.isPast,
-            'urgent': meeting.priority === 'urgent'
+            upcoming: meeting.isUpcoming,
+            active: meeting.isActive,
+            past: meeting.isPast,
+            urgent: meeting.priority === 'urgent',
           }"
         >
           <div class="meeting-card-header">
             <div class="meeting-status">
-              <el-tag
-                :type="getStatusType(meeting)"
-                size="small"
-              >
+              <el-tag :type="getStatusType(meeting)" size="small">
                 {{ getStatusText(meeting.status) }}
               </el-tag>
-              <el-tag
-                v-if="meeting.hasCheckedIn"
-                type="success"
-                size="small"
-              >
-                已签到
-              </el-tag>
-              <el-tag
-                v-if="meeting.priority === 'urgent'"
-                type="danger"
-                size="small"
-              >
+              <el-tag v-if="meeting.hasCheckedIn" type="success" size="small"> 已签到 </el-tag>
+              <el-tag v-if="meeting.priority === 'urgent'" type="danger" size="small">
                 紧急
               </el-tag>
             </div>
@@ -174,23 +154,13 @@
 
           <div class="meeting-card-footer">
             <div class="meeting-tags">
-              <el-tag
-                v-for="tag in meeting.tags"
-                :key="tag"
-                size="mini"
-                type="info"
-              >
+              <el-tag v-for="tag in meeting.tags" :key="tag" size="mini" type="info">
                 {{ tag }}
               </el-tag>
             </div>
 
             <div class="meeting-actions">
-              <el-button
-                size="small"
-                @click="viewMeeting(meeting._id)"
-              >
-                查看详情
-              </el-button>
+              <el-button size="small" @click="viewMeeting(meeting._id)"> 查看详情 </el-button>
               <el-button
                 v-if="meeting.isUpcoming && !meeting.hasCheckedIn"
                 type="primary"
@@ -236,10 +206,7 @@
     </div>
 
     <!-- 创建会议对话框 -->
-    <MeetingCreateDialog
-      :visible.sync="showCreateDialog"
-      @created="handleMeetingCreated"
-    />
+    <MeetingCreateDialog :visible.sync="showCreateDialog" @created="handleMeetingCreated" />
 
     <!-- 签到对话框 -->
     <MeetingCheckInDialog
@@ -251,16 +218,16 @@
 </template>
 
 <script>
-import { meetingAPI } from '@/api/meeting'
-import MeetingCreateDialog from './MeetingCreateDialog.vue'
-import MeetingCheckInDialog from './MeetingCheckInDialog.vue'
-import { formatDate, formatDateTime } from '@/utils/dateUtils'
+import { meetingAPI } from '@/api/meeting';
+import MeetingCreateDialog from './MeetingCreateDialog.vue';
+import MeetingCheckInDialog from './MeetingCheckInDialog.vue';
+import { formatDate, formatDateTime } from '@/utils/dateUtils';
 
 export default {
   name: 'MeetingList',
   components: {
     MeetingCreateDialog,
-    MeetingCheckInDialog
+    MeetingCheckInDialog,
   },
   data() {
     return {
@@ -274,57 +241,59 @@ export default {
         status: 'all',
         meetingType: '',
         timeRange: 'upcoming',
-        search: ''
+        search: '',
       },
       pagination: {
         page: 1,
         limit: 20,
         total: 0,
-        pages: 0
-      }
-    }
+        pages: 0,
+      },
+    };
   },
   computed: {
     canCreateMeeting() {
-      return this.$store.getters.userRole === 'committee' || this.$store.getters.userRole === 'admin'
-    }
+      return (
+        this.$store.getters.userRole === 'committee' || this.$store.getters.userRole === 'admin'
+      );
+    },
   },
   mounted() {
-    this.loadMeetings()
-    this.loadUpcomingMeetings()
+    this.loadMeetings();
+    this.loadUpcomingMeetings();
   },
   methods: {
     async loadMeetings() {
-      this.loading = true
+      this.loading = true;
       try {
         const params = {
           page: this.pagination.page,
           limit: this.pagination.limit,
-          ...this.filters
-        }
+          ...this.filters,
+        };
 
-        const response = await meetingAPI.getMeetingList(params)
+        const response = await meetingAPI.getMeetingList(params);
 
         if (response.data.success) {
-          this.meetings = response.data.data.meetings
-          this.pagination = response.data.data.pagination
+          this.meetings = response.data.data.meetings;
+          this.pagination = response.data.data.pagination;
         }
       } catch (error) {
-        this.$message.error('加载会议列表失败')
-        console.error(error)
+        this.$message.error('加载会议列表失败');
+        console.error(error);
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
 
     async loadUpcomingMeetings() {
       try {
-        const response = await meetingAPI.getUpcomingMeetings(3)
+        const response = await meetingAPI.getUpcomingMeetings(3);
         if (response.data.success) {
-          this.upcomingMeetings = response.data.data.meetings
+          this.upcomingMeetings = response.data.data.meetings;
         }
       } catch (error) {
-        console.error('加载即将举行的会议失败:', error)
+        console.error('加载即将举行的会议失败:', error);
       }
     },
 
@@ -333,130 +302,136 @@ export default {
         status: 'all',
         meetingType: '',
         timeRange: 'upcoming',
-        search: ''
-      }
-      this.pagination.page = 1
-      this.loadMeetings()
+        search: '',
+      };
+      this.pagination.page = 1;
+      this.loadMeetings();
     },
 
     handleSizeChange(newSize) {
-      this.pagination.limit = newSize
-      this.pagination.page = 1
-      this.loadMeetings()
+      this.pagination.limit = newSize;
+      this.pagination.page = 1;
+      this.loadMeetings();
     },
 
     handleCurrentChange(newPage) {
-      this.pagination.page = newPage
-      this.loadMeetings()
+      this.pagination.page = newPage;
+      this.loadMeetings();
     },
 
     handleMeetingCreated() {
-      this.showCreateDialog = false
-      this.loadMeetings()
-      this.loadUpcomingMeetings()
+      this.showCreateDialog = false;
+      this.loadMeetings();
+      this.loadUpcomingMeetings();
     },
 
     handleCheckedIn() {
-      this.showCheckInDialog = false
-      this.loadMeetings()
+      this.showCheckInDialog = false;
+      this.loadMeetings();
     },
 
     viewMeeting(meetingId) {
-      this.$router.push(`/meetings/${meetingId}`)
+      this.$router.push(`/meetings/${meetingId}`);
     },
 
     checkInMeeting(meetingId) {
-      this.selectedMeetingId = meetingId
-      this.showCheckInDialog = true
+      this.selectedMeetingId = meetingId;
+      this.showCheckInDialog = true;
     },
 
     joinMeeting(meetingId) {
-      this.$router.push(`/meetings/${meetingId}/session`)
+      this.$router.push(`/meetings/${meetingId}/session`);
     },
 
     manageMeeting(meetingId) {
-      this.$router.push(`/meetings/${meetingId}/manage`)
+      this.$router.push(`/meetings/${meetingId}/manage`);
     },
 
     canManageMeeting(meeting) {
-      const userRole = this.$store.getters.userRole
-      const userId = this.$store.getters.userId
+      const userRole = this.$store.getters.userRole;
+      const userId = this.$store.getters.userId;
 
-      return userRole === 'admin' ||
-             userRole === 'committee' ||
-             meeting.organizer._id === userId
+      return userRole === 'admin' || userRole === 'committee' || meeting.organizer._id === userId;
     },
 
     getStatusType(meeting) {
       switch (meeting.status) {
-        case 'draft': return 'info'
-        case 'scheduled': return 'warning'
-        case 'notified': return 'primary'
-        case 'in_progress': return 'success'
-        case 'completed': return 'success'
-        case 'cancelled': return 'danger'
-        case 'postponed': return 'warning'
-        default: return 'info'
+        case 'draft':
+          return 'info';
+        case 'scheduled':
+          return 'warning';
+        case 'notified':
+          return 'primary';
+        case 'in_progress':
+          return 'success';
+        case 'completed':
+          return 'success';
+        case 'cancelled':
+          return 'danger';
+        case 'postponed':
+          return 'warning';
+        default:
+          return 'info';
       }
     },
 
     getStatusText(status) {
       const statusMap = {
-        'draft': '草稿',
-        'scheduled': '已安排',
-        'notified': '已通知',
-        'in_progress': '进行中',
-        'completed': '已完成',
-        'cancelled': '已取消',
-        'postponed': '已延期'
-      }
-      return statusMap[status] || '未知'
+        draft: '草稿',
+        scheduled: '已安排',
+        notified: '已通知',
+        in_progress: '进行中',
+        completed: '已完成',
+        cancelled: '已取消',
+        postponed: '已延期',
+      };
+      return statusMap[status] || '未知';
     },
 
     getMeetingTypeText(meetingType) {
       const typeMap = {
-        'committee_meeting': '村委会议',
-        'village_assembly': '村民大会',
-        'special_meeting': '专题会议',
-        'emergency_meeting': '紧急会议',
-        'work_meeting': '工作会议'
-      }
-      return typeMap[meetingType] || '其他会议'
+        committee_meeting: '村委会议',
+        village_assembly: '村民大会',
+        special_meeting: '专题会议',
+        emergency_meeting: '紧急会议',
+        work_meeting: '工作会议',
+      };
+      return typeMap[meetingType] || '其他会议';
     },
 
     getTimeRemaining(startTime) {
-      const now = new Date()
-      const start = new Date(startTime)
-      const diff = start - now
+      const now = new Date();
+      const start = new Date(startTime);
+      const diff = start - now;
 
-      if (diff <= 0) return '已开始'
+      if (diff <= 0) return '已开始';
 
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
 
-      if (days > 0) return `${days}天${hours}小时`
-      if (hours > 0) return `${hours}小时${minutes}分钟`
-      return `${minutes}分钟`
+      if (days > 0) return `${days}天${hours}小时`;
+      if (hours > 0) return `${hours}小时${minutes}分钟`;
+      return `${minutes}分钟`;
     },
 
     getTimeProgress(meeting) {
-      if (!meeting.timeUntilStart) return 100
+      if (!meeting.timeUntilStart) return 100;
 
-      const now = new Date()
-      const start = new Date(meeting.scheduledTime.startTime)
-      const created = new Date(meeting.createdAt)
+      const now = new Date();
+      const start = new Date(meeting.scheduledTime.startTime);
+      const created = new Date(meeting.createdAt);
 
-      const totalTime = start - created
-      const elapsed = now - created
+      const totalTime = start - created;
+      const elapsed = now - created;
 
-      return Math.max(0, Math.min(100, (elapsed / totalTime) * 100))
+      return Math.max(0, Math.min(100, (elapsed / totalTime) * 100));
     },
 
     formatDate,
-    formatDateTime
-  }
-}
+    formatDateTime,
+  },
+};
 </script>
 
 <style scoped>

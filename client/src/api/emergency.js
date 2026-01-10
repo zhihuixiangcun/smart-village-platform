@@ -6,8 +6,8 @@ const api = axios.create({
   baseURL: BASE_URL,
   timeout: 30000,
   headers: {
-    'Content-Type': 'application/json'
-  }
+    'Content-Type': 'application/json',
+  },
 });
 
 api.interceptors.request.use(
@@ -65,14 +65,14 @@ export const emergencyApi = {
   // 上传应急媒体
   uploadMedia(formData) {
     return api.post('/api/v1/emergency/upload/media', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+      headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
 
   // 获取应急类型列表
   getEmergencyTypes() {
     return api.get('/api/v1/emergency/types');
-  }
+  },
 };
 
 export default emergencyApi;

@@ -49,18 +49,14 @@
     <!-- 操作栏 -->
     <div class="action-bar">
       <el-button-group>
-        <el-button type="primary" icon="Upload" @click="showUploadDialog">
-          上传证件
-        </el-button>
-        <el-button icon="Refresh" @click="loadDocuments">
-          刷新
-        </el-button>
+        <el-button type="primary" icon="Upload" @click="showUploadDialog"> 上传证件 </el-button>
+        <el-button icon="Refresh" @click="loadDocuments"> 刷新 </el-button>
       </el-button-group>
       <el-input
         v-model="searchQuery"
         placeholder="搜索证件..."
         prefix-icon="Search"
-        style="width: 250px; margin-left: auto;"
+        style="width: 250px; margin-left: auto"
         clearable
       />
     </div>
@@ -89,15 +85,8 @@
       <el-empty v-if="filteredList.length === 0" description="暂无证件信息" />
 
       <el-row v-else :gutter="16">
-        <el-col
-          v-for="doc in filteredList"
-          :key="doc._id"
-          :xs="24"
-          :sm="12"
-          :md="8"
-          :lg="6"
-        >
-          <el-card class="document-card" :class="{ 'expiring': isExpiring(doc) }">
+        <el-col v-for="doc in filteredList" :key="doc._id" :xs="24" :sm="12" :md="8" :lg="6">
+          <el-card class="document-card" :class="{ expiring: isExpiring(doc) }">
             <div class="card-header">
               <div class="doc-type">
                 <el-icon class="type-icon">
@@ -210,13 +199,9 @@
             drag
           >
             <el-icon class="el-icon--upload"><UploadFilled /></el-icon>
-            <div class="el-upload__text">
-              将文件拖到此处，或<em>点击上传</em>
-            </div>
+            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
             <template #tip>
-              <div class="el-upload__tip">
-                支持jpg/png图片或pdf文件，文件大小不超过10MB
-              </div>
+              <div class="el-upload__tip">支持jpg/png图片或pdf文件，文件大小不超过10MB</div>
             </template>
           </el-upload>
         </el-form-item>
@@ -224,9 +209,7 @@
 
       <template #footer>
         <el-button @click="uploadDialogVisible = false">取消</el-button>
-        <el-button type="primary" :loading="uploading" @click="handleUpload">
-          上传
-        </el-button>
+        <el-button type="primary" :loading="uploading" @click="handleUpload"> 上传 </el-button>
       </template>
     </el-dialog>
 
@@ -242,7 +225,7 @@
             v-if="currentDocument.fileUrl"
             :src="currentDocument.fileUrl"
             fit="contain"
-            style="max-height: 400px;"
+            style="max-height: 400px"
           />
         </div>
 
@@ -272,17 +255,15 @@
 
       <template #footer>
         <el-button @click="viewDialogVisible = false">关闭</el-button>
-        <el-button type="primary" @click="downloadDocument(currentDocument)">
-          下载
-        </el-button>
+        <el-button type="primary" @click="downloadDocument(currentDocument)"> 下载 </el-button>
       </template>
     </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, computed, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
   Document,
   PictureFilled,
@@ -290,17 +271,17 @@ import {
   Postcard,
   MoreFilled,
   UploadFilled,
-  WarningFilled
-} from '@element-plus/icons-vue'
+  WarningFilled,
+} from '@element-plus/icons-vue';
 
 // 响应式数据
-const documents = ref([])
-const searchQuery = ref('')
-const activeCategory = ref('all')
-const uploadDialogVisible = ref(false)
-const viewDialogVisible = ref(false)
-const currentDocument = ref(null)
-const uploading = ref(false)
+const documents = ref([]);
+const searchQuery = ref('');
+const activeCategory = ref('all');
+const uploadDialogVisible = ref(false);
+const viewDialogVisible = ref(false);
+const currentDocument = ref(null);
+const uploading = ref(false);
 
 // 上传表单
 const uploadForm = ref({
@@ -308,15 +289,15 @@ const uploadForm = ref({
   name: '',
   idNumber: '',
   expiryDate: '',
-  file: null
-})
+  file: null,
+});
 
 // 表单验证规则
 const uploadRules = {
   type: [{ required: true, message: '请选择证件类型', trigger: 'change' }],
   name: [{ required: true, message: '请输入证件名称', trigger: 'blur' }],
-  file: [{ required: true, message: '请上传证件文件', trigger: 'change' }]
-}
+  file: [{ required: true, message: '请上传证件文件', trigger: 'change' }],
+};
 
 // 统计数据
 const stats = computed(() => {
@@ -324,112 +305,111 @@ const stats = computed(() => {
     idCard: documents.value.filter(d => d.type === 'id_card').length,
     household: documents.value.filter(d => d.type === 'household').length,
     driving: documents.value.filter(d => d.type === 'driving').length,
-    other: documents.value.filter(d => d.type === 'other').length
-  }
-})
+    other: documents.value.filter(d => d.type === 'other').length,
+  };
+});
 
 // 过滤后的列表
 const filteredList = computed(() => {
-  let list = documents.value
+  let list = documents.value;
 
   // 分类过滤
   if (activeCategory.value !== 'all') {
-    list = list.filter(doc => doc.type === activeCategory.value)
+    list = list.filter(doc => doc.type === activeCategory.value);
   }
 
   // 搜索过滤
   if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase()
-    list = list.filter(doc =>
-      doc.name.toLowerCase().includes(query) ||
-      doc.idNumber?.toLowerCase().includes(query)
-    )
+    const query = searchQuery.value.toLowerCase();
+    list = list.filter(
+      doc => doc.name.toLowerCase().includes(query) || doc.idNumber?.toLowerCase().includes(query)
+    );
   }
 
-  return list
-})
+  return list;
+});
 
 // 获取某类型的证件数量
-const getCountByType = (type) => {
-  return documents.value.filter(doc => doc.type === type).length
-}
+const getCountByType = type => {
+  return documents.value.filter(doc => doc.type === type).length;
+};
 
 // 获取证件类型名称
-const getDocTypeName = (type) => {
+const getDocTypeName = type => {
   const typeMap = {
     id_card: '身份证',
     household: '户口本',
     driving: '驾驶证',
     passport: '护照',
-    other: '其他'
-  }
-  return typeMap[type] || '未知'
-}
+    other: '其他',
+  };
+  return typeMap[type] || '未知';
+};
 
 // 格式化证件号码（脱敏）
-const formatIdNumber = (idNumber) => {
-  if (!idNumber) return '-'
+const formatIdNumber = idNumber => {
+  if (!idNumber) return '-';
   if (idNumber.length > 8) {
-    return idNumber.substring(0, 6) + '********' + idNumber.substring(idNumber.length - 4)
+    return idNumber.substring(0, 6) + '********' + idNumber.substring(idNumber.length - 4);
   }
-  return idNumber
-}
+  return idNumber;
+};
 
 // 格式化日期
-const formatDate = (dateStr) => {
-  if (!dateStr) return '-'
-  return new Date(dateStr).toLocaleDateString('zh-CN')
-}
+const formatDate = dateStr => {
+  if (!dateStr) return '-';
+  return new Date(dateStr).toLocaleDateString('zh-CN');
+};
 
-const formatDateTime = (dateStr) => {
-  if (!dateStr) return '-'
-  return new Date(dateStr).toLocaleString('zh-CN')
-}
+const formatDateTime = dateStr => {
+  if (!dateStr) return '-';
+  return new Date(dateStr).toLocaleString('zh-CN');
+};
 
 // 检查是否即将过期
-const isExpiring = (doc) => {
-  if (!doc.expiryDate) return false
-  const expiryDate = new Date(doc.expiryDate)
-  const now = new Date()
-  const diffDays = Math.ceil((expiryDate - now) / (1000 * 60 * 60 * 24))
-  return diffDays <= 30 && diffDays >= 0
-}
+const isExpiring = doc => {
+  if (!doc.expiryDate) return false;
+  const expiryDate = new Date(doc.expiryDate);
+  const now = new Date();
+  const diffDays = Math.ceil((expiryDate - now) / (1000 * 60 * 60 * 24));
+  return diffDays <= 30 && diffDays >= 0;
+};
 
 // 获取过期提示文本
-const getExpiryText = (doc) => {
-  const expiryDate = new Date(doc.expiryDate)
-  const now = new Date()
-  const diffDays = Math.ceil((expiryDate - now) / (1000 * 60 * 60 * 24))
+const getExpiryText = doc => {
+  const expiryDate = new Date(doc.expiryDate);
+  const now = new Date();
+  const diffDays = Math.ceil((expiryDate - now) / (1000 * 60 * 60 * 24));
 
-  if (diffDays < 0) return '已过期'
-  if (diffDays === 0) return '今日过期'
-  if (diffDays <= 7) return `${diffDays}天后过期`
-  return '即将过期'
-}
+  if (diffDays < 0) return '已过期';
+  if (diffDays === 0) return '今日过期';
+  if (diffDays <= 7) return `${diffDays}天后过期`;
+  return '即将过期';
+};
 
 // 获取状态
-const getStatusType = (doc) => {
-  if (!doc.expiryDate) return 'info'
-  const expiryDate = new Date(doc.expiryDate)
-  const now = new Date()
-  const diffDays = Math.ceil((expiryDate - now) / (1000 * 60 * 60 * 24))
+const getStatusType = doc => {
+  if (!doc.expiryDate) return 'info';
+  const expiryDate = new Date(doc.expiryDate);
+  const now = new Date();
+  const diffDays = Math.ceil((expiryDate - now) / (1000 * 60 * 60 * 24));
 
-  if (diffDays < 0) return 'danger'
-  if (diffDays <= 30) return 'warning'
-  return 'success'
-}
+  if (diffDays < 0) return 'danger';
+  if (diffDays <= 30) return 'warning';
+  return 'success';
+};
 
-const getStatusText = (doc) => {
-  if (!doc.expiryDate) return '未设置有效期'
-  const expiryDate = new Date(doc.expiryDate)
-  const now = new Date()
-  const diffDays = Math.ceil((expiryDate - now) / (1000 * 60 * 60 * 24))
+const getStatusText = doc => {
+  if (!doc.expiryDate) return '未设置有效期';
+  const expiryDate = new Date(doc.expiryDate);
+  const now = new Date();
+  const diffDays = Math.ceil((expiryDate - now) / (1000 * 60 * 60 * 24));
 
-  if (diffDays < 0) return '已过期'
-  if (diffDays <= 7) return '即将过期'
-  if (diffDays <= 30) return '30天内过期'
-  return '正常'
-}
+  if (diffDays < 0) return '已过期';
+  if (diffDays <= 7) return '即将过期';
+  if (diffDays <= 30) return '30天内过期';
+  return '正常';
+};
 
 // 加载证件列表
 const loadDocuments = async () => {
@@ -439,51 +419,51 @@ const loadDocuments = async () => {
     // documents.value = data
 
     // 模拟数据
-    documents.value = []
+    documents.value = [];
   } catch (error) {
-    ElMessage.error('加载证件列表失败')
-    console.error(error)
+    ElMessage.error('加载证件列表失败');
+    console.error(error);
   }
-}
+};
 
 // 上传文件
-const handleFileChange = (file) => {
-  uploadForm.value.file = file.raw
-}
+const handleFileChange = file => {
+  uploadForm.value.file = file.raw;
+};
 
 // 文件超出限制
 const handleExceed = () => {
-  ElMessage.warning('只能上传一个文件')
-}
+  ElMessage.warning('只能上传一个文件');
+};
 
 // 上传证件
 const handleUpload = async () => {
   try {
-    const valid = await uploadForm.value.validate()
-    if (!valid) return
+    const valid = await uploadForm.value.validate();
+    if (!valid) return;
 
-    uploading.value = true
+    uploading.value = true;
 
-    const formData = new FormData()
-    formData.append('type', uploadForm.value.type)
-    formData.append('name', uploadForm.value.name)
-    formData.append('idNumber', uploadForm.value.idNumber)
-    formData.append('expiryDate', uploadForm.value.expiryDate)
-    formData.append('file', uploadForm.value.file)
+    const formData = new FormData();
+    formData.append('type', uploadForm.value.type);
+    formData.append('name', uploadForm.value.name);
+    formData.append('idNumber', uploadForm.value.idNumber);
+    formData.append('expiryDate', uploadForm.value.expiryDate);
+    formData.append('file', uploadForm.value.file);
 
     // TODO: 调用API
     // await documentApi.uploadDocument(formData)
 
-    ElMessage.success('上传成功')
-    uploadDialogVisible.value = false
-    loadDocuments()
+    ElMessage.success('上传成功');
+    uploadDialogVisible.value = false;
+    loadDocuments();
   } catch (error) {
-    ElMessage.error('上传失败')
-    console.error(error)
+    ElMessage.error('上传失败');
+    console.error(error);
   } finally {
-    uploading.value = false
+    uploading.value = false;
   }
-}
+};
 
 // 重置上传表单
 const resetUploadForm = () => {
@@ -492,82 +472,80 @@ const resetUploadForm = () => {
     name: '',
     idNumber: '',
     expiryDate: '',
-    file: null
-  }
-}
+    file: null,
+  };
+};
 
 // 查看证件
-const viewDocument = (doc) => {
-  currentDocument.value = doc
-  viewDialogVisible.value = true
-}
+const viewDocument = doc => {
+  currentDocument.value = doc;
+  viewDialogVisible.value = true;
+};
 
 // 下载证件
-const downloadDocument = (doc) => {
-  ElMessage.info('下载功能开发中...')
-}
+const downloadDocument = doc => {
+  ElMessage.info('下载功能开发中...');
+};
 
 // 卡片操作
 const handleCardAction = (command, doc) => {
   switch (command) {
     case 'view':
-      viewDocument(doc)
-      break
+      viewDocument(doc);
+      break;
     case 'share':
-      ElMessage.info('分享功能开发中...')
-      break
+      ElMessage.info('分享功能开发中...');
+      break;
     case 'download':
-      downloadDocument(doc)
-      break
+      downloadDocument(doc);
+      break;
     case 'edit':
-      ElMessage.info('编辑功能开发中...')
-      break
+      ElMessage.info('编辑功能开发中...');
+      break;
     case 'delete':
-      handleDelete(doc)
-      break
+      handleDelete(doc);
+      break;
   }
-}
+};
 
 // 删除证件
-const handleDelete = (doc) => {
-  ElMessageBox.confirm(
-    `确定要删除"${doc.name}"吗？删除后无法恢复。`,
-    '确认删除',
-    {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }
-  ).then(async () => {
-    try {
-      // TODO: 调用API
-      // await documentApi.deleteDocument(doc._id)
-
-      ElMessage.success('删除成功')
-      loadDocuments()
-    } catch (error) {
-      ElMessage.error('删除失败')
-      console.error(error)
-    }
-  }).catch(() => {
-    // 用户取消
+const handleDelete = doc => {
+  ElMessageBox.confirm(`确定要删除"${doc.name}"吗？删除后无法恢复。`, '确认删除', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
   })
-}
+    .then(async () => {
+      try {
+        // TODO: 调用API
+        // await documentApi.deleteDocument(doc._id)
+
+        ElMessage.success('删除成功');
+        loadDocuments();
+      } catch (error) {
+        ElMessage.error('删除失败');
+        console.error(error);
+      }
+    })
+    .catch(() => {
+      // 用户取消
+    });
+};
 
 // 标签切换
 const handleTabChange = () => {
   // 过滤逻辑已在computed中处理
-}
+};
 
 // 显示上传对话框
 const showUploadDialog = () => {
-  uploadDialogVisible.value = true
-}
+  uploadDialogVisible.value = true;
+};
 
 // 页面加载时获取数据
 onMounted(() => {
-  loadDocuments()
-})
+  loadDocuments();
+});
 </script>
 
 <style scoped>
@@ -658,7 +636,7 @@ onMounted(() => {
 }
 
 .document-card.expiring {
-  border: 2px solid #E6A23C;
+  border: 2px solid #e6a23c;
 }
 
 .card-header {
@@ -666,7 +644,7 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   padding-bottom: 12px;
-  border-bottom: 1px solid #EBEEF5;
+  border-bottom: 1px solid #ebeef5;
 }
 
 .doc-type {
@@ -679,7 +657,7 @@ onMounted(() => {
 
 .type-icon {
   margin-right: 6px;
-  color: #409EFF;
+  color: #409eff;
 }
 
 .card-body {
@@ -704,7 +682,7 @@ onMounted(() => {
   align-items: center;
   width: 100%;
   height: 100%;
-  background: #F5F7FA;
+  background: #f5f7fa;
   color: #909399;
   font-size: 30px;
 }
@@ -715,7 +693,7 @@ onMounted(() => {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #F5F7FA;
+  background: #f5f7fa;
   border-radius: 4px;
   color: #909399;
   font-size: 40px;
@@ -757,9 +735,9 @@ onMounted(() => {
   align-items: center;
   margin-top: 8px;
   padding: 4px 8px;
-  background: #FEF0F0;
+  background: #fef0f0;
   border-radius: 4px;
-  color: #E6A23C;
+  color: #e6a23c;
   font-size: 12px;
 }
 

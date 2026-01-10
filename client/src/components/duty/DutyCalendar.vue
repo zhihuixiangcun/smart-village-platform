@@ -2,11 +2,7 @@
   <div class="duty-calendar">
     <!-- 星期标题 -->
     <div class="calendar-weekdays">
-      <div
-        v-for="day in weekDays"
-        :key="day"
-        class="weekday"
-      >
+      <div v-for="day in weekDays" :key="day" class="weekday">
         {{ day }}
       </div>
     </div>
@@ -14,11 +10,7 @@
     <!-- 日历格子 -->
     <div class="calendar-grid">
       <!-- 空白格子（上月末尾） -->
-      <div
-        v-for="blank in firstDayOfMonth"
-        :key="`blank-${blank}`"
-        class="calendar-day blank"
-      />
+      <div v-for="blank in firstDayOfMonth" :key="`blank-${blank}`" class="calendar-day blank" />
 
       <!-- 本月日期 -->
       <div
@@ -26,10 +18,10 @@
         :key="day.date"
         class="calendar-day"
         :class="{
-          'today': isToday(day.date),
-          'selected': isSelected(day.date),
+          today: isToday(day.date),
+          selected: isSelected(day.date),
           'other-month': !isCurrentMonth(day.date),
-          'has-duties': day.schedules.length > 0
+          'has-duties': day.schedules.length > 0,
         }"
         @click="selectDate(day.date)"
         @drop="handleDrop($event, day.date)"
@@ -62,22 +54,14 @@
           </div>
 
           <!-- 更多指示器 -->
-          <div
-            v-if="day.schedules.length > 3"
-            class="more-duties"
-          >
+          <div v-if="day.schedules.length > 3" class="more-duties">
             +{{ day.schedules.length - 3 }}
           </div>
         </div>
 
         <!-- 快速操作按钮 -->
         <div class="quick-actions" v-if="isSelected(day.date)">
-          <el-button
-            type="primary"
-            size="small"
-            circle
-            @click.stop="handleQuickSchedule(day.date)"
-          >
+          <el-button type="primary" size="small" circle @click.stop="handleQuickSchedule(day.date)">
             <el-icon><Plus /></el-icon>
           </el-button>
         </div>
@@ -115,163 +99,164 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
-import { Plus, Position } from '@element-plus/icons-vue'
+import { ref, computed, watch } from 'vue';
+import { Plus, Position } from '@element-plus/icons-vue';
 
 const props = defineProps({
   selectedDate: {
     type: Date,
-    default: null
+    default: null,
   },
   schedules: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   personnel: {
     type: Object,
-    default: () => ({})
+    default: () => ({}),
   },
   loading: {
     type: Boolean,
-    default: false
-  }
-})
+    default: false,
+  },
+});
 
-const emit = defineEmits([
-  'update:selectedDate',
-  'date-select',
-  'schedule-click',
-  'schedule-drop'
-])
+const emit = defineEmits(['update:selectedDate', 'date-select', 'schedule-click', 'schedule-drop']);
 
 // 响应式数据
-const isDragging = ref(false)
-const draggedSchedule = ref(null)
-const currentDate = ref(new Date())
+const isDragging = ref(false);
+const draggedSchedule = ref(null);
+const currentDate = ref(new Date());
 
 // 计算属性
-const weekDays = ['日', '一', '二', '三', '四', '五', '六']
+const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
 
 const firstDayOfMonth = computed(() => {
-  const date = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth(), 1)
-  return date.getDay()
-})
+  const date = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth(), 1);
+  return date.getDay();
+});
 
 const daysInMonth = computed(() => {
-  const year = currentDate.value.getFullYear()
-  const month = currentDate.value.getMonth()
-  const days = []
+  const year = currentDate.value.getFullYear();
+  const month = currentDate.value.getMonth();
+  const days = [];
 
   // 获取当月天数
-  const lastDay = new Date(year, month + 1, 0).getDate()
+  const lastDay = new Date(year, month + 1, 0).getDate();
 
   // 生成日期数组
   for (let day = 1; day <= lastDay; day++) {
-    const date = new Date(year, month, day)
-    const dateStr = formatDateStr(date)
-    const daySchedules = props.schedules.filter(
-      schedule => schedule.date === dateStr
-    ).map(schedule => ({
-      ...schedule,
-      personnelName: props.personnel[schedule.personnelId]?.name || '未知',
-      contactPhone: props.personnel[schedule.personnelId]?.phone || ''
-    }))
+    const date = new Date(year, month, day);
+    const dateStr = formatDateStr(date);
+    const daySchedules = props.schedules
+      .filter(schedule => schedule.date === dateStr)
+      .map(schedule => ({
+        ...schedule,
+        personnelName: props.personnel[schedule.personnelId]?.name || '未知',
+        contactPhone: props.personnel[schedule.personnelId]?.phone || '',
+      }));
 
     days.push({
       date: dateStr,
       dayNumber: day,
       isToday: isSameDay(date, new Date()),
-      schedules: daySchedules
-    })
+      schedules: daySchedules,
+    });
   }
 
-  return days
-})
+  return days;
+});
 
 // 方法
-const formatDateStr = (date) => {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
-}
+const formatDateStr = date => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
 const isSameDay = (date1, date2) => {
-  return date1.getFullYear() === date2.getFullYear() &&
-         date1.getMonth() === date2.getMonth() &&
-         date1.getDate() === date2.getDate()
-}
+  return (
+    date1.getFullYear() === date2.getFullYear() &&
+    date1.getMonth() === date2.getMonth() &&
+    date1.getDate() === date2.getDate()
+  );
+};
 
-const isToday = (dateStr) => {
-  const today = new Date()
-  const date = new Date(dateStr)
-  return isSameDay(date, today)
-}
+const isToday = dateStr => {
+  const today = new Date();
+  const date = new Date(dateStr);
+  return isSameDay(date, today);
+};
 
-const isSelected = (dateStr) => {
-  if (!props.selectedDate) return false
-  const date = new Date(dateStr)
-  return isSameDay(date, props.selectedDate)
-}
+const isSelected = dateStr => {
+  if (!props.selectedDate) return false;
+  const date = new Date(dateStr);
+  return isSameDay(date, props.selectedDate);
+};
 
-const isCurrentMonth = (dateStr) => {
-  const date = new Date(dateStr)
-  return date.getMonth() === currentDate.value.getMonth()
-}
+const isCurrentMonth = dateStr => {
+  const date = new Date(dateStr);
+  return date.getMonth() === currentDate.value.getMonth();
+};
 
-const selectDate = (dateStr) => {
-  const date = new Date(dateStr)
-  emit('update:selectedDate', date)
-  emit('date-select', date)
-}
+const selectDate = dateStr => {
+  const date = new Date(dateStr);
+  emit('update:selectedDate', date);
+  emit('date-select', date);
+};
 
-const handleScheduleClick = (schedule) => {
-  emit('schedule-click', schedule)
-}
+const handleScheduleClick = schedule => {
+  emit('schedule-click', schedule);
+};
 
 const handleDragStart = (event, schedule) => {
-  isDragging.value = true
-  draggedSchedule.value = schedule
-  event.dataTransfer.effectAllowed = 'move'
-}
+  isDragging.value = true;
+  draggedSchedule.value = schedule;
+  event.dataTransfer.effectAllowed = 'move';
+};
 
 const handleDrop = (event, targetDate) => {
-  event.preventDefault()
-  isDragging.value = false
+  event.preventDefault();
+  isDragging.value = false;
 
   if (draggedSchedule.value && draggedSchedule.value.date !== targetDate) {
-    emit('schedule-drop', draggedSchedule.value, targetDate)
+    emit('schedule-drop', draggedSchedule.value, targetDate);
   }
 
-  draggedSchedule.value = null
-}
+  draggedSchedule.value = null;
+};
 
-const handleQuickSchedule = (dateStr) => {
-  const date = new Date(dateStr)
-  emit('date-select', date)
-}
+const handleQuickSchedule = dateStr => {
+  const date = new Date(dateStr);
+  emit('date-select', date);
+};
 
-const getScheduleTooltip = (schedule) => {
+const getScheduleTooltip = schedule => {
   return `${schedule.personnelName} - ${getShiftTypeName(schedule.shiftType)}
 联系电话: ${schedule.contactPhone}
 地点: ${schedule.location || '村委会'}
-${schedule.remark ? '备注: ' + schedule.remark : ''}`
-}
+${schedule.remark ? '备注: ' + schedule.remark : ''}`;
+};
 
-const getShiftTypeName = (shiftType) => {
+const getShiftTypeName = shiftType => {
   const shiftMap = {
     morning: '早班',
     afternoon: '午班',
     evening: '晚班',
-    night: '夜班'
-  }
-  return shiftMap[shiftType] || shiftType
-}
+    night: '夜班',
+  };
+  return shiftMap[shiftType] || shiftType;
+};
 
 // 监听当前日期变化
-watch(() => props.schedules, () => {
-  // 当值班数据更新时，可以添加额外的处理逻辑
-}, { deep: true })
+watch(
+  () => props.schedules,
+  () => {
+    // 当值班数据更新时，可以添加额外的处理逻辑
+  },
+  { deep: true }
+);
 </script>
 
 <style lang="scss" scoped>

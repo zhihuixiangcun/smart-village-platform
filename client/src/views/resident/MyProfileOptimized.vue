@@ -52,111 +52,106 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, defineAsyncComponent } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { useFontSize } from '@/composables/useFontSize'
+import { ref, computed, onMounted, onUnmounted, defineAsyncComponent } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { useFontSize } from '@/composables/useFontSize';
 
 // 核心组件同步加载(首屏必需)
-import WelcomeSection from '@/components/resident/WelcomeSection.vue'
-import CoreFeatureSection from '@/components/resident/CoreFeatureSection.vue'
-import SubsidySection from '@/components/resident/SubsidySection.vue'
-import ServiceHallSection from '@/components/resident/ServiceHallSection.vue'
+import WelcomeSection from '@/components/resident/WelcomeSection.vue';
+import CoreFeatureSection from '@/components/resident/CoreFeatureSection.vue';
+import SubsidySection from '@/components/resident/SubsidySection.vue';
+import ServiceHallSection from '@/components/resident/ServiceHallSection.vue';
 
 // 新功能组件异步懒加载(提升首屏性能)
 const NearbyProductsSection = defineAsyncComponent({
   loader: () => import('@/components/resident/NearbyProductsSection.vue'),
   delay: 200,
-  timeout: 10000
-})
+  timeout: 10000,
+});
 const NearbyServicesSection = defineAsyncComponent({
   loader: () => import('@/components/resident/NearbyServicesSection.vue'),
   delay: 200,
-  timeout: 10000
-})
+  timeout: 10000,
+});
 const NearbyJobsSection = defineAsyncComponent({
   loader: () => import('@/components/resident/NearbyJobsSection.vue'),
   delay: 200,
-  timeout: 10000
-})
+  timeout: 10000,
+});
 const TravelSection = defineAsyncComponent({
   loader: () => import('@/components/resident/TravelSection.vue'),
   delay: 200,
-  timeout: 10000
-})
+  timeout: 10000,
+});
 const MarketplacePublishSection = defineAsyncComponent({
   loader: () => import('@/components/resident/MarketplacePublishSection.vue'),
   delay: 200,
-  timeout: 10000
-})
+  timeout: 10000,
+});
 const AnnouncementSection = defineAsyncComponent({
   loader: () => import('@/components/resident/AnnouncementSection.vue'),
   delay: 200,
-  timeout: 10000
-})
+  timeout: 10000,
+});
 const FamilySection = defineAsyncComponent({
   loader: () => import('@/components/resident/FamilySection.vue'),
   delay: 200,
-  timeout: 10000
-})
+  timeout: 10000,
+});
 
-import {
-  House,
-  Document,
-  User,
-  ChatDotSquare
-} from '@element-plus/icons-vue'
+import { House, Document, User, ChatDotSquare } from '@element-plus/icons-vue';
 
-const router = useRouter()
-const route = useRoute()
-const { isLargeText } = useFontSize()
+const router = useRouter();
+const route = useRoute();
+const { isLargeText } = useFontSize();
 
 // 当前路径
-const currentPath = computed(() => route.path)
+const currentPath = computed(() => route.path);
 
 // 是否为移动端
-const isMobile = ref(false)
+const isMobile = ref(false);
 const checkMobile = () => {
-  isMobile.value = window.innerWidth < 768
-}
+  isMobile.value = window.innerWidth < 768;
+};
 
 // 底部导航项
 const navItems = [
   { path: '/dashboard', label: '首页', icon: House },
   { path: '/services', label: '办事', icon: Document },
   { path: '/announcements', label: '公告', icon: ChatDotSquare },
-  { path: '/profile', label: '我的', icon: User }
-]
+  { path: '/profile', label: '我的', icon: User },
+];
 
 /**
  * 导航到指定路径
  */
 const navigateTo = (path: string) => {
-  router.push(path)
-}
+  router.push(path);
+};
 
 /**
  * 初始化（带错误处理）
  */
 onMounted(() => {
-  checkMobile()
-  window.addEventListener('resize', checkMobile)
+  checkMobile();
+  window.addEventListener('resize', checkMobile);
 
   // 应用用户保存的字体大小设置（带错误处理）
   try {
-    const savedFontSize = localStorage.getItem('font-size-level')
+    const savedFontSize = localStorage.getItem('font-size-level');
     if (savedFontSize) {
-      const { setFontSizeLevel } = useFontSize()
-      setFontSizeLevel(savedFontSize as any)
+      const { setFontSizeLevel } = useFontSize();
+      setFontSizeLevel(savedFontSize as any);
     }
   } catch (error) {
-    console.warn('Failed to load font size preference:', error)
+    console.warn('Failed to load font size preference:', error);
     // 保持默认值
   }
-})
+});
 
 onUnmounted(() => {
-  window.removeEventListener('resize', checkMobile)
-})
+  window.removeEventListener('resize', checkMobile);
+});
 </script>
 
 <style lang="scss" scoped>

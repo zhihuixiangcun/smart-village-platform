@@ -3,11 +3,11 @@ import request from '@/utils/request';
 // 村委管理API接口
 export const committeeApi = {
   // 村委人员管理
-  getMembers: (params) => {
+  getMembers: params => {
     return request.get('/api/village-committee/members', { params });
   },
 
-  createMember: (data) => {
+  createMember: data => {
     return request.post('/api/village-committee/members', data);
   },
 
@@ -15,11 +15,11 @@ export const committeeApi = {
     return request.put(`/api/village-committee/members/${id}`, data);
   },
 
-  deleteMember: (id) => {
+  deleteMember: id => {
     return request.delete(`/api/village-committee/members/${id}`);
   },
 
-  getMemberDetail: (id) => {
+  getMemberDetail: id => {
     return request.get(`/api/village-committee/members/${id}`);
   },
 
@@ -28,11 +28,11 @@ export const committeeApi = {
   },
 
   // 党员信息管理
-  getPartyMembers: (params) => {
+  getPartyMembers: params => {
     return request.get('/api/village-committee/party-members', { params });
   },
 
-  createPartyMember: (data) => {
+  createPartyMember: data => {
     return request.post('/api/village-committee/party-members', data);
   },
 
@@ -40,20 +40,20 @@ export const committeeApi = {
     return request.put(`/api/village-committee/party-members/${id}`, data);
   },
 
-  deletePartyMember: (id) => {
+  deletePartyMember: id => {
     return request.delete(`/api/village-committee/party-members/${id}`);
   },
 
-  getPartyMemberDetail: (id) => {
+  getPartyMemberDetail: id => {
     return request.get(`/api/village-committee/party-members/${id}`);
   },
 
   // 值班表管理
-  getDutySchedule: (params) => {
+  getDutySchedule: params => {
     return request.get('/api/village-committee/duty-schedule', { params });
   },
 
-  createDutySchedule: (data) => {
+  createDutySchedule: data => {
     return request.post('/api/village-committee/duty-schedule', data);
   },
 
@@ -61,20 +61,20 @@ export const committeeApi = {
     return request.put(`/api/village-committee/duty-schedule/${id}`, data);
   },
 
-  deleteDutySchedule: (id) => {
+  deleteDutySchedule: id => {
     return request.delete(`/api/village-committee/duty-schedule/${id}`);
   },
 
-  getDutyScheduleByDate: (date) => {
+  getDutyScheduleByDate: date => {
     return request.get(`/api/village-committee/duty-schedule/date/${date}`);
   },
 
-  generateDutySchedule: (params) => {
+  generateDutySchedule: params => {
     return request.post('/api/village-committee/duty-schedule/generate', params);
   },
 
   // 村情地图
-  getMapData: (params) => {
+  getMapData: params => {
     return request.get('/api/village-committee/map/data', { params });
   },
 
@@ -87,11 +87,11 @@ export const committeeApi = {
   },
 
   // 一户一码管理
-  getHouseholdCodes: (params) => {
+  getHouseholdCodes: params => {
     return request.get('/api/village-committee/household-codes', { params });
   },
 
-  generateHouseholdCode: (data) => {
+  generateHouseholdCode: data => {
     return request.post('/api/village-committee/household-codes', data);
   },
 
@@ -99,26 +99,26 @@ export const committeeApi = {
     return request.put(`/api/village-committee/household-codes/${id}`, data);
   },
 
-  getHouseholdByCode: (code) => {
+  getHouseholdByCode: code => {
     return request.get(`/api/village-committee/household-codes/code/${code}`);
   },
 
-  batchGenerateCodes: (data) => {
+  batchGenerateCodes: data => {
     return request.post('/api/village-committee/household-codes/batch', data);
   },
 
   // 导入导出
-  exportMembers: (format) => {
+  exportMembers: format => {
     return request.get(`/api/village-committee/members/export?format=${format}`, {
-      responseType: 'blob'
+      responseType: 'blob',
     });
   },
 
-  importMembers: (formData) => {
+  importMembers: formData => {
     return request.post('/api/village-committee/members/import', formData, {
       headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+        'Content-Type': 'multipart/form-data',
+      },
     });
   },
 
@@ -127,16 +127,16 @@ export const committeeApi = {
     return request.get('/api/village-committee/statistics');
   },
 
-  getWorkLogs: (params) => {
+  getWorkLogs: params => {
     return request.get('/api/village-committee/work-logs', { params });
   },
 
-  createWorkLog: (data) => {
+  createWorkLog: data => {
     return request.post('/api/village-committee/work-logs', data);
   },
 
   // 紧急通知
-  sendEmergencyNotification: (data) => {
+  sendEmergencyNotification: data => {
     return request.post('/api/village-committee/emergency-notification', data);
   },
 
@@ -149,7 +149,7 @@ export const committeeApi = {
     return request.put(`/api/village-committee/members/${id}/permissions`, permissions);
   },
 
-  getMemberPermissions: (id) => {
+  getMemberPermissions: id => {
     return request.get(`/api/village-committee/members/${id}/permissions`);
-  }
+  },
 };

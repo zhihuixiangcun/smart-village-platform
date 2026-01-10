@@ -44,7 +44,9 @@ export function formatDate(date, format = 'YYYY-MM-DD') {
  */
 export function formatCurrency(amount, precision = 2) {
   if (amount === null || amount === undefined) return '0.00';
-  return Number(amount).toFixed(precision).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return Number(amount)
+    .toFixed(precision)
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
 /**
@@ -56,7 +58,10 @@ export function validateIdCard(idCard) {
   if (!idCard) return { isValid: false, formatted: '', info: {} };
 
   const cleanId = idCard.replace(/\s/g, '');
-  const isValid = /^[1-9]\d{5}(18|19|20)\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/.test(cleanId);
+  const isValid =
+    /^[1-9]\d{5}(18|19|20)\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/.test(
+      cleanId
+    );
 
   if (!isValid) {
     return { isValid: false, formatted: cleanId, info: {} };
@@ -79,8 +84,8 @@ export function validateIdCard(idCard) {
       birthday: formatDate(birthDate),
       age,
       gender,
-      province: cleanId.substr(0, 2)
-    }
+      province: cleanId.substr(0, 2),
+    },
   };
 }
 
@@ -97,7 +102,7 @@ export function validatePhone(phone) {
 
   return {
     isValid,
-    formatted: isValid ? cleanPhone.replace(/(\d{3})(\d{4})(\d{4})/, '$1 $2 $3') : cleanPhone
+    formatted: isValid ? cleanPhone.replace(/(\d{3})(\d{4})(\d{4})/, '$1 $2 $3') : cleanPhone,
   };
 }
 
@@ -173,7 +178,7 @@ export function paginateArray(array, page = 1, pageSize = 10) {
     currentPage: page,
     pageSize,
     hasNext: page < totalPages,
-    hasPrev: page > 1
+    hasPrev: page > 1,
   };
 }
 
@@ -216,7 +221,7 @@ export function formatFileSize(bytes, decimals = 2) {
 
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))  } ${  sizes[i]}`;
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 }
 
 /**
@@ -253,7 +258,9 @@ export function parseColor(color) {
       hex: color,
       rgb: `rgb(${r}, ${g}, ${b})`,
       rgba: `rgba(${r}, ${g}, ${b}, 1)`,
-      r, g, b
+      r,
+      g,
+      b,
     };
   }
 
@@ -289,5 +296,5 @@ export default {
   formatFileSize,
   parseUrlParams,
   parseColor,
-  range
+  range,
 };

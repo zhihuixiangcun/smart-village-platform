@@ -98,170 +98,183 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
-import { Plus, Search, ArrowLeft, User, ChatDotRound, Service, Avatar } from '@element-plus/icons-vue'
-import { useChatStore } from '@/stores/chat'
-import { useWebSocketChat } from '@/composables/useWebSocketChat'
-import { useUserStore } from '@/stores/user'
-import { ElMessage } from 'element-plus'
-import ConversationItem from './components/ConversationItem.vue'
-import ChatWindow from './components/ChatWindow.vue'
-import AddFriendDialog from './components/AddFriendDialog.vue'
-import CreateGroupModal from './components/CreateGroupModal.vue'
-import AIAssistant from './components/AIAssistant.vue'
-import AvatarUpload from './components/AvatarUpload.vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import {
+  Plus,
+  Search,
+  ArrowLeft,
+  User,
+  ChatDotRound,
+  Service,
+  Avatar,
+} from '@element-plus/icons-vue';
+import { useChatStore } from '@/stores/chat';
+import { useWebSocketChat } from '@/composables/useWebSocketChat';
+import { useUserStore } from '@/stores/user';
+import { ElMessage } from 'element-plus';
+import ConversationItem from './components/ConversationItem.vue';
+import ChatWindow from './components/ChatWindow.vue';
+import AddFriendDialog from './components/AddFriendDialog.vue';
+import CreateGroupModal from './components/CreateGroupModal.vue';
+import AIAssistant from './components/AIAssistant.vue';
+import AvatarUpload from './components/AvatarUpload.vue';
 
-const chatStore = useChatStore()
-const ws = useWebSocketChat()
-const userStore = useUserStore()
+const chatStore = useChatStore();
+const ws = useWebSocketChat();
+const userStore = useUserStore();
 
 // 搜索关键词
-const searchKeyword = ref('')
+const searchKeyword = ref('');
 
 // 当前会话ID
-const currentConversationId = ref(null)
+const currentConversationId = ref(null);
 
 // 是否只显示聊天窗口（移动端）
-const showChatOnly = ref(false)
+const showChatOnly = ref(false);
 
 // 是否显示添加好友对话框
-const showAddFriendDialog = ref(false)
+const showAddFriendDialog = ref(false);
 
 // 是否显示创建群聊对话框
-const showCreateGroupDialog = ref(false)
+const showCreateGroupDialog = ref(false);
 
 // 是否显示AI助手对话框
-const showAIAssistant = ref(false)
+const showAIAssistant = ref(false);
 
 // 是否显示头像上传对话框
-const showAvatarUpload = ref(false)
+const showAvatarUpload = ref(false);
 
 // 是否是移动端
-const isMobile = ref(window.innerWidth < 768)
+const isMobile = ref(window.innerWidth < 768);
 
 // 过滤后的会话列表（使用排序后的会话）
 const filteredConversations = computed(() => {
-  const conversations = chatStore.sortedConversations
+  const conversations = chatStore.sortedConversations;
   if (!searchKeyword.value) {
-    return conversations
+    return conversations;
   }
-  const keyword = searchKeyword.value.toLowerCase()
+  const keyword = searchKeyword.value.toLowerCase();
 
   // 获取当前用户ID
-  const currentUserId = ref(null)
+  const currentUserId = ref(null);
   try {
-    const user = JSON.parse(localStorage.getItem('user') || '{}')
-    currentUserId.value = user.id || user._id
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    currentUserId.value = user.id || user._id;
   } catch {}
 
   return conversations.filter(conv => {
     // 搜索群聊名称或私聊对方的昵称
     if (conv.type === 'group') {
-      return conv.groupInfo?.name?.toLowerCase().includes(keyword)
+      return conv.groupInfo?.name?.toLowerCase().includes(keyword);
     } else {
-      const otherUser = conv.participants?.find(p => p._id !== currentUserId.value)
-      return otherUser?.profile?.nickName?.toLowerCase().includes(keyword) ||
-             otherUser?.username?.toLowerCase().includes(keyword)
+      const otherUser = conv.participants?.find(p => p._id !== currentUserId.value);
+      return (
+        otherUser?.profile?.nickName?.toLowerCase().includes(keyword) ||
+        otherUser?.username?.toLowerCase().includes(keyword)
+      );
     }
-  })
-})
+  });
+});
 
 // 选择会话
-const selectConversation = async (conversationId) => {
-  currentConversationId.value = conversationId
-  showChatOnly.value = true
+const selectConversation = async conversationId => {
+  currentConversationId.value = conversationId;
+  showChatOnly.value = true;
 
   // 加入 WebSocket 房间
   if (ws.connected) {
-    ws.joinConversation(conversationId)
+    ws.joinConversation(conversationId);
   }
 
   // 加载消息
-  await chatStore.loadMessages(conversationId)
+  await chatStore.loadMessages(conversationId);
   // 标记为已读
-  await chatStore.markAsRead(conversationId)
-}
+  await chatStore.markAsRead(conversationId);
+};
 
 // 关闭会话
 const closeConversation = () => {
   // 离开 WebSocket 房间
   if (currentConversationId.value && ws.connected) {
-    ws.leaveConversation(currentConversationId.value)
+    ws.leaveConversation(currentConversationId.value);
   }
-  currentConversationId.value = null
-  showChatOnly.value = false
-}
+  currentConversationId.value = null;
+  showChatOnly.value = false;
+};
 
 // 处理窗口大小变化
 const handleResize = () => {
-  isMobile.value = window.innerWidth < 768
+  isMobile.value = window.innerWidth < 768;
   if (!isMobile.value) {
-    showChatOnly.value = false
+    showChatOnly.value = false;
   }
-}
+};
 
 // 处理头部下拉菜单命令
-const handleHeaderCommand = (command) => {
+const handleHeaderCommand = command => {
   if (command === 'addFriend') {
-    showAddFriendDialog.value = true
+    showAddFriendDialog.value = true;
   } else if (command === 'createGroup') {
-    showCreateGroupDialog.value = true
+    showCreateGroupDialog.value = true;
   } else if (command === 'aiAssistant') {
-    showAIAssistant.value = true
+    showAIAssistant.value = true;
   } else if (command === 'avatarUpload') {
-    showAvatarUpload.value = true
+    showAvatarUpload.value = true;
   }
-}
+};
 
 // 处理头像上传成功
-const handleAvatarUploadSuccess = (avatarUrl) => {
-  ElMessage.success('头像上传成功')
-}
+const handleAvatarUploadSuccess = avatarUrl => {
+  ElMessage.success('头像上传成功');
+};
 
 // 处理群聊创建成功
-const handleGroupCreated = async (conversation) => {
-  ElMessage.success('群聊创建成功')
-  showCreateGroupDialog.value = false
+const handleGroupCreated = async conversation => {
+  ElMessage.success('群聊创建成功');
+  showCreateGroupDialog.value = false;
   // 刷新会话列表
-  await chatStore.loadConversations()
+  await chatStore.loadConversations();
   // 选择新创建的群聊
-  selectConversation(conversation._id)
-}
+  selectConversation(conversation._id);
+};
 
 // 监听 WebSocket 连接状态，自动重连
-watch(() => ws.connected, (connected) => {
-  if (connected && currentConversationId.value) {
-    // 重新加入房间
-    ws.joinConversation(currentConversationId.value)
+watch(
+  () => ws.connected,
+  connected => {
+    if (connected && currentConversationId.value) {
+      // 重新加入房间
+      ws.joinConversation(currentConversationId.value);
+    }
   }
-})
+);
 
 onMounted(async () => {
   try {
     // 连接 WebSocket
-    ws.connect()
+    ws.connect();
 
     // 加载会话列表
-    await chatStore.loadConversations()
+    await chatStore.loadConversations();
 
     // 监听窗口大小变化
-    window.addEventListener('resize', handleResize)
+    window.addEventListener('resize', handleResize);
   } catch (error) {
-    ElMessage.error('加载会话列表失败')
+    ElMessage.error('加载会话列表失败');
   }
-})
+});
 
 onUnmounted(() => {
   // 离开当前会话房间
   if (currentConversationId.value && ws.connected) {
-    ws.leaveConversation(currentConversationId.value)
+    ws.leaveConversation(currentConversationId.value);
   }
 
   // 断开 WebSocket
-  ws.disconnect()
+  ws.disconnect();
 
-  window.removeEventListener('resize', handleResize)
-})
+  window.removeEventListener('resize', handleResize);
+});
 </script>
 
 <style scoped>
@@ -344,7 +357,7 @@ onUnmounted(() => {
     transition: transform 0.3s ease;
   }
 
-  .conversation-panel[style*="display: none"] {
+  .conversation-panel[style*='display: none'] {
     transform: translateX(-100%);
   }
 

@@ -4,11 +4,7 @@
     <el-card class="control-card" shadow="never">
       <el-row :gutter="20" class="control-row">
         <el-col :xs="24" :sm="8" :md="6">
-          <el-select
-            v-model="mapType"
-            placeholder="选择地图类型"
-            @change="handleMapTypeChange"
-          >
+          <el-select v-model="mapType" placeholder="选择地图类型" @change="handleMapTypeChange">
             <el-option label="卫星地图" value="satellite" />
             <el-option label="普通地图" value="normal" />
             <el-option label="地形地图" value="terrain" />
@@ -79,7 +75,7 @@
 
     <!-- 地图主体 -->
     <el-card class="map-card" shadow="never">
-      <div id="villageMap" class="map-container" :class="{ 'fullscreen': isFullscreen }">
+      <div id="villageMap" class="map-container" :class="{ fullscreen: isFullscreen }">
         <!-- 地图加载指示器 -->
         <div v-if="mapLoading" class="map-loading">
           <div class="loading-spinner">⏳</div>
@@ -129,10 +125,18 @@
               <!-- 住户信息 -->
               <template v-if="selectedMarker.type === 'household'">
                 <el-descriptions :column="2" size="small">
-                  <el-descriptions-item label="户主">{{ selectedMarker.householder }}</el-descriptions-item>
-                  <el-descriptions-item label="人口">{{ selectedMarker.population }}人</el-descriptions-item>
-                  <el-descriptions-item label="电话">{{ selectedMarker.phone }}</el-descriptions-item>
-                  <el-descriptions-item label="类型">{{ getHouseholdType(selectedMarker.category) }}</el-descriptions-item>
+                  <el-descriptions-item label="户主">{{
+                    selectedMarker.householder
+                  }}</el-descriptions-item>
+                  <el-descriptions-item label="人口"
+                    >{{ selectedMarker.population }}人</el-descriptions-item
+                  >
+                  <el-descriptions-item label="电话">{{
+                    selectedMarker.phone
+                  }}</el-descriptions-item>
+                  <el-descriptions-item label="类型">{{
+                    getHouseholdType(selectedMarker.category)
+                  }}</el-descriptions-item>
                 </el-descriptions>
                 <div class="info-actions">
                   <el-button type="primary" size="small" @click="callHousehold(selectedMarker)">
@@ -149,17 +153,27 @@
               <!-- 设施信息 -->
               <template v-else-if="selectedMarker.type === 'facility'">
                 <el-descriptions :column="2" size="small">
-                  <el-descriptions-item label="类型">{{ getFacilityType(selectedMarker.category) }}</el-descriptions-item>
+                  <el-descriptions-item label="类型">{{
+                    getFacilityType(selectedMarker.category)
+                  }}</el-descriptions-item>
                   <el-descriptions-item label="状态">
                     <el-tag :type="selectedMarker.status === 'normal' ? 'success' : 'warning'">
                       {{ selectedMarker.status === 'normal' ? '正常' : '异常' }}
                     </el-tag>
                   </el-descriptions-item>
-                  <el-descriptions-item label="负责人">{{ selectedMarker.manager }}</el-descriptions-item>
-                  <el-descriptions-item label="联系电话">{{ selectedMarker.contact }}</el-descriptions-item>
+                  <el-descriptions-item label="负责人">{{
+                    selectedMarker.manager
+                  }}</el-descriptions-item>
+                  <el-descriptions-item label="联系电话">{{
+                    selectedMarker.contact
+                  }}</el-descriptions-item>
                 </el-descriptions>
                 <div class="info-actions">
-                  <el-button type="primary" size="small" @click="viewFacilityDetail(selectedMarker)">
+                  <el-button
+                    type="primary"
+                    size="small"
+                    @click="viewFacilityDetail(selectedMarker)"
+                  >
                     <el-icon><View /></el-icon>
                     详情
                   </el-button>
@@ -172,8 +186,12 @@
                   <img :src="selectedMarker.snapshot" alt="监控快照" />
                 </div>
                 <el-descriptions :column="1" size="small">
-                  <el-descriptions-item label="设备ID">{{ selectedMarker.deviceId }}</el-descriptions-item>
-                  <el-descriptions-item label="位置">{{ selectedMarker.location }}</el-descriptions-item>
+                  <el-descriptions-item label="设备ID">{{
+                    selectedMarker.deviceId
+                  }}</el-descriptions-item>
+                  <el-descriptions-item label="位置">{{
+                    selectedMarker.location
+                  }}</el-descriptions-item>
                   <el-descriptions-item label="状态">
                     <el-tag :type="selectedMarker.online ? 'success' : 'danger'">
                       {{ selectedMarker.online ? '在线' : '离线' }}
@@ -191,17 +209,27 @@
               <!-- 应急设备信息 -->
               <template v-else-if="selectedMarker.type === 'emergency'">
                 <el-descriptions :column="2" size="small">
-                  <el-descriptions-item label="设备类型">{{ getEmergencyType(selectedMarker.category) }}</el-descriptions-item>
+                  <el-descriptions-item label="设备类型">{{
+                    getEmergencyType(selectedMarker.category)
+                  }}</el-descriptions-item>
                   <el-descriptions-item label="状态">
                     <el-tag :type="selectedMarker.available ? 'success' : 'danger'">
                       {{ selectedMarker.available ? '可用' : '不可用' }}
                     </el-tag>
                   </el-descriptions-item>
-                  <el-descriptions-item label="最后检查">{{ formatDate(selectedMarker.lastCheck) }}</el-descriptions-item>
-                  <el-descriptions-item label="负责人">{{ selectedMarker.responsible }}</el-descriptions-item>
+                  <el-descriptions-item label="最后检查">{{
+                    formatDate(selectedMarker.lastCheck)
+                  }}</el-descriptions-item>
+                  <el-descriptions-item label="负责人">{{
+                    selectedMarker.responsible
+                  }}</el-descriptions-item>
                 </el-descriptions>
                 <div class="info-actions">
-                  <el-button type="warning" size="small" @click="useEmergencyDevice(selectedMarker)">
+                  <el-button
+                    type="warning"
+                    size="small"
+                    @click="useEmergencyDevice(selectedMarker)"
+                  >
                     <el-icon><Warning /></el-icon>
                     使用设备
                   </el-button>
@@ -252,13 +280,7 @@
       destroy-on-close
     >
       <div class="camera-live-container">
-        <video
-          ref="cameraVideoRef"
-          class="camera-video"
-          controls
-          autoplay
-          muted
-        ></video>
+        <video ref="cameraVideoRef" class="camera-video" controls autoplay muted></video>
       </div>
     </el-dialog>
 
@@ -306,8 +328,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
+import { ElMessage } from 'element-plus';
 import {
   Location,
   FullScreen,
@@ -325,19 +347,19 @@ import {
   School,
   ShoppingBag,
   FirstAidKit,
-  VideoCamera
-} from '@element-plus/icons-vue'
-import dayjs from 'dayjs'
+  VideoCamera,
+} from '@element-plus/icons-vue';
+import dayjs from 'dayjs';
 
 // 响应式数据
-const mapType = ref('normal')
-const layerFilter = ref(['household', 'facility', 'camera'])
-const searchKeyword = ref('')
-const mapLoading = ref(true)
-const isFullscreen = ref(false)
-const isMobile = ref(false)
+const mapType = ref('normal');
+const layerFilter = ref(['household', 'facility', 'camera']);
+const searchKeyword = ref('');
+const mapLoading = ref(true);
+const isFullscreen = ref(false);
+const isMobile = ref(false);
 
-const selectedMarker = ref(null)
+const selectedMarker = ref(null);
 const emergencyEvents = ref([
   {
     id: 1,
@@ -345,7 +367,7 @@ const emergencyEvents = ref([
     location: '村东头仓库',
     level: 'high',
     time: new Date(),
-    position: { lng: 120.123456, lat: 30.654321 }
+    position: { lng: 120.123456, lat: 30.654321 },
   },
   {
     id: 2,
@@ -353,35 +375,29 @@ const emergencyEvents = ref([
     location: '村西口',
     level: 'medium',
     time: new Date(Date.now() - 30 * 60 * 1000),
-    position: { lng: 120.124456, lat: 30.655321 }
-  }
-])
+    position: { lng: 120.124456, lat: 30.655321 },
+  },
+]);
 
-const showCameraDialog = ref(false)
-const showAddMarkerDialog = ref(false)
-const isPickingPosition = ref(false)
+const showCameraDialog = ref(false);
+const showAddMarkerDialog = ref(false);
+const isPickingPosition = ref(false);
 
-const cameraVideoRef = ref()
-const markerFormRef = ref()
+const cameraVideoRef = ref();
+const markerFormRef = ref();
 
 const markerForm = ref({
   type: '',
   name: '',
   position: '',
-  description: ''
-})
+  description: '',
+});
 
 const markerRules = {
-  type: [
-    { required: true, message: '请选择标记类型', trigger: 'change' }
-  ],
-  name: [
-    { required: true, message: '请输入名称', trigger: 'blur' }
-  ],
-  position: [
-    { required: true, message: '请选择位置', trigger: 'change' }
-  ]
-}
+  type: [{ required: true, message: '请选择标记类型', trigger: 'change' }],
+  name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
+  position: [{ required: true, message: '请选择位置', trigger: 'change' }],
+};
 
 // 地图统计数据
 const mapStats = ref([
@@ -390,37 +406,37 @@ const mapStats = ref([
     label: '住户总数',
     value: '486',
     icon: 'House',
-    color: '#409eff'
+    color: '#409eff',
   },
   {
     key: 'facilities',
     label: '公共设施',
     value: '28',
     icon: 'School',
-    color: '#67c23a'
+    color: '#67c23a',
   },
   {
     key: 'cameras',
     label: '监控摄像头',
     value: '45',
     icon: 'VideoCamera',
-    color: '#e6a23c'
+    color: '#e6a23c',
   },
   {
     key: 'emergency',
     label: '应急设备',
     value: '32',
     icon: 'FirstAidKit',
-    color: '#f56c6c'
+    color: '#f56c6c',
   },
   {
     key: 'special',
     label: '特殊人群',
     value: '23',
     icon: 'User',
-    color: '#909399'
-  }
-])
+    color: '#909399',
+  },
+]);
 
 // 图例配置
 const legendItems = ref([
@@ -428,12 +444,12 @@ const legendItems = ref([
   { type: 'special', label: '特殊人群', color: '#f56c6c' },
   { type: 'facility', label: '公共设施', color: '#67c23a' },
   { type: 'camera', label: '监控摄像头', color: '#e6a23c' },
-  { type: 'emergency', label: '应急设备', color: '#ff4757' }
-])
+  { type: 'emergency', label: '应急设备', color: '#ff4757' },
+]);
 
 // 地图实例
-let mapInstance = null
-let mapClickHandler = null
+let mapInstance = null;
+let mapClickHandler = null;
 
 // 计算属性
 const showLayers = computed(() => {
@@ -442,276 +458,271 @@ const showLayers = computed(() => {
     facility: layerFilter.value.includes('facility'),
     camera: layerFilter.value.includes('camera'),
     emergency: layerFilter.value.includes('emergency'),
-    special: layerFilter.value.includes('special')
-  }
-})
+    special: layerFilter.value.includes('special'),
+  };
+});
 
 // 方法
 const initMap = async () => {
   try {
-    mapLoading.value = true
+    mapLoading.value = true;
 
     // 这里应该初始化地图（百度地图、高德地图或其他地图服务）
     // 以下为示例代码，需要根据实际地图SDK进行调整
-    await nextTick()
+    await nextTick();
 
     // 模拟地图初始化
     setTimeout(() => {
-      mapLoading.value = false
+      mapLoading.value = false;
       // 添加地图点击事件
       if (isPickingPosition.value) {
-        setupMapClickHandler()
+        setupMapClickHandler();
       }
-    }, 1000)
-
+    }, 1000);
   } catch (error) {
-    console.error('地图初始化失败:', error)
-    ElMessage.error('地图加载失败')
+    console.error('地图初始化失败:', error);
+    ElMessage.error('地图加载失败');
   }
-}
+};
 
-const handleMapTypeChange = (type) => {
+const handleMapTypeChange = type => {
   if (mapInstance) {
     // 切换地图类型
-    mapInstance.setMapType(type)
+    mapInstance.setMapType(type);
   }
-}
+};
 
 const handleLayerChange = () => {
   // 更新地图图层显示
-  updateMapLayers()
-}
+  updateMapLayers();
+};
 
 const handleLocate = () => {
   if (mapInstance) {
     // 定位到村庄中心
-    mapInstance.setCenter({ lng: 120.123456, lat: 30.654321 })
-    mapInstance.setZoom(15)
+    mapInstance.setCenter({ lng: 120.123456, lat: 30.654321 });
+    mapInstance.setZoom(15);
   }
-}
+};
 
 const handleFullscreen = () => {
-  isFullscreen.value = !isFullscreen.value
-  const mapContainer = document.getElementById('villageMap')
+  isFullscreen.value = !isFullscreen.value;
+  const mapContainer = document.getElementById('villageMap');
 
   if (isFullscreen.value) {
-    mapContainer.requestFullscreen?.()
+    mapContainer.requestFullscreen?.();
   } else {
-    document.exitFullscreen?.()
+    document.exitFullscreen?.();
   }
 
   // 延迟调整地图大小
   setTimeout(() => {
     if (mapInstance) {
-      mapInstance.resize()
+      mapInstance.resize();
     }
-  }, 300)
-}
+  }, 300);
+};
 
 const handleRefresh = () => {
   // 刷新地图数据
-  initMap()
-  ElMessage.success('地图已刷新')
-}
+  initMap();
+  ElMessage.success('地图已刷新');
+};
 
 const handleSearch = () => {
   if (!searchKeyword.value) {
-    ElMessage.warning('请输入搜索关键词')
-    return
+    ElMessage.warning('请输入搜索关键词');
+    return;
   }
 
   // 搜索并定位到指定位置
-  ElMessage.success(`搜索: ${searchKeyword.value}`)
-}
+  ElMessage.success(`搜索: ${searchKeyword.value}`);
+};
 
 const zoomIn = () => {
   if (mapInstance) {
-    mapInstance.zoomIn()
+    mapInstance.zoomIn();
   }
-}
+};
 
 const zoomOut = () => {
   if (mapInstance) {
-    mapInstance.zoomOut()
+    mapInstance.zoomOut();
   }
-}
+};
 
 const resetView = () => {
   if (mapInstance) {
-    mapInstance.resetView()
+    mapInstance.resetView();
   }
-}
+};
 
 const updateMapLayers = () => {
-  if (!mapInstance) return
+  if (!mapInstance) return;
 
   // 根据选择的图层更新地图显示
   Object.keys(showLayers.value).forEach(layerType => {
     if (showLayers.value[layerType]) {
-      mapInstance.showLayer(layerType)
+      mapInstance.showLayer(layerType);
     } else {
-      mapInstance.hideLayer(layerType)
+      mapInstance.hideLayer(layerType);
     }
-  })
-}
+  });
+};
 
 const closeInfoPanel = () => {
-  selectedMarker.value = null
-}
+  selectedMarker.value = null;
+};
 
-const callHousehold = (household) => {
+const callHousehold = household => {
   ElMessageBox.confirm(
     `确定要呼叫 ${household.householder} 吗？\n电话：${household.phone}`,
     '呼叫确认',
     {
       confirmButtonText: '呼叫',
       cancelButtonText: '取消',
-      type: 'info'
+      type: 'info',
     }
   ).then(() => {
-    window.location.href = `tel:${household.phone}`
-    ElMessage.success(`正在呼叫 ${household.householder}`)
-  })
-}
+    window.location.href = `tel:${household.phone}`;
+    ElMessage.success(`正在呼叫 ${household.householder}`);
+  });
+};
 
-const viewHouseholdDetail = (household) => {
+const viewHouseholdDetail = household => {
   // 跳转到住户详情页
-  ElMessage.info('查看住户详情')
-}
+  ElMessage.info('查看住户详情');
+};
 
-const viewFacilityDetail = (facility) => {
-  ElMessage.info('查看设施详情')
-}
+const viewFacilityDetail = facility => {
+  ElMessage.info('查看设施详情');
+};
 
-const viewCameraLive = (camera) => {
-  showCameraDialog.value = true
+const viewCameraLive = camera => {
+  showCameraDialog.value = true;
   // 播放实时视频流
   nextTick(() => {
     if (cameraVideoRef.value) {
       // 设置视频源
-      cameraVideoRef.value.src = camera.liveUrl
+      cameraVideoRef.value.src = camera.liveUrl;
     }
-  })
-}
+  });
+};
 
-const useEmergencyDevice = (device) => {
-  ElMessageBox.confirm(
-    `确定要使用 ${device.name} 吗？`,
-    '使用确认',
-    {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }
-  ).then(() => {
-    ElMessage.success('已通知相关人员')
-  })
-}
+const useEmergencyDevice = device => {
+  ElMessageBox.confirm(`确定要使用 ${device.name} 吗？`, '使用确认', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  }).then(() => {
+    ElMessage.success('已通知相关人员');
+  });
+};
 
-const locateEmergency = (event) => {
+const locateEmergency = event => {
   if (mapInstance) {
-    mapInstance.setCenter(event.position)
-    mapInstance.setZoom(17)
+    mapInstance.setCenter(event.position);
+    mapInstance.setZoom(17);
     selectedMarker.value = {
       type: 'emergency',
       title: event.title,
-      ...event
-    }
+      ...event,
+    };
   }
-}
+};
 
 const pickPosition = () => {
-  isPickingPosition.value = true
-  ElMessage.info('请在地图上点击选择位置')
-  setupMapClickHandler()
-}
+  isPickingPosition.value = true;
+  ElMessage.info('请在地图上点击选择位置');
+  setupMapClickHandler();
+};
 
 const setupMapClickHandler = () => {
-  if (!mapInstance) return
+  if (!mapInstance) return;
 
-  mapClickHandler = (e) => {
-    const { lng, lat } = e.lnglat
-    markerForm.value.position = `${lng}, ${lat}`
-    isPickingPosition.value = false
+  mapClickHandler = e => {
+    const { lng, lat } = e.lnglat;
+    markerForm.value.position = `${lng}, ${lat}`;
+    isPickingPosition.value = false;
 
     // 移除点击事件
     if (mapInstance) {
-      mapInstance.off('click', mapClickHandler)
+      mapInstance.off('click', mapClickHandler);
     }
-  }
+  };
 
-  mapInstance.on('click', mapClickHandler)
-}
+  mapInstance.on('click', mapClickHandler);
+};
 
 const handleAddMarker = () => {
-  ElMessage.success('标记添加成功')
-  showAddMarkerDialog.value = false
-}
+  ElMessage.success('标记添加成功');
+  showAddMarkerDialog.value = false;
+};
 
 // 辅助函数
-const formatDate = (date) => {
-  return date ? dayjs(date).format('YYYY-MM-DD') : ''
-}
+const formatDate = date => {
+  return date ? dayjs(date).format('YYYY-MM-DD') : '';
+};
 
-const formatDateTime = (date) => {
-  return date ? dayjs(date).format('MM-DD HH:mm') : ''
-}
+const formatDateTime = date => {
+  return date ? dayjs(date).format('MM-DD HH:mm') : '';
+};
 
-const getHouseholdType = (category) => {
+const getHouseholdType = category => {
   const typeMap = {
     normal: '普通住户',
     lowIncome: '低保户',
     singleChild: '独生子女户',
     elderly: '独居老人',
-    disabled: '残疾家庭'
-  }
-  return typeMap[category] || category
-}
+    disabled: '残疾家庭',
+  };
+  return typeMap[category] || category;
+};
 
-const getFacilityType = (category) => {
+const getFacilityType = category => {
   const typeMap = {
     school: '学校',
     hospital: '卫生所',
     shop: '商店',
     office: '村委会',
-    square: '文化广场'
-  }
-  return typeMap[category] || category
-}
+    square: '文化广场',
+  };
+  return typeMap[category] || category;
+};
 
-const getEmergencyType = (category) => {
+const getEmergencyType = category => {
   const typeMap = {
     fire_extinguisher: '灭火器',
     first_aid: '急救箱',
     alarm: '报警器',
-    pump: '水泵'
-  }
-  return typeMap[category] || category
-}
+    pump: '水泵',
+  };
+  return typeMap[category] || category;
+};
 
 // 生命周期
 onMounted(() => {
-  isMobile.value = window.innerWidth < 768
-  initMap()
+  isMobile.value = window.innerWidth < 768;
+  initMap();
 
   // 监听窗口大小变化
   window.addEventListener('resize', () => {
-    isMobile.value = window.innerWidth < 768
+    isMobile.value = window.innerWidth < 768;
     if (mapInstance) {
       setTimeout(() => {
-        mapInstance.resize()
-      }, 100)
+        mapInstance.resize();
+      }, 100);
     }
-  })
-})
+  });
+});
 
 onUnmounted(() => {
   // 清理地图资源
   if (mapInstance) {
-    mapInstance.destroy()
-    mapInstance = null
+    mapInstance.destroy();
+    mapInstance = null;
   }
-})
+});
 </script>
 
 <style lang="scss" scoped>

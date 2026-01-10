@@ -44,7 +44,7 @@ const smsService = {
     console.log('='.repeat(50));
     console.log(`[SMS Service] 发送验证码到 ${phone}`);
     console.log(`[SMS Service] 验证码: ${code}`);
-    console.log(`[SMS Service] 有效期: 5分钟`);
+    console.log('[SMS Service] 有效期: 5分钟');
     console.log('='.repeat(50));
 
     // 生产环境应调用真实短信服务商API
@@ -54,7 +54,7 @@ const smsService = {
       success: true,
       message: '验证码已发送',
       // 开发/测试环境始终返回验证码
-      code: code
+      code
     };
   },
 

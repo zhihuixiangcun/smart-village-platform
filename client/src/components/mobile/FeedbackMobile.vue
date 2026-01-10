@@ -144,12 +144,7 @@
 
               <!-- 评价星标 -->
               <div class="feedback-rating" v-if="feedback.rating">
-                <el-rate
-                  v-model="feedback.rating"
-                  disabled
-                  show-score
-                  text-color="#ff9900"
-                />
+                <el-rate v-model="feedback.rating" disabled show-score text-color="#ff9900" />
               </div>
             </div>
 
@@ -163,11 +158,7 @@
               >
                 处理
               </el-button>
-              <el-button
-                type="text"
-                size="small"
-                @click.stop="replyFeedback(feedback)"
-              >
+              <el-button type="text" size="small" @click.stop="replyFeedback(feedback)">
                 回复
               </el-button>
             </div>
@@ -178,13 +169,7 @@
 
     <!-- 悬浮按钮 -->
     <div class="feedback-fab">
-      <el-button
-        type="primary"
-        icon="Plus"
-        circle
-        size="large"
-        @click="showFeedbackForm = true"
-      />
+      <el-button type="primary" icon="Plus" circle size="large" @click="showFeedbackForm = true" />
     </div>
 
     <!-- 筛选弹窗 -->
@@ -199,11 +184,7 @@
             <h4>反馈类型</h4>
             <div class="filter-options">
               <el-checkbox-group v-model="filterTypes">
-                <el-checkbox
-                  v-for="type in feedbackTypes"
-                  :key="type.key"
-                  :label="type.key"
-                >
+                <el-checkbox v-for="type in feedbackTypes" :key="type.key" :label="type.key">
                   {{ type.label }}
                 </el-checkbox>
               </el-checkbox-group>
@@ -259,11 +240,7 @@
     </van-popup>
 
     <!-- 快速反馈表单 -->
-    <van-popup
-      v-model:show="showQuickFeedbackForm"
-      position="bottom"
-      :style="{ height: '80%' }"
-    >
+    <van-popup v-model:show="showQuickFeedbackForm" position="bottom" :style="{ height: '80%' }">
       <div class="quick-feedback-popup">
         <div class="popup-header">
           <h3>{{ quickFeedbackType?.label }}反馈</h3>
@@ -282,65 +259,174 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { ElMessage } from 'element-plus';
 import {
-  ChatDotRound, Warning, QuestionFilled, Trophy, Filter, Search,
-  Picture, Location, Plus, ArrowUp, ArrowDown, Service, Tools,
-  Food, Document, Star
-} from '@element-plus/icons-vue'
-import { VanList, VanPullRefresh, VanPopup } from 'vant'
-import FeedbackForm from './FeedbackForm.vue'
-import QuickFeedbackForm from './QuickFeedbackForm.vue'
+  ChatDotRound,
+  Warning,
+  QuestionFilled,
+  Trophy,
+  Filter,
+  Search,
+  Picture,
+  Location,
+  Plus,
+  ArrowUp,
+  ArrowDown,
+  Service,
+  Tools,
+  Food,
+  Document,
+  Star,
+} from '@element-plus/icons-vue';
+import { VanList, VanPullRefresh, VanPopup } from 'vant';
+import FeedbackForm from './FeedbackForm.vue';
+import QuickFeedbackForm from './QuickFeedbackForm.vue';
 
 // 路由
-const router = useRouter()
+const router = useRouter();
 
 // 响应式数据
-const activeStatsTab = ref('today')
-const searchQuery = ref('')
-const refreshing = ref(false)
-const loading = ref(false)
-const finished = ref(false)
-const showFilter = ref(false)
-const showFeedbackForm = ref(false)
-const showQuickFeedbackForm = ref(false)
-const quickFeedbackType = ref(null)
+const activeStatsTab = ref('today');
+const searchQuery = ref('');
+const refreshing = ref(false);
+const loading = ref(false);
+const finished = ref(false);
+const showFilter = ref(false);
+const showFeedbackForm = ref(false);
+const showQuickFeedbackForm = ref(false);
+const quickFeedbackType = ref(null);
 
 // 筛选条件
-const filterTypes = ref([])
-const filterStatus = ref('all')
-const filterDateRange = ref(null)
+const filterTypes = ref([]);
+const filterStatus = ref('all');
+const filterDateRange = ref(null);
 
 // 统计标签页
 const statsTabs = ref([
   { key: 'today', label: '今日' },
   { key: 'week', label: '本周' },
-  { key: 'month', label: '本月' }
-])
+  { key: 'month', label: '本月' },
+]);
 
 // 统计数据
 const statsData = reactive({
   today: [
-    { key: 'total', label: '总数', value: 23, change: '12%', trend: 'up', icon: 'ChatDotRound', type: 'primary' },
-    { key: 'pending', label: '待处理', value: 8, change: '5%', trend: 'down', icon: 'Clock', type: 'warning' },
-    { key: 'resolved', label: '已解决', value: 15, change: '20%', trend: 'up', icon: 'CircleCheck', type: 'success' },
-    { key: 'rating', label: '满意度', value: '4.5', change: '0.3', trend: 'up', icon: 'Star', type: 'info' }
+    {
+      key: 'total',
+      label: '总数',
+      value: 23,
+      change: '12%',
+      trend: 'up',
+      icon: 'ChatDotRound',
+      type: 'primary',
+    },
+    {
+      key: 'pending',
+      label: '待处理',
+      value: 8,
+      change: '5%',
+      trend: 'down',
+      icon: 'Clock',
+      type: 'warning',
+    },
+    {
+      key: 'resolved',
+      label: '已解决',
+      value: 15,
+      change: '20%',
+      trend: 'up',
+      icon: 'CircleCheck',
+      type: 'success',
+    },
+    {
+      key: 'rating',
+      label: '满意度',
+      value: '4.5',
+      change: '0.3',
+      trend: 'up',
+      icon: 'Star',
+      type: 'info',
+    },
   ],
   week: [
-    { key: 'total', label: '总数', value: 156, change: '8%', trend: 'up', icon: 'ChatDotRound', type: 'primary' },
-    { key: 'pending', label: '待处理', value: 32, change: '3%', trend: 'down', icon: 'Clock', type: 'warning' },
-    { key: 'resolved', label: '已解决', value: 124, change: '15%', trend: 'up', icon: 'CircleCheck', type: 'success' },
-    { key: 'rating', label: '满意度', value: '4.3', change: '0.1', trend: 'up', icon: 'Star', type: 'info' }
+    {
+      key: 'total',
+      label: '总数',
+      value: 156,
+      change: '8%',
+      trend: 'up',
+      icon: 'ChatDotRound',
+      type: 'primary',
+    },
+    {
+      key: 'pending',
+      label: '待处理',
+      value: 32,
+      change: '3%',
+      trend: 'down',
+      icon: 'Clock',
+      type: 'warning',
+    },
+    {
+      key: 'resolved',
+      label: '已解决',
+      value: 124,
+      change: '15%',
+      trend: 'up',
+      icon: 'CircleCheck',
+      type: 'success',
+    },
+    {
+      key: 'rating',
+      label: '满意度',
+      value: '4.3',
+      change: '0.1',
+      trend: 'up',
+      icon: 'Star',
+      type: 'info',
+    },
   ],
   month: [
-    { key: 'total', label: '总数', value: 680, change: '15%', trend: 'up', icon: 'ChatDotRound', type: 'primary' },
-    { key: 'pending', label: '待处理', value: 125, change: '8%', trend: 'down', icon: 'Clock', type: 'warning' },
-    { key: 'resolved', label: '已解决', value: 555, change: '22%', trend: 'up', icon: 'CircleCheck', type: 'success' },
-    { key: 'rating', label: '满意度', value: '4.4', change: '0.2', trend: 'up', icon: 'Star', type: 'info' }
-  ]
-})
+    {
+      key: 'total',
+      label: '总数',
+      value: 680,
+      change: '15%',
+      trend: 'up',
+      icon: 'ChatDotRound',
+      type: 'primary',
+    },
+    {
+      key: 'pending',
+      label: '待处理',
+      value: 125,
+      change: '8%',
+      trend: 'down',
+      icon: 'Clock',
+      type: 'warning',
+    },
+    {
+      key: 'resolved',
+      label: '已解决',
+      value: 555,
+      change: '22%',
+      trend: 'up',
+      icon: 'CircleCheck',
+      type: 'success',
+    },
+    {
+      key: 'rating',
+      label: '满意度',
+      value: '4.4',
+      change: '0.2',
+      trend: 'up',
+      icon: 'Star',
+      type: 'info',
+    },
+  ],
+});
 
 // 反馈类型
 const feedbackTypes = ref([
@@ -351,41 +437,41 @@ const feedbackTypes = ref([
   { key: 'service', label: '服务', icon: 'Service', color: 'info', count: 56 },
   { key: 'facility', label: '设施', icon: 'Tools', color: 'primary', count: 34 },
   { key: 'environment', label: '环境', icon: 'Location', color: 'success', count: 28 },
-  { key: 'other', label: '其他', icon: 'Document', color: 'info', count: 15 }
-])
+  { key: 'other', label: '其他', icon: 'Document', color: 'info', count: 15 },
+]);
 
 // 反馈列表
-const feedbacks = ref([])
+const feedbacks = ref([]);
 
 // 方法
-const viewFeedbackList = (key) => {
+const viewFeedbackList = key => {
   const typeMap = {
     total: '/feedback',
     pending: '/feedback?status=pending',
     resolved: '/feedback?status=resolved',
-    rating: '/feedback?rating=true'
-  }
-  router.push(typeMap[key] || '/feedback')
-}
+    rating: '/feedback?rating=true',
+  };
+  router.push(typeMap[key] || '/feedback');
+};
 
-const quickFeedback = (type) => {
-  quickFeedbackType.value = type
-  showQuickFeedbackForm.value = true
-}
+const quickFeedback = type => {
+  quickFeedbackType.value = type;
+  showQuickFeedbackForm.value = true;
+};
 
-const handleSearch = (value) => {
+const handleSearch = value => {
   // 搜索逻辑
   if (!value) {
-    onRefresh()
-    return
+    onRefresh();
+    return;
   }
 
   // 执行搜索
-  feedbacks.value = []
-  loadFeedbacks()
-}
+  feedbacks.value = [];
+  loadFeedbacks();
+};
 
-const getTypeIcon = (type) => {
+const getTypeIcon = type => {
   const iconMap = {
     suggestion: 'ChatDotRound',
     complaint: 'Warning',
@@ -394,97 +480,98 @@ const getTypeIcon = (type) => {
     service: 'Service',
     facility: 'Tools',
     environment: 'Location',
-    other: 'Document'
-  }
-  return iconMap[type] || 'ChatDotRound'
-}
+    other: 'Document',
+  };
+  return iconMap[type] || 'ChatDotRound';
+};
 
-const getStatusType = (status) => {
+const getStatusType = status => {
   const typeMap = {
     pending: 'warning',
     processing: 'primary',
     resolved: 'success',
-    closed: 'info'
-  }
-  return typeMap[status] || 'info'
-}
+    closed: 'info',
+  };
+  return typeMap[status] || 'info';
+};
 
-const getStatusText = (status) => {
+const getStatusText = status => {
   const textMap = {
     pending: '待处理',
     processing: '处理中',
     resolved: '已解决',
-    closed: '已关闭'
-  }
-  return textMap[status] || '未知'
-}
+    closed: '已关闭',
+  };
+  return textMap[status] || '未知';
+};
 
 const truncateText = (text, length) => {
-  if (!text) return ''
-  if (text.length <= length) return text
-  return text.substring(0, length) + '...'
-}
+  if (!text) return '';
+  if (text.length <= length) return text;
+  return text.substring(0, length) + '...';
+};
 
-const formatTime = (time) => {
-  const now = new Date()
-  const diff = now - time
-  const minutes = Math.floor(diff / 60000)
-  const hours = Math.floor(diff / 3600000)
-  const days = Math.floor(diff / 86400000)
+const formatTime = time => {
+  const now = new Date();
+  const diff = now - time;
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
 
-  if (minutes < 1) return '刚刚'
-  if (minutes < 60) return `${minutes}分钟前`
-  if (hours < 24) return `${hours}小时前`
-  if (days < 7) return `${days}天前`
-  return time.toLocaleDateString()
-}
+  if (minutes < 1) return '刚刚';
+  if (minutes < 60) return `${minutes}分钟前`;
+  if (hours < 24) return `${hours}小时前`;
+  if (days < 7) return `${days}天前`;
+  return time.toLocaleDateString();
+};
 
 const onRefresh = async () => {
-  refreshing.value = true
-  feedbacks.value = []
-  await loadFeedbacks()
-  refreshing.value = false
-}
+  refreshing.value = true;
+  feedbacks.value = [];
+  await loadFeedbacks();
+  refreshing.value = false;
+};
 
 const loadFeedbacks = async () => {
-  if (loading.value || finished.value) return
+  if (loading.value || finished.value) return;
 
-  loading.value = true
+  loading.value = true;
 
   try {
     // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const newFeedbacks = generateMockFeedbacks()
+    const newFeedbacks = generateMockFeedbacks();
 
     if (newFeedbacks.length < 10) {
-      finished.value = true
+      finished.value = true;
     }
 
-    feedbacks.value.push(...newFeedbacks)
+    feedbacks.value.push(...newFeedbacks);
   } catch (error) {
-    ElMessage.error('加载失败')
+    ElMessage.error('加载失败');
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const generateMockFeedbacks = () => {
   const mockData = [
     {
       id: Date.now() + 1,
       title: '建议增加夜间照明设施',
-      content: '村里主干道夜间比较黑，建议增加路灯数量，方便村民夜间出行。特别是老年人，晚上出门不安全。',
+      content:
+        '村里主干道夜间比较黑，建议增加路灯数量，方便村民夜间出行。特别是老年人，晚上出门不安全。',
       type: 'suggestion',
       status: 'pending',
       user: {
         name: '张三',
-        avatar: ''
+        avatar: '',
       },
       attachments: ['image1.jpg', 'image2.jpg'],
       location: '幸福路主干道',
       createTime: new Date(),
-      rating: null
+      rating: null,
     },
     {
       id: Date.now() + 2,
@@ -494,12 +581,12 @@ const generateMockFeedbacks = () => {
       status: 'processing',
       user: {
         name: '李四',
-        avatar: ''
+        avatar: '',
       },
       attachments: [],
       location: '村口',
       createTime: new Date(Date.now() - 3600000),
-      rating: null
+      rating: null,
     },
     {
       id: Date.now() + 3,
@@ -509,12 +596,12 @@ const generateMockFeedbacks = () => {
       status: 'resolved',
       user: {
         name: '王五',
-        avatar: ''
+        avatar: '',
       },
       attachments: [],
       location: '和谐小区',
       createTime: new Date(Date.now() - 7200000),
-      rating: 5
+      rating: 5,
     },
     {
       id: Date.now() + 4,
@@ -524,79 +611,80 @@ const generateMockFeedbacks = () => {
       status: 'resolved',
       user: {
         name: '赵六',
-        avatar: ''
+        avatar: '',
       },
       attachments: [],
       location: '',
       createTime: new Date(Date.now() - 86400000),
-      rating: 4
-    }
-  ]
+      rating: 4,
+    },
+  ];
 
   // 应用筛选条件
-  let filtered = mockData
+  let filtered = mockData;
 
   if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase()
-    filtered = filtered.filter(item =>
-      item.title.toLowerCase().includes(query) ||
-      item.content.toLowerCase().includes(query) ||
-      item.user.name.toLowerCase().includes(query)
-    )
+    const query = searchQuery.value.toLowerCase();
+    filtered = filtered.filter(
+      item =>
+        item.title.toLowerCase().includes(query) ||
+        item.content.toLowerCase().includes(query) ||
+        item.user.name.toLowerCase().includes(query)
+    );
   }
 
   if (filterTypes.value.length > 0) {
-    filtered = filtered.filter(item => filterTypes.value.includes(item.type))
+    filtered = filtered.filter(item => filterTypes.value.includes(item.type));
   }
 
   if (filterStatus.value !== 'all') {
-    filtered = filtered.filter(item => item.status === filterStatus.value)
+    filtered = filtered.filter(item => item.status === filterStatus.value);
   }
 
-  return filtered
-}
+  return filtered;
+};
 
-const viewFeedback = (feedback) => {
-  router.push(`/feedback/${feedback.id}`)
-}
+const viewFeedback = feedback => {
+  router.push(`/feedback/${feedback.id}`);
+};
 
-const handleFeedback = (feedback) => {
-  router.push(`/feedback/${feedback.id}/handle`)
-}
+const handleFeedback = feedback => {
+  router.push(`/feedback/${feedback.id}/handle`);
+};
 
-const replyFeedback = (feedback) => {
-  router.push(`/feedback/${feedback.id}/reply`)
-}
+const replyFeedback = feedback => {
+  router.push(`/feedback/${feedback.id}/reply`);
+};
 
 const resetFilter = () => {
-  filterTypes.value = []
-  filterStatus.value = 'all'
-  filterDateRange.value = null
-}
+  filterTypes.value = [];
+  filterStatus.value = 'all';
+  filterDateRange.value = null;
+};
 
 const applyFilter = () => {
-  showFilter.value = false
-  onRefresh()
-  ElMessage.success('筛选条件已应用')
-}
+  showFilter.value = false;
+  onRefresh();
+  ElMessage.success('筛选条件已应用');
+};
 
 const handleFeedbackSuccess = () => {
-  showFeedbackForm.value = false
-  onRefresh()
-  ElMessage.success('反馈提交成功')
-}
+  showFeedbackForm.value = false;
+  onRefresh();
+  ElMessage.success('反馈提交成功');
+};
 
 const handleQuickFeedbackSuccess = () => {
-  showQuickFeedbackForm.value = false
-  quickFeedbackType.value = null
-  onRefresh()
-  ElMessage.success('快速反馈提交成功')
-}
+  showQuickFeedbackForm.value = false;
+  quickFeedbackType.value = null;
+  onRefresh();
+  ElMessage.success('快速反馈提交成功');
+};
 
 // 生命周期
 onMounted(() => {
-  loadFeedbacks()
-})
+  loadFeedbacks();
+});
 </script>
 
 <style lang="scss" scoped>

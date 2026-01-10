@@ -507,7 +507,7 @@ GovernanceSchema.virtual('votingProgress').get(function() {
   const approved = this.voting.votes.filter(v => v.decision === 'approve').length;
   return {
     total: totalVotes,
-    approved: approved,
+    approved,
     percentage: ((approved / totalVotes) * 100).toFixed(1)
   };
 });
@@ -568,17 +568,17 @@ GovernanceSchema.methods.calculateVotingResult = function() {
 
   // 根据投票类型判断是否通过
   switch (this.voting.votingType) {
-    case 'simple_majority':
-      result.passed = result.approved > result.totalWeight / 2;
-      break;
-    case 'two_thirds':
-      result.passed = result.approved >= result.totalWeight * 2 / 3;
-      break;
-    case 'unanimous':
-      result.passed = result.rejected === 0;
-      break;
-    default:
-      result.passed = result.approved > result.rejected;
+  case 'simple_majority':
+    result.passed = result.approved > result.totalWeight / 2;
+    break;
+  case 'two_thirds':
+    result.passed = result.approved >= result.totalWeight * 2 / 3;
+    break;
+  case 'unanimous':
+    result.passed = result.rejected === 0;
+    break;
+  default:
+    result.passed = result.approved > result.rejected;
   }
 
   this.voting.result = result;

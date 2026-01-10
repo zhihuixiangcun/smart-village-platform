@@ -30,7 +30,7 @@ export function useLargeText() {
   };
 
   // 设置大字模式
-  const setLargeText = (enabled) => {
+  const setLargeText = enabled => {
     isLargeText.value = enabled;
     if (enabled) {
       document.body.classList.add('large-text-mode');
@@ -49,7 +49,7 @@ export function useLargeText() {
   return {
     isLargeText,
     toggleLargeText,
-    setLargeText
+    setLargeText,
   };
 }
 

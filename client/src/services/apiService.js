@@ -14,13 +14,13 @@ const apiClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: 30000,
   headers: {
-    'Content-Type': 'application/json'
-  }
+    'Content-Type': 'application/json',
+  },
 });
 
 // 请求拦截器
 apiClient.interceptors.request.use(
-  (config) => {
+  config => {
     // 添加认证token
     const token = localStorage.getItem('jwt_token');
     if (token) {
@@ -39,17 +39,17 @@ apiClient.interceptors.request.use(
 
     return config;
   },
-  (error) => {
+  error => {
     return Promise.reject(error);
   }
 );
 
 // 响应拦截器
 apiClient.interceptors.response.use(
-  (response) => {
+  response => {
     return response;
   },
-  (error) => {
+  error => {
     // 统一错误处理
     if (error.response) {
       const { status, data } = error.response;
@@ -89,7 +89,7 @@ apiClient.interceptors.response.use(
 
 // 生成请求ID
 function generateRequestId() {
-  return `req_${  Date.now()  }_${  Math.random().toString(36).substr(2, 9)}`;
+  return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 }
 
 // Loading管理
@@ -99,7 +99,7 @@ function showLoading(text = '加载中...') {
   loadingInstance = ElLoading.service({
     lock: true,
     text,
-    background: 'rgba(0, 0, 0, 0.7)'
+    background: 'rgba(0, 0, 0, 0.7)',
   });
 }
 
@@ -140,43 +140,55 @@ class ApiService {
    * GET请求
    */
   async get(url, params = {}, showLoading = false) {
-    return this.request({
-      method: 'GET',
-      url,
-      params
-    }, showLoading);
+    return this.request(
+      {
+        method: 'GET',
+        url,
+        params,
+      },
+      showLoading
+    );
   }
 
   /**
    * POST请求
    */
   async post(url, data = {}, showLoading = true) {
-    return this.request({
-      method: 'POST',
-      url,
-      data
-    }, showLoading);
+    return this.request(
+      {
+        method: 'POST',
+        url,
+        data,
+      },
+      showLoading
+    );
   }
 
   /**
    * PUT请求
    */
   async put(url, data = {}, showLoading = true) {
-    return this.request({
-      method: 'PUT',
-      url,
-      data
-    }, showLoading);
+    return this.request(
+      {
+        method: 'PUT',
+        url,
+        data,
+      },
+      showLoading
+    );
   }
 
   /**
    * DELETE请求
    */
   async delete(url, showLoading = true) {
-    return this.request({
-      method: 'DELETE',
-      url
-    }, showLoading);
+    return this.request(
+      {
+        method: 'DELETE',
+        url,
+      },
+      showLoading
+    );
   }
 
   // ========================================
@@ -192,7 +204,7 @@ class ApiService {
       limit: params.limit || 20,
       search: params.search,
       role: params.role,
-      villageId: params.villageId
+      villageId: params.villageId,
     });
   }
 
@@ -243,7 +255,7 @@ class ApiService {
       page: params.page || 1,
       limit: params.limit || 20,
       category: params.category,
-      status: params.status
+      status: params.status,
     });
   }
 
@@ -283,13 +295,17 @@ class ApiService {
    * 获取交易记录
    */
   async getTransactionList(params = {}) {
-    return this.get('/finance/transactions', {
-      page: params.page || 1,
-      limit: params.limit || 20,
-      type: params.type,
-      startDate: params.startDate,
-      endDate: params.endDate
-    }, false);
+    return this.get(
+      '/finance/transactions',
+      {
+        page: params.page || 1,
+        limit: params.limit || 20,
+        type: params.type,
+        startDate: params.startDate,
+        endDate: params.endDate,
+      },
+      false
+    );
   }
 
   /**
@@ -332,7 +348,7 @@ class ApiService {
       page: params.page || 1,
       limit: params.limit || 20,
       status: params.status,
-      type: params.type
+      type: params.type,
     });
   }
 
@@ -368,7 +384,7 @@ class ApiService {
     return this.get('/analytics/village', {
       startDate: params.startDate,
       endDate: params.endDate,
-      metrics: params.metrics
+      metrics: params.metrics,
     });
   }
 
@@ -392,7 +408,7 @@ class ApiService {
   async exportData(type, params = {}) {
     return this.get(`/analytics/export/${type}`, {
       format: params.format || 'csv',
-      filters: JSON.stringify(params.filters || {})
+      filters: JSON.stringify(params.filters || {}),
     });
   }
 
@@ -409,7 +425,7 @@ class ApiService {
       limit: params.limit || 20,
       category: params.category,
       search: params.search,
-      sort: params.sort
+      sort: params.sort,
     });
   }
 
@@ -428,7 +444,7 @@ class ApiService {
       page: params.page || 1,
       limit: params.limit || 20,
       status: params.status,
-      userId: params.userId
+      userId: params.userId,
     });
   }
 
@@ -465,7 +481,7 @@ class ApiService {
       page: params.page || 1,
       limit: params.limit || 20,
       startDate: params.startDate,
-      endDate: params.endDate
+      endDate: params.endDate,
     });
   }
 
@@ -551,29 +567,27 @@ apiService.uploadFile = async (url, file, onProgress) => {
 
   return this.client.post(url, formData, {
     headers: {
-      'Content-Type': 'multipart/form-data'
+      'Content-Type': 'multipart/form-data',
     },
-    onUploadProgress: (progressEvent) => {
+    onUploadProgress: progressEvent => {
       if (onProgress && progressEvent.total) {
         const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
         onProgress(progress);
       }
-    }
+    },
   });
 };
 
 // 批量操作辅助方法
-apiService.batchRequest = async (requests) => {
+apiService.batchRequest = async requests => {
   try {
     const responses = await Promise.allSettled(
-      requests.map(request =>
-        this.request(request.config, false)
-      )
+      requests.map(request => this.request(request.config, false))
     );
 
     return {
       successful: responses.filter(r => r.status === 'fulfilled'),
-      failed: responses.filter(r => r.status === 'rejected')
+      failed: responses.filter(r => r.status === 'rejected'),
     };
   } catch (error) {
     console.error('批量请求失败:', error);

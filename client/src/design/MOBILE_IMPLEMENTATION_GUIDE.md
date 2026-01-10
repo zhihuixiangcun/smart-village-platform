@@ -23,13 +23,13 @@
 
 ### 目标用户特征
 
-| 特征 | 描述 | 设计考虑 |
-|------|------|---------|
-| **年龄** | 55-75岁为主 | 大字体、高对比度、简单操作 |
-| **视力** | 多数存在老花、视力下降 | 至少 20px 基础字号，清晰图标 |
-| **听力** | 部分存在听力下降 | 提供音量调节、视觉反馈 |
-| **认知** | 学习能力较弱、记忆力下降 | 简化流程、清晰提示、容错设计 |
-| **网络环境** | 乡村网络不稳定、信号弱 | 离线优先、数据同步、弱网优化 |
+| 特征         | 描述                     | 设计考虑                     |
+| ------------ | ------------------------ | ---------------------------- |
+| **年龄**     | 55-75岁为主              | 大字体、高对比度、简单操作   |
+| **视力**     | 多数存在老花、视力下降   | 至少 20px 基础字号，清晰图标 |
+| **听力**     | 部分存在听力下降         | 提供音量调节、视觉反馈       |
+| **认知**     | 学习能力较弱、记忆力下降 | 简化流程、清晰提示、容错设计 |
+| **网络环境** | 乡村网络不稳定、信号弱   | 离线优先、数据同步、弱网优化 |
 
 ### 核心设计原则
 
@@ -111,9 +111,9 @@ export default defineConfig({
     host: '0.0.0.0',
     proxy: {
       // API 代理配置...
-    }
-  }
-})
+    },
+  },
+});
 ```
 
 ### 3. 启动开发服务器
@@ -140,11 +140,11 @@ npm run dev && npm run client
 
 ```javascript
 // 检测用户偏好
-const prefersLargeText = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+const prefersLargeText = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // 应用大字模式
 if (prefersLargeText || localStorage.getItem('elderly-mode') === 'true') {
-  document.body.classList.add('elderly-mode')
+  document.body.classList.add('elderly-mode');
 }
 ```
 
@@ -154,9 +154,7 @@ if (prefersLargeText || localStorage.getItem('elderly-mode') === 'true') {
 <template>
   <div class="elderly-page">
     <!-- 使用适老化按钮 -->
-    <ElderlyButton type="primary" size="large" @click="handleSubmit">
-      提交申请
-    </ElderlyButton>
+    <ElderlyButton type="primary" size="large" @click="handleSubmit"> 提交申请 </ElderlyButton>
 
     <!-- 使用适老化卡片 -->
     <ElderlyCard
@@ -173,8 +171,8 @@ if (prefersLargeText || localStorage.getItem('elderly-mode') === 'true') {
 </template>
 
 <script setup>
-import ElderlyButton from '@/components/elderly/ElderlyButton.vue'
-import ElderlyCard from '@/components/elderly/ElderlyCard.vue'
+import ElderlyButton from '@/components/elderly/ElderlyButton.vue';
+import ElderlyCard from '@/components/elderly/ElderlyCard.vue';
 </script>
 ```
 
@@ -191,8 +189,8 @@ import ElderlyCard from '@/components/elderly/ElderlyCard.vue'
 
 ```javascript
 // 在组件中使用
-const deviceInfo = this.$getDeviceInfo()
-const isMobile = this.$isMobile()
+const deviceInfo = this.$getDeviceInfo();
+const isMobile = this.$isMobile();
 ```
 
 #### 2.2 响应式断点
@@ -231,47 +229,47 @@ const isMobile = this.$isMobile()
 #### 3.1 语音识别
 
 ```javascript
-import speechApi from '@/api/speech'
+import speechApi from '@/api/speech';
 
 // 开始语音识别
 async function startVoiceRecognition() {
   try {
     // 检查浏览器支持
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      alert('您的浏览器不支持语音识别')
-      return
+      alert('您的浏览器不支持语音识别');
+      return;
     }
 
     // 创建识别实例
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
-    const recognition = new SpeechRecognition()
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
 
     // 配置识别选项
-    recognition.lang = 'zh-CN'
-    recognition.continuous = false
-    recognition.interimResults = false
+    recognition.lang = 'zh-CN';
+    recognition.continuous = false;
+    recognition.interimResults = false;
 
     // 开始识别
-    recognition.start()
+    recognition.start();
 
     // 识别结果
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript
-      console.log('识别结果:', transcript)
+    recognition.onresult = event => {
+      const transcript = event.results[0][0].transcript;
+      console.log('识别结果:', transcript);
       // 处理识别结果...
-    }
+    };
 
     // 识别错误
-    recognition.onerror = (event) => {
-      console.error('识别错误:', event.error)
-    }
+    recognition.onerror = event => {
+      console.error('识别错误:', event.error);
+    };
 
     // 识别结束
     recognition.onend = () => {
-      console.log('识别结束')
-    }
+      console.log('识别结束');
+    };
   } catch (error) {
-    console.error('语音识别失败:', error)
+    console.error('语音识别失败:', error);
   }
 }
 ```
@@ -282,27 +280,27 @@ async function startVoiceRecognition() {
 // 文本转语音
 async function textToSpeech(text, options = {}) {
   try {
-    const audioUrl = await speechApi.textToSpeech(text, options.emotion)
+    const audioUrl = await speechApi.textToSpeech(text, options.emotion);
 
     // 播放音频
-    const audio = new Audio(audioUrl)
-    audio.play()
+    const audio = new Audio(audioUrl);
+    audio.play();
 
     // 音频播放结束
     audio.onended = () => {
-      URL.revokeObjectURL(audioUrl) // 释放内存
-    }
+      URL.revokeObjectURL(audioUrl); // 释放内存
+    };
   } catch (error) {
-    console.error('语音合成失败:', error)
+    console.error('语音合成失败:', error);
   }
 }
 
 // 老年人友好语音（更慢、更响亮）
 await textToSpeech('欢迎使用智慧乡村平台', {
-  speed: 40,    // 语速（0-100）
-  volume: 60,   // 音量（0-100）
-  emotion: 'friendly'
-})
+  speed: 40, // 语速（0-100）
+  volume: 60, // 音量（0-100）
+  emotion: 'friendly',
+});
 ```
 
 ### 4. 离线功能
@@ -312,37 +310,37 @@ await textToSpeech('欢迎使用智慧乡村平台', {
 在 `main.js` 中注册：
 
 ```javascript
-import { register } from '@/services/serviceWorkerRegister'
+import { register } from '@/services/serviceWorkerRegister';
 
 // 注册 Service Worker
 register({
-  onUpdate: (registration) => {
+  onUpdate: registration => {
     // 新版本可用
-    console.log('新版本可用，请刷新页面')
+    console.log('新版本可用，请刷新页面');
 
     // 显示更新提示
     if (confirm('发现新版本，是否立即更新？')) {
-      registration.waiting.postMessage({ type: 'SKIP_WAITING' })
-      window.location.reload()
+      registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+      window.location.reload();
     }
   },
-  onSuccess: (registration) => {
+  onSuccess: registration => {
     // 内容已缓存
-    console.log('应用已缓存，可离线使用')
-  }
-})
+    console.log('应用已缓存，可离线使用');
+  },
+});
 ```
 
 #### 4.2 使用离线存储
 
 ```javascript
-import offlineService from '@/services/offlineService'
+import offlineService from '@/services/offlineService';
 
 // 缓存数据
-await offlineService.cacheData('announcements', announcementsData, 3600000)
+await offlineService.cacheData('announcements', announcementsData, 3600000);
 
 // 获取缓存数据
-const cachedData = await offlineService.getCachedData('announcements')
+const cachedData = await offlineService.getCachedData('announcements');
 
 // 添加到离线队列
 await offlineService.addToQueue(
@@ -350,13 +348,13 @@ await offlineService.addToQueue(
   'POST',
   { content: '建议内容', category: '环境' },
   { headers: { Authorization: `Bearer ${token}` } }
-)
+);
 
 // 获取离线队列
-const queue = await offlineService.getQueue()
+const queue = await offlineService.getQueue();
 
 // 同步队列（网络恢复时自动执行）
-await offlineService.syncQueue()
+await offlineService.syncQueue();
 ```
 
 #### 4.3 请求拦截器
@@ -364,52 +362,49 @@ await offlineService.syncQueue()
 配置 Axios 拦截器，自动处理离线请求：
 
 ```javascript
-import axios from 'axios'
-import offlineService from '@/services/offlineService'
+import axios from 'axios';
+import offlineService from '@/services/offlineService';
 
 const api = axios.create({
   baseURL: '/api/v1',
-  timeout: 10000
-})
+  timeout: 10000,
+});
 
 // 请求拦截器
-api.interceptors.request.use(async (config) => {
+api.interceptors.request.use(async config => {
   // 检查网络状态
   if (!navigator.onLine) {
     // 离线状态，添加到队列
-    await offlineService.addToQueue(
-      config.url,
-      config.method.toUpperCase(),
-      config.data,
-      { headers: config.headers }
-    )
+    await offlineService.addToQueue(config.url, config.method.toUpperCase(), config.data, {
+      headers: config.headers,
+    });
 
     // 返回 Promise.reject，触发错误处理
-    return Promise.reject({ offline: true, config })
+    return Promise.reject({ offline: true, config });
   }
 
   // 在线状态，正常请求
-  return config
-})
+  return config;
+});
 
 // 响应拦截器
 api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
+  response => response,
+  async error => {
     if (error.offline) {
       // 离线请求已加入队列，提示用户
       return Promise.reject({
         message: '当前离线，您的请求将在联网后自动发送',
-        queued: true
-      })
+        queued: true,
+      });
     }
 
     // 其他错误
-    return Promise.reject(error)
+    return Promise.reject(error);
   }
-)
+);
 
-export default api
+export default api;
 ```
 
 ### 5. 性能优化
@@ -420,7 +415,7 @@ export default api
 <template>
   <div>
     <!-- 使用 v-lazy 指令 -->
-    <img v-lazy="imageUrl" alt="图片">
+    <img v-lazy="imageUrl" alt="图片" />
 
     <!-- 或使用组件 -->
     <LazyImage :src="imageUrl" :placeholder="placeholderUrl" />
@@ -428,9 +423,9 @@ export default api
 </template>
 
 <script setup>
-import { lazyLoadDirective } from '@/utils/performanceOptimizer'
+import { lazyLoadDirective } from '@/utils/performanceOptimizer';
 
-const imageUrl = '/path/to/image.jpg'
+const imageUrl = '/path/to/image.jpg';
 </script>
 ```
 
@@ -488,27 +483,25 @@ const routes = [
     path: '/announcements',
     name: 'Announcements',
     component: () => import('@/views/announcements/AnnouncementsView.vue'),
-    meta: { title: '公告通知', keepAlive: true }
+    meta: { title: '公告通知', keepAlive: true },
   },
   {
     path: '/services',
     name: 'Services',
     component: () => import('@/views/services/ServicesView.vue'),
-    meta: { title: '村务服务', keepAlive: true }
-  }
-]
+    meta: { title: '村务服务', keepAlive: true },
+  },
+];
 ```
 
 #### 5.4 组件懒加载
 
 ```vue
 <script setup>
-import { defineAsyncComponent } from 'vue'
+import { defineAsyncComponent } from 'vue';
 
 // 懒加载组件
-const HeavyComponent = defineAsyncComponent(() =>
-  import('@/components/HeavyComponent.vue')
-)
+const HeavyComponent = defineAsyncComponent(() => import('@/components/HeavyComponent.vue'));
 </script>
 ```
 
@@ -520,23 +513,23 @@ const HeavyComponent = defineAsyncComponent(() =>
 
 #### Props
 
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| type | String | 'primary' | 按钮类型：primary/secondary/success/warning/danger/text |
-| size | String | 'large' | 尺寸：small/medium/large/extra-large |
-| icon | String | '' | 图标类名 |
-| disabled | Boolean | false | 是否禁用 |
-| loading | Boolean | false | 是否加载中 |
-| plain | Boolean | false | 是否显示轮廓 |
-| round | Boolean | false | 是否圆角 |
-| longPressConfirm | Boolean | false | 是否需要长按确认 |
-| longPressDuration | Number | 800 | 长按确认时长(ms) |
+| 属性              | 类型    | 默认值    | 说明                                                    |
+| ----------------- | ------- | --------- | ------------------------------------------------------- |
+| type              | String  | 'primary' | 按钮类型：primary/secondary/success/warning/danger/text |
+| size              | String  | 'large'   | 尺寸：small/medium/large/extra-large                    |
+| icon              | String  | ''        | 图标类名                                                |
+| disabled          | Boolean | false     | 是否禁用                                                |
+| loading           | Boolean | false     | 是否加载中                                              |
+| plain             | Boolean | false     | 是否显示轮廓                                            |
+| round             | Boolean | false     | 是否圆角                                                |
+| longPressConfirm  | Boolean | false     | 是否需要长按确认                                        |
+| longPressDuration | Number  | 800       | 长按确认时长(ms)                                        |
 
 #### Events
 
-| 事件名 | 说明 | 参数 |
-|--------|------|------|
-| click | 点击事件 | event |
+| 事件名     | 说明     | 参数  |
+| ---------- | -------- | ----- |
+| click      | 点击事件 | event |
 | long-press | 长按事件 | event |
 
 #### 示例
@@ -544,26 +537,16 @@ const HeavyComponent = defineAsyncComponent(() =>
 ```vue
 <template>
   <!-- 基础用法 -->
-  <ElderlyButton type="primary" size="large">
-    主要按钮
-  </ElderlyButton>
+  <ElderlyButton type="primary" size="large"> 主要按钮 </ElderlyButton>
 
   <!-- 带图标 -->
-  <ElderlyButton type="success" icon="el-icon-check">
-    确认操作
-  </ElderlyButton>
+  <ElderlyButton type="success" icon="el-icon-check"> 确认操作 </ElderlyButton>
 
   <!-- 加载状态 -->
-  <ElderlyButton type="primary" :loading="true">
-    提交中...
-  </ElderlyButton>
+  <ElderlyButton type="primary" :loading="true"> 提交中... </ElderlyButton>
 
   <!-- 长按确认（危险操作） -->
-  <ElderlyButton
-    type="danger"
-    :long-press-confirm="true"
-    @long-press="handleDelete"
-  >
+  <ElderlyButton type="danger" :long-press-confirm="true" @long-press="handleDelete">
     删除
   </ElderlyButton>
 </template>
@@ -573,32 +556,30 @@ const HeavyComponent = defineAsyncComponent(() =>
 
 #### Props
 
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| title | String | '' | 卡片标题 |
-| subtitle | String | '' | 副标题 |
-| icon | String | '' | 图标类名 |
-| type | String | 'default' | 类型：default/primary/success/warning/danger |
-| clickable | Boolean | false | 是否可点击 |
-| showArrow | Boolean | false | 是否显示箭头 |
-| status | String | '' | 状态文本 |
-| statusType | String | 'info' | 状态类型：success/warning/danger/info |
-| shadow | String | 'medium' | 阴影级别：none/light/medium/heavy |
+| 属性       | 类型    | 默认值    | 说明                                         |
+| ---------- | ------- | --------- | -------------------------------------------- |
+| title      | String  | ''        | 卡片标题                                     |
+| subtitle   | String  | ''        | 副标题                                       |
+| icon       | String  | ''        | 图标类名                                     |
+| type       | String  | 'default' | 类型：default/primary/success/warning/danger |
+| clickable  | Boolean | false     | 是否可点击                                   |
+| showArrow  | Boolean | false     | 是否显示箭头                                 |
+| status     | String  | ''        | 状态文本                                     |
+| statusType | String  | 'info'    | 状态类型：success/warning/danger/info        |
+| shadow     | String  | 'medium'  | 阴影级别：none/light/medium/heavy            |
 
 #### Events
 
-| 事件名 | 说明 | 参数 |
-|--------|------|------|
-| click | 点击事件 | event |
+| 事件名 | 说明     | 参数  |
+| ------ | -------- | ----- |
+| click  | 点击事件 | event |
 
 #### 示例
 
 ```vue
 <template>
   <!-- 基础卡片 -->
-  <ElderlyCard title="公告标题" icon="el-icon-bell">
-    这是卡片内容...
-  </ElderlyCard>
+  <ElderlyCard title="公告标题" icon="el-icon-bell"> 这是卡片内容... </ElderlyCard>
 
   <!-- 可点击卡片 -->
   <ElderlyCard
@@ -612,13 +593,7 @@ const HeavyComponent = defineAsyncComponent(() =>
   />
 
   <!-- 带状态卡片 -->
-  <ElderlyCard
-    title="设施报修"
-    status="处理中"
-    status-type="warning"
-  >
-    报修内容...
-  </ElderlyCard>
+  <ElderlyCard title="设施报修" status="处理中" status-type="warning"> 报修内容... </ElderlyCard>
 </template>
 ```
 
@@ -626,26 +601,26 @@ const HeavyComponent = defineAsyncComponent(() =>
 
 #### Props
 
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| items | Array | [] | 表单项配置 |
-| modelValue | Object | {} | 表单数据 |
-| rules | Object | {} | 验证规则 |
-| labelPosition | String | 'top' | 标签位置：left/right/top |
-| labelWidth | String | '120px' | 标签宽度 |
-| showActions | Boolean | true | 是否显示操作按钮 |
-| showCancel | Boolean | true | 是否显示取消按钮 |
-| submitText | String | '提交' | 提交按钮文本 |
-| cancelText | String | '取消' | 取消按钮文本 |
+| 属性          | 类型    | 默认值  | 说明                     |
+| ------------- | ------- | ------- | ------------------------ |
+| items         | Array   | []      | 表单项配置               |
+| modelValue    | Object  | {}      | 表单数据                 |
+| rules         | Object  | {}      | 验证规则                 |
+| labelPosition | String  | 'top'   | 标签位置：left/right/top |
+| labelWidth    | String  | '120px' | 标签宽度                 |
+| showActions   | Boolean | true    | 是否显示操作按钮         |
+| showCancel    | Boolean | true    | 是否显示取消按钮         |
+| submitText    | String  | '提交'  | 提交按钮文本             |
+| cancelText    | String  | '取消'  | 取消按钮文本             |
 
 #### Events
 
-| 事件名 | 说明 | 参数 |
-|--------|------|------|
-| submit | 提交事件 | formData |
-| cancel | 取消事件 | - |
-| blur | 失焦事件 | prop, value |
-| focus | 聚焦事件 | prop, value |
+| 事件名 | 说明     | 参数        |
+| ------ | -------- | ----------- |
+| submit | 提交事件 | formData    |
+| cancel | 取消事件 | -           |
+| blur   | 失焦事件 | prop, value |
+| focus  | 聚焦事件 | prop, value |
 
 #### 表单项配置
 
@@ -658,7 +633,7 @@ const formItems = [
     required: true,
     placeholder: '请输入姓名',
     maxlength: 20,
-    helper: '请填写真实姓名'
+    helper: '请填写真实姓名',
   },
   {
     prop: 'phone',
@@ -667,7 +642,7 @@ const formItems = [
     inputType: 'tel',
     required: true,
     placeholder: '请输入手机号',
-    maxlength: 11
+    maxlength: 11,
   },
   {
     prop: 'category',
@@ -677,8 +652,8 @@ const formItems = [
     options: [
       { label: '环境卫生', value: 'environment' },
       { label: '基础设施', value: 'infrastructure' },
-      { label: '公共安全', value: 'security' }
-    ]
+      { label: '公共安全', value: 'security' },
+    ],
   },
   {
     prop: 'content',
@@ -687,9 +662,9 @@ const formItems = [
     required: true,
     rows: 6,
     maxlength: 500,
-    showWordLimit: true
-  }
-]
+    showWordLimit: true,
+  },
+];
 ```
 
 #### 示例
@@ -706,41 +681,37 @@ const formItems = [
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref } from 'vue';
 
 const formData = ref({
   name: '',
   phone: '',
   category: '',
-  content: ''
-})
+  content: '',
+});
 
 const formRules = {
-  name: [
-    { required: true, message: '请输入姓名', trigger: 'blur' }
-  ],
+  name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
   phone: [
     { required: true, message: '请输入手机号', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确', trigger: 'blur' }
+    { pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确', trigger: 'blur' },
   ],
-  category: [
-    { required: true, message: '请选择建议类别', trigger: 'change' }
-  ],
+  category: [{ required: true, message: '请选择建议类别', trigger: 'change' }],
   content: [
     { required: true, message: '请输入建议内容', trigger: 'blur' },
-    { min: 10, message: '建议内容至少 10 个字', trigger: 'blur' }
-  ]
-}
+    { min: 10, message: '建议内容至少 10 个字', trigger: 'blur' },
+  ],
+};
 
-const handleSubmit = (data) => {
-  console.log('提交表单:', data)
+const handleSubmit = data => {
+  console.log('提交表单:', data);
   // 发送请求...
-}
+};
 
 const handleCancel = () => {
   // 返回上一页
-  router.back()
-}
+  router.back();
+};
 </script>
 ```
 
@@ -754,11 +725,11 @@ const handleCancel = () => {
 
 已实现三种缓存策略：
 
-| 策略 | 适用场景 | 说明 |
-|------|---------|------|
-| **Cache First** | 静态资源、GET 请求 | 优先使用缓存，后台更新 |
+| 策略              | 适用场景             | 说明                         |
+| ----------------- | -------------------- | ---------------------------- |
+| **Cache First**   | 静态资源、GET 请求   | 优先使用缓存，后台更新       |
 | **Network First** | POST/PUT/DELETE 请求 | 优先网络请求，失败时使用缓存 |
-| **Network Only** | 实时数据、认证请求 | 仅使用网络，不缓存 |
+| **Network Only**  | 实时数据、认证请求   | 仅使用网络，不缓存           |
 
 #### 2. 缓存配置
 
@@ -771,22 +742,22 @@ const PRECACHE_URLS = [
   '/index.html',
   '/manifest.json',
   '/assets/js/main.js',
-  '/assets/css/main.css'
-]
+  '/assets/css/main.css',
+];
 
 // API 缓存模式
 const CACHE_API_PATTERNS = [
-  /\/api\/v1\/announcements/,  // 公告列表
+  /\/api\/v1\/announcements/, // 公告列表
   /\/api\/v1\/notifications/, // 通知列表
-  /\/api\/v1\/committees/     // 村委信息
-]
+  /\/api\/v1\/committees/, // 村委信息
+];
 
 // 不缓存的 API
 const NO_CACHE_PATTERNS = [
-  /\/api\/auth/,      // 认证相关
-  /\/api\/upload/,    // 文件上传
-  /\/socket\.io/      // WebSocket
-]
+  /\/api\/auth/, // 认证相关
+  /\/api\/upload/, // 文件上传
+  /\/socket\.io/, // WebSocket
+];
 ```
 
 #### 3. 自定义缓存规则
@@ -796,7 +767,7 @@ const NO_CACHE_PATTERNS = [
 
 if (url.pathname.startsWith('/api/v1/custom')) {
   // 自定义 API 的缓存策略
-  return customCacheStrategy(request)
+  return customCacheStrategy(request);
 }
 ```
 
@@ -893,27 +864,27 @@ console.log(`已使用: ${usage.usagePercent}%`)
 const routes = [
   {
     path: '/home',
-    component: () => import('@/views/Home.vue')
+    component: () => import('@/views/Home.vue'),
   },
   {
     path: '/announcements',
-    component: () => import('@/views/announcements/Index.vue')
-  }
-]
+    component: () => import('@/views/announcements/Index.vue'),
+  },
+];
 ```
 
 #### 组件级分割
 
 ```vue
 <script setup>
-import { defineAsyncComponent } from 'vue'
+import { defineAsyncComponent } from 'vue';
 
 const HeavyComponent = defineAsyncComponent({
   loader: () => import('@/components/HeavyComponent.vue'),
   loadingComponent: LoadingSpinner,
   delay: 200,
-  timeout: 3000
-})
+  timeout: 3000,
+});
 </script>
 ```
 
@@ -922,15 +893,15 @@ const HeavyComponent = defineAsyncComponent({
 #### 图片优化
 
 ```javascript
-import { getResponsiveImageUrl } from '@/utils/performanceOptimizer'
+import { getResponsiveImageUrl } from '@/utils/performanceOptimizer';
 
 // 生成响应式图片 URL
-const imageUrl = getResponsiveImageUrl('/api/images/123.jpg', 400, 300)
+const imageUrl = getResponsiveImageUrl('/api/images/123.jpg', 400, 300);
 
 // 使用 WebP 格式
-const supportsWebP = await supportsWebP()
+const supportsWebP = await supportsWebP();
 if (supportsWebP) {
-  imageUrl += '&format=webp'
+  imageUrl += '&format=webp';
 }
 ```
 
@@ -938,13 +909,13 @@ if (supportsWebP) {
 
 ```scss
 // 使用系统字体栈，减少加载时间
-font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
 
 // 或使用 font-display: swap
 @font-face {
   font-family: 'CustomFont';
   src: url('/fonts/custom.woff2') format('woff2');
-  font-display: swap;  // 立即显示后备字体
+  font-display: swap; // 立即显示后备字体
 }
 ```
 
@@ -956,12 +927,7 @@ font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
 
 ```vue
 <template>
-  <VirtualList
-    :items="items"
-    :item-height="80"
-    :container-height="600"
-    :overscan="5"
-  >
+  <VirtualList :items="items" :item-height="80" :container-height="600" :overscan="5">
     <template #default="{ item }">
       <div class="list-item">{{ item.name }}</div>
     </template>
@@ -972,17 +938,17 @@ font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
 #### 防抖与节流
 
 ```javascript
-import { debounce, throttle } from '@/utils/performanceOptimizer'
+import { debounce, throttle } from '@/utils/performanceOptimizer';
 
 // 搜索输入防抖
-const handleSearch = debounce((value) => {
-  console.log('搜索:', value)
-}, 500)
+const handleSearch = debounce(value => {
+  console.log('搜索:', value);
+}, 500);
 
 // 滚动事件节流
 const handleScroll = throttle(() => {
-  console.log('滚动位置:', window.scrollY)
-}, 200)
+  console.log('滚动位置:', window.scrollY);
+}, 200);
 ```
 
 ### 4. 网络优化
@@ -990,25 +956,25 @@ const handleScroll = throttle(() => {
 #### 请求缓存
 
 ```javascript
-import { useRequestCache } from '@/utils/performanceOptimizer'
+import { useRequestCache } from '@/utils/performanceOptimizer';
 
-const { cachedFetch } = useRequestCache()
+const { cachedFetch } = useRequestCache();
 
 // 缓存请求结果（1分钟）
 const data = await cachedFetch('announcements', fetchAnnouncements, {
-  ttl: 60000
-})
+  ttl: 60000,
+});
 ```
 
 #### 请求去重
 
 ```javascript
-import { useRequestDeduplication } from '@/utils/performanceOptimizer'
+import { useRequestDeduplication } from '@/utils/performanceOptimizer';
 
-const { deduplicatedFetch } = useRequestDeduplication()
+const { deduplicatedFetch } = useRequestDeduplication();
 
 // 相同请求只发送一次
-const data = await deduplicatedFetch('user-info', fetchUserInfo)
+const data = await deduplicatedFetch('user-info', fetchUserInfo);
 ```
 
 ---
@@ -1048,13 +1014,13 @@ lighthouse http://localhost:3006 --view
 
 #### 性能指标目标
 
-| 指标 | 目标值 | 说明 |
-|------|--------|------|
-| **FCP** | < 1.8s | 首次内容绘制 |
-| **LCP** | < 2.5s | 最大内容绘制 |
+| 指标    | 目标值  | 说明         |
+| ------- | ------- | ------------ |
+| **FCP** | < 1.8s  | 首次内容绘制 |
+| **LCP** | < 2.5s  | 最大内容绘制 |
 | **FID** | < 100ms | 首次输入延迟 |
-| **CLS** | < 0.1 | 累积布局偏移 |
-| **TTI** | < 3.8s | 可交互时间 |
+| **CLS** | < 0.1   | 累积布局偏移 |
+| **TTI** | < 3.8s  | 可交互时间   |
 
 ### 3. 离线功能测试
 
@@ -1153,11 +1119,11 @@ VITE_WS_BASE_URL=wss://your-domain.com
 ```javascript
 // 在 main.js 中
 register({
-  onUpdate: (registration) => {
-    registration.waiting.postMessage({ type: 'SKIP_WAITING' })
-    window.location.reload()
-  }
-})
+  onUpdate: registration => {
+    registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+    window.location.reload();
+  },
+});
 ```
 
 ### Q2: 离线队列不同步？
@@ -1167,9 +1133,9 @@ register({
 ```javascript
 // 监听网络状态
 window.addEventListener('online', () => {
-  console.log('网络已连接，开始同步')
-  offlineService.syncQueue()
-})
+  console.log('网络已连接，开始同步');
+  offlineService.syncQueue();
+});
 ```
 
 ### Q3: 图片加载慢？
@@ -1177,11 +1143,7 @@ window.addEventListener('online', () => {
 **A**: 使用懒加载和响应式图片
 
 ```vue
-<img v-lazy="responsiveImageUrl" alt="图片">
-
-<script setup>
-const responsiveImageUrl = getResponsiveImageUrl(originalUrl, 400, 300)
-</script>
+<img v-lazy="responsiveImageUrl" alt="图片" />
 ```
 
 ### Q4: 字体太小，老年人看不清？
@@ -1190,10 +1152,10 @@ const responsiveImageUrl = getResponsiveImageUrl(originalUrl, 400, 300)
 
 ```javascript
 // 全局启用
-document.body.classList.add('elderly-mode')
+document.body.classList.add('elderly-mode');
 
 // 或在设置中切换
-localStorage.setItem('elderly-mode', 'true')
+localStorage.setItem('elderly-mode', 'true');
 ```
 
 ### Q5: 语音识别不准确？
@@ -1204,8 +1166,8 @@ localStorage.setItem('elderly-mode', 'true')
 // 使用自动方言检测
 const result = await speechApi.recognize(audioBlob, {
   dialect: 'auto',
-  domain: 'village'  // 乡村领域优化
-})
+  domain: 'village', // 乡村领域优化
+});
 ```
 
 ### Q6: 虚拟列表不渲染？
@@ -1214,8 +1176,8 @@ const result = await speechApi.recognize(audioBlob, {
 
 ```javascript
 // 确保设置正确的容器高度
-const containerHeight = ref(600)
-const itemHeight = ref(80)
+const containerHeight = ref(600);
+const itemHeight = ref(80);
 ```
 
 ### Q7: IndexedDB 存储满了？
@@ -1224,12 +1186,12 @@ const itemHeight = ref(80)
 
 ```javascript
 // 清理过期缓存
-await offlineService.cleanExpiredCache()
+await offlineService.cleanExpiredCache();
 
 // 检查存储使用情况
-const usage = await offlineService.getStorageUsage()
+const usage = await offlineService.getStorageUsage();
 if (usage.usagePercent > 80) {
-  alert('存储空间不足，请清理缓存')
+  alert('存储空间不足，请清理缓存');
 }
 ```
 

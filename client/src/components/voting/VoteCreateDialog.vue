@@ -124,11 +124,7 @@
         <el-col :span="24">
           <el-form-item label="投票选项" prop="options">
             <div class="options-container">
-              <div
-                v-for="(option, index) in voteForm.options"
-                :key="index"
-                class="option-item"
-              >
+              <div v-for="(option, index) in voteForm.options" :key="index" class="option-item">
                 <div class="option-header">
                   <span class="option-label">{{ String.fromCharCode(65 + index) }}</span>
                   <el-button
@@ -196,13 +192,7 @@
               @blur="addTag"
               style="width: 100px"
             ></el-input>
-            <el-button
-              v-else
-              size="small"
-              @click="showTagInput"
-            >
-              + 添加标签
-            </el-button>
+            <el-button v-else size="small" @click="showTagInput"> + 添加标签 </el-button>
           </el-form-item>
         </el-col>
       </el-row>
@@ -210,23 +200,21 @@
 
     <div slot="footer" class="dialog-footer">
       <el-button @click="handleClose">取 消</el-button>
-      <el-button type="primary" @click="submitVote" :loading="submitting">
-        创建投票
-      </el-button>
+      <el-button type="primary" @click="submitVote" :loading="submitting"> 创建投票 </el-button>
     </div>
   </el-dialog>
 </template>
 
 <script>
-import { votingAPI } from '@/api/voting'
+import { votingAPI } from '@/api/voting';
 
 export default {
   name: 'VoteCreateDialog',
   props: {
     visible: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   data() {
     return {
@@ -245,81 +233,69 @@ export default {
         endTime: '',
         options: [
           { title: '', description: '' },
-          { title: '', description: '' }
+          { title: '', description: '' },
         ],
         allowChangeVote: false,
         requireComment: false,
         showResultsBeforeEnd: false,
         showVoterNames: false,
-        tags: []
+        tags: [],
       },
       voteRules: {
         title: [
           { required: true, message: '请输入投票标题', trigger: 'blur' },
-          { min: 1, max: 200, message: '标题长度在 1 到 200 个字符', trigger: 'blur' }
+          { min: 1, max: 200, message: '标题长度在 1 到 200 个字符', trigger: 'blur' },
         ],
         description: [
           { required: true, message: '请输入投票描述', trigger: 'blur' },
-          { min: 1, max: 2000, message: '描述长度在 1 到 2000 个字符', trigger: 'blur' }
+          { min: 1, max: 2000, message: '描述长度在 1 到 2000 个字符', trigger: 'blur' },
         ],
-        category: [
-          { required: true, message: '请选择投票分类', trigger: 'change' }
-        ],
-        voteType: [
-          { required: true, message: '请选择投票类型', trigger: 'change' }
-        ],
-        anonymousType: [
-          { required: true, message: '请选择匿名设置', trigger: 'change' }
-        ],
-        eligibleVoters: [
-          { required: true, message: '请选择选民范围', trigger: 'change' }
-        ],
-        startTime: [
-          { required: true, message: '请选择开始时间', trigger: 'change' }
-        ],
-        endTime: [
-          { required: true, message: '请选择结束时间', trigger: 'change' }
-        ],
+        category: [{ required: true, message: '请选择投票分类', trigger: 'change' }],
+        voteType: [{ required: true, message: '请选择投票类型', trigger: 'change' }],
+        anonymousType: [{ required: true, message: '请选择匿名设置', trigger: 'change' }],
+        eligibleVoters: [{ required: true, message: '请选择选民范围', trigger: 'change' }],
+        startTime: [{ required: true, message: '请选择开始时间', trigger: 'change' }],
+        endTime: [{ required: true, message: '请选择结束时间', trigger: 'change' }],
         options: [
           {
             required: true,
             validator: this.validateOptions,
-            trigger: 'change'
-          }
-        ]
-      }
-    }
+            trigger: 'change',
+          },
+        ],
+      },
+    };
   },
   computed: {
     dialogVisible: {
       get() {
-        return this.visible
+        return this.visible;
       },
       set(val) {
-        this.$emit('update:visible', val)
-      }
-    }
+        this.$emit('update:visible', val);
+      },
+    },
   },
   watch: {
     visible(newVal) {
       if (newVal) {
-        this.initForm()
+        this.initForm();
       }
-    }
+    },
   },
   methods: {
     initForm() {
       // 设置默认时间
-      const now = new Date()
-      const startTime = new Date(now.getTime() + 60 * 60 * 1000) // 1小时后开始
-      const endTime = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000) // 7天后结束
+      const now = new Date();
+      const startTime = new Date(now.getTime() + 60 * 60 * 1000); // 1小时后开始
+      const endTime = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 7天后结束
 
-      this.voteForm.startTime = this.formatDateTime(startTime)
-      this.voteForm.endTime = this.formatDateTime(endTime)
+      this.voteForm.startTime = this.formatDateTime(startTime);
+      this.voteForm.endTime = this.formatDateTime(endTime);
     },
 
     formatDateTime(date) {
-      return date.toISOString().slice(0, 19).replace('T', ' ')
+      return date.toISOString().slice(0, 19).replace('T', ' ');
     },
 
     handleVoteTypeChange(voteType) {
@@ -327,132 +303,132 @@ export default {
         // 是否投票固定两个选项
         this.voteForm.options = [
           { title: '同意', description: '' },
-          { title: '反对', description: '' }
-        ]
+          { title: '反对', description: '' },
+        ];
       }
     },
 
     addOption() {
       if (this.voteForm.options.length < 20) {
-        this.voteForm.options.push({ title: '', description: '' })
+        this.voteForm.options.push({ title: '', description: '' });
       }
     },
 
     removeOption(index) {
       if (this.voteForm.options.length > 2) {
-        this.voteForm.options.splice(index, 1)
+        this.voteForm.options.splice(index, 1);
       }
     },
 
     showTagInput() {
-      this.tagInputVisible = true
+      this.tagInputVisible = true;
       this.$nextTick(() => {
-        this.$refs.tagInput.$refs.input.focus()
-      })
+        this.$refs.tagInput.$refs.input.focus();
+      });
     },
 
     addTag() {
-      const tag = this.tagInputValue.trim()
+      const tag = this.tagInputValue.trim();
       if (tag && !this.voteForm.tags.includes(tag) && this.voteForm.tags.length < 10) {
-        this.voteForm.tags.push(tag)
+        this.voteForm.tags.push(tag);
       }
-      this.tagInputVisible = false
-      this.tagInputValue = ''
+      this.tagInputVisible = false;
+      this.tagInputValue = '';
     },
 
     removeTag(tag) {
-      const index = this.voteForm.tags.indexOf(tag)
+      const index = this.voteForm.tags.indexOf(tag);
       if (index !== -1) {
-        this.voteForm.tags.splice(index, 1)
+        this.voteForm.tags.splice(index, 1);
       }
     },
 
     validateOptions(rule, value, callback) {
       // 检查选项数量
       if (value.length < 2) {
-        callback(new Error('至少需要2个投票选项'))
-        return
+        callback(new Error('至少需要2个投票选项'));
+        return;
       }
 
       if (value.length > 20) {
-        callback(new Error('投票选项不能超过20个'))
-        return
+        callback(new Error('投票选项不能超过20个'));
+        return;
       }
 
       // 检查选项标题
       for (let i = 0; i < value.length; i++) {
         if (!value[i].title.trim()) {
-          callback(new Error(`第${i + 1}个选项标题不能为空`))
-          return
+          callback(new Error(`第${i + 1}个选项标题不能为空`));
+          return;
         }
       }
 
       // 检查重复选项
-      const titles = value.map(opt => opt.title.trim())
-      const uniqueTitles = [...new Set(titles)]
+      const titles = value.map(opt => opt.title.trim());
+      const uniqueTitles = [...new Set(titles)];
       if (titles.length !== uniqueTitles.length) {
-        callback(new Error('选项标题不能重复'))
-        return
+        callback(new Error('选项标题不能重复'));
+        return;
       }
 
-      callback()
+      callback();
     },
 
     async submitVote() {
       // 表单验证
       try {
-        await this.$refs.voteForm.validate()
+        await this.$refs.voteForm.validate();
       } catch (error) {
-        this.$message.error('请检查表单填写')
-        return
+        this.$message.error('请检查表单填写');
+        return;
       }
 
       // 时间验证
-      const startTime = new Date(this.voteForm.startTime)
-      const endTime = new Date(this.voteForm.endTime)
-      const now = new Date()
+      const startTime = new Date(this.voteForm.startTime);
+      const endTime = new Date(this.voteForm.endTime);
+      const now = new Date();
 
       if (startTime < now) {
-        this.$message.error('开始时间不能早于当前时间')
-        return
+        this.$message.error('开始时间不能早于当前时间');
+        return;
       }
 
       if (endTime <= startTime) {
-        this.$message.error('结束时间必须晚于开始时间')
-        return
+        this.$message.error('结束时间必须晚于开始时间');
+        return;
       }
 
       // 提交数据
-      this.submitting = true
+      this.submitting = true;
       try {
         const voteData = {
           ...this.voteForm,
-          options: this.voteForm.options.filter(opt => opt.title.trim())
-        }
+          options: this.voteForm.options.filter(opt => opt.title.trim()),
+        };
 
-        const response = await votingAPI.createVote(voteData)
+        const response = await votingAPI.createVote(voteData);
 
         if (response.data.success) {
-          this.$message.success('投票创建成功')
-          this.$emit('created', response.data.data)
-          this.handleClose()
+          this.$message.success('投票创建成功');
+          this.$emit('created', response.data.data);
+          this.handleClose();
         }
       } catch (error) {
-        const message = error.response?.data?.message || '创建投票失败'
-        this.$message.error(message)
-        console.error(error)
+        const message = error.response?.data?.message || '创建投票失败';
+        this.$message.error(message);
+        console.error(error);
       } finally {
-        this.submitting = false
+        this.submitting = false;
       }
     },
 
     handleClose() {
-      this.dialogVisible = false
-      this.resetForm()
+      this.dialogVisible = false;
+      this.resetForm();
     },
 
     resetForm() {
-      this.$refs.voteForm.resetFields()
+      this.$refs.voteForm.resetFields();
       this.voteForm = {
         title: '',
         description: '',
@@ -465,19 +441,19 @@ export default {
         endTime: '',
         options: [
           { title: '', description: '' },
-          { title: '', description: '' }
+          { title: '', description: '' },
         ],
         allowChangeVote: false,
         requireComment: false,
         showResultsBeforeEnd: false,
         showVoterNames: false,
-        tags: []
-      }
-      this.tagInputVisible = false
-      this.tagInputValue = ''
-    }
-  }
-}
+        tags: [],
+      };
+      this.tagInputVisible = false;
+      this.tagInputValue = '';
+    },
+  },
+};
 </script>
 
 <style scoped>

@@ -87,11 +87,15 @@
             </div>
             <div class="stat-item">
               <span class="stat-label">历史通过率</span>
-              <span class="stat-value success">{{ suggestion.historicalInsight.approvalRate }}%</span>
+              <span class="stat-value success"
+                >{{ suggestion.historicalInsight.approvalRate }}%</span
+              >
             </div>
             <div class="stat-item">
               <span class="stat-label">平均审批时长</span>
-              <span class="stat-value">{{ suggestion.historicalInsight.averageApprovalTime }}h</span>
+              <span class="stat-value"
+                >{{ suggestion.historicalInsight.averageApprovalTime }}h</span
+              >
             </div>
           </div>
           <p class="insight-recommendation">{{ suggestion.historicalInsight.recommendation }}</p>
@@ -108,10 +112,7 @@
               >
                 <div class="case-header">
                   <span class="case-amount">¥{{ formatMoney(case_.amount) }}</span>
-                  <el-tag
-                    :type="case_.approved ? 'success' : 'danger'"
-                    size="small"
-                  >
+                  <el-tag :type="case_.approved ? 'success' : 'danger'" size="small">
                     {{ case_.approved ? '已通过' : '已拒绝' }}
                   </el-tag>
                 </div>
@@ -146,11 +147,7 @@
       <div class="next-steps">
         <h4>📋 建议处理步骤</h4>
         <ol class="steps-list">
-          <li
-            v-for="(step, index) in suggestion.nextSteps"
-            :key="index"
-            class="step-item"
-          >
+          <li v-for="(step, index) in suggestion.nextSteps" :key="index" class="step-item">
             {{ step }}
           </li>
         </ol>
@@ -167,28 +164,13 @@
         >
           一键通过
         </el-button>
-        <el-button
-          type="primary"
-          icon="Edit"
-          @click="startDetailedReview"
-          class="action-btn"
-        >
+        <el-button type="primary" icon="Edit" @click="startDetailedReview" class="action-btn">
           详细审核
         </el-button>
-        <el-button
-          type="warning"
-          icon="More"
-          @click="requestMoreInfo"
-          class="action-btn"
-        >
+        <el-button type="warning" icon="More" @click="requestMoreInfo" class="action-btn">
           补充信息
         </el-button>
-        <el-button
-          type="danger"
-          icon="Close"
-          @click="rejectApplication"
-          class="action-btn"
-        >
+        <el-button type="danger" icon="Close" @click="rejectApplication" class="action-btn">
           拒绝申请
         </el-button>
       </div>
@@ -197,176 +179,182 @@
     <!-- 无建议状态 -->
     <div v-else class="no-suggestion">
       <el-empty description="请选择一个申请以查看AI审批建议">
-        <el-button type="primary" @click="$emit('refresh')">
-          刷新数据
-        </el-button>
+        <el-button type="primary" @click="$emit('refresh')"> 刷新数据 </el-button>
       </el-empty>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ref, watch, computed } from 'vue';
+import { ElMessage } from 'element-plus';
 import {
-  Clock, User, Check, Edit, More, Close,
-  WarningFilled, InfoFilled, SuccessFilled, CircleCheckFilled
-} from '@element-plus/icons-vue'
-import { useSmartApproval } from '@/composables/useSmartApproval'
+  Clock,
+  User,
+  Check,
+  Edit,
+  More,
+  Close,
+  WarningFilled,
+  InfoFilled,
+  SuccessFilled,
+  CircleCheckFilled,
+} from '@element-plus/icons-vue';
+import { useSmartApproval } from '@/composables/useSmartApproval';
 
 // Props
 const props = defineProps({
   application: {
     type: Object,
-    default: null
+    default: null,
   },
   loading: {
     type: Boolean,
-    default: false
-  }
-})
+    default: false,
+  },
+});
 
 // Emits
-const emit = defineEmits(['approve', 'reject', 'request-info', 'start-review', 'refresh'])
+const emit = defineEmits(['approve', 'reject', 'request-info', 'start-review', 'refresh']);
 
 // Composables
-const { calculateApprovalSuggestion } = useSmartApproval()
+const { calculateApprovalSuggestion } = useSmartApproval();
 
 // 响应式数据
-const suggestion = ref(null)
-const activeCollapse = ref([])
+const suggestion = ref(null);
+const activeCollapse = ref([]);
 
 // 计算属性
 const isHighRisk = computed(() => {
-  return suggestion.value && ['high', 'very_high'].includes(suggestion.value.riskLevel)
-})
+  return suggestion.value && ['high', 'very_high'].includes(suggestion.value.riskLevel);
+});
 
 // 监听申请变化，重新计算建议
 watch(
   () => props.application,
-  (newApplication) => {
+  newApplication => {
     if (newApplication) {
       try {
-        suggestion.value = calculateApprovalSuggestion(newApplication)
+        suggestion.value = calculateApprovalSuggestion(newApplication);
       } catch (error) {
-        console.error('计算审批建议失败:', error)
-        ElMessage.error('AI建议计算失败')
+        console.error('计算审批建议失败:', error);
+        ElMessage.error('AI建议计算失败');
       }
     } else {
-      suggestion.value = null
+      suggestion.value = null;
     }
   },
   { immediate: true, deep: true }
-)
+);
 
 // 方法
-const getRiskIcon = (level) => {
+const getRiskIcon = level => {
   const icons = {
     low: 'SuccessFilled',
     medium: 'InfoFilled',
     high: 'WarningFilled',
-    very_high: 'CircleCheckFilled' // 实际应该是一个更严重的图标
-  }
-  return icons[level] || 'InfoFilled'
-}
+    very_high: 'CircleCheckFilled', // 实际应该是一个更严重的图标
+  };
+  return icons[level] || 'InfoFilled';
+};
 
-const getRiskTitle = (level) => {
+const getRiskTitle = level => {
   const titles = {
     low: '低风险',
     medium: '中风险',
     high: '高风险',
-    very_high: '极高风险'
-  }
-  return titles[level] || '未知风险'
-}
+    very_high: '极高风险',
+  };
+  return titles[level] || '未知风险';
+};
 
-const getConfidenceColor = (confidence) => {
-  if (confidence >= 80) return '#67c23a'
-  if (confidence >= 60) return '#e6a23c'
-  return '#f56c6c'
-}
+const getConfidenceColor = confidence => {
+  if (confidence >= 80) return '#67c23a';
+  if (confidence >= 60) return '#e6a23c';
+  return '#f56c6c';
+};
 
-const getActionType = (action) => {
+const getActionType = action => {
   const types = {
     auto_approve: 'success',
     fast_approve: 'primary',
     careful_review: 'warning',
-    detailed_review: 'danger'
-  }
-  return types[action] || 'info'
-}
+    detailed_review: 'danger',
+  };
+  return types[action] || 'info';
+};
 
-const getActionText = (action) => {
+const getActionText = action => {
   const texts = {
     auto_approve: '建议自动通过',
     fast_approve: '建议快速审批',
     careful_review: '建议仔细审核',
-    detailed_review: '建议详细审核'
-  }
-  return texts[action] || '需要审核'
-}
+    detailed_review: '建议详细审核',
+  };
+  return texts[action] || '需要审核';
+};
 
-const getFactorTypeText = (type) => {
+const getFactorTypeText = type => {
   const texts = {
     amount: '金额风险',
     credit: '信用风险',
     category: '类别风险',
     time: '时间风险',
-    frequency: '频率风险'
-  }
-  return texts[type] || '其他风险'
-}
+    frequency: '频率风险',
+  };
+  return texts[type] || '其他风险';
+};
 
-const getFactorLevel = (score) => {
-  if (score >= 70) return 'danger'
-  if (score >= 40) return 'warning'
-  return 'info'
-}
+const getFactorLevel = score => {
+  if (score >= 70) return 'danger';
+  if (score >= 40) return 'warning';
+  return 'info';
+};
 
-const getCategoryText = (category) => {
+const getCategoryText = category => {
   const texts = {
     infrastructure: '基础设施',
     operation: '日常运营',
     culture: '文化活动',
     office: '办公用品',
-    emergency: '应急支出'
-  }
-  return texts[category] || '其他'
-}
+    emergency: '应急支出',
+  };
+  return texts[category] || '其他';
+};
 
-const formatMoney = (amount) => {
-  return new Intl.NumberFormat('zh-CN').format(amount)
-}
+const formatMoney = amount => {
+  return new Intl.NumberFormat('zh-CN').format(amount);
+};
 
 // 快速操作方法
 const quickApprove = () => {
   emit('approve', {
     type: 'quick',
     suggestion: suggestion.value,
-    comment: `AI建议自动通过 (风险评分: ${suggestion.value.riskScore})`
-  })
-}
+    comment: `AI建议自动通过 (风险评分: ${suggestion.value.riskScore})`,
+  });
+};
 
 const startDetailedReview = () => {
   emit('start-review', {
     suggestion: suggestion.value,
-    reviewType: 'detailed'
-  })
-}
+    reviewType: 'detailed',
+  });
+};
 
 const requestMoreInfo = () => {
   emit('request-info', {
     suggestion: suggestion.value,
-    requiredInfo: suggestion.value.nextSteps
-  })
-}
+    requiredInfo: suggestion.value.nextSteps,
+  });
+};
 
 const rejectApplication = () => {
   emit('reject', {
     suggestion: suggestion.value,
-    reason: `风险评分过高 (${suggestion.value.riskScore})`
-  })
-}
+    reason: `风险评分过高 (${suggestion.value.riskScore})`,
+  });
+};
 </script>
 
 <style lang="scss" scoped>
@@ -392,19 +380,27 @@ const rejectApplication = () => {
         gap: 12px;
 
         &.risk-low {
-          .risk-icon { color: #67c23a; }
+          .risk-icon {
+            color: #67c23a;
+          }
         }
 
         &.risk-medium {
-          .risk-icon { color: #e6a23c; }
+          .risk-icon {
+            color: #e6a23c;
+          }
         }
 
         &.risk-high {
-          .risk-icon { color: #f56c6c; }
+          .risk-icon {
+            color: #f56c6c;
+          }
         }
 
         &.risk-very_high {
-          .risk-icon { color: #f56c6c; }
+          .risk-icon {
+            color: #f56c6c;
+          }
         }
 
         .risk-info {

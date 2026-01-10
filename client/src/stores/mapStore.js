@@ -15,15 +15,15 @@ export const useMapStore = defineStore('map', {
       resources: [],
       residents: {
         clusters: [],
-        individuals: []
-      }
+        individuals: [],
+      },
     },
     // 图层显示控制
     layerVisibility: {
       locations: true,
       dangerZones: true,
       resources: true,
-      residents: false
+      residents: false,
     },
     // 当前选中的图层
     currentLayer: 'normal',
@@ -38,21 +38,21 @@ export const useMapStore = defineStore('map', {
     // 用户位置
     userLocation: null,
     // 定位状态
-    locating: false
+    locating: false,
   }),
 
   getters: {
     // 是否正在加载
-    isLoading: (state) => state.loading,
+    isLoading: state => state.loading,
 
     // 获取错误信息
-    getError: (state) => state.error,
+    getError: state => state.error,
 
     // 获取地图配置
-    getMapConfig: (state) => state.mapConfig,
+    getMapConfig: state => state.mapConfig,
 
     // 获取地点统计
-    getLocationStats: (state) => {
+    getLocationStats: state => {
       const locations = state.mapData.locations;
       const stats = {};
       Object.keys(locations).forEach(type => {
@@ -62,7 +62,7 @@ export const useMapStore = defineStore('map', {
     },
 
     // 获取危险区域统计
-    getDangerZoneStats: (state) => {
+    getDangerZoneStats: state => {
       const zones = state.mapData.dangerZones;
       const stats = {
         total: zones.length,
@@ -70,10 +70,10 @@ export const useMapStore = defineStore('map', {
           low: 0,
           medium: 0,
           high: 0,
-          critical: 0
+          critical: 0,
         },
         active: 0,
-        monitoring: 0
+        monitoring: 0,
       };
 
       zones.forEach(zone => {
@@ -86,7 +86,7 @@ export const useMapStore = defineStore('map', {
     },
 
     // 获取应急资源统计
-    getResourceStats: (state) => {
+    getResourceStats: state => {
       const resources = state.mapData.resources;
       const stats = {
         total: resources.length,
@@ -96,8 +96,8 @@ export const useMapStore = defineStore('map', {
           in_use: 0,
           maintenance: 0,
           unavailable: 0,
-          damaged: 0
-        }
+          damaged: 0,
+        },
       };
 
       resources.forEach(resource => {
@@ -115,15 +115,17 @@ export const useMapStore = defineStore('map', {
     },
 
     // 获取在线村民数量
-    getOnlineResidentsCount: (state) => {
-      return state.mapData.residents.individuals.length +
-             state.mapData.residents.clusters.reduce((sum, cluster) => sum + cluster.count, 0);
+    getOnlineResidentsCount: state => {
+      return (
+        state.mapData.residents.individuals.length +
+        state.mapData.residents.clusters.reduce((sum, cluster) => sum + cluster.count, 0)
+      );
     },
 
     // 是否显示某图层
-    isLayerVisible: (state) => (layerType) => {
+    isLayerVisible: state => layerType => {
       return state.layerVisibility[layerType] || false;
-    }
+    },
   },
 
   actions: {
@@ -312,7 +314,7 @@ export const useMapStore = defineStore('map', {
         const response = await mapApi.checkLocationInDangerZone({
           villageId,
           longitude,
-          latitude
+          latitude,
         });
         return response.data;
       } catch (error) {
@@ -393,7 +395,7 @@ export const useMapStore = defineStore('map', {
         const response = await mapApi.findNearbyResources({
           longitude,
           latitude,
-          maxDistance
+          maxDistance,
         });
         return response.data;
       } catch (error) {
@@ -413,7 +415,7 @@ export const useMapStore = defineStore('map', {
         const response = await mapApi.updateResidentLocation({
           longitude,
           latitude,
-          ...options
+          ...options,
         });
         return response.data;
       } catch (error) {
@@ -451,7 +453,7 @@ export const useMapStore = defineStore('map', {
           villageId,
           longitude,
           latitude,
-          radius
+          radius,
         });
         return response.data;
       } catch (error) {
@@ -525,14 +527,14 @@ export const useMapStore = defineStore('map', {
         resources: [],
         residents: {
           clusters: [],
-          individuals: []
-        }
+          individuals: [],
+        },
       };
       this.layerVisibility = {
         locations: true,
         dangerZones: true,
         resources: true,
-        residents: false
+        residents: false,
       };
       this.currentLayer = 'normal';
       this.loading = false;
@@ -541,8 +543,8 @@ export const useMapStore = defineStore('map', {
       this.searchResults = [];
       this.userLocation = null;
       this.locating = false;
-    }
-  }
+    },
+  },
 });
 
 export default useMapStore;

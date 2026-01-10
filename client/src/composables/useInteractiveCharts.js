@@ -17,15 +17,21 @@ export function useInteractiveCharts() {
     animation: {
       duration: 800,
       easing: 'cubicOut',
-      delay: 100
+      delay: 100,
     },
     // 主题配置
     theme: {
       colorPalette: [
-        '#5470c6', '#91cc75', '#fac858', '#ee6666',
-        '#73c0de', '#3ba272', '#fc8452', '#9a60b4'
+        '#5470c6',
+        '#91cc75',
+        '#fac858',
+        '#ee6666',
+        '#73c0de',
+        '#3ba272',
+        '#fc8452',
+        '#9a60b4',
       ],
-      backgroundColor: 'transparent'
+      backgroundColor: 'transparent',
     },
     // 交互配置
     interaction: {
@@ -33,16 +39,16 @@ export function useInteractiveCharts() {
         enabled: true,
         trigger: 'axis',
         showContent: true,
-        alwaysShowContent: false
+        alwaysShowContent: false,
       },
       dataZoom: {
         enabled: true,
-        type: 'inside'
+        type: 'inside',
       },
       brush: {
-        enabled: false
-      }
-    }
+        enabled: false,
+      },
+    },
   });
 
   // 图表数据处理
@@ -64,7 +70,7 @@ export function useInteractiveCharts() {
   };
 
   // 线性图数据处理
-  const processLineData = (data) => {
+  const processLineData = data => {
     return {
       xAxis: {
         type: 'category',
@@ -72,14 +78,14 @@ export function useInteractiveCharts() {
         boundaryGap: false,
         axisLine: { lineStyle: { color: '#e4e7ed' } },
         axisTick: { show: false },
-        axisLabel: { color: '#606266', fontSize: 12 }
+        axisLabel: { color: '#606266', fontSize: 12 },
       },
       yAxis: {
         type: 'value',
         axisLine: { show: false },
         axisTick: { show: false },
         axisLabel: { color: '#606266', fontSize: 12 },
-        splitLine: { lineStyle: { color: '#f5f7fa', type: 'dashed' } }
+        splitLine: { lineStyle: { color: '#f5f7fa', type: 'dashed' } },
       },
       series: data.series.map((serie, index) => ({
         name: serie.name,
@@ -92,34 +98,34 @@ export function useInteractiveCharts() {
         areaStyle: {
           opacity: 0.3,
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: `${chartConfig.theme.colorPalette[index]  }40` },
-            { offset: 1, color: `${chartConfig.theme.colorPalette[index]  }10` }
-          ])
+            { offset: 0, color: `${chartConfig.theme.colorPalette[index]}40` },
+            { offset: 1, color: `${chartConfig.theme.colorPalette[index]}10` },
+          ]),
         },
         emphasis: {
           focus: 'series',
-          blurScope: 'coordinateSystem'
-        }
-      }))
+          blurScope: 'coordinateSystem',
+        },
+      })),
     };
   };
 
   // 柱状图数据处理
-  const processBarData = (data) => {
+  const processBarData = data => {
     return {
       xAxis: {
         type: 'category',
         data: data.categories || [],
         axisLine: { lineStyle: { color: '#e4e7ed' } },
         axisTick: { show: false },
-        axisLabel: { color: '#606266', fontSize: 12 }
+        axisLabel: { color: '#606266', fontSize: 12 },
       },
       yAxis: {
         type: 'value',
         axisLine: { show: false },
         axisTick: { show: false },
         axisLabel: { color: '#606266', fontSize: 12 },
-        splitLine: { lineStyle: { color: '#f5f7fa', type: 'dashed' } }
+        splitLine: { lineStyle: { color: '#f5f7fa', type: 'dashed' } },
       },
       series: data.series.map((serie, index) => ({
         name: serie.name,
@@ -130,73 +136,75 @@ export function useInteractiveCharts() {
           borderRadius: [4, 4, 0, 0],
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
             { offset: 0, color: chartConfig.theme.colorPalette[index] },
-            { offset: 1, color: `${chartConfig.theme.colorPalette[index]  }80` }
-          ])
+            { offset: 1, color: `${chartConfig.theme.colorPalette[index]}80` },
+          ]),
         },
         emphasis: {
           itemStyle: {
             shadowBlur: 10,
-            shadowColor: 'rgba(0, 0, 0, 0.3)'
-          }
-        }
-      }))
+            shadowColor: 'rgba(0, 0, 0, 0.3)',
+          },
+        },
+      })),
     };
   };
 
   // 饼图数据处理
-  const processPieData = (data) => {
+  const processPieData = data => {
     return {
-      series: [{
-        type: 'pie',
-        radius: ['40%', '70%'],
-        center: ['50%', '50%'],
-        data: data.map((item, index) => ({
-          value: item.value,
-          name: item.name,
-          itemStyle: {
-            color: chartConfig.theme.colorPalette[index % chartConfig.theme.colorPalette.length],
-            borderRadius: 8,
-            borderColor: '#fff',
-            borderWidth: 2
-          },
-          emphasis: {
+      series: [
+        {
+          type: 'pie',
+          radius: ['40%', '70%'],
+          center: ['50%', '50%'],
+          data: data.map((item, index) => ({
+            value: item.value,
+            name: item.name,
             itemStyle: {
-              shadowBlur: 20,
-              shadowColor: 'rgba(0, 0, 0, 0.3)',
-              scale: 1.1
+              color: chartConfig.theme.colorPalette[index % chartConfig.theme.colorPalette.length],
+              borderRadius: 8,
+              borderColor: '#fff',
+              borderWidth: 2,
             },
-            label: {
-              show: true,
-              fontSize: 14,
-              fontWeight: 'bold'
-            }
-          }
-        })),
-        labelLine: {
-          show: true,
-          length: 15,
-          length2: 15
+            emphasis: {
+              itemStyle: {
+                shadowBlur: 20,
+                shadowColor: 'rgba(0, 0, 0, 0.3)',
+                scale: 1.1,
+              },
+              label: {
+                show: true,
+                fontSize: 14,
+                fontWeight: 'bold',
+              },
+            },
+          })),
+          labelLine: {
+            show: true,
+            length: 15,
+            length2: 15,
+          },
+          label: {
+            show: true,
+            formatter: '{b}\n{d}%',
+            fontSize: 12,
+            color: '#606266',
+          },
         },
-        label: {
-          show: true,
-          formatter: '{b}\n{d}%',
-          fontSize: 12,
-          color: '#606266'
-        }
-      }]
+      ],
     };
   };
 
   // 散点图数据处理
-  const processScatterData = (data) => {
+  const processScatterData = data => {
     return {
       xAxis: {
         type: 'value',
-        splitLine: { lineStyle: { color: '#f5f7fa', type: 'dashed' } }
+        splitLine: { lineStyle: { color: '#f5f7fa', type: 'dashed' } },
       },
       yAxis: {
         type: 'value',
-        splitLine: { lineStyle: { color: '#f5f7fa', type: 'dashed' } }
+        splitLine: { lineStyle: { color: '#f5f7fa', type: 'dashed' } },
       },
       series: data.series.map((serie, index) => ({
         name: serie.name,
@@ -205,31 +213,31 @@ export function useInteractiveCharts() {
         symbolSize: 10,
         itemStyle: {
           color: chartConfig.theme.colorPalette[index],
-          opacity: 0.8
+          opacity: 0.8,
         },
         emphasis: {
           itemStyle: {
             shadowBlur: 10,
             shadowColor: 'rgba(0, 0, 0, 0.3)',
-            scale: 1.3
-          }
-        }
-      }))
+            scale: 1.3,
+          },
+        },
+      })),
     };
   };
 
   // 热力图数据处理
-  const processHeatmapData = (data) => {
+  const processHeatmapData = data => {
     return {
       xAxis: {
         type: 'category',
         data: data.xCategories || [],
-        splitArea: { show: true }
+        splitArea: { show: true },
       },
       yAxis: {
         type: 'category',
         data: data.yCategories || [],
-        splitArea: { show: true }
+        splitArea: { show: true },
       },
       visualMap: {
         min: data.min || 0,
@@ -237,20 +245,22 @@ export function useInteractiveCharts() {
         calculable: true,
         realtime: false,
         inRange: {
-          color: ['#50a3ba', '#eac736', '#d94e5d']
-        }
+          color: ['#50a3ba', '#eac736', '#d94e5d'],
+        },
       },
-      series: [{
-        name: data.name || '热力图',
-        type: 'heatmap',
-        data: data.data,
-        emphasis: {
-          itemStyle: {
-            shadowBlur: 10,
-            shadowColor: 'rgba(0, 0, 0, 0.5)'
-          }
-        }
-      }]
+      series: [
+        {
+          name: data.name || '热力图',
+          type: 'heatmap',
+          data: data.data,
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowColor: 'rgba(0, 0, 0, 0.5)',
+            },
+          },
+        },
+      ],
     };
   };
 
@@ -274,7 +284,7 @@ export function useInteractiveCharts() {
       // 创建新实例
       const chart = echarts.init(container, 'light', {
         renderer: 'canvas',
-        useDirtyRect: true
+        useDirtyRect: true,
       });
 
       // 处理数据
@@ -295,24 +305,24 @@ export function useInteractiveCharts() {
           textStyle: { color: '#fff', fontSize: 12 },
           padding: [8, 12],
           extraCssText: 'border-radius: 6px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);',
-          formatter: options.tooltipFormatter || null
+          formatter: options.tooltipFormatter || null,
         },
         legend: {
           show: options.showLegend !== false,
           top: 'top',
           left: 'center',
           textStyle: { color: '#606266', fontSize: 12 },
-          itemGap: 20
+          itemGap: 20,
         },
         grid: {
           left: '3%',
           right: '4%',
           bottom: '3%',
           top: options.showLegend !== false ? '12%' : '3%',
-          containLabel: true
+          containLabel: true,
         },
         ...processedData,
-        ...options.extraConfig
+        ...options.extraConfig,
       };
 
       // 应用配置
@@ -358,7 +368,7 @@ export function useInteractiveCharts() {
 
     // 数据缩放事件
     if (chartConfig.interaction.dataZoom.enabled) {
-      chart.on('datazoom', (params) => {
+      chart.on('datazoom', params => {
         if (interactions.onDataZoom) {
           interactions.onDataZoom(params);
         }
@@ -366,7 +376,7 @@ export function useInteractiveCharts() {
     }
 
     // 图例选择事件
-    chart.on('legendselectchanged', (params) => {
+    chart.on('legendselectchanged', params => {
       if (interactions.onLegendSelect) {
         interactions.onLegendSelect(params);
       }
@@ -374,7 +384,7 @@ export function useInteractiveCharts() {
 
     // 刷选事件
     if (chartConfig.interaction.brush.enabled) {
-      chart.on('brushSelected', (params) => {
+      chart.on('brushSelected', params => {
         if (interactions.onBrushSelect) {
           interactions.onBrushSelect(params);
         }
@@ -393,10 +403,13 @@ export function useInteractiveCharts() {
     try {
       const processedData = processChartData(newData, options.chartType || 'line');
 
-      chart.setOption({
-        ...processedData,
-        ...options.extraConfig
-      }, options.notMerge || false);
+      chart.setOption(
+        {
+          ...processedData,
+          ...options.extraConfig,
+        },
+        options.notMerge || false
+      );
 
       return true;
     } catch (error) {
@@ -407,7 +420,7 @@ export function useInteractiveCharts() {
   };
 
   // 调整图表大小
-  const resizeChart = (container) => {
+  const resizeChart = container => {
     const chart = chartInstances.value.get(container);
     if (chart) {
       chart.resize();
@@ -415,7 +428,7 @@ export function useInteractiveCharts() {
   };
 
   // 销毁图表
-  const disposeChart = (container) => {
+  const disposeChart = container => {
     const chart = chartInstances.value.get(container);
     if (chart) {
       chart.dispose();
@@ -441,7 +454,7 @@ export function useInteractiveCharts() {
       const dataURL = chart.getDataURL({
         type: options.type || 'png',
         pixelRatio: options.pixelRatio || 2,
-        backgroundColor: options.backgroundColor || '#fff'
+        backgroundColor: options.backgroundColor || '#fff',
       });
 
       // 自动下载
@@ -460,7 +473,7 @@ export function useInteractiveCharts() {
   };
 
   // 图表主题切换
-  const switchTheme = (themeName) => {
+  const switchTheme = themeName => {
     chartInstances.value.forEach(chart => {
       chart.dispose();
     });
@@ -469,21 +482,33 @@ export function useInteractiveCharts() {
     // 更新主题配置
     if (themeName === 'dark') {
       chartConfig.theme.colorPalette = [
-        '#4992ff', '#7cffb2', '#fddd60', '#ff6e76',
-        '#58d9f9', '#05c091', '#ff8a45', '#8d48e3'
+        '#4992ff',
+        '#7cffb2',
+        '#fddd60',
+        '#ff6e76',
+        '#58d9f9',
+        '#05c091',
+        '#ff8a45',
+        '#8d48e3',
       ];
       chartConfig.theme.backgroundColor = '#1a1a1a';
     } else {
       chartConfig.theme.colorPalette = [
-        '#5470c6', '#91cc75', '#fac858', '#ee6666',
-        '#73c0de', '#3ba272', '#fc8452', '#9a60b4'
+        '#5470c6',
+        '#91cc75',
+        '#fac858',
+        '#ee6666',
+        '#73c0de',
+        '#3ba272',
+        '#fc8452',
+        '#9a60b4',
       ];
       chartConfig.theme.backgroundColor = 'transparent';
     }
   };
 
   // 图表动画控制
-  const toggleAnimation = (enabled) => {
+  const toggleAnimation = enabled => {
     chartConfig.animation.duration = enabled ? 800 : 0;
   };
 
@@ -515,6 +540,6 @@ export function useInteractiveCharts() {
     processBarData,
     processPieData,
     processScatterData,
-    processHeatmapData
+    processHeatmapData,
   };
 }

@@ -104,9 +104,7 @@
             accept="image/*,video/*,.pdf,.doc,.docx"
           >
             <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-            <div class="el-upload__text">
-              将文件拖到此处，或<em>点击上传</em>
-            </div>
+            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
             <template #tip>
               <div class="el-upload__tip">
                 支持图片、视频、PDF、Word文档，单个文件不超过10MB，最多5个文件
@@ -143,31 +141,19 @@
             @keyup.enter="handleInputConfirm"
             @blur="handleInputConfirm"
           />
-          <el-button
-            v-else
-            class="button-new-tag"
-            size="small"
-            @click="showInput"
-          >
+          <el-button v-else class="button-new-tag" size="small" @click="showInput">
             + 新标签
           </el-button>
         </el-form-item>
 
         <!-- 联系方式 -->
         <el-form-item label="联系方式（选填）">
-          <el-input
-            v-model="feedbackForm.contact"
-            placeholder="手机号或邮箱，方便我们与您联系"
-          />
+          <el-input v-model="feedbackForm.contact" placeholder="手机号或邮箱，方便我们与您联系" />
         </el-form-item>
 
         <!-- 操作按钮 -->
         <el-form-item>
-          <el-button
-            type="primary"
-            :loading="submitting"
-            @click="submitFeedback"
-          >
+          <el-button type="primary" :loading="submitting" @click="submitFeedback">
             提交反馈
           </el-button>
           <el-button @click="resetForm">重置</el-button>
@@ -200,11 +186,7 @@
                 {{ getStatusText(item.status) }}
               </el-tag>
             </div>
-            <el-button
-              type="text"
-              size="small"
-              @click="viewFeedbackDetail(item.feedbackId)"
-            >
+            <el-button type="text" size="small" @click="viewFeedbackDetail(item.feedbackId)">
               查看详情
             </el-button>
           </div>
@@ -231,19 +213,19 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, nextTick } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { UploadFilled } from '@element-plus/icons-vue'
-import { useRouter } from 'vue-router'
-import userFeedbackService from '@/services/userFeedbackService'
-import { validateInput, sanitizeHtml, escapeHtml } from '@/utils/xssProtection'
+import { ref, reactive, onMounted, nextTick } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { UploadFilled } from '@element-plus/icons-vue';
+import { useRouter } from 'vue-router';
+import userFeedbackService from '@/services/userFeedbackService';
+import { validateInput, sanitizeHtml, escapeHtml } from '@/utils/xssProtection';
 
-const router = useRouter()
+const router = useRouter();
 
 // 表单引用
-const feedbackFormRef = ref(null)
-const uploadRef = ref(null)
-const inputRef = ref(null)
+const feedbackFormRef = ref(null);
+const uploadRef = ref(null);
+const inputRef = ref(null);
 
 // 表单数据
 const feedbackForm = reactive({
@@ -253,23 +235,21 @@ const feedbackForm = reactive({
   severity: 'medium',
   tags: [],
   contact: '',
-  attachments: []
-})
+  attachments: [],
+});
 
 // 表单验证规则
 const feedbackRules = {
-  category: [
-    { required: true, message: '请选择反馈类型', trigger: 'change' }
-  ],
+  category: [{ required: true, message: '请选择反馈类型', trigger: 'change' }],
   title: [
     { required: true, message: '请填写反馈标题', trigger: 'blur' },
-    { min: 5, max: 100, message: '标题长度在 5 到 100 个字符', trigger: 'blur' }
+    { min: 5, max: 100, message: '标题长度在 5 到 100 个字符', trigger: 'blur' },
   ],
   description: [
     { required: true, message: '请填写详细描述', trigger: 'blur' },
-    { min: 10, max: 2000, message: '描述长度在 10 到 2000 个字符', trigger: 'blur' }
-  ]
-}
+    { min: 10, max: 2000, message: '描述长度在 10 到 2000 个字符', trigger: 'blur' },
+  ],
+};
 
 // 分类选项
 const categoryOptions = [
@@ -279,59 +259,77 @@ const categoryOptions = [
   { value: 'complaint', label: '投诉', description: '服务或产品投诉' },
   { value: 'compliment', label: '表扬', description: '正面反馈和建议' },
   { value: 'question', label: '咨询', description: '使用问题咨询' },
-  { value: 'usage_difficulty', label: '使用困难', description: '操作复杂或不清晰' }
-]
+  { value: 'usage_difficulty', label: '使用困难', description: '操作复杂或不清晰' },
+];
 
 // 状态变量
-const submitting = ref(false)
-const uploadProgress = ref(0)
-const feedbackHistory = ref([])
-const suggestedCategory = ref({ category: '', confidence: 0 })
+const submitting = ref(false);
+const uploadProgress = ref(0);
+const feedbackHistory = ref([]);
+const suggestedCategory = ref({ category: '', confidence: 0 });
 
 // 标签输入
-const inputVisible = ref(false)
-const inputValue = ref('')
+const inputVisible = ref(false);
+const inputValue = ref('');
 
 // 快速反馈选项
 const quickFeedbackOptions = [
-  { type: 'danger', label: '系统崩溃', icon: 'Warning', category: 'bug_report', severity: 'critical' },
-  { type: 'warning', label: '功能异常', icon: 'CircleClose', category: 'bug_report', severity: 'high' },
-  { type: 'info', label: '功能建议', icon: 'Plus', category: 'feature_request', severity: 'medium' },
-  { type: 'success', label: '使用体验', icon: 'Star', category: 'improvement', severity: 'low' }
-]
+  {
+    type: 'danger',
+    label: '系统崩溃',
+    icon: 'Warning',
+    category: 'bug_report',
+    severity: 'critical',
+  },
+  {
+    type: 'warning',
+    label: '功能异常',
+    icon: 'CircleClose',
+    category: 'bug_report',
+    severity: 'high',
+  },
+  {
+    type: 'info',
+    label: '功能建议',
+    icon: 'Plus',
+    category: 'feature_request',
+    severity: 'medium',
+  },
+  { type: 'success', label: '使用体验', icon: 'Star', category: 'improvement', severity: 'low' },
+];
 
 // 组件挂载时
 onMounted(() => {
-  loadFeedbackHistory()
-  loadDraft()
+  loadFeedbackHistory();
+  loadDraft();
 
   // 设置上传进度回调
   userFeedbackService.setProgressCallback((type, progress) => {
     if (type === 'submit') {
-      uploadProgress.value = progress
+      uploadProgress.value = progress;
     }
-  })
-})
+  });
+});
 
 // 分类改变
 const onCategoryChange = () => {
   // 根据分类设置默认严重程度
   if (feedbackForm.category === 'bug_report') {
-    feedbackForm.severity = 'high'
+    feedbackForm.severity = 'high';
   } else if (feedbackForm.category === 'compliment') {
-    feedbackForm.severity = 'low'
+    feedbackForm.severity = 'low';
   }
-}
+};
 
 // 标题输入
 const onTitleInput = () => {
-  updateSuggestedCategory()
-}
+  updateSuggestedCategory();
+};
 
 // 描述输入
 const onDescriptionInput = () => {
-  updateSuggestedCategory()
-}
+  updateSuggestedCategory();
+};
 
 // 更新智能分类建议
 const updateSuggestedCategory = () => {
@@ -339,95 +337,104 @@ const updateSuggestedCategory = () => {
     suggestedCategory.value = userFeedbackService.suggestCategory(
       feedbackForm.title,
       feedbackForm.description
-    )
+    );
   }
-}
+};
 
 // 应用建议分类
 const applySuggestedCategory = () => {
-  feedbackForm.category = suggestedCategory.value.category
-  onCategoryChange()
-}
+  feedbackForm.category = suggestedCategory.value.category;
+  onCategoryChange();
+};
 
 // 文件改变
-const handleFileChange = (file) => {
+const handleFileChange = file => {
   if (file.raw) {
     feedbackForm.attachments.push({
       name: file.name,
       file: file.raw,
       size: file.size,
-      type: file.raw.type
-    })
+      type: file.raw.type,
+    });
   }
-}
+};
 
 // 文件移除
-const handleFileRemove = (file) => {
-  const index = feedbackForm.attachments.findIndex(item => item.name === file.name)
+const handleFileRemove = file => {
+  const index = feedbackForm.attachments.findIndex(item => item.name === file.name);
   if (index > -1) {
-    feedbackForm.attachments.splice(index, 1)
+    feedbackForm.attachments.splice(index, 1);
   }
-}
+};
 
 // 上传前验证
-const beforeUpload = (file) => {
-  const isValidType = ['image/jpeg', 'image/png', 'image/gif', 'video/mp4', 'video/avi', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'].includes(file.type)
-  const isValidSize = file.size / 1024 / 1024 < 10
+const beforeUpload = file => {
+  const isValidType = [
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'video/mp4',
+    'video/avi',
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  ].includes(file.type);
+  const isValidSize = file.size / 1024 / 1024 < 10;
 
   if (!isValidType) {
-    ElMessage.error('不支持的文件类型')
-    return false
+    ElMessage.error('不支持的文件类型');
+    return false;
   }
   if (!isValidSize) {
-    ElMessage.error('文件大小不能超过 10MB')
-    return false
+    ElMessage.error('文件大小不能超过 10MB');
+    return false;
   }
 
-  return false // 阻止自动上传
-}
+  return false; // 阻止自动上传
+};
 
 // 标签相关方法
 const showInput = () => {
-  inputVisible.value = true
+  inputVisible.value = true;
   nextTick(() => {
-    inputRef.value.focus()
-  })
-}
+    inputRef.value.focus();
+  });
+};
 
 const handleInputConfirm = () => {
   if (inputValue.value && !feedbackForm.tags.includes(inputValue.value)) {
-    feedbackForm.tags.push(inputValue.value)
+    feedbackForm.tags.push(inputValue.value);
   }
-  inputVisible.value = false
-  inputValue.value = ''
-}
+  inputVisible.value = false;
+  inputValue.value = '';
+};
 
-const removeTag = (tag) => {
-  const index = feedbackForm.tags.indexOf(tag)
+const removeTag = tag => {
+  const index = feedbackForm.tags.indexOf(tag);
   if (index > -1) {
-    feedbackForm.tags.splice(index, 1)
+    feedbackForm.tags.splice(index, 1);
   }
-}
+};
 
 // 提交反馈
 const submitFeedback = async () => {
   try {
     // 表单验证
-    await feedbackFormRef.value.validate()
+    await feedbackFormRef.value.validate();
 
-    submitting.value = true
+    submitting.value = true;
 
     // XSS安全验证
-    const titleValidation = validateInput(feedbackForm.title)
+    const titleValidation = validateInput(feedbackForm.title);
     if (!titleValidation.valid) {
-      ElMessage.error('标题包含不安全内容，请修改后重试')
-      return
+      ElMessage.error('标题包含不安全内容，请修改后重试');
+      return;
     }
 
-    const descriptionValidation = validateInput(feedbackForm.description)
+    const descriptionValidation = validateInput(feedbackForm.description);
     if (!descriptionValidation.valid) {
-      ElMessage.error('描述包含不安全内容，请修改后重试')
-      return
+      ElMessage.error('描述包含不安全内容，请修改后重试');
+      return;
     }
 
     // 准备安全的数据
@@ -436,172 +443,169 @@ const submitFeedback = async () => {
       title: escapeHtml(feedbackForm.title),
       description: sanitizeHtml(feedbackForm.description, {
         allowedTags: ['p', 'br', 'strong', 'em', 'u'],
-        allowedAttributes: []
-      })
-    }
+        allowedAttributes: [],
+      }),
+    };
 
     // 提交反馈
     const result = await userFeedbackService.submitFeedback(
       safeFeedbackData,
       feedbackForm.attachments.map(item => item.file)
-    )
+    );
 
-    ElMessage.success('反馈提交成功！我们会尽快处理')
+    ElMessage.success('反馈提交成功！我们会尽快处理');
 
     // 清除草稿
-    localStorage.removeItem('feedback_draft')
+    localStorage.removeItem('feedback_draft');
 
     // 重置表单
-    resetForm()
+    resetForm();
 
     // 更新历史记录
-    await loadFeedbackHistory()
+    await loadFeedbackHistory();
 
     // 跳转到反馈详情
-    router.push(`/feedback/detail/${result.data.feedbackId}`)
-
+    router.push(`/feedback/detail/${result.data.feedbackId}`);
   } catch (error) {
-    console.error('提交反馈失败:', error)
+    console.error('提交反馈失败:', error);
   } finally {
-    submitting.value = false
-    uploadProgress.value = 0
+    submitting.value = false;
+    uploadProgress.value = 0;
   }
-}
+};
 
 // 重置表单
 const resetForm = () => {
-  feedbackFormRef.value.resetFields()
-  feedbackForm.attachments = []
-  feedbackForm.tags = []
-  suggestedCategory.value = { category: '', confidence: 0 }
-  uploadRef.value?.clearFiles()
-}
+  feedbackFormRef.value.resetFields();
+  feedbackForm.attachments = [];
+  feedbackForm.tags = [];
+  suggestedCategory.value = { category: '', confidence: 0 };
+  uploadRef.value?.clearFiles();
+};
 
 // 保存草稿
 const saveDraft = () => {
   const draft = {
     ...feedbackForm,
-    savedAt: new Date().toISOString()
-  }
-  localStorage.setItem('feedback_draft', JSON.stringify(draft))
-  ElMessage.success('草稿已保存')
-}
+    savedAt: new Date().toISOString(),
+  };
+  localStorage.setItem('feedback_draft', JSON.stringify(draft));
+  ElMessage.success('草稿已保存');
+};
 
 // 加载草稿
 const loadDraft = () => {
-  const draft = localStorage.getItem('feedback_draft')
+  const draft = localStorage.getItem('feedback_draft');
   if (draft) {
     try {
-      const draftData = JSON.parse(draft)
-      Object.assign(feedbackForm, draftData)
+      const draftData = JSON.parse(draft);
+      Object.assign(feedbackForm, draftData);
 
-      ElMessageBox.confirm(
-        '检测到未完成的反馈草稿，是否恢复？',
-        '恢复草稿',
-        {
-          confirmButtonText: '恢复',
-          cancelButtonText: '删除',
-          type: 'info'
-        }
-      ).then(() => {
-        ElMessage.success('草稿已恢复')
-      }).catch(() => {
-        localStorage.removeItem('feedback_draft')
-        resetForm()
+      ElMessageBox.confirm('检测到未完成的反馈草稿，是否恢复？', '恢复草稿', {
+        confirmButtonText: '恢复',
+        cancelButtonText: '删除',
+        type: 'info',
       })
+        .then(() => {
+          ElMessage.success('草稿已恢复');
+        })
+        .catch(() => {
+          localStorage.removeItem('feedback_draft');
+          resetForm();
+        });
     } catch (error) {
-      console.error('加载草稿失败:', error)
+      console.error('加载草稿失败:', error);
     }
   }
-}
+};
 
 // 加载反馈历史
 const loadFeedbackHistory = async () => {
   try {
-    const result = await userFeedbackService.getUserFeedbackHistory('', { limit: 5 })
+    const result = await userFeedbackService.getUserFeedbackHistory('', { limit: 5 });
     if (result.success) {
-      feedbackHistory.value = result.data.feedbacks
+      feedbackHistory.value = result.data.feedbacks;
     }
   } catch (error) {
-    console.error('加载反馈历史失败:', error)
+    console.error('加载反馈历史失败:', error);
   }
-}
+};
 
 // 查看全部历史
 const viewAllHistory = () => {
-  router.push('/feedback/history')
-}
+  router.push('/feedback/history');
+};
 
 // 查看反馈详情
-const viewFeedbackDetail = (feedbackId) => {
-  router.push(`/feedback/detail/${feedbackId}`)
-}
+const viewFeedbackDetail = feedbackId => {
+  router.push(`/feedback/detail/${feedbackId}`);
+};
 
 // 快速反馈
-const quickFeedback = (quick) => {
-  feedbackForm.category = quick.category
-  feedbackForm.severity = quick.severity
-  feedbackForm.title = quick.label
+const quickFeedback = quick => {
+  feedbackForm.category = quick.category;
+  feedbackForm.severity = quick.severity;
+  feedbackForm.title = quick.label;
 
   // 根据类型预设描述
   const descriptions = {
-    '系统崩溃': '我在使用系统时遇到了崩溃问题，请尽快修复。',
-    '功能异常': '某个功能出现了异常，无法正常使用。',
-    '功能建议': '我希望系统能够增加以下功能...',
-    '使用体验': '关于系统使用体验，我有以下建议...'
-  }
+    系统崩溃: '我在使用系统时遇到了崩溃问题，请尽快修复。',
+    功能异常: '某个功能出现了异常，无法正常使用。',
+    功能建议: '我希望系统能够增加以下功能...',
+    使用体验: '关于系统使用体验，我有以下建议...',
+  };
 
-  feedbackForm.description = descriptions[quick.label] || ''
-  onCategoryChange()
-}
+  feedbackForm.description = descriptions[quick.label] || '';
+  onCategoryChange();
+};
 
 // 工具方法
-const getCategoryLabel = (category) => {
-  const option = categoryOptions.find(opt => opt.value === category)
-  return option ? option.label : category
-}
+const getCategoryLabel = category => {
+  const option = categoryOptions.find(opt => opt.value === category);
+  return option ? option.label : category;
+};
 
-const getStatusType = (status) => {
+const getStatusType = status => {
   const statusTypes = {
     pending: '',
     in_review: 'primary',
     in_progress: 'warning',
     resolved: 'success',
     closed: 'info',
-    rejected: 'danger'
-  }
-  return statusTypes[status] || ''
-}
+    rejected: 'danger',
+  };
+  return statusTypes[status] || '';
+};
 
-const getStatusTagType = (status) => {
+const getStatusTagType = status => {
   const statusTypes = {
     pending: 'info',
     in_review: 'primary',
     in_progress: 'warning',
     resolved: 'success',
     closed: 'info',
-    rejected: 'danger'
-  }
-  return statusTypes[status] || 'info'
-}
+    rejected: 'danger',
+  };
+  return statusTypes[status] || 'info';
+};
 
-const getStatusText = (status) => {
+const getStatusText = status => {
   const statusTexts = {
     pending: '待处理',
     in_review: '审核中',
     in_progress: '处理中',
     resolved: '已解决',
     closed: '已关闭',
-    rejected: '已拒绝'
-  }
-  return statusTexts[status] || status
-}
+    rejected: '已拒绝',
+  };
+  return statusTexts[status] || status;
+};
 
-const formatDate = (dateString) => {
-  if (!dateString) return ''
-  const date = new Date(dateString)
-  return date.toLocaleString('zh-CN')
-}
+const formatDate = dateString => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return date.toLocaleString('zh-CN');
+};
 </script>
 
 <style scoped>

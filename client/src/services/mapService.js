@@ -10,29 +10,29 @@ class MapService {
   constructor() {
     this.client = axios.create({
       baseURL: `${API_BASE_URL}/map`,
-      timeout: 10000
+      timeout: 10000,
     });
 
     // 请求拦截器
     this.client.interceptors.request.use(
-      (config) => {
+      config => {
         const token = localStorage.getItem('token');
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
       },
-      (error) => {
+      error => {
         return Promise.reject(error);
       }
     );
 
     // 响应拦截器
     this.client.interceptors.response.use(
-      (response) => {
+      response => {
         return response.data;
       },
-      (error) => {
+      error => {
         if (error.response?.status === 401) {
           localStorage.removeItem('token');
           window.location.href = '/login';
@@ -59,7 +59,7 @@ class MapService {
   async reverseGeocode(longitude, latitude) {
     try {
       return await this.client.get('/reverse-geocode', {
-        params: { longitude, latitude }
+        params: { longitude, latitude },
       });
     } catch (error) {
       throw new Error(`逆地址解析失败: ${error.message}`);
@@ -72,7 +72,7 @@ class MapService {
   async searchPOI(keyword, city = '全国', type = '', page = 1, pageSize = 20) {
     try {
       return await this.client.get('/poi/search', {
-        params: { keyword, city, type, page, pageSize }
+        params: { keyword, city, type, page, pageSize },
       });
     } catch (error) {
       throw new Error(`POI搜索失败: ${error.message}`);
@@ -98,7 +98,7 @@ class MapService {
       return await this.client.post('/distance/calculate', {
         origins,
         destination,
-        type
+        type,
       });
     } catch (error) {
       throw new Error(`距离计算失败: ${error.message}`);
@@ -111,7 +111,7 @@ class MapService {
   async getWeather(city, extensions = 'all') {
     try {
       return await this.client.get('/weather', {
-        params: { city, extensions }
+        params: { city, extensions },
       });
     } catch (error) {
       throw new Error(`天气查询失败: ${error.message}`);
@@ -124,7 +124,7 @@ class MapService {
   async locateByIP(ip = null) {
     try {
       return await this.client.get('/ip/location', {
-        params: { ip }
+        params: { ip },
       });
     } catch (error) {
       throw new Error(`IP定位失败: ${error.message}`);
@@ -137,7 +137,7 @@ class MapService {
   async getDistrictBoundary(adcode, subdistrict = 1) {
     try {
       return await this.client.get('/district/boundary', {
-        params: { adcode, subdistrict }
+        params: { adcode, subdistrict },
       });
     } catch (error) {
       throw new Error(`行政区边界获取失败: ${error.message}`);
@@ -161,7 +161,7 @@ class MapService {
   async getVillageServiceFacilities(villageId, facilityTypes = []) {
     try {
       return await this.client.get(`/village/${villageId}/facilities`, {
-        params: { facilityTypes: facilityTypes.join(',') }
+        params: { facilityTypes: facilityTypes.join(',') },
       });
     } catch (error) {
       throw new Error(`村庄服务设施获取失败: ${error.message}`);
@@ -244,10 +244,13 @@ class MapService {
       const result = await this.geocodeAddress(address, city);
 
       if (useCache && result.success) {
-        localStorage.setItem(cacheKey, JSON.stringify({
-          data: result.data,
-          timestamp: Date.now()
-        }));
+        localStorage.setItem(
+          cacheKey,
+          JSON.stringify({
+            data: result.data,
+            timestamp: Date.now(),
+          })
+        );
       }
 
       return result;
@@ -261,7 +264,7 @@ class MapService {
             success: true,
             data,
             cached: true,
-            message: '使用缓存数据'
+            message: '使用缓存数据',
           };
         }
       }
@@ -281,7 +284,7 @@ class MapService {
       pageSize = 20,
       sortBy = 'distance',
       sortOrder = 'asc',
-      filters = {}
+      filters = {},
     } = params;
 
     try {
@@ -296,15 +299,11 @@ class MapService {
 
       // 应用过滤器
       if (filters.distance) {
-        pois = pois.filter(poi =>
-          poi.distance && poi.distance <= filters.distance
-        );
+        pois = pois.filter(poi => poi.distance && poi.distance <= filters.distance);
       }
 
       if (filters.rating) {
-        pois = pois.filter(poi =>
-          poi.rating && poi.rating >= filters.rating
-        );
+        pois = pois.filter(poi => poi.rating && poi.rating >= filters.rating);
       }
 
       if (filters.priceRange) {
@@ -342,8 +341,8 @@ class MapService {
           ...result.data,
           pois: paginatedPOIs,
           count: pois.length,
-          totalCount: result.data.count
-        }
+          totalCount: result.data.count,
+        },
       };
     } catch (error) {
       throw new Error(`智能POI搜索失败: ${error.message}`);
@@ -369,7 +368,7 @@ class MapService {
           const routeResult = await this.planRoute({
             origin: optimizedPoints[i],
             destination: optimizedPoints[i + 1],
-            type
+            type,
           });
 
           if (routeResult.success) {
@@ -382,7 +381,7 @@ class MapService {
           const routeResult = await this.planRoute({
             origin: points[i],
             destination: points[i + 1],
-            type
+            type,
           });
 
           if (routeResult.success) {
@@ -396,8 +395,8 @@ class MapService {
         data: {
           routes,
           totalDistance: routes.reduce((sum, route) => sum + route.distance, 0),
-          totalDuration: routes.reduce((sum, route) => sum + route.duration, 0)
-        }
+          totalDuration: routes.reduce((sum, route) => sum + route.duration, 0),
+        },
       };
     } catch (error) {
       throw new Error(`多点路线规划失败: ${error.message}`);
@@ -419,10 +418,7 @@ class MapService {
       let minDistance = Infinity;
 
       for (let i = 0; i < remaining.length; i++) {
-        const distance = this.calculateDirectDistance(
-          currentPoint,
-          remaining[i]
-        );
+        const distance = this.calculateDirectDistance(currentPoint, remaining[i]);
 
         if (distance < minDistance) {
           minDistance = distance;
@@ -446,12 +442,15 @@ class MapService {
     const [lng2, lat2] = typeof point2 === 'string' ? point2.split(',') : point2;
 
     const R = 6371; // 地球半径（公里）
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLng = (lng2 - lng1) * Math.PI / 180;
-    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-              Math.sin(dLng/2) * Math.sin(dLng/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLng = ((lng2 - lng1) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLng / 2) *
+        Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
     return R * c;
   }
@@ -468,7 +467,7 @@ class MapService {
         { type: 'hotel', name: '酒店', keywords: ['酒店', '宾馆', '住宿'] },
         { type: 'shopping', name: '购物', keywords: ['商场', '超市', '购物'] },
         { type: 'entertainment', name: '娱乐', keywords: ['娱乐', 'KTV', '电影院'] },
-        { type: 'transport', name: '交通', keywords: ['公交站', '地铁站', '火车站'] }
+        { type: 'transport', name: '交通', keywords: ['公交站', '地铁站', '火车站'] },
       ];
 
       const searchTypes = types.length > 0 ? types : defaultTypes;
@@ -484,10 +483,11 @@ class MapService {
                 .filter(poi => poi.location)
                 .map(poi => ({
                   ...poi,
-                  distance: this.calculateDirectDistance(
-                    `${longitude},${latitude}`,
-                    poi.location.join(',')
-                  ) * 1000 // 转换为米
+                  distance:
+                    this.calculateDirectDistance(
+                      `${longitude},${latitude}`,
+                      poi.location.join(',')
+                    ) * 1000, // 转换为米
                 }))
                 .filter(poi => poi.distance <= radius)
                 .sort((a, b) => a.distance - b.distance)
@@ -501,13 +501,13 @@ class MapService {
         }
 
         // 去重
-        const uniqueResults = results.filter((poi, index, self) =>
-          index === self.findIndex(p => p.id === poi.id)
-        ).slice(0, 5);
+        const uniqueResults = results
+          .filter((poi, index, self) => index === self.findIndex(p => p.id === poi.id))
+          .slice(0, 5);
 
         recommendations[typeInfo.type] = {
           name: typeInfo.name,
-          places: uniqueResults
+          places: uniqueResults,
         };
       }
 
@@ -516,8 +516,8 @@ class MapService {
         data: {
           center: [longitude, latitude],
           radius,
-          recommendations
-        }
+          recommendations,
+        },
       };
     } catch (error) {
       throw new Error(`获取周边推荐失败: ${error.message}`);

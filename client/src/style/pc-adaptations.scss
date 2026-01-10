@@ -1,0 +1,480 @@
+// PC端专用样式
+// 智慧乡村综合服务平台 - PC端样式适配
+
+// 响应式断点
+$pc-large: 1920px;
+$pc-medium: 1440px;
+$pc-small: 1366px;
+$tablet-breakpoint: 1024px;
+$mobile-breakpoint: 768px;
+
+// 颜色变量
+$primary-color: #409eff;
+$success-color: #67c23a;
+$warning-color: #e6a23c;
+$danger-color: #f56c6c;
+$info-color: #909399;
+
+$text-primary: #303133;
+$text-regular: #606266;
+$text-secondary: #909399;
+$text-placeholder: #c0c4cc;
+
+$border-color: #dcdfe6;
+$border-color-light: #e4e7ed;
+$border-color-lighter: #ebeef5;
+
+$background-color: #f5f7fa;
+$background-color-white: #ffffff;
+
+// 阴影变量
+$box-shadow-base: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+$box-shadow-light: 0 2px 12px 0 rgba(0, 0, 0, 0.08);
+$box-shadow-dark: 0 8px 24px 0 rgba(0, 0, 0, 0.12);
+
+// 圆角变量
+$border-radius-base: 8px;
+$border-radius-small: 4px;
+$border-radius-large: 12px;
+
+// 间距变量
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+
+// ==================== 卡片样式 ====================
+.pc-card {
+  background: $background-color-white;
+  border-radius: $border-radius-large;
+  box-shadow: $box-shadow-light;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: $box-shadow-dark;
+  }
+
+  &.pc-card-hover {
+    cursor: pointer;
+
+    &:hover {
+      transform: translateY(-4px);
+    }
+  }
+
+  .el-card__header {
+    border-bottom: 1px solid $border-color-lighter;
+    padding: $spacing-md $spacing-lg;
+    font-weight: 500;
+  }
+
+  .el-card__body {
+    padding: $spacing-lg;
+  }
+}
+
+// 统计卡片
+.stat-card {
+  @extend .pc-card;
+  padding: $spacing-lg;
+
+  .stat-content {
+    display: flex;
+    align-items: center;
+    gap: $spacing-lg;
+  }
+
+  .stat-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: $border-radius-base;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .stat-info {
+    .stat-value {
+      font-size: 28px;
+      font-weight: 600;
+      color: $text-primary;
+      line-height: 1.2;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: $text-secondary;
+      margin-top: 4px;
+    }
+
+    .stat-change {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      margin-top: 8px;
+
+      &.positive {
+        color: $success-color;
+      }
+
+      &.negative {
+        color: $danger-color;
+      }
+
+      &.neutral {
+        color: $text-secondary;
+      }
+    }
+  }
+}
+
+// ==================== 表格样式 ====================
+.pc-table {
+  .el-table {
+    .el-table__header th {
+      background: $background-color;
+      color: $text-primary;
+      font-weight: 500;
+    }
+
+    .el-table__row {
+      transition: background-color 0.3s;
+
+      &:hover > td {
+        background-color: $background-color;
+      }
+    }
+
+    td {
+      border-bottom: 1px solid $border-color-lighter;
+    }
+  }
+
+  .pagination-container {
+    margin-top: $spacing-lg;
+    display: flex;
+    justify-content: center;
+    padding: $spacing-md 0;
+  }
+}
+
+// ==================== 表单样式 ====================
+.pc-form {
+  .el-form-item {
+    margin-bottom: $spacing-lg;
+  }
+
+  .el-form-item__label {
+    color: $text-primary;
+    font-weight: 500;
+  }
+
+  .el-input,
+  .el-select,
+  .el-textarea {
+    .el-input__wrapper {
+      border-radius: $border-radius-base;
+      box-shadow: 0 0 0 1px $border-color inset;
+
+      &:hover,
+      &:focus {
+        box-shadow: 0 0 0 1px $primary-color inset;
+      }
+    }
+  }
+
+  .el-button {
+    border-radius: $border-radius-base;
+  }
+}
+
+// ==================== 按钮样式 ====================
+.pc-btn {
+  border-radius: $border-radius-base;
+  font-weight: 500;
+  transition: all 0.3s ease;
+
+  &.pc-btn-primary {
+    background: $primary-color;
+    border-color: $primary-color;
+
+    &:hover,
+    &:focus {
+      background: lighten($primary-color, 10%);
+      border-color: lighten($primary-color, 10%);
+    }
+  }
+
+  &.pc-btn-success {
+    background: $success-color;
+    border-color: $success-color;
+
+    &:hover,
+    &:focus {
+      background: lighten($success-color, 10%);
+      border-color: lighten($success-color, 10%);
+    }
+  }
+
+  &.pc-btn-warning {
+    background: $warning-color;
+    border-color: $warning-color;
+
+    &:hover,
+    &:focus {
+      background: lighten($warning-color, 10%);
+      border-color: lighten($warning-color, 10%);
+    }
+  }
+
+  &.pc-btn-danger {
+    background: $danger-color;
+    border-color: $danger-color;
+
+    &:hover,
+    &:focus {
+      background: lighten($danger-color, 10%);
+      border-color: lighten($danger-color, 10%);
+    }
+  }
+}
+
+// ==================== 对话框样式 ====================
+.pc-dialog {
+  .el-dialog {
+    border-radius: $border-radius-large;
+    box-shadow: $box-shadow-dark;
+
+    .el-dialog__header {
+      padding: $spacing-lg;
+      border-bottom: 1px solid $border-color-lighter;
+    }
+
+    .el-dialog__body {
+      padding: $spacing-lg;
+    }
+
+    .el-dialog__footer {
+      padding: $spacing-md $spacing-lg;
+      border-top: 1px solid $border-color-lighter;
+    }
+  }
+}
+
+// ==================== 抽屉样式 ====================
+.pc-drawer {
+  .el-drawer {
+    &__header {
+      padding: $spacing-lg;
+      border-bottom: 1px solid $border-color-lighter;
+      margin-bottom: 0;
+    }
+
+    &__body {
+      padding: $spacing-lg;
+      overflow-y: auto;
+    }
+  }
+}
+
+// ==================== 布局样式 ====================
+.pc-layout-container {
+  display: flex;
+  min-height: 100vh;
+  background: $background-color;
+}
+
+.pc-sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 240px;
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  z-index: 1000;
+
+  &.collapsed {
+    width: 64px;
+  }
+}
+
+.pc-main-content {
+  flex: 1;
+  margin-left: 240px;
+  transition: margin-left 0.3s ease;
+
+  .pc-layout-container.sidebar-collapsed & {
+    margin-left: 64px;
+  }
+}
+
+.pc-page-container {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: $spacing-lg;
+}
+
+// ==================== 响应式设计 ====================
+// 大屏幕 (1920px+)
+@media screen and (min-width: $pc-large) {
+  .pc-page-container {
+    max-width: 1600px;
+    padding: $spacing-xl;
+  }
+}
+
+// 中等屏幕 (1440px - 1919px)
+@media screen and (min-width: $pc-medium) and (max-width: ($pc-large - 1px)) {
+  .pc-page-container {
+    max-width: 1400px;
+    padding: $spacing-lg;
+  }
+}
+
+// 小屏幕 (1366px - 1439px)
+@media screen and (min-width: $pc-small) and (max-width: ($pc-medium - 1px)) {
+  .pc-page-container {
+    max-width: 1200px;
+    padding: $spacing-md $spacing-lg;
+  }
+
+  .stat-card {
+    .stat-content {
+      gap: $spacing-md;
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+    }
+
+    .stat-info {
+      .stat-value {
+        font-size: 24px;
+      }
+    }
+  }
+}
+
+// 平板 (1024px - 1365px)
+@media screen and (min-width: $tablet-breakpoint) and (max-width: ($pc-small - 1px)) {
+  .pc-sidebar {
+    width: 200px;
+  }
+
+  .pc-main-content {
+    margin-left: 200px;
+  }
+
+  .pc-page-container {
+    padding: $spacing-md;
+  }
+
+  .el-col-lg-16 {
+    width: 100%;
+  }
+
+  .el-col-lg-8 {
+    width: 100%;
+  }
+}
+
+// 移动端 (768px - 1023px)
+@media screen and (min-width: $mobile-breakpoint) and (max-width: ($tablet-breakpoint - 1px)) {
+  .pc-sidebar {
+    transform: translateX(-100%);
+
+    &.show {
+      transform: translateX(0);
+    }
+  }
+
+  .pc-main-content {
+    margin-left: 0;
+  }
+
+  .pc-page-container {
+    padding: $spacing-md;
+  }
+
+  .el-row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  .el-col {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+}
+
+// ==================== 动画效果 ====================
+.pc-fade-enter-active,
+.pc-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.pc-fade-enter-from,
+.pc-fade-leave-to {
+  opacity: 0;
+}
+
+.pc-slide-enter-active,
+.pc-slide-leave-active {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.pc-slide-enter-from {
+  transform: translateX(-20px);
+  opacity: 0;
+}
+
+.pc-slide-leave-to {
+  transform: translateX(20px);
+  opacity: 0;
+}
+
+// ==================== 实用工具类 ====================
+.pc-mb-0 { margin-bottom: 0; }
+.pc-mb-1 { margin-bottom: $spacing-sm; }
+.pc-mb-2 { margin-bottom: $spacing-md; }
+.pc-mb-3 { margin-bottom: $spacing-lg; }
+.pc-mb-4 { margin-bottom: $spacing-xl; }
+
+.pc-mt-0 { margin-top: 0; }
+.pc-mt-1 { margin-top: $spacing-sm; }
+.pc-mt-2 { margin-top: $spacing-md; }
+.pc-mt-3 { margin-top: $spacing-lg; }
+.pc-mt-4 { margin-top: $spacing-xl; }
+
+.pc-p-0 { padding: 0; }
+.pc-p-1 { padding: $spacing-sm; }
+.pc-p-2 { padding: $spacing-md; }
+.pc-p-3 { padding: $spacing-lg; }
+.pc-p-4 { padding: $spacing-xl; }
+
+.pc-text-center { text-align: center; }
+.pc-text-left { text-align: left; }
+.pc-text-right { text-align: right; }
+
+.pc-flex { display: flex; }
+.pc-flex-center { display: flex; align-items: center; justify-content: center; }
+.pc-flex-between { display: flex; align-items: center; justify-content: space-between; }
+.pc-flex-wrap { flex-wrap: wrap; }
+
+.pc-w-full { width: 100%; }
+.pc-h-full { height: 100%; }
+
+.pc-radius { border-radius: $border-radius-base; }
+.pc-radius-large { border-radius: $border-radius-large; }
+.pc-radius-small { border-radius: $border-radius-small; }
+
+.pc-shadow { box-shadow: $box-shadow-light; }
+.pc-shadow-dark { box-shadow: $box-shadow-dark; }
+
+.pc-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: $box-shadow-dark;
+}

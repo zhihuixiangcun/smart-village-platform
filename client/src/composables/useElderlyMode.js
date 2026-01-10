@@ -17,14 +17,14 @@ const STORAGE_KEYS = {
   FONT_SIZE: 'elderly_font_size',
   HIGH_CONTRAST: 'high_contrast_mode',
   SCREEN_READER: 'screen_reader_enabled',
-  SIMPLIFIED_MODE: 'simplified_mode'
+  SIMPLIFIED_MODE: 'simplified_mode',
 };
 
 // 字体大小级别
 export const FONT_SIZES = {
   standard: { name: '标准', value: 16, scale: 1 },
   large: { name: '大字', value: 20, scale: 1.25 },
-  extraLarge: { name: '特大', value: 24, scale: 1.5 }
+  extraLarge: { name: '特大', value: 24, scale: 1.5 },
 };
 
 export function useElderlyMode() {
@@ -125,7 +125,7 @@ export function useElderlyMode() {
   /**
    * 切换适老化模式
    */
-  const toggleElderlyMode = (enabled) => {
+  const toggleElderlyMode = enabled => {
     isElderlyMode.value = enabled ?? !isElderlyMode.value;
 
     // 自动启用大字模式
@@ -146,7 +146,7 @@ export function useElderlyMode() {
   /**
    * 设置字体大小
    */
-  const setFontSize = (size) => {
+  const setFontSize = size => {
     if (FONT_SIZES[size]) {
       fontSize.value = size;
       saveSettings();
@@ -207,7 +207,7 @@ export function useElderlyMode() {
   /**
    * 朗读文本
    */
-  const speakText = (text) => {
+  const speakText = text => {
     if (!screenReader.value || !text) return;
 
     // 停止之前的朗读
@@ -280,6 +280,6 @@ export function useElderlyMode() {
     resetSettings,
 
     // 常量
-    FONT_SIZES
+    FONT_SIZES,
   };
 }

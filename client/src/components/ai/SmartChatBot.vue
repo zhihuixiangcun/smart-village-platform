@@ -1,7 +1,7 @@
 <template>
   <div class="smart-chatbot">
     <!-- 聊天窗口 -->
-    <div class="chat-container" :class="{ 'expanded': isExpanded, 'mobile': isMobile }">
+    <div class="chat-container" :class="{ expanded: isExpanded, mobile: isMobile }">
       <!-- 聊天头部 -->
       <div class="chat-header">
         <div class="header-left">
@@ -10,13 +10,13 @@
           </div>
           <div class="bot-info">
             <h3>智慧农业助手</h3>
-            <span class="status" :class="{ 'online': isOnline }">
+            <span class="status" :class="{ online: isOnline }">
               {{ isOnline ? '在线' : '离线' }}
             </span>
           </div>
         </div>
         <div class="header-right">
-          <button class="icon-btn" @click="toggleVoiceInput" :class="{ 'active': voiceInputActive }">
+          <button class="icon-btn" @click="toggleVoiceInput" :class="{ active: voiceInputActive }">
             <i class="fas fa-microphone"></i>
           </button>
           <button class="icon-btn" @click="toggleDialectSelector">
@@ -77,10 +77,12 @@
         </div>
 
         <!-- 消息列表 -->
-        <div class="message"
-             v-for="(message, index) in messages"
-             :key="index"
-             :class="{ 'user': message.type === 'user', 'bot': message.type === 'bot' }">
+        <div
+          class="message"
+          v-for="(message, index) in messages"
+          :key="index"
+          :class="{ user: message.type === 'user', bot: message.type === 'bot' }"
+        >
           <div class="message-content">
             <div class="user-message" v-if="message.type === 'user'">
               <div class="text">{{ message.content }}</div>
@@ -105,30 +107,56 @@
                     <div v-if="message.response.type === 'planting_advice'" class="planting-advice">
                       <h4><i class="fas fa-seedling"></i> {{ message.response.title }}</h4>
                       <div v-if="message.response.recommendations" class="recommendations">
-                        <div v-for="(rec, idx) in message.response.recommendations" :key="idx" class="recommendation-item">
+                        <div
+                          v-for="(rec, idx) in message.response.recommendations"
+                          :key="idx"
+                          class="recommendation-item"
+                        >
                           <i class="fas fa-check-circle"></i>
                           {{ rec }}
                         </div>
                       </div>
                       <div v-if="message.response.fertilizerAdvice" class="fertilizer-advice">
                         <h5>施肥建议：</h5>
-                        <div v-for="(fertilizer, idx) in message.response.fertilizerAdvice" :key="idx" class="fertilizer-item">
+                        <div
+                          v-for="(fertilizer, idx) in message.response.fertilizerAdvice"
+                          :key="idx"
+                          class="fertilizer-item"
+                        >
                           {{ fertilizer }}
                         </div>
                       </div>
                     </div>
 
                     <!-- 政策咨询 -->
-                    <div v-if="message.response.type === 'policy_consultation'" class="policy-response">
+                    <div
+                      v-if="message.response.type === 'policy_consultation'"
+                      class="policy-response"
+                    >
                       <h4><i class="fas fa-coins"></i> {{ message.response.title }}</h4>
-                      <div v-if="message.response.calculations && message.response.calculations.length > 0" class="policy-calculations">
-                        <div v-for="(calc, idx) in message.response.calculations" :key="idx" class="calculation-card">
+                      <div
+                        v-if="
+                          message.response.calculations && message.response.calculations.length > 0
+                        "
+                        class="policy-calculations"
+                      >
+                        <div
+                          v-for="(calc, idx) in message.response.calculations"
+                          :key="idx"
+                          class="calculation-card"
+                        >
                           <h5>{{ calc.crop }}补贴计算</h5>
                           <div class="calculation-details">
                             <p>种植面积：{{ calc.area }}亩</p>
-                            <p>补贴金额：<strong>{{ calc.totalAmount }}元</strong></p>
+                            <p>
+                              补贴金额：<strong>{{ calc.totalAmount }}元</strong>
+                            </p>
                             <div class="subsidy-breakdown" v-if="calc.subsidies">
-                              <div v-for="(sub, sidx) in calc.subsidies" :key="sidx" class="subsidy-item">
+                              <div
+                                v-for="(sub, sidx) in calc.subsidies"
+                                :key="sidx"
+                                class="subsidy-item"
+                              >
                                 <span class="policy-name">{{ sub.policy }}</span>
                                 <span class="amount">{{ sub.amount }}元</span>
                               </div>
@@ -139,17 +167,26 @@
                     </div>
 
                     <!-- 病虫害防治 -->
-                    <div v-if="message.response.type === 'pest_disease_control'" class="pest-disease-control">
+                    <div
+                      v-if="message.response.type === 'pest_disease_control'"
+                      class="pest-disease-control"
+                    >
                       <h4><i class="fas fa-bug"></i> {{ message.response.title }}</h4>
                       <div v-if="message.response.symptoms" class="symptoms">
                         <h5>症状表现：</h5>
                         <ul>
-                          <li v-for="(symptom, idx) in message.response.symptoms" :key="idx">{{ symptom }}</li>
+                          <li v-for="(symptom, idx) in message.response.symptoms" :key="idx">
+                            {{ symptom }}
+                          </li>
                         </ul>
                       </div>
                       <div v-if="message.response.prevention" class="prevention-methods">
                         <h5>预防措施：</h5>
-                        <div v-for="(method, idx) in message.response.prevention" :key="idx" class="prevention-item">
+                        <div
+                          v-for="(method, idx) in message.response.prevention"
+                          :key="idx"
+                          class="prevention-item"
+                        >
                           <span class="method-name">{{ method.method }}</span>
                           <span class="effectiveness">效果：{{ method.effectiveness }}</span>
                           <span class="cost">成本：{{ method.cost }}</span>
@@ -161,15 +198,23 @@
                   <!-- 相关问题推荐 -->
                   <div v-if="message.relatedQuestions" class="related-questions">
                     <h5>相关问题：</h5>
-                    <div v-for="(question, idx) in message.relatedQuestions" :key="idx"
-                         class="related-question" @click="askRelatedQuestion(question)">
+                    <div
+                      v-for="(question, idx) in message.relatedQuestions"
+                      :key="idx"
+                      class="related-question"
+                      @click="askRelatedQuestion(question)"
+                    >
                       {{ question.question }}
                     </div>
                   </div>
 
                   <!-- 操作按钮 -->
                   <div class="message-actions">
-                    <button class="action-btn small" @click="speakMessage(message)" v-if="hasSpeechSupport">
+                    <button
+                      class="action-btn small"
+                      @click="speakMessage(message)"
+                      v-if="hasSpeechSupport"
+                    >
                       <i class="fas fa-volume-up"></i> 语音播报
                     </button>
                     <button class="action-btn small" @click="copyMessage(message)">
@@ -190,11 +235,13 @@
       <div class="dialect-selector" v-if="showDialectSelector">
         <h4>选择方言</h4>
         <div class="dialect-options">
-          <div v-for="dialect in supportedDialects"
-               :key="dialect.code"
-               class="dialect-option"
-               :class="{ 'active': selectedDialect === dialect.code }"
-               @click="selectDialect(dialect)">
+          <div
+            v-for="dialect in supportedDialects"
+            :key="dialect.code"
+            class="dialect-option"
+            :class="{ active: selectedDialect === dialect.code }"
+            @click="selectDialect(dialect)"
+          >
             <span class="dialect-name">{{ dialect.name }}</span>
             <span class="dialect-regions">{{ dialect.regions.join('、') }}</span>
           </div>
@@ -209,9 +256,11 @@
         <div class="input-container">
           <!-- 语音输入 -->
           <div class="voice-input" v-if="voiceInputActive">
-            <button class="voice-record-btn"
-                    :class="{ 'recording': isRecording }"
-                    @click="toggleRecording">
+            <button
+              class="voice-record-btn"
+              :class="{ recording: isRecording }"
+              @click="toggleRecording"
+            >
               <i class="fas fa-microphone"></i>
               <span v-if="isRecording">{{ recordingTime }}s</span>
             </button>
@@ -227,9 +276,11 @@
               :disabled="isLoading"
               ref="messageInput"
             />
-            <button class="send-btn"
-                    @click="sendMessage"
-                    :disabled="!inputMessage.trim() || isLoading">
+            <button
+              class="send-btn"
+              @click="sendMessage"
+              :disabled="!inputMessage.trim() || isLoading"
+            >
               <i class="fas fa-paper-plane"></i>
             </button>
           </div>
@@ -237,7 +288,11 @@
 
         <!-- 快捷功能按钮 -->
         <div class="quick-functions">
-          <button class="function-btn" @click="toggleVoiceInput" :class="{ 'active': voiceInputActive }">
+          <button
+            class="function-btn"
+            @click="toggleVoiceInput"
+            :class="{ active: voiceInputActive }"
+          >
             <i class="fas fa-microphone"></i>
           </button>
           <button class="function-btn" @click="uploadImage">
@@ -260,165 +315,159 @@
     </div>
 
     <!-- 政策计算器模态框 -->
-    <PolicyCalculator
-      v-if="showPolicyCalculator"
-      @close="closePolicyCalculator"
-    />
+    <PolicyCalculator v-if="showPolicyCalculator" @close="closePolicyCalculator" />
 
     <!-- AI填表助手模态框 -->
-    <FormAssistant
-      v-if="showFormAssistant"
-      @close="closeFormAssistant"
-    />
+    <FormAssistant v-if="showFormAssistant" @close="closeFormAssistant" />
   </div>
 </template>
 
 <script>
-import { ref, reactive, onMounted, nextTick } from 'vue'
-import { ElMessage } from 'element-plus'
-import PolicyCalculator from './PolicyCalculator.vue'
-import FormAssistant from './FormAssistant.vue'
+import { ref, reactive, onMounted, nextTick } from 'vue';
+import { ElMessage } from 'element-plus';
+import PolicyCalculator from './PolicyCalculator.vue';
+import FormAssistant from './FormAssistant.vue';
 
 export default {
   name: 'SmartChatBot',
   components: {
     PolicyCalculator,
-    FormAssistant
+    FormAssistant,
   },
   props: {
     initialExpanded: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   setup(props) {
-    const isExpanded = ref(props.initialExpanded)
-    const isMobile = ref(false)
-    const isOnline = ref(true)
-    const isLoading = ref(false)
-    const voiceInputActive = ref(false)
-    const isRecording = ref(false)
-    const recordingTime = ref(0)
-    const recordingTimer = ref(null)
-    const showDialectSelector = ref(false)
-    const selectedDialect = ref('mandarin')
-    const supportedDialects = ref([])
-    const hasSpeechSupport = ref(false)
+    const isExpanded = ref(props.initialExpanded);
+    const isMobile = ref(false);
+    const isOnline = ref(true);
+    const isLoading = ref(false);
+    const voiceInputActive = ref(false);
+    const isRecording = ref(false);
+    const recordingTime = ref(0);
+    const recordingTimer = ref(null);
+    const showDialectSelector = ref(false);
+    const selectedDialect = ref('mandarin');
+    const supportedDialects = ref([]);
+    const hasSpeechSupport = ref(false);
 
-    const inputMessage = ref('')
-    const messages = ref([])
-    const unreadCount = ref(0)
+    const inputMessage = ref('');
+    const messages = ref([]);
+    const unreadCount = ref(0);
 
     // 模态框状态
-    const showPolicyCalculator = ref(false)
-    const showFormAssistant = ref(false)
+    const showPolicyCalculator = ref(false);
+    const showFormAssistant = ref(false);
 
     // refs
-    const chatContent = ref(null)
-    const messageInput = ref(null)
+    const chatContent = ref(null);
+    const messageInput = ref(null);
 
     onMounted(() => {
-      checkMobile()
-      checkOnlineStatus()
-      checkSpeechSupport()
-      loadSupportedDialects()
+      checkMobile();
+      checkOnlineStatus();
+      checkSpeechSupport();
+      loadSupportedDialects();
 
       // 监听窗口大小变化
-      window.addEventListener('resize', checkMobile)
+      window.addEventListener('resize', checkMobile);
 
       // 监听网络状态变化
-      window.addEventListener('online', () => isOnline.value = true)
-      window.addEventListener('offline', () => isOnline.value = false)
-    })
+      window.addEventListener('online', () => (isOnline.value = true));
+      window.addEventListener('offline', () => (isOnline.value = false));
+    });
 
     const checkMobile = () => {
-      isMobile.value = window.innerWidth < 768
-    }
+      isMobile.value = window.innerWidth < 768;
+    };
 
     const checkOnlineStatus = () => {
-      isOnline.value = navigator.onLine
-    }
+      isOnline.value = navigator.onLine;
+    };
 
     const checkSpeechSupport = () => {
-      hasSpeechSupport.value = 'speechSynthesis' in window
-    }
+      hasSpeechSupport.value = 'speechSynthesis' in window;
+    };
 
     const loadSupportedDialects = async () => {
       try {
-        const response = await fetch('/api/v1/ai-chat/dialects')
-        const data = await response.json()
+        const response = await fetch('/api/v1/ai-chat/dialects');
+        const data = await response.json();
         if (data.success) {
-          supportedDialects.value = data.data
+          supportedDialects.value = data.data;
         }
       } catch (error) {
-        console.error('加载方言列表失败:', error)
+        console.error('加载方言列表失败:', error);
       }
-    }
+    };
 
     const expandChat = () => {
-      isExpanded.value = true
-      unreadCount.value = 0
+      isExpanded.value = true;
+      unreadCount.value = 0;
       nextTick(() => {
-        messageInput.value?.focus()
-      })
-    }
+        messageInput.value?.focus();
+      });
+    };
 
     const minimizeChat = () => {
-      isExpanded.value = false
-    }
+      isExpanded.value = false;
+    };
 
     const toggleVoiceInput = () => {
-      voiceInputActive.value = !voiceInputActive.value
+      voiceInputActive.value = !voiceInputActive.value;
       if (voiceInputActive.value && !isRecording.value) {
         nextTick(() => {
-          startVoiceRecording()
-        })
+          startVoiceRecording();
+        });
       }
-    }
+    };
 
     const toggleDialectSelector = () => {
-      showDialectSelector.value = !showDialectSelector.value
-    }
+      showDialectSelector.value = !showDialectSelector.value;
+    };
 
-    const selectDialect = (dialect) => {
-      selectedDialect.value = dialect.code
-      showDialectSelector.value = false
-      ElMessage.success(`已切换为${dialect.name}`)
-    }
+    const selectDialect = dialect => {
+      selectedDialect.value = dialect.code;
+      showDialectSelector.value = false;
+      ElMessage.success(`已切换为${dialect.name}`);
+    };
 
     const sendMessage = async () => {
-      const message = inputMessage.value.trim()
-      if (!message || isLoading.value) return
+      const message = inputMessage.value.trim();
+      if (!message || isLoading.value) return;
 
-      addUserMessage(message)
-      inputMessage.value = ''
+      addUserMessage(message);
+      inputMessage.value = '';
 
       try {
-        await processQuery(message)
+        await processQuery(message);
       } catch (error) {
-        console.error('发送消息失败:', error)
-        addBotMessage('抱歉，发送消息失败，请稍后重试。')
+        console.error('发送消息失败:', error);
+        addBotMessage('抱歉，发送消息失败，请稍后重试。');
       }
-    }
+    };
 
-    const sendQuickQuery = async (query) => {
-      addUserMessage(query)
+    const sendQuickQuery = async query => {
+      addUserMessage(query);
       try {
-        await processQuery(query)
+        await processQuery(query);
       } catch (error) {
-        console.error('发送快捷查询失败:', error)
-        addBotMessage('抱歉，处理请求失败，请稍后重试。')
+        console.error('发送快捷查询失败:', error);
+        addBotMessage('抱歉，处理请求失败，请稍后重试。');
       }
-    }
+    };
 
-    const addUserMessage = (content) => {
+    const addUserMessage = content => {
       messages.value.push({
         type: 'user',
         content: content,
-        timestamp: new Date()
-      })
-      scrollToBottom()
-    }
+        timestamp: new Date(),
+      });
+      scrollToBottom();
+    };
 
     const addBotMessage = (content, response = null, loading = false) => {
       messages.value.push({
@@ -426,174 +475,173 @@ export default {
         content: content,
         response: response,
         loading: loading,
-        timestamp: new Date()
-      })
-      scrollToBottom()
-    }
+        timestamp: new Date(),
+      });
+      scrollToBottom();
+    };
 
-    const processQuery = async (query) => {
-      isLoading.value = true
+    const processQuery = async query => {
+      isLoading.value = true;
 
       // 添加加载中的消息
-      const loadingIndex = messages.value.length
-      addBotMessage('', null, true)
+      const loadingIndex = messages.value.length;
+      addBotMessage('', null, true);
 
       try {
         const response = await fetch('/api/v1/ai-chat/chat', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             message: query,
             context: {
               dialect: selectedDialect.value,
-              sessionId: 'user_session_' + Date.now()
-            }
-          })
-        })
+              sessionId: 'user_session_' + Date.now(),
+            },
+          }),
+        });
 
-        const data = await response.json()
+        const data = await response.json();
 
         // 移除加载消息
-        messages.value.splice(loadingIndex, 1)
+        messages.value.splice(loadingIndex, 1);
 
         if (data.success) {
-          addBotMessage(
-            data.data.response.content || '正在思考...',
-            data.data.response
-          )
+          addBotMessage(data.data.response.content || '正在思考...', data.data.response);
         } else {
-          addBotMessage(data.message || '抱歉，我暂时无法回答这个问题。')
+          addBotMessage(data.message || '抱歉，我暂时无法回答这个问题。');
         }
       } catch (error) {
         // 移除加载消息
-        messages.value.splice(loadingIndex, 1)
-        addBotMessage('网络连接失败，请检查网络后重试。')
+        messages.value.splice(loadingIndex, 1);
+        addBotMessage('网络连接失败，请检查网络后重试。');
       } finally {
-        isLoading.value = false
+        isLoading.value = false;
       }
-    }
+    };
 
     const startVoiceRecording = () => {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        ElMessage.error('您的浏览器不支持语音录制')
-        return
+        ElMessage.error('您的浏览器不支持语音录制');
+        return;
       }
 
-      navigator.mediaDevices.getUserMedia({ audio: true })
+      navigator.mediaDevices
+        .getUserMedia({ audio: true })
         .then(stream => {
-          isRecording.value = true
-          recordingTime.value = 0
+          isRecording.value = true;
+          recordingTime.value = 0;
 
           recordingTimer.value = setInterval(() => {
-            recordingTime.value++
-          }, 1000)
+            recordingTime.value++;
+          }, 1000);
 
           // 这里应该开始录音并发送到服务器
           // 简化实现，3秒后自动结束
           setTimeout(() => {
-            stopVoiceRecording()
-            sendVoiceMessage('这是语音识别的模拟结果，请问水稻什么时候播种最好？')
-          }, 3000)
+            stopVoiceRecording();
+            sendVoiceMessage('这是语音识别的模拟结果，请问水稻什么时候播种最好？');
+          }, 3000);
         })
         .catch(error => {
-          console.error('获取麦克风权限失败:', error)
-          ElMessage.error('请允许使用麦克风进行语音输入')
-        })
-    }
+          console.error('获取麦克风权限失败:', error);
+          ElMessage.error('请允许使用麦克风进行语音输入');
+        });
+    };
 
     const stopVoiceRecording = () => {
-      isRecording.value = false
+      isRecording.value = false;
       if (recordingTimer.value) {
-        clearInterval(recordingTimer.value)
-        recordingTimer.value = null
+        clearInterval(recordingTimer.value);
+        recordingTimer.value = null;
       }
-    }
+    };
 
     const toggleRecording = () => {
       if (isRecording.value) {
-        stopVoiceRecording()
+        stopVoiceRecording();
       } else {
-        startVoiceRecording()
+        startVoiceRecording();
       }
-    }
+    };
 
-    const sendVoiceMessage = async (recognizedText) => {
-      addUserMessage(`[语音] ${recognizedText}`)
+    const sendVoiceMessage = async recognizedText => {
+      addUserMessage(`[语音] ${recognizedText}`);
       try {
-        await processQuery(recognizedText)
+        await processQuery(recognizedText);
       } catch (error) {
-        console.error('发送语音消息失败:', error)
-        addBotMessage('抱歉，处理语音消息失败，请稍后重试。')
+        console.error('发送语音消息失败:', error);
+        addBotMessage('抱歉，处理语音消息失败，请稍后重试。');
       }
-    }
+    };
 
     const openPolicyCalculator = () => {
-      showPolicyCalculator.value = true
-    }
+      showPolicyCalculator.value = true;
+    };
 
     const closePolicyCalculator = () => {
-      showPolicyCalculator.value = false
-    }
+      showPolicyCalculator.value = false;
+    };
 
     const openFormAssistant = () => {
-      showFormAssistant.value = true
-    }
+      showFormAssistant.value = true;
+    };
 
     const closeFormAssistant = () => {
-      showFormAssistant.value = false
-    }
+      showFormAssistant.value = false;
+    };
 
-    const askRelatedQuestion = (question) => {
-      sendQuickQuery(question.question)
-    }
+    const askRelatedQuestion = question => {
+      sendQuickQuery(question.question);
+    };
 
-    const speakMessage = (message) => {
-      if (!hasSpeechSupport.value) return
+    const speakMessage = message => {
+      if (!hasSpeechSupport.value) return;
 
-      const utterance = new SpeechSynthesisUtterance(message.content)
-      utterance.lang = 'zh-CN'
-      utterance.rate = 0.9
-      speechSynthesis.speak(utterance)
-    }
+      const utterance = new SpeechSynthesisUtterance(message.content);
+      utterance.lang = 'zh-CN';
+      utterance.rate = 0.9;
+      speechSynthesis.speak(utterance);
+    };
 
-    const copyMessage = (message) => {
-      navigator.clipboard.writeText(message.content)
+    const copyMessage = message => {
+      navigator.clipboard
+        .writeText(message.content)
         .then(() => {
-          ElMessage.success('内容已复制到剪贴板')
+          ElMessage.success('内容已复制到剪贴板');
         })
         .catch(() => {
-          ElMessage.error('复制失败')
-        })
-    }
+          ElMessage.error('复制失败');
+        });
+    };
 
-    const likeMessage = (message) => {
+    const likeMessage = message => {
       // 这里应该发送到后端记录用户反馈
-      ElMessage.success('感谢您的反馈')
-    }
+      ElMessage.success('感谢您的反馈');
+    };
 
     const uploadImage = () => {
       // 图片上传功能
-      ElMessage.info('图片识别功能开发中')
-    }
+      ElMessage.info('图片识别功能开发中');
+    };
 
-    const formatTime = (timestamp) => {
-      return new Date(timestamp).toLocaleTimeString()
-    }
+    const formatTime = timestamp => {
+      return new Date(timestamp).toLocaleTimeString();
+    };
 
-    const formatMessage = (content) => {
+    const formatMessage = content => {
       // 简单的文本格式化
-      return content.replace(/\n/g, '<br>')
-    }
+      return content.replace(/\n/g, '<br>');
+    };
 
     const scrollToBottom = () => {
       nextTick(() => {
         if (chatContent.value) {
-          chatContent.value.scrollTop = chatContent.value.scrollHeight
+          chatContent.value.scrollTop = chatContent.value.scrollHeight;
         }
-      })
-    }
+      });
+    };
 
     return {
       // 状态
@@ -637,10 +685,10 @@ export default {
       openFormAssistant,
       closeFormAssistant,
       formatTime,
-      formatMessage
-    }
-  }
-}
+      formatMessage,
+    };
+  },
+};
 </script>
 
 <style scoped>
@@ -678,7 +726,7 @@ export default {
 }
 
 .chat-header {
-  background: linear-gradient(135deg, #4CAF50, #2E7D32);
+  background: linear-gradient(135deg, #4caf50, #2e7d32);
   color: white;
   padding: 16px;
   border-radius: 12px 12px 0 0;
@@ -724,7 +772,7 @@ export default {
 
 .status.online::before {
   content: '●';
-  color: #4CAF50;
+  color: #4caf50;
   margin-right: 4px;
 }
 
@@ -774,7 +822,7 @@ export default {
 
 .user-message {
   max-width: 80%;
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
   padding: 12px 16px;
   border-radius: 18px 18px 4px 18px;
@@ -838,7 +886,9 @@ export default {
 }
 
 @keyframes typing {
-  0%, 60%, 100% {
+  0%,
+  60%,
+  100% {
     transform: translateY(0);
   }
   30% {
@@ -847,12 +897,12 @@ export default {
 }
 
 .welcome .bot-message .text {
-  background: linear-gradient(135deg, #E8F5E8, #F1F8E9);
+  background: linear-gradient(135deg, #e8f5e8, #f1f8e9);
 }
 
 .quick-actions h4 {
   margin: 16px 0 12px;
-  color: #2E7D32;
+  color: #2e7d32;
   font-size: 14px;
 }
 
@@ -864,8 +914,8 @@ export default {
 
 .action-btn {
   background: white;
-  border: 1px solid #4CAF50;
-  color: #4CAF50;
+  border: 1px solid #4caf50;
+  color: #4caf50;
   padding: 8px 12px;
   border-radius: 8px;
   font-size: 13px;
@@ -877,7 +927,7 @@ export default {
 }
 
 .action-btn:hover {
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
 }
 
@@ -893,12 +943,12 @@ export default {
   padding: 12px;
   background: #f0f7f0;
   border-radius: 8px;
-  border-left: 4px solid #4CAF50;
+  border-left: 4px solid #4caf50;
 }
 
 .structured-response h4 {
   margin: 0 0 8px;
-  color: #2E7D32;
+  color: #2e7d32;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -915,7 +965,7 @@ export default {
 
 .fertilizer-advice h5 {
   margin: 12px 0 6px;
-  color: #2E7D32;
+  color: #2e7d32;
   font-size: 14px;
 }
 
@@ -939,7 +989,7 @@ export default {
 
 .calculation-card h5 {
   margin: 0 0 8px;
-  color: #2E7D32;
+  color: #2e7d32;
 }
 
 .calculation-details p {
@@ -966,7 +1016,7 @@ export default {
 
 .amount {
   font-weight: 600;
-  color: #4CAF50;
+  color: #4caf50;
 }
 
 .related-questions {
@@ -988,13 +1038,13 @@ export default {
   margin-bottom: 6px;
   cursor: pointer;
   font-size: 13px;
-  color: #4CAF50;
+  color: #4caf50;
   border: 1px solid #e0e0e0;
   transition: all 0.3s;
 }
 
 .related-question:hover {
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
 }
 
@@ -1028,7 +1078,7 @@ export default {
 }
 
 .dialect-option.active {
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
 }
 
@@ -1078,9 +1128,9 @@ export default {
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  border: 2px solid #4CAF50;
+  border: 2px solid #4caf50;
   background: white;
-  color: #4CAF50;
+  color: #4caf50;
   font-size: 24px;
   cursor: pointer;
   transition: all 0.3s;
@@ -1092,7 +1142,7 @@ export default {
 }
 
 .voice-record-btn.recording {
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
   animation: pulse 1.5s infinite;
 }
@@ -1118,7 +1168,7 @@ export default {
 }
 
 .text-input input:focus {
-  border-color: #4CAF50;
+  border-color: #4caf50;
 }
 
 .send-btn {
@@ -1126,7 +1176,7 @@ export default {
   height: 44px;
   border-radius: 50%;
   border: none;
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
   cursor: pointer;
   transition: background 0.3s;
@@ -1166,9 +1216,9 @@ export default {
 
 .function-btn:hover,
 .function-btn.active {
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
-  border-color: #4CAF50;
+  border-color: #4caf50;
 }
 
 .floating-button {
@@ -1177,7 +1227,7 @@ export default {
   right: 20px;
   width: 60px;
   height: 60px;
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
   border-radius: 50%;
   display: flex;

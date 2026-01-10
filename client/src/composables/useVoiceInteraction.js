@@ -20,7 +20,7 @@ export function useVoiceInteraction(options = {}) {
     preferredDialect: options.preferredDialect || 'zh', // 普通话
     preferredVoice: options.preferredVoice || 'female',
     enableVisualFeedback: options.enableVisualFeedback !== false,
-    ...options
+    ...options,
   });
 
   // 状态管理
@@ -41,8 +41,8 @@ export function useVoiceInteraction(options = {}) {
     serviceStatus: {
       backend: false,
       python: false,
-      initialized: false
-    }
+      initialized: false,
+    },
   });
 
   // 音频相关
@@ -99,7 +99,7 @@ export function useVoiceInteraction(options = {}) {
       return true;
     } catch (error) {
       console.error('❌ 语音交互服务初始化失败:', error);
-      ElMessage.error(`语音服务初始化失败: ${  error.message}`);
+      ElMessage.error(`语音服务初始化失败: ${error.message}`);
       return false;
     }
   };
@@ -121,7 +121,7 @@ export function useVoiceInteraction(options = {}) {
       AudioContext: hasAudioContext,
       SpeechSynthesis: hasSpeechSynthesis,
       SpeechRecognition: hasSpeechRecognition,
-      fullySupported: supported
+      fullySupported: supported,
     });
 
     state.isSupported = supported;
@@ -138,8 +138,8 @@ export function useVoiceInteraction(options = {}) {
           echoCancellation: true,
           noiseSuppression: true,
           autoGainControl: true,
-          sampleRate: 16000
-        }
+          sampleRate: 16000,
+        },
       });
 
       stream.getTracks().forEach(track => track.stop());
@@ -235,20 +235,20 @@ export function useVoiceInteraction(options = {}) {
           echoCancellation: true,
           noiseSuppression: true,
           autoGainControl: true,
-          sampleRate: 16000
-        }
+          sampleRate: 16000,
+        },
       });
 
       // 创建录音器
       const options = {
-        mimeType: getSupportedMimeType()
+        mimeType: getSupportedMimeType(),
       };
 
       mediaRecorder.value = new MediaRecorder(audioStream.value, options);
 
       const audioChunks = [];
 
-      mediaRecorder.value.ondataavailable = (event) => {
+      mediaRecorder.value.ondataavailable = event => {
         if (event.data.size > 0) {
           audioChunks.push(event.data);
         }
@@ -280,7 +280,7 @@ export function useVoiceInteraction(options = {}) {
       console.log('录音已开始');
     } catch (error) {
       console.error('开始录音失败:', error);
-      ElMessage.error(`开始录音失败: ${  error.message}`);
+      ElMessage.error(`开始录音失败: ${error.message}`);
     }
   };
 
@@ -322,7 +322,7 @@ export function useVoiceInteraction(options = {}) {
   /**
    * 处理音频数据
    */
-  const processAudioData = async (audioBlob) => {
+  const processAudioData = async audioBlob => {
     try {
       console.log('🔄 处理音频数据...');
       state.isProcessing = true;
@@ -363,18 +363,17 @@ export function useVoiceInteraction(options = {}) {
 
       state.isProcessing = false;
       console.log('音频数据处理完成');
-
     } catch (error) {
       console.error('音频数据处理失败:', error);
       state.isProcessing = false;
-      ElMessage.error(`语音处理失败: ${  error.message}`);
+      ElMessage.error(`语音处理失败: ${error.message}`);
     }
   };
 
   /**
    * 方言检测
    */
-  const detectDialect = async (audioData) => {
+  const detectDialect = async audioData => {
     try {
       const formData = new FormData();
       formData.append('audio', new Blob([audioData], { type: 'audio/wav' }));
@@ -384,8 +383,8 @@ export function useVoiceInteraction(options = {}) {
         formData,
         {
           headers: {
-            'Content-Type': 'multipart/form-data'
-          }
+            'Content-Type': 'multipart/form-data',
+          },
         }
       );
 
@@ -412,27 +411,19 @@ export function useVoiceInteraction(options = {}) {
 
       // 优先使用Python服务
       if (state.serviceStatus.python) {
-        const response = await axios.post(
-          `${config.pythonServiceUrl}/speech/recognize`,
-          formData,
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data'
-            }
-          }
-        );
+        const response = await axios.post(`${config.pythonServiceUrl}/speech/recognize`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
         recognitionResult = response.data.data;
       } else if (state.serviceStatus.backend) {
         // 使用后端服务
-        const response = await axios.post(
-          `${config.backendUrl}/api/v1/voice/recognize`,
-          formData,
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data'
-            }
-          }
-        );
+        const response = await axios.post(`${config.backendUrl}/api/v1/voice/recognize`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
         recognitionResult = response.data.data;
       } else {
         // 使用Web Speech API
@@ -469,17 +460,17 @@ export function useVoiceInteraction(options = {}) {
       recognition.interimResults = false;
       recognition.maxAlternatives = 1;
 
-      recognition.onresult = (event) => {
+      recognition.onresult = event => {
         const transcript = event.results[0][0].transcript;
         resolve({
           text: transcript,
           confidence: event.results[0][0].confidence,
           language: recognition.lang,
-          dialect: 'unknown'
+          dialect: 'unknown',
         });
       };
 
-      recognition.onerror = (event) => {
+      recognition.onerror = event => {
         reject(new Error(`语音识别错误: ${event.error}`));
       };
 
@@ -490,7 +481,7 @@ export function useVoiceInteraction(options = {}) {
   /**
    * 语音命令解析
    */
-  const parseVoiceCommand = (text) => {
+  const parseVoiceCommand = text => {
     const cleanedText = text.trim().toLowerCase();
 
     // 检测唤醒词
@@ -504,7 +495,7 @@ export function useVoiceInteraction(options = {}) {
       help: /^帮助|怎么用|使用指南/,
       emergency: /^紧急|求救|报警|急救/,
       weather: /^天气|温度|降雨/,
-      service: /^服务|办事|申请/
+      service: /^服务|办事|申请/,
     };
 
     let commandType = 'general';
@@ -524,7 +515,7 @@ export function useVoiceInteraction(options = {}) {
       hasWakeWord,
       commandType,
       entities,
-      confidence: calculateConfidence(text, hasWakeWord)
+      confidence: calculateConfidence(text, hasWakeWord),
     };
   };
 
@@ -536,11 +527,11 @@ export function useVoiceInteraction(options = {}) {
 
     // 时间实体
     const timePatterns = {
-      '今天': 'today',
-      '明天': 'tomorrow',
-      '上午': 'morning',
-      '下午': 'afternoon',
-      '晚上': 'evening'
+      今天: 'today',
+      明天: 'tomorrow',
+      上午: 'morning',
+      下午: 'afternoon',
+      晚上: 'evening',
     };
 
     for (const [textPattern, value] of Object.entries(timePatterns)) {
@@ -595,18 +586,15 @@ export function useVoiceInteraction(options = {}) {
   /**
    * 处理语音命令
    */
-  const processVoiceCommand = async (recognitionResult) => {
+  const processVoiceCommand = async recognitionResult => {
     try {
       if (!recognitionResult.command || !recognitionResult.command.hasWakeWord) {
         return { success: false, message: '未检测到唤醒词' };
       }
 
-      const response = await axios.post(
-        `${config.backendUrl}/api/v1/voice/command`,
-        {
-          text: recognitionResult.text
-        }
-      );
+      const response = await axios.post(`${config.backendUrl}/api/v1/voice/command`, {
+        text: recognitionResult.text,
+      });
 
       return response.data.data;
     } catch (error) {
@@ -618,7 +606,7 @@ export function useVoiceInteraction(options = {}) {
   /**
    * 执行命令
    */
-  const executeCommand = async (command) => {
+  const executeCommand = async command => {
     try {
       console.log('执行命令:', command);
 
@@ -628,17 +616,16 @@ export function useVoiceInteraction(options = {}) {
 
       // 触发事件
       emit('commandExecuted', command);
-
     } catch (error) {
       console.error('命令执行失败:', error);
-      ElMessage.error(`命令执行失败: ${  error.message}`);
+      ElMessage.error(`命令执行失败: ${error.message}`);
     }
   };
 
   /**
    * 生成命令响应
    */
-  const generateCommandResponse = (command) => {
+  const generateCommandResponse = command => {
     const responses = {
       query_info: '正在为您查询相关信息...',
       handle_action: '正在为您处理相关业务...',
@@ -646,7 +633,7 @@ export function useVoiceInteraction(options = {}) {
       get_help: '为您提供使用帮助...',
       emergency_call: '紧急求助已发送，请保持冷静！',
       weather_query: '正在查询天气信息...',
-      service_apply: '正在为您申请相关服务...'
+      service_apply: '正在为您申请相关服务...',
     };
 
     return responses[command.intent] || '正在处理您的要求...';
@@ -666,30 +653,24 @@ export function useVoiceInteraction(options = {}) {
         speed: options.speed || 1.0,
         pitch: options.pitch || 1.0,
         volume: options.volume || 1.0,
-        emotion: options.emotion || 'neutral'
+        emotion: options.emotion || 'neutral',
       };
 
       let audioData;
 
       // 优先使用Python服务
       if (state.serviceStatus.python) {
-        const response = await axios.post(
-          `${config.pythonServiceUrl}/speech/synthesize`,
-          {
-            text,
-            config: synthesisOptions
-          }
-        );
+        const response = await axios.post(`${config.pythonServiceUrl}/speech/synthesize`, {
+          text,
+          config: synthesisOptions,
+        });
         audioData = response.data.data.audio;
       } else if (state.serviceStatus.backend) {
         // 使用后端服务
-        const response = await axios.post(
-          `${config.backendUrl}/api/v1/voice/synthesize`,
-          {
-            text,
-            ...synthesisOptions
-          }
-        );
+        const response = await axios.post(`${config.backendUrl}/api/v1/voice/synthesize`, {
+          text,
+          ...synthesisOptions,
+        });
         audioData = response.data.data.audio;
       } else {
         // 使用Web Speech API
@@ -704,7 +685,6 @@ export function useVoiceInteraction(options = {}) {
 
       state.lastResponse = text;
       addToConversationHistory('assistant', text);
-
     } catch (error) {
       console.error('语音合成失败:', error);
       // 使用Web Speech API作为备用
@@ -746,7 +726,7 @@ export function useVoiceInteraction(options = {}) {
         resolve();
       };
 
-      utterance.onerror = (event) => {
+      utterance.onerror = event => {
         state.isSpeaking = false;
         reject(new Error(`语音合成错误: ${event.error}`));
       };
@@ -758,7 +738,7 @@ export function useVoiceInteraction(options = {}) {
   /**
    * 从数据播放音频
    */
-  const playAudioFromData = async (audioData) => {
+  const playAudioFromData = async audioData => {
     try {
       state.isSpeaking = true;
       emit('speechStarted');
@@ -861,7 +841,8 @@ export function useVoiceInteraction(options = {}) {
     const checkSilence = () => {
       if (!state.isRecording) return;
 
-      if (state.audioLevel < 0.01) { // 静音阈值
+      if (state.audioLevel < 0.01) {
+        // 静音阈值
         if (!silenceStartTime) {
           silenceStartTime = Date.now();
         } else if (Date.now() - silenceStartTime > config.silenceTimeout) {
@@ -898,7 +879,7 @@ export function useVoiceInteraction(options = {}) {
       'audio/ogg;codecs=opus',
       'audio/ogg',
       'audio/wav',
-      'audio/mp4'
+      'audio/mp4',
     ];
 
     for (const type of types) {
@@ -917,7 +898,7 @@ export function useVoiceInteraction(options = {}) {
     state.conversationHistory.push({
       role,
       content,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     // 限制历史记录长度
@@ -1002,8 +983,8 @@ export function useVoiceInteraction(options = {}) {
       serviceStatus: {
         backend: false,
         python: false,
-        initialized: false
-      }
+        initialized: false,
+      },
     });
 
     console.log('语音交互资源清理完成');
@@ -1040,6 +1021,6 @@ export function useVoiceInteraction(options = {}) {
     emit,
 
     // 工具
-    cleanup
+    cleanup,
   };
 }

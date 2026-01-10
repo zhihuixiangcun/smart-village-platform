@@ -151,9 +151,7 @@
 
     <!-- 加载更多 -->
     <div v-if="hasMore" class="load-more">
-      <el-button :loading="loadingMore" @click="loadMore" text>
-        加载更多
-      </el-button>
+      <el-button :loading="loadingMore" @click="loadMore" text> 加载更多 </el-button>
     </div>
 
     <!-- 筛选弹窗 -->
@@ -198,173 +196,171 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue';
 import {
-  Shop,  // 替代 Gourmet（餐饮）
+  Shop, // 替代 Gourmet（餐饮）
   Filter,
   Sort,
   Location,
-  Compass,  // 替代 Navigation（导航）
+  Compass, // 替代 Navigation（导航）
   Phone,
-  Share
-} from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
-import type { Venue, VenueType, SortType } from '@/types/marketplace'
+  Share,
+} from '@element-plus/icons-vue';
+import { ElMessage } from 'element-plus';
+import type { Venue, VenueType, SortType } from '@/types/marketplace';
 
 // Emits
 const emit = defineEmits<{
-  venueClick: [venue: Venue]
-}>()
+  venueClick: [venue: Venue];
+}>();
 
 // 状态
-const loading = ref(true)
-const loadingMore = ref(false)
-const activeCategory = ref<VenueType | 'all'>('all')
-const currentSort = ref<SortType>('distance')
-const venues = ref<Venue[]>([])
-const page = ref(1)
-const pageSize = ref(5)
-const hasMore = ref(false)
-const filterVisible = ref(false)
+const loading = ref(true);
+const loadingMore = ref(false);
+const activeCategory = ref<VenueType | 'all'>('all');
+const currentSort = ref<SortType>('distance');
+const venues = ref<Venue[]>([]);
+const page = ref(1);
+const pageSize = ref(5);
+const hasMore = ref(false);
+const filterVisible = ref(false);
 
 // 筛选条件
 const filters = ref({
   openStatus: 'all',
   priceRange: 'all',
-  facilities: [] as string[]
-})
+  facilities: [] as string[],
+});
 
 // 服务分类
 const serviceCategories = ref([
   {
     key: 'all',
     label: '全部',
-    icon: Shop,  // 替代 Gourmet
-    color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+    icon: Shop, // 替代 Gourmet
+    color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
   },
   {
     key: 'restaurant',
     label: '餐厅',
     icon: '🍜',
-    color: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+    color: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
   },
   {
     key: 'farm_stay',
     label: '农家乐',
     icon: '🌾',
-    color: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
+    color: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
   },
   {
     key: 'scenic',
     label: '景点',
     icon: '🏞️',
-    color: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'
+    color: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
   },
   {
     key: 'entertainment',
     label: '娱乐',
     icon: '🎮',
-    color: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'
-  }
-])
+    color: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+  },
+]);
 
 // 计算属性
 const filteredVenues = computed(() => {
-  let result = venues.value
+  let result = venues.value;
 
   // 分类筛选
   if (activeCategory.value !== 'all') {
-    result = result.filter(v => v.type === activeCategory.value)
+    result = result.filter(v => v.type === activeCategory.value);
   }
 
   // 营业状态筛选
   if (filters.value.openStatus === 'open') {
-    result = result.filter(v => v.isOpen)
+    result = result.filter(v => v.isOpen);
   } else if (filters.value.openStatus === 'closed') {
-    result = result.filter(v => !v.isOpen)
+    result = result.filter(v => !v.isOpen);
   }
 
   // 价格筛选
   if (filters.value.priceRange !== 'all') {
-    const [min, max] = filters.value.priceRange.split('-').map(Number)
+    const [min, max] = filters.value.priceRange.split('-').map(Number);
     result = result.filter(v => {
-      if (!v.averagePrice) return false
+      if (!v.averagePrice) return false;
       if (max) {
-        return v.averagePrice >= min && v.averagePrice <= max
+        return v.averagePrice >= min && v.averagePrice <= max;
       }
-      return v.averagePrice >= min
-    })
+      return v.averagePrice >= min;
+    });
   }
 
   // 设施筛选
   if (filters.value.facilities.length > 0) {
-    result = result.filter(v =>
-      filters.value.facilities.some(f => v.facilities?.includes(f))
-    )
+    result = result.filter(v => filters.value.facilities.some(f => v.facilities?.includes(f)));
   }
 
   // 排序
   result = [...result].sort((a, b) => {
     switch (currentSort.value) {
       case 'distance':
-        return a.distance - b.distance
+        return a.distance - b.distance;
       case 'rating':
-        return b.rating - a.rating
+        return b.rating - a.rating;
       case 'price_asc':
-        return (a.averagePrice || Infinity) - (b.averagePrice || Infinity)
+        return (a.averagePrice || Infinity) - (b.averagePrice || Infinity);
       default:
-        return 0
+        return 0;
     }
-  })
+  });
 
-  return result
-})
+  return result;
+});
 
 const paginatedVenues = computed(() => {
-  return filteredVenues.value.slice(0, page.value * pageSize.value)
-})
+  return filteredVenues.value.slice(0, page.value * pageSize.value);
+});
 
 // 方法
 const selectCategory = (category: VenueType | 'all') => {
-  activeCategory.value = category
-  page.value = 1
-}
+  activeCategory.value = category;
+  page.value = 1;
+};
 
 const handleSort = (sort: SortType) => {
-  currentSort.value = sort
-}
+  currentSort.value = sort;
+};
 
 const formatDistance = (distance: number): string => {
   if (distance < 1000) {
-    return `${Math.round(distance)}m`
+    return `${Math.round(distance)}m`;
   }
-  return `${(distance / 1000).toFixed(1)}km`
-}
+  return `${(distance / 1000).toFixed(1)}km`;
+};
 
 const getTypeLabel = (type: VenueType): string => {
   const labels: Record<VenueType, string> = {
     restaurant: '餐厅',
     farm_stay: '农家乐',
     scenic: '景点',
-    entertainment: '娱乐'
-  }
-  return labels[type]
-}
+    entertainment: '娱乐',
+  };
+  return labels[type];
+};
 
 const viewVenueDetail = (venue: Venue) => {
-  emit('venueClick', venue)
-}
+  emit('venueClick', venue);
+};
 
 const navigate = (venue: Venue) => {
   // 使用高德地图或百度地图导航
-  const url = `https://uri.amap.com/navigation?to=${venue.location.longitude},${venue.location.latitude},${venue.name}&mode=car&coordinate=gaode&callnative=1`
-  window.open(url, '_blank')
-  ElMessage.success('正在打开导航...')
-}
+  const url = `https://uri.amap.com/navigation?to=${venue.location.longitude},${venue.location.latitude},${venue.name}&mode=car&coordinate=gaode&callnative=1`;
+  window.open(url, '_blank');
+  ElMessage.success('正在打开导航...');
+};
 
 const call = (phone: string) => {
-  window.location.href = `tel:${phone}`
-}
+  window.location.href = `tel:${phone}`;
+};
 
 const share = (venue: Venue) => {
   // 复制链接或调用分享
@@ -372,54 +368,54 @@ const share = (venue: Venue) => {
     navigator.share({
       title: venue.name,
       text: venue.description,
-      url: window.location.href
-    })
+      url: window.location.href,
+    });
   } else {
     // 复制到剪贴板
-    navigator.clipboard.writeText(`${venue.name} - ${venue.address}`)
-    ElMessage.success('地址已复制到剪贴板')
+    navigator.clipboard.writeText(`${venue.name} - ${venue.address}`);
+    ElMessage.success('地址已复制到剪贴板');
   }
-}
+};
 
 const showFilter = () => {
-  filterVisible.value = true
-}
+  filterVisible.value = true;
+};
 
 const applyFilter = () => {
-  page.value = 1
-  filterVisible.value = false
-}
+  page.value = 1;
+  filterVisible.value = false;
+};
 
 const resetFilter = () => {
   filters.value = {
     openStatus: 'all',
     priceRange: 'all',
-    facilities: []
-  }
-}
+    facilities: [],
+  };
+};
 
 const loadMore = async () => {
-  if (loadingMore.value || !hasMore.value) return
+  if (loadingMore.value || !hasMore.value) return;
 
-  loadingMore.value = true
+  loadingMore.value = true;
   try {
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    page.value++
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    page.value++;
   } finally {
-    loadingMore.value = false
+    loadingMore.value = false;
   }
-}
+};
 
 const refresh = async () => {
-  loading.value = true
-  await loadNearbyVenues()
-}
+  loading.value = true;
+  await loadNearbyVenues();
+};
 
 const loadNearbyVenues = async () => {
-  loading.value = true
+  loading.value = true;
   try {
     // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     // 模拟数据
     const mockVenues: Venue[] = [
@@ -431,7 +427,7 @@ const loadNearbyVenues = async () => {
         images: [
           'https://via.placeholder.com/400x300?text=农家菜1',
           'https://via.placeholder.com/400x300?text=农家菜2',
-          'https://via.placeholder.com/400x300?text=农家菜3'
+          'https://via.placeholder.com/400x300?text=农家菜3',
         ],
         location: { latitude: 30.123, longitude: 120.456, address: '李家村88号' },
         distance: 500,
@@ -443,7 +439,7 @@ const loadNearbyVenues = async () => {
         businessHours: '09:00-21:00',
         isOpen: true,
         facilities: ['WiFi', '停车位', '包间'],
-        tags: ['农家菜', '土鸡', '有机蔬菜']
+        tags: ['农家菜', '土鸡', '有机蔬菜'],
       },
       {
         id: 'v2',
@@ -452,7 +448,7 @@ const loadNearbyVenues = async () => {
         description: '美丽的湖光山色，适合全家游玩',
         images: [
           'https://via.placeholder.com/400x300?text=青龙湖1',
-          'https://via.placeholder.com/400x300?text=青龙湖2'
+          'https://via.placeholder.com/400x300?text=青龙湖2',
         ],
         location: { latitude: 30.125, longitude: 120.458, address: '青龙路1号' },
         distance: 3200,
@@ -463,24 +459,24 @@ const loadNearbyVenues = async () => {
         businessHours: '08:00-18:00',
         isOpen: true,
         facilities: ['停车场', '游客中心', '卫生间'],
-        tags: ['自然风光', '亲子游', '摄影']
-      }
-    ]
+        tags: ['自然风光', '亲子游', '摄影'],
+      },
+    ];
 
-    venues.value = mockVenues
-    hasMore.value = mockVenues.length >= pageSize.value
+    venues.value = mockVenues;
+    hasMore.value = mockVenues.length >= pageSize.value;
   } catch (error) {
-    console.error('加载场所失败:', error)
-    ElMessage.error('加载失败，请重试')
+    console.error('加载场所失败:', error);
+    ElMessage.error('加载失败，请重试');
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 // 生命周期
 onMounted(async () => {
-  await loadNearbyVenues()
-})
+  await loadNearbyVenues();
+});
 </script>
 
 <style lang="scss" scoped>

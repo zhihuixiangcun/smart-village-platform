@@ -2,11 +2,7 @@
   <div class="document-list smart-village-page">
     <!-- 顶部导航 -->
     <header class="page-header sv-card">
-      <van-nav-bar
-        title="资料收集"
-        left-arrow
-        @click-left="$router.go(-1)"
-      >
+      <van-nav-bar title="资料收集" left-arrow @click-left="$router.go(-1)">
         <template #right>
           <div class="header-actions">
             <van-icon name="scan" @click="handleQuickUpload" />
@@ -75,7 +71,10 @@
           <van-tag
             v-for="item in searchHistory"
             :key="item"
-            @click="searchKeyword = item; handleSearch()"
+            @click="
+              searchKeyword = item;
+              handleSearch();
+            "
             class="history-tag"
           >
             {{ item }}
@@ -140,12 +139,7 @@
           <div class="document-content">
             <p v-if="document.description" class="description">{{ document.description }}</p>
             <div class="document-tags" v-if="document.tags && document.tags.length">
-              <van-tag
-                v-for="tag in document.tags.slice(0, 3)"
-                :key="tag"
-                size="small"
-                class="tag"
-              >
+              <van-tag v-for="tag in document.tags.slice(0, 3)" :key="tag" size="small" class="tag">
                 {{ tag }}
               </van-tag>
               <span v-if="document.tags.length > 3" class="more-tags">
@@ -200,29 +194,29 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { showToast } from 'vant'
-import villageApi from '@/api/villageManagement'
+import { ref, reactive, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { showToast } from 'vant';
+import villageApi from '@/api/villageManagement';
 
-const router = useRouter()
+const router = useRouter();
 
 // 响应式数据
-const loading = ref(false)
-const finished = ref(false)
-const searchKeyword = ref('')
-const filterCategory = ref('')
-const filterStatus = ref('')
-const documents = ref([])
-const showSearchHistory = ref(false)
-const searchHistory = ref(['贫困户资料', '土地证明', '身份证复印件', '养老保险'])
+const loading = ref(false);
+const finished = ref(false);
+const searchKeyword = ref('');
+const filterCategory = ref('');
+const filterStatus = ref('');
+const documents = ref([]);
+const showSearchHistory = ref(false);
+const searchHistory = ref(['贫困户资料', '土地证明', '身份证复印件', '养老保险']);
 
 // 分页参数
 const pagination = reactive({
   page: 1,
   limit: 20,
-  total: 0
-})
+  total: 0,
+});
 
 // 今日统计
 const collectTodayStats = computed(() => {
@@ -230,9 +224,9 @@ const collectTodayStats = computed(() => {
   return {
     needCollect: Math.floor(Math.random() * 5),
     totalCollected: Math.floor(Math.random() * 20),
-    pendingReview: Math.floor(Math.random() * 3)
-  }
-})
+    pendingReview: Math.floor(Math.random() * 3),
+  };
+});
 
 // 筛选选项
 const categoryOptions = [
@@ -243,8 +237,8 @@ const categoryOptions = [
   { text: '项目', value: 'project' },
   { text: '会议', value: 'meeting' },
   { text: '政策', value: 'policy' },
-  { text: '应急', value: 'emergency' }
-]
+  { text: '应急', value: 'emergency' },
+];
 
 const statusOptions = [
   { text: '全部', value: '' },
@@ -252,201 +246,201 @@ const statusOptions = [
   { text: '审核中', value: 'reviewing' },
   { text: '已完成', value: 'approved' },
   { text: '已拒绝', value: 'rejected' },
-  { text: '已归档', value: 'archived' }
-]
+  { text: '已归档', value: 'archived' },
+];
 
 // 方法
 const loadDocuments = async (reset = false) => {
   if (reset) {
-    pagination.page = 1
-    documents.value = []
-    finished.value = false
+    pagination.page = 1;
+    documents.value = [];
+    finished.value = false;
   }
 
-  loading.value = true
+  loading.value = true;
   try {
     const params = {
       page: pagination.page,
       limit: pagination.limit,
       category: filterCategory.value,
-      status: filterStatus.value
-    }
+      status: filterStatus.value,
+    };
 
     if (searchKeyword.value.trim()) {
-      params.search = searchKeyword.value.trim()
+      params.search = searchKeyword.value.trim();
     }
 
-    const response = await villageApi.getMyDocuments(params)
-    const newDocuments = response.data.data.docs || []
+    const response = await villageApi.getMyDocuments(params);
+    const newDocuments = response.data.data.docs || [];
 
     if (reset) {
-      documents.value = newDocuments
+      documents.value = newDocuments;
     } else {
-      documents.value.push(...newDocuments)
+      documents.value.push(...newDocuments);
     }
 
-    pagination.total = response.data.data.total || 0
-    pagination.page += 1
+    pagination.total = response.data.data.total || 0;
+    pagination.page += 1;
 
-    finished.value = documents.value.length >= pagination.total
+    finished.value = documents.value.length >= pagination.total;
   } catch (error) {
-    console.error('加载资料列表失败:', error)
-    showToast('加载失败')
+    console.error('加载资料列表失败:', error);
+    showToast('加载失败');
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const onLoad = () => {
-  loadDocuments()
-}
+  loadDocuments();
+};
 
 const handleSearch = () => {
-  loadDocuments(true)
-}
+  loadDocuments(true);
+};
 
 const handleClear = () => {
-  searchKeyword.value = ''
-  loadDocuments(true)
-}
+  searchKeyword.value = '';
+  loadDocuments(true);
+};
 
 const createDocument = () => {
-  router.push('/village/documents/new')
-}
+  router.push('/village/documents/new');
+};
 
-const viewDocument = (document) => {
-  router.push(`/village/documents/${document._id}`)
-}
+const viewDocument = document => {
+  router.push(`/village/documents/${document._id}`);
+};
 
 const handleQuickUpload = () => {
   // 触发文件上传
-  const input = document.createElement('input')
-  input.type = 'file'
-  input.accept = 'image/*,.pdf,.doc,.docx,.xls,.xlsx'
-  input.multiple = true
-  input.onchange = async (e) => {
-    const files = Array.from(e.target.files)
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*,.pdf,.doc,.docx,.xls,.xlsx';
+  input.multiple = true;
+  input.onchange = async e => {
+    const files = Array.from(e.target.files);
     if (files.length > 0) {
       try {
-        showToast('上传中...')
+        showToast('上传中...');
         // 这里可以快速创建一个收集任务并上传文件
         // const formData = new FormData()
         // files.forEach(file => formData.append('files', file))
         // await villageApi.quickUpload(formData)
-        showToast('上传成功')
-        loadDocuments(true)
+        showToast('上传成功');
+        loadDocuments(true);
       } catch (error) {
-        console.error('快速上传失败:', error)
-        showToast('上传失败')
+        console.error('快速上传失败:', error);
+        showToast('上传失败');
       }
     }
-  }
-  input.click()
-}
+  };
+  input.click();
+};
 
 // 辅助方法
-const getDocumentIcon = (category) => {
+const getDocumentIcon = category => {
   const iconMap = {
-    'village_affairs': 'description',
-    'resident_info': 'user-o',
-    'financial': 'gold-coin-o',
-    'project': 'building-o',
-    'meeting': 'chat-o',
-    'policy': 'file-text-o',
-    'emergency': 'warning-o',
-    'other': 'folder-o'
-  }
-  return iconMap[category] || 'folder-o'
-}
+    village_affairs: 'description',
+    resident_info: 'user-o',
+    financial: 'gold-coin-o',
+    project: 'building-o',
+    meeting: 'chat-o',
+    policy: 'file-text-o',
+    emergency: 'warning-o',
+    other: 'folder-o',
+  };
+  return iconMap[category] || 'folder-o';
+};
 
-const getDocumentCategoryClass = (category) => {
+const getDocumentCategoryClass = category => {
   const classMap = {
-    'village_affairs': 'category-village',
-    'resident_info': 'category-resident',
-    'financial': 'category-financial',
-    'project': 'category-project',
-    'meeting': 'category-meeting',
-    'policy': 'category-policy',
-    'emergency': 'category-emergency',
-    'other': 'category-other'
-  }
-  return classMap[category] || 'category-other'
-}
+    village_affairs: 'category-village',
+    resident_info: 'category-resident',
+    financial: 'category-financial',
+    project: 'category-project',
+    meeting: 'category-meeting',
+    policy: 'category-policy',
+    emergency: 'category-emergency',
+    other: 'category-other',
+  };
+  return classMap[category] || 'category-other';
+};
 
 const clearSearchHistory = () => {
-  searchHistory.value = []
-  showToast('搜索历史已清空')
-}
+  searchHistory.value = [];
+  showToast('搜索历史已清空');
+};
 
-const isDeadlineUrgent = (deadline) => {
-  if (!deadline) return false
-  const now = new Date()
-  const deadlineDate = new Date(deadline)
-  const diffDays = Math.ceil((deadlineDate - now) / (1000 * 60 * 60 * 24))
-  return diffDays <= 3
-}
+const isDeadlineUrgent = deadline => {
+  if (!deadline) return false;
+  const now = new Date();
+  const deadlineDate = new Date(deadline);
+  const diffDays = Math.ceil((deadlineDate - now) / (1000 * 60 * 60 * 24));
+  return diffDays <= 3;
+};
 
-const getStatusType = (status) => {
+const getStatusType = status => {
   const statusMap = {
-    'collecting': 'primary',
-    'reviewing': 'warning',
-    'approved': 'success',
-    'rejected': 'danger',
-    'archived': 'default'
-  }
-  return statusMap[status] || 'default'
-}
+    collecting: 'primary',
+    reviewing: 'warning',
+    approved: 'success',
+    rejected: 'danger',
+    archived: 'default',
+  };
+  return statusMap[status] || 'default';
+};
 
-const getStatusText = (status) => {
+const getStatusText = status => {
   const statusMap = {
-    'collecting': '收集中',
-    'reviewing': '审核中',
-    'approved': '已完成',
-    'rejected': '已拒绝',
-    'archived': '已归档'
-  }
-  return statusMap[status] || status
-}
+    collecting: '收集中',
+    reviewing: '审核中',
+    approved: '已完成',
+    rejected: '已拒绝',
+    archived: '已归档',
+  };
+  return statusMap[status] || status;
+};
 
-const formatDocumentLabel = (document) => {
-  const labels = []
+const formatDocumentLabel = document => {
+  const labels = [];
   if (document.collector?.name) {
-    labels.push(`收集人: ${document.collector.name}`)
+    labels.push(`收集人: ${document.collector.name}`);
   }
   if (document.category) {
-    labels.push(`类别: ${getCategoryText(document.category)}`)
+    labels.push(`类别: ${getCategoryText(document.category)}`);
   }
   if (document.files?.length) {
-    labels.push(`文件数: ${document.files.length}`)
+    labels.push(`文件数: ${document.files.length}`);
   }
   if (document.collectionDate) {
-    labels.push(`时间: ${formatDate(document.collectionDate)}`)
+    labels.push(`时间: ${formatDate(document.collectionDate)}`);
   }
-  return labels.join(' • ')
-}
+  return labels.join(' • ');
+};
 
-const getCategoryText = (category) => {
+const getCategoryText = category => {
   const categoryMap = {
-    'village_affairs': '村务',
-    'resident_info': '村民信息',
-    'financial': '财务',
-    'project': '项目',
-    'meeting': '会议',
-    'policy': '政策',
-    'emergency': '应急',
-    'other': '其他'
-  }
-  return categoryMap[category] || category
-}
+    village_affairs: '村务',
+    resident_info: '村民信息',
+    financial: '财务',
+    project: '项目',
+    meeting: '会议',
+    policy: '政策',
+    emergency: '应急',
+    other: '其他',
+  };
+  return categoryMap[category] || category;
+};
 
-const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString()
-}
+const formatDate = dateString => {
+  return new Date(dateString).toLocaleDateString();
+};
 
 // 生命周期
 onMounted(() => {
-  loadDocuments(true)
-})
+  loadDocuments(true);
+});
 </script>
 
 <style scoped>
@@ -652,14 +646,30 @@ onMounted(() => {
   flex-shrink: 0;
 }
 
-.category-village { background: var(--sv-primary); }
-.category-resident { background: var(--sv-success); }
-.category-financial { background: var(--sv-warning); }
-.category-project { background: var(--sv-error); }
-.category-meeting { background: var(--sv-earth); }
-.category-policy { background: var(--sv-water); }
-.category-emergency { background: #ff4d4f; }
-.category-other { background: var(--sv-text-secondary); }
+.category-village {
+  background: var(--sv-primary);
+}
+.category-resident {
+  background: var(--sv-success);
+}
+.category-financial {
+  background: var(--sv-warning);
+}
+.category-project {
+  background: var(--sv-error);
+}
+.category-meeting {
+  background: var(--sv-earth);
+}
+.category-policy {
+  background: var(--sv-water);
+}
+.category-emergency {
+  background: #ff4d4f;
+}
+.category-other {
+  background: var(--sv-text-secondary);
+}
 
 .document-title {
   flex: 1;
@@ -788,12 +798,28 @@ onMounted(() => {
 }
 
 /* 分类颜色指示器 */
-.document-card.category-village { border-left-color: var(--sv-primary); }
-.document-card.category-resident { border-left-color: var(--sv-success); }
-.document-card.category-financial { border-left-color: var(--sv-warning); }
-.document-card.category-project { border-left-color: var(--sv-error); }
-.document-card.category-meeting { border-left-color: var(--sv-earth); }
-.document-card.category-policy { border-left-color: var(--sv-water); }
-.document-card.category-emergency { border-left-color: #ff4d4f; }
-.document-card.category-other { border-left-color: var(--sv-text-secondary); }
+.document-card.category-village {
+  border-left-color: var(--sv-primary);
+}
+.document-card.category-resident {
+  border-left-color: var(--sv-success);
+}
+.document-card.category-financial {
+  border-left-color: var(--sv-warning);
+}
+.document-card.category-project {
+  border-left-color: var(--sv-error);
+}
+.document-card.category-meeting {
+  border-left-color: var(--sv-earth);
+}
+.document-card.category-policy {
+  border-left-color: var(--sv-water);
+}
+.document-card.category-emergency {
+  border-left-color: #ff4d4f;
+}
+.document-card.category-other {
+  border-left-color: var(--sv-text-secondary);
+}
 </style>

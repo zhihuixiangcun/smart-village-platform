@@ -9,20 +9,16 @@
       @click="handleToggleListening"
       :class="{
         'speech-btn': true,
-        'listening': isListening,
-        'processing': isProcessing
+        listening: isListening,
+        processing: isProcessing,
       }"
       :size="size"
     >
       <template v-if="!isListening && !isProcessing">
         {{ buttonText || '语音输入' }}
       </template>
-      <template v-else-if="isListening">
-        正在听取...
-      </template>
-      <template v-else>
-        处理中...
-      </template>
+      <template v-else-if="isListening"> 正在听取... </template>
+      <template v-else> 处理中... </template>
     </el-button>
 
     <!-- 活动状态指示器 -->
@@ -30,7 +26,12 @@
       <div class="indicator-content">
         <!-- 语音波形动画 -->
         <div class="voice-wave">
-          <div v-for="i in 5" :key="i" class="wave-bar" :style="{ animationDelay: `${i * 0.1}s` }" />
+          <div
+            v-for="i in 5"
+            :key="i"
+            class="wave-bar"
+            :style="{ animationDelay: `${i * 0.1}s` }"
+          />
         </div>
 
         <!-- 状态文本 -->
@@ -73,22 +74,10 @@
           >
             确认
           </el-button>
-          <el-button
-            type="warning"
-            size="small"
-            @click="retryListening"
-            icon="RefreshRight"
-          >
+          <el-button type="warning" size="small" @click="retryListening" icon="RefreshRight">
             重新识别
           </el-button>
-          <el-button
-            type="info"
-            size="small"
-            @click="cancelInput"
-            icon="Close"
-          >
-            取消
-          </el-button>
+          <el-button type="info" size="small" @click="cancelInput" icon="Close"> 取消 </el-button>
         </div>
       </div>
     </div>
@@ -131,11 +120,7 @@
     </div>
 
     <div v-else-if="showTips && isSupported" class="tips-section">
-      <el-alert
-        title="语音输入提示"
-        type="info"
-        :closable="true"
-      >
+      <el-alert title="语音输入提示" type="info" :closable="true">
         <template #default>
           <ul class="tips-list">
             <li>🎤 点击按钮开始语音输入</li>
@@ -151,53 +136,53 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue'
-import { ElMessage } from 'element-plus'
-import { Microphone, VideoCamera, Check, RefreshRight, Close } from '@element-plus/icons-vue'
-import { useSpeechInput } from '@/composables/useSpeechRecognition'
+import { ref, watch, computed } from 'vue';
+import { ElMessage } from 'element-plus';
+import { Microphone, VideoCamera, Check, RefreshRight, Close } from '@element-plus/icons-vue';
+import { useSpeechInput } from '@/composables/useSpeechRecognition';
 
 // Props
 const props = defineProps({
   // 目标输入元素的ref
   targetRef: {
     type: Object,
-    default: null
+    default: null,
   },
   // 按钮文本
   buttonText: {
     type: String,
-    default: '语音输入'
+    default: '语音输入',
   },
   // 按钮大小
   size: {
     type: String,
     default: 'default',
-    validator: (value) => ['large', 'default', 'small'].includes(value)
+    validator: value => ['large', 'default', 'small'].includes(value),
   },
   // 是否禁用
   disabled: {
     type: Boolean,
-    default: false
+    default: false,
   },
   // 是否显示语言选择器
   showLanguageSelector: {
     type: Boolean,
-    default: false
+    default: false,
   },
   // 是否显示使用提示
   showTips: {
     type: Boolean,
-    default: false
+    default: false,
   },
   // 自动停止延迟
   autoStopDelay: {
     type: Number,
-    default: 3000
-  }
-})
+    default: 3000,
+  },
+});
 
 // Emits
-const emit = defineEmits(['input', 'confirmed', 'cancelled', 'error'])
+const emit = defineEmits(['input', 'confirmed', 'cancelled', 'error']);
 
 // 使用语音输入组合函数
 const {
@@ -213,69 +198,69 @@ const {
   stopListening,
   confirmInput: originalConfirmInput,
   cancelInput: originalCancelInput,
-  setLanguage
-} = useSpeechInput(props.targetRef)
+  setLanguage,
+} = useSpeechInput(props.targetRef);
 
 // 组件状态
-const error = ref('')
+const error = ref('');
 
 // 计算属性
-const isActive = computed(() => isListening.value || isProcessing.value)
+const isActive = computed(() => isListening.value || isProcessing.value);
 
 // 方法
 const handleToggleListening = () => {
   if (isListening.value) {
-    stopListening()
+    stopListening();
   } else {
     const success = startSpeechInput({
-      autoStopDelay: props.autoStopDelay
-    })
+      autoStopDelay: props.autoStopDelay,
+    });
     if (!success) {
-      error.value = '无法启动语音识别，请检查麦克风权限'
-      emit('error', error.value)
+      error.value = '无法启动语音识别，请检查麦克风权限';
+      emit('error', error.value);
     }
   }
-}
+};
 
 const confirmInput = () => {
-  originalConfirmInput()
-  emit('confirmed', transcript.value)
-  emit('input', transcript.value)
-}
+  originalConfirmInput();
+  emit('confirmed', transcript.value);
+  emit('input', transcript.value);
+};
 
 const cancelInput = () => {
-  originalCancelInput()
-  emit('cancelled')
-}
+  originalCancelInput();
+  emit('cancelled');
+};
 
 const retryListening = () => {
-  stopListening()
+  stopListening();
   setTimeout(() => {
-    handleToggleListening()
-  }, 300)
-}
+    handleToggleListening();
+  }, 300);
+};
 
-const handleLanguageChange = (lang) => {
-  setLanguage(lang)
-  ElMessage.success(`已切换到${supportedLanguages.value.find(([code]) => code === lang)?.[1]}`)
-}
+const handleLanguageChange = lang => {
+  setLanguage(lang);
+  ElMessage.success(`已切换到${supportedLanguages.value.find(([code]) => code === lang)?.[1]}`);
+};
 
 const clearError = () => {
-  error.value = ''
-}
+  error.value = '';
+};
 
-const getConfidenceColor = (confidence) => {
-  if (confidence >= 80) return '#67c23a'
-  if (confidence >= 60) return '#e6a23c'
-  return '#f56c6c'
-}
+const getConfidenceColor = confidence => {
+  if (confidence >= 80) return '#67c23a';
+  if (confidence >= 60) return '#e6a23c';
+  return '#f56c6c';
+};
 
 // 监听转录结果变化
-watch(transcript, (newTranscript) => {
+watch(transcript, newTranscript => {
   if (newTranscript) {
-    emit('input', newTranscript)
+    emit('input', newTranscript);
   }
-})
+});
 </script>
 
 <style lang="scss" scoped>
@@ -444,7 +429,9 @@ watch(transcript, (newTranscript) => {
 }
 
 @keyframes wave {
-  0%, 40%, 100% {
+  0%,
+  40%,
+  100% {
     transform: scaleY(0.4);
   }
   20% {
@@ -453,10 +440,12 @@ watch(transcript, (newTranscript) => {
 }
 
 @keyframes blink {
-  0%, 50% {
+  0%,
+  50% {
     opacity: 1;
   }
-  51%, 100% {
+  51%,
+  100% {
     opacity: 0;
   }
 }

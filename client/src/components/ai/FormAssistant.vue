@@ -130,7 +130,11 @@
                     <i class="fas fa-save"></i>
                     保存
                   </button>
-                  <button class="action-btn primary" @click="submitForm" :disabled="formCompleteness < 100">
+                  <button
+                    class="action-btn primary"
+                    @click="submitForm"
+                    :disabled="formCompleteness < 100"
+                  >
                     <i class="fas fa-paper-plane"></i>
                     提交
                   </button>
@@ -156,7 +160,11 @@
             </div>
 
             <div class="ai-generate-section">
-              <button class="generate-btn" @click="generateForm" :disabled="!formDescription || isProcessing">
+              <button
+                class="generate-btn"
+                @click="generateForm"
+                :disabled="!formDescription || isProcessing"
+              >
                 <i class="fas fa-magic"></i>
                 {{ isProcessing ? '生成中...' : 'AI智能生成表单' }}
               </button>
@@ -166,11 +174,7 @@
             <div v-if="generatedForm" class="generated-form-preview">
               <h4>生成的表单预览</h4>
               <div class="preview-fields">
-                <div
-                  v-for="field in generatedForm.fields"
-                  :key="field.name"
-                  class="preview-field"
-                >
+                <div v-for="field in generatedForm.fields" :key="field.name" class="preview-field">
                   <div class="field-info">
                     <span class="field-name">{{ field.name }}</span>
                     <span class="field-type">{{ getFieldTypeLabel(field.type) }}</span>
@@ -239,9 +243,7 @@
                     <span>{{ template.fieldCount }} 个字段</span>
                     <span>{{ formatDate(template.createdAt) }}</span>
                   </div>
-                  <button class="use-btn" @click="useTemplate(template)">
-                    使用模板
-                  </button>
+                  <button class="use-btn" @click="useTemplate(template)">使用模板</button>
                 </div>
               </div>
             </div>
@@ -289,26 +291,26 @@
 </template>
 
 <script>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 
 export default {
   name: 'FormAssistant',
   emits: ['close'],
   setup(props, { emit }) {
-    const activeTab = ref('fill')
-    const isProcessing = ref(false)
+    const activeTab = ref('fill');
+    const isProcessing = ref(false);
 
     // 智能填表相关
-    const selectedTemplate = ref(null)
-    const formData = reactive({})
-    const formDescription = ref('')
-    const generatedForm = ref(null)
+    const selectedTemplate = ref(null);
+    const formData = reactive({});
+    const formDescription = ref('');
+    const generatedForm = ref(null);
 
     // 模板管理
-    const searchKeyword = ref('')
-    const userTemplates = ref([])
-    const fillHistory = ref([])
+    const searchKeyword = ref('');
+    const userTemplates = ref([]);
+    const fillHistory = ref([]);
 
     // 表单模板数据
     const formTemplates = [
@@ -323,12 +325,22 @@ export default {
           { name: '申请人姓名', type: 'text', required: true, placeholder: '请输入真实姓名' },
           { name: '身份证号', type: 'text', required: true, placeholder: '请输入18位身份证号' },
           { name: '联系电话', type: 'text', required: true, placeholder: '请输入手机号码' },
-          { name: '种植作物', type: 'select', required: true, options: ['水稻', '小麦', '玉米', '大豆', '棉花'] },
+          {
+            name: '种植作物',
+            type: 'select',
+            required: true,
+            options: ['水稻', '小麦', '玉米', '大豆', '棉花'],
+          },
           { name: '种植面积', type: 'number', required: true, placeholder: '请输入种植面积（亩）' },
           { name: '种植地点', type: 'text', required: true, placeholder: '请输入详细地址' },
-          { name: '银行账号', type: 'text', required: true, placeholder: '请用于接收补贴的银行账号' },
-          { name: '申请理由', type: 'text', required: false, placeholder: '请简要说明申请理由' }
-        ]
+          {
+            name: '银行账号',
+            type: 'text',
+            required: true,
+            placeholder: '请用于接收补贴的银行账号',
+          },
+          { name: '申请理由', type: 'text', required: false, placeholder: '请简要说明申请理由' },
+        ],
       },
       {
         id: 'agricultural_insurance',
@@ -341,10 +353,15 @@ export default {
           { name: '投保人姓名', type: 'text', required: true, placeholder: '请输入投保人姓名' },
           { name: '身份证号', type: 'text', required: true, placeholder: '请输入身份证号' },
           { name: '联系方式', type: 'text', required: true, placeholder: '请输入联系电话' },
-          { name: '保险标的', type: 'select', required: true, options: ['水稻', '小麦', '玉米', '设施农业'] },
+          {
+            name: '保险标的',
+            type: 'select',
+            required: true,
+            options: ['水稻', '小麦', '玉米', '设施农业'],
+          },
           { name: '保险面积', type: 'number', required: true, placeholder: '请输入保险面积（亩）' },
-          { name: '保险期限', type: 'date', required: true, placeholder: '请选择保险期限' }
-        ]
+          { name: '保险期限', type: 'date', required: true, placeholder: '请选择保险期限' },
+        ],
       },
       {
         id: 'land_transfer',
@@ -363,150 +380,156 @@ export default {
           { name: '流转期限', type: 'number', required: true },
           { name: '流转价格', type: 'number', required: true },
           { name: '流转用途', type: 'select', required: true, options: ['种植', '养殖', '其他'] },
-          { name: '流转方式', type: 'select', required: true, options: ['转包', '出租', '互换', '转让'] }
-        ]
-      }
-    ]
+          {
+            name: '流转方式',
+            type: 'select',
+            required: true,
+            options: ['转包', '出租', '互换', '转让'],
+          },
+        ],
+      },
+    ];
 
     const assistantTabs = [
       { key: 'fill', label: '智能填表', icon: 'fas fa-edit' },
       { key: 'generate', label: '生成表单', icon: 'fas fa-magic' },
       { key: 'templates', label: '模板管理', icon: 'fas fa-folder-open' },
-      { key: 'history', label: '填表历史', icon: 'fas fa-history' }
-    ]
+      { key: 'history', label: '填表历史', icon: 'fas fa-history' },
+    ];
 
     onMounted(() => {
-      loadUserTemplates()
-      loadFillHistory()
-    })
+      loadUserTemplates();
+      loadFillHistory();
+    });
 
     // 计算属性
     const formCompleteness = computed(() => {
-      if (!selectedTemplate.value) return 0
+      if (!selectedTemplate.value) return 0;
 
-      const fields = selectedTemplate.value.fields
-      const filledFields = fields.filter(field => formData[field.name])
-      return Math.round((filledFields.length / fields.length) * 100)
-    })
+      const fields = selectedTemplate.value.fields;
+      const filledFields = fields.filter(field => formData[field.name]);
+      return Math.round((filledFields.length / fields.length) * 100);
+    });
 
     const filteredTemplates = computed(() => {
-      if (!searchKeyword.value) return userTemplates.value
+      if (!searchKeyword.value) return userTemplates.value;
 
-      return userTemplates.value.filter(template =>
-        template.name.includes(searchKeyword.value) ||
-        template.description.includes(searchKeyword.value)
-      )
-    })
+      return userTemplates.value.filter(
+        template =>
+          template.name.includes(searchKeyword.value) ||
+          template.description.includes(searchKeyword.value)
+      );
+    });
 
     // 标签页切换
-    const switchTab = (tab) => {
-      activeTab.value = tab
-    }
+    const switchTab = tab => {
+      activeTab.value = tab;
+    };
 
     const closeAssistant = () => {
-      emit('close')
-    }
+      emit('close');
+    };
 
     // 选择模板
-    const selectTemplate = (template) => {
-      selectedTemplate.value = template
+    const selectTemplate = template => {
+      selectedTemplate.value = template;
 
       // 初始化表单数据
-      Object.keys(formData).forEach(key => delete formData[key])
+      Object.keys(formData).forEach(key => delete formData[key]);
       template.fields.forEach(field => {
-        formData[field.name] = ''
-      })
-    }
+        formData[field.name] = '';
+      });
+    };
 
     // AI智能填写
     const aiAutoFill = async () => {
-      if (!selectedTemplate.value) return
+      if (!selectedTemplate.value) return;
 
-      isProcessing.value = true
+      isProcessing.value = true;
 
       try {
         // 模拟AI填写过程
-        await new Promise(resolve => setTimeout(resolve, 2000))
+        await new Promise(resolve => setTimeout(resolve, 2000));
 
         // 根据用户信息自动填写一些字段
         if (selectedTemplate.value.id === 'agricultural_subsidy') {
-          formData['申请人姓名'] = '张三'
-          formData['联系电话'] = '13800138000'
-          formData['身份证号'] = '110101199001011234'
-          formData['银行账号'] = '6222021234567890123'
+          formData['申请人姓名'] = '张三';
+          formData['联系电话'] = '13800138000';
+          formData['身份证号'] = '110101199001011234';
+          formData['银行账号'] = '6222021234567890123';
         }
 
-        ElMessage.success('AI智能填写完成')
+        ElMessage.success('AI智能填写完成');
       } catch (error) {
-        console.error('AI填写失败:', error)
-        ElMessage.error('AI填写失败，请手动填写')
+        console.error('AI填写失败:', error);
+        ElMessage.error('AI填写失败，请手动填写');
       } finally {
-        isProcessing.value = false
+        isProcessing.value = false;
       }
-    }
+    };
 
     // 智能生成表单
     const generateForm = async () => {
-      if (!formDescription.value.trim()) return
+      if (!formDescription.value.trim()) return;
 
-      isProcessing.value = true
+      isProcessing.value = true;
 
       try {
         const response = await fetch('/api/v1/ai-chat/form/fill', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            formDescription: formDescription.value
-          })
-        })
+            formDescription: formDescription.value,
+          }),
+        });
 
-        const data = await response.json()
+        const data = await response.json();
 
         if (data.success) {
-          generatedForm.value = data.data
-          ElMessage.success('表单生成成功')
+          generatedForm.value = data.data;
+          ElMessage.success('表单生成成功');
         } else {
-          ElMessage.error(data.message || '生成失败')
+          ElMessage.error(data.message || '生成失败');
         }
       } catch (error) {
-        console.error('生成表单失败:', error)
+        console.error('生成表单失败:', error);
         // 模拟生成的表单
         generatedForm.value = {
           formName: '生成的表单',
           fields: [
             { name: '姓名', type: 'text', required: true },
             { name: '联系电话', type: 'text', required: true },
-            { name: '申请日期', type: 'date', required: true }
-          ]
-        }
-        ElMessage.success('表单生成成功（模拟数据）')
+            { name: '申请日期', type: 'date', required: true },
+          ],
+        };
+        ElMessage.success('表单生成成功（模拟数据）');
       } finally {
-        isProcessing.value = false
+        isProcessing.value = false;
       }
-    }
+    };
 
     // 表单操作
     const clearForm = () => {
       Object.keys(formData).forEach(key => {
-        formData[key] = ''
-      })
-    }
+        formData[key] = '';
+      });
+    };
 
     const saveForm = () => {
-      ElMessage.success('表单已保存到草稿箱')
-    }
+      ElMessage.success('表单已保存到草稿箱');
+    };
 
     const submitForm = async () => {
       if (formCompleteness.value < 100) {
-        ElMessage.warning('请填写所有必填字段')
-        return
+        ElMessage.warning('请填写所有必填字段');
+        return;
       }
 
       try {
         // 提交表单逻辑
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
         // 添加到历史记录
         const historyItem = {
@@ -516,140 +539,140 @@ export default {
           completeness: 100,
           status: 'submitted',
           createdAt: new Date(),
-          data: { ...formData }
-        }
+          data: { ...formData },
+        };
 
-        fillHistory.value.unshift(historyItem)
-        saveFillHistory()
+        fillHistory.value.unshift(historyItem);
+        saveFillHistory();
 
-        ElMessage.success('表单提交成功')
-        clearForm()
+        ElMessage.success('表单提交成功');
+        clearForm();
       } catch (error) {
-        console.error('提交失败:', error)
-        ElMessage.error('提交失败，请稍后重试')
+        console.error('提交失败:', error);
+        ElMessage.error('提交失败，请稍后重试');
       }
-    }
+    };
 
     // 模板管理
     const loadUserTemplates = () => {
       try {
-        const saved = localStorage.getItem('userFormTemplates')
+        const saved = localStorage.getItem('userFormTemplates');
         if (saved) {
-          userTemplates.value = JSON.parse(saved)
+          userTemplates.value = JSON.parse(saved);
         }
       } catch (error) {
-        console.error('加载模板失败:', error)
+        console.error('加载模板失败:', error);
       }
-    }
+    };
 
     const saveUserTemplates = () => {
       try {
-        localStorage.setItem('userFormTemplates', JSON.stringify(userTemplates.value))
+        localStorage.setItem('userFormTemplates', JSON.stringify(userTemplates.value));
       } catch (error) {
-        console.error('保存模板失败:', error)
+        console.error('保存模板失败:', error);
       }
-    }
+    };
 
     const createNewTemplate = () => {
       // 创建新模板逻辑
-      ElMessage.info('创建模板功能开发中')
-    }
+      ElMessage.info('创建模板功能开发中');
+    };
 
-    const editTemplate = (template) => {
+    const editTemplate = template => {
       // 编辑模板逻辑
-      ElMessage.info('编辑模板功能开发中')
-    }
+      ElMessage.info('编辑模板功能开发中');
+    };
 
-    const deleteTemplate = async (template) => {
+    const deleteTemplate = async template => {
       try {
         await ElMessageBox.confirm('确定要删除此模板吗？', '确认删除', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
-          type: 'warning'
-        })
+          type: 'warning',
+        });
 
-        const index = userTemplates.value.findIndex(t => t.id === template.id)
+        const index = userTemplates.value.findIndex(t => t.id === template.id);
         if (index > -1) {
-          userTemplates.value.splice(index, 1)
-          saveUserTemplates()
-          ElMessage.success('模板已删除')
+          userTemplates.value.splice(index, 1);
+          saveUserTemplates();
+          ElMessage.success('模板已删除');
         }
       } catch {
         // 用户取消
       }
-    }
+    };
 
-    const useTemplate = (template) => {
-      switchTab('fill')
-      selectTemplate(template)
-    }
+    const useTemplate = template => {
+      switchTab('fill');
+      selectTemplate(template);
+    };
 
     // 填表历史
     const loadFillHistory = () => {
       try {
-        const saved = localStorage.getItem('formFillHistory')
+        const saved = localStorage.getItem('formFillHistory');
         if (saved) {
-          fillHistory.value = JSON.parse(saved)
+          fillHistory.value = JSON.parse(saved);
         }
       } catch (error) {
-        console.error('加载历史失败:', error)
+        console.error('加载历史失败:', error);
       }
-    }
+    };
 
     const saveFillHistory = () => {
       try {
-        localStorage.setItem('formFillHistory', JSON.stringify(fillHistory.value))
+        localStorage.setItem('formFillHistory', JSON.stringify(fillHistory.value));
       } catch (error) {
-        console.error('保存历史失败:', error)
+        console.error('保存历史失败:', error);
       }
-    }
+    };
 
     const clearHistory = async () => {
       try {
         await ElMessageBox.confirm('确定要清空所有填表历史吗？', '确认', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
-          type: 'warning'
-        })
+          type: 'warning',
+        });
 
-        fillHistory.value = []
-        localStorage.removeItem('formFillHistory')
-        ElMessage.success('历史记录已清空')
+        fillHistory.value = [];
+        localStorage.removeItem('formFillHistory');
+        ElMessage.success('历史记录已清空');
       } catch {
         // 用户取消
       }
-    }
+    };
 
-    const viewHistoryItem = (item) => {
+    const viewHistoryItem = item => {
       // 查看历史详情
-      ElMessage.info('查看历史详情功能开发中')
-    }
+      ElMessage.info('查看历史详情功能开发中');
+    };
 
     // 工具函数
-    const getFieldTypeLabel = (type) => {
+    const getFieldTypeLabel = type => {
       const labels = {
         text: '文本',
         number: '数字',
         select: '选择',
         date: '日期',
-        textarea: '多行文本'
-      }
-      return labels[type] || type
-    }
+        textarea: '多行文本',
+      };
+      return labels[type] || type;
+    };
 
-    const formatDate = (date) => {
-      return new Date(date).toLocaleString()
-    }
+    const formatDate = date => {
+      return new Date(date).toLocaleString();
+    };
 
-    const getStatusLabel = (status) => {
+    const getStatusLabel = status => {
       const labels = {
         draft: '草稿',
         submitted: '已提交',
         approved: '已通过',
-        rejected: '已拒绝'
-      }
-      return labels[status] || status
-    }
+        rejected: '已拒绝',
+      };
+      return labels[status] || status;
+    };
 
     return {
       // 状态
@@ -689,10 +712,10 @@ export default {
       viewHistoryItem,
       getFieldTypeLabel,
       formatDate,
-      getStatusLabel
-    }
-  }
-}
+      getStatusLabel,
+    };
+  },
+};
 </script>
 
 <style scoped>
@@ -728,7 +751,7 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(135deg, #2196F3, #1976D2);
+  background: linear-gradient(135deg, #2196f3, #1976d2);
   color: white;
 }
 
@@ -789,9 +812,9 @@ export default {
 }
 
 .tab-btn.active {
-  color: #2196F3;
+  color: #2196f3;
   background: #f0f8ff;
-  border-bottom-color: #2196F3;
+  border-bottom-color: #2196f3;
 }
 
 .tab-btn:hover {
@@ -821,7 +844,7 @@ export default {
 }
 
 .create-btn {
-  background: #2196F3;
+  background: #2196f3;
   color: white;
   border: none;
   padding: 8px 16px;
@@ -835,7 +858,7 @@ export default {
 }
 
 .create-btn:hover {
-  background: #1976D2;
+  background: #1976d2;
 }
 
 .form-templates {
@@ -858,12 +881,12 @@ export default {
 }
 
 .template-card:hover {
-  border-color: #2196F3;
+  border-color: #2196f3;
   box-shadow: 0 4px 12px rgba(33, 150, 243, 0.1);
 }
 
 .template-card.selected {
-  border-color: #2196F3;
+  border-color: #2196f3;
   background: #f0f8ff;
 }
 
@@ -876,7 +899,7 @@ export default {
   align-items: center;
   justify-content: center;
   font-size: 20px;
-  color: #2196F3;
+  color: #2196f3;
 }
 
 .template-info {
@@ -924,7 +947,7 @@ export default {
 }
 
 .ai-fill-btn {
-  background: linear-gradient(135deg, #4CAF50, #45a049);
+  background: linear-gradient(135deg, #4caf50, #45a049);
   color: white;
   border: none;
   padding: 8px 16px;
@@ -961,7 +984,7 @@ export default {
 }
 
 .form-field.filled {
-  border-color: #4CAF50;
+  border-color: #4caf50;
   background: #f0f7f0;
 }
 
@@ -995,7 +1018,7 @@ export default {
 }
 
 .field-status .filled {
-  color: #4CAF50;
+  color: #4caf50;
 }
 
 .field-status .required {
@@ -1034,7 +1057,7 @@ export default {
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #4CAF50, #45a049);
+  background: linear-gradient(90deg, #4caf50, #45a049);
   transition: width 0.3s ease;
 }
 
@@ -1046,9 +1069,9 @@ export default {
 
 .action-btn {
   padding: 10px 20px;
-  border: 1px solid #2196F3;
+  border: 1px solid #2196f3;
   background: white;
-  color: #2196F3;
+  color: #2196f3;
   border-radius: 6px;
   font-size: 14px;
   font-weight: 500;
@@ -1060,14 +1083,14 @@ export default {
 }
 
 .action-btn:hover {
-  background: #2196F3;
+  background: #2196f3;
   color: white;
 }
 
 .action-btn.primary {
-  background: #2196F3;
+  background: #2196f3;
   color: white;
-  border-color: #2196F3;
+  border-color: #2196f3;
 }
 
 .action-btn.secondary {
@@ -1090,7 +1113,7 @@ export default {
 }
 
 .generate-btn {
-  background: linear-gradient(135deg, #9C27B0, #7B1FA2);
+  background: linear-gradient(135deg, #9c27b0, #7b1fa2);
   color: white;
   border: none;
   padding: 12px 24px;
@@ -1223,7 +1246,7 @@ export default {
 
 .use-btn {
   width: 100%;
-  background: #2196F3;
+  background: #2196f3;
   color: white;
   border: none;
   padding: 8px;
@@ -1235,7 +1258,7 @@ export default {
 }
 
 .use-btn:hover {
-  background: #1976D2;
+  background: #1976d2;
 }
 
 .history-list {
@@ -1258,7 +1281,7 @@ export default {
 
 .history-item:hover {
   background: #f0f8ff;
-  border-color: #2196F3;
+  border-color: #2196f3;
 }
 
 .history-title {
@@ -1282,7 +1305,7 @@ export default {
 }
 
 .completion {
-  color: #4CAF50;
+  color: #4caf50;
   font-weight: 500;
 }
 
@@ -1295,12 +1318,12 @@ export default {
 
 .status-badge.submitted {
   background: #e3f2fd;
-  color: #1976D2;
+  color: #1976d2;
 }
 
 .status-badge.approved {
   background: #e8f5e8;
-  color: #4CAF50;
+  color: #4caf50;
 }
 
 .status-badge.rejected {

@@ -121,10 +121,7 @@
       <div v-if="auditStep === 2" class="step-content">
         <h4>正在生成审计报告...</h4>
         <div class="report-generation">
-          <el-progress
-            :percentage="generationProgress"
-            :status="generationStatus"
-          />
+          <el-progress :percentage="generationProgress" :status="generationStatus" />
           <div class="generation-status">
             <p>{{ generationMessage }}</p>
             <div v-if="generationSteps.length > 0" class="generation-steps">
@@ -220,25 +217,11 @@
 
     <!-- 操作按钮 -->
     <div class="audit-actions">
-      <el-button
-        v-if="auditStep > 0"
-        @click="prevStep"
-      >
-        上一步
-      </el-button>
-      <el-button
-        v-if="auditStep < 3"
-        type="primary"
-        @click="nextStep"
-        :disabled="!canProceed"
-      >
+      <el-button v-if="auditStep > 0" @click="prevStep"> 上一步 </el-button>
+      <el-button v-if="auditStep < 3" type="primary" @click="nextStep" :disabled="!canProceed">
         下一步
       </el-button>
-      <el-button
-        v-if="auditStep === 2 && !generating"
-        type="success"
-        @click="generateReport"
-      >
+      <el-button v-if="auditStep === 2 && !generating" type="success" @click="generateReport">
         生成报告
       </el-button>
     </div>
@@ -246,24 +229,22 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
-import {
-  Download, Check
-} from '@element-plus/icons-vue'
-import enhancedPermissionService from '@/services/enhancedPermissionService'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { ElMessage } from 'element-plus';
+import { Download, Check } from '@element-plus/icons-vue';
+import enhancedPermissionService from '@/services/enhancedPermissionService';
 
 // 定义emits
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close']);
 
 // 响应式数据
-const auditStep = ref(0)
-const generating = ref(false)
-const generationProgress = ref(0)
-const generationStatus = ref('')
-const generationMessage = ref('')
-const exportingFormat = ref('')
-const reportPreview = ref(null)
+const auditStep = ref(0);
+const generating = ref(false);
+const generationProgress = ref(0);
+const generationStatus = ref('');
+const generationMessage = ref('');
+const exportingFormat = ref('');
+const reportPreview = ref(null);
 
 // 审计表单
 const auditForm = reactive({
@@ -271,66 +252,66 @@ const auditForm = reactive({
   targets: ['users'],
   userIds: [],
   roleIds: [],
-  riskLevels: ['high', 'medium', 'low']
-})
+  riskLevels: ['high', 'medium', 'low'],
+});
 
 // 报告配置
 const reportConfig = reactive({
   type: 'summary',
   contents: ['statistics', 'violations'],
   charts: ['pie', 'bar'],
-  formats: ['pdf']
-})
+  formats: ['pdf'],
+});
 
 // 生成步骤
-const generationSteps = ref([])
+const generationSteps = ref([]);
 
 // 选项数据
 const userOptions = ref([
   { id: '1', name: '张管理员' },
   { id: '2', name: '李主管' },
-  { id: '3', name: '王工作人员' }
-])
+  { id: '3', name: '王工作人员' },
+]);
 
 const roleOptions = ref([
   { label: '村级管理员', value: 'village_admin' },
   { label: '部门主管', value: 'department_head' },
   { label: '工作人员', value: 'staff' },
-  { label: '村民', value: 'villager' }
-])
+  { label: '村民', value: 'villager' },
+]);
 
 // 计算属性
 const canProceed = computed(() => {
   switch (auditStep.value) {
     case 0:
-      return auditForm.dateRange?.length === 2 && auditForm.targets.length > 0
+      return auditForm.dateRange?.length === 2 && auditForm.targets.length > 0;
     case 1:
-      return reportConfig.contents.length > 0 && reportConfig.formats.length > 0
+      return reportConfig.contents.length > 0 && reportConfig.formats.length > 0;
     case 2:
-      return reportPreview.value !== null
+      return reportPreview.value !== null;
     default:
-      return false
+      return false;
   }
-})
+});
 
 // 方法
 const nextStep = () => {
   if (auditStep.value < 3) {
-    auditStep.value++
+    auditStep.value++;
   }
-}
+};
 
 const prevStep = () => {
   if (auditStep.value > 0) {
-    auditStep.value--
+    auditStep.value--;
   }
-}
+};
 
 const generateReport = async () => {
-  generating.value = true
-  generationProgress.value = 0
-  generationStatus.value = ''
-  generationSteps.value = []
+  generating.value = true;
+  generationProgress.value = 0;
+  generationStatus.value = '';
+  generationSteps.value = [];
 
   // 模拟报告生成过程
   const steps = [
@@ -339,19 +320,19 @@ const generateReport = async () => {
     { text: '检测违规事件...', completed: false },
     { text: '生成统计分析...', completed: false },
     { text: '创建图表...', completed: false },
-    { text: '生成报告文档...', completed: false }
-  ]
+    { text: '生成报告文档...', completed: false },
+  ];
 
-  generationSteps.value = steps
+  generationSteps.value = steps;
 
   try {
     for (let i = 0; i < steps.length; i++) {
-      generationMessage.value = steps[i].text
-      generationProgress.value = Math.round(((i + 1) / steps.length) * 100)
+      generationMessage.value = steps[i].text;
+      generationProgress.value = Math.round(((i + 1) / steps.length) * 100);
 
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-      steps[i].completed = true
+      steps[i].completed = true;
     }
 
     // 生成报告预览
@@ -366,66 +347,66 @@ const generateReport = async () => {
           id: '1',
           title: '发现异常权限访问',
           description: '检测到3次非工作时间的敏感操作，建议加强时间限制策略',
-          severity: 'warning'
+          severity: 'warning',
         },
         {
           id: '2',
           title: '权限继承配置风险',
           description: '部分角色的权限继承链过长，可能存在权限滥用风险',
-          severity: 'error'
-        }
-      ]
-    }
+          severity: 'error',
+        },
+      ],
+    };
 
-    generationStatus.value = 'success'
-    generationMessage.value = '报告生成完成！'
+    generationStatus.value = 'success';
+    generationMessage.value = '报告生成完成！';
 
-    ElMessage.success('审计报告生成成功')
+    ElMessage.success('审计报告生成成功');
   } catch (error) {
-    generationStatus.value = 'exception'
-    generationMessage.value = '报告生成失败'
-    ElMessage.error('生成报告失败')
+    generationStatus.value = 'exception';
+    generationMessage.value = '报告生成失败';
+    ElMessage.error('生成报告失败');
   } finally {
-    generating.value = false
+    generating.value = false;
   }
-}
+};
 
-const exportReport = async (format) => {
-  exportingFormat.value = format
+const exportReport = async format => {
+  exportingFormat.value = format;
 
   try {
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
-    ElMessage.success(`报告已导出为 ${format.toUpperCase()} 格式`)
+    ElMessage.success(`报告已导出为 ${format.toUpperCase()} 格式`);
 
     // 模拟下载
-    const link = document.createElement('a')
-    link.href = '#'
-    link.download = `permission-audit-report.${format}`
-    link.click()
+    const link = document.createElement('a');
+    link.href = '#';
+    link.download = `permission-audit-report.${format}`;
+    link.click();
   } catch (error) {
-    ElMessage.error('导出失败')
+    ElMessage.error('导出失败');
   } finally {
-    exportingFormat.value = ''
+    exportingFormat.value = '';
   }
-}
+};
 
-const getRiskTagType = (score) => {
-  if (score >= 80) return 'danger'
-  if (score >= 60) return 'warning'
-  return 'success'
-}
+const getRiskTagType = score => {
+  if (score >= 80) return 'danger';
+  if (score >= 60) return 'warning';
+  return 'success';
+};
 
 // 生命周期
 onMounted(() => {
   // 设置默认时间范围为最近30天
-  const endDate = new Date()
-  const startDate = new Date(endDate.getTime() - 30 * 24 * 60 * 60 * 1000)
+  const endDate = new Date();
+  const startDate = new Date(endDate.getTime() - 30 * 24 * 60 * 60 * 1000);
   auditForm.dateRange = [
     startDate.toISOString().slice(0, 19).replace('T', ' '),
-    endDate.toISOString().slice(0, 19).replace('T', ' ')
-  ]
-})
+    endDate.toISOString().slice(0, 19).replace('T', ' '),
+  ];
+});
 </script>
 
 <style lang="scss" scoped>

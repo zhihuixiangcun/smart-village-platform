@@ -403,39 +403,39 @@ router.delete('/sessions/:sessionId',
  * POST /api/v1/auth/revoke-all-sessions
  */
 router.post('/revoke-all-sessions', authMiddleware.authenticate, async (req, res) => {
-    try {
-      const userId = req.user._id;
-      const currentSessionId = req.session?.sessionId;
+  try {
+    const userId = req.user._id;
+    const currentSessionId = req.session?.sessionId;
 
-      // 撤销用户的所有其他会话
-      const authMiddleware = require('../middleware/auth');
-      let revokedCount = 0;
+    // 撤销用户的所有其他会话
+    const authMiddleware = require('../middleware/auth');
+    let revokedCount = 0;
 
-      for (const [sessionId, session] of authMiddleware.activeSessions) {
-        if (session.userId.toString() === userId &&
+    for (const [sessionId, session] of authMiddleware.activeSessions) {
+      if (session.userId.toString() === userId &&
             session.status === 'active' &&
             sessionId !== currentSessionId) {
-          authMiddleware.revokeSession(sessionId);
-          revokedCount++;
-        }
+        authMiddleware.revokeSession(sessionId);
+        revokedCount++;
       }
-
-      res.json({
-        success: true,
-        message: `已撤销${revokedCount}个会话`,
-        revokedCount
-      });
-
-    } catch (error) {
-      const logger = require('../utils/logger');
-      logger.error('撤销所有会话失败:', error);
-      res.status(500).json({
-        success: false,
-        error: '撤销会话失败',
-        message: '服务器内部错误'
-      });
     }
+
+    res.json({
+      success: true,
+      message: `已撤销${revokedCount}个会话`,
+      revokedCount
+    });
+
+  } catch (error) {
+    const logger = require('../utils/logger');
+    logger.error('撤销所有会话失败:', error);
+    res.status(500).json({
+      success: false,
+      error: '撤销会话失败',
+      message: '服务器内部错误'
+    });
   }
+}
 );
 
 /**

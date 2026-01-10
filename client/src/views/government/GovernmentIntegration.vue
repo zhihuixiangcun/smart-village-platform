@@ -17,9 +17,14 @@
                 <span>省级政务平台</span>
               </div>
             </template>
-            <div class="status-indicator" :class="connectionStatus.provincial.connected ? 'connected' : 'disconnected'">
+            <div
+              class="status-indicator"
+              :class="connectionStatus.provincial.connected ? 'connected' : 'disconnected'"
+            >
               <div class="status-dot"></div>
-              <span class="status-text">{{ connectionStatus.provincial.connected ? '已连接' : '连接失败' }}</span>
+              <span class="status-text">{{
+                connectionStatus.provincial.connected ? '已连接' : '连接失败'
+              }}</span>
             </div>
             <div class="status-info">
               <p>最后检查: {{ formatTime(connectionStatus.provincial.lastCheck) }}</p>
@@ -40,9 +45,14 @@
                 <span>市级政务平台</span>
               </div>
             </template>
-            <div class="status-indicator" :class="connectionStatus.municipal.connected ? 'connected' : 'disconnected'">
+            <div
+              class="status-indicator"
+              :class="connectionStatus.municipal.connected ? 'connected' : 'disconnected'"
+            >
               <div class="status-dot"></div>
-              <span class="status-text">{{ connectionStatus.municipal.connected ? '已连接' : '连接失败' }}</span>
+              <span class="status-text">{{
+                connectionStatus.municipal.connected ? '已连接' : '连接失败'
+              }}</span>
             </div>
             <div class="status-info">
               <p>最后检查: {{ formatTime(connectionStatus.municipal.lastCheck) }}</p>
@@ -67,7 +77,10 @@
           <div class="sync-overview">
             <el-row :gutter="16">
               <el-col :span="6">
-                <el-statistic title="最后同步时间" :value="formatDateTime(syncStatus.lastSyncTime)" />
+                <el-statistic
+                  title="最后同步时间"
+                  :value="formatDateTime(syncStatus.lastSyncTime)"
+                />
               </el-col>
               <el-col :span="6">
                 <el-statistic title="处理记录数" :value="syncStatus.processedRecords" />
@@ -76,7 +89,10 @@
                 <el-statistic title="失败记录数" :value="syncStatus.failedRecords" />
               </el-col>
               <el-col :span="6">
-                <el-statistic title="下次同步时间" :value="formatDateTime(syncStatus.nextSyncTime)" />
+                <el-statistic
+                  title="下次同步时间"
+                  :value="formatDateTime(syncStatus.nextSyncTime)"
+                />
               </el-col>
             </el-row>
           </div>
@@ -135,7 +151,10 @@
                 <el-switch v-model="autoSyncSettings.enabled" @change="toggleAutoSync" />
               </el-form-item>
               <el-form-item label="同步间隔">
-                <el-select v-model="autoSyncSettings.interval" :disabled="!autoSyncSettings.enabled">
+                <el-select
+                  v-model="autoSyncSettings.interval"
+                  :disabled="!autoSyncSettings.enabled"
+                >
                   <el-option label="每小时" value="1h" />
                   <el-option label="每6小时" value="6h" />
                   <el-option label="每12小时" value="12h" />
@@ -143,7 +162,10 @@
                 </el-select>
               </el-form-item>
               <el-form-item label="同步范围">
-                <el-checkbox-group v-model="autoSyncSettings.scope" :disabled="!autoSyncSettings.enabled">
+                <el-checkbox-group
+                  v-model="autoSyncSettings.scope"
+                  :disabled="!autoSyncSettings.enabled"
+                >
                   <el-checkbox label="household">户籍数据</el-checkbox>
                   <el-checkbox label="socialSecurity">社保数据</el-checkbox>
                   <el-checkbox label="statistics">统计数据</el-checkbox>
@@ -193,11 +215,7 @@
               </el-table-column>
               <el-table-column label="操作" width="120">
                 <template #default="scope">
-                  <el-button
-                    type="text"
-                    size="small"
-                    @click="viewSyncDetail(scope.row)"
-                  >
+                  <el-button type="text" size="small" @click="viewSyncDetail(scope.row)">
                     查看详情
                   </el-button>
                 </template>
@@ -255,7 +273,10 @@
                 <el-button type="primary" @click="generateReport" :loading="generatingReport">
                   生成报表
                 </el-button>
-                <el-button @click="previewReport" :disabled="!reportForm.reportType || !reportForm.villageId">
+                <el-button
+                  @click="previewReport"
+                  :disabled="!reportForm.reportType || !reportForm.villageId"
+                >
                   预览报表
                 </el-button>
               </el-form-item>
@@ -268,7 +289,9 @@
             <el-card>
               <div class="preview-content">
                 <div class="preview-header">
-                  <h4>{{ getReportTypeName(reportForm.reportType) }} - {{ reportForm.villageName }}</h4>
+                  <h4>
+                    {{ getReportTypeName(reportForm.reportType) }} - {{ reportForm.villageName }}
+                  </h4>
                   <p>报表日期: {{ reportForm.reportDate }}</p>
                 </div>
                 <div class="preview-data">
@@ -287,9 +310,7 @@
                 <el-button type="primary" @click="uploadReport" :loading="uploading">
                   上传报表
                 </el-button>
-                <el-button @click="exportReport">
-                  导出Excel
-                </el-button>
+                <el-button @click="exportReport"> 导出Excel </el-button>
               </div>
             </el-card>
           </div>
@@ -325,18 +346,10 @@
               </el-table-column>
               <el-table-column label="操作" width="150">
                 <template #default="scope">
-                  <el-button
-                    type="text"
-                    size="small"
-                    @click="downloadReport(scope.row)"
-                  >
+                  <el-button type="text" size="small" @click="downloadReport(scope.row)">
                     下载
                   </el-button>
-                  <el-button
-                    type="text"
-                    size="small"
-                    @click="viewUploadDetail(scope.row)"
-                  >
+                  <el-button type="text" size="small" @click="viewUploadDetail(scope.row)">
                     详情
                   </el-button>
                 </template>
@@ -364,11 +377,7 @@
                 </el-select>
               </el-form-item>
               <el-form-item label="关键词">
-                <el-input
-                  v-model="searchForm.keyword"
-                  placeholder="输入服务关键词"
-                  clearable
-                />
+                <el-input v-model="searchForm.keyword" placeholder="输入服务关键词" clearable />
               </el-form-item>
               <el-form-item>
                 <el-button type="primary" @click="searchServices">搜索</el-button>
@@ -399,11 +408,7 @@
                   </div>
                   <div class="service-footer">
                     <el-tag size="small">{{ service.type }}</el-tag>
-                    <el-button
-                      type="primary"
-                      size="small"
-                      @click.stop="applyForService(service)"
-                    >
+                    <el-button type="primary" size="small" @click.stop="applyForService(service)">
                       在线申请
                     </el-button>
                   </div>
@@ -459,19 +464,23 @@
                   </el-tag>
                 </template>
               </el-table-column>
-              <el-table-column prop="processingInfo.expectedCompletionTime" label="预计完成时间" width="180">
+              <el-table-column
+                prop="processingInfo.expectedCompletionTime"
+                label="预计完成时间"
+                width="180"
+              >
                 <template #default="scope">
                   {{ formatDateTime(scope.row.processingInfo?.expectedCompletionTime) }}
                 </template>
               </el-table-column>
-              <el-table-column prop="reviewResult.reviewNotes" label="审核意见" show-overflow-tooltip />
+              <el-table-column
+                prop="reviewResult.reviewNotes"
+                label="审核意见"
+                show-overflow-tooltip
+              />
               <el-table-column label="操作" width="200">
                 <template #default="scope">
-                  <el-button
-                    type="text"
-                    size="small"
-                    @click="viewApplicationDetail(scope.row)"
-                  >
+                  <el-button type="text" size="small" @click="viewApplicationDetail(scope.row)">
                     查看详情
                   </el-button>
                   <el-button
@@ -507,11 +516,7 @@
     </el-tabs>
 
     <!-- 同步对话框 -->
-    <el-dialog
-      v-model="syncDialog.visible"
-      :title="syncDialog.title"
-      width="50%"
-    >
+    <el-dialog v-model="syncDialog.visible" :title="syncDialog.title" width="50%">
       <el-form :model="syncDialog.form" label-width="120px">
         <el-form-item label="选择村庄">
           <el-select v-model="syncDialog.form.villageId" placeholder="选择村庄" style="width: 100%">
@@ -545,11 +550,7 @@
     </el-dialog>
 
     <!-- 服务申请对话框 -->
-    <el-dialog
-      v-model="applicationDialog.visible"
-      :title="applicationDialog.title"
-      width="70%"
-    >
+    <el-dialog v-model="applicationDialog.visible" :title="applicationDialog.title" width="70%">
       <el-form :model="applicationDialog.form" label-width="120px">
         <el-form-item label="申请人姓名" required>
           <el-input v-model="applicationDialog.form.name" />
@@ -573,13 +574,9 @@
             multiple
           >
             <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-            <div class="el-upload__text">
-              将文件拖到此处，或<em>点击上传</em>
-            </div>
+            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
             <template #tip>
-              <div class="el-upload__tip">
-                支持jpg/png/pdf文件，且不超过10MB
-              </div>
+              <div class="el-upload__tip">支持jpg/png/pdf文件，且不超过10MB</div>
             </template>
           </el-upload>
         </el-form-item>
@@ -595,17 +592,27 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Connection, UploadFilled, User, Document, House, Money, School, Hospital, Car } from '@element-plus/icons-vue'
-import axios from 'axios'
+import { ref, reactive, onMounted, computed } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import {
+  Connection,
+  UploadFilled,
+  User,
+  Document,
+  House,
+  Money,
+  School,
+  Hospital,
+  Car,
+} from '@element-plus/icons-vue';
+import axios from 'axios';
 
 // 响应式数据
-const activeTab = ref('sync')
+const activeTab = ref('sync');
 const connectionStatus = reactive({
   provincial: { connected: false, lastCheck: new Date(), error: null },
-  municipal: { connected: false, lastCheck: new Date(), error: null }
-})
+  municipal: { connected: false, lastCheck: new Date(), error: null },
+});
 
 const syncStatus = reactive({
   inProgress: false,
@@ -613,27 +620,27 @@ const syncStatus = reactive({
   totalRecords: 0,
   processedRecords: 0,
   failedRecords: 0,
-  nextSyncTime: null
-})
+  nextSyncTime: null,
+});
 
 const autoSyncSettings = reactive({
   enabled: false,
   interval: '24h',
-  scope: ['household', 'socialSecurity']
-})
+  scope: ['household', 'socialSecurity'],
+});
 
 // 分页数据
-const historyPage = reactive({ current: 1, size: 10, total: 0 })
-const servicePage = reactive({ current: 1, size: 9, total: 0 })
-const applicationPage = reactive({ current: 1, size: 10, total: 0 })
+const historyPage = reactive({ current: 1, size: 10, total: 0 });
+const servicePage = reactive({ current: 1, size: 9, total: 0 });
+const applicationPage = reactive({ current: 1, size: 10, total: 0 });
 
 // 列表数据
-const villages = ref([])
-const syncHistory = ref([])
-const services = ref([])
-const applications = ref([])
-const uploadHistory = ref([])
-const serviceTypes = ref([])
+const villages = ref([]);
+const syncHistory = ref([]);
+const services = ref([]);
+const applications = ref([]);
+const uploadHistory = ref([]);
+const serviceTypes = ref([]);
 
 // 表单数据
 const syncDialog = reactive({
@@ -643,9 +650,9 @@ const syncDialog = reactive({
   form: {
     villageId: '',
     batchSize: 100,
-    enableRetry: true
-  }
-})
+    enableRetry: true,
+  },
+});
 
 const applicationDialog = reactive({
   visible: false,
@@ -656,24 +663,24 @@ const applicationDialog = reactive({
     idCard: '',
     phone: '',
     address: '',
-    attachments: []
-  }
-})
+    attachments: [],
+  },
+});
 
 const searchForm = reactive({
   serviceType: '',
-  keyword: ''
-})
+  keyword: '',
+});
 
 const reportForm = reactive({
   reportType: '',
   reportDate: '',
-  villageId: ''
-})
+  villageId: '',
+});
 
-const reportPreview = ref(null)
-const generatingReport = ref(false)
-const uploading = ref(false)
+const reportPreview = ref(null);
+const generatingReport = ref(false);
+const uploading = ref(false);
 
 // 统计数据
 const applicationStats = computed(() => {
@@ -681,127 +688,127 @@ const applicationStats = computed(() => {
     total: applications.value.length,
     pending: 0,
     completed: 0,
-    approved: 0
-  }
+    approved: 0,
+  };
 
   applications.value.forEach(app => {
     if (['submitted', 'processing', 'reviewing'].includes(app.status)) {
-      stats.pending++
+      stats.pending++;
     }
     if (app.status === 'completed') {
-      stats.completed++
+      stats.completed++;
     }
     if (['approved', 'completed'].includes(app.status)) {
-      stats.approved++
+      stats.approved++;
     }
-  })
+  });
 
-  return stats
-})
+  return stats;
+});
 
 // 报表类型
 const reportTypes = [
   { label: '人口统计报表', value: 'population' },
   { label: '经济统计报表', value: 'economic' },
   { label: '社会保障报表', value: 'social' },
-  { label: '农业统计报表', value: 'agricultural' }
-]
+  { label: '农业统计报表', value: 'agricultural' },
+];
 
 // 方法
-const formatTime = (date) => {
-  if (!date) return '-'
-  return new Date(date).toLocaleTimeString('zh-CN')
-}
+const formatTime = date => {
+  if (!date) return '-';
+  return new Date(date).toLocaleTimeString('zh-CN');
+};
 
-const formatDateTime = (date) => {
-  if (!date) return '-'
-  return new Date(date).toLocaleString('zh-CN')
-}
+const formatDateTime = date => {
+  if (!date) return '-';
+  return new Date(date).toLocaleString('zh-CN');
+};
 
-const formatDuration = (ms) => {
-  if (!ms) return '-'
-  const seconds = Math.floor(ms / 1000)
-  const minutes = Math.floor(seconds / 60)
-  const hours = Math.floor(minutes / 60)
+const formatDuration = ms => {
+  if (!ms) return '-';
+  const seconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
 
-  if (hours > 0) return `${hours}小时${minutes % 60}分钟`
-  if (minutes > 0) return `${minutes}分钟${seconds % 60}秒`
-  return `${seconds}秒`
-}
+  if (hours > 0) return `${hours}小时${minutes % 60}分钟`;
+  if (minutes > 0) return `${minutes}分钟${seconds % 60}秒`;
+  return `${seconds}秒`;
+};
 
-const formatFileSize = (bytes) => {
-  if (!bytes) return '-'
-  const sizes = ['B', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(1024))
-  return `${(bytes / Math.pow(1024, i)).toFixed(2)} ${sizes[i]}`
-}
+const formatFileSize = bytes => {
+  if (!bytes) return '-';
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(1024));
+  return `${(bytes / Math.pow(1024, i)).toFixed(2)} ${sizes[i]}`;
+};
 
-const getStatusTag = (status) => {
+const getStatusTag = status => {
   const tagMap = {
-    'success': 'success',
-    'failed': 'danger',
-    'processing': 'warning',
-    'pending': 'info',
-    'approved': 'success',
-    'rejected': 'danger',
-    'completed': 'success',
-    'cancelled': 'info'
-  }
-  return tagMap[status] || ''
-}
+    success: 'success',
+    failed: 'danger',
+    processing: 'warning',
+    pending: 'info',
+    approved: 'success',
+    rejected: 'danger',
+    completed: 'success',
+    cancelled: 'info',
+  };
+  return tagMap[status] || '';
+};
 
-const getStatusName = (status) => {
+const getStatusName = status => {
   const nameMap = {
-    'success': '成功',
-    'failed': '失败',
-    'processing': '处理中',
-    'pending': '等待中',
-    'approved': '已通过',
-    'rejected': '已拒绝',
-    'completed': '已完成',
-    'cancelled': '已取消',
-    'submitted': '已提交',
-    'reviewing': '审核中'
-  }
-  return nameMap[status] || status
-}
+    success: '成功',
+    failed: '失败',
+    processing: '处理中',
+    pending: '等待中',
+    approved: '已通过',
+    rejected: '已拒绝',
+    completed: '已完成',
+    cancelled: '已取消',
+    submitted: '已提交',
+    reviewing: '审核中',
+  };
+  return nameMap[status] || status;
+};
 
-const getSyncTypeTag = (type) => {
+const getSyncTypeTag = type => {
   const tagMap = {
-    'household': 'primary',
-    'socialSecurity': 'success',
-    'statistics': 'warning',
-    'all': 'info'
-  }
-  return tagMap[type] || ''
-}
+    household: 'primary',
+    socialSecurity: 'success',
+    statistics: 'warning',
+    all: 'info',
+  };
+  return tagMap[type] || '';
+};
 
-const getSyncTypeName = (type) => {
+const getSyncTypeName = type => {
   const nameMap = {
-    'household': '户籍数据',
-    'socialSecurity': '社保数据',
-    'statistics': '统计数据',
-    'all': '全部数据'
-  }
-  return nameMap[type] || type
-}
+    household: '户籍数据',
+    socialSecurity: '社保数据',
+    statistics: '统计数据',
+    all: '全部数据',
+  };
+  return nameMap[type] || type;
+};
 
-const getSyncProgress = (sync) => {
-  if (sync.totalRecords === 0) return 0
-  return Math.round((sync.processedRecords / sync.totalRecords) * 100)
-}
+const getSyncProgress = sync => {
+  if (sync.totalRecords === 0) return 0;
+  return Math.round((sync.processedRecords / sync.totalRecords) * 100);
+};
 
-const getReportTypeName = (type) => {
+const getReportTypeName = type => {
   const typeMap = {
-    'population': '人口统计',
-    'economic': '经济统计',
-    'social': '社会保障',
-    'agricultural': '农业统计'
-  }
-  return typeMap[type] || type
-}
+    population: '人口统计',
+    economic: '经济统计',
+    social: '社会保障',
+    agricultural: '农业统计',
+  };
+  return typeMap[type] || type;
+};
 
-const getReportFieldLabel = (key) => {
+const getReportFieldLabel = key => {
   const labelMap = {
     totalPopulation: '总人口',
     householdCount: '户数',
@@ -809,134 +816,135 @@ const getReportFieldLabel = (key) => {
     femalePopulation: '女性人口',
     elderlyPopulation: '老年人口',
     perCapitaIncome: '人均收入',
-    employmentRate: '就业率'
-  }
-  return labelMap[key] || key
-}
+    employmentRate: '就业率',
+  };
+  return labelMap[key] || key;
+};
 
-const formatReportValue = (value) => {
+const formatReportValue = value => {
   if (typeof value === 'number') {
-    return value.toLocaleString()
+    return value.toLocaleString();
   }
-  return value
-}
+  return value;
+};
 
-const getServiceIcon = (type) => {
+const getServiceIcon = type => {
   const iconMap = {
-    'social_security': User,
-    'medical': Hospital,
-    'education': School,
-    'housing': House,
-    'employment': Document,
-    'elderly': User,
-    'agriculture': Car,
-    'money': Money
-  }
-  return iconMap[type] || Document
-}
+    social_security: User,
+    medical: Hospital,
+    education: School,
+    housing: House,
+    employment: Document,
+    elderly: User,
+    agriculture: Car,
+    money: Money,
+  };
+  return iconMap[type] || Document;
+};
 
 // API调用
 const checkConnectionStatus = async () => {
   try {
-    const response = await axios.get('/api/v1/government/connection-status')
-    Object.assign(connectionStatus, response.data.data)
-    ElMessage.success('连接状态检查完成')
+    const response = await axios.get('/api/v1/government/connection-status');
+    Object.assign(connectionStatus, response.data.data);
+    ElMessage.success('连接状态检查完成');
   } catch (error) {
-    ElMessage.error('检查连接状态失败')
+    ElMessage.error('检查连接状态失败');
   }
-}
+};
 
-const openSyncDialog = (syncType) => {
-  syncDialog.title = getSyncTypeName(syncType) + '同步'
-  syncDialog.visible = true
-  syncDialog.form.syncType = syncType
-}
+const openSyncDialog = syncType => {
+  syncDialog.title = getSyncTypeName(syncType) + '同步';
+  syncDialog.visible = true;
+  syncDialog.form.syncType = syncType;
+};
 
 const openBatchSyncDialog = () => {
-  syncDialog.title = '批量数据同步'
-  syncDialog.visible = true
-  syncDialog.form.syncType = 'all'
-}
+  syncDialog.title = '批量数据同步';
+  syncDialog.visible = true;
+  syncDialog.form.syncType = 'all';
+};
 
 const performSync = async () => {
   if (!syncDialog.form.villageId) {
-    ElMessage.warning('请选择村庄')
-    return
+    ElMessage.warning('请选择村庄');
+    return;
   }
 
-  syncDialog.loading = true
+  syncDialog.loading = true;
   try {
-    let response
+    let response;
     if (syncDialog.form.syncType === 'all') {
       response = await axios.post('/api/v1/government/sync/batch-all', {
         syncType: 'household',
-        options: syncDialog.form
-      })
+        options: syncDialog.form,
+      });
     } else {
-      const endpoint = syncDialog.form.syncType === 'household'
-        ? '/api/v1/government/sync/household'
-        : '/api/v1/government/sync/social-security'
+      const endpoint =
+        syncDialog.form.syncType === 'household'
+          ? '/api/v1/government/sync/household'
+          : '/api/v1/government/sync/social-security';
 
       response = await axios.post(endpoint, {
         villageId: syncDialog.form.villageId,
-        options: syncDialog.form
-      })
+        options: syncDialog.form,
+      });
     }
 
-    ElMessage.success('数据同步已启动')
-    syncDialog.visible = false
-    await loadSyncHistory()
+    ElMessage.success('数据同步已启动');
+    syncDialog.visible = false;
+    await loadSyncHistory();
   } catch (error) {
-    ElMessage.error('同步失败: ' + error.message)
+    ElMessage.error('同步失败: ' + error.message);
   } finally {
-    syncDialog.loading = false
+    syncDialog.loading = false;
   }
-}
+};
 
 const toggleAutoSync = async () => {
   try {
     const endpoint = autoSyncSettings.enabled
       ? '/api/v1/government/sync/auto-start'
-      : '/api/v1/government/sync/auto-stop'
+      : '/api/v1/government/sync/auto-stop';
 
-    await axios.post(endpoint)
-    ElMessage.success(autoSyncSettings.enabled ? '自动同步已启动' : '自动同步已停止')
+    await axios.post(endpoint);
+    ElMessage.success(autoSyncSettings.enabled ? '自动同步已启动' : '自动同步已停止');
   } catch (error) {
-    ElMessage.error('操作失败')
+    ElMessage.error('操作失败');
   }
-}
+};
 
 const loadSyncHistory = async () => {
   try {
     const response = await axios.get('/api/v1/government/sync/history', {
       params: {
         page: historyPage.current,
-        limit: historyPage.size
-      }
-    })
+        limit: historyPage.size,
+      },
+    });
 
-    syncHistory.value = response.data.data.history
-    historyPage.total = response.data.data.total
+    syncHistory.value = response.data.data.history;
+    historyPage.total = response.data.data.total;
   } catch (error) {
-    ElMessage.error('加载同步历史失败')
+    ElMessage.error('加载同步历史失败');
   }
-}
+};
 
 const loadApplications = async () => {
   try {
     const response = await axios.get('/api/v1/government/services/my-applications', {
       params: {
         page: applicationPage.current,
-        pageSize: applicationPage.size
-      }
-    })
+        pageSize: applicationPage.size,
+      },
+    });
 
-    applications.value = response.data.data.applications
-    applicationPage.total = response.data.data.total
+    applications.value = response.data.data.applications;
+    applicationPage.total = response.data.data.total;
   } catch (error) {
-    ElMessage.error('加载申请记录失败')
+    ElMessage.error('加载申请记录失败');
   }
-}
+};
 
 const searchServices = async () => {
   try {
@@ -945,155 +953,163 @@ const searchServices = async () => {
         serviceType: searchForm.serviceType,
         keyword: searchForm.keyword,
         page: servicePage.current,
-        pageSize: servicePage.size
-      }
-    })
+        pageSize: servicePage.size,
+      },
+    });
 
-    services.value = response.data.data.services
-    servicePage.total = response.data.data.total
+    services.value = response.data.data.services;
+    servicePage.total = response.data.data.total;
   } catch (error) {
-    ElMessage.error('搜索服务失败')
+    ElMessage.error('搜索服务失败');
   }
-}
+};
 
 const generateReport = async () => {
   if (!reportForm.reportType || !reportForm.villageId || !reportForm.reportDate) {
-    ElMessage.warning('请填写完整的报表信息')
-    return
+    ElMessage.warning('请填写完整的报表信息');
+    return;
   }
 
-  generatingReport.value = true
+  generatingReport.value = true;
   try {
-    const village = villages.value.find(v => v._id === reportForm.villageId)
-    const reportData = await generateReportData(reportForm.reportType, reportForm.villageId, reportForm.reportDate)
+    const village = villages.value.find(v => v._id === reportForm.villageId);
+    const reportData = await generateReportData(
+      reportForm.reportType,
+      reportForm.villageId,
+      reportForm.reportDate
+    );
 
-    reportPreview.value = reportData
-    reportForm.villageName = village.name
+    reportPreview.value = reportData;
+    reportForm.villageName = village.name;
 
-    ElMessage.success('报表生成成功')
+    ElMessage.success('报表生成成功');
   } catch (error) {
-    ElMessage.error('生成报表失败')
+    ElMessage.error('生成报表失败');
   } finally {
-    generatingReport.value = false
+    generatingReport.value = false;
   }
-}
+};
 
 const uploadReport = async () => {
   if (!reportPreview.value) {
-    ElMessage.warning('请先生成报表')
-    return
+    ElMessage.warning('请先生成报表');
+    return;
   }
 
-  uploading.value = true
+  uploading.value = true;
   try {
     await axios.post('/api/v1/government/report/upload', {
       reportData: {
         ...reportPreview.value,
         villageId: reportForm.villageId,
-        reportDate: reportForm.reportDate
+        reportDate: reportForm.reportDate,
       },
-      reportType: reportForm.reportType
-    })
+      reportType: reportForm.reportType,
+    });
 
-    ElMessage.success('报表上传成功')
-    reportPreview.value = null
+    ElMessage.success('报表上传成功');
+    reportPreview.value = null;
     // 重置表单
     Object.assign(reportForm, {
       reportType: '',
       reportDate: '',
-      villageId: ''
-    })
+      villageId: '',
+    });
   } catch (error) {
-    ElMessage.error('上传报表失败')
+    ElMessage.error('上传报表失败');
   } finally {
-    uploading.value = false
+    uploading.value = false;
   }
-}
+};
 
-const applyForService = (service) => {
-  applicationDialog.title = '申请服务 - ' + service.name
-  applicationDialog.visible = true
-  applicationDialog.serviceId = service.id
-}
+const applyForService = service => {
+  applicationDialog.title = '申请服务 - ' + service.name;
+  applicationDialog.visible = true;
+  applicationDialog.serviceId = service.id;
+};
 
 const submitApplication = async () => {
-  if (!applicationDialog.form.name || !applicationDialog.form.idCard || !applicationDialog.form.phone) {
-    ElMessage.warning('请填写完整的申请信息')
-    return
+  if (
+    !applicationDialog.form.name ||
+    !applicationDialog.form.idCard ||
+    !applicationDialog.form.phone
+  ) {
+    ElMessage.warning('请填写完整的申请信息');
+    return;
   }
 
-  applicationDialog.loading = true
+  applicationDialog.loading = true;
   try {
     await axios.post('/api/v1/government/services/apply', {
       serviceId: applicationDialog.serviceId,
       applicantData: {
         ...applicationDialog.form,
-        villageId: 'current_user_village' // 从用户信息获取
-      }
-    })
+        villageId: 'current_user_village', // 从用户信息获取
+      },
+    });
 
-    ElMessage.success('服务申请提交成功')
-    applicationDialog.visible = false
+    ElMessage.success('服务申请提交成功');
+    applicationDialog.visible = false;
     // 重置表单
     Object.assign(applicationDialog.form, {
       name: '',
       idCard: '',
       phone: '',
       address: '',
-      attachments: []
-    })
+      attachments: [],
+    });
   } catch (error) {
-    ElMessage.error('提交申请失败')
+    ElMessage.error('提交申请失败');
   } finally {
-    applicationDialog.loading = false
+    applicationDialog.loading = false;
   }
-}
+};
 
-const canCancelApplication = (application) => {
-  return ['submitted', 'processing'].includes(application.status)
-}
+const canCancelApplication = application => {
+  return ['submitted', 'processing'].includes(application.status);
+};
 
-const canProvideFeedback = (application) => {
-  return ['completed', 'approved'].includes(application.status) && !application.feedback
-}
+const canProvideFeedback = application => {
+  return ['completed', 'approved'].includes(application.status) && !application.feedback;
+};
 
-const cancelApplication = async (application) => {
+const cancelApplication = async application => {
   try {
     await ElMessageBox.confirm('确定要取消这个申请吗？', '确认取消', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
-      type: 'warning'
-    })
+      type: 'warning',
+    });
 
-    await axios.delete(`/api/v1/government/services/${application._id}/cancel`)
-    ElMessage.success('申请已取消')
-    await loadApplications()
+    await axios.delete(`/api/v1/government/services/${application._id}/cancel`);
+    ElMessage.success('申请已取消');
+    await loadApplications();
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('取消申请失败')
+      ElMessage.error('取消申请失败');
     }
   }
-}
+};
 
-const provideFeedback = (application) => {
+const provideFeedback = application => {
   ElMessageBox.prompt('请评价服务并留言', '服务评价', {
     confirmButtonText: '提交',
     cancelButtonText: '取消',
     inputPlaceholder: '请输入您的评价意见',
     inputType: 'textarea',
-    inputValidator: (value) => {
+    inputValidator: value => {
       if (!value) {
-        return '请输入评价意见'
+        return '请输入评价意见';
       }
-      return true
-    }
+      return true;
+    },
   }).then(({ value }) => {
     // 这里可以添加评分逻辑
-    ElMessage.success('评价已提交')
+    ElMessage.success('评价已提交');
     // 更新申请状态
-    application.feedback = { rating: 5, comment: value }
-  })
-}
+    application.feedback = { rating: 5, comment: value };
+  });
+};
 
 const generateReportData = async (reportType, villageId, reportDate) => {
   // 模拟报表数据生成
@@ -1103,8 +1119,8 @@ const generateReportData = async (reportType, villageId, reportDate) => {
     totalPopulation: Math.floor(Math.random() * 2000) + 500,
     householdCount: Math.floor(Math.random() * 500) + 100,
     malePopulation: Math.floor(Math.random() * 1000) + 250,
-    femalePopulation: Math.floor(Math.random() * 1000) + 250
-  }
+    femalePopulation: Math.floor(Math.random() * 1000) + 250,
+  };
 
   switch (reportType) {
     case 'population':
@@ -1112,22 +1128,23 @@ const generateReportData = async (reportType, villageId, reportDate) => {
         ...baseData,
         elderlyPopulation: Math.floor(Math.random() * 200) + 50,
         minorPopulation: Math.floor(Math.random() * 300) + 100,
-        employmentRate: Math.random() * 0.3 + 0.6
-      }
+        employmentRate: Math.random() * 0.3 + 0.6,
+      };
     case 'economic':
       return {
         ...baseData,
         perCapitaIncome: Math.floor(Math.random() * 30000) + 20000,
         totalIncome: Math.floor(Math.random() * 10000000) + 5000000,
-        averageHouseholdIncome: Math.floor(Math.random() * 80000) + 40000
-      }
+        averageHouseholdIncome: Math.floor(Math.random() * 80000) + 40000,
+      };
     default:
-      return baseData
+      return baseData;
   }
-}
+};
 
-const viewSyncDetail = (syncRecord) => {
-  ElMessageBox.alert(`
+const viewSyncDetail = syncRecord => {
+  ElMessageBox.alert(
+    `
     同步详情:
     - 同步类型: ${getSyncTypeName(syncRecord.syncType)}
     - 村庄: ${syncRecord.villageId?.name || '未知'}
@@ -1136,41 +1153,39 @@ const viewSyncDetail = (syncRecord) => {
     - 失败记录: ${syncRecord.failedRecords}
     - 耗时: ${formatDuration(syncRecord.duration)}
     - 状态: ${getStatusName(syncRecord.status)}
-  `, '同步详情')
-}
+  `,
+    '同步详情'
+  );
+};
 
-const handleApplicationFileChange = (file) => {
+const handleApplicationFileChange = file => {
   applicationDialog.form.attachments.push({
     name: file.name,
     size: file.size,
-    type: file.raw.type
-  })
-}
+    type: file.raw.type,
+  });
+};
 
 // 初始化
 onMounted(async () => {
-  await Promise.all([
-    checkConnectionStatus(),
-    loadSyncHistory(),
-    loadApplications()
-  ])
+  await Promise.all([checkConnectionStatus(), loadSyncHistory(), loadApplications()]);
 
   // 加载村庄列表
   try {
-    const response = await axios.get('/api/v1/villages')
-    villages.value = response.data.data
+    const response = await axios.get('/api/v1/villages');
+    villages.value = response.data.data;
   } catch (error) {
-    console.error('加载村庄列表失败')
+    console.error('加载村庄列表失败');
   }
 
   // 加载服务类型
   try {
-    const response = await axios.get('/api/v1/government/services/types')
-    serviceTypes.value = response.data.data
+    const response = await axios.get('/api/v1/government/services/types');
+    serviceTypes.value = response.data.data;
   } catch (error) {
-    console.error('加载服务类型失败')
+    console.error('加载服务类型失败');
   }
-})
+});
 </script>
 
 <style scoped>
@@ -1214,11 +1229,11 @@ onMounted(async () => {
 }
 
 .status-indicator.connected .status-dot {
-  background-color: #67C23A;
+  background-color: #67c23a;
 }
 
 .status-indicator.disconnected .status-dot {
-  background-color: #F56C6C;
+  background-color: #f56c6c;
 }
 
 .status-text {
@@ -1237,7 +1252,7 @@ onMounted(async () => {
 }
 
 .error-text {
-  color: #F56C6C !important;
+  color: #f56c6c !important;
 }
 
 .card-title {
@@ -1247,7 +1262,7 @@ onMounted(async () => {
 
 .card-title .el-icon {
   margin-right: 8px;
-  color: #409EFF;
+  color: #409eff;
 }
 
 .function-tabs {
@@ -1263,7 +1278,7 @@ onMounted(async () => {
   margin: 24px 0 16px 0;
   color: #303133;
   font-size: 18px;
-  border-bottom: 2px solid #E4E7ED;
+  border-bottom: 2px solid #e4e7ed;
   padding-bottom: 8px;
 }
 
@@ -1271,7 +1286,7 @@ onMounted(async () => {
 .application-stats {
   margin-bottom: 24px;
   padding: 20px;
-  background: #FAFAFA;
+  background: #fafafa;
   border-radius: 8px;
 }
 
@@ -1319,7 +1334,7 @@ onMounted(async () => {
 
 .service-icon {
   font-size: 24px;
-  color: #409EFF;
+  color: #409eff;
   margin-right: 12px;
 }
 

@@ -16,7 +16,11 @@
             <template #header>
               <div class="chart-header">
                 <span>📈 动态线性图 - 村务收支趋势</span>
-                <el-switch v-model="realTimeUpdate" active-text="实时更新" @change="toggleRealTime" />
+                <el-switch
+                  v-model="realTimeUpdate"
+                  active-text="实时更新"
+                  @change="toggleRealTime"
+                />
               </div>
             </template>
             <interactive-chart
@@ -105,7 +109,7 @@
       </el-row>
 
       <!-- 图表控制面板 -->
-      <el-row :gutter="20" style="margin-top: 20px;">
+      <el-row :gutter="20" style="margin-top: 20px">
         <el-col :span="24">
           <el-card shadow="never">
             <template #header>
@@ -146,7 +150,7 @@
       </el-row>
 
       <!-- 交互记录 -->
-      <el-row style="margin-top: 20px;">
+      <el-row style="margin-top: 20px">
         <el-col :span="24">
           <el-card shadow="never">
             <template #header>
@@ -161,11 +165,7 @@
                 <el-empty description="暂无交互记录，点击图表数据点开始交互" />
               </div>
               <div v-else class="interaction-log">
-                <div
-                  v-for="(log, index) in interactionLog"
-                  :key="index"
-                  class="log-item"
-                >
+                <div v-for="(log, index) in interactionLog" :key="index" class="log-item">
                   <el-tag :type="getLogType(log.type)" size="small">{{ log.type }}</el-tag>
                   <span class="log-time">{{ log.time }}</span>
                   <span class="log-message">{{ log.message }}</span>
@@ -180,87 +180,100 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
-import { ElMessage } from 'element-plus'
-import InteractiveChart from '@/components/common/InteractiveChart.vue'
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
+import { ElMessage } from 'element-plus';
+import InteractiveChart from '@/components/common/InteractiveChart.vue';
 
 // 响应式数据
-const realTimeUpdate = ref(false)
-const animationEnabled = ref(true)
-const currentTheme = ref('light')
-const interactionCount = ref(0)
-const refreshCount = ref(0)
-const interactionLog = ref([])
+const realTimeUpdate = ref(false);
+const animationEnabled = ref(true);
+const currentTheme = ref('light');
+const interactionCount = ref(0);
+const refreshCount = ref(0);
+const interactionLog = ref([]);
 
 // 图表数据
-const lineChartData = ref({})
-const barChartData = ref({})
-const pieChartData = ref([])
-const scatterChartData = ref({})
-const heatmapChartData = ref({})
+const lineChartData = ref({});
+const barChartData = ref({});
+const pieChartData = ref([]);
+const scatterChartData = ref({});
+const heatmapChartData = ref({});
 
 // 实时更新定时器
-let realTimeTimer = null
+let realTimeTimer = null;
 
 // 计算属性
-const activeChartsCount = computed(() => 5)
+const activeChartsCount = computed(() => 5);
 
 const totalDataPoints = computed(() => {
-  let total = 0
+  let total = 0;
   if (lineChartData.value.series) {
-    total += lineChartData.value.series.reduce((sum, serie) => sum + (serie.data?.length || 0), 0)
+    total += lineChartData.value.series.reduce((sum, serie) => sum + (serie.data?.length || 0), 0);
   }
   if (barChartData.value.series) {
-    total += barChartData.value.series.reduce((sum, serie) => sum + (serie.data?.length || 0), 0)
+    total += barChartData.value.series.reduce((sum, serie) => sum + (serie.data?.length || 0), 0);
   }
-  total += pieChartData.value.length || 0
-  return total
-})
+  total += pieChartData.value.length || 0;
+  return total;
+});
 
 // 数据生成方法
 const generateLineData = () => {
-  const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+  const months = [
+    '1月',
+    '2月',
+    '3月',
+    '4月',
+    '5月',
+    '6月',
+    '7月',
+    '8月',
+    '9月',
+    '10月',
+    '11月',
+    '12月',
+  ];
 
   lineChartData.value = {
     categories: months,
     series: [
       {
         name: '收入',
-        data: months.map(() => Math.floor(Math.random() * 50000) + 20000)
+        data: months.map(() => Math.floor(Math.random() * 50000) + 20000),
       },
       {
         name: '支出',
-        data: months.map(() => Math.floor(Math.random() * 40000) + 15000)
+        data: months.map(() => Math.floor(Math.random() * 40000) + 15000),
       },
       {
         name: '净收益',
-        data: months.map(() => Math.floor(Math.random() * 20000) - 5000)
-      }
-    ]
-  }
+        data: months.map(() => Math.floor(Math.random() * 20000) - 5000),
+      },
+    ],
+  };
 
-  addInteractionLog('数据更新', '线性图数据已刷新')
-}
+  addInteractionLog('数据更新', '线性图数据已刷新');
+};
 
 const generateBarData = () => {
-  const departments = ['村委会', '基建部', '文化部', '环卫部', '安保部', '财务部']
+  const departments = ['村委会', '基建部', '文化部', '环卫部', '安保部', '财务部'];
 
   barChartData.value = {
     categories: departments,
     series: [
       {
         name: '本月支出',
-        data: departments.map(() => Math.floor(Math.random() * 30000) + 5000)
+        data: departments.map(() => Math.floor(Math.random() * 30000) + 5000),
       },
       {
         name: '预算金额',
-        data: departments.map(() => Math.floor(Math.random() * 35000) + 8000)
-      }
-    ]
-  }
+        data: departments.map(() => Math.floor(Math.random() * 35000) + 8000),
+      },
+    ],
+  };
 
-  addInteractionLog('数据更新', '柱状图数据已刷新')
-}
+  addInteractionLog('数据更新', '柱状图数据已刷新');
+};
 
 const generatePieData = () => {
   const categories = [
@@ -268,12 +281,12 @@ const generatePieData = () => {
     { name: '日常运营', value: Math.floor(Math.random() * 30000) + 15000 },
     { name: '文化活动', value: Math.floor(Math.random() * 20000) + 8000 },
     { name: '办公用品', value: Math.floor(Math.random() * 15000) + 5000 },
-    { name: '其他支出', value: Math.floor(Math.random() * 10000) + 3000 }
-  ]
+    { name: '其他支出', value: Math.floor(Math.random() * 10000) + 3000 },
+  ];
 
-  pieChartData.value = categories
-  addInteractionLog('数据更新', '饼图数据已刷新')
-}
+  pieChartData.value = categories;
+  addInteractionLog('数据更新', '饼图数据已刷新');
+};
 
 const generateScatterData = () => {
   scatterChartData.value = {
@@ -282,23 +295,23 @@ const generateScatterData = () => {
         name: '支出分布',
         data: Array.from({ length: 50 }, () => [
           Math.floor(Math.random() * 100) + 1,
-          Math.floor(Math.random() * 50000) + 1000
-        ])
-      }
-    ]
-  }
+          Math.floor(Math.random() * 50000) + 1000,
+        ]),
+      },
+    ],
+  };
 
-  addInteractionLog('数据更新', '散点图数据已刷新')
-}
+  addInteractionLog('数据更新', '散点图数据已刷新');
+};
 
 const generateHeatmapData = () => {
-  const weeks = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
-  const hours = Array.from({ length: 24 }, (_, i) => `${i}:00`)
+  const weeks = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+  const hours = Array.from({ length: 24 }, (_, i) => `${i}:00`);
 
-  const data = []
+  const data = [];
   for (let i = 0; i < weeks.length; i++) {
     for (let j = 0; j < hours.length; j++) {
-      data.push([j, i, Math.floor(Math.random() * 100)])
+      data.push([j, i, Math.floor(Math.random() * 100)]);
     }
   }
 
@@ -308,140 +321,149 @@ const generateHeatmapData = () => {
     data,
     min: 0,
     max: 100,
-    name: '活动热度'
-  }
+    name: '活动热度',
+  };
 
-  addInteractionLog('数据更新', '热力图数据已刷新')
-}
+  addInteractionLog('数据更新', '热力图数据已刷新');
+};
 
 // 事件处理方法
-const handleLineChartClick = (params) => {
-  interactionCount.value++
-  addInteractionLog('图表点击', `点击了线性图: ${params.seriesName} - ${params.name} = ${params.value}`)
-}
+const handleLineChartClick = params => {
+  interactionCount.value++;
+  addInteractionLog(
+    '图表点击',
+    `点击了线性图: ${params.seriesName} - ${params.name} = ${params.value}`
+  );
+};
 
-const handleBarClick = (params) => {
-  interactionCount.value++
-  addInteractionLog('图表点击', `点击了柱状图: ${params.seriesName} - ${params.name} = ¥${params.value.toLocaleString()}`)
-}
+const handleBarClick = params => {
+  interactionCount.value++;
+  addInteractionLog(
+    '图表点击',
+    `点击了柱状图: ${params.seriesName} - ${params.name} = ¥${params.value.toLocaleString()}`
+  );
+};
 
-const handleBarDoubleClick = (params) => {
-  interactionCount.value++
-  addInteractionLog('图表双击', `双击了柱状图: ${params.name}，触发数据缩放`)
-  ElMessage.success(`双击放大 ${params.name} 的数据`)
-}
+const handleBarDoubleClick = params => {
+  interactionCount.value++;
+  addInteractionLog('图表双击', `双击了柱状图: ${params.name}，触发数据缩放`);
+  ElMessage.success(`双击放大 ${params.name} 的数据`);
+};
 
-const handlePieClick = (params) => {
-  interactionCount.value++
-  addInteractionLog('图表点击', `点击了饼图: ${params.name} = ¥${params.value.toLocaleString()} (${params.percent}%)`)
-}
+const handlePieClick = params => {
+  interactionCount.value++;
+  addInteractionLog(
+    '图表点击',
+    `点击了饼图: ${params.name} = ¥${params.value.toLocaleString()} (${params.percent}%)`
+  );
+};
 
-const handleChartTypeChange = (type) => {
-  addInteractionLog('类型切换', `图表类型已切换为: ${type}`)
-}
+const handleChartTypeChange = type => {
+  addInteractionLog('类型切换', `图表类型已切换为: ${type}`);
+};
 
 const handleChartExport = ({ format, dataURL }) => {
-  addInteractionLog('图表导出', `图表已导出为 ${format.toUpperCase()} 格式`)
-}
+  addInteractionLog('图表导出', `图表已导出为 ${format.toUpperCase()} 格式`);
+};
 
 // 控制方法
-const toggleRealTime = (enabled) => {
+const toggleRealTime = enabled => {
   if (enabled) {
     realTimeTimer = setInterval(() => {
-      generateLineData()
-      refreshCount.value++
-    }, 5000)
-    addInteractionLog('实时更新', '已启用实时数据更新 (5秒间隔)')
+      generateLineData();
+      refreshCount.value++;
+    }, 5000);
+    addInteractionLog('实时更新', '已启用实时数据更新 (5秒间隔)');
   } else {
     if (realTimeTimer) {
-      clearInterval(realTimeTimer)
-      realTimeTimer = null
+      clearInterval(realTimeTimer);
+      realTimeTimer = null;
     }
-    addInteractionLog('实时更新', '已禁用实时数据更新')
+    addInteractionLog('实时更新', '已禁用实时数据更新');
   }
-}
+};
 
 const refreshAllCharts = () => {
-  generateAllData()
-  refreshCount.value++
-  addInteractionLog('批量刷新', '所有图表数据已刷新')
-}
+  generateAllData();
+  refreshCount.value++;
+  addInteractionLog('批量刷新', '所有图表数据已刷新');
+};
 
 const generateAllData = () => {
-  generateLineData()
-  generateBarData()
-  generatePieData()
-  generateScatterData()
-  generateHeatmapData()
-}
+  generateLineData();
+  generateBarData();
+  generatePieData();
+  generateScatterData();
+  generateHeatmapData();
+};
 
 const exportAllCharts = () => {
-  addInteractionLog('批量导出', '正在导出所有图表...')
-  ElMessage.success('批量导出功能开发中...')
-}
+  addInteractionLog('批量导出', '正在导出所有图表...');
+  ElMessage.success('批量导出功能开发中...');
+};
 
 const toggleAnimations = () => {
-  animationEnabled.value = !animationEnabled.value
-  addInteractionLog('动画切换', `图表动画已${animationEnabled.value ? '启用' : '禁用'}`)
-  ElMessage.info(`图表动画已${animationEnabled.value ? '启用' : '禁用'}`)
-}
+  animationEnabled.value = !animationEnabled.value;
+  addInteractionLog('动画切换', `图表动画已${animationEnabled.value ? '启用' : '禁用'}`);
+  ElMessage.info(`图表动画已${animationEnabled.value ? '启用' : '禁用'}`);
+};
 
 const switchTheme = () => {
-  currentTheme.value = currentTheme.value === 'light' ? 'dark' : 'light'
-  addInteractionLog('主题切换', `已切换到${currentTheme.value === 'light' ? '浅色' : '深色'}主题`)
-  ElMessage.info(`已切换到${currentTheme.value === 'light' ? '浅色' : '深色'}主题`)
-}
+  currentTheme.value = currentTheme.value === 'light' ? 'dark' : 'light';
+  addInteractionLog('主题切换', `已切换到${currentTheme.value === 'light' ? '浅色' : '深色'}主题`);
+  ElMessage.info(`已切换到${currentTheme.value === 'light' ? '浅色' : '深色'}主题`);
+};
 
 // 交互记录方法
 const addInteractionLog = (type, message) => {
   const log = {
     type,
     message,
-    time: new Date().toLocaleTimeString()
-  }
+    time: new Date().toLocaleTimeString(),
+  };
 
-  interactionLog.value.unshift(log)
+  interactionLog.value.unshift(log);
 
   // 限制日志数量
   if (interactionLog.value.length > 50) {
-    interactionLog.value = interactionLog.value.slice(0, 50)
+    interactionLog.value = interactionLog.value.slice(0, 50);
   }
-}
+};
 
 const clearInteractionLog = () => {
-  interactionLog.value = []
-  interactionCount.value = 0
-  addInteractionLog('系统操作', '交互记录已清空')
-}
+  interactionLog.value = [];
+  interactionCount.value = 0;
+  addInteractionLog('系统操作', '交互记录已清空');
+};
 
-const getLogType = (type) => {
+const getLogType = type => {
   const typeMap = {
-    '图表点击': 'primary',
-    '图表双击': 'success',
-    '数据更新': 'info',
-    '类型切换': 'warning',
-    '图表导出': 'success',
-    '实时更新': 'info',
-    '批量刷新': 'primary',
-    '批量导出': 'success',
-    '动画切换': 'warning',
-    '主题切换': 'warning',
-    '系统操作': 'info'
-  }
-  return typeMap[type] || 'default'
-}
+    图表点击: 'primary',
+    图表双击: 'success',
+    数据更新: 'info',
+    类型切换: 'warning',
+    图表导出: 'success',
+    实时更新: 'info',
+    批量刷新: 'primary',
+    批量导出: 'success',
+    动画切换: 'warning',
+    主题切换: 'warning',
+    系统操作: 'info',
+  };
+  return typeMap[type] || 'default';
+};
 
 // 生命周期
 onMounted(() => {
-  generateAllData()
-  addInteractionLog('系统启动', '交互式图表演示系统已加载')
-})
+  generateAllData();
+  addInteractionLog('系统启动', '交互式图表演示系统已加载');
+});
 
 onUnmounted(() => {
   if (realTimeTimer) {
-    clearInterval(realTimeTimer)
+    clearInterval(realTimeTimer);
   }
-})
+});
 </script>
 
 <style lang="scss" scoped>

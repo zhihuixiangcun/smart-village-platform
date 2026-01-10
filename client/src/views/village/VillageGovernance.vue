@@ -91,7 +91,11 @@
               <div class="table-header">
                 <span>财务明细</span>
                 <div class="filter-controls">
-                  <el-select v-model="financeFilter.type" placeholder="类型" style="width: 120px; margin-right: 12px;">
+                  <el-select
+                    v-model="financeFilter.type"
+                    placeholder="类型"
+                    style="width: 120px; margin-right: 12px"
+                  >
                     <el-option label="全部" value="" />
                     <el-option label="收入" value="income" />
                     <el-option label="支出" value="expense" />
@@ -131,8 +135,12 @@
               <el-table-column prop="operator" label="经手人" width="100" />
               <el-table-column label="操作" width="150">
                 <template #default="{ row }">
-                  <el-button type="primary" link size="small" @click="viewFinanceDetail(row)">查看</el-button>
-                  <el-button type="warning" link size="small" @click="editFinanceRecord(row)">编辑</el-button>
+                  <el-button type="primary" link size="small" @click="viewFinanceDetail(row)"
+                    >查看</el-button
+                  >
+                  <el-button type="warning" link size="small" @click="editFinanceRecord(row)"
+                    >编辑</el-button
+                  >
                 </template>
               </el-table-column>
             </el-table>
@@ -286,7 +294,12 @@
                     <el-button type="primary" link size="small" @click="viewProjectDetail(project)">
                       查看详情
                     </el-button>
-                    <el-button type="success" link size="small" @click="updateProjectProgress(project)">
+                    <el-button
+                      type="success"
+                      link
+                      size="small"
+                      @click="updateProjectProgress(project)"
+                    >
                       更新进度
                     </el-button>
                     <el-dropdown trigger="click">
@@ -295,11 +308,27 @@
                       </el-button>
                       <template #dropdown>
                         <el-dropdown-menu>
-                          <el-dropdown-item @click="editProject(project)">编辑项目</el-dropdown-item>
-                          <el-dropdown-item @click="pauseProject(project)" v-if="project.status === 'in_progress'">暂停项目</el-dropdown-item>
-                          <el-dropdown-item @click="resumeProject(project)" v-if="project.status === 'paused'">恢复项目</el-dropdown-item>
-                          <el-dropdown-item @click="completeProject(project)" v-if="project.status !== 'completed'">完成项目</el-dropdown-item>
-                          <el-dropdown-item divided @click="deleteProject(project)">删除项目</el-dropdown-item>
+                          <el-dropdown-item @click="editProject(project)"
+                            >编辑项目</el-dropdown-item
+                          >
+                          <el-dropdown-item
+                            @click="pauseProject(project)"
+                            v-if="project.status === 'in_progress'"
+                            >暂停项目</el-dropdown-item
+                          >
+                          <el-dropdown-item
+                            @click="resumeProject(project)"
+                            v-if="project.status === 'paused'"
+                            >恢复项目</el-dropdown-item
+                          >
+                          <el-dropdown-item
+                            @click="completeProject(project)"
+                            v-if="project.status !== 'completed'"
+                            >完成项目</el-dropdown-item
+                          >
+                          <el-dropdown-item divided @click="deleteProject(project)"
+                            >删除项目</el-dropdown-item
+                          >
                         </el-dropdown-menu>
                       </template>
                     </el-dropdown>
@@ -432,7 +461,11 @@
               <div class="task-list-header">
                 <span>任务列表</span>
                 <div class="task-controls">
-                  <el-select v-model="taskFilter.status" placeholder="状态" style="width: 100px; margin-right: 12px;">
+                  <el-select
+                    v-model="taskFilter.status"
+                    placeholder="状态"
+                    style="width: 100px; margin-right: 12px"
+                  >
                     <el-option label="全部" value="" />
                     <el-option label="待办" value="pending" />
                     <el-option label="进行中" value="in_progress" />
@@ -472,9 +505,25 @@
               </el-table-column>
               <el-table-column label="操作" width="200">
                 <template #default="{ row }">
-                  <el-button type="primary" link size="small" @click="viewTaskDetail(row)">查看</el-button>
-                  <el-button type="success" link size="small" @click="completeTask(row)" v-if="row.status !== 'completed'">完成</el-button>
-                  <el-button type="warning" link size="small" @click="editTask(row)" v-if="row.status !== 'completed'">编辑</el-button>
+                  <el-button type="primary" link size="small" @click="viewTaskDetail(row)"
+                    >查看</el-button
+                  >
+                  <el-button
+                    type="success"
+                    link
+                    size="small"
+                    @click="completeTask(row)"
+                    v-if="row.status !== 'completed'"
+                    >完成</el-button
+                  >
+                  <el-button
+                    type="warning"
+                    link
+                    size="small"
+                    @click="editTask(row)"
+                    v-if="row.status !== 'completed'"
+                    >编辑</el-button
+                  >
                 </template>
               </el-table-column>
             </el-table>
@@ -567,12 +616,7 @@
     <el-dialog v-model="incomeDialog.visible" title="记录收入" width="500px">
       <el-form :model="incomeForm" :rules="incomeRules" ref="incomeFormRef" label-width="100px">
         <el-form-item label="收入金额" prop="amount">
-          <el-input-number
-            v-model="incomeForm.amount"
-            :min="0"
-            :step="100"
-            style="width: 100%"
-          />
+          <el-input-number v-model="incomeForm.amount" :min="0" :step="100" style="width: 100%" />
         </el-form-item>
         <el-form-item label="收入分类" prop="category">
           <el-select v-model="incomeForm.category" placeholder="请选择收入分类" style="width: 100%">
@@ -602,15 +646,14 @@
     <el-dialog v-model="expenseDialog.visible" title="记录支出" width="500px">
       <el-form :model="expenseForm" :rules="expenseRules" ref="expenseFormRef" label-width="100px">
         <el-form-item label="支出金额" prop="amount">
-          <el-input-number
-            v-model="expenseForm.amount"
-            :min="0"
-            :step="100"
-            style="width: 100%"
-          />
+          <el-input-number v-model="expenseForm.amount" :min="0" :step="100" style="width: 100%" />
         </el-form-item>
         <el-form-item label="支出分类" prop="category">
-          <el-select v-model="expenseForm.category" placeholder="请选择支出分类" style="width: 100%">
+          <el-select
+            v-model="expenseForm.category"
+            placeholder="请选择支出分类"
+            style="width: 100%"
+          >
             <el-option label="基础设施" value="infrastructure" />
             <el-option label="环境整治" value="environment" />
             <el-option label="公共服务" value="public_service" />
@@ -636,9 +679,7 @@
           >
             <el-button type="primary">选择文件</el-button>
             <template #tip>
-              <div class="el-upload__tip">
-                支持上传发票、收据等凭证文件
-              </div>
+              <div class="el-upload__tip">支持上传发票、收据等凭证文件</div>
             </template>
           </el-upload>
         </el-form-item>
@@ -652,20 +693,37 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { useRouter } from 'vue-router'
+import { ref, reactive, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { useRouter } from 'vue-router';
 import {
-  Plus, Download, Money, CreditCard, Wallet, PieChart,
-  EditPen, Minus, FolderOpened, Loading, CircleCheck,
-  Warning, Search, ArrowDown, Clock, Lock, FirstAidKit,
-  Umbrella, Brush, WarningFilled, CircleCheckFilled
-} from '@element-plus/icons-vue'
+  Plus,
+  Download,
+  Money,
+  CreditCard,
+  Wallet,
+  PieChart,
+  EditPen,
+  Minus,
+  FolderOpened,
+  Loading,
+  CircleCheck,
+  Warning,
+  Search,
+  ArrowDown,
+  Clock,
+  Lock,
+  FirstAidKit,
+  Umbrella,
+  Brush,
+  WarningFilled,
+  CircleCheckFilled,
+} from '@element-plus/icons-vue';
 
-const router = useRouter()
+const router = useRouter();
 
 // 数据状态
-const activeTab = ref('finance')
+const activeTab = ref('finance');
 
 // 财务数据
 const financeData = ref([
@@ -676,7 +734,7 @@ const financeData = ref([
     category: '财政补贴',
     description: '第一季度村级运转经费',
     amount: 50000,
-    operator: '张会计'
+    operator: '张会计',
   },
   {
     id: 2,
@@ -685,7 +743,7 @@ const financeData = ref([
     category: '基础设施',
     description: '村内道路维修材料费',
     amount: 12800,
-    operator: '李主任'
+    operator: '李主任',
   },
   {
     id: 3,
@@ -694,28 +752,28 @@ const financeData = ref([
     category: '项目资金',
     description: '美丽乡村建设补助款',
     amount: 200000,
-    operator: '王书记'
-  }
-])
+    operator: '王书记',
+  },
+]);
 
 const financeFilter = reactive({
   type: '',
-  dateRange: []
-})
+  dateRange: [],
+});
 
 const financePage = reactive({
   current: 1,
   size: 10,
-  total: 0
-})
+  total: 0,
+});
 
 // 项目数据
 const projectStats = reactive({
   total: 24,
   inProgress: 12,
   completed: 8,
-  overdue: 4
-})
+  overdue: 4,
+});
 
 const projectData = ref([
   {
@@ -727,7 +785,7 @@ const projectData = ref([
     deadline: '2024-03-15',
     progress: 65,
     status: 'in_progress',
-    priority: 'high'
+    priority: 'high',
   },
   {
     id: 2,
@@ -738,7 +796,7 @@ const projectData = ref([
     deadline: '2024-04-20',
     progress: 30,
     status: 'in_progress',
-    priority: 'medium'
+    priority: 'medium',
   },
   {
     id: 3,
@@ -749,29 +807,29 @@ const projectData = ref([
     deadline: '2024-02-28',
     progress: 100,
     status: 'completed',
-    priority: 'medium'
-  }
-])
+    priority: 'medium',
+  },
+]);
 
 const projectFilter = reactive({
   status: '',
   priority: '',
   category: '',
-  keyword: ''
-})
+  keyword: '',
+});
 
 const projectPage = reactive({
   current: 1,
   size: 9,
-  total: 0
-})
+  total: 0,
+});
 
 // 任务数据
 const taskStats = reactive({
   emergency: 3,
   today: 8,
-  completed: 15
-})
+  completed: 15,
+});
 
 const taskData = ref([
   {
@@ -781,7 +839,7 @@ const taskData = ref([
     priority: 'urgent',
     assignee: '张网格员',
     deadline: '2024-01-25 18:00',
-    status: 'pending'
+    status: 'pending',
   },
   {
     id: 2,
@@ -790,7 +848,7 @@ const taskData = ref([
     priority: 'high',
     assignee: '李志愿者',
     deadline: '2024-01-24 12:00',
-    status: 'in_progress'
+    status: 'in_progress',
   },
   {
     id: 3,
@@ -799,26 +857,26 @@ const taskData = ref([
     priority: 'medium',
     assignee: '王巡查员',
     deadline: '2024-01-26 17:00',
-    status: 'pending'
-  }
-])
+    status: 'pending',
+  },
+]);
 
 const taskFilter = reactive({
-  status: ''
-})
+  status: '',
+});
 
 // 对话框状态
 const projectDialog = reactive({
-  visible: false
-})
+  visible: false,
+});
 
 const incomeDialog = reactive({
-  visible: false
-})
+  visible: false,
+});
 
 const expenseDialog = reactive({
-  visible: false
-})
+  visible: false,
+});
 
 // 表单数据
 const projectForm = reactive({
@@ -828,20 +886,20 @@ const projectForm = reactive({
   priority: '',
   budget: 0,
   deadline: '',
-  description: ''
-})
+  description: '',
+});
 
 const incomeForm = reactive({
   amount: 0,
   category: '',
-  description: ''
-})
+  description: '',
+});
 
 const expenseForm = reactive({
   amount: 0,
   category: '',
-  description: ''
-})
+  description: '',
+});
 
 // 表单验证规则
 const projectRules = {
@@ -850,35 +908,35 @@ const projectRules = {
   manager: [{ required: true, message: '请选择项目负责人', trigger: 'change' }],
   priority: [{ required: true, message: '请选择优先级', trigger: 'change' }],
   budget: [{ required: true, message: '请输入预算金额', trigger: 'blur' }],
-  deadline: [{ required: true, message: '请选择截止日期', trigger: 'change' }]
-}
+  deadline: [{ required: true, message: '请选择截止日期', trigger: 'change' }],
+};
 
 const incomeRules = {
   amount: [{ required: true, message: '请输入收入金额', trigger: 'blur' }],
   category: [{ required: true, message: '请选择收入分类', trigger: 'change' }],
-  description: [{ required: true, message: '请输入收入说明', trigger: 'blur' }]
-}
+  description: [{ required: true, message: '请输入收入说明', trigger: 'blur' }],
+};
 
 const expenseRules = {
   amount: [{ required: true, message: '请输入支出金额', trigger: 'blur' }],
   category: [{ required: true, message: '请选择支出分类', trigger: 'change' }],
-  description: [{ required: true, message: '请输入支出说明', trigger: 'blur' }]
-}
+  description: [{ required: true, message: '请输入支出说明', trigger: 'blur' }],
+};
 
 // 方法
-const handleTabChange = (tabName) => {
-  console.log('切换到标签页:', tabName)
-}
+const handleTabChange = tabName => {
+  console.log('切换到标签页:', tabName);
+};
 
 const loadFinanceData = () => {
   // 模拟加载财务数据
-  financePage.total = 156
-}
+  financePage.total = 156;
+};
 
 const loadProjects = () => {
   // 模拟加载项目数据
-  projectPage.total = 87
-}
+  projectPage.total = 87;
+};
 
 const showNewProjectDialog = () => {
   Object.assign(projectForm, {
@@ -888,236 +946,240 @@ const showNewProjectDialog = () => {
     priority: '',
     budget: 0,
     deadline: '',
-    description: ''
-  })
-  projectDialog.visible = true
-}
+    description: '',
+  });
+  projectDialog.visible = true;
+};
 
 const createProject = () => {
   // 创建项目逻辑
-  ElMessage.success('项目创建成功')
-  projectDialog.visible = false
-  loadProjects()
-}
+  ElMessage.success('项目创建成功');
+  projectDialog.visible = false;
+  loadProjects();
+};
 
 const showIncomeDialog = () => {
   Object.assign(incomeForm, {
     amount: 0,
     category: '',
-    description: ''
-  })
-  incomeDialog.visible = true
-}
+    description: '',
+  });
+  incomeDialog.visible = true;
+};
 
 const saveIncome = () => {
   // 保存收入记录
-  ElMessage.success('收入记录保存成功')
-  incomeDialog.visible = false
-  loadFinanceData()
-}
+  ElMessage.success('收入记录保存成功');
+  incomeDialog.visible = false;
+  loadFinanceData();
+};
 
 const showExpenseDialog = () => {
   Object.assign(expenseForm, {
     amount: 0,
     category: '',
-    description: ''
-  })
-  expenseDialog.visible = true
-}
+    description: '',
+  });
+  expenseDialog.visible = true;
+};
 
 const saveExpense = () => {
   // 保存支出记录
-  ElMessage.success('支出记录保存成功')
-  expenseDialog.visible = false
-  loadFinanceData()
-}
+  ElMessage.success('支出记录保存成功');
+  expenseDialog.visible = false;
+  loadFinanceData();
+};
 
 const exportFinanceReport = () => {
-  ElMessage.info('正在生成财务报表...')
-}
+  ElMessage.info('正在生成财务报表...');
+};
 
 const showBudgetDialog = () => {
-  ElMessage.info('预算管理功能开发中')
-}
+  ElMessage.info('预算管理功能开发中');
+};
 
-const viewFinanceDetail = (record) => {
-  ElMessage.info('查看财务详情')
-}
+const viewFinanceDetail = record => {
+  ElMessage.info('查看财务详情');
+};
 
-const editFinanceRecord = (record) => {
-  ElMessage.info('编辑财务记录')
-}
+const editFinanceRecord = record => {
+  ElMessage.info('编辑财务记录');
+};
 
-const getProjectStatusType = (status) => {
+const getProjectStatusType = status => {
   const types = {
     planning: 'info',
     in_progress: 'primary',
     completed: 'success',
     paused: 'warning',
-    cancelled: 'danger'
-  }
-  return types[status] || 'info'
-}
+    cancelled: 'danger',
+  };
+  return types[status] || 'info';
+};
 
-const getProjectStatusText = (status) => {
+const getProjectStatusText = status => {
   const texts = {
     planning: '规划中',
     in_progress: '进行中',
     completed: '已完成',
     paused: '已暂停',
-    cancelled: '已取消'
-  }
-  return texts[status] || '未知'
-}
+    cancelled: '已取消',
+  };
+  return texts[status] || '未知';
+};
 
-const getProjectCategoryText = (category) => {
+const getProjectCategoryText = category => {
   const texts = {
     infrastructure: '基础设施',
     environment: '环境整治',
     public_service: '公共服务',
-    industry: '产业发展'
-  }
-  return texts[category] || '其他'
-}
+    industry: '产业发展',
+  };
+  return texts[category] || '其他';
+};
 
-const viewProjectDetail = (project) => {
-  ElMessage.info(`查看项目详情: ${project.name}`)
-}
+const viewProjectDetail = project => {
+  ElMessage.info(`查看项目详情: ${project.name}`);
+};
 
-const updateProjectProgress = (project) => {
-  ElMessage.info(`更新项目进度: ${project.name}`)
-}
+const updateProjectProgress = project => {
+  ElMessage.info(`更新项目进度: ${project.name}`);
+};
 
-const editProject = (project) => {
-  ElMessage.info(`编辑项目: ${project.name}`)
-}
+const editProject = project => {
+  ElMessage.info(`编辑项目: ${project.name}`);
+};
 
-const pauseProject = (project) => {
-  ElMessage.success(`项目已暂停: ${project.name}`)
-}
+const pauseProject = project => {
+  ElMessage.success(`项目已暂停: ${project.name}`);
+};
 
-const resumeProject = (project) => {
-  ElMessage.success(`项目已恢复: ${project.name}`)
-}
+const resumeProject = project => {
+  ElMessage.success(`项目已恢复: ${project.name}`);
+};
 
-const completeProject = (project) => {
-  ElMessage.success(`项目已完成: ${project.name}`)
-}
+const completeProject = project => {
+  ElMessage.success(`项目已完成: ${project.name}`);
+};
 
-const deleteProject = (project) => {
+const deleteProject = project => {
   ElMessageBox.confirm(`确定要删除项目"${project.name}"吗？`, '确认删除', {
-    type: 'warning'
-  }).then(() => {
-    ElMessage.success('项目删除成功')
-    loadProjects()
-  }).catch(() => {})
-}
+    type: 'warning',
+  })
+    .then(() => {
+      ElMessage.success('项目删除成功');
+      loadProjects();
+    })
+    .catch(() => {});
+};
 
-const dispatchTask = (type) => {
+const dispatchTask = type => {
   const typeNames = {
     safety: '安全生产',
     epidemic: '疫情防控',
     disaster: '防灾减灾',
-    environment: '环境整治'
-  }
-  ElMessage.success(`${typeNames[type]}任务已调度，相关人员将立即响应`)
-}
+    environment: '环境整治',
+  };
+  ElMessage.success(`${typeNames[type]}任务已调度，相关人员将立即响应`);
+};
 
 const showEmergencyDispatch = () => {
-  ElMessage.warning('紧急调度功能已启动，所有在线人员将收到通知')
-}
+  ElMessage.warning('紧急调度功能已启动，所有在线人员将收到通知');
+};
 
 const showCreateTaskDialog = () => {
-  ElMessage.info('创建任务功能开发中')
-}
+  ElMessage.info('创建任务功能开发中');
+};
 
-const getTaskTypeColor = (type) => {
+const getTaskTypeColor = type => {
   const colors = {
     safety: 'danger',
     epidemic: 'warning',
     environment: 'success',
-    routine: 'info'
-  }
-  return colors[type] || 'info'
-}
+    routine: 'info',
+  };
+  return colors[type] || 'info';
+};
 
-const getTaskTypeText = (type) => {
+const getTaskTypeText = type => {
   const texts = {
     safety: '安全',
     epidemic: '防疫',
     environment: '环境',
-    routine: '日常'
-  }
-  return texts[type] || '其他'
-}
+    routine: '日常',
+  };
+  return texts[type] || '其他';
+};
 
-const getPriorityType = (priority) => {
+const getPriorityType = priority => {
   const types = {
     urgent: 'danger',
     high: 'warning',
     medium: 'primary',
-    low: 'info'
-  }
-  return types[priority] || 'info'
-}
+    low: 'info',
+  };
+  return types[priority] || 'info';
+};
 
-const getPriorityText = (priority) => {
+const getPriorityText = priority => {
   const texts = {
     urgent: '紧急',
     high: '高',
     medium: '中',
-    low: '低'
-  }
-  return texts[priority] || '普通'
-}
+    low: '低',
+  };
+  return texts[priority] || '普通';
+};
 
-const getTaskStatusType = (status) => {
+const getTaskStatusType = status => {
   const types = {
     pending: 'warning',
     in_progress: 'primary',
-    completed: 'success'
-  }
-  return types[status] || 'info'
-}
+    completed: 'success',
+  };
+  return types[status] || 'info';
+};
 
-const getTaskStatusText = (status) => {
+const getTaskStatusText = status => {
   const texts = {
     pending: '待办',
     in_progress: '进行中',
-    completed: '已完成'
-  }
-  return texts[status] || '未知'
-}
+    completed: '已完成',
+  };
+  return texts[status] || '未知';
+};
 
-const viewTaskDetail = (task) => {
-  ElMessage.info(`查看任务详情: ${task.title}`)
-}
+const viewTaskDetail = task => {
+  ElMessage.info(`查看任务详情: ${task.title}`);
+};
 
-const completeTask = (task) => {
+const completeTask = task => {
   ElMessageBox.confirm(`确定要完成任务"${task.title}"吗？`, '确认完成', {
-    type: 'success'
-  }).then(() => {
-    ElMessage.success('任务已完成')
-  }).catch(() => {})
-}
+    type: 'success',
+  })
+    .then(() => {
+      ElMessage.success('任务已完成');
+    })
+    .catch(() => {});
+};
 
-const editTask = (task) => {
-  ElMessage.info(`编辑任务: ${task.title}`)
-}
+const editTask = task => {
+  ElMessage.info(`编辑任务: ${task.title}`);
+};
 
-const handlePreview = (file) => {
-  ElMessage.info('预览文件')
-}
+const handlePreview = file => {
+  ElMessage.info('预览文件');
+};
 
-const handleRemove = (file) => {
-  ElMessage.info('移除文件')
-}
+const handleRemove = file => {
+  ElMessage.info('移除文件');
+};
 
 // 初始化
 onMounted(() => {
-  loadFinanceData()
-  loadProjects()
-})
+  loadFinanceData();
+  loadProjects();
+});
 </script>
 
 <style scoped>

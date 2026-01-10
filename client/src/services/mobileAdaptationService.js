@@ -22,7 +22,7 @@ class MobileAdaptationService {
       pixelRatio: 1,
       screenWidth: 0,
       screenHeight: 0,
-      orientation: 'portrait'
+      orientation: 'portrait',
     });
 
     // 触控状态
@@ -34,7 +34,7 @@ class MobileAdaptationService {
       touchEndY: 0,
       swipeDirection: null,
       longPressTimer: null,
-      longPressActive: false
+      longPressActive: false,
     });
 
     // 响应式配置
@@ -44,7 +44,7 @@ class MobileAdaptationService {
       desktop: 1200,
       small: 480,
       medium: 768,
-      large: 1200
+      large: 1200,
     };
 
     // 主题配置
@@ -52,7 +52,7 @@ class MobileAdaptationService {
       fontSize: 'normal',
       spacing: 'normal',
       touchTargetSize: 'normal',
-      animation: 'normal'
+      animation: 'normal',
     });
 
     // 初始化
@@ -98,7 +98,8 @@ class MobileAdaptationService {
 
     // 检测屏幕尺寸
     this.deviceInfo.isSmallScreen = width <= this.breakpoints.small;
-    this.deviceInfo.isMediumScreen = width > this.breakpoints.small && width <= this.breakpoints.medium;
+    this.deviceInfo.isMediumScreen =
+      width > this.breakpoints.small && width <= this.breakpoints.medium;
     this.deviceInfo.isLargeScreen = width > this.breakpoints.medium;
 
     // 检测操作系统
@@ -183,7 +184,7 @@ class MobileAdaptationService {
       small: '0.875',
       normal: '1',
       medium: '1.125',
-      large: '1.25'
+      large: '1.25',
     };
     return scales[this.theme.fontSize] || scales.normal;
   }
@@ -195,7 +196,7 @@ class MobileAdaptationService {
     const scales = {
       compact: '0.75',
       normal: '1',
-      medium: '1.25'
+      medium: '1.25',
     };
     return scales[this.theme.spacing] || scales.normal;
   }
@@ -207,7 +208,7 @@ class MobileAdaptationService {
     const sizes = {
       normal: '44px',
       medium: '48px',
-      large: '56px'
+      large: '56px',
     };
     return sizes[this.theme.touchTargetSize] || sizes.normal;
   }
@@ -218,7 +219,7 @@ class MobileAdaptationService {
   getAnimationDuration() {
     const durations = {
       reduced: '0.2s',
-      normal: '0.3s'
+      normal: '0.3s',
     };
     return durations[this.theme.animation] || durations.normal;
   }
@@ -271,14 +272,14 @@ class MobileAdaptationService {
       this.emit('longpress', {
         x: touch.clientX,
         y: touch.clientY,
-        target: event.target
+        target: event.target,
       });
     }, 500);
 
     this.emit('touchstart', {
       x: touch.clientX,
       y: touch.clientY,
-      target: event.target
+      target: event.target,
     });
   }
 
@@ -305,7 +306,7 @@ class MobileAdaptationService {
       deltaX,
       deltaY,
       distance,
-      target: event.target
+      target: event.target,
     });
   }
 
@@ -347,7 +348,7 @@ class MobileAdaptationService {
       y: touch.clientY,
       swipeDirection: this.touchState.swipeDirection,
       longPress: this.touchState.longPressActive,
-      target: event.target
+      target: event.target,
     });
 
     // 重置状态
@@ -366,7 +367,7 @@ class MobileAdaptationService {
     }
 
     this.emit('touchcancel', {
-      target: event.target
+      target: event.target,
     });
   }
 
@@ -576,7 +577,7 @@ class MobileAdaptationService {
         double: [10, 50, 10],
         success: [10, 30, 10],
         error: [50, 50, 50],
-        warning: [20, 20, 20]
+        warning: [20, 20, 20],
       };
 
       try {
@@ -636,7 +637,7 @@ class MobileAdaptationService {
       container = null,
       breakpoints = null,
       spacing = null,
-      typography = null
+      typography = null,
     } = layoutConfig;
 
     if (container) {
@@ -734,6 +735,4 @@ class MobileAdaptationService {
 const mobileAdaptationService = new MobileAdaptationService();
 
 export default mobileAdaptationService;
-export {
-  MobileAdaptationService
-};
+export { MobileAdaptationService };

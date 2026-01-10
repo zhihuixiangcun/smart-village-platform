@@ -30,31 +30,34 @@ export const usePermissionStore = defineStore('permission', () => {
     });
   });
 
-  const hasAnyPermission = computed(() => (permissionList) => {
+  const hasAnyPermission = computed(() => permissionList => {
     return permissionList.some(permission => {
       const [resource, action] = permission.split(':');
       return hasPermission.value(resource, action);
     });
   });
 
-  const hasAllPermissions = computed(() => (permissionList) => {
+  const hasAllPermissions = computed(() => permissionList => {
     return permissionList.every(permission => {
       const [resource, action] = permission.split(':');
       return hasPermission.value(resource, action);
     });
   });
 
-  const getPermissionsByResource = computed(() => (resource) => {
-    return permissions.value.filter(permission => {
-      const [res] = permission.split(':');
-      return res === resource || res === '*';
-    }).map(permission => {
-      const [, actions] = permission.split(':');
-      return actions.split(',').map(action => `${resource}:${action}`);
-    }).flat();
+  const getPermissionsByResource = computed(() => resource => {
+    return permissions.value
+      .filter(permission => {
+        const [res] = permission.split(':');
+        return res === resource || res === '*';
+      })
+      .map(permission => {
+        const [, actions] = permission.split(':');
+        return actions.split(',').map(action => `${resource}:${action}`);
+      })
+      .flat();
   });
 
-  const getRolePermissions = computed(() => (roleId) => {
+  const getRolePermissions = computed(() => roleId => {
     const role = roles.value.find(r => r.id === roleId);
     return role ? role.permissions || [] : [];
   });
@@ -85,7 +88,7 @@ export const usePermissionStore = defineStore('permission', () => {
     }
   };
 
-  const batchCheckPermissions = async (permissionList) => {
+  const batchCheckPermissions = async permissionList => {
     try {
       const result = await enhancedPermissionService.batchCheckPermissions(permissionList);
       return result.results || [];
@@ -127,29 +130,29 @@ export const usePermissionStore = defineStore('permission', () => {
           name: '村级管理员',
           description: '村级最高管理员',
           permissions: ['*:*'],
-          userCount: 5
+          userCount: 5,
         },
         {
           id: '2',
           name: '部门主管',
           description: '部门负责人',
           permissions: ['user:*', 'resident:*', 'finance:read'],
-          userCount: 12
+          userCount: 12,
         },
         {
           id: '3',
           name: '工作人员',
           description: '普通工作人员',
           permissions: ['user:read', 'resident:read', 'service:*'],
-          userCount: 28
+          userCount: 28,
         },
         {
           id: '4',
           name: '村民',
           description: '普通村民',
           permissions: ['announcement:read', 'service:apply'],
-          userCount: 1250
-        }
+          userCount: 1250,
+        },
       ];
       roles.value = mockRoles;
       return mockRoles;
@@ -159,13 +162,13 @@ export const usePermissionStore = defineStore('permission', () => {
     }
   };
 
-  const createRole = async (roleData) => {
+  const createRole = async roleData => {
     try {
       // 调用API创建角色
       const newRole = {
         id: Date.now().toString(),
         ...roleData,
-        userCount: 0
+        userCount: 0,
       };
       roles.value.push(newRole);
       return newRole;
@@ -188,7 +191,7 @@ export const usePermissionStore = defineStore('permission', () => {
     }
   };
 
-  const deleteRole = async (roleId) => {
+  const deleteRole = async roleId => {
     try {
       const index = roles.value.findIndex(r => r.id === roleId);
       if (index > -1) {
@@ -212,7 +215,7 @@ export const usePermissionStore = defineStore('permission', () => {
     }
   };
 
-  const createPolicy = async (policyData) => {
+  const createPolicy = async policyData => {
     try {
       const result = await enhancedPermissionService.createPermissionPolicy(policyData);
       if (result.success) {
@@ -236,7 +239,7 @@ export const usePermissionStore = defineStore('permission', () => {
           description: '包含基础权限的模板',
           category: 'system',
           permissionCount: 15,
-          permissions: []
+          permissions: [],
         },
         {
           id: '2',
@@ -244,8 +247,8 @@ export const usePermissionStore = defineStore('permission', () => {
           description: '管理员专用权限模板',
           category: 'custom',
           permissionCount: 35,
-          permissions: []
-        }
+          permissions: [],
+        },
       ];
       templates.value = mockTemplates;
       return mockTemplates;
@@ -285,14 +288,14 @@ export const usePermissionStore = defineStore('permission', () => {
     await Promise.all([
       fetchRoles().catch(() => {}),
       fetchPolicies().catch(() => {}),
-      fetchTemplates().catch(() => {})
+      fetchTemplates().catch(() => {}),
     ]);
   };
 
   // 权限变化监听
   const setupPermissionListener = () => {
     // 监听权限更新事件
-    enhancedPermissionService.on('permission_update', (data) => {
+    enhancedPermissionService.on('permission_update', data => {
       if (data.userId === getCurrentUserId()) {
         permissions.value = data.permissions;
         localStorage.setItem('permissions', JSON.stringify(data.permissions));
@@ -346,6 +349,6 @@ export const usePermissionStore = defineStore('permission', () => {
 
     // 初始化
     initialize,
-    setupPermissionListener
+    setupPermissionListener,
   };
 });

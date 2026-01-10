@@ -14,20 +14,13 @@
     <div class="input-toolbar">
       <!-- 工具栏 -->
       <div class="toolbar-left">
-        <el-upload
-          :show-file-list="false"
-          :before-upload="handleImageUpload"
-          accept="image/*"
-        >
+        <el-upload :show-file-list="false" :before-upload="handleImageUpload" accept="image/*">
           <el-button circle>
             <el-icon><Picture /></el-icon>
           </el-button>
         </el-upload>
 
-        <el-upload
-          :show-file-list="false"
-          :before-upload="handleFileUpload"
-        >
+        <el-upload :show-file-list="false" :before-upload="handleFileUpload">
           <el-button circle>
             <el-icon><Folder /></el-icon>
           </el-button>
@@ -52,12 +45,7 @@
 
       <!-- 发送按钮 -->
       <div class="toolbar-right">
-        <el-button
-          type="primary"
-          :loading="loading"
-          :disabled="!canSend"
-          @click="handleSend"
-        >
+        <el-button type="primary" :loading="loading" :disabled="!canSend" @click="handleSend">
           发送
         </el-button>
       </div>
@@ -80,122 +68,171 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { Close, Picture, Folder, ChatLineRound } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
+import { ref, computed } from 'vue';
+import { Close, Picture, Folder, ChatLineRound } from '@element-plus/icons-vue';
+import { ElMessage } from 'element-plus';
 
 const props = defineProps({
   modelValue: {
     type: String,
-    default: ''
+    default: '',
   },
   loading: {
     type: Boolean,
-    default: false
+    default: false,
   },
   replyTo: {
     type: Object,
-    default: null
-  }
-})
+    default: null,
+  },
+});
 
-const emit = defineEmits(['update:modelValue', 'send', 'cancel-reply'])
+const emit = defineEmits(['update:modelValue', 'send', 'cancel-reply']);
 
 // 输入值
 const inputValue = computed({
   get: () => props.modelValue,
-  set: (val) => emit('update:modelValue', val)
-})
+  set: val => emit('update:modelValue', val),
+});
 
 // 是否显示表情选择器
-const showEmojiPicker = ref(false)
+const showEmojiPicker = ref(false);
 
 // 是否可以发送
 const canSend = computed(() => {
-  return inputValue.value.trim().length > 0 && !props.loading
-})
+  return inputValue.value.trim().length > 0 && !props.loading;
+});
 
 // 常用表情
 const commonEmojis = [
-  '😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣',
-  '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰',
-  '😘', '😗', '😙', '😚', '😋', '😛', '😝', '😜',
-  '🤪', '🤨', '🧐', '🤓', '😎', '🤩', '🥳', '😏',
-  '❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍',
-  '👍', '👎', '👏', '🙏', '💪', '🤝', '✌️', '🤞',
-  '🎉', '🎊', '🎈', '🎁', '🏆', '🥇', '🥈', '🥉'
-]
+  '😀',
+  '😃',
+  '😄',
+  '😁',
+  '😆',
+  '😅',
+  '😂',
+  '🤣',
+  '😊',
+  '😇',
+  '🙂',
+  '🙃',
+  '😉',
+  '😌',
+  '😍',
+  '🥰',
+  '😘',
+  '😗',
+  '😙',
+  '😚',
+  '😋',
+  '😛',
+  '😝',
+  '😜',
+  '🤪',
+  '🤨',
+  '🧐',
+  '🤓',
+  '😎',
+  '🤩',
+  '🥳',
+  '😏',
+  '❤️',
+  '🧡',
+  '💛',
+  '💚',
+  '💙',
+  '💜',
+  '🖤',
+  '🤍',
+  '👍',
+  '👎',
+  '👏',
+  '🙏',
+  '💪',
+  '🤝',
+  '✌️',
+  '🤞',
+  '🎉',
+  '🎊',
+  '🎈',
+  '🎁',
+  '🏆',
+  '🥇',
+  '🥈',
+  '🥉',
+];
 
 // 处理回车发送
 const handleEnter = () => {
   if (canSend.value) {
-    handleSend()
+    handleSend();
   }
-}
+};
 
 // 处理发送
 const handleSend = () => {
-  if (!canSend.value) return
-  emit('send', inputValue.value.trim())
-  showEmojiPicker.value = false
-}
+  if (!canSend.value) return;
+  emit('send', inputValue.value.trim());
+  showEmojiPicker.value = false;
+};
 
 // 插入表情
-const insertEmoji = (emoji) => {
-  inputValue.value += emoji
-}
+const insertEmoji = emoji => {
+  inputValue.value += emoji;
+};
 
 // 图片上传
-const handleImageUpload = (file) => {
+const handleImageUpload = file => {
   if (!file.type.startsWith('image/')) {
-    ElMessage.warning('请选择图片文件')
-    return false
+    ElMessage.warning('请选择图片文件');
+    return false;
   }
 
   if (file.size > 10 * 1024 * 1024) {
-    ElMessage.warning('图片大小不能超过10MB')
-    return false
+    ElMessage.warning('图片大小不能超过10MB');
+    return false;
   }
 
   // TODO: 实现图片上传和发送
-  ElMessage.info('图片上传功能开发中')
-  return false
-}
+  ElMessage.info('图片上传功能开发中');
+  return false;
+};
 
 // 文件上传
-const handleFileUpload = (file) => {
+const handleFileUpload = file => {
   if (file.size > 100 * 1024 * 1024) {
-    ElMessage.warning('文件大小不能超过100MB')
-    return false
+    ElMessage.warning('文件大小不能超过100MB');
+    return false;
   }
 
   // TODO: 实现文件上传和发送
-  ElMessage.info('文件上传功能开发中')
-  return false
-}
+  ElMessage.info('文件上传功能开发中');
+  return false;
+};
 
 // 获取回复预览文本
 const getReplyPreviewText = () => {
-  if (!props.replyTo) return ''
+  if (!props.replyTo) return '';
 
-  const type = props.replyTo.type
-  const content = props.replyTo.content
+  const type = props.replyTo.type;
+  const content = props.replyTo.content;
 
   if (type === 'text') {
-    return content?.text || ''
+    return content?.text || '';
   } else if (type === 'image') {
-    return '[图片]'
+    return '[图片]';
   } else if (type === 'voice') {
-    return '[语音]'
+    return '[语音]';
   } else if (type === 'video') {
-    return '[视频]'
+    return '[视频]';
   } else if (type === 'file') {
-    return '[文件]'
+    return '[文件]';
   } else if (type === 'location') {
-    return '[位置]'
+    return '[位置]';
   }
-  return '[消息]'
-}
+  return '[消息]';
+};
 </script>
 
 <style scoped>

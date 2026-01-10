@@ -32,20 +32,8 @@
             >
               全部已读
             </el-button>
-            <el-button
-              @click="clearAll"
-              type="text"
-              size="small"
-              icon="Delete"
-            >
-              清空
-            </el-button>
-            <el-button
-              @click="hideCenter"
-              type="text"
-              size="small"
-              icon="Close"
-            />
+            <el-button @click="clearAll" type="text" size="small" icon="Delete"> 清空 </el-button>
+            <el-button @click="hideCenter" type="text" size="small" icon="Close" />
           </div>
         </div>
 
@@ -83,9 +71,9 @@
               :key="notification.id"
               class="notification-item"
               :class="{
-                'unread': !notification.read,
-                'urgent': notification.priority >= 4,
-                'emergency': notification.priority >= 5
+                unread: !notification.read,
+                urgent: notification.priority >= 4,
+                emergency: notification.priority >= 5,
               }"
               @click="handleNotificationClick(notification)"
             >
@@ -113,18 +101,10 @@
                   >
                     🚨 紧急
                   </el-tag>
-                  <el-tag
-                    v-else-if="notification.priority >= 4"
-                    type="warning"
-                    size="small"
-                  >
+                  <el-tag v-else-if="notification.priority >= 4" type="warning" size="small">
                     ⚠️ 重要
                   </el-tag>
-                  <el-tag
-                    v-else-if="notification.priority >= 3"
-                    type="info"
-                    size="small"
-                  >
+                  <el-tag v-else-if="notification.priority >= 3" type="info" size="small">
                     📌 高优先级
                   </el-tag>
                 </div>
@@ -186,19 +166,15 @@
     </transition>
 
     <!-- 遮罩层 -->
-    <div
-      v-if="centerVisible"
-      class="notification-overlay"
-      @click="hideCenter"
-    />
+    <div v-if="centerVisible" class="notification-overlay" @click="hideCenter" />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
-import { ElMessage } from 'element-plus'
-import { Bell, Check, Delete, Close, CircleFilled } from '@element-plus/icons-vue'
-import { useNotificationCenter, useNotificationSystem } from '@/composables/useNotificationSystem'
+import { ref, computed, watch } from 'vue';
+import { ElMessage } from 'element-plus';
+import { Bell, Check, Delete, Close, CircleFilled } from '@element-plus/icons-vue';
+import { useNotificationCenter, useNotificationSystem } from '@/composables/useNotificationSystem';
 
 // 使用通知中心
 const {
@@ -212,184 +188,180 @@ const {
   markNotificationRead,
   markAllRead,
   dismissNotification,
-  clearAllNotifications
-} = useNotificationCenter()
+  clearAllNotifications,
+} = useNotificationCenter();
 
-const {
-  soundEnabled,
-  vibrationEnabled,
-  updateNotificationSettings
-} = useNotificationSystem()
+const { soundEnabled, vibrationEnabled, updateNotificationSettings } = useNotificationSystem();
 
 // 响应式数据
-const loading = ref(false)
-const currentFilter = ref('all')
+const loading = ref(false);
+const currentFilter = ref('all');
 
 // 过滤后的通知
 const filteredNotifications = computed(() => {
-  let filtered = sortedNotifications.value
+  let filtered = sortedNotifications.value;
 
   switch (currentFilter.value) {
     case 'unread':
-      filtered = filtered.filter(n => !n.read)
-      break
+      filtered = filtered.filter(n => !n.read);
+      break;
     case 'approval':
-      filtered = filtered.filter(n => n.type === 'approval')
-      break
+      filtered = filtered.filter(n => n.type === 'approval');
+      break;
     case 'budget':
-      filtered = filtered.filter(n => n.type === 'budget')
-      break
+      filtered = filtered.filter(n => n.type === 'budget');
+      break;
     default:
       // 显示全部
-      break
+      break;
   }
 
-  return filtered.slice(0, 50) // 限制显示数量
-})
+  return filtered.slice(0, 50); // 限制显示数量
+});
 
 // 方法
 const toggleCenter = () => {
-  toggleNotificationCenter()
-}
+  toggleNotificationCenter();
+};
 
 const hideCenter = () => {
-  hideNotificationCenter()
-}
+  hideNotificationCenter();
+};
 
 const markAllAsRead = () => {
-  markAllRead()
-  ElMessage.success('所有通知已标记为已读')
-}
+  markAllRead();
+  ElMessage.success('所有通知已标记为已读');
+};
 
 const clearAll = async () => {
   try {
-    await ElMessageBox.confirm(
-      '确定要清空所有通知吗？此操作不可恢复。',
-      '清空通知',
-      {
-        confirmButtonText: '确定清空',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
-    clearAllNotifications()
-    ElMessage.success('通知已清空')
+    await ElMessageBox.confirm('确定要清空所有通知吗？此操作不可恢复。', '清空通知', {
+      confirmButtonText: '确定清空',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
+    clearAllNotifications();
+    ElMessage.success('通知已清空');
   } catch {
     // 取消操作
   }
-}
+};
 
-const markAsRead = (notificationId) => {
-  markNotificationRead(notificationId)
-}
+const markAsRead = notificationId => {
+  markNotificationRead(notificationId);
+};
 
-const handleNotificationClick = (notification) => {
-  markAsRead(notification.id)
+const handleNotificationClick = notification => {
+  markAsRead(notification.id);
 
   // 根据通知类型执行跳转
   switch (notification.type) {
     case 'approval':
       if (notification.data?.approvalId) {
         // 跳转到具体审批页面
-        ElMessage.info(`跳转到审批详情: ${notification.data.approvalId}`)
+        ElMessage.info(`跳转到审批详情: ${notification.data.approvalId}`);
       }
-      break
+      break;
     case 'budget':
-      ElMessage.info('跳转到预算管理页面')
-      break
+      ElMessage.info('跳转到预算管理页面');
+      break;
     case 'expense':
       if (notification.data?.expenseId) {
-        ElMessage.info(`跳转到支出详情: ${notification.data.expenseId}`)
+        ElMessage.info(`跳转到支出详情: ${notification.data.expenseId}`);
       }
-      break
+      break;
     default:
-      ElMessage.info('查看通知详情')
-      break
+      ElMessage.info('查看通知详情');
+      break;
   }
-}
+};
 
 const executeAction = (notification, action) => {
-  markAsRead(notification.id)
+  markAsRead(notification.id);
 
   if (action.handler) {
-    action.handler(notification)
+    action.handler(notification);
   } else {
-    ElMessage.info(`执行操作: ${action.text}`)
+    ElMessage.info(`执行操作: ${action.text}`);
   }
-}
+};
 
 const filterNotifications = () => {
   // 过滤逻辑已在计算属性中处理
-}
+};
 
 const updateSettings = () => {
   updateNotificationSettings({
     sound: soundEnabled.value,
-    vibration: vibrationEnabled.value
-  })
+    vibration: vibrationEnabled.value,
+  });
 
-  ElMessage.success('通知设置已更新')
-}
+  ElMessage.success('通知设置已更新');
+};
 
 const viewAllNotifications = () => {
-  ElMessage.info('历史通知功能开发中...')
-}
+  ElMessage.info('历史通知功能开发中...');
+};
 
 const openNotificationSettings = () => {
-  ElMessage.info('通知设置功能开发中...')
-}
+  ElMessage.info('通知设置功能开发中...');
+};
 
 const getEmptyDescription = () => {
   switch (currentFilter.value) {
     case 'unread':
-      return '暂无未读通知'
+      return '暂无未读通知';
     case 'approval':
-      return '暂无审批通知'
+      return '暂无审批通知';
     case 'budget':
-      return '暂无预算通知'
+      return '暂无预算通知';
     default:
-      return '暂无通知'
+      return '暂无通知';
   }
-}
+};
 
-const formatTime = (timestamp) => {
-  const now = new Date()
-  const time = new Date(timestamp)
-  const diff = now - time
+const formatTime = timestamp => {
+  const now = new Date();
+  const time = new Date(timestamp);
+  const diff = now - time;
 
-  if (diff < 60000) { // 1分钟内
-    return '刚刚'
-  } else if (diff < 3600000) { // 1小时内
-    return `${Math.floor(diff / 60000)}分钟前`
-  } else if (diff < 86400000) { // 24小时内
-    return `${Math.floor(diff / 3600000)}小时前`
-  } else if (diff < 604800000) { // 7天内
-    return `${Math.floor(diff / 86400000)}天前`
+  if (diff < 60000) {
+    // 1分钟内
+    return '刚刚';
+  } else if (diff < 3600000) {
+    // 1小时内
+    return `${Math.floor(diff / 60000)}分钟前`;
+  } else if (diff < 86400000) {
+    // 24小时内
+    return `${Math.floor(diff / 3600000)}小时前`;
+  } else if (diff < 604800000) {
+    // 7天内
+    return `${Math.floor(diff / 86400000)}天前`;
   } else {
     return time.toLocaleDateString('zh-CN', {
       month: '2-digit',
-      day: '2-digit'
-    })
+      day: '2-digit',
+    });
   }
-}
+};
 
 // 监听通知变化，自动显示重要通知
 watch(
   () => sortedNotifications.value,
   (newNotifications, oldNotifications) => {
     if (newNotifications.length > (oldNotifications?.length || 0)) {
-      const latestNotification = newNotifications[0]
+      const latestNotification = newNotifications[0];
 
       // 自动显示紧急通知
       if (latestNotification.priority >= 4 && !centerVisible.value) {
         setTimeout(() => {
-          showNotificationCenter()
-        }, 500)
+          showNotificationCenter();
+        }, 500);
       }
     }
   },
   { deep: true }
-)
+);
 </script>
 
 <style lang="scss" scoped>
@@ -402,9 +374,15 @@ watch(
     }
 
     @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+      100% {
+        transform: scale(1);
+      }
     }
   }
 

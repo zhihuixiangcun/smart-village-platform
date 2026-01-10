@@ -16,12 +16,7 @@ import { RECOGNITION_STATUS, COMMAND_TYPES } from '@/utils/speechRecognizer';
 import { SYNTHESIS_STATUS } from '@/utils/speechSynthesizer';
 
 export function useSpeech(options = {}) {
-  const {
-    dialect = 'mandarin',
-    speaker = 'female',
-    speed = 5,
-    autoPlay = true
-  } = options;
+  const { dialect = 'mandarin', speaker = 'female', speed = 5, autoPlay = true } = options;
 
   // 状态
   const isListening = ref(false);
@@ -42,26 +37,26 @@ export function useSpeech(options = {}) {
   const init = () => {
     // 初始化识别器
     recognizer = new SpeechRecognizer({
-      dialect
+      dialect,
     });
 
-    recognizer.on('statusChange', (status) => {
+    recognizer.on('statusChange', status => {
       recognitionStatus.value = status;
       isListening.value = status === RECOGNITION_STATUS.LISTENING;
     });
 
-    recognizer.on('result', (data) => {
+    recognizer.on('result', data => {
       if (data.isFinal) {
         recognizedText.value = data.text;
         interimText.value = '';
       }
     });
 
-    recognizer.on('interim', (text) => {
+    recognizer.on('interim', text => {
       interimText.value = text;
     });
 
-    recognizer.on('error', (error) => {
+    recognizer.on('error', error => {
       ElMessage.error(error.message);
       recognitionStatus.value = RECOGNITION_STATUS.ERROR;
     });
@@ -70,15 +65,15 @@ export function useSpeech(options = {}) {
     synthesizer = new SpeechSynthesizer({
       speaker,
       speed,
-      autoPlay
+      autoPlay,
     });
 
-    synthesizer.on('statusChange', (status) => {
+    synthesizer.on('statusChange', status => {
       synthesisStatus.value = status;
       isSpeaking.value = status === SYNTHESIS_STATUS.PLAYING;
     });
 
-    synthesizer.on('error', (error) => {
+    synthesizer.on('error', error => {
       ElMessage.error(error.message);
     });
   };
@@ -110,7 +105,7 @@ export function useSpeech(options = {}) {
   /**
    * 朗读文本
    */
-  const speak = (text) => {
+  const speak = text => {
     if (!synthesizer) {
       init();
     }
@@ -148,7 +143,7 @@ export function useSpeech(options = {}) {
   /**
    * 解析语音命令
    */
-  const parseCommand = (text) => {
+  const parseCommand = text => {
     if (!recognizer) {
       init();
     }
@@ -178,7 +173,7 @@ export function useSpeech(options = {}) {
         const result = await handler(command);
         return result;
       } catch (error) {
-        ElMessage.error(`命令执行失败: ${  error.message}`);
+        ElMessage.error(`命令执行失败: ${error.message}`);
         throw error;
       }
     } else {
@@ -190,7 +185,7 @@ export function useSpeech(options = {}) {
   /**
    * 设置方言
    */
-  const setDialect = (dialectCode) => {
+  const setDialect = dialectCode => {
     if (recognizer) {
       recognizer.setDialect(dialectCode);
     }
@@ -199,7 +194,7 @@ export function useSpeech(options = {}) {
   /**
    * 设置发音人
    */
-  const setSpeaker = (speakerCode) => {
+  const setSpeaker = speakerCode => {
     if (synthesizer) {
       synthesizer.setSpeaker(speakerCode);
     }
@@ -208,7 +203,7 @@ export function useSpeech(options = {}) {
   /**
    * 设置语速
    */
-  const setSpeed = (speedValue) => {
+  const setSpeed = speedValue => {
     if (synthesizer) {
       synthesizer.setSpeed(speedValue);
     }
@@ -217,7 +212,7 @@ export function useSpeech(options = {}) {
   /**
    * 批量朗读
    */
-  const speakBatch = async (texts) => {
+  const speakBatch = async texts => {
     if (!synthesizer) {
       init();
     }
@@ -235,7 +230,7 @@ export function useSpeech(options = {}) {
     return {
       recognition: recognitionSupported,
       synthesis: synthesisSupported,
-      all: recognitionSupported && synthesisSupported
+      all: recognitionSupported && synthesisSupported,
     };
   };
 
@@ -282,13 +277,17 @@ export function useSpeech(options = {}) {
    * 计算属性
    */
   const canListen = computed(() => {
-    return recognitionStatus.value !== RECOGNITION_STATUS.LISTENING &&
-           recognitionStatus.value !== RECOGNITION_STATUS.PROCESSING;
+    return (
+      recognitionStatus.value !== RECOGNITION_STATUS.LISTENING &&
+      recognitionStatus.value !== RECOGNITION_STATUS.PROCESSING
+    );
   });
 
   const canSpeak = computed(() => {
-    return synthesisStatus.value !== SYNTHESIS_STATUS.SYNTHESIZING &&
-           synthesisStatus.value !== SYNTHESIS_STATUS.PLAYING;
+    return (
+      synthesisStatus.value !== SYNTHESIS_STATUS.SYNTHESIZING &&
+      synthesisStatus.value !== SYNTHESIS_STATUS.PLAYING
+    );
   });
 
   const statusText = computed(() => {
@@ -336,6 +335,6 @@ export function useSpeech(options = {}) {
     // 常量
     RECOGNITION_STATUS,
     SYNTHESIS_STATUS,
-    COMMAND_TYPES
+    COMMAND_TYPES,
   };
 }

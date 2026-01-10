@@ -83,11 +83,13 @@
         </el-table-column>
         <el-table-column prop="age" label="年龄" width="80" align="center">
           <template #default="{ row }">
-            <span :class="{
-              'text-red-500': row.age >= 60,
-              'text-blue-500': row.age < 18,
-              'text-gray-700': row.age >= 18 && row.age < 60
-            }">
+            <span
+              :class="{
+                'text-red-500': row.age >= 60,
+                'text-blue-500': row.age < 18,
+                'text-gray-700': row.age >= 18 && row.age < 60,
+              }"
+            >
               {{ row.age }}岁
             </span>
           </template>
@@ -109,16 +111,9 @@
         </el-table-column>
         <el-table-column label="操作" width="180" align="center" fixed="right">
           <template #default="{ row }">
-            <el-button type="primary" size="small" @click="handleViewMember(row)">
-              查看
-            </el-button>
-            <el-button type="success" size="small" @click="handleEditMember(row)">
-              编辑
-            </el-button>
-            <el-popconfirm
-              title="确定要删除这个家庭成员吗？"
-              @confirm="handleDeleteMember(row)"
-            >
+            <el-button type="primary" size="small" @click="handleViewMember(row)"> 查看 </el-button>
+            <el-button type="success" size="small" @click="handleEditMember(row)"> 编辑 </el-button>
+            <el-popconfirm title="确定要删除这个家庭成员吗？" @confirm="handleDeleteMember(row)">
               <template #reference>
                 <el-button type="danger" size="small">删除</el-button>
               </template>
@@ -225,9 +220,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="benefitAmount" label="受益金额" width="120">
-          <template #default="{ row }">
-            ¥{{ formatCurrency(row.benefitAmount) }}
-          </template>
+          <template #default="{ row }"> ¥{{ formatCurrency(row.benefitAmount) }} </template>
         </el-table-column>
         <el-table-column prop="status" label="状态" width="100">
           <template #default="{ row }">
@@ -239,9 +232,7 @@
         <el-table-column prop="remarks" label="备注" show-overflow-tooltip />
         <el-table-column label="操作" width="120" align="center">
           <template #default="{ row }">
-            <el-button type="primary" size="small" @click="handleViewPolicy(row)">
-              查看
-            </el-button>
+            <el-button type="primary" size="small" @click="handleViewPolicy(row)"> 查看 </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -268,29 +259,29 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
-import { Plus, Edit } from '@element-plus/icons-vue'
-import FormDialog from '@/components/common/FormDialog.vue'
-import { formatDate, formatCurrency, validateIdCard } from '@/utils/common'
-import { required, phone, idCard } from '@/utils/validation'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { ElMessage } from 'element-plus';
+import { Plus, Edit } from '@element-plus/icons-vue';
+import FormDialog from '@/components/common/FormDialog.vue';
+import { formatDate, formatCurrency, validateIdCard } from '@/utils/common';
+import { required, phone, idCard } from '@/utils/validation';
 
 // Props定义
 const props = defineProps({
   resident: {
     type: Object,
-    required: true
-  }
-})
+    required: true,
+  },
+});
 
 // Emits定义
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close']);
 
 // 响应式数据
-const familyMembers = ref([])
-const memberDialogVisible = ref(false)
-const memberFormLoading = ref(false)
-const isMemberEdit = ref(false)
+const familyMembers = ref([]);
+const memberDialogVisible = ref(false);
+const memberFormLoading = ref(false);
+const isMemberEdit = ref(false);
 
 // 家庭基本信息
 const familyInfo = reactive({
@@ -300,8 +291,8 @@ const familyInfo = reactive({
   contactPhone: '',
   economicStatus: '一般',
   housingCondition: '自有住房',
-  housingArea: 0
-})
+  housingArea: 0,
+});
 
 // 家庭经济信息
 const economicInfo = reactive({
@@ -315,11 +306,11 @@ const economicInfo = reactive({
   vehicleValue: 0,
   savings: 0,
   debt: 0,
-  economicLevel: '中等'
-})
+  economicLevel: '中等',
+});
 
 // 政策享受情况
-const policyBenefits = ref([])
+const policyBenefits = ref([]);
 
 // 成员表单数据
 const memberFormData = reactive({
@@ -331,25 +322,25 @@ const memberFormData = reactive({
   phone: '',
   education: '',
   occupation: '',
-  healthStatus: '健康'
-})
+  healthStatus: '健康',
+});
 
 // 计算属性
 const familyStats = computed(() => {
-  const total = familyMembers.value.length
-  const adults = familyMembers.value.filter(m => m.age >= 18).length
-  const children = familyMembers.value.filter(m => m.age < 18).length
+  const total = familyMembers.value.length;
+  const adults = familyMembers.value.filter(m => m.age >= 18).length;
+  const children = familyMembers.value.filter(m => m.age < 18).length;
 
   return {
     totalMembers: total,
     adults,
-    children
-  }
-})
+    children,
+  };
+});
 
 const memberDialogTitle = computed(() => {
-  return isMemberEdit.value ? '编辑家庭成员' : '添加家庭成员'
-})
+  return isMemberEdit.value ? '编辑家庭成员' : '添加家庭成员';
+});
 
 // 成员表单字段定义
 const memberFormFields = [
@@ -359,7 +350,7 @@ const memberFormFields = [
     type: 'input',
     placeholder: '请输入姓名',
     span: 12,
-    required: true
+    required: true,
   },
   {
     prop: 'relationship',
@@ -377,8 +368,8 @@ const memberFormFields = [
       { label: '母亲', value: '母亲' },
       { label: '兄弟', value: '兄弟' },
       { label: '姐妹', value: '姐妹' },
-      { label: '其他', value: '其他' }
-    ]
+      { label: '其他', value: '其他' },
+    ],
   },
   {
     prop: 'gender',
@@ -388,8 +379,8 @@ const memberFormFields = [
     required: true,
     options: [
       { label: '男', value: '男' },
-      { label: '女', value: '女' }
-    ]
+      { label: '女', value: '女' },
+    ],
   },
   {
     prop: 'age',
@@ -399,21 +390,21 @@ const memberFormFields = [
     span: 12,
     required: true,
     min: 0,
-    max: 150
+    max: 150,
   },
   {
     prop: 'idCard',
     label: '身份证号',
     type: 'input',
     placeholder: '请输入身份证号',
-    span: 12
+    span: 12,
   },
   {
     prop: 'phone',
     label: '联系电话',
     type: 'input',
     placeholder: '请输入联系电话',
-    span: 12
+    span: 12,
   },
   {
     prop: 'education',
@@ -428,15 +419,15 @@ const memberFormFields = [
       { label: '高中', value: '高中' },
       { label: '大专', value: '大专' },
       { label: '本科', value: '本科' },
-      { label: '研究生', value: '研究生' }
-    ]
+      { label: '研究生', value: '研究生' },
+    ],
   },
   {
     prop: 'occupation',
     label: '职业',
     type: 'input',
     placeholder: '请输入职业',
-    span: 12
+    span: 12,
   },
   {
     prop: 'healthStatus',
@@ -450,10 +441,10 @@ const memberFormFields = [
       { label: '一般', value: '一般' },
       { label: '慢性病', value: '慢性病' },
       { label: '残疾', value: '残疾' },
-      { label: '其他', value: '其他' }
-    ]
-  }
-]
+      { label: '其他', value: '其他' },
+    ],
+  },
+];
 
 // 成员表单验证规则
 const memberFormRules = {
@@ -461,61 +452,63 @@ const memberFormRules = {
   relationship: required('请选择与户主关系'),
   gender: required('请选择性别'),
   age: required('请输入年龄'),
-  healthStatus: required('请选择健康状况')
-}
+  healthStatus: required('请选择健康状况'),
+};
 
 // 工具方法
-const getHouseholdTypeTag = (type) => {
+const getHouseholdTypeTag = type => {
   const tagMap = {
-    '普通户': '',
-    '低保户': 'warning',
-    '五保户': 'danger',
-    '残疾户': 'info',
-    '贫困户': 'danger'
-  }
-  return tagMap[type] || ''
-}
+    普通户: '',
+    低保户: 'warning',
+    五保户: 'danger',
+    残疾户: 'info',
+    贫困户: 'danger',
+  };
+  return tagMap[type] || '';
+};
 
-const getEconomicStatusTag = (status) => {
+const getEconomicStatusTag = status => {
   const tagMap = {
-    '困难': 'danger',
-    '一般': 'warning',
-    '良好': 'success',
-    '富裕': 'success'
-  }
-  return tagMap[status] || ''
-}
+    困难: 'danger',
+    一般: 'warning',
+    良好: 'success',
+    富裕: 'success',
+  };
+  return tagMap[status] || '';
+};
 
-const getHealthStatusTag = (status) => {
+const getHealthStatusTag = status => {
   const tagMap = {
-    '健康': 'success',
-    '一般': '',
-    '慢性病': 'warning',
-    '残疾': 'danger',
-    '其他': 'info'
-  }
-  return tagMap[status] || ''
-}
+    健康: 'success',
+    一般: '',
+    慢性病: 'warning',
+    残疾: 'danger',
+    其他: 'info',
+  };
+  return tagMap[status] || '';
+};
 
-const getEconomicLevelTag = (level) => {
+const getEconomicLevelTag = level => {
   const tagMap = {
-    '贫困': 'danger',
-    '低收入': 'warning',
-    '中等': '',
-    '中等偏上': 'success',
-    '富裕': 'success'
-  }
-  return tagMap[level] || ''
-}
+    贫困: 'danger',
+    低收入: 'warning',
+    中等: '',
+    中等偏上: 'success',
+    富裕: 'success',
+  };
+  return tagMap[level] || '';
+};
 
-const formatIdCard = (idCard) => {
-  const { formatted } = validateIdCard(idCard)
-  return formatted
-}
+const formatIdCard = idCard => {
+  const { formatted } = validateIdCard(idCard);
+  return formatted;
+};
 
 const calculateNetAssets = () => {
-  return economicInfo.houseValue + economicInfo.vehicleValue + economicInfo.savings - economicInfo.debt
-}
+  return (
+    economicInfo.houseValue + economicInfo.vehicleValue + economicInfo.savings - economicInfo.debt
+  );
+};
 
 // 数据加载方法
 const loadFamilyInfo = async () => {
@@ -528,12 +521,12 @@ const loadFamilyInfo = async () => {
       contactPhone: props.resident.phone,
       economicStatus: '一般',
       housingCondition: '自有住房',
-      housingArea: 120
-    })
+      housingArea: 120,
+    });
   } catch (error) {
-    console.error('加载家庭信息失败:', error)
+    console.error('加载家庭信息失败:', error);
   }
-}
+};
 
 const loadFamilyMembers = async () => {
   try {
@@ -549,7 +542,7 @@ const loadFamilyMembers = async () => {
         phone: props.resident.phone,
         education: '初中',
         occupation: '务农',
-        healthStatus: '健康'
+        healthStatus: '健康',
       },
       {
         id: 2,
@@ -561,7 +554,7 @@ const loadFamilyMembers = async () => {
         phone: '13987654321',
         education: '小学',
         occupation: '务农',
-        healthStatus: '健康'
+        healthStatus: '健康',
       },
       {
         id: 3,
@@ -573,13 +566,13 @@ const loadFamilyMembers = async () => {
         phone: '13876543210',
         education: '高中',
         occupation: '学生',
-        healthStatus: '健康'
-      }
-    ]
+        healthStatus: '健康',
+      },
+    ];
   } catch (error) {
-    console.error('加载家庭成员失败:', error)
+    console.error('加载家庭成员失败:', error);
   }
-}
+};
 
 const loadEconomicInfo = async () => {
   try {
@@ -595,12 +588,12 @@ const loadEconomicInfo = async () => {
       vehicleValue: 50000,
       savings: 20000,
       debt: 10000,
-      economicLevel: '中等'
-    })
+      economicLevel: '中等',
+    });
   } catch (error) {
-    console.error('加载经济信息失败:', error)
+    console.error('加载经济信息失败:', error);
   }
-}
+};
 
 const loadPolicyBenefits = async () => {
   try {
@@ -614,7 +607,7 @@ const loadPolicyBenefits = async () => {
         endDate: '2024-12-31',
         benefitAmount: 2000,
         status: '享受中',
-        remarks: '全家参保'
+        remarks: '全家参保',
       },
       {
         id: 2,
@@ -624,94 +617,94 @@ const loadPolicyBenefits = async () => {
         endDate: '',
         benefitAmount: 1200,
         status: '享受中',
-        remarks: '按月发放'
-      }
-    ]
+        remarks: '按月发放',
+      },
+    ];
   } catch (error) {
-    console.error('加载政策享受情况失败:', error)
+    console.error('加载政策享受情况失败:', error);
   }
-}
+};
 
 // 事件处理方法
 const handleAddMember = () => {
-  isMemberEdit.value = false
+  isMemberEdit.value = false;
   Object.keys(memberFormData).forEach(key => {
-    memberFormData[key] = ''
-  })
-  memberFormData.healthStatus = '健康'
-  memberDialogVisible.value = true
-}
+    memberFormData[key] = '';
+  });
+  memberFormData.healthStatus = '健康';
+  memberDialogVisible.value = true;
+};
 
-const handleEditMember = (row) => {
-  isMemberEdit.value = true
-  Object.assign(memberFormData, row)
-  memberDialogVisible.value = true
-}
+const handleEditMember = row => {
+  isMemberEdit.value = true;
+  Object.assign(memberFormData, row);
+  memberDialogVisible.value = true;
+};
 
-const handleViewMember = (row) => {
-  ElMessage.info(`查看成员 ${row.name} 详情功能开发中...`)
-}
+const handleViewMember = row => {
+  ElMessage.info(`查看成员 ${row.name} 详情功能开发中...`);
+};
 
-const handleDeleteMember = (row) => {
-  const index = familyMembers.value.findIndex(m => m.id === row.id)
+const handleDeleteMember = row => {
+  const index = familyMembers.value.findIndex(m => m.id === row.id);
   if (index > -1) {
-    familyMembers.value.splice(index, 1)
-    ElMessage.success('删除成功')
+    familyMembers.value.splice(index, 1);
+    ElMessage.success('删除成功');
   }
-}
+};
 
-const handleMemberSubmit = async (data) => {
+const handleMemberSubmit = async data => {
   try {
-    memberFormLoading.value = true
+    memberFormLoading.value = true;
 
     if (isMemberEdit.value) {
       // 更新成员
-      const index = familyMembers.value.findIndex(m => m.id === data.id)
+      const index = familyMembers.value.findIndex(m => m.id === data.id);
       if (index > -1) {
-        familyMembers.value[index] = { ...data }
+        familyMembers.value[index] = { ...data };
       }
-      ElMessage.success('更新成功')
+      ElMessage.success('更新成功');
     } else {
       // 添加新成员
       const newMember = {
         ...data,
-        id: Date.now()
-      }
-      familyMembers.value.push(newMember)
-      ElMessage.success('添加成功')
+        id: Date.now(),
+      };
+      familyMembers.value.push(newMember);
+      ElMessage.success('添加成功');
     }
 
-    memberDialogVisible.value = false
+    memberDialogVisible.value = false;
   } catch (error) {
-    ElMessage.error('操作失败')
+    ElMessage.error('操作失败');
   } finally {
-    memberFormLoading.value = false
+    memberFormLoading.value = false;
   }
-}
+};
 
 const handleMemberDialogClose = () => {
-  memberDialogVisible.value = false
-}
+  memberDialogVisible.value = false;
+};
 
 const handleEditEconomic = () => {
-  ElMessage.info('编辑经济信息功能开发中...')
-}
+  ElMessage.info('编辑经济信息功能开发中...');
+};
 
 const handleAddPolicy = () => {
-  ElMessage.info('申请政策功能开发中...')
-}
+  ElMessage.info('申请政策功能开发中...');
+};
 
-const handleViewPolicy = (row) => {
-  ElMessage.info(`查看政策 ${row.policyName} 详情功能开发中...`)
-}
+const handleViewPolicy = row => {
+  ElMessage.info(`查看政策 ${row.policyName} 详情功能开发中...`);
+};
 
 // 生命周期
 onMounted(() => {
-  loadFamilyInfo()
-  loadFamilyMembers()
-  loadEconomicInfo()
-  loadPolicyBenefits()
-})
+  loadFamilyInfo();
+  loadFamilyMembers();
+  loadEconomicInfo();
+  loadPolicyBenefits();
+});
 </script>
 
 <style scoped>

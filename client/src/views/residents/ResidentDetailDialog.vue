@@ -32,12 +32,7 @@
               class="resident-avatar"
             />
             <div class="qr-code-section">
-              <el-button
-                type="success"
-                size="small"
-                @click="showQRCode"
-                icon="QrCode"
-              >
+              <el-button type="success" size="small" @click="showQRCode" icon="QrCode">
                 查看二维码
               </el-button>
             </div>
@@ -123,11 +118,7 @@
             <div class="tab-content">
               <el-descriptions :column="2" border>
                 <el-descriptions-item label="户码">
-                  <el-button
-                    type="text"
-                    @click="showQRCode"
-                    icon="QrCode"
-                  >
+                  <el-button type="text" @click="showQRCode" icon="QrCode">
                     {{ resident.householdCode }}
                   </el-button>
                 </el-descriptions-item>
@@ -169,10 +160,7 @@
                   {{ getPoliticalStatusText(resident.politicalStatus) }}
                 </el-descriptions-item>
                 <el-descriptions-item label="健康状态">
-                  <el-tag
-                    :type="getHealthStatusType(resident.healthStatus)"
-                    size="small"
-                  >
+                  <el-tag :type="getHealthStatusType(resident.healthStatus)" size="small">
                     {{ getHealthStatusText(resident.healthStatus) }}
                   </el-tag>
                 </el-descriptions-item>
@@ -219,12 +207,7 @@
             <div class="tab-content">
               <div class="family-header">
                 <span>家庭成员列表</span>
-                <el-button
-                  type="primary"
-                  size="small"
-                  @click="manageFamilyMembers"
-                  icon="Plus"
-                >
+                <el-button type="primary" size="small" @click="manageFamilyMembers" icon="Plus">
                   管理家庭成员
                 </el-button>
               </div>
@@ -247,20 +230,14 @@
                 <el-table-column prop="occupation" label="职业" />
                 <el-table-column label="操作" width="120">
                   <template #default="scope">
-                    <el-button
-                      type="text"
-                      size="small"
-                      @click="viewFamilyMember(scope.row)"
-                    >
+                    <el-button type="text" size="small" @click="viewFamilyMember(scope.row)">
                       查看
                     </el-button>
                   </template>
                 </el-table-column>
               </el-table>
 
-              <div v-if="!familyMembers.length" class="no-data">
-                暂无家庭成员信息
-              </div>
+              <div v-if="!familyMembers.length" class="no-data">暂无家庭成员信息</div>
             </div>
           </el-tab-pane>
 
@@ -284,11 +261,7 @@
                         {{ item.description }}
                       </div>
                       <div v-if="item.changes" class="changes">
-                        <div
-                          v-for="change in item.changes"
-                          :key="change.field"
-                          class="change-item"
-                        >
+                        <div v-for="change in item.changes" :key="change.field" class="change-item">
                           <span class="field">{{ change.fieldName }}：</span>
                           <span class="old-value">{{ change.oldValue }}</span>
                           <el-icon><Right /></el-icon>
@@ -300,9 +273,7 @@
                 </el-timeline-item>
               </el-timeline>
 
-              <div v-if="!changeHistory.length" class="no-data">
-                暂无变更历史
-              </div>
+              <div v-if="!changeHistory.length" class="no-data">暂无变更历史</div>
             </div>
           </el-tab-pane>
         </el-tabs>
@@ -330,17 +301,12 @@
         >
           编辑资料
         </el-button>
-        <el-button type="success" @click="showQRCode" icon="QrCode">
-          查看二维码
-        </el-button>
+        <el-button type="success" @click="showQRCode" icon="QrCode"> 查看二维码 </el-button>
       </div>
     </template>
 
     <!-- 二维码对话框 -->
-    <qr-code-dialog
-      v-model="qrCodeVisible"
-      :resident="resident"
-    />
+    <qr-code-dialog v-model="qrCodeVisible" :resident="resident" />
 
     <!-- 家庭成员管理对话框 -->
     <family-member-dialog
@@ -352,162 +318,162 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
-import { UserFilled, Edit, QrCode, Plus, Hide, View, Right } from '@element-plus/icons-vue'
-import { residentAPI } from '@/api/resident'
-import QrCodeDialog from './QrCodeDialog.vue'
-import FamilyMemberDialog from './FamilyMemberDialog.vue'
+import { ref, computed, watch, onMounted } from 'vue';
+import { UserFilled, Edit, QrCode, Plus, Hide, View, Right } from '@element-plus/icons-vue';
+import { residentAPI } from '@/api/resident';
+import QrCodeDialog from './QrCodeDialog.vue';
+import FamilyMemberDialog from './FamilyMemberDialog.vue';
 
 const props = defineProps({
   modelValue: {
     type: Boolean,
-    default: false
+    default: false,
   },
   resident: {
     type: Object,
-    default: null
-  }
-})
+    default: null,
+  },
+});
 
-const emit = defineEmits(['update:modelValue', 'edit'])
+const emit = defineEmits(['update:modelValue', 'edit']);
 
 // 响应式数据
-const activeTab = ref('address')
-const showSensitiveInfo = ref(false)
-const qrCodeVisible = ref(false)
-const familyMemberVisible = ref(false)
-const familyMembers = ref([])
-const changeHistory = ref([])
+const activeTab = ref('address');
+const showSensitiveInfo = ref(false);
+const qrCodeVisible = ref(false);
+const familyMemberVisible = ref(false);
+const familyMembers = ref([]);
+const changeHistory = ref([]);
 
 // 对话框显示状态
 const dialogVisible = computed({
   get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
-})
+  set: value => emit('update:modelValue', value),
+});
 
 // 方法
 const toggleSensitiveInfo = () => {
-  showSensitiveInfo.value = !showSensitiveInfo.value
-}
+  showSensitiveInfo.value = !showSensitiveInfo.value;
+};
 
 const editResident = () => {
-  emit('edit', props.resident)
-  dialogVisible.value = false
-}
+  emit('edit', props.resident);
+  dialogVisible.value = false;
+};
 
 const showQRCode = () => {
-  qrCodeVisible.value = true
-}
+  qrCodeVisible.value = true;
+};
 
 const manageFamilyMembers = () => {
-  familyMemberVisible.value = true
-}
+  familyMemberVisible.value = true;
+};
 
-const viewFamilyMember = (member) => {
+const viewFamilyMember = member => {
   // 查看家庭成员详情
-  console.log('查看家庭成员:', member)
-}
+  console.log('查看家庭成员:', member);
+};
 
 const loadFamilyMembers = async () => {
-  if (!props.resident?.id) return
+  if (!props.resident?.id) return;
 
   try {
-    const response = await residentAPI.getResidentFamily(props.resident.id)
+    const response = await residentAPI.getResidentFamily(props.resident.id);
     if (response.success) {
-      familyMembers.value = response.data
+      familyMembers.value = response.data;
     }
   } catch (error) {
-    console.error('获取家庭成员失败:', error)
+    console.error('获取家庭成员失败:', error);
   }
-}
+};
 
 const loadChangeHistory = async () => {
-  if (!props.resident?.id) return
+  if (!props.resident?.id) return;
 
   try {
-    const response = await residentAPI.getResidentHistory(props.resident.id)
+    const response = await residentAPI.getResidentHistory(props.resident.id);
     if (response.success) {
-      changeHistory.value = response.data
+      changeHistory.value = response.data;
     }
   } catch (error) {
-    console.error('获取变更历史失败:', error)
+    console.error('获取变更历史失败:', error);
   }
-}
+};
 
 // 工具函数
-const maskIdCard = (idCard) => {
-  if (!idCard) return ''
-  return idCard.replace(/^(.{6}).*(.{4})$/, '$1**********$2')
-}
+const maskIdCard = idCard => {
+  if (!idCard) return '';
+  return idCard.replace(/^(.{6}).*(.{4})$/, '$1**********$2');
+};
 
-const maskPhone = (phone) => {
-  if (!phone) return ''
-  return phone.replace(/^(.{3}).*(.{4})$/, '$1****$2')
-}
+const maskPhone = phone => {
+  if (!phone) return '';
+  return phone.replace(/^(.{3}).*(.{4})$/, '$1****$2');
+};
 
-const formatDate = (date) => {
-  if (!date) return ''
-  return new Date(date).toLocaleDateString()
-}
+const formatDate = date => {
+  if (!date) return '';
+  return new Date(date).toLocaleDateString();
+};
 
-const formatDateTime = (date) => {
-  if (!date) return ''
-  return new Date(date).toLocaleString()
-}
+const formatDateTime = date => {
+  if (!date) return '';
+  return new Date(date).toLocaleString();
+};
 
 // 文本映射函数
-const getEthnicityText = (ethnicity) => {
+const getEthnicityText = ethnicity => {
   const map = {
     han: '汉族',
     zhuang: '壮族',
     hui: '回族',
     manchu: '满族',
     uyghur: '维吾尔族',
-    other: '其他'
-  }
-  return map[ethnicity] || '未知'
-}
+    other: '其他',
+  };
+  return map[ethnicity] || '未知';
+};
 
-const getMaritalStatusText = (status) => {
+const getMaritalStatusText = status => {
   const map = {
     unmarried: '未婚',
     married: '已婚',
     divorced: '离异',
-    widowed: '丧偶'
-  }
-  return map[status] || '未知'
-}
+    widowed: '丧偶',
+  };
+  return map[status] || '未知';
+};
 
-const getHouseholdTypeText = (type) => {
+const getHouseholdTypeText = type => {
   const map = {
     agricultural: '农业户口',
-    non_agricultural: '非农户口'
-  }
-  return map[type] || '未知'
-}
+    non_agricultural: '非农户口',
+  };
+  return map[type] || '未知';
+};
 
-const getHouseTypeText = (type) => {
+const getHouseTypeText = type => {
   const map = {
     owned: '自有房屋',
     rented: '租赁房屋',
     public: '公房',
-    other: '其他'
-  }
-  return map[type] || '未知'
-}
+    other: '其他',
+  };
+  return map[type] || '未知';
+};
 
-const getFamilyRoleText = (role) => {
+const getFamilyRoleText = role => {
   const map = {
     head: '户主',
     spouse: '配偶',
     child: '子女',
     parent: '父母',
-    other: '其他'
-  }
-  return map[role] || '未知'
-}
+    other: '其他',
+  };
+  return map[role] || '未知';
+};
 
-const getEducationText = (education) => {
+const getEducationText = education => {
   const map = {
     illiterate: '文盲',
     primary: '小学',
@@ -515,90 +481,93 @@ const getEducationText = (education) => {
     senior: '高中',
     college: '大专',
     bachelor: '本科',
-    graduate: '研究生'
-  }
-  return map[education] || '未知'
-}
+    graduate: '研究生',
+  };
+  return map[education] || '未知';
+};
 
-const getPoliticalStatusText = (status) => {
+const getPoliticalStatusText = status => {
   const map = {
     masses: '群众',
     youth_league: '共青团员',
     party_member: '中共党员',
     democratic_party: '民主党派',
-    other: '其他'
-  }
-  return map[status] || '未知'
-}
+    other: '其他',
+  };
+  return map[status] || '未知';
+};
 
-const getHealthStatusText = (status) => {
+const getHealthStatusText = status => {
   const map = {
     healthy: '健康',
     chronic: '慢性病',
-    disabled: '残疾'
-  }
-  return map[status] || '未知'
-}
+    disabled: '残疾',
+  };
+  return map[status] || '未知';
+};
 
-const getHealthStatusType = (status) => {
+const getHealthStatusType = status => {
   const map = {
     healthy: 'success',
     chronic: 'warning',
-    disabled: 'danger'
-  }
-  return map[status] || 'info'
-}
+    disabled: 'danger',
+  };
+  return map[status] || 'info';
+};
 
-const getSpecialConditionText = (condition) => {
+const getSpecialConditionText = condition => {
   const map = {
     low_income: '低保户',
     disabled: '残疾人',
     elderly_alone: '独居老人',
     veteran: '退伍军人',
-    poverty: '建档立卡贫困户'
-  }
-  return map[condition] || condition
-}
+    poverty: '建档立卡贫困户',
+  };
+  return map[condition] || condition;
+};
 
-const getRelationshipText = (relationship) => {
+const getRelationshipText = relationship => {
   const map = {
     spouse: '配偶',
     child: '子女',
     parent: '父母',
     sibling: '兄弟姐妹',
     relative: '其他亲属',
-    friend: '朋友'
-  }
-  return map[relationship] || '未知'
-}
+    friend: '朋友',
+  };
+  return map[relationship] || '未知';
+};
 
-const getHistoryType = (action) => {
+const getHistoryType = action => {
   const map = {
     create: 'primary',
     update: 'success',
-    delete: 'danger'
-  }
-  return map[action] || 'info'
-}
+    delete: 'danger',
+  };
+  return map[action] || 'info';
+};
 
-const getActionText = (action) => {
+const getActionText = action => {
   const map = {
     create: '创建档案',
     update: '更新信息',
-    delete: '删除档案'
-  }
-  return map[action] || action
-}
+    delete: '删除档案',
+  };
+  return map[action] || action;
+};
 
 // 监听对话框显示状态
-watch(() => props.modelValue, (newVal) => {
-  if (newVal && props.resident) {
-    showSensitiveInfo.value = false
-    activeTab.value = 'address'
-    loadFamilyMembers()
-    loadChangeHistory()
+watch(
+  () => props.modelValue,
+  newVal => {
+    if (newVal && props.resident) {
+      showSensitiveInfo.value = false;
+      activeTab.value = 'address';
+      loadFamilyMembers();
+      loadChangeHistory();
+    }
   }
-})
+);
 </script>
 
 <style lang="scss" scoped>

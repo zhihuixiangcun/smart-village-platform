@@ -5,13 +5,7 @@
     width="600px"
     :close-on-click-modal="false"
   >
-    <el-form
-      ref="formRef"
-      :model="form"
-      :rules="rules"
-      label-width="100px"
-      class="member-form"
-    >
+    <el-form ref="formRef" :model="form" :rules="rules" label-width="100px" class="member-form">
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="姓名" prop="name">
@@ -67,11 +61,7 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="联系电话" prop="phone">
-            <el-input
-              v-model="form.phone"
-              placeholder="请输入联系电话"
-              maxlength="11"
-            />
+            <el-input v-model="form.phone" placeholder="请输入联系电话" maxlength="11" />
           </el-form-item>
         </el-col>
       </el-row>
@@ -94,12 +84,7 @@
       </el-row>
 
       <el-form-item label="备注">
-        <el-input
-          v-model="form.remark"
-          type="textarea"
-          :rows="3"
-          placeholder="请输入备注信息"
-        />
+        <el-input v-model="form.remark" type="textarea" :rows="3" placeholder="请输入备注信息" />
       </el-form-item>
     </el-form>
 
@@ -115,44 +100,44 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch, nextTick } from 'vue'
-import { ElMessage } from 'element-plus'
-import { residentAPI } from '@/api/resident'
+import { ref, reactive, computed, watch, nextTick } from 'vue';
+import { ElMessage } from 'element-plus';
+import { residentAPI } from '@/api/resident';
 
 const props = defineProps({
   modelValue: {
     type: Boolean,
-    default: false
+    default: false,
   },
   member: {
     type: Object,
-    default: null
+    default: null,
   },
   resident: {
     type: Object,
-    default: null
+    default: null,
   },
   mode: {
     type: String,
-    default: 'add' // 'add' | 'edit'
-  }
-})
+    default: 'add', // 'add' | 'edit'
+  },
+});
 
-const emit = defineEmits(['update:modelValue', 'confirm'])
+const emit = defineEmits(['update:modelValue', 'confirm']);
 
-const formRef = ref()
-const submitting = ref(false)
+const formRef = ref();
+const submitting = ref(false);
 
 // 对话框显示状态
 const dialogVisible = computed({
   get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
-})
+  set: value => emit('update:modelValue', value),
+});
 
 // 对话框标题
 const dialogTitle = computed(() => {
-  return props.mode === 'add' ? '添加家庭成员' : '编辑家庭成员'
-})
+  return props.mode === 'add' ? '添加家庭成员' : '编辑家庭成员';
+});
 
 // 表单数据
 const form = reactive({
@@ -164,38 +149,37 @@ const form = reactive({
   phone: '',
   occupation: '',
   healthStatus: 'healthy',
-  remark: ''
-})
+  remark: '',
+});
 
 // 表单验证规则
 const rules = {
   name: [
     { required: true, message: '请输入姓名', trigger: 'blur' },
-    { min: 2, max: 10, message: '姓名长度在 2 到 10 个字符', trigger: 'blur' }
+    { min: 2, max: 10, message: '姓名长度在 2 到 10 个字符', trigger: 'blur' },
   ],
-  gender: [
-    { required: true, message: '请选择性别', trigger: 'change' }
-  ],
-  relationship: [
-    { required: true, message: '请选择与户主关系', trigger: 'change' }
-  ],
+  gender: [{ required: true, message: '请选择性别', trigger: 'change' }],
+  relationship: [{ required: true, message: '请选择与户主关系', trigger: 'change' }],
   age: [
     { required: true, message: '请输入年龄', trigger: 'blur' },
-    { type: 'number', min: 0, max: 150, message: '年龄范围在 0 到 150 之间', trigger: 'blur' }
+    { type: 'number', min: 0, max: 150, message: '年龄范围在 0 到 150 之间', trigger: 'blur' },
   ],
   idCard: [
-    { pattern: /^[1-9]\d{5}(18|19|20)\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/, message: '身份证号格式不正确', trigger: 'blur' }
+    {
+      pattern:
+        /^[1-9]\d{5}(18|19|20)\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/,
+      message: '身份证号格式不正确',
+      trigger: 'blur',
+    },
   ],
-  phone: [
-    { pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确', trigger: 'blur' }
-  ]
-}
+  phone: [{ pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确', trigger: 'blur' }],
+};
 
 // 方法
 const handleClose = () => {
-  dialogVisible.value = false
-  resetForm()
-}
+  dialogVisible.value = false;
+  resetForm();
+};
 
 const resetForm = () => {
   Object.assign(form, {
@@ -207,64 +191,71 @@ const resetForm = () => {
     phone: '',
     occupation: '',
     healthStatus: 'healthy',
-    remark: ''
-  })
+    remark: '',
+  });
 
   if (formRef.value) {
-    formRef.value.clearValidate()
+    formRef.value.clearValidate();
   }
-}
+};
 
-const fillForm = (member) => {
+const fillForm = member => {
   if (member) {
-    Object.assign(form, member)
+    Object.assign(form, member);
   }
-}
+};
 
 const handleSubmit = async () => {
   try {
-    await formRef.value.validate()
+    await formRef.value.validate();
 
-    submitting.value = true
+    submitting.value = true;
 
     const submitData = {
       ...form,
-      residentId: props.resident?.id
-    }
+      residentId: props.resident?.id,
+    };
 
-    let response
+    let response;
     if (props.mode === 'add') {
-      response = await residentAPI.addFamilyMember(props.resident.id, submitData)
+      response = await residentAPI.addFamilyMember(props.resident.id, submitData);
     } else {
-      response = await residentAPI.updateFamilyMember(props.resident.id, props.member.id, submitData)
+      response = await residentAPI.updateFamilyMember(
+        props.resident.id,
+        props.member.id,
+        submitData
+      );
     }
 
     if (response.success) {
-      ElMessage.success(`${props.mode === 'add' ? '添加' : '保存'}成功`)
-      emit('confirm')
-      handleClose()
+      ElMessage.success(`${props.mode === 'add' ? '添加' : '保存'}成功`);
+      emit('confirm');
+      handleClose();
     }
   } catch (error) {
     if (error !== false) {
-      ElMessage.error(`${props.mode === 'add' ? '添加' : '保存'}失败`)
+      ElMessage.error(`${props.mode === 'add' ? '添加' : '保存'}失败`);
     }
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
-}
+};
 
 // 监听对话框显示状态
-watch(() => props.modelValue, (newVal) => {
-  if (newVal) {
-    nextTick(() => {
-      if (props.mode === 'edit' && props.member) {
-        fillForm(props.member)
-      } else {
-        resetForm()
-      }
-    })
+watch(
+  () => props.modelValue,
+  newVal => {
+    if (newVal) {
+      nextTick(() => {
+        if (props.mode === 'edit' && props.member) {
+          fillForm(props.member);
+        } else {
+          resetForm();
+        }
+      });
+    }
   }
-})
+);
 </script>
 
 <style lang="scss" scoped>

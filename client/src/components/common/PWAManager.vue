@@ -15,12 +15,8 @@
           <p>将应用添加到主屏幕，获得原生应用体验</p>
         </div>
         <div class="banner-actions">
-          <el-button @click="installPWA" type="primary" size="small">
-            立即安装
-          </el-button>
-          <el-button @click="minimizeBanner" text size="small">
-            最小化
-          </el-button>
+          <el-button @click="installPWA" type="primary" size="small"> 立即安装 </el-button>
+          <el-button @click="minimizeBanner" text size="small"> 最小化 </el-button>
           <el-button @click="dismissBanner" text size="small">
             <el-icon><Close /></el-icon>
           </el-button>
@@ -87,12 +83,8 @@
         <el-button @click="checkForUpdates" :loading="checkingUpdates" size="small">
           检查更新
         </el-button>
-        <el-button @click="refreshServiceWorker" size="small">
-          重启SW
-        </el-button>
-        <el-button @click="clearAllCaches" size="small" type="warning">
-          清除缓存
-        </el-button>
+        <el-button @click="refreshServiceWorker" size="small"> 重启SW </el-button>
+        <el-button @click="clearAllCaches" size="small" type="warning"> 清除缓存 </el-button>
       </div>
     </div>
 
@@ -118,19 +110,12 @@
 
       <template #footer>
         <el-button @click="showUpdateDialog = false">稍后更新</el-button>
-        <el-button @click="applyUpdate" type="primary" :loading="updatingApp">
-          立即更新
-        </el-button>
+        <el-button @click="applyUpdate" type="primary" :loading="updatingApp"> 立即更新 </el-button>
       </template>
     </el-dialog>
 
     <!-- 安装成功提示 -->
-    <el-dialog
-      v-model="showInstallSuccess"
-      title="安装成功"
-      width="350px"
-      :show-close="false"
-    >
+    <el-dialog v-model="showInstallSuccess" title="安装成功" width="350px" :show-close="false">
       <div class="install-success-content">
         <div class="success-icon">
           <el-icon size="48" color="#67c23a"><SuccessFilled /></el-icon>
@@ -148,9 +133,7 @@
       </div>
 
       <template #footer>
-        <el-button @click="showInstallSuccess = false" type="primary">
-          知道了
-        </el-button>
+        <el-button @click="showInstallSuccess = false" type="primary"> 知道了 </el-button>
       </template>
     </el-dialog>
 
@@ -189,12 +172,8 @@
         </div>
 
         <div class="guide-actions">
-          <el-button @click="enableAllFeatures" type="primary">
-            启用所有功能
-          </el-button>
-          <el-button @click="showFeatureGuide = false">
-            稍后配置
-          </el-button>
+          <el-button @click="enableAllFeatures" type="primary"> 启用所有功能 </el-button>
+          <el-button @click="showFeatureGuide = false"> 稍后配置 </el-button>
         </div>
       </div>
     </div>
@@ -202,36 +181,41 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
-import { ElMessage, ElNotification } from 'element-plus'
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
+import { ElMessage, ElNotification } from 'element-plus';
 import {
-  Download, Close, Refresh, SuccessFilled,
-  CircleCheck, Warning, CircleClose
-} from '@element-plus/icons-vue'
+  Download,
+  Close,
+  Refresh,
+  SuccessFilled,
+  CircleCheck,
+  Warning,
+  CircleClose,
+} from '@element-plus/icons-vue';
 
 // 响应式数据
-const showInstallBanner = ref(false)
-const bannerMinimized = ref(false)
-const showStatusPanel = ref(false)
-const showUpdateDialog = ref(false)
-const showInstallSuccess = ref(false)
-const showFeatureGuide = ref(false)
-const checkingUpdates = ref(false)
-const updatingApp = ref(false)
+const showInstallBanner = ref(false);
+const bannerMinimized = ref(false);
+const showStatusPanel = ref(false);
+const showUpdateDialog = ref(false);
+const showInstallSuccess = ref(false);
+const showFeatureGuide = ref(false);
+const checkingUpdates = ref(false);
+const updatingApp = ref(false);
 
 // PWA相关状态
-const swRegistration = ref(null)
-const deferredPrompt = ref(null)
-const isInstalled = ref(false)
-const isOnline = ref(navigator.onLine)
+const swRegistration = ref(null);
+const deferredPrompt = ref(null);
+const isInstalled = ref(false);
+const isOnline = ref(navigator.onLine);
 
 // 更新功能列表
 const updateFeatures = ref([
   '性能优化和Bug修复',
   '新增离线数据同步功能',
   '改进用户界面体验',
-  '增强安全性'
-])
+  '增强安全性',
+]);
 
 // 状态计算属性
 const swStatus = computed(() => {
@@ -239,49 +223,49 @@ const swStatus = computed(() => {
     return {
       class: 'status-error',
       icon: 'CircleClose',
-      text: '未注册'
-    }
+      text: '未注册',
+    };
   }
 
   if (swRegistration.value.active) {
     return {
       class: 'status-success',
       icon: 'CircleCheck',
-      text: '运行中'
-    }
+      text: '运行中',
+    };
   }
 
   return {
     class: 'status-warning',
     icon: 'Warning',
-    text: '安装中'
-  }
-})
+    text: '安装中',
+  };
+});
 
 const cacheStatus = computed(() => {
   // 简化的缓存状态检查
   return {
     class: 'status-success',
     icon: 'CircleCheck',
-    text: '已缓存'
-  }
-})
+    text: '已缓存',
+  };
+});
 
 const offlineStatus = computed(() => {
   return {
     class: isOnline.value ? 'status-success' : 'status-warning',
     icon: isOnline.value ? 'CircleCheck' : 'Warning',
-    text: isOnline.value ? '在线' : '离线'
-  }
-})
+    text: isOnline.value ? '在线' : '离线',
+  };
+});
 
 const notificationStatus = computed(() => {
   if (!('Notification' in window)) {
     return {
       class: 'status-error',
       icon: 'CircleClose',
-      text: '不支持'
-    }
+      text: '不支持',
+    };
   }
 
   switch (Notification.permission) {
@@ -289,292 +273,296 @@ const notificationStatus = computed(() => {
       return {
         class: 'status-success',
         icon: 'CircleCheck',
-        text: '已允许'
-      }
+        text: '已允许',
+      };
     case 'denied':
       return {
         class: 'status-error',
         icon: 'CircleClose',
-        text: '已拒绝'
-      }
+        text: '已拒绝',
+      };
     default:
       return {
         class: 'status-warning',
         icon: 'Warning',
-        text: '未设置'
-      }
+        text: '未设置',
+      };
   }
-})
+});
 
 const installStatus = computed(() => {
   if (isInstalled.value) {
     return {
       class: 'status-success',
       icon: 'CircleCheck',
-      text: '已安装'
-    }
+      text: '已安装',
+    };
   }
 
   if (deferredPrompt.value) {
     return {
       class: 'status-warning',
       icon: 'Warning',
-      text: '可安装'
-    }
+      text: '可安装',
+    };
   }
 
   return {
     class: 'status-error',
     icon: 'CircleClose',
-    text: '不支持'
-  }
-})
+    text: '不支持',
+  };
+});
 
 // 方法
 const initPWA = async () => {
   // 检查是否已安装
   if (window.matchMedia('(display-mode: standalone)').matches) {
-    isInstalled.value = true
+    isInstalled.value = true;
   }
 
   // 注册Service Worker
   if ('serviceWorker' in navigator) {
     try {
-      const registration = await navigator.serviceWorker.register('/sw.js')
-      swRegistration.value = registration
+      const registration = await navigator.serviceWorker.register('/sw.js');
+      swRegistration.value = registration;
 
-      console.log('Service Worker注册成功:', registration)
+      console.log('Service Worker注册成功:', registration);
 
       // 监听更新
       registration.addEventListener('updatefound', () => {
-        const newWorker = registration.installing
+        const newWorker = registration.installing;
         newWorker.addEventListener('statechange', () => {
           if (newWorker.state === 'installed') {
             if (navigator.serviceWorker.controller) {
               // 有新版本可用
-              showUpdateDialog.value = true
+              showUpdateDialog.value = true;
             }
           }
-        })
-      })
+        });
+      });
 
       // 监听消息
-      navigator.serviceWorker.addEventListener('message', handleSWMessage)
-
+      navigator.serviceWorker.addEventListener('message', handleSWMessage);
     } catch (error) {
-      console.error('Service Worker注册失败:', error)
+      console.error('Service Worker注册失败:', error);
     }
   }
 
   // 监听安装提示事件
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault()
-    deferredPrompt.value = e
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt.value = e;
 
     // 检查是否应该显示安装横幅
-    const dismissed = localStorage.getItem('pwa-install-dismissed')
-    const lastDismissed = localStorage.getItem('pwa-install-last-dismissed')
+    const dismissed = localStorage.getItem('pwa-install-dismissed');
+    const lastDismissed = localStorage.getItem('pwa-install-last-dismissed');
 
-    if (!dismissed || (lastDismissed && Date.now() - parseInt(lastDismissed) > 7 * 24 * 60 * 60 * 1000)) {
-      showInstallBanner.value = true
+    if (
+      !dismissed ||
+      (lastDismissed && Date.now() - parseInt(lastDismissed) > 7 * 24 * 60 * 60 * 1000)
+    ) {
+      showInstallBanner.value = true;
     }
-  })
+  });
 
   // 监听安装完成事件
   window.addEventListener('appinstalled', () => {
-    isInstalled.value = true
-    showInstallBanner.value = false
-    showInstallSuccess.value = true
-    deferredPrompt.value = null
+    isInstalled.value = true;
+    showInstallBanner.value = false;
+    showInstallSuccess.value = true;
+    deferredPrompt.value = null;
 
     // 显示功能引导
     setTimeout(() => {
-      showFeatureGuide.value = true
-    }, 2000)
-  })
+      showFeatureGuide.value = true;
+    }, 2000);
+  });
 
   // 监听网络状态
   window.addEventListener('online', () => {
-    isOnline.value = true
-    ElMessage.success('网络已恢复')
-  })
+    isOnline.value = true;
+    ElMessage.success('网络已恢复');
+  });
 
   window.addEventListener('offline', () => {
-    isOnline.value = false
-    ElMessage.warning('网络连接断开，切换到离线模式')
-  })
-}
+    isOnline.value = false;
+    ElMessage.warning('网络连接断开，切换到离线模式');
+  });
+};
 
 const installPWA = async () => {
   if (!deferredPrompt.value) {
-    ElMessage.warning('当前环境不支持安装')
-    return
+    ElMessage.warning('当前环境不支持安装');
+    return;
   }
 
   try {
-    deferredPrompt.value.prompt()
-    const { outcome } = await deferredPrompt.value.userChoice
+    deferredPrompt.value.prompt();
+    const { outcome } = await deferredPrompt.value.userChoice;
 
     if (outcome === 'accepted') {
-      console.log('用户接受了安装')
+      console.log('用户接受了安装');
     } else {
-      console.log('用户拒绝了安装')
+      console.log('用户拒绝了安装');
     }
 
-    deferredPrompt.value = null
-    showInstallBanner.value = false
+    deferredPrompt.value = null;
+    showInstallBanner.value = false;
   } catch (error) {
-    console.error('安装失败:', error)
-    ElMessage.error('安装失败，请稍后重试')
+    console.error('安装失败:', error);
+    ElMessage.error('安装失败，请稍后重试');
   }
-}
+};
 
 const dismissBanner = () => {
-  showInstallBanner.value = false
-  localStorage.setItem('pwa-install-dismissed', 'true')
-  localStorage.setItem('pwa-install-last-dismissed', Date.now().toString())
-}
+  showInstallBanner.value = false;
+  localStorage.setItem('pwa-install-dismissed', 'true');
+  localStorage.setItem('pwa-install-last-dismissed', Date.now().toString());
+};
 
 const minimizeBanner = () => {
-  bannerMinimized.value = true
-}
+  bannerMinimized.value = true;
+};
 
 const expandBanner = () => {
-  bannerMinimized.value = false
-}
+  bannerMinimized.value = false;
+};
 
-const handleSWMessage = (event) => {
-  const { type, data } = event.data
+const handleSWMessage = event => {
+  const { type, data } = event.data;
 
   switch (type) {
     case 'update-available':
-      showUpdateDialog.value = true
-      break
+      showUpdateDialog.value = true;
+      break;
 
     case 'cache-updated':
       ElNotification({
         title: '缓存已更新',
         message: '应用数据已更新到最新版本',
-        type: 'success'
-      })
-      break
+        type: 'success',
+      });
+      break;
 
     case 'offline-fallback':
       ElNotification({
         title: '离线模式',
         message: '当前处于离线状态，正在使用缓存数据',
-        type: 'warning'
-      })
-      break
+        type: 'warning',
+      });
+      break;
   }
-}
+};
 
 const checkForUpdates = async () => {
-  checkingUpdates.value = true
+  checkingUpdates.value = true;
 
   try {
     if (swRegistration.value) {
-      await swRegistration.value.update()
-      ElMessage.success('已检查更新')
+      await swRegistration.value.update();
+      ElMessage.success('已检查更新');
     }
   } catch (error) {
-    console.error('检查更新失败:', error)
-    ElMessage.error('检查更新失败')
+    console.error('检查更新失败:', error);
+    ElMessage.error('检查更新失败');
   } finally {
-    checkingUpdates.value = false
+    checkingUpdates.value = false;
   }
-}
+};
 
 const applyUpdate = async () => {
-  updatingApp.value = true
+  updatingApp.value = true;
 
   try {
     if (swRegistration.value?.waiting) {
-      swRegistration.value.waiting.postMessage({ type: 'SKIP_WAITING' })
+      swRegistration.value.waiting.postMessage({ type: 'SKIP_WAITING' });
     }
 
     // 等待页面刷新
     setTimeout(() => {
-      window.location.reload()
-    }, 1000)
+      window.location.reload();
+    }, 1000);
   } catch (error) {
-    console.error('应用更新失败:', error)
-    ElMessage.error('更新失败，请刷新页面重试')
-    updatingApp.value = false
+    console.error('应用更新失败:', error);
+    ElMessage.error('更新失败，请刷新页面重试');
+    updatingApp.value = false;
   }
-}
+};
 
 const refreshServiceWorker = async () => {
   try {
     if (swRegistration.value) {
-      await swRegistration.value.unregister()
-      window.location.reload()
+      await swRegistration.value.unregister();
+      window.location.reload();
     }
   } catch (error) {
-    console.error('重启Service Worker失败:', error)
-    ElMessage.error('重启失败')
+    console.error('重启Service Worker失败:', error);
+    ElMessage.error('重启失败');
   }
-}
+};
 
 const clearAllCaches = async () => {
   try {
-    const cacheNames = await caches.keys()
-    await Promise.all(cacheNames.map(name => caches.delete(name)))
+    const cacheNames = await caches.keys();
+    await Promise.all(cacheNames.map(name => caches.delete(name)));
 
-    ElMessage.success('缓存已清除，页面将重新加载')
-    setTimeout(() => window.location.reload(), 1000)
+    ElMessage.success('缓存已清除，页面将重新加载');
+    setTimeout(() => window.location.reload(), 1000);
   } catch (error) {
-    console.error('清除缓存失败:', error)
-    ElMessage.error('清除缓存失败')
+    console.error('清除缓存失败:', error);
+    ElMessage.error('清除缓存失败');
   }
-}
+};
 
 const enableAllFeatures = async () => {
   try {
     // 请求通知权限
     if ('Notification' in window && Notification.permission === 'default') {
-      await Notification.requestPermission()
+      await Notification.requestPermission();
     }
 
     // 注册后台同步
     if (swRegistration.value && 'sync' in swRegistration.value) {
-      await swRegistration.value.sync.register('background-sync')
+      await swRegistration.value.sync.register('background-sync');
     }
 
-    showFeatureGuide.value = false
-    ElMessage.success('所有功能已启用')
+    showFeatureGuide.value = false;
+    ElMessage.success('所有功能已启用');
   } catch (error) {
-    console.error('启用功能失败:', error)
-    ElMessage.error('部分功能启用失败')
+    console.error('启用功能失败:', error);
+    ElMessage.error('部分功能启用失败');
   }
-}
+};
 
 // 生命周期
 onMounted(() => {
-  initPWA()
+  initPWA();
 
   // 检查是否首次访问
-  const isFirstVisit = !localStorage.getItem('pwa-visited')
+  const isFirstVisit = !localStorage.getItem('pwa-visited');
   if (isFirstVisit) {
-    localStorage.setItem('pwa-visited', 'true')
+    localStorage.setItem('pwa-visited', 'true');
     setTimeout(() => {
-      showFeatureGuide.value = true
-    }, 3000)
+      showFeatureGuide.value = true;
+    }, 3000);
   }
-})
+});
 
 onUnmounted(() => {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.removeEventListener('message', handleSWMessage)
+    navigator.serviceWorker.removeEventListener('message', handleSWMessage);
   }
-})
+});
 
 // 暴露方法供外部调用
 defineExpose({
-  showStatus: () => { showStatusPanel.value = true },
+  showStatus: () => {
+    showStatusPanel.value = true;
+  },
   checkUpdates: checkForUpdates,
-  installApp: installPWA
-})
+  installApp: installPWA,
+});
 </script>
 
 <style lang="scss" scoped>

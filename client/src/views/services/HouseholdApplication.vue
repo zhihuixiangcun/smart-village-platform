@@ -13,38 +13,38 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
-import { ElMessage } from 'element-plus'
-import StepForm from '@/components/common/StepForm.vue'
-import { useLargeText } from '@/composables/useLargeText'
-import { profileApi } from '@/api/residentProfile'
-import { serviceApi } from '@/api/service'
+import { ref, reactive } from 'vue';
+import { ElMessage } from 'element-plus';
+import StepForm from '@/components/common/StepForm.vue';
+import { useLargeText } from '@/composables/useLargeText';
+import { profileApi } from '@/api/residentProfile';
+import { serviceApi } from '@/api/service';
 
 const props = defineProps({
   service: {
     type: Object,
-    required: true
-  }
-})
+    required: true,
+  },
+});
 
-const emit = defineEmits(['close', 'submitted'])
+const emit = defineEmits(['close', 'submitted']);
 
-const { isLargeText } = useLargeText()
+const { isLargeText } = useLargeText();
 
 const steps = [
   {
     title: '基本信息',
-    description: '填写户口本办理信息'
+    description: '填写户口本办理信息',
   },
   {
     title: '材料上传',
-    description: '上传所需证件照片'
+    description: '上传所需证件照片',
   },
   {
     title: '确认提交',
-    description: '核对信息并提交'
-  }
-]
+    description: '核对信息并提交',
+  },
+];
 
 const formData = reactive({
   // 基本信息
@@ -74,8 +74,8 @@ const formData = reactive({
   // 领取方式
   receiveMethod: 'mail',
   receiveAddress: '',
-  remark: ''
-})
+  remark: '',
+});
 
 // 步骤1: 基本信息
 const BasicInfoStep = {
@@ -175,32 +175,40 @@ const BasicInfoStep = {
       headName: [{ required: true, message: '请输入户主姓名', trigger: 'blur' }],
       headIdCard: [
         { required: true, message: '请输入户主身份证号', trigger: 'blur' },
-        { pattern: /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/, message: '请输入正确的身份证号', trigger: 'blur' }
+        {
+          pattern: /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/,
+          message: '请输入正确的身份证号',
+          trigger: 'blur',
+        },
       ],
       relationship: [{ required: true, message: '请选择与户主关系', trigger: 'change' }],
       name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
       idCard: [
         { required: true, message: '请输入身份证号', trigger: 'blur' },
-        { pattern: /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/, message: '请输入正确的身份证号', trigger: 'blur' }
+        {
+          pattern: /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/,
+          message: '请输入正确的身份证号',
+          trigger: 'blur',
+        },
       ],
       phone: [
         { required: true, message: '请输入联系电话', trigger: 'blur' },
-        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
+        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' },
       ],
-      address: [{ required: true, message: '请输入家庭住址', trigger: 'blur' }]
-    }
+      address: [{ required: true, message: '请输入家庭住址', trigger: 'blur' }],
+    };
 
-    const formRef = ref(null)
+    const formRef = ref(null);
 
     const validateForm = () => {
-      formRef.value?.validate((valid) => {
-        emit('validate', valid)
-      })
-    }
+      formRef.value?.validate(valid => {
+        emit('validate', valid);
+      });
+    };
 
-    return { formRef, rules, validateForm }
-  }
-}
+    return { formRef, rules, validateForm };
+  },
+};
 
 // 步骤2和3与IdCardApplication类似,使用ImageUploader组件
 const UploadStep = {
@@ -259,8 +267,8 @@ const UploadStep = {
     </div>
   `,
   props: ['formData'],
-  emits: ['update', 'validate']
-}
+  emits: ['update', 'validate'],
+};
 
 const ConfirmStep = {
   template: `
@@ -303,45 +311,45 @@ const ConfirmStep = {
   props: ['formData'],
   emits: ['validate'],
   setup(props, { emit }) {
-    const confirmed = ref(false)
+    const confirmed = ref(false);
 
-    const getTypeLabel = (type) => {
+    const getTypeLabel = type => {
       const map = {
         reissue: '补发',
         renew: '换发',
-        change: '变更登记'
-      }
-      return map[type] || type
-    }
+        change: '变更登记',
+      };
+      return map[type] || type;
+    };
 
-    return { confirmed, getTypeLabel }
-  }
-}
+    return { confirmed, getTypeLabel };
+  },
+};
 
-const handleUpdate = (data) => {
-  Object.assign(formData, data)
-}
+const handleUpdate = data => {
+  Object.assign(formData, data);
+};
 
 const handleVoiceInput = (field, text) => {
   // 处理语音输入
-}
+};
 
-const handleSubmit = async (data) => {
+const handleSubmit = async data => {
   try {
     await serviceApi.submitHouseholdApplication({
       ...data,
       serviceType: 'household',
-      serviceName: '户口本办理'
-    })
+      serviceName: '户口本办理',
+    });
 
-    ElMessage.success('申请已提交')
-    emit('submitted', data)
-    emit('close')
+    ElMessage.success('申请已提交');
+    emit('submitted', data);
+    emit('close');
   } catch (error) {
-    ElMessage.error('提交失败: ' + error.message)
-    throw error
+    ElMessage.error('提交失败: ' + error.message);
+    throw error;
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>

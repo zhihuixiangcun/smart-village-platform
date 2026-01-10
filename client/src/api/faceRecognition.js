@@ -11,13 +11,13 @@ const apiClient = axios.create({
   baseURL: process.env.VUE_APP_API_BASE_URL || '/api',
   timeout: 30000,
   headers: {
-    'Content-Type': 'application/json'
-  }
+    'Content-Type': 'application/json',
+  },
 });
 
 // 请求拦截器 - 添加认证token
 apiClient.interceptors.request.use(
-  (config) => {
+  config => {
     const token = getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -30,17 +30,17 @@ apiClient.interceptors.request.use(
 
     return config;
   },
-  (error) => {
+  error => {
     return Promise.reject(error);
   }
 );
 
 // 响应拦截器 - 统一错误处理
 apiClient.interceptors.response.use(
-  (response) => {
+  response => {
     return response.data;
   },
-  (error) => {
+  error => {
     console.error('API请求错误:', error);
 
     // 处理token过期
@@ -85,7 +85,7 @@ export const faceDetectionAPI = {
     try {
       const response = await apiClient.post('/face/detect', {
         image,
-        villageId
+        villageId,
       });
       return response;
     } catch (error) {
@@ -104,14 +104,14 @@ export const faceDetectionAPI = {
     try {
       const response = await apiClient.post('/face/detect_batch', {
         images,
-        villageId
+        villageId,
       });
       return response;
     } catch (error) {
       console.error('批量人脸检测失败:', error);
       throw error;
     }
-  }
+  },
 };
 
 /**
@@ -165,7 +165,7 @@ export const faceRegistrationAPI = {
   async getFaceStatus(userId, villageId) {
     try {
       const response = await apiClient.get(`/face/user/${userId}/status`, {
-        params: { villageId }
+        params: { villageId },
       });
       return response;
     } catch (error) {
@@ -183,14 +183,14 @@ export const faceRegistrationAPI = {
   async deleteFace(userId, villageId) {
     try {
       const response = await apiClient.delete(`/face/user/${userId}`, {
-        params: { villageId }
+        params: { villageId },
       });
       return response;
     } catch (error) {
       console.error('删除人脸数据失败:', error);
       throw error;
     }
-  }
+  },
 };
 
 /**
@@ -251,7 +251,7 @@ export const faceVerificationAPI = {
       console.error('批量人脸验证失败:', error);
       throw error;
     }
-  }
+  },
 };
 
 /**
@@ -311,7 +311,7 @@ export const faceIdentificationAPI = {
       console.error('批量人脸识别失败:', error);
       throw error;
     }
-  }
+  },
 };
 
 /**
@@ -333,7 +333,7 @@ export const livenessDetectionAPI = {
       console.error('活体检测失败:', error);
       throw error;
     }
-  }
+  },
 };
 
 /**
@@ -355,7 +355,7 @@ export const faceComparisonAPI = {
       console.error('人脸比较失败:', error);
       throw error;
     }
-  }
+  },
 };
 
 /**
@@ -431,7 +431,7 @@ export const familyRelationAPI = {
       console.error('删除代理关系失败:', error);
       throw error;
     }
-  }
+  },
 };
 
 /**
@@ -446,7 +446,7 @@ export const systemConfigAPI = {
   async getConfig(villageId) {
     try {
       const response = await apiClient.get('/face/config', {
-        params: { villageId }
+        params: { villageId },
       });
       return response;
     } catch (error) {
@@ -471,7 +471,7 @@ export const systemConfigAPI = {
       console.error('更新配置失败:', error);
       throw error;
     }
-  }
+  },
 };
 
 /**
@@ -497,7 +497,7 @@ export const auditLogAPI = {
       console.error('获取审计日志失败:', error);
       throw error;
     }
-  }
+  },
 };
 
 // 导出所有API
@@ -510,5 +510,5 @@ export default {
   faceComparison: faceComparisonAPI,
   familyRelation: familyRelationAPI,
   systemConfig: systemConfigAPI,
-  auditLog: auditLogAPI
+  auditLog: auditLogAPI,
 };

@@ -11,7 +11,7 @@ export const useCommentStore = defineStore('comment', () => {
     total: 0,
     pending: 0,
     approved: 0,
-    rejected: 0
+    rejected: 0,
   });
 
   // 获取评论列表
@@ -39,7 +39,7 @@ export const useCommentStore = defineStore('comment', () => {
   };
 
   // 获取单个评论详情
-  const getCommentById = async (id) => {
+  const getCommentById = async id => {
     try {
       const response = await api.get(`/api/announcements/comments/${id}`);
 
@@ -56,7 +56,7 @@ export const useCommentStore = defineStore('comment', () => {
   };
 
   // 创建评论
-  const createComment = async (data) => {
+  const createComment = async data => {
     try {
       const response = await api.post('/api/announcements/comments', data);
 
@@ -83,7 +83,7 @@ export const useCommentStore = defineStore('comment', () => {
 
       if (response.data.success) {
         // 更新本地列表
-        const updateCommentInList = (commentList) => {
+        const updateCommentInList = commentList => {
           for (let i = 0; i < commentList.length; i++) {
             if (commentList[i].id === id) {
               commentList[i] = { ...commentList[i], ...response.data.data };
@@ -116,13 +116,13 @@ export const useCommentStore = defineStore('comment', () => {
   };
 
   // 删除评论
-  const deleteComment = async (id) => {
+  const deleteComment = async id => {
     try {
       const response = await api.delete(`/api/announcements/comments/${id}`);
 
       if (response.data.success) {
         // 从本地列表中移除
-        const removeCommentFromList = (commentList) => {
+        const removeCommentFromList = commentList => {
           for (let i = 0; i < commentList.length; i++) {
             if (commentList[i].id === id) {
               commentList.splice(i, 1);
@@ -152,13 +152,13 @@ export const useCommentStore = defineStore('comment', () => {
   };
 
   // 点赞评论
-  const likeComment = async (id) => {
+  const likeComment = async id => {
     try {
       const response = await api.post(`/api/announcements/comments/${id}/like`);
 
       if (response.data.success) {
         // 更新本地状态
-        const updateLikeInList = (commentList) => {
+        const updateLikeInList = commentList => {
           for (const comment of commentList) {
             if (comment.id === id) {
               comment.isLiked = true;
@@ -186,13 +186,13 @@ export const useCommentStore = defineStore('comment', () => {
   };
 
   // 取消点赞评论
-  const unlikeComment = async (id) => {
+  const unlikeComment = async id => {
     try {
       const response = await api.delete(`/api/announcements/comments/${id}/like`);
 
       if (response.data.success) {
         // 更新本地状态
-        const updateUnlikeInList = (commentList) => {
+        const updateUnlikeInList = commentList => {
           for (const comment of commentList) {
             if (comment.id === id) {
               comment.isLiked = false;
@@ -220,7 +220,7 @@ export const useCommentStore = defineStore('comment', () => {
   };
 
   // 置顶/取消置顶评论
-  const toggleTopComment = async (id) => {
+  const toggleTopComment = async id => {
     try {
       const response = await api.patch(`/api/announcements/comments/${id}/top`);
 
@@ -270,15 +270,15 @@ export const useCommentStore = defineStore('comment', () => {
     try {
       const response = await api.patch(`/api/announcements/comments/${id}/moderate`, {
         action, // approve, reject, delete
-        reason
+        reason,
       });
 
       if (response.data.success) {
         // 更新本地状态
         const comment = comments.value.find(c => c.id === id);
         if (comment) {
-          comment.status = action === 'approve' ? 'approved' :
-            action === 'reject' ? 'rejected' : 'deleted';
+          comment.status =
+            action === 'approve' ? 'approved' : action === 'reject' ? 'rejected' : 'deleted';
         }
         return response.data.data;
       } else {
@@ -295,7 +295,7 @@ export const useCommentStore = defineStore('comment', () => {
     try {
       const response = await api.post('/api/announcements/comments/batch', {
         ids,
-        operation // delete, approve, reject
+        operation, // delete, approve, reject
       });
 
       if (response.data.success) {
@@ -341,7 +341,7 @@ export const useCommentStore = defineStore('comment', () => {
   const searchComments = async (query, options = {}) => {
     try {
       const response = await api.get('/api/announcements/comments/search', {
-        params: { q: query, ...options }
+        params: { q: query, ...options },
       });
 
       if (response.data.success) {
@@ -390,7 +390,9 @@ export const useCommentStore = defineStore('comment', () => {
   // 获取评论回复
   const getCommentReplies = async (commentId, params = {}) => {
     try {
-      const response = await api.get(`/api/announcements/comments/${commentId}/replies`, { params });
+      const response = await api.get(`/api/announcements/comments/${commentId}/replies`, {
+        params,
+      });
 
       if (response.data.success) {
         return response.data.data;
@@ -418,15 +420,15 @@ export const useCommentStore = defineStore('comment', () => {
       total: 0,
       pending: 0,
       approved: 0,
-      rejected: 0
+      rejected: 0,
     });
   };
 
   // 添加新评论到列表（用于实时更新）
-  const addComment = (comment) => {
+  const addComment = comment => {
     if (comment.parentId) {
       // 如果是回复，找到父评论并添加
-      const findAndAddReply = (commentList) => {
+      const findAndAddReply = commentList => {
         for (const parentComment of commentList) {
           if (parentComment.id === comment.parentId) {
             if (!parentComment.replies) {
@@ -453,7 +455,7 @@ export const useCommentStore = defineStore('comment', () => {
 
   // 更新评论状态（用于实时更新）
   const updateCommentStatus = (id, status) => {
-    const updateStatusInList = (commentList) => {
+    const updateStatusInList = commentList => {
       for (const comment of commentList) {
         if (comment.id === id) {
           comment.status = status;
@@ -520,6 +522,6 @@ export const useCommentStore = defineStore('comment', () => {
     moderate: moderateComment,
     batchOperate: batchOperateComments,
     search: searchComments,
-    getStats: getCommentStats
+    getStats: getCommentStats,
   };
 });

@@ -14,7 +14,7 @@ export const familyApi = {
     return request({
       url: '/family',
       method: 'post',
-      data
+      data,
     });
   },
 
@@ -23,7 +23,7 @@ export const familyApi = {
     return request({
       url: `/family/${familyId}`,
       method: 'put',
-      data
+      data,
     });
   },
 
@@ -31,7 +31,7 @@ export const familyApi = {
   deleteFamily(familyId) {
     return request({
       url: `/family/${familyId}`,
-      method: 'delete'
+      method: 'delete',
     });
   },
 
@@ -39,7 +39,7 @@ export const familyApi = {
   getFamilyById(familyId) {
     return request({
       url: `/family/${familyId}`,
-      method: 'get'
+      method: 'get',
     });
   },
 
@@ -47,7 +47,7 @@ export const familyApi = {
   getFamilyByQRCode(qrCode) {
     return request({
       url: `/family/qrcode/${qrCode}`,
-      method: 'get'
+      method: 'get',
     });
   },
 
@@ -56,7 +56,7 @@ export const familyApi = {
     return request({
       url: `/family/village/${villageId}`,
       method: 'get',
-      params
+      params,
     });
   },
 
@@ -64,7 +64,7 @@ export const familyApi = {
   searchFamilies(villageId, keyword) {
     return request({
       url: `/family/village/${villageId}/search/${keyword}`,
-      method: 'get'
+      method: 'get',
     });
   },
 
@@ -72,7 +72,7 @@ export const familyApi = {
   getStatistics(villageId) {
     return request({
       url: `/family/village/${villageId}/statistics`,
-      method: 'get'
+      method: 'get',
     });
   },
 
@@ -82,7 +82,7 @@ export const familyApi = {
       url: `/family/village/${villageId}/export`,
       method: 'get',
       params,
-      responseType: 'blob'
+      responseType: 'blob',
     });
   },
 
@@ -91,9 +91,9 @@ export const familyApi = {
     return request({
       url: '/family/batch/import',
       method: 'post',
-      data: { familyList }
+      data: { familyList },
     });
-  }
+  },
 };
 
 /**
@@ -105,7 +105,7 @@ export const familyMemberApi = {
     return request({
       url: `/family/${familyId}/members`,
       method: 'post',
-      data
+      data,
     });
   },
 
@@ -114,7 +114,7 @@ export const familyMemberApi = {
     return request({
       url: `/family/members/${memberId}`,
       method: 'put',
-      data
+      data,
     });
   },
 
@@ -122,9 +122,9 @@ export const familyMemberApi = {
   deleteMember(memberId) {
     return request({
       url: `/family/members/${memberId}`,
-      method: 'delete'
+      method: 'delete',
     });
-  }
+  },
 };
 
 /**
@@ -136,7 +136,7 @@ export const qrCodeApi = {
     return request({
       url: `/family/${familyId}/qrcode/regenerate`,
       method: 'post',
-      data: { expiresInDays }
+      data: { expiresInDays },
     });
   },
 
@@ -144,7 +144,7 @@ export const qrCodeApi = {
   revokeQRCode(familyId) {
     return request({
       url: `/family/${familyId}/qrcode/revoke`,
-      method: 'post'
+      method: 'post',
     });
   },
 
@@ -152,9 +152,9 @@ export const qrCodeApi = {
   recordPrint(familyId) {
     return request({
       url: `/family/${familyId}/qrcode/print`,
-      method: 'post'
+      method: 'post',
     });
-  }
+  },
 };
 
 /**
@@ -166,7 +166,7 @@ export const tagApi = {
     return request({
       url: `/family/${familyId}/tags`,
       method: 'post',
-      data: { tagName, color }
+      data: { tagName, color },
     });
   },
 
@@ -174,7 +174,7 @@ export const tagApi = {
   removeFamilyTag(familyId, tagName) {
     return request({
       url: `/family/${familyId}/tags/${tagName}`,
-      method: 'delete'
+      method: 'delete',
     });
   },
 
@@ -183,7 +183,7 @@ export const tagApi = {
     return request({
       url: `/family/members/${memberId}/tags`,
       method: 'post',
-      data: { tag }
+      data: { tag },
     });
   },
 
@@ -191,9 +191,9 @@ export const tagApi = {
   removeMemberTag(memberId, tag) {
     return request({
       url: `/family/members/${memberId}/tags/${tag}`,
-      method: 'delete'
+      method: 'delete',
     });
-  }
+  },
 };
 
 /**
@@ -205,7 +205,7 @@ export const authApi = {
     return request({
       url: `/family/members/${memberId}/face/authenticate`,
       method: 'post',
-      data: { faceImageBase64 }
+      data: { faceImageBase64 },
     });
   },
 
@@ -214,7 +214,7 @@ export const authApi = {
     return request({
       url: `/family/auth/${sessionId}/recognize`,
       method: 'post',
-      data: { capturedImageBase64 }
+      data: { capturedImageBase64 },
     });
   },
 
@@ -223,7 +223,7 @@ export const authApi = {
     return request({
       url: `/family/members/${memberId}/face/register`,
       method: 'post',
-      data: { faceImageBase64 }
+      data: { faceImageBase64 },
     });
   },
 
@@ -232,7 +232,7 @@ export const authApi = {
     return request({
       url: '/family/auth/verify-token',
       method: 'post',
-      data: { token }
+      data: { token },
     });
   },
 
@@ -241,7 +241,7 @@ export const authApi = {
     return request({
       url: '/family/auth/liveness',
       method: 'post',
-      data: { imageBase64 }
+      data: { imageBase64 },
     });
   },
 
@@ -250,7 +250,7 @@ export const authApi = {
     return request({
       url: `/family/members/${memberId}/auth/history`,
       method: 'get',
-      params: { limit }
+      params: { limit },
     });
   },
 
@@ -258,9 +258,9 @@ export const authApi = {
   resetAuthStatus(memberId) {
     return request({
       url: `/family/members/${memberId}/auth/reset`,
-      method: 'post'
+      method: 'post',
     });
-  }
+  },
 };
 
 /**
@@ -272,7 +272,7 @@ export const proxyApi = {
     return request({
       url: `/family/members/${memberId}/proxy/request`,
       method: 'post',
-      data: { proxyMemberId }
+      data: { proxyMemberId },
     });
   },
 
@@ -281,7 +281,7 @@ export const proxyApi = {
     return request({
       url: `/family/members/${memberId}/proxy/settings`,
       method: 'post',
-      data: { allowedProxyIds, expiryDays }
+      data: { allowedProxyIds, expiryDays },
     });
   },
 
@@ -289,7 +289,7 @@ export const proxyApi = {
   getAvailableProxies(memberId) {
     return request({
       url: `/family/members/${memberId}/proxy/available`,
-      method: 'get'
+      method: 'get',
     });
-  }
+  },
 };

@@ -1,16 +1,7 @@
 <template>
-  <el-dialog
-    v-model="dialogVisible"
-    title="选择位置"
-    width="600px"
-    @close="handleClose"
-  >
+  <el-dialog v-model="dialogVisible" title="选择位置" width="600px" @close="handleClose">
     <div class="location-picker">
-      <el-input
-        v-model="searchKeyword"
-        placeholder="搜索地址..."
-        class="search-input"
-      >
+      <el-input v-model="searchKeyword" placeholder="搜索地址..." class="search-input">
         <template #prefix>
           <el-icon><Search /></el-icon>
         </template>
@@ -51,45 +42,49 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue'
-import { Search, Loading, Location } from '@element-plus/icons-vue'
+import { ref, watch, computed } from 'vue';
+import { Search, Loading, Location } from '@element-plus/icons-vue';
 
 const props = defineProps({
   modelValue: {
     type: Boolean,
-    default: false
+    default: false,
   },
   defaultLocation: {
     type: Object,
-    default: null
-  }
-})
+    default: null,
+  },
+});
 
-const emit = defineEmits(['update:modelValue', 'selected'])
+const emit = defineEmits(['update:modelValue', 'selected']);
 
 const dialogVisible = computed({
   get: () => props.modelValue,
-  set: (val) => emit('update:modelValue', val)
-})
+  set: val => emit('update:modelValue', val),
+});
 
-const searchKeyword = ref('')
-const loading = ref(false)
-const selectedLocation = ref(props.defaultLocation)
+const searchKeyword = ref('');
+const loading = ref(false);
+const selectedLocation = ref(props.defaultLocation);
 
-watch(() => props.defaultLocation, (newVal) => {
-  selectedLocation.value = newVal
-}, { immediate: true })
+watch(
+  () => props.defaultLocation,
+  newVal => {
+    selectedLocation.value = newVal;
+  },
+  { immediate: true }
+);
 
 const handleClose = () => {
-  dialogVisible.value = false
-}
+  dialogVisible.value = false;
+};
 
 const handleConfirm = () => {
   if (selectedLocation.value) {
-    emit('selected', selectedLocation.value)
+    emit('selected', selectedLocation.value);
   }
-  handleClose()
-}
+  handleClose();
+};
 </script>
 
 <style scoped>

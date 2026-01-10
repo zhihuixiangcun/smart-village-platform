@@ -7,12 +7,7 @@ import { ref, watch } from 'vue';
  * @param {Object} options - 配置选项
  */
 export function useDebounceSearch(searchFn, delay = 300, options = {}) {
-  const {
-    immediate = false,
-    maxWait = 1000,
-    leading = false,
-    trailing = true
-  } = options;
+  const { immediate = false, maxWait = 1000, leading = false, trailing = true } = options;
 
   const searchQuery = ref('');
   const loading = ref(false);
@@ -23,7 +18,7 @@ export function useDebounceSearch(searchFn, delay = 300, options = {}) {
   let maxTimeoutId = null;
   let lastCallTime = 0;
 
-  const search = async (query) => {
+  const search = async query => {
     if (!query && !options.allowEmpty) {
       results.value = [];
       return;
@@ -43,7 +38,7 @@ export function useDebounceSearch(searchFn, delay = 300, options = {}) {
     }
   };
 
-  const debouncedSearch = (query) => {
+  const debouncedSearch = query => {
     const now = Date.now();
 
     // 清除之前的定时器
@@ -52,7 +47,7 @@ export function useDebounceSearch(searchFn, delay = 300, options = {}) {
     }
 
     // 首次调用或超过最大等待时间时立即执行
-    if (!lastCallTime || (now - lastCallTime >= maxWait)) {
+    if (!lastCallTime || now - lastCallTime >= maxWait) {
       if (leading) {
         search(query);
         lastCallTime = now;
@@ -84,7 +79,7 @@ export function useDebounceSearch(searchFn, delay = 300, options = {}) {
   // 监听搜索关键词变化
   watch(
     searchQuery,
-    (newQuery) => {
+    newQuery => {
       debouncedSearch(newQuery);
     },
     { immediate }
@@ -118,7 +113,7 @@ export function useDebounceSearch(searchFn, delay = 300, options = {}) {
     results,
     error,
     triggerSearch,
-    resetSearch
+    resetSearch,
   };
 }
 
@@ -126,11 +121,7 @@ export function useDebounceSearch(searchFn, delay = 300, options = {}) {
  * 分页数据管理Hook
  */
 export function usePagination(options = {}) {
-  const {
-    defaultPageSize = 20,
-    defaultPage = 1,
-    pageSizes = [10, 20, 50, 100]
-  } = options;
+  const { defaultPageSize = 20, defaultPage = 1, pageSizes = [10, 20, 50, 100] } = options;
 
   const currentPage = ref(defaultPage);
   const pageSize = ref(defaultPageSize);
@@ -150,13 +141,13 @@ export function usePagination(options = {}) {
     return currentPage.value > 1;
   });
 
-  const setPage = (page) => {
+  const setPage = page => {
     if (page >= 1 && page <= totalPages.value) {
       currentPage.value = page;
     }
   };
 
-  const setPageSize = (size) => {
+  const setPageSize = size => {
     pageSize.value = size;
     // 重新计算当前页
     const newTotalPages = Math.ceil(total.value / size);
@@ -198,7 +189,7 @@ export function usePagination(options = {}) {
     setPageSize,
     nextPage,
     prevPage,
-    reset
+    reset,
   };
 }
 
@@ -206,11 +197,7 @@ export function usePagination(options = {}) {
  * 无限滚动Hook
  */
 export function useInfiniteScroll(loadMore, options = {}) {
-  const {
-    distance = 100,
-    disabled = false,
-    delay = 200
-  } = options;
+  const { distance = 100, disabled = false, delay = 200 } = options;
 
   const loading = ref(false);
   const finished = ref(false);
@@ -239,7 +226,7 @@ export function useInfiniteScroll(loadMore, options = {}) {
     }
   };
 
-  const checkScroll = (element) => {
+  const checkScroll = element => {
     if (timeoutId) {
       clearTimeout(timeoutId);
     }
@@ -265,7 +252,7 @@ export function useInfiniteScroll(loadMore, options = {}) {
     error,
     load,
     checkScroll,
-    reset
+    reset,
   };
 }
 
@@ -277,7 +264,7 @@ export function useDataCache(key, options = {}) {
     expireTime = 5 * 60 * 1000, // 5分钟
     storage = localStorage,
     serialize = JSON.stringify,
-    deserialize = JSON.parse
+    deserialize = JSON.parse,
   } = options;
 
   const getCacheKey = (suffix = '') => {
@@ -289,7 +276,7 @@ export function useDataCache(key, options = {}) {
       const cacheData = {
         data,
         timestamp: Date.now(),
-        expireTime
+        expireTime,
       };
       storage.setItem(getCacheKey(suffix), serialize(cacheData));
     } catch (error) {
@@ -358,6 +345,6 @@ export function useDataCache(key, options = {}) {
     getCache,
     removeCache,
     clearAllCache,
-    isExpired
+    isExpired,
   };
 }

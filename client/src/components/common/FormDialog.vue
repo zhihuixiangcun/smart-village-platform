@@ -20,16 +20,8 @@
       <slot :form-data="formData" :loading="loading">
         <!-- 默认表单项渲染 -->
         <el-row v-if="fields && fields.length" :gutter="16">
-          <el-col
-            v-for="field in fields"
-            :key="field.prop"
-            :span="field.span || 24"
-          >
-            <el-form-item
-              :label="field.label"
-              :prop="field.prop"
-              :required="field.required"
-            >
+          <el-col v-for="field in fields" :key="field.prop" :span="field.span || 24">
+            <el-form-item :label="field.label" :prop="field.prop" :required="field.required">
               <!-- 输入框 -->
               <el-input
                 v-if="field.type === 'input' || !field.type"
@@ -230,9 +222,9 @@
                 :limit="field.limit"
                 :disabled="field.disabled"
                 :before-upload="field.beforeUpload"
-                :on-success="(response) => handleUploadSuccess(response, field)"
+                :on-success="response => handleUploadSuccess(response, field)"
                 :on-error="field.onError"
-                :on-remove="(file) => handleUploadRemove(file, field)"
+                :on-remove="file => handleUploadRemove(file, field)"
               >
                 <el-button type="primary" :disabled="field.disabled">
                   {{ field.uploadText || '选择文件' }}
@@ -260,9 +252,7 @@
 
     <template #footer>
       <div class="dialog-footer">
-        <el-button @click="handleClose" :disabled="loading">
-          取消
-        </el-button>
+        <el-button @click="handleClose" :disabled="loading"> 取消 </el-button>
         <el-button type="primary" @click="handleSubmit" :loading="loading">
           {{ isEdit ? '更新' : '保存' }}
         </el-button>
@@ -272,58 +262,58 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick } from 'vue'
-import { ElMessage } from 'element-plus'
-import { deepClone } from '@/utils/common'
+import { ref, computed, watch, nextTick } from 'vue';
+import { ElMessage } from 'element-plus';
+import { deepClone } from '@/utils/common';
 
 // Props定义
 const props = defineProps({
   // 对话框相关
   modelValue: {
     type: Boolean,
-    default: false
+    default: false,
   },
   title: {
     type: String,
-    default: ''
+    default: '',
   },
   width: {
     type: String,
-    default: '600px'
+    default: '600px',
   },
 
   // 表单相关
   fields: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   formData: {
     type: Object,
-    default: () => ({})
+    default: () => ({}),
   },
   rules: {
     type: Object,
-    default: () => ({})
+    default: () => ({}),
   },
   labelWidth: {
     type: String,
-    default: '100px'
+    default: '100px',
   },
   size: {
     type: String,
-    default: 'default'
+    default: 'default',
   },
 
   // 状态相关
   loading: {
     type: Boolean,
-    default: false
+    default: false,
   },
   isEdit: {
     type: Boolean,
-    default: false
-  }
-})
+    default: false,
+  },
+});
 
 // Emits定义
 const emit = defineEmits([
@@ -331,80 +321,80 @@ const emit = defineEmits([
   'submit',
   'close',
   'upload-success',
-  'upload-remove'
-])
+  'upload-remove',
+]);
 
 // 响应式数据
-const formRef = ref()
+const formRef = ref();
 
 // 计算属性
 const visible = computed({
   get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
-})
+  set: value => emit('update:modelValue', value),
+});
 
 const dialogTitle = computed(() => {
-  if (props.title) return props.title
-  return props.isEdit ? '编辑' : '新增'
-})
+  if (props.title) return props.title;
+  return props.isEdit ? '编辑' : '新增';
+});
 
-const formRules = computed(() => props.rules)
+const formRules = computed(() => props.rules);
 
 // 方法
 const handleSubmit = async () => {
   try {
     // 表单验证
-    await formRef.value?.validate()
+    await formRef.value?.validate();
 
     // 触发提交事件
-    emit('submit', deepClone(props.formData))
+    emit('submit', deepClone(props.formData));
   } catch (error) {
-    console.error('表单验证失败:', error)
+    console.error('表单验证失败:', error);
   }
-}
+};
 
 const handleClose = () => {
   // 重置表单验证状态
   nextTick(() => {
-    formRef.value?.clearValidate()
-  })
+    formRef.value?.clearValidate();
+  });
 
-  emit('close')
-  visible.value = false
-}
+  emit('close');
+  visible.value = false;
+};
 
 const handleUploadSuccess = (response, field) => {
-  emit('upload-success', response, field)
-}
+  emit('upload-success', response, field);
+};
 
 const handleUploadRemove = (file, field) => {
-  emit('upload-remove', file, field)
-}
+  emit('upload-remove', file, field);
+};
 
 // 暴露的方法
 const validate = () => {
-  return formRef.value?.validate()
-}
+  return formRef.value?.validate();
+};
 
-const validateField = (prop) => {
-  return formRef.value?.validateField(prop)
-}
+const validateField = prop => {
+  return formRef.value?.validateField(prop);
+};
 
 const resetFields = () => {
-  formRef.value?.resetFields()
-}
+  formRef.value?.resetFields();
+};
 
-const clearValidate = (props) => {
-  formRef.value?.clearValidate(props)
-}
+const clearValidate = props => {
+  formRef.value?.clearValidate(props);
+};
 
 // 暴露方法给父组件
 defineExpose({
   validate,
   validateField,
   resetFields,
-  clearValidate
-})
+  clearValidate,
+});
 </script>
 
 <style scoped>

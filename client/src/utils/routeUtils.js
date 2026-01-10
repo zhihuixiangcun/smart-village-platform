@@ -74,7 +74,7 @@ export function generateMenuItems(routes, userStore = null) {
       title: route.meta?.title || route.name,
       icon: route.meta?.icon,
       component: route.component,
-      children: []
+      children: [],
     };
 
     // 处理子路由
@@ -115,11 +115,11 @@ export function getDefaultRoute(userStore = null) {
 
   // 根据用户角色返回不同的默认首页
   const roleDefaultRoutes = {
-    'admin': '/dashboard',
-    'committee': '/dashboard',
-    'resident': '/dashboard',
-    'purchaser': '/purchasers',
-    'individual_purchaser': '/purchasers'
+    admin: '/dashboard',
+    committee: '/dashboard',
+    resident: '/dashboard',
+    purchaser: '/purchasers',
+    individual_purchaser: '/purchasers',
   };
 
   return roleDefaultRoutes[userRole] || '/dashboard';
@@ -152,7 +152,7 @@ export function getBreadcrumbFromRoute(route, router) {
   // 添加首页
   breadcrumb.push({
     title: '首页',
-    path: '/dashboard'
+    path: '/dashboard',
   });
 
   let currentPath = '';
@@ -163,7 +163,7 @@ export function getBreadcrumbFromRoute(route, router) {
     if (matchedRoute && matchedRoute.meta && matchedRoute.meta.title) {
       breadcrumb.push({
         title: matchedRoute.meta.title,
-        path: index === pathArray.length - 1 ? '' : currentPath
+        path: index === pathArray.length - 1 ? '' : currentPath,
       });
     }
   });
@@ -209,7 +209,7 @@ export function hasPermissionCached(routeName, permissions, userStore = null) {
  * 角色基础路由映射
  */
 export const roleRouteMap = {
-  'admin': [
+  admin: [
     'dashboard',
     'residents',
     'committee',
@@ -217,29 +217,12 @@ export const roleRouteMap = {
     'affairs',
     'services',
     'purchasers',
-    'system'
+    'system',
   ],
-  'committee': [
-    'dashboard',
-    'residents',
-    'committee',
-    'finance',
-    'affairs',
-    'services'
-  ],
-  'resident': [
-    'dashboard',
-    'services',
-    'affairs'
-  ],
-  'purchaser': [
-    'dashboard',
-    'purchasers'
-  ],
-  'individual_purchaser': [
-    'dashboard',
-    'purchasers'
-  ]
+  committee: ['dashboard', 'residents', 'committee', 'finance', 'affairs', 'services'],
+  resident: ['dashboard', 'services', 'affairs'],
+  purchaser: ['dashboard', 'purchasers'],
+  individual_purchaser: ['dashboard', 'purchasers'],
 };
 
 /**
@@ -297,22 +280,22 @@ export const PERMISSIONS = {
   SYSTEM_LOG: 'system:log',
 
   // 超级管理员权限
-  ALL: '*:*'
+  ALL: '*:*',
 };
 
 /**
  * 路由元信息字段定义
  */
 export const ROUTE_META_FIELDS = {
-  TITLE: 'title',                    // 页面标题
-  ICON: 'icon',                      // 菜单图标
-  REQUIRES_AUTH: 'requiresAuth',     // 是否需要认证
-  PERMISSIONS: 'permissions',        // 所需权限
-  ROLES: 'roles',                    // 所需角色
-  BREADCRUMB: 'breadcrumb',          // 面包屑导航
-  HIDDEN: 'hidden',                  // 是否隐藏
-  HIDE_IN_MENU: 'hideInMenu',        // 是否在菜单中隐藏
-  LAYOUT: 'layout',                  // 布局类型
-  CACHE: 'cache',                    // 是否缓存页面
-  ACTIVE_MENU: 'activeMenu'          // 激活的菜单项
+  TITLE: 'title', // 页面标题
+  ICON: 'icon', // 菜单图标
+  REQUIRES_AUTH: 'requiresAuth', // 是否需要认证
+  PERMISSIONS: 'permissions', // 所需权限
+  ROLES: 'roles', // 所需角色
+  BREADCRUMB: 'breadcrumb', // 面包屑导航
+  HIDDEN: 'hidden', // 是否隐藏
+  HIDE_IN_MENU: 'hideInMenu', // 是否在菜单中隐藏
+  LAYOUT: 'layout', // 布局类型
+  CACHE: 'cache', // 是否缓存页面
+  ACTIVE_MENU: 'activeMenu', // 激活的菜单项
 };

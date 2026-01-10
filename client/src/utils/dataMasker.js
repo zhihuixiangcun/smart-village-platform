@@ -11,42 +11,42 @@ const MASK_RULES = {
   idCard: {
     keepFirst: 6,
     keepLast: 4,
-    maskChar: '*'
+    maskChar: '*',
   },
   // 手机号：显示前3位和后4位
   phone: {
     keepFirst: 3,
     keepLast: 4,
-    maskChar: '*'
+    maskChar: '*',
   },
   // 银行卡号：显示前4位和后4位
   bankCard: {
     keepFirst: 4,
     keepLast: 4,
-    maskChar: '*'
+    maskChar: '*',
   },
   // 邮箱：显示第一个字符
   email: {
     keepFirst: 1,
     keepLast: 0,
-    maskChar: '***'
+    maskChar: '***',
   },
   // 姓名：显示第一个字
   name: {
     keepFirst: 1,
     keepLast: 0,
-    maskChar: '*'
+    maskChar: '*',
   },
   // 地址：隐藏详细门牌号
   address: {
     keepFirst: 0,
     keepLast: 0,
     maskChar: '**',
-    customMask: (value) => {
+    customMask: value => {
       // 隐藏具体门牌号，保留到街道/路级别
       return value.replace(/(.{2}省.{2,6}市).*(区|县).*(街道|路).*/, '$1****$2$3****');
-    }
-  }
+    },
+  },
 };
 
 /**
@@ -128,7 +128,7 @@ export function maskEmail(email) {
     return email;
   }
 
-  const username = `${email.substring(0, 1)  }***`;
+  const username = `${email.substring(0, 1)}***`;
   const domain = email.substring(atIndex);
 
   return username + domain;
@@ -252,7 +252,7 @@ export function autoMask(data) {
     // 姓名相关
     name: /(name|userName|user_name|姓名)/i,
     // 地址相关
-    address: /(address|地址)/i
+    address: /(address|地址)/i,
   };
 
   const fieldMapping = {};
@@ -298,7 +298,7 @@ export function validateMaskedValue(value, type) {
     phone: /^\d{3}\*{4,}\d{4}$/, // 138****1234
     bankCard: /^\d{4}\*{8,}\d{4}$/, // 1234********5678
     email: /^.\*{3}@.+$/, // u***@example.com
-    name: /^.\*{1,}$/ // 张*
+    name: /^.\*{1,}$/, // 张*
   };
 
   const pattern = rules[type];
@@ -323,5 +323,5 @@ export default {
   maskArray,
   autoMask,
   batchMask,
-  validateMaskedValue
+  validateMaskedValue,
 };

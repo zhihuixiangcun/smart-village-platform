@@ -268,7 +268,7 @@ export const committeeApi = {
   deleteDepartment,
   export: exportCommitteeMembers,
   getPositionHistory,
-  search: searchCommitteeMembers
+  search: searchCommitteeMembers,
 };
 
 export default committeeApi;

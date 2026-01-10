@@ -1,12 +1,6 @@
 <template>
   <div class="document-upload">
-    <el-form
-      ref="formRef"
-      :model="formData"
-      :rules="formRules"
-      label-width="120px"
-      size="default"
-    >
+    <el-form ref="formRef" :model="formData" :rules="formRules" label-width="120px" size="default">
       <!-- 文件上传 -->
       <div class="form-section">
         <h3>文件上传</h3>
@@ -25,24 +19,16 @@
             accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
           >
             <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-            <div class="el-upload__text">
-              将文件拖到此处，或<em>点击上传</em>
-            </div>
+            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
             <template #tip>
-              <div class="el-upload__tip">
-                支持jpg/png/pdf/word格式，文件大小不超过10MB
-              </div>
+              <div class="el-upload__tip">支持jpg/png/pdf/word格式，文件大小不超过10MB</div>
             </template>
           </el-upload>
         </el-form-item>
 
         <!-- OCR选项 -->
         <el-form-item label="OCR识别">
-          <el-switch
-            v-model="enableOCR"
-            active-text="启用OCR识别"
-            inactive-text="不启用"
-          />
+          <el-switch v-model="enableOCR" active-text="启用OCR识别" inactive-text="不启用" />
           <div class="ocr-tip" v-if="enableOCR">
             <el-alert
               title="OCR识别将自动提取文档中的文字信息，识别过程可能需要几秒钟"
@@ -60,10 +46,7 @@
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="文档名称" prop="documentInfo.name" required>
-              <el-input
-                v-model="formData.documentInfo.name"
-                placeholder="请输入文档名称"
-              />
+              <el-input v-model="formData.documentInfo.name" placeholder="请输入文档名称" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -150,11 +133,7 @@
         <el-form-item label="允许分享">
           <el-switch v-model="formData.sharing.isShared" />
         </el-form-item>
-        <el-form-item
-          v-if="formData.sharing.isShared"
-          label="分享对象"
-          prop="sharing.sharedWith"
-        >
+        <el-form-item v-if="formData.sharing.isShared" label="分享对象" prop="sharing.sharedWith">
           <el-select
             v-model="formData.sharing.sharedWith"
             multiple
@@ -175,12 +154,7 @@
       <div v-if="ocrResult" class="form-section">
         <h3>OCR识别结果</h3>
         <el-form-item label="识别文本">
-          <el-input
-            v-model="ocrResult.text"
-            type="textarea"
-            :rows="5"
-            readonly
-          />
+          <el-input v-model="ocrResult.text" type="textarea" :rows="5" readonly />
         </el-form-item>
         <el-form-item label="识别字段" v-if="ocrResult.extractedFields">
           <el-table :data="ocrFieldList" style="width: 100%">
@@ -201,53 +175,51 @@
     <!-- 表单操作 -->
     <div class="form-actions">
       <el-button @click="handleCancel">取消</el-button>
-      <el-button type="primary" @click="handleSubmit" :loading="submitting">
-        上传文档
-      </el-button>
+      <el-button type="primary" @click="handleSubmit" :loading="submitting"> 上传文档 </el-button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue'
-import { ElMessage } from 'element-plus'
-import { UploadFilled } from '@element-plus/icons-vue'
+import { ref, reactive, computed } from 'vue';
+import { ElMessage } from 'element-plus';
+import { UploadFilled } from '@element-plus/icons-vue';
 
 // Props
 const props = defineProps({
   owner: {
     type: String,
-    required: true
-  }
-})
+    required: true,
+  },
+});
 
 // Emits
-const emit = defineEmits(['submit', 'cancel'])
+const emit = defineEmits(['submit', 'cancel']);
 
 // 表单引用
-const formRef = ref(null)
-const uploadRef = ref(null)
+const formRef = ref(null);
+const uploadRef = ref(null);
 
 // 提交状态
-const submitting = ref(false)
-const enableOCR = ref(true)
-const ocrResult = ref(null)
+const submitting = ref(false);
+const enableOCR = ref(true);
+const ocrResult = ref(null);
 
 // 文件列表
-const fileList = ref([])
+const fileList = ref([]);
 
 // 上传配置
-const uploadUrl = import.meta.env.VITE_API_URL + '/api/v1/documents/upload'
+const uploadUrl = import.meta.env.VITE_API_URL + '/api/v1/documents/upload';
 const uploadHeaders = {
-  Authorization: 'Bearer ' + localStorage.getItem('token')
-}
+  Authorization: 'Bearer ' + localStorage.getItem('token'),
+};
 
 // 可分享用户列表（示例）
 const shareableUsers = ref([
   { label: '张三（村民）', value: 'user1' },
   { label: '李四（村干部）', value: 'user2' },
-  { label: '王五（村医）', value: 'user3' }
-])
+  { label: '王五（村医）', value: 'user3' },
+]);
 
 // 表单数据
 const formData = reactive({
@@ -258,113 +230,111 @@ const formData = reactive({
     validUntil: '',
     issuer: '',
     status: '有效',
-    remarks: ''
+    remarks: '',
   },
   sharing: {
     isShared: false,
-    sharedWith: []
-  }
-})
+    sharedWith: [],
+  },
+});
 
 // OCR字段列表
 const ocrFieldList = computed(() => {
-  if (!ocrResult.value?.extractedFields) return []
+  if (!ocrResult.value?.extractedFields) return [];
 
   return Object.entries(ocrResult.value.extractedFields).map(([field, data]) => ({
     field,
     value: data.value,
-    confidence: data.confidence
-  }))
-})
+    confidence: data.confidence,
+  }));
+});
 
 // 表单验证规则
 const formRules = {
   'documentInfo.name': [
     { required: true, message: '请输入文档名称', trigger: 'blur' },
-    { min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur' }
+    { min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur' },
   ],
-  'documentInfo.type': [
-    { required: true, message: '请选择文档类型', trigger: 'change' }
-  ]
-}
+  'documentInfo.type': [{ required: true, message: '请选择文档类型', trigger: 'change' }],
+};
 
 // 文件选择变化
-const handleFileChange = (file) => {
+const handleFileChange = file => {
   // 自动填充文档名称
   if (!formData.documentInfo.name && file.raw) {
-    const name = file.raw.name.split('.')[0]
-    formData.documentInfo.name = name
+    const name = file.raw.name.split('.')[0];
+    formData.documentInfo.name = name;
   }
 
   // 根据文件名推测文档类型
   if (file.raw && !formData.documentInfo.type) {
-    const filename = file.raw.name.toLowerCase()
+    const filename = file.raw.name.toLowerCase();
     if (filename.includes('身份证')) {
-      formData.documentInfo.type = '身份证'
+      formData.documentInfo.type = '身份证';
     } else if (filename.includes('户口')) {
-      formData.documentInfo.type = '户口本'
+      formData.documentInfo.type = '户口本';
     } else if (filename.includes('毕业证')) {
-      formData.documentInfo.type = '毕业证'
+      formData.documentInfo.type = '毕业证';
     } else if (filename.includes('驾驶证')) {
-      formData.documentInfo.type = '驾驶证'
+      formData.documentInfo.type = '驾驶证';
     }
   }
-}
+};
 
 // 移除文件
 const handleFileRemove = () => {
-  fileList.value = []
-  ocrResult.value = null
-}
+  fileList.value = [];
+  ocrResult.value = null;
+};
 
 // 获取置信度类型
-const getConfidenceType = (confidence) => {
-  if (confidence >= 0.9) return 'success'
-  if (confidence >= 0.7) return 'warning'
-  return 'danger'
-}
+const getConfidenceType = confidence => {
+  if (confidence >= 0.9) return 'success';
+  if (confidence >= 0.7) return 'warning';
+  return 'danger';
+};
 
 // 提交表单
 const handleSubmit = async () => {
   // 检查是否有文件
   if (fileList.value.length === 0) {
-    ElMessage.error('请选择要上传的文件')
-    return
+    ElMessage.error('请选择要上传的文件');
+    return;
   }
 
   // 表单验证
-  const valid = await formRef.value.validate().catch(() => false)
-  if (!valid) return
+  const valid = await formRef.value.validate().catch(() => false);
+  if (!valid) return;
 
-  submitting.value = true
+  submitting.value = true;
 
   try {
     // 构建FormData
-    const formDataToSend = new FormData()
+    const formDataToSend = new FormData();
 
     // 添加文件
-    formDataToSend.append('file', fileList.value[0].raw)
+    formDataToSend.append('file', fileList.value[0].raw);
 
     // 添加文档信息
-    formDataToSend.append('owner', props.owner)
-    formDataToSend.append('documentInfo', JSON.stringify(formData.documentInfo))
-    formDataToSend.append('sharing', JSON.stringify(formData.sharing))
-    formDataToSend.append('enableOCR', enableOCR.value)
+    formDataToSend.append('owner', props.owner);
+    formDataToSend.append('documentInfo', JSON.stringify(formData.documentInfo));
+    formDataToSend.append('sharing', JSON.stringify(formData.sharing));
+    formDataToSend.append('enableOCR', enableOCR.value);
 
     // 发送提交事件
-    emit('submit', formDataToSend)
+    emit('submit', formDataToSend);
   } catch (error) {
-    ElMessage.error('上传失败')
-    console.error(error)
+    ElMessage.error('上传失败');
+    console.error(error);
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
-}
+};
 
 // 取消
 const handleCancel = () => {
-  emit('cancel')
-}
+  emit('cancel');
+};
 </script>
 
 <style lang="scss" scoped>

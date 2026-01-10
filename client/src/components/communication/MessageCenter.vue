@@ -3,10 +3,7 @@
     <!-- 操作工具栏 -->
     <div class="toolbar">
       <el-button-group>
-        <el-button
-          :type="currentTab === 'sms' ? 'primary' : 'default'"
-          @click="switchTab('sms')"
-        >
+        <el-button :type="currentTab === 'sms' ? 'primary' : 'default'" @click="switchTab('sms')">
           <i class="el-icon-message"></i>
           短信
         </el-button>
@@ -24,10 +21,7 @@
           <i class="el-icon-message"></i>
           邮件
         </el-button>
-        <el-button
-          :type="currentTab === 'push' ? 'primary' : 'default'"
-          @click="switchTab('push')"
-        >
+        <el-button :type="currentTab === 'push' ? 'primary' : 'default'" @click="switchTab('push')">
           <i class="el-icon-bell"></i>
           推送
         </el-button>
@@ -42,11 +36,7 @@
 
       <el-divider direction="vertical" />
 
-      <el-button
-        type="success"
-        icon="el-icon-plus"
-        @click="showComposeDialog"
-      >
+      <el-button type="success" icon="el-icon-plus" @click="showComposeDialog">
         发送消息
       </el-button>
 
@@ -79,9 +69,7 @@
               :rows="3"
               placeholder="输入手机号，多个用逗号分隔"
             ></el-input>
-            <div class="help-text">
-              支持136****1234格式，多个手机号用英文逗号分隔
-            </div>
+            <div class="help-text">支持136****1234格式，多个手机号用英文逗号分隔</div>
           </el-form-item>
 
           <el-form-item label="模板类型" prop="templateType">
@@ -116,11 +104,7 @@
           </el-form-item>
 
           <el-form-item label="模板参数" v-if="selectedTemplate && selectedTemplate.params">
-            <div
-              v-for="param in selectedTemplate.params"
-              :key="param.key"
-              class="param-item"
-            >
+            <div v-for="param in selectedTemplate.params" :key="param.key" class="param-item">
               <el-input
                 v-model="smsForm.templateParams[param.key]"
                 :placeholder="param.label"
@@ -130,9 +114,7 @@
           </el-form-item>
 
           <el-form-item>
-            <el-button type="primary" @click="sendSMS" :loading="sending">
-              发送短信
-            </el-button>
+            <el-button type="primary" @click="sendSMS" :loading="sending"> 发送短信 </el-button>
             <el-button @click="resetSMSForm">重置</el-button>
           </el-form-item>
         </el-form>
@@ -164,17 +146,11 @@
           </el-form-item>
 
           <el-form-item label="播放次数" prop="playTimes">
-            <el-input-number
-              v-model="voiceForm.playTimes"
-              :min="1"
-              :max="3"
-            ></el-input-number>
+            <el-input-number v-model="voiceForm.playTimes" :min="1" :max="3"></el-input-number>
           </el-form-item>
 
           <el-form-item>
-            <el-button type="primary" @click="sendVoice" :loading="sending">
-              发送语音
-            </el-button>
+            <el-button type="primary" @click="sendVoice" :loading="sending"> 发送语音 </el-button>
             <el-button @click="resetVoiceForm">重置</el-button>
           </el-form-item>
         </el-form>
@@ -186,10 +162,7 @@
       <el-card header="邮件发送">
         <el-form :model="emailForm" :rules="emailRules" ref="emailForm" label-width="100px">
           <el-form-item label="收件人" prop="to">
-            <el-input
-              v-model="emailForm.to"
-              placeholder="输入邮箱地址，多个用逗号分隔"
-            ></el-input>
+            <el-input v-model="emailForm.to" placeholder="输入邮箱地址，多个用逗号分隔"></el-input>
           </el-form-item>
 
           <el-form-item label="主题" prop="subject">
@@ -221,16 +194,12 @@
               multiple
             >
               <el-button size="small" type="primary">选择附件</el-button>
-              <div slot="tip" class="el-upload__tip">
-                支持多文件上传，单个文件不超过10MB
-              </div>
+              <div slot="tip" class="el-upload__tip">支持多文件上传，单个文件不超过10MB</div>
             </el-upload>
           </el-form-item>
 
           <el-form-item>
-            <el-button type="primary" @click="sendEmail" :loading="sending">
-              发送邮件
-            </el-button>
+            <el-button type="primary" @click="sendEmail" :loading="sending"> 发送邮件 </el-button>
             <el-button @click="resetEmailForm">重置</el-button>
           </el-form-item>
         </el-form>
@@ -272,22 +241,18 @@
 
           <el-form-item label="扩展参数">
             <el-button size="small" @click="addPushExtraParam">添加参数</el-button>
-            <div
-              v-for="(param, index) in pushForm.extraParams"
-              :key="index"
-              class="param-row"
-            >
+            <div v-for="(param, index) in pushForm.extraParams" :key="index" class="param-row">
               <el-input
                 v-model="param.key"
                 placeholder="参数名"
                 size="small"
-                style="width: 150px; margin-right: 10px;"
+                style="width: 150px; margin-right: 10px"
               ></el-input>
               <el-input
                 v-model="param.value"
                 placeholder="参数值"
                 size="small"
-                style="width: 200px; margin-right: 10px;"
+                style="width: 200px; margin-right: 10px"
               ></el-input>
               <el-button
                 type="danger"
@@ -299,9 +264,7 @@
           </el-form-item>
 
           <el-form-item>
-            <el-button type="primary" @click="sendPush" :loading="sending">
-              发送推送
-            </el-button>
+            <el-button type="primary" @click="sendPush" :loading="sending"> 发送推送 </el-button>
             <el-button @click="resetPushForm">重置</el-button>
           </el-form-item>
         </el-form>
@@ -375,12 +338,7 @@
         </el-table-column>
         <el-table-column label="操作" width="150">
           <template #default="{ row }">
-            <el-button
-              size="mini"
-              @click="viewMessageDetail(row)"
-            >
-              详情
-            </el-button>
+            <el-button size="mini" @click="viewMessageDetail(row)"> 详情 </el-button>
             <el-button
               v-if="row.status === 'failed'"
               size="mini"
@@ -406,11 +364,7 @@
     </el-card>
 
     <!-- 消息详情对话框 -->
-    <el-dialog
-      v-model="detailDialogVisible"
-      title="消息详情"
-      width="600px"
-    >
+    <el-dialog v-model="detailDialogVisible" title="消息详情" width="600px">
       <div v-if="selectedMessage" class="message-detail">
         <el-descriptions :column="2" border>
           <el-descriptions-item label="消息类型">
@@ -460,7 +414,12 @@
       width="800px"
       :before-close="closeEmergencyDialog"
     >
-      <el-form :model="emergencyForm" :rules="emergencyRules" ref="emergencyForm" label-width="100px">
+      <el-form
+        :model="emergencyForm"
+        :rules="emergencyRules"
+        ref="emergencyForm"
+        label-width="100px"
+      >
         <el-form-item label="村庄" prop="villageId">
           <el-select v-model="emergencyForm.villageId" placeholder="选择村庄">
             <el-option
@@ -526,26 +485,26 @@
 </template>
 
 <script>
-import { ref, reactive, onMounted, computed } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import communicationService from '@/services/communicationService'
+import { ref, reactive, onMounted, computed } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import communicationService from '@/services/communicationService';
 
 export default {
   name: 'MessageCenter',
   props: {
     userRole: {
       type: String,
-      default: 'user'
-    }
+      default: 'user',
+    },
   },
   setup() {
     // 响应式数据
-    const currentTab = ref('sms')
-    const sending = ref(false)
-    const loading = ref(false)
-    const detailDialogVisible = ref(false)
-    const emergencyDialogVisible = ref(false)
-    const selectedMessage = ref(null)
+    const currentTab = ref('sms');
+    const sending = ref(false);
+    const loading = ref(false);
+    const detailDialogVisible = ref(false);
+    const emergencyDialogVisible = ref(false);
+    const selectedMessage = ref(null);
 
     // 表单数据
     const smsForm = reactive({
@@ -554,123 +513,137 @@ export default {
       templateType: 'notification',
       templateCode: '',
       content: '',
-      templateParams: {}
-    })
+      templateParams: {},
+    });
 
     const voiceForm = reactive({
       recipients: '',
       template: '',
-      playTimes: 1
-    })
+      playTimes: 1,
+    });
 
     const emailForm = reactive({
       to: '',
       subject: '',
       content: '',
       contentType: 'html',
-      attachments: []
-    })
+      attachments: [],
+    });
 
     const pushForm = reactive({
       platform: ['android', 'ios'],
       recipients: '',
       title: '',
       content: '',
-      extraParams: []
-    })
+      extraParams: [],
+    });
 
     const emergencyForm = reactive({
       villageId: '',
       type: 'other',
       urgency: 'medium',
       message: '',
-      channels: ['sms', 'voice', 'push']
-    })
+      channels: ['sms', 'voice', 'push'],
+    });
 
     // 历史记录相关
     const historyFilters = reactive({
       type: '',
       status: '',
-      dateRange: null
-    })
+      dateRange: null,
+    });
 
     const pagination = reactive({
       page: 1,
       limit: 20,
-      total: 0
-    })
+      total: 0,
+    });
 
-    const messageHistory = ref([])
-    const villages = ref([])
+    const messageHistory = ref([]);
+    const villages = ref([]);
 
     // 模板数据
     const smsTemplates = ref([
       { code: 'SMS_VERIFICATION', name: '验证码模板', params: [{ key: 'code', label: '验证码' }] },
-      { code: 'SMS_NOTIFICATION', name: '通知模板', params: [{ key: 'title', label: '标题' }, { key: 'content', label: '内容' }] },
-      { code: 'SMS_BIRTHDAY', name: '生日祝福', params: [{ key: 'name', label: '姓名' }, { key: 'village', label: '村庄' }] }
-    ])
+      {
+        code: 'SMS_NOTIFICATION',
+        name: '通知模板',
+        params: [
+          { key: 'title', label: '标题' },
+          { key: 'content', label: '内容' },
+        ],
+      },
+      {
+        code: 'SMS_BIRTHDAY',
+        name: '生日祝福',
+        params: [
+          { key: 'name', label: '姓名' },
+          { key: 'village', label: '村庄' },
+        ],
+      },
+    ]);
 
     const voiceTemplates = ref([
       { code: 'VOICE_EMERGENCY', name: '紧急通知' },
       { code: 'VOICE_REMINDER', name: '提醒通知' },
-      { code: 'VOICE_WEATHER', name: '天气播报' }
-    ])
+      { code: 'VOICE_WEATHER', name: '天气播报' },
+    ]);
 
     // 计算属性
     const selectedTemplate = computed(() => {
       if (smsForm.templateType !== 'custom' && smsForm.templateCode) {
-        return smsTemplates.value.find(t => t.code === smsForm.templateCode)
+        return smsTemplates.value.find(t => t.code === smsForm.templateCode);
       }
-      return null
-    })
+      return null;
+    });
 
     // 表单验证规则
     const smsRules = {
       recipients: [{ required: true, message: '请输入接收者手机号', trigger: 'blur' }],
-      templateType: [{ required: true, message: '请选择模板类型', trigger: 'change' }]
-    }
+      templateType: [{ required: true, message: '请选择模板类型', trigger: 'change' }],
+    };
 
     const voiceRules = {
       recipients: [{ required: true, message: '请输入接收者手机号', trigger: 'blur' }],
-      template: [{ required: true, message: '请选择语音模板', trigger: 'change' }]
-    }
+      template: [{ required: true, message: '请选择语音模板', trigger: 'change' }],
+    };
 
     const emailRules = {
       to: [{ required: true, message: '请输入收件人邮箱', trigger: 'blur' }],
       subject: [{ required: true, message: '请输入邮件主题', trigger: 'blur' }],
-      content: [{ required: true, message: '请输入邮件内容', trigger: 'blur' }]
-    }
+      content: [{ required: true, message: '请输入邮件内容', trigger: 'blur' }],
+    };
 
     const pushRules = {
       platform: [{ required: true, message: '请选择推送平台', trigger: 'change' }],
       recipients: [{ required: true, message: '请输入接收者', trigger: 'blur' }],
       title: [{ required: true, message: '请输入推送标题', trigger: 'blur' }],
-      content: [{ required: true, message: '请输入推送内容', trigger: 'blur' }]
-    }
+      content: [{ required: true, message: '请输入推送内容', trigger: 'blur' }],
+    };
 
     const emergencyRules = {
       villageId: [{ required: true, message: '请选择村庄', trigger: 'change' }],
       type: [{ required: true, message: '请选择广播类型', trigger: 'change' }],
       urgency: [{ required: true, message: '请选择紧急程度', trigger: 'change' }],
       message: [{ required: true, message: '请输入广播内容', trigger: 'blur' }],
-      channels: [{ required: true, message: '请选择发送渠道', trigger: 'change' }]
-    }
+      channels: [{ required: true, message: '请选择发送渠道', trigger: 'change' }],
+    };
 
     // 方法
-    const switchTab = (tab) => {
-      currentTab.value = tab
-    }
+    const switchTab = tab => {
+      currentTab.value = tab;
+    };
 
     const sendSMS = async () => {
       try {
-        sending.value = true
+        sending.value = true;
 
-        let template
+        let template;
         if (smsForm.templateType !== 'custom') {
           template = {
             code: smsForm.templateCode,
-            params: smsForm.templateParams
-          }
+            params: smsForm.templateParams,
+          };
         }
 
         const result = await communicationService.sendMessage({
@@ -678,46 +651,46 @@ export default {
           provider: smsForm.provider,
           recipients: smsForm.recipients.split(',').map(r => r.trim()),
           template,
-          content: { text: smsForm.content }
-        })
+          content: { text: smsForm.content },
+        });
 
-        ElMessage.success('短信发送成功')
-        resetSMSForm()
-        loadMessageHistory()
+        ElMessage.success('短信发送成功');
+        resetSMSForm();
+        loadMessageHistory();
       } catch (error) {
-        ElMessage.error(`短信发送失败: ${error.message}`)
+        ElMessage.error(`短信发送失败: ${error.message}`);
       } finally {
-        sending.value = false
+        sending.value = false;
       }
-    }
+    };
 
     const sendVoice = async () => {
       try {
-        sending.value = true
+        sending.value = true;
 
         const result = await communicationService.sendMessage({
           type: 'voice',
           provider: 'aliyun',
           recipients: voiceForm.recipients.split(',').map(r => r.trim()),
           template: { code: voiceForm.template },
-          options: { playTimes: voiceForm.playTimes }
-        })
+          options: { playTimes: voiceForm.playTimes },
+        });
 
-        ElMessage.success('语音通知发送成功')
-        resetVoiceForm()
-        loadMessageHistory()
+        ElMessage.success('语音通知发送成功');
+        resetVoiceForm();
+        loadMessageHistory();
       } catch (error) {
-        ElMessage.error(`语音通知发送失败: ${error.message}`)
+        ElMessage.error(`语音通知发送失败: ${error.message}`);
       } finally {
-        sending.value = false
+        sending.value = false;
       }
-    }
+    };
 
     const sendEmail = async () => {
       try {
-        sending.value = true
+        sending.value = true;
 
-        const recipients = emailForm.to.split(',').map(r => r.trim())
+        const recipients = emailForm.to.split(',').map(r => r.trim());
 
         const result = await communicationService.sendMessage({
           type: 'email',
@@ -726,28 +699,28 @@ export default {
             subject: emailForm.subject,
             body: emailForm.content,
             type: emailForm.contentType,
-            attachments: emailForm.attachments
-          }
-        })
+            attachments: emailForm.attachments,
+          },
+        });
 
-        ElMessage.success('邮件发送成功')
-        resetEmailForm()
-        loadMessageHistory()
+        ElMessage.success('邮件发送成功');
+        resetEmailForm();
+        loadMessageHistory();
       } catch (error) {
-        ElMessage.error(`邮件发送失败: ${error.message}`)
+        ElMessage.error(`邮件发送失败: ${error.message}`);
       } finally {
-        sending.value = false
+        sending.value = false;
       }
-    }
+    };
 
     const sendPush = async () => {
       try {
-        sending.value = true
+        sending.value = true;
 
         const notification = {
           alert: pushForm.content,
-          title: pushForm.title
-        }
+          title: pushForm.title,
+        };
 
         // 添加平台特定的配置
         if (pushForm.platform.includes('android')) {
@@ -755,10 +728,10 @@ export default {
             title: pushForm.title,
             alert: pushForm.content,
             extras: pushForm.extraParams.reduce((acc, param) => {
-              acc[param.key] = param.value
-              return acc
-            }, {})
-          }
+              acc[param.key] = param.value;
+              return acc;
+            }, {}),
+          };
         }
 
         if (pushForm.platform.includes('ios')) {
@@ -766,26 +739,26 @@ export default {
             title: pushForm.title,
             body: pushForm.content,
             badge: 1,
-            sound: 'default'
-          }
+            sound: 'default',
+          };
         }
 
         const result = await communicationService.sendMessage({
           type: 'push',
           provider: 'jiguang',
           recipients: pushForm.recipients.split(',').map(r => r.trim()),
-          content: notification
-        })
+          content: notification,
+        });
 
-        ElMessage.success('推送通知发送成功')
-        resetPushForm()
-        loadMessageHistory()
+        ElMessage.success('推送通知发送成功');
+        resetPushForm();
+        loadMessageHistory();
       } catch (error) {
-        ElMessage.error(`推送通知发送失败: ${error.message}`)
+        ElMessage.error(`推送通知发送失败: ${error.message}`);
       } finally {
-        sending.value = false
+        sending.value = false;
       }
-    }
+    };
 
     const sendEmergencyBroadcast = async () => {
       try {
@@ -795,234 +768,234 @@ export default {
           {
             confirmButtonText: '确定发送',
             cancelButtonText: '取消',
-            type: 'warning'
+            type: 'warning',
           }
-        )
+        );
 
-        sending.value = true
+        sending.value = true;
 
         const result = await communicationService.sendEmergencyBroadcast(
           emergencyForm.villageId,
           emergencyForm.message,
           emergencyForm.channels
-        )
+        );
 
-        ElMessage.success('应急广播发送成功')
-        closeEmergencyDialog()
-        loadMessageHistory()
+        ElMessage.success('应急广播发送成功');
+        closeEmergencyDialog();
+        loadMessageHistory();
       } catch (error) {
         if (error !== 'cancel') {
-          ElMessage.error(`应急广播发送失败: ${error.message}`)
+          ElMessage.error(`应急广播发送失败: ${error.message}`);
         }
       } finally {
-        sending.value = false
+        sending.value = false;
       }
-    }
+    };
 
     const loadMessageHistory = async () => {
       try {
-        loading.value = true
+        loading.value = true;
 
         const params = {
           type: historyFilters.type,
           status: historyFilters.status,
           page: pagination.page,
-          limit: pagination.limit
-        }
+          limit: pagination.limit,
+        };
 
         if (historyFilters.dateRange) {
-          params.startDate = historyFilters.dateRange[0].toISOString()
-          params.endDate = historyFilters.dateRange[1].toISOString()
+          params.startDate = historyFilters.dateRange[0].toISOString();
+          params.endDate = historyFilters.dateRange[1].toISOString();
         }
 
-        const result = await communicationService.getMessageHistory(params)
+        const result = await communicationService.getMessageHistory(params);
 
-        messageHistory.value = result.data.messages
-        pagination.total = result.data.pagination.total
+        messageHistory.value = result.data.messages;
+        pagination.total = result.data.pagination.total;
       } catch (error) {
-        ElMessage.error(`加载消息历史失败: ${error.message}`)
+        ElMessage.error(`加载消息历史失败: ${error.message}`);
       } finally {
-        loading.value = false
+        loading.value = false;
       }
-    }
+    };
 
-    const viewMessageDetail = (message) => {
-      selectedMessage.value = message
-      detailDialogVisible.value = true
-    }
+    const viewMessageDetail = message => {
+      selectedMessage.value = message;
+      detailDialogVisible.value = true;
+    };
 
-    const retryMessage = async (message) => {
+    const retryMessage = async message => {
       try {
         await ElMessageBox.confirm('确定要重试发送这条消息吗？', '确认重试', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
-          type: 'warning'
-        })
+          type: 'warning',
+        });
 
         // 实现重试逻辑
-        ElMessage.success('消息重试成功')
-        loadMessageHistory()
+        ElMessage.success('消息重试成功');
+        loadMessageHistory();
       } catch (error) {
         if (error !== 'cancel') {
-          ElMessage.error(`消息重试失败: ${error.message}`)
+          ElMessage.error(`消息重试失败: ${error.message}`);
         }
       }
-    }
+    };
 
     // 表单重置
     const resetSMSForm = () => {
-      smsForm.recipients = ''
-      smsForm.templateType = 'notification'
-      smsForm.templateCode = ''
-      smsForm.content = ''
-      smsForm.templateParams = {}
-    }
+      smsForm.recipients = '';
+      smsForm.templateType = 'notification';
+      smsForm.templateCode = '';
+      smsForm.content = '';
+      smsForm.templateParams = {};
+    };
 
     const resetVoiceForm = () => {
-      voiceForm.recipients = ''
-      voiceForm.template = ''
-      voiceForm.playTimes = 1
-    }
+      voiceForm.recipients = '';
+      voiceForm.template = '';
+      voiceForm.playTimes = 1;
+    };
 
     const resetEmailForm = () => {
-      emailForm.to = ''
-      emailForm.subject = ''
-      emailForm.content = ''
-      emailForm.contentType = 'html'
-      emailForm.attachments = []
-    }
+      emailForm.to = '';
+      emailForm.subject = '';
+      emailForm.content = '';
+      emailForm.contentType = 'html';
+      emailForm.attachments = [];
+    };
 
     const resetPushForm = () => {
-      pushForm.platform = ['android', 'ios']
-      pushForm.recipients = ''
-      pushForm.title = ''
-      pushForm.content = ''
-      pushForm.extraParams = []
-    }
+      pushForm.platform = ['android', 'ios'];
+      pushForm.recipients = '';
+      pushForm.title = '';
+      pushForm.content = '';
+      pushForm.extraParams = [];
+    };
 
     const resetHistoryFilters = () => {
-      historyFilters.type = ''
-      historyFilters.status = ''
-      historyFilters.dateRange = null
-      pagination.page = 1
-      loadMessageHistory()
-    }
+      historyFilters.type = '';
+      historyFilters.status = '';
+      historyFilters.dateRange = null;
+      pagination.page = 1;
+      loadMessageHistory();
+    };
 
     // 文件处理
     const handleFileChange = (file, fileList) => {
-      emailForm.attachments = fileList
-    }
+      emailForm.attachments = fileList;
+    };
 
     // 参数管理
     const addPushExtraParam = () => {
-      pushForm.extraParams.push({ key: '', value: '' })
-    }
+      pushForm.extraParams.push({ key: '', value: '' });
+    };
 
-    const removePushExtraParam = (index) => {
-      pushForm.extraParams.splice(index, 1)
-    }
+    const removePushExtraParam = index => {
+      pushForm.extraParams.splice(index, 1);
+    };
 
     // 对话框管理
     const showComposeDialog = () => {
       // 可以显示一个综合的消息发送对话框
-      ElMessage.info('请选择具体的消息类型标签页进行发送')
-    }
+      ElMessage.info('请选择具体的消息类型标签页进行发送');
+    };
 
     const showEmergencyDialog = () => {
-      emergencyDialogVisible.value = true
-    }
+      emergencyDialogVisible.value = true;
+    };
 
     const closeEmergencyDialog = () => {
-      emergencyDialogVisible.value = false
-      emergencyForm.villageId = ''
-      emergencyForm.type = 'other'
-      emergencyForm.urgency = 'medium'
-      emergencyForm.message = ''
-      emergencyForm.channels = ['sms', 'voice', 'push']
-    }
+      emergencyDialogVisible.value = false;
+      emergencyForm.villageId = '';
+      emergencyForm.type = 'other';
+      emergencyForm.urgency = 'medium';
+      emergencyForm.message = '';
+      emergencyForm.channels = ['sms', 'voice', 'push'];
+    };
 
     // 分页处理
-    const handleSizeChange = (val) => {
-      pagination.limit = val
-      pagination.page = 1
-      loadMessageHistory()
-    }
+    const handleSizeChange = val => {
+      pagination.limit = val;
+      pagination.page = 1;
+      loadMessageHistory();
+    };
 
-    const handleCurrentChange = (val) => {
-      pagination.page = val
-      loadMessageHistory()
-    }
+    const handleCurrentChange = val => {
+      pagination.page = val;
+      loadMessageHistory();
+    };
 
     // 格式化方法
-    const formatRecipients = (recipients) => {
+    const formatRecipients = recipients => {
       if (Array.isArray(recipients)) {
         if (recipients.length > 3) {
-          return `${recipients.slice(0, 3).join(', ')} 等${recipients.length}个`
+          return `${recipients.slice(0, 3).join(', ')} 等${recipients.length}个`;
         }
-        return recipients.join(', ')
+        return recipients.join(', ');
       }
-      return recipients
-    }
+      return recipients;
+    };
 
-    const formatMessageContent = (message) => {
+    const formatMessageContent = message => {
       if (message.content && message.content.text) {
-        return message.content.text
+        return message.content.text;
       }
       if (message.content && message.content.subject) {
-        return message.content.subject
+        return message.content.subject;
       }
-      return '无内容'
-    }
+      return '无内容';
+    };
 
-    const formatDateTime = (dateTime) => {
-      return new Date(dateTime).toLocaleString()
-    }
+    const formatDateTime = dateTime => {
+      return new Date(dateTime).toLocaleString();
+    };
 
-    const getMessageTypeLabel = (type) => {
+    const getMessageTypeLabel = type => {
       const typeMap = {
         sms: '短信',
         voice: '语音',
         email: '邮件',
-        push: '推送'
-      }
-      return typeMap[type] || type
-    }
+        push: '推送',
+      };
+      return typeMap[type] || type;
+    };
 
-    const getMessageTypeColor = (type) => {
+    const getMessageTypeColor = type => {
       const colorMap = {
         sms: 'primary',
         voice: 'success',
         email: 'warning',
-        push: 'info'
-      }
-      return colorMap[type] || 'default'
-    }
+        push: 'info',
+      };
+      return colorMap[type] || 'default';
+    };
 
-    const getStatusLabel = (status) => {
+    const getStatusLabel = status => {
       const statusMap = {
         success: '成功',
         failed: '失败',
         pending: '发送中',
-        partial: '部分成功'
-      }
-      return statusMap[status] || status
-    }
+        partial: '部分成功',
+      };
+      return statusMap[status] || status;
+    };
 
-    const getStatusColor = (status) => {
+    const getStatusColor = status => {
       const colorMap = {
         success: 'success',
         failed: 'danger',
         pending: 'warning',
-        partial: 'info'
-      }
-      return colorMap[status] || 'default'
-    }
+        partial: 'info',
+      };
+      return colorMap[status] || 'default';
+    };
 
     // 生命周期
     onMounted(() => {
-      loadMessageHistory()
+      loadMessageHistory();
       // 这里可以加载村庄列表数据
-    })
+    });
 
     return {
       // 响应式数据
@@ -1081,10 +1054,10 @@ export default {
       getMessageTypeLabel,
       getMessageTypeColor,
       getStatusLabel,
-      getStatusColor
-    }
-  }
-}
+      getStatusColor,
+    };
+  },
+};
 </script>
 
 <style scoped>

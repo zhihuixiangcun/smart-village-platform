@@ -65,9 +65,7 @@
     <div v-if="queueLength > 0" class="queue-banner">
       <i class="el-icon-upload2"></i>
       <span>您有 {{ queueLength }} 条内容待同步</span>
-      <ElderlyButton type="text" size="small" @click="syncNow">
-        立即同步
-      </ElderlyButton>
+      <ElderlyButton type="text" size="small" @click="syncNow"> 立即同步 </ElderlyButton>
     </div>
 
     <!-- 语音输入提示 -->
@@ -86,165 +84,162 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { useOnline, useOfflineQueue } from '@/composables/useDevice'
-import ElderlyButton from './ElderlyButton.vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { useOnline, useOfflineQueue } from '@/composables/useDevice';
+import ElderlyButton from './ElderlyButton.vue';
 
 const props = defineProps({
   // 页面标题
   title: {
     type: String,
-    default: '智慧乡村'
+    default: '智慧乡村',
   },
   // 是否显示返回按钮
   showBack: {
     type: Boolean,
-    default: true
+    default: true,
   },
   // 是否显示菜单按钮
   showMenu: {
     type: Boolean,
-    default: false
+    default: false,
   },
   // 是否显示语音按钮
   showVoice: {
     type: Boolean,
-    default: true
+    default: true,
   },
   // 是否显示底部导航
   showBottomNav: {
     type: Boolean,
-    default: true
+    default: true,
   },
   // 主内容区域样式类
   mainClass: {
     type: String,
-    default: ''
-  }
-})
+    default: '',
+  },
+});
 
-const emit = defineEmits(['back', 'menu', 'voice'])
+const emit = defineEmits(['back', 'menu', 'voice']);
 
-const router = useRouter()
-const route = useRoute()
+const router = useRouter();
+const route = useRoute();
 
 // 网络状态
-const { isOnline } = useOnline()
+const { isOnline } = useOnline();
 
 // 离线队列
-const { queueLength, syncQueue } = useOfflineQueue()
+const { queueLength, syncQueue } = useOfflineQueue();
 
 // 语音状态
-const voiceActive = ref(false)
-const voiceText = ref('正在聆听...')
+const voiceActive = ref(false);
+const voiceText = ref('正在聆听...');
 
 // 大字模式
-const isElderlyMode = ref(
-  localStorage.getItem('elderly-mode') === 'true'
-)
+const isElderlyMode = ref(localStorage.getItem('elderly-mode') === 'true');
 
 // 底部导航项
 const navItems = ref([
   { path: '/home', label: '首页', icon: 'el-icon-house' },
   { path: '/services', label: '服务', icon: 'el-icon-service' },
   { path: '/notifications', label: '通知', icon: 'el-icon-bell' },
-  { path: '/profile', label: '我的', icon: 'el-icon-user' }
-])
+  { path: '/profile', label: '我的', icon: 'el-icon-user' },
+]);
 
 // 检查路由是否激活
-const isActive = (path) => {
-  return route.path.startsWith(path)
-}
+const isActive = path => {
+  return route.path.startsWith(path);
+};
 
 // 处理返回
 const handleBack = () => {
-  emit('back')
-  router.back()
-}
+  emit('back');
+  router.back();
+};
 
 // 处理菜单
 const handleMenu = () => {
-  emit('menu')
-}
+  emit('menu');
+};
 
 // 处理语音
 const handleVoice = async () => {
-  emit('voice')
+  emit('voice');
 
   try {
     // 检查浏览器支持
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      alert('您的浏览器不支持语音识别')
-      return
+      alert('您的浏览器不支持语音识别');
+      return;
     }
 
     // 创建识别实例
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
-    const recognition = new SpeechRecognition()
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
 
     // 配置
-    recognition.lang = 'zh-CN'
-    recognition.continuous = false
-    recognition.interimResults = true
+    recognition.lang = 'zh-CN';
+    recognition.continuous = false;
+    recognition.interimResults = true;
 
     // 开始识别
-    recognition.start()
-    voiceActive.value = true
-    voiceText.value = '正在聆听...'
+    recognition.start();
+    voiceActive.value = true;
+    voiceText.value = '正在聆听...';
 
     // 识别结果
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript
-      voiceText.value = transcript
-    }
+    recognition.onresult = event => {
+      const transcript = event.results[0][0].transcript;
+      voiceText.value = transcript;
+    };
 
     // 识别结束
     recognition.onend = () => {
-      voiceActive.value = false
-      emit('voice-result', voiceText.value)
-    }
+      voiceActive.value = false;
+      emit('voice-result', voiceText.value);
+    };
 
     // 识别错误
-    recognition.onerror = (event) => {
-      console.error('语音识别错误:', event.error)
-      voiceActive.value = false
-      alert('语音识别失败: ' + event.error)
-    }
-
+    recognition.onerror = event => {
+      console.error('语音识别错误:', event.error);
+      voiceActive.value = false;
+      alert('语音识别失败: ' + event.error);
+    };
   } catch (error) {
-    console.error('语音识别启动失败:', error)
+    console.error('语音识别启动失败:', error);
   }
-}
+};
 
 // 停止语音
 const stopVoice = () => {
-  voiceActive.value = false
-}
+  voiceActive.value = false;
+};
 
 // 立即同步
 const syncNow = async () => {
   try {
-    await syncQueue()
-    alert('同步成功！')
+    await syncQueue();
+    alert('同步成功！');
   } catch (error) {
-    alert('同步失败: ' + error.message)
+    alert('同步失败: ' + error.message);
   }
-}
+};
 
 // 处理导航
-const handleNav = (item) => {
-  router.push(item.path)
-}
+const handleNav = item => {
+  router.push(item.path);
+};
 
 onMounted(() => {
   // 监听大字模式变化
-  window.addEventListener('storage', (e) => {
+  window.addEventListener('storage', e => {
     if (e.key === 'elderly-mode') {
-      isElderlyMode.value = e.newValue === 'true'
+      isElderlyMode.value = e.newValue === 'true';
     }
-  })
-})
+  });
+});
 </script>
 
 <style lang="scss" scoped>
@@ -252,7 +247,7 @@ onMounted(() => {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #F5F7FA;
+  background: #f5f7fa;
 
   // 顶部导航
   &__header {
@@ -264,8 +259,8 @@ onMounted(() => {
     justify-content: space-between;
     height: 64px;
     padding: 0 20px;
-    background: #FFFFFF;
-    border-bottom: 2px solid #E4E7ED;
+    background: #ffffff;
+    border-bottom: 2px solid #e4e7ed;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
     .header-left,
@@ -289,7 +284,7 @@ onMounted(() => {
       text-align: center;
       font-size: 20px;
       font-weight: 600;
-      color: #1A1A1A;
+      color: #1a1a1a;
       margin: 0;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -315,8 +310,8 @@ onMounted(() => {
     align-items: center;
     justify-content: space-around;
     height: 72px;
-    background: #FFFFFF;
-    border-top: 2px solid #E4E7ED;
+    background: #ffffff;
+    border-top: 2px solid #e4e7ed;
     box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
 
     .nav-item {
@@ -331,11 +326,11 @@ onMounted(() => {
       transition: all 0.3s ease;
 
       &:active {
-        background: #F5F7FA;
+        background: #f5f7fa;
       }
 
       &.active {
-        color: #E85D4C;
+        color: #e85d4c;
 
         .nav-label {
           font-weight: 600;
@@ -349,7 +344,7 @@ onMounted(() => {
           transform: translateX(-50%);
           width: 48px;
           height: 4px;
-          background: #E85D4C;
+          background: #e85d4c;
           border-radius: 0 0 4px 4px;
         }
       }
@@ -379,9 +374,9 @@ onMounted(() => {
   justify-content: center;
   gap: 8px;
   padding: 12px 20px;
-  background: #FDF6EC;
-  border-bottom: 2px solid #E6A23C;
-  color: #E6A23C;
+  background: #fdf6ec;
+  border-bottom: 2px solid #e6a23c;
+  color: #e6a23c;
   font-size: 16px;
   font-weight: 500;
 
@@ -402,9 +397,9 @@ onMounted(() => {
   justify-content: center;
   gap: 12px;
   padding: 12px 20px;
-  background: #FEF0F0;
-  border-bottom: 2px solid #F56C6C;
-  color: #F56C6C;
+  background: #fef0f0;
+  border-bottom: 2px solid #f56c6c;
+  color: #f56c6c;
   font-size: 16px;
   font-weight: 500;
 
@@ -437,7 +432,7 @@ onMounted(() => {
     flex-direction: column;
     align-items: center;
     padding: 48px;
-    background: #FFFFFF;
+    background: #ffffff;
     border-radius: 24px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 
@@ -452,20 +447,26 @@ onMounted(() => {
         display: block;
         width: 8px;
         height: 32px;
-        background: linear-gradient(135deg, #E85D4C 0%, #FF6B6B 100%);
+        background: linear-gradient(135deg, #e85d4c 0%, #ff6b6b 100%);
         border-radius: 4px;
         animation: voiceWave 1s ease-in-out infinite;
 
-        &:nth-child(1) { animation-delay: 0s; }
-        &:nth-child(2) { animation-delay: 0.2s; }
-        &:nth-child(3) { animation-delay: 0.4s; }
+        &:nth-child(1) {
+          animation-delay: 0s;
+        }
+        &:nth-child(2) {
+          animation-delay: 0.2s;
+        }
+        &:nth-child(3) {
+          animation-delay: 0.4s;
+        }
       }
     }
 
     .voice-text {
       font-size: 24px;
       font-weight: 600;
-      color: #1A1A1A;
+      color: #1a1a1a;
       margin-bottom: 16px;
       text-align: center;
     }
@@ -478,7 +479,8 @@ onMounted(() => {
 }
 
 @keyframes voiceWave {
-  0%, 100% {
+  0%,
+  100% {
     height: 32px;
   }
   50% {

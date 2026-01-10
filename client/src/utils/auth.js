@@ -56,9 +56,7 @@ export function hasPermission(module, action) {
   if (user.level === 'admin') return true;
 
   const userPermissions = user.permissions || [];
-  return userPermissions.some(perm =>
-    perm.module === module && perm.actions.includes(action)
-  );
+  return userPermissions.some(perm => perm.module === module && perm.actions.includes(action));
 }
 
 // 检查用户角色
@@ -81,7 +79,7 @@ export function isVillageLeader() {
 export function getDeviceId() {
   let deviceId = localStorage.getItem('device_id');
   if (!deviceId) {
-    deviceId = `device_${  Math.random().toString(36).substr(2, 9)  }_${  Date.now()}`;
+    deviceId = `device_${Math.random().toString(36).substr(2, 9)}_${Date.now()}`;
     localStorage.setItem('device_id', deviceId);
   }
   return deviceId;

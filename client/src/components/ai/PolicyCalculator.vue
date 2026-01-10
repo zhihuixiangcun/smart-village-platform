@@ -76,7 +76,11 @@
               </div>
             </div>
 
-            <button class="calculate-btn" @click="calculateSubsidy" :disabled="!canCalculateSubsidy">
+            <button
+              class="calculate-btn"
+              @click="calculateSubsidy"
+              :disabled="!canCalculateSubsidy"
+            >
               <i class="fas fa-calculator"></i>
               计算补贴
             </button>
@@ -92,12 +96,17 @@
                 </div>
                 <div class="card-content">
                   <h4>预计总补贴</h4>
-                  <div class="amount">¥ {{ subsidyResult.totalAmount?.toLocaleString() || '0' }}</div>
+                  <div class="amount">
+                    ¥ {{ subsidyResult.totalAmount?.toLocaleString() || '0' }}
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div v-if="subsidyResult.subsidies && subsidyResult.subsidies.length > 0" class="subsidy-breakdown">
+            <div
+              v-if="subsidyResult.subsidies && subsidyResult.subsidies.length > 0"
+              class="subsidy-breakdown"
+            >
               <h4>补贴明细</h4>
               <div class="breakdown-list">
                 <div
@@ -178,7 +187,11 @@
               </div>
             </div>
 
-            <button class="calculate-btn" @click="calculateInsurance" :disabled="!canCalculateInsurance">
+            <button
+              class="calculate-btn"
+              @click="calculateInsurance"
+              :disabled="!canCalculateInsurance"
+            >
               <i class="fas fa-calculator"></i>
               计算保费
             </button>
@@ -210,7 +223,9 @@
               </div>
               <div class="detail-item">
                 <span class="label">每亩保费</span>
-                <span class="value">¥ {{ insuranceResult.premiumPerAcre?.toLocaleString() || '0' }}</span>
+                <span class="value"
+                  >¥ {{ insuranceResult.premiumPerAcre?.toLocaleString() || '0' }}</span
+                >
               </div>
             </div>
           </div>
@@ -289,7 +304,9 @@
               </div>
               <div class="detail-item">
                 <span class="label">月供估算</span>
-                <span class="value">¥ {{ loanResult.monthlyPayment?.toLocaleString() || '0' }}</span>
+                <span class="value"
+                  >¥ {{ loanResult.monthlyPayment?.toLocaleString() || '0' }}</span
+                >
               </div>
               <div class="detail-item">
                 <span class="label">审批时间</span>
@@ -320,9 +337,7 @@
               <span class="item-type">{{ getCalculationTypeName(item.type) }}</span>
               <span class="item-date">{{ formatDate(item.timestamp) }}</span>
             </div>
-            <div class="item-result">
-              ¥ {{ item.result?.toLocaleString() || '0' }}
-            </div>
+            <div class="item-result">¥ {{ item.result?.toLocaleString() || '0' }}</div>
           </div>
         </div>
       </div>
@@ -331,52 +346,52 @@
 </template>
 
 <script>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 
 export default {
   name: 'PolicyCalculator',
   emits: ['close'],
   setup(props, { emit }) {
-    const activeTab = ref('subsidy')
-    const isCalculating = ref(false)
+    const activeTab = ref('subsidy');
+    const isCalculating = ref(false);
 
     // 表单数据
     const subsidyForm = reactive({
       crop: '',
       area: null,
       region: '',
-      farmerType: ''
-    })
+      farmerType: '',
+    });
 
     const insuranceForm = reactive({
       crop: '',
       area: null,
       coverageLevel: '',
-      duration: '12'
-    })
+      duration: '12',
+    });
 
     const loanForm = reactive({
       purpose: '',
       collateral: '',
       creditLevel: '',
-      term: 12
-    })
+      term: 12,
+    });
 
     // 计算结果
-    const subsidyResult = ref(null)
-    const insuranceResult = ref(null)
-    const loanResult = ref(null)
+    const subsidyResult = ref(null);
+    const insuranceResult = ref(null);
+    const loanResult = ref(null);
 
     // 历史记录
-    const calculationHistory = ref([])
+    const calculationHistory = ref([]);
 
     // 选项数据
     const calculatorTabs = [
       { key: 'subsidy', label: '补贴计算', icon: 'fas fa-coins' },
       { key: 'insurance', label: '保险计算', icon: 'fas fa-shield-alt' },
-      { key: 'loan', label: '贷款计算', icon: 'fas fa-hand-holding-usd' }
-    ]
+      { key: 'loan', label: '贷款计算', icon: 'fas fa-hand-holding-usd' },
+    ];
 
     const cropOptions = [
       { value: 'rice', label: '水稻' },
@@ -385,8 +400,8 @@ export default {
       { value: 'soybean', label: '大豆' },
       { value: 'cotton', label: '棉花' },
       { value: 'vegetables', label: '蔬菜' },
-      { value: 'fruits', label: '水果' }
-    ]
+      { value: 'fruits', label: '水果' },
+    ];
 
     const regionOptions = [
       { value: 'national', label: '全国' },
@@ -396,262 +411,265 @@ export default {
       { value: 'hubei', label: '湖北省' },
       { value: 'henan', label: '河南省' },
       { value: 'shandong', label: '山东省' },
-      { value: 'jiangsu', label: '江苏省' }
-    ]
+      { value: 'jiangsu', label: '江苏省' },
+    ];
 
     const farmerTypeOptions = [
       { value: 'individual', label: '个体农户' },
       { value: 'family', label: '家庭农场' },
       { value: 'cooperative', label: '合作社' },
-      { value: 'company', label: '农业企业' }
-    ]
+      { value: 'company', label: '农业企业' },
+    ];
 
     const loanPurposeOptions = [
       { value: 'planting', label: '种植业' },
       { value: 'livestock', label: '养殖业' },
       { value: 'machinery', label: '农机购置' },
       { value: 'processing', label: '农产品加工' },
-      { value: 'infrastructure', label: '基础设施建设' }
-    ]
+      { value: 'infrastructure', label: '基础设施建设' },
+    ];
 
     // 计算属性
     const canCalculateSubsidy = computed(() => {
-      return subsidyForm.crop && subsidyForm.area && subsidyForm.region && subsidyForm.farmerType
-    })
+      return subsidyForm.crop && subsidyForm.area && subsidyForm.region && subsidyForm.farmerType;
+    });
 
     const canCalculateInsurance = computed(() => {
-      return insuranceForm.crop && insuranceForm.area && insuranceForm.coverageLevel
-    })
+      return insuranceForm.crop && insuranceForm.area && insuranceForm.coverageLevel;
+    });
 
     const canCalculateLoan = computed(() => {
-      return loanForm.purpose && loanForm.collateral && loanForm.creditLevel && loanForm.term
-    })
+      return loanForm.purpose && loanForm.collateral && loanForm.creditLevel && loanForm.term;
+    });
 
     onMounted(() => {
-      loadCalculationHistory()
-    })
+      loadCalculationHistory();
+    });
 
-    const switchTab = (tab) => {
-      activeTab.value = tab
-    }
+    const switchTab = tab => {
+      activeTab.value = tab;
+    };
 
     const closeCalculator = () => {
-      emit('close')
-    }
+      emit('close');
+    };
 
     // 补贴计算
     const calculateSubsidy = async () => {
-      if (!canCalculateSubsidy.value) return
+      if (!canCalculateSubsidy.value) return;
 
-      isCalculating.value = true
+      isCalculating.value = true;
 
       try {
         const response = await fetch('/api/v1/ai-chat/policy/calculate', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             type: 'subsidy',
-            params: subsidyForm
-          })
-        })
+            params: subsidyForm,
+          }),
+        });
 
-        const data = await response.json()
+        const data = await response.json();
 
         if (data.success) {
-          subsidyResult.value = data.data
-          saveToHistory('subsidy', subsidyForm, data.data)
-          ElMessage.success('补贴计算完成')
+          subsidyResult.value = data.data;
+          saveToHistory('subsidy', subsidyForm, data.data);
+          ElMessage.success('补贴计算完成');
         } else {
-          ElMessage.error(data.message || '计算失败')
+          ElMessage.error(data.message || '计算失败');
         }
       } catch (error) {
-        console.error('补贴计算失败:', error)
-        ElMessage.error('计算失败，请稍后重试')
+        console.error('补贴计算失败:', error);
+        ElMessage.error('计算失败，请稍后重试');
       } finally {
-        isCalculating.value = false
+        isCalculating.value = false;
       }
-    }
+    };
 
     // 保险计算
     const calculateInsurance = async () => {
-      if (!canCalculateInsurance.value) return
+      if (!canCalculateInsurance.value) return;
 
-      isCalculating.value = true
+      isCalculating.value = true;
 
       try {
         const response = await fetch('/api/v1/ai-chat/policy/calculate', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             type: 'insurance',
-            params: insuranceForm
-          })
-        })
+            params: insuranceForm,
+          }),
+        });
 
-        const data = await response.json()
+        const data = await response.json();
 
         if (data.success) {
-          insuranceResult.value = data.data
-          saveToHistory('insurance', insuranceForm, data.data)
-          ElMessage.success('保费计算完成')
+          insuranceResult.value = data.data;
+          saveToHistory('insurance', insuranceForm, data.data);
+          ElMessage.success('保费计算完成');
         } else {
-          ElMessage.error(data.message || '计算失败')
+          ElMessage.error(data.message || '计算失败');
         }
       } catch (error) {
-        console.error('保险计算失败:', error)
-        ElMessage.error('计算失败，请稍后重试')
+        console.error('保险计算失败:', error);
+        ElMessage.error('计算失败，请稍后重试');
       } finally {
-        isCalculating.value = false
+        isCalculating.value = false;
       }
-    }
+    };
 
     // 贷款计算
     const calculateLoan = async () => {
-      if (!canCalculateLoan.value) return
+      if (!canCalculateLoan.value) return;
 
-      isCalculating.value = true
+      isCalculating.value = true;
 
       try {
         const response = await fetch('/api/v1/ai-chat/policy/calculate', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             type: 'loan',
-            params: loanForm
-          })
-        })
+            params: loanForm,
+          }),
+        });
 
-        const data = await response.json()
+        const data = await response.json();
 
         if (data.success) {
-          loanResult.value = data.data
-          saveToHistory('loan', loanForm, data.data)
-          ElMessage.success('贷款额度计算完成')
+          loanResult.value = data.data;
+          saveToHistory('loan', loanForm, data.data);
+          ElMessage.success('贷款额度计算完成');
         } else {
-          ElMessage.error(data.message || '计算失败')
+          ElMessage.error(data.message || '计算失败');
         }
       } catch (error) {
-        console.error('贷款计算失败:', error)
-        ElMessage.error('计算失败，请稍后重试')
+        console.error('贷款计算失败:', error);
+        ElMessage.error('计算失败，请稍后重试');
       } finally {
-        isCalculating.value = false
+        isCalculating.value = false;
       }
-    }
+    };
 
     // 历史记录管理
     const saveToHistory = (type, form, result) => {
       const historyItem = {
         type,
         form: { ...form },
-        result: type === 'subsidy' ? result.totalAmount :
-              type === 'insurance' ? result.premium :
-              result.maxAmount,
-        timestamp: new Date()
-      }
+        result:
+          type === 'subsidy'
+            ? result.totalAmount
+            : type === 'insurance'
+              ? result.premium
+              : result.maxAmount,
+        timestamp: new Date(),
+      };
 
-      calculationHistory.value.unshift(historyItem)
+      calculationHistory.value.unshift(historyItem);
 
       // 限制历史记录数量
       if (calculationHistory.value.length > 10) {
-        calculationHistory.value = calculationHistory.value.slice(0, 10)
+        calculationHistory.value = calculationHistory.value.slice(0, 10);
       }
 
       // 保存到本地存储
       try {
-        localStorage.setItem('policyCalculatorHistory', JSON.stringify(calculationHistory.value))
+        localStorage.setItem('policyCalculatorHistory', JSON.stringify(calculationHistory.value));
       } catch (error) {
-        console.error('保存历史记录失败:', error)
+        console.error('保存历史记录失败:', error);
       }
-    }
+    };
 
     const loadCalculationHistory = () => {
       try {
-        const saved = localStorage.getItem('policyCalculatorHistory')
+        const saved = localStorage.getItem('policyCalculatorHistory');
         if (saved) {
-          calculationHistory.value = JSON.parse(saved)
+          calculationHistory.value = JSON.parse(saved);
         }
       } catch (error) {
-        console.error('加载历史记录失败:', error)
+        console.error('加载历史记录失败:', error);
       }
-    }
+    };
 
     const clearHistory = async () => {
       try {
         await ElMessageBox.confirm('确定要清空所有计算历史吗？', '确认', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
-          type: 'warning'
-        })
+          type: 'warning',
+        });
 
-        calculationHistory.value = []
-        localStorage.removeItem('policyCalculatorHistory')
-        ElMessage.success('历史记录已清空')
+        calculationHistory.value = [];
+        localStorage.removeItem('policyCalculatorHistory');
+        ElMessage.success('历史记录已清空');
       } catch {
         // 用户取消
       }
-    }
+    };
 
-    const loadHistoryItem = (item) => {
+    const loadHistoryItem = item => {
       // 根据类型切换标签页
-      switchTab(item.type)
+      switchTab(item.type);
 
       // 恢复表单数据
       setTimeout(() => {
         if (item.type === 'subsidy') {
-          Object.assign(subsidyForm, item.form)
-          subsidyResult.value = { totalAmount: item.result }
+          Object.assign(subsidyForm, item.form);
+          subsidyResult.value = { totalAmount: item.result };
         } else if (item.type === 'insurance') {
-          Object.assign(insuranceForm, item.form)
-          insuranceResult.value = { premium: item.result }
+          Object.assign(insuranceForm, item.form);
+          insuranceResult.value = { premium: item.result };
         } else if (item.type === 'loan') {
-          Object.assign(loanForm, item.form)
-          loanResult.value = { maxAmount: item.result }
+          Object.assign(loanForm, item.form);
+          loanResult.value = { maxAmount: item.result };
         }
-      }, 100)
-    }
+      }, 100);
+    };
 
     // 结果操作
     const saveCalculation = () => {
-      let result = null
-      if (activeTab.value === 'subsidy') result = subsidyResult.value
-      else if (activeTab.value === 'insurance') result = insuranceResult.value
-      else if (activeTab.value === 'loan') result = loanResult.value
+      let result = null;
+      if (activeTab.value === 'subsidy') result = subsidyResult.value;
+      else if (activeTab.value === 'insurance') result = insuranceResult.value;
+      else if (activeTab.value === 'loan') result = loanResult.value;
 
       if (result) {
         // 保存到用户账户或其他存储
-        ElMessage.success('计算结果已保存')
+        ElMessage.success('计算结果已保存');
       }
-    }
+    };
 
     const shareResult = () => {
       // 分享功能
-      ElMessage.info('分享功能开发中')
-    }
+      ElMessage.info('分享功能开发中');
+    };
 
     const exportResult = () => {
       // 导出PDF报告
-      ElMessage.info('导出功能开发中')
-    }
+      ElMessage.info('导出功能开发中');
+    };
 
     // 工具函数
-    const getCalculationTypeName = (type) => {
+    const getCalculationTypeName = type => {
       const names = {
         subsidy: '补贴计算',
         insurance: '保险计算',
-        loan: '贷款计算'
-      }
-      return names[type] || type
-    }
+        loan: '贷款计算',
+      };
+      return names[type] || type;
+    };
 
-    const formatDate = (timestamp) => {
-      return new Date(timestamp).toLocaleString()
-    }
+    const formatDate = timestamp => {
+      return new Date(timestamp).toLocaleString();
+    };
 
     return {
       // 状态
@@ -689,10 +707,10 @@ export default {
       clearHistory,
       loadHistoryItem,
       getCalculationTypeName,
-      formatDate
-    }
-  }
-}
+      formatDate,
+    };
+  },
+};
 </script>
 
 <style scoped>
@@ -728,7 +746,7 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(135deg, #4CAF50, #2E7D32);
+  background: linear-gradient(135deg, #4caf50, #2e7d32);
   color: white;
 }
 
@@ -789,9 +807,9 @@ export default {
 }
 
 .tab-btn.active {
-  color: #4CAF50;
+  color: #4caf50;
   background: #f0f7f0;
-  border-bottom-color: #4CAF50;
+  border-bottom-color: #4caf50;
 }
 
 .tab-btn:hover {
@@ -836,7 +854,7 @@ export default {
 }
 
 .calculate-btn {
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
   border: none;
   padding: 12px 24px;
@@ -884,19 +902,19 @@ export default {
   display: flex;
   align-items: center;
   gap: 16px;
-  border-left: 4px solid #4CAF50;
+  border-left: 4px solid #4caf50;
 }
 
 .summary-card.total {
-  border-left-color: #FF9800;
+  border-left-color: #ff9800;
 }
 
 .summary-card.insurance {
-  border-left-color: #2196F3;
+  border-left-color: #2196f3;
 }
 
 .summary-card.loan {
-  border-left-color: #9C27B0;
+  border-left-color: #9c27b0;
 }
 
 .card-icon {
@@ -908,15 +926,15 @@ export default {
   align-items: center;
   justify-content: center;
   font-size: 20px;
-  color: #4CAF50;
+  color: #4caf50;
 }
 
 .summary-card.insurance .card-icon {
-  color: #2196F3;
+  color: #2196f3;
 }
 
 .summary-card.loan .card-icon {
-  color: #9C27B0;
+  color: #9c27b0;
 }
 
 .card-content h4 {
@@ -929,7 +947,7 @@ export default {
 .amount {
   font-size: 24px;
   font-weight: bold;
-  color: #4CAF50;
+  color: #4caf50;
 }
 
 .subsidy-breakdown h4 {
@@ -965,7 +983,7 @@ export default {
 
 .amount {
   font-weight: 600;
-  color: #4CAF50;
+  color: #4caf50;
 }
 
 .item-details {
@@ -984,9 +1002,9 @@ export default {
 
 .action-btn {
   padding: 8px 16px;
-  border: 1px solid #4CAF50;
+  border: 1px solid #4caf50;
   background: white;
-  color: #4CAF50;
+  color: #4caf50;
   border-radius: 6px;
   font-size: 13px;
   cursor: pointer;
@@ -997,7 +1015,7 @@ export default {
 }
 
 .action-btn:hover {
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
 }
 
@@ -1086,7 +1104,7 @@ export default {
 
 .history-item:hover {
   background: #f0f7f0;
-  border-color: #4CAF50;
+  border-color: #4caf50;
 }
 
 .item-info {
@@ -1108,7 +1126,7 @@ export default {
 
 .item-result {
   font-weight: 600;
-  color: #4CAF50;
+  color: #4caf50;
   font-size: 16px;
 }
 

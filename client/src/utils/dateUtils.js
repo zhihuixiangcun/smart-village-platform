@@ -153,8 +153,18 @@ export function isYesterday(date) {
  */
 export function getMonthName(month) {
   const months = [
-    '一月', '二月', '三月', '四月', '五月', '六月',
-    '七月', '八月', '九月', '十月', '十一月', '十二月'
+    '一月',
+    '二月',
+    '三月',
+    '四月',
+    '五月',
+    '六月',
+    '七月',
+    '八月',
+    '九月',
+    '十月',
+    '十一月',
+    '十二月',
   ];
   return months[month] || '';
 }
@@ -180,5 +190,5 @@ export const DATE_FORMATS = {
   MONTH_DAY: 'MM-DD',
   YEAR_MONTH: 'YYYY-MM',
   CHINESE_DATE: 'YYYY年MM月DD日',
-  CHINESE_DATETIME: 'YYYY年MM月DD日 HH:mm:ss'
+  CHINESE_DATETIME: 'YYYY年MM月DD日 HH:mm:ss',
 };

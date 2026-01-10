@@ -22,12 +22,7 @@
           clearable
           @change="handleRoleFilter"
         >
-          <el-option
-            v-for="role in roles"
-            :key="role.id"
-            :label="role.name"
-            :value="role.id"
-          />
+          <el-option v-for="role in roles" :key="role.id" :label="role.name" :value="role.id" />
         </el-select>
 
         <el-select
@@ -111,16 +106,10 @@
                         权限详情
                       </el-dropdown-item>
                       <el-dropdown-item :command="`copy-${user.id}`">复制权限</el-dropdown-item>
-                      <el-dropdown-item
-                        :command="`toggle-${user.id}`"
-                        :divided="true"
-                      >
+                      <el-dropdown-item :command="`toggle-${user.id}`" :divided="true">
                         {{ user.status === 'active' ? '禁用' : '激活' }}
                       </el-dropdown-item>
-                      <el-dropdown-item
-                        :command="`reset-${user.id}`"
-                        class="warning-item"
-                      >
+                      <el-dropdown-item :command="`reset-${user.id}`" class="warning-item">
                         重置权限
                       </el-dropdown-item>
                     </el-dropdown-menu>
@@ -137,9 +126,7 @@
         <el-card class="permission-detail-card">
           <template #header>
             <div class="card-header">
-              <h3 v-if="selectedUser">
-                {{ selectedUser.name }} - 权限详情
-              </h3>
+              <h3 v-if="selectedUser">{{ selectedUser.name }} - 权限详情</h3>
               <h3 v-else>权限详情</h3>
               <div class="permission-actions">
                 <el-button
@@ -158,11 +145,7 @@
                 >
                   授予权限
                 </el-button>
-                <el-button
-                  v-if="selectedUser"
-                  size="small"
-                  @click="showInheritanceDialog"
-                >
+                <el-button v-if="selectedUser" size="small" @click="showInheritanceDialog">
                   权限继承
                 </el-button>
               </div>
@@ -211,16 +194,10 @@
                     class="role-permission-item"
                   >
                     <div class="role-header">
-                      <el-tag
-                        :style="{ backgroundColor: role.color, borderColor: role.color }"
-                      >
+                      <el-tag :style="{ backgroundColor: role.color, borderColor: role.color }">
                         {{ role.name }}
                       </el-tag>
-                      <el-button
-                        type="text"
-                        size="small"
-                        @click="removeUserRole(role)"
-                      >
+                      <el-button type="text" size="small" @click="removeUserRole(role)">
                         <el-icon><Delete /></el-icon>
                       </el-button>
                     </div>
@@ -521,24 +498,11 @@
         </div>
 
         <div class="batch-assign-actions">
-          <el-button
-            v-if="batchAssignStep > 0"
-            @click="batchAssignStep--"
-          >
-            上一步
-          </el-button>
-          <el-button
-            v-if="batchAssignStep < 2"
-            type="primary"
-            @click="batchAssignStep++"
-          >
+          <el-button v-if="batchAssignStep > 0" @click="batchAssignStep--"> 上一步 </el-button>
+          <el-button v-if="batchAssignStep < 2" type="primary" @click="batchAssignStep++">
             下一步
           </el-button>
-          <el-button
-            v-if="batchAssignStep === 2"
-            type="primary"
-            @click="executeBatchAssign"
-          >
+          <el-button v-if="batchAssignStep === 2" type="primary" @click="executeBatchAssign">
             确认分配
           </el-button>
         </div>
@@ -552,38 +516,35 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import {
-  Search, UserFilled, Download, Refresh,
-  MoreFilled, Delete
-} from '@element-plus/icons-vue'
-import enhancedPermissionService from '@/services/enhancedPermissionService'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { Search, UserFilled, Download, Refresh, MoreFilled, Delete } from '@element-plus/icons-vue';
+import enhancedPermissionService from '@/services/enhancedPermissionService';
 
 // 响应式数据
-const searchUser = ref('')
-const filterRole = ref('')
-const filterStatus = ref('')
-const selectedUser = ref(null)
-const activePermissionTab = ref('roles')
+const searchUser = ref('');
+const filterRole = ref('');
+const filterStatus = ref('');
+const selectedUser = ref(null);
+const activePermissionTab = ref('roles');
 
 // 对话框状态
-const assignRoleDialogVisible = ref(false)
-const grantPermissionDialogVisible = ref(false)
-const batchAssignDialogVisible = ref(false)
-const batchAssignStep = ref(0)
+const assignRoleDialogVisible = ref(false);
+const grantPermissionDialogVisible = ref(false);
+const batchAssignDialogVisible = ref(false);
+const batchAssignStep = ref(0);
 
 // 表单数据
-const selectedRoles = ref([])
-const roleEffectiveTime = ref(new Date())
-const roleExpireTime = ref(null)
-const permissionGrantType = ref('single')
-const selectedSinglePermission = ref([])
-const selectedBatchPermissions = ref([])
-const selectedPermissionTemplate = ref('')
-const applyConstraints = ref(false)
-const selectedBatchUsers = ref([])
-const checkedInheritanceNodes = ref([])
+const selectedRoles = ref([]);
+const roleEffectiveTime = ref(new Date());
+const roleExpireTime = ref(null);
+const permissionGrantType = ref('single');
+const selectedSinglePermission = ref([]);
+const selectedBatchPermissions = ref([]);
+const selectedPermissionTemplate = ref('');
+const applyConstraints = ref(false);
+const selectedBatchUsers = ref([]);
+const checkedInheritanceNodes = ref([]);
 
 // 角色数据
 const roles = ref([
@@ -592,30 +553,30 @@ const roles = ref([
     name: '村级管理员',
     color: '#409eff',
     userCount: 5,
-    permissions: ['user:read', 'user:write', 'system:config']
+    permissions: ['user:read', 'user:write', 'system:config'],
   },
   {
     id: '2',
     name: '部门主管',
     color: '#67c23a',
     userCount: 12,
-    permissions: ['resident:read', 'resident:write', 'finance:read']
+    permissions: ['resident:read', 'resident:write', 'finance:read'],
   },
   {
     id: '3',
     name: '工作人员',
     color: '#e6a23c',
     userCount: 28,
-    permissions: ['service:read', 'service:write']
+    permissions: ['service:read', 'service:write'],
   },
   {
     id: '4',
     name: '村民',
     color: '#909399',
     userCount: 1250,
-    permissions: ['announcement:read', 'service:apply']
-  }
-])
+    permissions: ['announcement:read', 'service:apply'],
+  },
+]);
 
 // 用户数据
 const users = ref([
@@ -627,10 +588,8 @@ const users = ref([
     status: 'active',
     department: '村委会',
     lastLogin: new Date(Date.now() - 1000 * 60 * 60),
-    roles: [
-      { id: '1', name: '村级管理员', color: '#409eff' }
-    ],
-    avatar: ''
+    roles: [{ id: '1', name: '村级管理员', color: '#409eff' }],
+    avatar: '',
   },
   {
     id: '2',
@@ -640,10 +599,8 @@ const users = ref([
     status: 'active',
     department: '财务部',
     lastLogin: new Date(Date.now() - 1000 * 60 * 60 * 2),
-    roles: [
-      { id: '2', name: '部门主管', color: '#67c23a' }
-    ],
-    avatar: ''
+    roles: [{ id: '2', name: '部门主管', color: '#67c23a' }],
+    avatar: '',
   },
   {
     id: '3',
@@ -653,12 +610,10 @@ const users = ref([
     status: 'inactive',
     department: '服务部',
     lastLogin: new Date(Date.now() - 1000 * 60 * 60 * 24),
-    roles: [
-      { id: '3', name: '工作人员', color: '#e6a23c' }
-    ],
-    avatar: ''
-  }
-])
+    roles: [{ id: '3', name: '工作人员', color: '#e6a23c' }],
+    avatar: '',
+  },
+]);
 
 // 权限分类
 const permissionCategories = ref([
@@ -669,8 +624,8 @@ const permissionCategories = ref([
       { key: 'user:read', name: '查看用户', granted: false },
       { key: 'user:write', name: '编辑用户', granted: false },
       { key: 'role:read', name: '查看角色', granted: false },
-      { key: 'role:write', name: '编辑角色', granted: false }
-    ]
+      { key: 'role:write', name: '编辑角色', granted: false },
+    ],
   },
   {
     key: 'business',
@@ -679,10 +634,10 @@ const permissionCategories = ref([
       { key: 'resident:read', name: '查看村民', granted: false },
       { key: 'resident:write', name: '编辑村民', granted: false },
       { key: 'finance:read', name: '查看财务', granted: false },
-      { key: 'finance:write', name: '编辑财务', granted: false }
-    ]
-  }
-])
+      { key: 'finance:write', name: '编辑财务', granted: false },
+    ],
+  },
+]);
 
 // 权限历史
 const permissionHistory = ref([
@@ -692,7 +647,7 @@ const permissionHistory = ref([
     detail: '分配角色"村级管理员"',
     operator: '系统管理员',
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2),
-    type: 'primary'
+    type: 'primary',
   },
   {
     id: '2',
@@ -700,64 +655,63 @@ const permissionHistory = ref([
     detail: '授予"system:config"权限',
     operator: '张三',
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24),
-    type: 'success'
-  }
-])
+    type: 'success',
+  },
+]);
 
 // 计算属性
 const filteredUsers = computed(() => {
-  let result = users.value
+  let result = users.value;
 
   if (searchUser.value) {
-    const keyword = searchUser.value.toLowerCase()
-    result = result.filter(user =>
-      user.name.toLowerCase().includes(keyword) ||
-      user.email.toLowerCase().includes(keyword) ||
-      user.username.toLowerCase().includes(keyword)
-    )
+    const keyword = searchUser.value.toLowerCase();
+    result = result.filter(
+      user =>
+        user.name.toLowerCase().includes(keyword) ||
+        user.email.toLowerCase().includes(keyword) ||
+        user.username.toLowerCase().includes(keyword)
+    );
   }
 
   if (filterRole.value) {
-    result = result.filter(user =>
-      user.roles.some(role => role.id === filterRole.value)
-    )
+    result = result.filter(user => user.roles.some(role => role.id === filterRole.value));
   }
 
   if (filterStatus.value) {
-    result = result.filter(user => user.status === filterStatus.value)
+    result = result.filter(user => user.status === filterStatus.value);
   }
 
-  return result
-})
+  return result;
+});
 
 const availableRoles = computed(() => {
-  if (!selectedUser.value) return roles.value
+  if (!selectedUser.value) return roles.value;
 
-  return roles.value.filter(role =>
-    !selectedUser.value.roles.some(userRole => userRole.id === role.id)
-  )
-})
+  return roles.value.filter(
+    role => !selectedUser.value.roles.some(userRole => userRole.id === role.id)
+  );
+});
 
 const userPermissionCount = computed(() => {
-  if (!selectedUser.value) return 0
+  if (!selectedUser.value) return 0;
 
-  let count = 0
+  let count = 0;
 
   // 角色权限
   selectedUser.value.roles.forEach(role => {
-    const roleData = roles.value.find(r => r.id === role.id)
+    const roleData = roles.value.find(r => r.id === role.id);
     if (roleData) {
-      count += roleData.permissions.length
+      count += roleData.permissions.length;
     }
-  })
+  });
 
   // 直接权限
   permissionCategories.value.forEach(category => {
-    count += category.permissions.filter(p => p.granted).length
-  })
+    count += category.permissions.filter(p => p.granted).length;
+  });
 
-  return count
-})
+  return count;
+});
 
 const permissionCascadeOptions = computed(() => {
   return permissionCategories.value.map(category => ({
@@ -765,29 +719,29 @@ const permissionCascadeOptions = computed(() => {
     value: category.key,
     children: category.permissions.map(permission => ({
       label: permission.name,
-      value: permission.key
-    }))
-  }))
-})
+      value: permission.key,
+    })),
+  }));
+});
 
 const cascaderProps = {
   expandTrigger: 'hover',
-  multiple: true
-}
+  multiple: true,
+};
 
 const permissionModules = computed(() => {
   return permissionCategories.value.map(category => ({
     key: category.key,
     name: category.name,
-    count: category.permissions.length
-  }))
-})
+    count: category.permissions.length,
+  }));
+});
 
 const permissionTemplates = ref([
   { id: '1', name: '基础权限模板', permissionCount: 10 },
   { id: '2', name: '管理权限模板', permissionCount: 25 },
-  { id: '3', name: '只读权限模板', permissionCount: 15 }
-])
+  { id: '3', name: '只读权限模板', permissionCount: 15 },
+]);
 
 const inheritanceTreeData = ref([
   {
@@ -803,204 +757,196 @@ const inheritanceTreeData = ref([
           { id: '1-1-1', label: '查看用户', count: 1 },
           { id: '1-1-2', label: '编辑用户', count: 1 },
           { id: '1-1-3', label: '创建用户', count: 1 },
-          { id: '1-1-4', label: '删除用户', count: 1 }
-        ]
-      }
-    ]
-  }
-])
+          { id: '1-1-4', label: '删除用户', count: 1 },
+        ],
+      },
+    ],
+  },
+]);
 
 const treeProps = {
   children: 'children',
-  label: 'label'
-}
+  label: 'label',
+};
 
-const allUsers = ref([])
+const allUsers = ref([]);
 const transferProps = {
   key: 'id',
-  label: 'name'
-}
+  label: 'name',
+};
 
 // 方法
 const handleUserSearch = () => {
   // 搜索逻辑已通过计算属性实现
-}
+};
 
 const handleRoleFilter = () => {
   // 过滤逻辑已通过计算属性实现
-}
+};
 
 const handleStatusFilter = () => {
   // 过滤逻辑已通过计算属性实现
-}
+};
 
-const selectUser = (user) => {
-  selectedUser.value = user
-  loadUserPermissions(user)
-}
+const selectUser = user => {
+  selectedUser.value = user;
+  loadUserPermissions(user);
+};
 
-const loadUserPermissions = (user) => {
+const loadUserPermissions = user => {
   // 加载用户权限数据
-  console.log('加载用户权限:', user.id)
-}
+  console.log('加载用户权限:', user.id);
+};
 
-const handlePermissionTabChange = (tabName) => {
-  activePermissionTab.value = tabName
-}
+const handlePermissionTabChange = tabName => {
+  activePermissionTab.value = tabName;
+};
 
-const handleDirectPermissionChange = (permission) => {
-  console.log('直接权限变更:', permission.key, permission.granted)
-}
+const handleDirectPermissionChange = permission => {
+  console.log('直接权限变更:', permission.key, permission.granted);
+};
 
 const handleInheritanceChange = (data, checked) => {
-  console.log('继承权限变更:', data, checked)
-}
+  console.log('继承权限变更:', data, checked);
+};
 
-const handleUserAction = async (command) => {
-  const [action, userId] = command.split('-')
-  const user = users.value.find(u => u.id === userId)
+const handleUserAction = async command => {
+  const [action, userId] = command.split('-');
+  const user = users.value.find(u => u.id === userId);
 
   switch (action) {
     case 'edit':
-      ElMessage.info('编辑用户功能待实现')
-      break
+      ElMessage.info('编辑用户功能待实现');
+      break;
 
     case 'permissions':
-      selectUser(user)
-      break
+      selectUser(user);
+      break;
 
     case 'copy':
-      ElMessage.info('复制权限功能待实现')
-      break
+      ElMessage.info('复制权限功能待实现');
+      break;
 
     case 'toggle':
       try {
-        user.status = user.status === 'active' ? 'inactive' : 'active'
-        ElMessage.success(`用户"${user.name}"已${user.status === 'active' ? '激活' : '禁用'}`)
+        user.status = user.status === 'active' ? 'inactive' : 'active';
+        ElMessage.success(`用户"${user.name}"已${user.status === 'active' ? '激活' : '禁用'}`);
       } catch (error) {
-        user.status = user.status === 'active' ? 'inactive' : 'active'
-        ElMessage.error('更新用户状态失败')
+        user.status = user.status === 'active' ? 'inactive' : 'active';
+        ElMessage.error('更新用户状态失败');
       }
-      break
+      break;
 
     case 'reset':
       try {
-        await ElMessageBox.confirm(
-          `确定要重置用户"${user.name}"的所有权限吗？`,
-          '确认重置',
-          {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }
-        )
+        await ElMessageBox.confirm(`确定要重置用户"${user.name}"的所有权限吗？`, '确认重置', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+        });
 
-        ElMessage.success('权限重置成功')
+        ElMessage.success('权限重置成功');
       } catch (error) {
         if (error !== 'cancel') {
-          ElMessage.error('重置权限失败')
+          ElMessage.error('重置权限失败');
         }
       }
-      break
+      break;
   }
-}
+};
 
-const isRoleAssigned = (roleId) => {
-  return selectedUser.value?.roles.some(role => role.id === roleId)
-}
+const isRoleAssigned = roleId => {
+  return selectedUser.value?.roles.some(role => role.id === roleId);
+};
 
 const showAssignRoleDialog = () => {
-  selectedRoles.value = []
-  roleEffectiveTime.value = new Date()
-  roleExpireTime.value = null
-  assignRoleDialogVisible.value = true
-}
+  selectedRoles.value = [];
+  roleEffectiveTime.value = new Date();
+  roleExpireTime.value = null;
+  assignRoleDialogVisible.value = true;
+};
 
 const saveUserRoleAssignment = async () => {
   try {
     if (!selectedUser.value || selectedRoles.value.length === 0) {
-      ElMessage.warning('请选择要分配的角色')
-      return
+      ElMessage.warning('请选择要分配的角色');
+      return;
     }
 
     // 更新用户角色
     selectedRoles.value.forEach(roleId => {
-      const role = roles.value.find(r => r.id === roleId)
+      const role = roles.value.find(r => r.id === roleId);
       if (role && !isRoleAssigned(roleId)) {
         selectedUser.value.roles.push({
           id: role.id,
           name: role.name,
-          color: role.color
-        })
+          color: role.color,
+        });
       }
-    })
+    });
 
-    ElMessage.success('角色分配成功')
-    assignRoleDialogVisible.value = false
+    ElMessage.success('角色分配成功');
+    assignRoleDialogVisible.value = false;
   } catch (error) {
-    ElMessage.error('角色分配失败')
+    ElMessage.error('角色分配失败');
   }
-}
+};
 
-const removeUserRole = async (role) => {
+const removeUserRole = async role => {
   try {
-    await ElMessageBox.confirm(
-      `确定要移除角色"${role.name}"吗？`,
-      '确认移除',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
+    await ElMessageBox.confirm(`确定要移除角色"${role.name}"吗？`, '确认移除', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
 
-    const index = selectedUser.value.roles.findIndex(r => r.id === role.id)
-    selectedUser.value.roles.splice(index, 1)
+    const index = selectedUser.value.roles.findIndex(r => r.id === role.id);
+    selectedUser.value.roles.splice(index, 1);
 
-    ElMessage.success('角色移除成功')
+    ElMessage.success('角色移除成功');
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('移除角色失败')
+      ElMessage.error('移除角色失败');
     }
   }
-}
+};
 
 const showGrantPermissionDialog = () => {
-  permissionGrantType.value = 'single'
-  selectedSinglePermission.value = []
-  selectedBatchPermissions.value = []
-  selectedPermissionTemplate.value = ''
-  applyConstraints.value = false
-  grantPermissionDialogVisible.value = true
-}
+  permissionGrantType.value = 'single';
+  selectedSinglePermission.value = [];
+  selectedBatchPermissions.value = [];
+  selectedPermissionTemplate.value = '';
+  applyConstraints.value = false;
+  grantPermissionDialogVisible.value = true;
+};
 
 const savePermissionGrant = async () => {
   try {
-    ElMessage.success('权限授予成功')
-    grantPermissionDialogVisible.value = false
+    ElMessage.success('权限授予成功');
+    grantPermissionDialogVisible.value = false;
   } catch (error) {
-    ElMessage.error('权限授予失败')
+    ElMessage.error('权限授予失败');
   }
-}
+};
 
 const showInheritanceDialog = () => {
-  ElMessage.info('权限继承配置功能待实现')
-}
+  ElMessage.info('权限继承配置功能待实现');
+};
 
 const showBatchAssignDialog = () => {
-  batchAssignStep.value = 0
-  selectedBatchUsers.value = []
-  selectedBatchPermissions.value = []
+  batchAssignStep.value = 0;
+  selectedBatchUsers.value = [];
+  selectedBatchPermissions.value = [];
   allUsers.value = users.value.map(user => ({
     id: user.id,
-    name: `${user.name} (${user.username})`
-  }))
-  batchAssignDialogVisible.value = true
-}
+    name: `${user.name} (${user.username})`,
+  }));
+  batchAssignDialogVisible.value = true;
+};
 
 const filterTransferUsers = (query, item) => {
-  return item.name.toLowerCase().includes(query.toLowerCase())
-}
+  return item.name.toLowerCase().includes(query.toLowerCase());
+};
 
 const executeBatchAssign = async () => {
   try {
@@ -1010,41 +956,41 @@ const executeBatchAssign = async () => {
       {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
       }
-    )
+    );
 
-    ElMessage.success('批量权限分配成功')
-    batchAssignDialogVisible.value = false
+    ElMessage.success('批量权限分配成功');
+    batchAssignDialogVisible.value = false;
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('批量权限分配失败')
+      ElMessage.error('批量权限分配失败');
     }
   }
-}
+};
 
 const exportUserPermissions = () => {
-  ElMessage.info('导出用户权限功能待实现')
-}
+  ElMessage.info('导出用户权限功能待实现');
+};
 
 const refreshUserList = () => {
-  ElMessage.success('用户列表已刷新')
-}
+  ElMessage.success('用户列表已刷新');
+};
 
 // 工具方法
-const formatDate = (date) => {
-  if (!date) return '-'
-  return new Date(date).toLocaleString()
-}
+const formatDate = date => {
+  if (!date) return '-';
+  return new Date(date).toLocaleString();
+};
 
-const formatDateTime = (date) => {
-  return new Date(date).toLocaleString()
-}
+const formatDateTime = date => {
+  return new Date(date).toLocaleString();
+};
 
 // 生命周期
 onMounted(() => {
   // 初始化数据
-})
+});
 </script>
 
 <style lang="scss" scoped>

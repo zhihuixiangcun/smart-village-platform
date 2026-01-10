@@ -1,11 +1,7 @@
 <template>
   <div class="voice-interaction">
     <!-- 顶部导航 -->
-    <van-nav-bar
-      title="方言语音交互"
-      left-arrow
-      @click-left="$router.go(-1)"
-    >
+    <van-nav-bar title="方言语音交互" left-arrow @click-left="$router.go(-1)">
       <template #right>
         <van-icon name="ellipsis" size="20" @click="showSettings = true" />
       </template>
@@ -14,7 +10,11 @@
     <!-- 方言选择器 -->
     <div class="dialect-selector">
       <van-dropdown-menu>
-        <van-dropdown-item v-model="selectedDialect" :options="dialectOptions" @change="handleDialectChange" />
+        <van-dropdown-item
+          v-model="selectedDialect"
+          :options="dialectOptions"
+          @change="handleDialectChange"
+        />
       </van-dropdown-menu>
     </div>
 
@@ -105,26 +105,42 @@
     <!-- 识别结果操作 -->
     <div class="result-actions" v-if="finalText">
       <van-cell-group inset title="快捷操作">
-        <van-cell
-          title="复制文本"
-          is-link
-          @click="copyText"
-        >
+        <van-cell title="复制文本" is-link @click="copyText">
           <template #icon><van-icon name="copy" class="cell-icon" /></template>
         </van-cell>
-        <van-cell
-          title="转为普通话"
-          is-link
-          @click="translateToMandarin"
-        >
+        <van-cell title="转为普通话" is-link @click="translateToMandarin">
           <template #icon><van-icon name="exchange" class="cell-icon" /></template>
         </van-cell>
-        <van-cell
-          title="语音播报"
-          is-link
-          @click="playText"
-        >
+        <van-cell title="语音播报" is-link @click="playText">
           <template #icon><van-icon name="play" class="cell-icon" /></template>
+        </van-cell>
+        <van-cell title="AI智能回复" is-link @click="getAIResponse" :disabled="!finalText.trim()">
+          <template #icon><van-icon name="smart" class="cell-icon" /></template>
+        </van-cell>
+      </van-cell-group>
+    </div>
+
+    <!-- AI回复区域 -->
+    <div class="ai-response-section" v-if="aiResponse">
+      <van-cell-group inset title="AI智能回复">
+        <van-cell>
+          <template #title>
+            <div class="ai-response-content">
+              <div class="ai-avatar">
+                <van-icon name="smart" size="20" color="#4caf50" />
+              </div>
+              <div class="ai-text">{{ aiResponse }}</div>
+            </div>
+          </template>
+        </van-cell>
+        <van-cell title="语音播报回复" is-link @click="playAIResponse">
+          <template #icon><van-icon name="play" class="cell-icon" /></template>
+        </van-cell>
+        <van-cell title="复制回复" is-link @click="copyAIResponse">
+          <template #icon><van-icon name="copy" class="cell-icon" /></template>
+        </van-cell>
+        <van-cell title="继续提问" is-link @click="continueAIQuestion">
+          <template #icon><van-icon name="chat" class="cell-icon" /></template>
         </van-cell>
       </van-cell-group>
     </div>
@@ -188,9 +204,7 @@
               </van-field>
             </van-cell-group>
             <div class="dialog-actions">
-              <van-button round block type="primary" native-type="submit">
-                保存设置
-              </van-button>
+              <van-button round block type="primary" native-type="submit"> 保存设置 </van-button>
             </div>
           </van-form>
         </div>
@@ -200,47 +214,50 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted, nextTick } from 'vue'
-import { useRouter } from 'vue-router'
-import { showToast, showLoadingToast, closeToast } from 'vant'
-import speechApi from '@/api/speech'
+import { ref, reactive, computed, onMounted, onUnmounted, nextTick } from 'vue';
+import { useRouter } from 'vue-router';
+import { showToast, showLoadingToast, closeToast } from 'vant';
+import speechApi from '@/api/speech';
+import aiApi from '@/api/ai';
 
-const router = useRouter()
+const router = useRouter();
 
 // ============ 响应式数据 ============
-const selectedDialect = ref('mandarin')
-const interimText = ref('')
-const finalText = ref('')
-const isRecording = ref(false)
-const isPlaying = ref(false)
-const processing = ref(false)
-const history = ref([])
+const selectedDialect = ref('mandarin');
+const interimText = ref('');
+const finalText = ref('');
+const isRecording = ref(false);
+const isPlaying = ref(false);
+const processing = ref(false);
+const history = ref([]);
+const aiResponse = ref('');
+const aiProcessing = ref(false);
 
 // WebSocket连接
-let wsConnection = null
-let mediaRecorder = null
-let audioContext = null
-let analyser = null
+let wsConnection = null;
+let mediaRecorder = null;
+let audioContext = null;
+let analyser = null;
 
 // Canvas引用
-const visualizerCanvas = ref(null)
+const visualizerCanvas = ref(null);
 
 // 设置相关
-const showSettings = ref(false)
-const showVoicePicker = ref(false)
+const showSettings = ref(false);
+const showVoicePicker = ref(false);
 const settings = reactive({
   autoDetect: true,
   silenceTimeout: 5,
-  saveHistory: true
-})
+  saveHistory: true,
+});
 
 // TTS设置
 const ttsSettings = reactive({
   speed: 50,
   pitch: 50,
   volume: 50,
-  emotion: 'neutral'
-})
+  emotion: 'neutral',
+});
 
 // ============ 方言选项 ============
 const dialectOptions = [
@@ -268,8 +285,8 @@ const dialectOptions = [
   { text: '藏语', value: 'tibetan' },
   { text: '蒙古语', value: 'mongolian' },
   { text: '维吾尔语', value: 'uyghur' },
-  { text: '自动检测', value: 'auto' }
-]
+  { text: '自动检测', value: 'auto' },
+];
 
 // ============ 语音类型选项 ============
 const voiceOptions = [
@@ -278,13 +295,13 @@ const voiceOptions = [
   { text: '上海话', value: 'shanghainese' },
   { text: '四川话', value: 'sichuanese' },
   { text: '老年人友好', value: 'elderly' },
-  { text: '儿童友好', value: 'child' }
-]
+  { text: '儿童友好', value: 'child' },
+];
 
 const currentVoiceLabel = computed(() => {
-  const option = voiceOptions.find(v => v.value === ttsSettings.voice)
-  return option ? option.text : '标准普通话'
-})
+  const option = voiceOptions.find(v => v.value === ttsSettings.voice);
+  return option ? option.text : '标准普通话';
+});
 
 // ============ 方法 ============
 
@@ -293,18 +310,18 @@ const currentVoiceLabel = computed(() => {
  */
 const toggleRecording = async () => {
   if (isRecording.value) {
-    stopRecording()
+    stopRecording();
   } else {
-    await startRecording()
+    await startRecording();
   }
-}
+};
 
 /**
  * 开始录音
  */
 const startRecording = async () => {
   try {
-    processing.value = true
+    processing.value = true;
 
     // 请求麦克风权限
     const stream = await navigator.mediaDevices.getUserMedia({
@@ -312,402 +329,495 @@ const startRecording = async () => {
         sampleRate: 16000,
         channelCount: 1,
         echoCancellation: true,
-        noiseSuppression: true
-      }
-    })
+        noiseSuppression: true,
+      },
+    });
 
     // 设置音频可视化
-    setupAudioVisualizer(stream)
+    setupAudioVisualizer(stream);
 
     // 如果启用了自动检测或选择了实时识别，使用WebSocket
     if (settings.autoDetect || selectedDialect.value === 'auto') {
-      startRealTimeRecognition(stream)
+      startRealTimeRecognition(stream);
     } else {
       // 使用普通录音
-      startSimpleRecording(stream)
+      startSimpleRecording(stream);
     }
 
-    isRecording.value = true
-    processing.value = false
-    interimText.value = ''
-    showToast('开始录音...')
+    isRecording.value = true;
+    processing.value = false;
+    interimText.value = '';
+    showToast('开始录音...');
   } catch (error) {
-    console.error('录音启动失败:', error)
-    processing.value = false
-    showToast(error.name === 'NotAllowedError' ? '请允许麦克风权限' : '录音启动失败')
+    console.error('录音启动失败:', error);
+    processing.value = false;
+    showToast(error.name === 'NotAllowedError' ? '请允许麦克风权限' : '录音启动失败');
   }
-}
+};
 
 /**
  * 简单录音（非实时）
  */
-const startSimpleRecording = (stream) => {
-  const chunks = []
-  mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' })
+const startSimpleRecording = stream => {
+  const chunks = [];
+  mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
 
-  mediaRecorder.ondataavailable = (e) => {
-    if (e.data.size > 0) chunks.push(e.data)
-  }
+  mediaRecorder.ondataavailable = e => {
+    if (e.data.size > 0) chunks.push(e.data);
+  };
 
   mediaRecorder.onstop = async () => {
-    const audioBlob = new Blob(chunks, { type: 'audio/wav' })
-    await processAudio(audioBlob)
-    stream.getTracks().forEach(track => track.stop())
-  }
+    const audioBlob = new Blob(chunks, { type: 'audio/wav' });
+    await processAudio(audioBlob);
+    stream.getTracks().forEach(track => track.stop());
+  };
 
-  mediaRecorder.start()
-}
+  mediaRecorder.start();
+};
 
 /**
  * 实时语音识别
  */
-const startRealTimeRecognition = (stream) => {
+const startRealTimeRecognition = stream => {
   wsConnection = speechApi.createRealTimeRecognition({
     dialect: selectedDialect.value === 'auto' ? undefined : selectedDialect.value,
     interimResults: true,
-    silenceTimeout: settings.silenceTimeout * 1000
-  })
+    silenceTimeout: settings.silenceTimeout * 1000,
+  });
 
   wsConnection.onopen = () => {
-    console.log('WebSocket连接已建立')
+    console.log('WebSocket连接已建立');
     // 开始发送音频数据
-    sendAudioData(stream)
-  }
+    sendAudioData(stream);
+  };
 
-  wsConnection.onmessage = (event) => {
-    const data = JSON.parse(event.data)
+  wsConnection.onmessage = event => {
+    const data = JSON.parse(event.data);
 
     if (data.type === 'interim') {
-      interimText.value = data.text
+      interimText.value = data.text;
     } else if (data.type === 'final') {
-      finalText.value = data.text
-      interimText.value = ''
-      saveToHistory(data.text, data.dialect || selectedDialect.value)
-      stopRecording()
+      finalText.value = data.text;
+      interimText.value = '';
+      saveToHistory(data.text, data.dialect || selectedDialect.value);
+      stopRecording();
     } else if (data.type === 'error') {
-      showToast(data.message || '识别失败')
-      stopRecording()
+      showToast(data.message || '识别失败');
+      stopRecording();
     }
-  }
+  };
 
-  wsConnection.onerror = (error) => {
-    console.error('WebSocket错误:', error)
-    showToast('连接中断，请重试')
-    stopRecording()
-  }
+  wsConnection.onerror = error => {
+    console.error('WebSocket错误:', error);
+    showToast('连接中断，请重试');
+    stopRecording();
+  };
 
   wsConnection.onclose = () => {
-    console.log('WebSocket连接已关闭')
-  }
-}
+    console.log('WebSocket连接已关闭');
+  };
+};
 
 /**
  * 发送音频数据到WebSocket
  */
-const sendAudioData = async (stream) => {
-  if (!wsConnection || wsConnection.readyState !== WebSocket.OPEN) return
+const sendAudioData = async stream => {
+  if (!wsConnection || wsConnection.readyState !== WebSocket.OPEN) return;
 
   try {
-    audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 })
-    const source = audioContext.createMediaStreamSource(stream)
-    const processor = audioContext.createScriptProcessor(4096, 1, 1)
+    audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+    const source = audioContext.createMediaStreamSource(stream);
+    const processor = audioContext.createScriptProcessor(4096, 1, 1);
 
-    source.connect(processor)
-    processor.connect(audioContext.destination)
+    source.connect(processor);
+    processor.connect(audioContext.destination);
 
-    processor.onaudioprocess = (e) => {
+    processor.onaudioprocess = e => {
       if (wsConnection.readyState === WebSocket.OPEN) {
-        const audioData = e.inputBuffer.getChannelData(0)
-        const pcmData = new Int16Array(audioData.length)
+        const audioData = e.inputBuffer.getChannelData(0);
+        const pcmData = new Int16Array(audioData.length);
 
         for (let i = 0; i < audioData.length; i++) {
-          pcmData[i] = Math.max(-32768, Math.min(32767, audioData[i] * 32768))
+          pcmData[i] = Math.max(-32768, Math.min(32767, audioData[i] * 32768));
         }
 
-        wsConnection.send(pcmData.buffer)
+        wsConnection.send(pcmData.buffer);
       }
-    }
+    };
 
     // 保存processor引用以便后续清理
-    mediaRecorder = { processor, source, stream }
+    mediaRecorder = { processor, source, stream };
   } catch (error) {
-    console.error('音频处理错误:', error)
+    console.error('音频处理错误:', error);
   }
-}
+};
 
 /**
  * 停止录音
  */
 const stopRecording = () => {
-  isRecording.value = false
+  isRecording.value = false;
 
   // 停止WebSocket
   if (wsConnection) {
-    wsConnection.close()
-    wsConnection = null
+    wsConnection.close();
+    wsConnection = null;
   }
 
   // 停止MediaRecorder
   if (mediaRecorder) {
     if (mediaRecorder instanceof MediaRecorder) {
-      mediaRecorder.stop()
+      mediaRecorder.stop();
     } else if (mediaRecorder.processor) {
-      mediaRecorder.processor.disconnect()
-      mediaRecorder.source.disconnect()
-      mediaRecorder.stream.getTracks().forEach(track => track.stop())
+      mediaRecorder.processor.disconnect();
+      mediaRecorder.source.disconnect();
+      mediaRecorder.stream.getTracks().forEach(track => track.stop());
     }
-    mediaRecorder = null
+    mediaRecorder = null;
   }
 
   // 关闭音频上下文
   if (audioContext) {
-    audioContext.close()
-    audioContext = null
+    audioContext.close();
+    audioContext = null;
   }
 
   // 停止可视化
   if (animationId) {
-    cancelAnimationFrame(animationId)
-    animationId = null
+    cancelAnimationFrame(animationId);
+    animationId = null;
   }
-}
+};
 
 /**
  * 处理音频数据
  */
-const processAudio = async (audioBlob) => {
+const processAudio = async audioBlob => {
   try {
-    processing.value = true
+    processing.value = true;
     showLoadingToast({
       message: '识别中...',
       forbidClick: true,
-      duration: 0
-    })
+      duration: 0,
+    });
 
     const result = await speechApi.recognize(audioBlob, {
-      dialect: selectedDialect.value
-    })
+      dialect: selectedDialect.value,
+    });
 
-    closeToast()
+    closeToast();
 
     if (result.success) {
-      finalText.value = result.data.text
-      interimText.value = ''
+      finalText.value = result.data.text;
+      interimText.value = '';
 
       if (settings.saveHistory) {
-        saveToHistory(result.data.text, result.data.dialect || selectedDialect.value)
+        saveToHistory(result.data.text, result.data.dialect || selectedDialect.value);
       }
 
-      showToast('识别成功')
+      showToast('识别成功');
     } else {
-      showToast(result.message || '识别失败')
+      showToast(result.message || '识别失败');
     }
   } catch (error) {
-    console.error('识别失败:', error)
-    showToast(error.message || '识别失败')
+    console.error('识别失败:', error);
+    showToast(error.message || '识别失败');
   } finally {
-    processing.value = false
+    processing.value = false;
   }
-}
+};
 
 /**
  * 播放文本
  */
 const playText = async () => {
-  if (!finalText.value) return
+  if (!finalText.value) return;
 
   try {
-    isPlaying.value = true
-    showToast('生成语音中...')
+    isPlaying.value = true;
+    showToast('生成语音中...');
 
     const audioUrl = await speechApi.synthesize(finalText.value, {
       voice: ttsSettings.voice || 'mandarin',
       speed: ttsSettings.speed,
       pitch: ttsSettings.pitch,
       volume: ttsSettings.volume,
-      emotion: ttsSettings.emotion
-    })
+      emotion: ttsSettings.emotion,
+    });
 
-    const audio = new Audio(audioUrl)
+    const audio = new Audio(audioUrl);
     audio.onended = () => {
-      isPlaying.value = false
-      URL.revokeObjectURL(audioUrl)
-    }
-    audio.play()
+      isPlaying.value = false;
+      URL.revokeObjectURL(audioUrl);
+    };
+    audio.play();
   } catch (error) {
-    console.error('语音合成失败:', error)
-    showToast('语音合成失败')
-    isPlaying.value = false
+    console.error('语音合成失败:', error);
+    showToast('语音合成失败');
+    isPlaying.value = false;
   }
-}
+};
 
 /**
  * 清空文本
  */
 const clearText = () => {
-  finalText.value = ''
-  interimText.value = ''
-}
+  finalText.value = '';
+  interimText.value = '';
+  aiResponse.value = '';
+};
 
 /**
  * 复制文本
  */
 const copyText = () => {
   navigator.clipboard.writeText(finalText.value).then(() => {
-    showToast('已复制')
-  })
-}
+    showToast('已复制');
+  });
+};
 
 /**
  * 转为普通话（模拟）
  */
 const translateToMandarin = () => {
-  showToast('翻译功能开发中')
-}
+  showToast('翻译功能开发中');
+};
+
+/**
+ * 获取AI智能回复
+ */
+const getAIResponse = async () => {
+  if (!finalText.value.trim()) return;
+
+  try {
+    aiProcessing.value = true;
+    showLoadingToast({
+      message: 'AI思考中...',
+      forbidClick: true,
+      duration: 0,
+    });
+
+    // 创建通用咨询会话并发送消息
+    const sessionResponse = await aiApi.createGeneralSession('语音咨询');
+    
+    if (sessionResponse.success) {
+      const messageResponse = await aiApi.sendTextMessage(sessionResponse.data._id, finalText.value);
+      
+      closeToast();
+      
+      if (messageResponse.success) {
+        aiResponse.value = messageResponse.data.content;
+        showToast('AI回复成功');
+      } else {
+        aiResponse.value = '抱歉，我暂时无法回复这个问题。';
+        showToast('AI回复失败');
+      }
+    } else {
+      throw new Error('创建会话失败');
+    }
+  } catch (error) {
+    console.error('AI回复失败:', error);
+    aiResponse.value = '抱歉，服务暂时不可用，请稍后再试。';
+    showToast('AI服务错误');
+  } finally {
+    aiProcessing.value = false;
+  }
+};
+
+/**
+ * 播放AI回复
+ */
+const playAIResponse = async () => {
+  if (!aiResponse.value) return;
+
+  try {
+    isPlaying.value = true;
+    showToast('生成语音中...');
+
+    const audioUrl = await speechApi.synthesize(aiResponse.value, {
+      voice: ttsSettings.voice || 'mandarin',
+      speed: ttsSettings.speed,
+      pitch: ttsSettings.pitch,
+      volume: ttsSettings.volume,
+      emotion: 'neutral',
+    });
+
+    const audio = new Audio(audioUrl);
+    audio.onended = () => {
+      isPlaying.value = false;
+      URL.revokeObjectURL(audioUrl);
+    };
+    audio.play();
+  } catch (error) {
+    console.error('语音合成失败:', error);
+    showToast('语音合成失败');
+    isPlaying.value = false;
+  }
+};
+
+/**
+ * 复制AI回复
+ */
+const copyAIResponse = () => {
+  navigator.clipboard.writeText(aiResponse.value).then(() => {
+    showToast('已复制AI回复');
+  });
+};
+
+/**
+ * 继续提问
+ */
+const continueAIQuestion = () => {
+  if (aiResponse.value) {
+    finalText.value = '';
+    interimText.value = '';
+    showToast('请继续说出您的问题');
+  }
+};
 
 /**
  * 保存到历史记录
  */
 const saveToHistory = (text, dialect) => {
-  if (!settings.saveHistory) return
+  if (!settings.saveHistory) return;
 
-  const dialectName = dialectOptions.find(d => d.value === dialect)?.text || '未知方言'
+  const dialectName = dialectOptions.find(d => d.value === dialect)?.text || '未知方言';
 
   history.value.unshift({
     text,
     dialect,
     dialectName,
-    timestamp: Date.now()
-  })
+    timestamp: Date.now(),
+  });
 
   // 限制历史记录数量
   if (history.value.length > 20) {
-    history.value = history.value.slice(0, 20)
+    history.value = history.value.slice(0, 20);
   }
 
   // 持久化存储
-  localStorage.setItem('voiceHistory', JSON.stringify(history.value))
-}
+  localStorage.setItem('voiceHistory', JSON.stringify(history.value));
+};
 
 /**
  * 选择历史记录项
  */
-const selectHistoryItem = (item) => {
-  finalText.value = item.text
-  selectedDialect.value = item.dialect
-}
+const selectHistoryItem = item => {
+  finalText.value = item.text;
+  selectedDialect.value = item.dialect;
+};
 
 /**
  * 格式化时间
  */
-const formatTime = (timestamp) => {
-  const date = new Date(timestamp)
-  const now = new Date()
-  const diff = now - date
+const formatTime = timestamp => {
+  const date = new Date(timestamp);
+  const now = new Date();
+  const diff = now - date;
 
-  if (diff < 60000) return '刚刚'
-  if (diff < 3600000) return Math.floor(diff / 60000) + '分钟前'
-  if (diff < 86400000) return Math.floor(diff / 3600000) + '小时前'
-  return date.toLocaleDateString('zh-CN')
-}
+  if (diff < 60000) return '刚刚';
+  if (diff < 3600000) return Math.floor(diff / 60000) + '分钟前';
+  if (diff < 86400000) return Math.floor(diff / 3600000) + '小时前';
+  return date.toLocaleDateString('zh-CN');
+};
 
 /**
  * 方言变化处理
  */
-const handleDialectChange = (value) => {
-  console.log('切换方言:', value)
-}
+const handleDialectChange = value => {
+  console.log('切换方言:', value);
+};
 
 /**
  * 语音选择确认
  */
 const onVoiceConfirm = ({ selectedOptions }) => {
-  ttsSettings.voice = selectedOptions[0].value
-  showVoicePicker.value = false
-}
+  ttsSettings.voice = selectedOptions[0].value;
+  showVoicePicker.value = false;
+};
 
 /**
  * 保存设置
  */
 const saveSettings = () => {
-  localStorage.setItem('voiceSettings', JSON.stringify(settings))
-  showToast('设置已保存')
-  showSettings.value = false
-}
+  localStorage.setItem('voiceSettings', JSON.stringify(settings));
+  showToast('设置已保存');
+  showSettings.value = false;
+};
 
 /**
  * 加载设置
  */
 const loadSettings = () => {
-  const saved = localStorage.getItem('voiceSettings')
+  const saved = localStorage.getItem('voiceSettings');
   if (saved) {
-    Object.assign(settings, JSON.parse(saved))
+    Object.assign(settings, JSON.parse(saved));
   }
 
-  const savedHistory = localStorage.getItem('voiceHistory')
+  const savedHistory = localStorage.getItem('voiceHistory');
   if (savedHistory) {
-    history.value = JSON.parse(savedHistory)
+    history.value = JSON.parse(savedHistory);
   }
-}
+};
 
 /**
  * 设置音频可视化
  */
-const setupAudioVisualizer = (stream) => {
+const setupAudioVisualizer = stream => {
   nextTick(() => {
-    const canvas = visualizerCanvas.value
-    if (!canvas) return
+    const canvas = visualizerCanvas.value;
+    if (!canvas) return;
 
-    const ctx = canvas.getContext('2d')
-    audioContext = new (window.AudioContext || window.webkitAudioContext)()
-    analyser = audioContext.createAnalyser()
-    const source = audioContext.createMediaStreamSource(stream)
+    const ctx = canvas.getContext('2d');
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioContext.createAnalyser();
+    const source = audioContext.createMediaStreamSource(stream);
 
-    source.connect(analyser)
-    analyser.fftSize = 256
+    source.connect(analyser);
+    analyser.fftSize = 256;
 
-    const bufferLength = analyser.frequencyBinCount
-    const dataArray = new Uint8Array(bufferLength)
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
 
     const draw = () => {
-      animationId = requestAnimationFrame(draw)
-      analyser.getByteFrequencyData(dataArray)
+      animationId = requestAnimationFrame(draw);
+      analyser.getByteFrequencyData(dataArray);
 
-      ctx.fillStyle = '#f7f8fa'
-      ctx.fillRect(0, 0, canvas.width, canvas.height)
+      ctx.fillStyle = '#f7f8fa';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      const barWidth = (canvas.width / bufferLength) * 2.5
-      let x = 0
+      const barWidth = (canvas.width / bufferLength) * 2.5;
+      let x = 0;
 
       for (let i = 0; i < bufferLength; i++) {
-        const barHeight = (dataArray[i] / 255) * canvas.height
+        const barHeight = (dataArray[i] / 255) * canvas.height;
 
         // 渐变色
-        const gradient = ctx.createLinearGradient(0, canvas.height - barHeight, 0, canvas.height)
-        gradient.addColorStop(0, '#1989fa')
-        gradient.addColorStop(1, '#7ec2ff')
+        const gradient = ctx.createLinearGradient(0, canvas.height - barHeight, 0, canvas.height);
+        gradient.addColorStop(0, '#1989fa');
+        gradient.addColorStop(1, '#7ec2ff');
 
-        ctx.fillStyle = gradient
-        ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight)
+        ctx.fillStyle = gradient;
+        ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
 
-        x += barWidth + 1
+        x += barWidth + 1;
       }
-    }
+    };
 
-    draw()
-  })
-}
+    draw();
+  });
+};
 
-let animationId = null
+let animationId = null;
 
 // ============ 生命周期 ============
 onMounted(() => {
-  loadSettings()
-})
+  loadSettings();
+});
 
 onUnmounted(() => {
-  stopRecording()
-})
+  stopRecording();
+});
 </script>
 
 <style scoped>
@@ -763,8 +873,13 @@ onUnmounted(() => {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
 }
 
 .audio-visualizer {
@@ -826,6 +941,34 @@ onUnmounted(() => {
   gap: 8px;
 }
 
+/* AI回复样式 */
+.ai-response-section {
+  margin: 16px 12px;
+}
+
+.ai-response-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  background: #f0f7f0;
+  border-radius: 8px;
+  border-left: 4px solid #4caf50;
+}
+
+.ai-avatar {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.ai-text {
+  flex: 1;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #333;
+  word-break: break-word;
+}
+
 /* 老年人友好模式样式（可通过类名切换） */
 .voice-interaction.elderly-mode {
   font-size: 18px;
@@ -833,6 +976,10 @@ onUnmounted(() => {
 
 .voice-interaction.elderly-mode .final-text {
   font-size: 24px;
+}
+
+.voice-interaction.elderly-mode .ai-text {
+  font-size: 18px;
 }
 
 .voice-interaction.elderly-mode .van-button {

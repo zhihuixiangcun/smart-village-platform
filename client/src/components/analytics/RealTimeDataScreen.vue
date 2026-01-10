@@ -4,7 +4,11 @@
     <div class="screen-header">
       <div class="title-section">
         <h1 class="main-title">智慧村庄实时监控中心</h1>
-        <div class="subtitle">{{ currentTime }} | 系统状态：<span :class="systemStatus.class">{{ systemStatus.text }}</span></div>
+        <div class="subtitle">
+          {{ currentTime }} | 系统状态：<span :class="systemStatus.class">{{
+            systemStatus.text
+          }}</span>
+        </div>
       </div>
       <div class="control-section">
         <el-switch
@@ -72,7 +76,13 @@
             <div class="sub-metric">
               <span class="value">¥{{ formatMoney(realTimeData.finance?.todayExpense || 0) }}</span>
               <span class="label">今日支出</span>
-              <i :class="realTimeData.finance?.todayExpense > 10000 ? 'el-icon-top text-danger' : 'el-icon-bottom text-success'"></i>
+              <i
+                :class="
+                  realTimeData.finance?.todayExpense > 10000
+                    ? 'el-icon-top text-danger'
+                    : 'el-icon-bottom text-success'
+                "
+              ></i>
             </div>
             <div class="sub-metric">
               <span class="value">{{ realTimeData.finance?.todayTransactions || 0 }}</span>
@@ -186,9 +196,21 @@
           <h3>村务事件分布</h3>
           <div class="map-controls">
             <el-button-group size="small">
-              <el-button @click="mapViewType = 'events'" :type="mapViewType === 'events' ? 'primary' : ''">事件</el-button>
-              <el-button @click="mapViewType = 'population'" :type="mapViewType === 'population' ? 'primary' : ''">人口</el-button>
-              <el-button @click="mapViewType = 'resources'" :type="mapViewType === 'resources' ? 'primary' : ''">资源</el-button>
+              <el-button
+                @click="mapViewType = 'events'"
+                :type="mapViewType === 'events' ? 'primary' : ''"
+                >事件</el-button
+              >
+              <el-button
+                @click="mapViewType = 'population'"
+                :type="mapViewType === 'population' ? 'primary' : ''"
+                >人口</el-button
+              >
+              <el-button
+                @click="mapViewType = 'resources'"
+                :type="mapViewType === 'resources' ? 'primary' : ''"
+                >资源</el-button
+              >
             </el-button-group>
           </div>
         </div>
@@ -223,12 +245,7 @@
         </div>
       </div>
       <div class="events-container">
-        <div
-          v-for="event in filteredEvents"
-          :key="event.id"
-          class="event-item"
-          :class="event.type"
-        >
+        <div v-for="event in filteredEvents" :key="event.id" class="event-item" :class="event.type">
           <div class="event-icon">
             <i :class="getEventIcon(event.type)"></i>
           </div>
@@ -253,66 +270,56 @@
     <!-- 底部状态栏 -->
     <div class="status-bar">
       <div class="status-left">
-        <span class="status-item">
-          数据更新: {{ lastUpdateTime }}
-        </span>
-        <span class="status-item">
-          在线设备: {{ realTimeData.system?.onlineDevices || 0 }}
-        </span>
-        <span class="status-item">
-          今日访问: {{ realTimeData.system?.todayVisits || 0 }}
-        </span>
+        <span class="status-item"> 数据更新: {{ lastUpdateTime }} </span>
+        <span class="status-item"> 在线设备: {{ realTimeData.system?.onlineDevices || 0 }} </span>
+        <span class="status-item"> 今日访问: {{ realTimeData.system?.todayVisits || 0 }} </span>
       </div>
       <div class="status-right">
         <span class="status-item" :class="connectionStatus.class">
           {{ connectionStatus.text }}
         </span>
-        <span class="status-item">
-          数据延迟: {{ dataLatency }}ms
-        </span>
+        <span class="status-item"> 数据延迟: {{ dataLatency }}ms </span>
       </div>
     </div>
 
     <!-- 全屏遮罩层 -->
-    <div v-if="showFullscreenTip" class="fullscreen-tip">
-      按 ESC 退出全屏模式
-    </div>
+    <div v-if="showFullscreenTip" class="fullscreen-tip">按 ESC 退出全屏模式</div>
   </div>
 </template>
 
 <script>
-import { ref, reactive, onMounted, onUnmounted, computed, nextTick } from 'vue'
-import * as echarts from 'echarts'
+import { ref, reactive, onMounted, onUnmounted, computed, nextTick } from 'vue';
+import * as echarts from 'echarts';
 
 export default {
   name: 'RealTimeDataScreen',
   setup() {
     // 响应式数据
-    const autoRefresh = ref(true)
-    const currentTime = ref('')
-    const serviceTimeRange = ref('today')
-    const mapViewType = ref('events')
-    const eventFilter = ref('all')
-    const showFullscreenTip = ref(false)
-    const dataLatency = ref(0)
+    const autoRefresh = ref(true);
+    const currentTime = ref('');
+    const serviceTimeRange = ref('today');
+    const mapViewType = ref('events');
+    const eventFilter = ref('all');
+    const showFullscreenTip = ref(false);
+    const dataLatency = ref(0);
 
     // 系统状态
     const systemStatus = reactive({
       text: '正常运行',
-      class: 'text-success'
-    })
+      class: 'text-success',
+    });
 
     const connectionStatus = reactive({
       text: '连接正常',
-      class: 'text-success'
-    })
+      class: 'text-success',
+    });
 
     // 性能统计
     const performanceStats = reactive({
       cpu: 0,
       memory: 0,
-      responseTime: 0
-    })
+      responseTime: 0,
+    });
 
     // 实时数据
     const realTimeData = reactive({
@@ -320,31 +327,31 @@ export default {
         total: 0,
         todayBirth: 0,
         todayMoveIn: 0,
-        onlineUsers: 0
+        onlineUsers: 0,
       },
       finance: {
         todayIncome: 0,
         todayExpense: 0,
         todayTransactions: 0,
-        pendingApprovals: 0
+        pendingApprovals: 0,
       },
       governance: {
         todayTasks: 0,
         completedTasks: 0,
         pendingTasks: 0,
-        todayAnnouncements: 0
+        todayAnnouncements: 0,
       },
       emergency: {
         activeEvents: 0,
         avgResponseTime: 0,
         todayResolved: 0,
-        resourceUtilization: 0
+        resourceUtilization: 0,
       },
       system: {
         onlineDevices: 0,
-        todayVisits: 0
-      }
-    })
+        todayVisits: 0,
+      },
+    });
 
     // 实时事件流
     const events = ref([
@@ -356,7 +363,7 @@ export default {
         timestamp: new Date(),
         source: '监控中心',
         priority: '高',
-        status: 'processing'
+        status: 'processing',
       },
       {
         id: 2,
@@ -366,7 +373,7 @@ export default {
         timestamp: new Date(Date.now() - 5 * 60 * 1000),
         source: '财务部',
         priority: '中',
-        status: 'completed'
+        status: 'completed',
       },
       {
         id: 3,
@@ -376,43 +383,43 @@ export default {
         timestamp: new Date(Date.now() - 15 * 60 * 1000),
         source: '村委会',
         priority: '低',
-        status: 'completed'
-      }
-    ])
+        status: 'completed',
+      },
+    ]);
 
     // 图表实例
-    let activityChartInstance = null
-    let serviceChartInstance = null
-    let mapChartInstance = null
-    let performanceChartInstance = null
+    let activityChartInstance = null;
+    let serviceChartInstance = null;
+    let mapChartInstance = null;
+    let performanceChartInstance = null;
 
     // 图表DOM引用
-    const activityChart = ref(null)
-    const serviceChart = ref(null)
-    const mapChart = ref(null)
-    const performanceChart = ref(null)
+    const activityChart = ref(null);
+    const serviceChart = ref(null);
+    const mapChart = ref(null);
+    const performanceChart = ref(null);
 
     // 定时器
-    let timeUpdateTimer = null
-    let dataUpdateTimer = null
-    let performanceUpdateTimer = null
+    let timeUpdateTimer = null;
+    let dataUpdateTimer = null;
+    let performanceUpdateTimer = null;
 
     // WebSocket连接
-    let websocket = null
+    let websocket = null;
 
     // 计算属性
     const filteredEvents = computed(() => {
-      if (eventFilter.value === 'all') return events.value
-      return events.value.filter(event => event.type === eventFilter.value)
-    })
+      if (eventFilter.value === 'all') return events.value;
+      return events.value.filter(event => event.type === eventFilter.value);
+    });
 
     const lastUpdateTime = computed(() => {
-      return new Date().toLocaleString('zh-CN')
-    })
+      return new Date().toLocaleString('zh-CN');
+    });
 
     // 方法
     const updateCurrentTime = () => {
-      const now = new Date()
+      const now = new Date();
       currentTime.value = now.toLocaleString('zh-CN', {
         year: 'numeric',
         month: '2-digit',
@@ -420,94 +427,96 @@ export default {
         hour: '2-digit',
         minute: '2-digit',
         second: '2-digit',
-        weekday: 'long'
-      })
-    }
+        weekday: 'long',
+      });
+    };
 
     const fetchRealTimeData = async () => {
       try {
-        const startTime = Date.now()
+        const startTime = Date.now();
 
-        const response = await fetch('/api/v1/analytics/realtime?category=all')
-        const result = await response.json()
+        const response = await fetch('/api/v1/analytics/realtime?category=all');
+        const result = await response.json();
 
-        dataLatency.value = Date.now() - startTime
+        dataLatency.value = Date.now() - startTime;
 
         if (result.success) {
           // 更新实时数据
           if (result.data.population) {
-            Object.assign(realTimeData.population, result.data.population.data?.overview || {})
+            Object.assign(realTimeData.population, result.data.population.data?.overview || {});
           }
           if (result.data.finance) {
-            Object.assign(realTimeData.finance, result.data.finance.data?.overview || {})
+            Object.assign(realTimeData.finance, result.data.finance.data?.overview || {});
           }
           if (result.data.governance) {
-            Object.assign(realTimeData.governance, result.data.governance.data?.engagement || {})
+            Object.assign(realTimeData.governance, result.data.governance.data?.engagement || {});
           }
           if (result.data.emergency) {
-            Object.assign(realTimeData.emergency, result.data.emergency.data?.responseMetrics || {})
+            Object.assign(
+              realTimeData.emergency,
+              result.data.emergency.data?.responseMetrics || {}
+            );
           }
 
           // 更新图表
-          updateActivityChart()
-          updateServiceChart()
-          updatePerformanceChart()
+          updateActivityChart();
+          updateServiceChart();
+          updatePerformanceChart();
         }
 
         // 更新连接状态
-        connectionStatus.text = '连接正常'
-        connectionStatus.class = 'text-success'
-
+        connectionStatus.text = '连接正常';
+        connectionStatus.class = 'text-success';
       } catch (error) {
-        console.error('获取实时数据失败:', error)
-        connectionStatus.text = '连接异常'
-        connectionStatus.class = 'text-danger'
+        console.error('获取实时数据失败:', error);
+        connectionStatus.text = '连接异常';
+        connectionStatus.class = 'text-danger';
 
         // 生成模拟数据
-        generateMockData()
+        generateMockData();
       }
-    }
+    };
 
     const generateMockData = () => {
       // 模拟人口数据
-      realTimeData.population.total = Math.floor(Math.random() * 500) + 1200
-      realTimeData.population.todayBirth = Math.floor(Math.random() * 3)
-      realTimeData.population.todayMoveIn = Math.floor(Math.random() * 5)
-      realTimeData.population.onlineUsers = Math.floor(Math.random() * 200) + 150
+      realTimeData.population.total = Math.floor(Math.random() * 500) + 1200;
+      realTimeData.population.todayBirth = Math.floor(Math.random() * 3);
+      realTimeData.population.todayMoveIn = Math.floor(Math.random() * 5);
+      realTimeData.population.onlineUsers = Math.floor(Math.random() * 200) + 150;
 
       // 模拟财务数据
-      realTimeData.finance.todayIncome = Math.floor(Math.random() * 50000) + 20000
-      realTimeData.finance.todayExpense = Math.floor(Math.random() * 30000) + 10000
-      realTimeData.finance.todayTransactions = Math.floor(Math.random() * 50) + 20
-      realTimeData.finance.pendingApprovals = Math.floor(Math.random() * 10)
+      realTimeData.finance.todayIncome = Math.floor(Math.random() * 50000) + 20000;
+      realTimeData.finance.todayExpense = Math.floor(Math.random() * 30000) + 10000;
+      realTimeData.finance.todayTransactions = Math.floor(Math.random() * 50) + 20;
+      realTimeData.finance.pendingApprovals = Math.floor(Math.random() * 10);
 
       // 模拟村务数据
-      realTimeData.governance.todayTasks = Math.floor(Math.random() * 20) + 10
-      realTimeData.governance.completedTasks = Math.floor(Math.random() * 15) + 5
-      realTimeData.governance.pendingTasks = Math.floor(Math.random() * 10) + 2
-      realTimeData.governance.todayAnnouncements = Math.floor(Math.random() * 5) + 1
+      realTimeData.governance.todayTasks = Math.floor(Math.random() * 20) + 10;
+      realTimeData.governance.completedTasks = Math.floor(Math.random() * 15) + 5;
+      realTimeData.governance.pendingTasks = Math.floor(Math.random() * 10) + 2;
+      realTimeData.governance.todayAnnouncements = Math.floor(Math.random() * 5) + 1;
 
       // 模拟应急数据
-      realTimeData.emergency.activeEvents = Math.floor(Math.random() * 3)
-      realTimeData.emergency.avgResponseTime = Math.floor(Math.random() * 10) + 3
-      realTimeData.emergency.todayResolved = Math.floor(Math.random() * 8) + 2
-      realTimeData.emergency.resourceUtilization = Math.floor(Math.random() * 40) + 60
+      realTimeData.emergency.activeEvents = Math.floor(Math.random() * 3);
+      realTimeData.emergency.avgResponseTime = Math.floor(Math.random() * 10) + 3;
+      realTimeData.emergency.todayResolved = Math.floor(Math.random() * 8) + 2;
+      realTimeData.emergency.resourceUtilization = Math.floor(Math.random() * 40) + 60;
 
       // 模拟系统数据
-      realTimeData.system.onlineDevices = Math.floor(Math.random() * 50) + 100
-      realTimeData.system.todayVisits = Math.floor(Math.random() * 1000) + 800
-    }
+      realTimeData.system.onlineDevices = Math.floor(Math.random() * 50) + 100;
+      realTimeData.system.todayVisits = Math.floor(Math.random() * 1000) + 800;
+    };
 
     const updatePerformanceStats = () => {
-      performanceStats.cpu = Math.floor(Math.random() * 30) + 20
-      performanceStats.memory = Math.floor(Math.random() * 40) + 30
-      performanceStats.responseTime = Math.floor(Math.random() * 100) + 50
-    }
+      performanceStats.cpu = Math.floor(Math.random() * 30) + 20;
+      performanceStats.memory = Math.floor(Math.random() * 40) + 30;
+      performanceStats.responseTime = Math.floor(Math.random() * 100) + 50;
+    };
 
     const initActivityChart = () => {
-      if (!activityChart.value) return
+      if (!activityChart.value) return;
 
-      activityChartInstance = echarts.init(activityChart.value)
+      activityChartInstance = echarts.init(activityChart.value);
 
       const option = {
         grid: {
@@ -515,30 +524,30 @@ export default {
           right: '4%',
           bottom: '3%',
           top: '10%',
-          containLabel: true
+          containLabel: true,
         },
         tooltip: {
           trigger: 'axis',
           axisPointer: {
-            type: 'cross'
-          }
+            type: 'cross',
+          },
         },
         legend: {
           data: ['在线用户', '活跃用户', '系统请求'],
-          textStyle: { color: '#fff' }
+          textStyle: { color: '#fff' },
         },
         xAxis: {
           type: 'category',
           boundaryGap: false,
           data: Array.from({ length: 24 }, (_, i) => `${i}:00`),
           axisLabel: { color: '#fff' },
-          axisLine: { lineStyle: { color: '#fff' } }
+          axisLine: { lineStyle: { color: '#fff' } },
         },
         yAxis: {
           type: 'value',
           axisLabel: { color: '#fff' },
           axisLine: { lineStyle: { color: '#fff' } },
-          splitLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } }
+          splitLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } },
         },
         series: [
           {
@@ -550,9 +559,9 @@ export default {
             areaStyle: {
               color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
                 { offset: 0, color: 'rgba(0, 212, 255, 0.3)' },
-                { offset: 1, color: 'rgba(0, 212, 255, 0.1)' }
-              ])
-            }
+                { offset: 1, color: 'rgba(0, 212, 255, 0.1)' },
+              ]),
+            },
           },
           {
             name: '活跃用户',
@@ -563,9 +572,9 @@ export default {
             areaStyle: {
               color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
                 { offset: 0, color: 'rgba(0, 255, 136, 0.3)' },
-                { offset: 1, color: 'rgba(0, 255, 136, 0.1)' }
-              ])
-            }
+                { offset: 1, color: 'rgba(0, 255, 136, 0.1)' },
+              ]),
+            },
           },
           {
             name: '系统请求',
@@ -576,46 +585,46 @@ export default {
             areaStyle: {
               color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
                 { offset: 0, color: 'rgba(255, 107, 107, 0.3)' },
-                { offset: 1, color: 'rgba(255, 107, 107, 0.1)' }
-              ])
-            }
-          }
-        ]
-      }
+                { offset: 1, color: 'rgba(255, 107, 107, 0.1)' },
+              ]),
+            },
+          },
+        ],
+      };
 
-      activityChartInstance.setOption(option)
-    }
+      activityChartInstance.setOption(option);
+    };
 
     const updateActivityChart = () => {
-      if (!activityChartInstance) return
+      if (!activityChartInstance) return;
 
       // 更新最新数据点
-      const option = activityChartInstance.getOption()
-      const now = new Date()
-      const currentHour = now.getHours()
+      const option = activityChartInstance.getOption();
+      const now = new Date();
+      const currentHour = now.getHours();
 
       // 更新数据
-      option.series[0].data[currentHour] = realTimeData.population.onlineUsers
-      option.series[1].data[currentHour] = Math.floor(realTimeData.population.onlineUsers * 0.6)
-      option.series[2].data[currentHour] = realTimeData.system.todayVisits / 24
+      option.series[0].data[currentHour] = realTimeData.population.onlineUsers;
+      option.series[1].data[currentHour] = Math.floor(realTimeData.population.onlineUsers * 0.6);
+      option.series[2].data[currentHour] = realTimeData.system.todayVisits / 24;
 
-      activityChartInstance.setOption(option)
-    }
+      activityChartInstance.setOption(option);
+    };
 
     const initServiceChart = () => {
-      if (!serviceChart.value) return
+      if (!serviceChart.value) return;
 
-      serviceChartInstance = echarts.init(serviceChart.value)
+      serviceChartInstance = echarts.init(serviceChart.value);
 
       const option = {
         tooltip: {
           trigger: 'item',
-          formatter: '{b}: {c} ({d}%)'
+          formatter: '{b}: {c} ({d}%)',
         },
         legend: {
           orient: 'vertical',
           left: 'left',
-          textStyle: { color: '#fff' }
+          textStyle: { color: '#fff' },
         },
         series: [
           {
@@ -624,71 +633,71 @@ export default {
             avoidLabelOverlap: false,
             label: {
               show: false,
-              position: 'center'
+              position: 'center',
             },
             emphasis: {
               label: {
                 show: true,
                 fontSize: '18',
                 fontWeight: 'bold',
-                color: '#fff'
-              }
+                color: '#fff',
+              },
             },
             labelLine: {
-              show: false
+              show: false,
             },
             data: [
               { value: 35, name: '证件办理', itemStyle: { color: '#00d4ff' } },
               { value: 25, name: '费用缴纳', itemStyle: { color: '#00ff88' } },
               { value: 20, name: '信息查询', itemStyle: { color: '#ff6b6b' } },
               { value: 15, name: '投诉建议', itemStyle: { color: '#ffd93d' } },
-              { value: 5, name: '其他服务', itemStyle: { color: '#a8a8a8' } }
-            ]
-          }
-        ]
-      }
+              { value: 5, name: '其他服务', itemStyle: { color: '#a8a8a8' } },
+            ],
+          },
+        ],
+      };
 
-      serviceChartInstance.setOption(option)
-    }
+      serviceChartInstance.setOption(option);
+    };
 
     const updateServiceChart = () => {
-      if (!serviceChartInstance) return
+      if (!serviceChartInstance) return;
 
       // 根据时间范围更新数据
-      const multiplier = serviceTimeRange.value === 'today' ? 1 :
-                        serviceTimeRange.value === 'week' ? 7 : 30
+      const multiplier =
+        serviceTimeRange.value === 'today' ? 1 : serviceTimeRange.value === 'week' ? 7 : 30;
 
-      const option = serviceChartInstance.getOption()
+      const option = serviceChartInstance.getOption();
       option.series[0].data = [
         { value: 35 * multiplier, name: '证件办理', itemStyle: { color: '#00d4ff' } },
         { value: 25 * multiplier, name: '费用缴纳', itemStyle: { color: '#00ff88' } },
         { value: 20 * multiplier, name: '信息查询', itemStyle: { color: '#ff6b6b' } },
         { value: 15 * multiplier, name: '投诉建议', itemStyle: { color: '#ffd93d' } },
-        { value: 5 * multiplier, name: '其他服务', itemStyle: { color: '#a8a8a8' } }
-      ]
+        { value: 5 * multiplier, name: '其他服务', itemStyle: { color: '#a8a8a8' } },
+      ];
 
-      serviceChartInstance.setOption(option)
-    }
+      serviceChartInstance.setOption(option);
+    };
 
     const initMapChart = () => {
-      if (!mapChart.value) return
+      if (!mapChart.value) return;
 
-      mapChartInstance = echarts.init(mapChart.value)
+      mapChartInstance = echarts.init(mapChart.value);
 
       // 模拟村庄地图数据
       const option = {
         tooltip: {
           trigger: 'item',
-          formatter: '{b}: {c} 个事件'
+          formatter: '{b}: {c} 个事件',
         },
         visualMap: {
           min: 0,
           max: 10,
           calculable: true,
           inRange: {
-            color: ['#50a3ba', '#eac736', '#d94e5d']
+            color: ['#50a3ba', '#eac736', '#d94e5d'],
           },
-          textStyle: { color: '#fff' }
+          textStyle: { color: '#fff' },
         },
         series: [
           {
@@ -698,19 +707,19 @@ export default {
             emphasis: {
               label: {
                 show: true,
-                color: '#fff'
-              }
+                color: '#fff',
+              },
             },
             data: [
               { name: '北区', value: 8 },
               { name: '南区', value: 3 },
               { name: '东区', value: 6 },
               { name: '西区', value: 2 },
-              { name: '中心区', value: 5 }
-            ]
-          }
-        ]
-      }
+              { name: '中心区', value: 5 },
+            ],
+          },
+        ],
+      };
 
       // 由于没有真实地图，使用散点图模拟
       mapChartInstance.setOption({
@@ -720,7 +729,7 @@ export default {
           max: 100,
           axisLabel: { show: false },
           axisLine: { show: false },
-          splitLine: { show: false }
+          splitLine: { show: false },
         },
         yAxis: {
           type: 'value',
@@ -728,59 +737,77 @@ export default {
           max: 100,
           axisLabel: { show: false },
           axisLine: { show: false },
-          splitLine: { show: false }
+          splitLine: { show: false },
         },
         series: [
           {
             type: 'scatter',
             symbolSize: function (data) {
-              return Math.sqrt(data[2]) * 10
+              return Math.sqrt(data[2]) * 10;
             },
             data: [
               [20, 80, 8],
               [50, 60, 3],
               [70, 40, 6],
               [30, 20, 2],
-              [80, 70, 5]
+              [80, 70, 5],
             ],
             itemStyle: {
-              color: function(params) {
-                const colors = ['#00d4ff', '#00ff88', '#ff6b6b', '#ffd93d', '#a8a8a8']
-                return colors[params.dataIndex]
-              }
-            }
-          }
-        ]
-      })
-    }
+              color: function (params) {
+                const colors = ['#00d4ff', '#00ff88', '#ff6b6b', '#ffd93d', '#a8a8a8'];
+                return colors[params.dataIndex];
+              },
+            },
+          },
+        ],
+      });
+    };
 
     const updateMapChart = () => {
-      if (!mapChartInstance) return
+      if (!mapChartInstance) return;
 
-      const option = mapChartInstance.getOption()
+      const option = mapChartInstance.getOption();
 
       // 根据视图类型更新数据
-      let data = []
+      let data = [];
       switch (mapViewType.value) {
         case 'events':
-          data = [[20, 80, 8], [50, 60, 3], [70, 40, 6], [30, 20, 2], [80, 70, 5]]
-          break
+          data = [
+            [20, 80, 8],
+            [50, 60, 3],
+            [70, 40, 6],
+            [30, 20, 2],
+            [80, 70, 5],
+          ];
+          break;
         case 'population':
-          data = [[20, 80, 15], [50, 60, 8], [70, 40, 12], [30, 20, 5], [80, 70, 10]]
-          break
+          data = [
+            [20, 80, 15],
+            [50, 60, 8],
+            [70, 40, 12],
+            [30, 20, 5],
+            [80, 70, 10],
+          ];
+          break;
         case 'resources':
-          data = [[20, 80, 5], [50, 60, 12], [70, 40, 3], [30, 20, 8], [80, 70, 6]]
-          break
+          data = [
+            [20, 80, 5],
+            [50, 60, 12],
+            [70, 40, 3],
+            [30, 20, 8],
+            [80, 70, 6],
+          ];
+          break;
       }
 
-      option.series[0].data = data
-      mapChartInstance.setOption(option)
-    }
+      option.series[0].data = data;
+      mapChartInstance.setOption(option);
+    };
 
     const initPerformanceChart = () => {
-      if (!performanceChart.value) return
+      if (!performanceChart.value) return;
 
-      performanceChartInstance = echarts.init(performanceChart.value)
+      performanceChartInstance = echarts.init(performanceChart.value);
 
       const option = {
         grid: {
@@ -788,24 +815,24 @@ export default {
           right: '4%',
           bottom: '3%',
           top: '10%',
-          containLabel: true
+          containLabel: true,
         },
         tooltip: {
           trigger: 'axis',
           axisPointer: {
-            type: 'cross'
-          }
+            type: 'cross',
+          },
         },
         legend: {
           data: ['CPU使用率', '内存使用率', '响应时间'],
-          textStyle: { color: '#fff' }
+          textStyle: { color: '#fff' },
         },
         xAxis: {
           type: 'category',
           boundaryGap: false,
           data: Array.from({ length: 60 }, (_, i) => `-${60 - i}秒`),
           axisLabel: { color: '#fff' },
-          axisLine: { lineStyle: { color: '#fff' } }
+          axisLine: { lineStyle: { color: '#fff' } },
         },
         yAxis: [
           {
@@ -815,7 +842,7 @@ export default {
             max: 100,
             axisLabel: { color: '#fff' },
             axisLine: { lineStyle: { color: '#fff' } },
-            splitLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } }
+            splitLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } },
           },
           {
             type: 'value',
@@ -823,8 +850,8 @@ export default {
             min: 0,
             max: 500,
             axisLabel: { color: '#fff' },
-            axisLine: { lineStyle: { color: '#fff' } }
-          }
+            axisLine: { lineStyle: { color: '#fff' } },
+          },
         ],
         series: [
           {
@@ -832,14 +859,14 @@ export default {
             type: 'line',
             data: Array.from({ length: 60 }, () => Math.random() * 30 + 20),
             smooth: true,
-            lineStyle: { color: '#ff6b6b' }
+            lineStyle: { color: '#ff6b6b' },
           },
           {
             name: '内存使用率',
             type: 'line',
             data: Array.from({ length: 60 }, () => Math.random() * 40 + 30),
             smooth: true,
-            lineStyle: { color: '#00d4ff' }
+            lineStyle: { color: '#00d4ff' },
           },
           {
             name: '响应时间',
@@ -847,245 +874,244 @@ export default {
             yAxisIndex: 1,
             data: Array.from({ length: 60 }, () => Math.random() * 100 + 50),
             smooth: true,
-            lineStyle: { color: '#00ff88' }
-          }
-        ]
-      }
+            lineStyle: { color: '#00ff88' },
+          },
+        ],
+      };
 
-      performanceChartInstance.setOption(option)
-    }
+      performanceChartInstance.setOption(option);
+    };
 
     const updatePerformanceChart = () => {
-      if (!performanceChartInstance) return
+      if (!performanceChartInstance) return;
 
-      const option = performanceChartInstance.getOption()
+      const option = performanceChartInstance.getOption();
 
       // 添加最新数据点
-      option.series[0].data.shift()
-      option.series[0].data.push(performanceStats.cpu)
+      option.series[0].data.shift();
+      option.series[0].data.push(performanceStats.cpu);
 
-      option.series[1].data.shift()
-      option.series[1].data.push(performanceStats.memory)
+      option.series[1].data.shift();
+      option.series[1].data.push(performanceStats.memory);
 
-      option.series[2].data.shift()
-      option.series[2].data.push(performanceStats.responseTime)
+      option.series[2].data.shift();
+      option.series[2].data.push(performanceStats.responseTime);
 
-      performanceChartInstance.setOption(option)
-    }
+      performanceChartInstance.setOption(option);
+    };
 
-    const toggleAutoRefresh = (enabled) => {
+    const toggleAutoRefresh = enabled => {
       if (enabled) {
-        startDataUpdate()
+        startDataUpdate();
       } else {
-        stopDataUpdate()
+        stopDataUpdate();
       }
-    }
+    };
 
     const startDataUpdate = () => {
-      dataUpdateTimer = setInterval(fetchRealTimeData, 5000)
-    }
+      dataUpdateTimer = setInterval(fetchRealTimeData, 5000);
+    };
 
     const stopDataUpdate = () => {
       if (dataUpdateTimer) {
-        clearInterval(dataUpdateTimer)
-        dataUpdateTimer = null
+        clearInterval(dataUpdateTimer);
+        dataUpdateTimer = null;
       }
-    }
+    };
 
     const enterFullscreen = () => {
-      const element = document.documentElement
+      const element = document.documentElement;
       if (element.requestFullscreen) {
-        element.requestFullscreen()
+        element.requestFullscreen();
       } else if (element.webkitRequestFullscreen) {
-        element.webkitRequestFullscreen()
+        element.webkitRequestFullscreen();
       } else if (element.msRequestFullscreen) {
-        element.msRequestFullscreen()
+        element.msRequestFullscreen();
       }
 
-      showFullscreenTip.value = true
+      showFullscreenTip.value = true;
       setTimeout(() => {
-        showFullscreenTip.value = false
-      }, 3000)
+        showFullscreenTip.value = false;
+      }, 3000);
 
       // 监听全屏变化
-      document.addEventListener('fullscreenchange', handleFullscreenChange)
-    }
+      document.addEventListener('fullscreenchange', handleFullscreenChange);
+    };
 
     const handleFullscreenChange = () => {
       if (!document.fullscreenElement) {
-        showFullscreenTip.value = false
-        document.removeEventListener('fullscreenchange', handleFullscreenChange)
+        showFullscreenTip.value = false;
+        document.removeEventListener('fullscreenchange', handleFullscreenChange);
       }
-    }
+    };
 
     const initWebSocket = () => {
       try {
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-        const wsUrl = `${protocol}//${window.location.host}/ws/realtime`
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}/ws/realtime`;
 
-        websocket = new WebSocket(wsUrl)
+        websocket = new WebSocket(wsUrl);
 
         websocket.onopen = () => {
-          console.log('WebSocket连接已建立')
-        }
+          console.log('WebSocket连接已建立');
+        };
 
-        websocket.onmessage = (event) => {
+        websocket.onmessage = event => {
           try {
-            const data = JSON.parse(event.data)
-            handleWebSocketMessage(data)
+            const data = JSON.parse(event.data);
+            handleWebSocketMessage(data);
           } catch (error) {
-            console.error('解析WebSocket消息失败:', error)
+            console.error('解析WebSocket消息失败:', error);
           }
-        }
+        };
 
         websocket.onclose = () => {
-          console.log('WebSocket连接已断开')
+          console.log('WebSocket连接已断开');
           setTimeout(() => {
-            initWebSocket()
-          }, 5000)
-        }
+            initWebSocket();
+          }, 5000);
+        };
 
-        websocket.onerror = (error) => {
-          console.error('WebSocket错误:', error)
-        }
-
+        websocket.onerror = error => {
+          console.error('WebSocket错误:', error);
+        };
       } catch (error) {
-        console.error('初始化WebSocket失败:', error)
+        console.error('初始化WebSocket失败:', error);
       }
-    }
+    };
 
-    const handleWebSocketMessage = (data) => {
+    const handleWebSocketMessage = data => {
       // 处理实时消息
       if (data.type === 'event') {
         events.value.unshift({
           id: Date.now(),
           ...data.payload,
-          timestamp: new Date()
-        })
+          timestamp: new Date(),
+        });
 
         // 保持事件列表长度
         if (events.value.length > 50) {
-          events.value = events.value.slice(0, 50)
+          events.value = events.value.slice(0, 50);
         }
       } else if (data.type === 'metrics') {
         // 更新实时指标
-        Object.assign(realTimeData, data.payload)
+        Object.assign(realTimeData, data.payload);
       }
-    }
+    };
 
-    const formatNumber = (num) => {
+    const formatNumber = num => {
       if (num >= 10000) {
-        return (num / 10000).toFixed(1) + '万'
+        return (num / 10000).toFixed(1) + '万';
       }
-      return num.toLocaleString()
-    }
+      return num.toLocaleString();
+    };
 
-    const formatMoney = (amount) => {
-      if (!amount) return '0'
-      return (amount / 10000).toFixed(1) + '万'
-    }
+    const formatMoney = amount => {
+      if (!amount) return '0';
+      return (amount / 10000).toFixed(1) + '万';
+    };
 
-    const formatEventTime = (timestamp) => {
-      const now = new Date()
-      const diff = now - timestamp
-      const minutes = Math.floor(diff / 60000)
+    const formatEventTime = timestamp => {
+      const now = new Date();
+      const diff = now - timestamp;
+      const minutes = Math.floor(diff / 60000);
 
-      if (minutes < 1) return '刚刚'
-      if (minutes < 60) return `${minutes}分钟前`
+      if (minutes < 1) return '刚刚';
+      if (minutes < 60) return `${minutes}分钟前`;
 
-      const hours = Math.floor(minutes / 60)
-      if (hours < 24) return `${hours}小时前`
+      const hours = Math.floor(minutes / 60);
+      if (hours < 24) return `${hours}小时前`;
 
-      const days = Math.floor(hours / 24)
-      return `${days}天前`
-    }
+      const days = Math.floor(hours / 24);
+      return `${days}天前`;
+    };
 
-    const getEventIcon = (type) => {
+    const getEventIcon = type => {
       const icons = {
         emergency: 'el-icon-warning-outline',
         finance: 'el-icon-money',
         governance: 'el-icon-document',
-        system: 'el-icon-setting'
-      }
-      return icons[type] || 'el-icon-info'
-    }
+        system: 'el-icon-setting',
+      };
+      return icons[type] || 'el-icon-info';
+    };
 
-    const getEventTagType = (priority) => {
+    const getEventTagType = priority => {
       const types = {
         高: 'danger',
         中: 'warning',
-        低: 'info'
-      }
-      return types[priority] || 'info'
-    }
+        低: 'info',
+      };
+      return types[priority] || 'info';
+    };
 
-    const getResponseTimeClass = (time) => {
-      if (time <= 5) return 'el-icon-bottom text-success'
-      if (time <= 10) return 'el-icon-minus text-warning'
-      return 'el-icon-top text-danger'
-    }
+    const getResponseTimeClass = time => {
+      if (time <= 5) return 'el-icon-bottom text-success';
+      if (time <= 10) return 'el-icon-minus text-warning';
+      return 'el-icon-top text-danger';
+    };
 
     const handleResize = () => {
-      activityChartInstance?.resize()
-      serviceChartInstance?.resize()
-      mapChartInstance?.resize()
-      performanceChartInstance?.resize()
-    }
+      activityChartInstance?.resize();
+      serviceChartInstance?.resize();
+      mapChartInstance?.resize();
+      performanceChartInstance?.resize();
+    };
 
     // 生命周期
     onMounted(async () => {
       // 初始化时间显示
-      updateCurrentTime()
-      timeUpdateTimer = setInterval(updateCurrentTime, 1000)
+      updateCurrentTime();
+      timeUpdateTimer = setInterval(updateCurrentTime, 1000);
 
       // 初始化数据
-      await fetchRealTimeData()
-      generateMockData()
-      updatePerformanceStats()
+      await fetchRealTimeData();
+      generateMockData();
+      updatePerformanceStats();
 
       // 初始化图表
-      await nextTick()
-      initActivityChart()
-      initServiceChart()
-      initMapChart()
-      initPerformanceChart()
+      await nextTick();
+      initActivityChart();
+      initServiceChart();
+      initMapChart();
+      initPerformanceChart();
 
       // 启动自动更新
       if (autoRefresh.value) {
-        startDataUpdate()
+        startDataUpdate();
       }
 
       // 性能监控更新
-      performanceUpdateTimer = setInterval(updatePerformanceStats, 3000)
+      performanceUpdateTimer = setInterval(updatePerformanceStats, 3000);
 
       // 初始化WebSocket
-      initWebSocket()
+      initWebSocket();
 
       // 监听窗口大小变化
-      window.addEventListener('resize', handleResize)
-    })
+      window.addEventListener('resize', handleResize);
+    });
 
     onUnmounted(() => {
       // 清理定时器
-      if (timeUpdateTimer) clearInterval(timeUpdateTimer)
-      if (dataUpdateTimer) clearInterval(dataUpdateTimer)
-      if (performanceUpdateTimer) clearInterval(performanceUpdateTimer)
+      if (timeUpdateTimer) clearInterval(timeUpdateTimer);
+      if (dataUpdateTimer) clearInterval(dataUpdateTimer);
+      if (performanceUpdateTimer) clearInterval(performanceUpdateTimer);
 
       // 关闭WebSocket
       if (websocket) {
-        websocket.close()
+        websocket.close();
       }
 
       // 销毁图表实例
-      activityChartInstance?.dispose()
-      serviceChartInstance?.dispose()
-      mapChartInstance?.dispose()
-      performanceChartInstance?.dispose()
+      activityChartInstance?.dispose();
+      serviceChartInstance?.dispose();
+      mapChartInstance?.dispose();
+      performanceChartInstance?.dispose();
 
       // 移除事件监听
-      window.removeEventListener('resize', handleResize)
-      document.removeEventListener('fullscreenchange', handleFullscreenChange)
-    })
+      window.removeEventListener('resize', handleResize);
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    });
 
     return {
       // 响应式数据
@@ -1119,10 +1145,10 @@ export default {
       formatEventTime,
       getEventIcon,
       getEventTagType,
-      getResponseTimeClass
-    }
-  }
-}
+      getResponseTimeClass,
+    };
+  },
+};
 </script>
 
 <style scoped>
@@ -1494,7 +1520,8 @@ export default {
   font-size: 12px;
 }
 
-.status-left, .status-right {
+.status-left,
+.status-right {
   display: flex;
   gap: 20px;
 }
@@ -1558,10 +1585,18 @@ export default {
 }
 
 @keyframes fadeInOut {
-  0% { opacity: 0; }
-  20% { opacity: 1; }
-  80% { opacity: 1; }
-  100% { opacity: 0; }
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 /* 工具类 */

@@ -173,7 +173,7 @@ const dutyScheduleApi = {
    */
   getTimeoutCalls(villageId) {
     return request.get(`/api/v1/duty-schedule/timeout-calls/${villageId}`);
-  }
+  },
 };
 
 export default dutyScheduleApi;

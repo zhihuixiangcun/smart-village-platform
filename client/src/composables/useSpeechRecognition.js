@@ -28,7 +28,7 @@ export function useSpeechRecognition() {
     'zh-TW': '繁体中文',
     'zh-HK': '粤语',
     'zh-YUE': '粤语',
-    'en-US': '英语'
+    'en-US': '英语',
   });
 
   // 当前语言设置
@@ -37,11 +37,11 @@ export function useSpeechRecognition() {
 
   // 语音识别配置
   const config = reactive({
-    continuous: true,           // 持续识别
-    interimResults: true,       // 显示临时结果
-    maxAlternatives: 3,         // 最大备选项数量
-    grammars: null,            // 语法规则
-    serviceURI: null           // 服务URI
+    continuous: true, // 持续识别
+    interimResults: true, // 显示临时结果
+    maxAlternatives: 3, // 最大备选项数量
+    grammars: null, // 语法规则
+    serviceURI: null, // 服务URI
   });
 
   // 检查浏览器支持
@@ -82,7 +82,7 @@ export function useSpeechRecognition() {
     };
 
     // 识别结果
-    recognition.onresult = (event) => {
+    recognition.onresult = event => {
       let interim = '';
       let final = '';
 
@@ -116,17 +116,17 @@ export function useSpeechRecognition() {
     };
 
     // 识别错误
-    recognition.onerror = (event) => {
+    recognition.onerror = event => {
       isProcessing.value = false;
 
       const errorMessages = {
         'no-speech': '未检测到语音，请重试',
         'audio-capture': '无法访问麦克风',
         'not-allowed': '麦克风访问被拒绝，请检查权限设置',
-        'network': '网络连接错误',
-        'aborted': '语音识别已取消',
+        network: '网络连接错误',
+        aborted: '语音识别已取消',
         'language-not-supported': '不支持当前语言',
-        'service-not-allowed': '语音识别服务不可用'
+        'service-not-allowed': '语音识别服务不可用',
       };
 
       error.value = errorMessages[event.error] || `识别错误: ${event.error}`;
@@ -212,7 +212,7 @@ export function useSpeechRecognition() {
   };
 
   // 切换语言
-  const setLanguage = (lang) => {
+  const setLanguage = lang => {
     if (languages[lang]) {
       currentLanguage.value = lang;
       if (recognition) {
@@ -229,18 +229,18 @@ export function useSpeechRecognition() {
     'zh-HK': {
       commonPhrases: ['系啊', '唔系', '点解', '乜嘢', '边度'],
       replacements: {
-        '系': '是',
-        '唔系': '不是',
-        '点解': '为什么',
-        '乜嘢': '什么',
-        '边度': '哪里'
-      }
+        系: '是',
+        唔系: '不是',
+        点解: '为什么',
+        乜嘢: '什么',
+        边度: '哪里',
+      },
     },
     // 可以扩展其他方言
   };
 
   // 处理方言转换
-  const processDialect = (text) => {
+  const processDialect = text => {
     const dialect = dialectOptimization[currentLanguage.value];
     if (!dialect) return text;
 
@@ -253,7 +253,7 @@ export function useSpeechRecognition() {
   };
 
   // 智能断句
-  const smartSegmentation = (text) => {
+  const smartSegmentation = text => {
     // 基于标点符号和语音停顿进行智能断句
     return text
       .replace(/([。！？；])\s*/g, '$1\n')
@@ -263,16 +263,16 @@ export function useSpeechRecognition() {
 
   // 语音命令识别
   const commandPatterns = {
-    '删除': (text) => text.replace(/删除(.*)/, ''),
-    '清空': () => '',
-    '重新开始': () => '',
-    '提交': (text) => ({ action: 'submit', text }),
-    '保存': (text) => ({ action: 'save', text }),
-    '取消': () => ({ action: 'cancel', text: '' })
+    删除: text => text.replace(/删除(.*)/, ''),
+    清空: () => '',
+    重新开始: () => '',
+    提交: text => ({ action: 'submit', text }),
+    保存: text => ({ action: 'save', text }),
+    取消: () => ({ action: 'cancel', text: '' }),
   };
 
   // 处理语音命令
-  const processCommand = (text) => {
+  const processCommand = text => {
     for (const [command, handler] of Object.entries(commandPatterns)) {
       if (text.includes(command)) {
         return handler(text);
@@ -337,7 +337,7 @@ export function useSpeechRecognition() {
     // 工具方法
     checkSupport,
     processDialect,
-    smartSegmentation
+    smartSegmentation,
   };
 }
 
@@ -355,11 +355,11 @@ export function useSpeechInput(targetRef) {
     startListening,
     stopListening,
     reset,
-    setLanguage
+    setLanguage,
   } = useSpeechRecognition();
 
   // 插入文本到目标元素
-  const insertTextAtCursor = (text) => {
+  const insertTextAtCursor = text => {
     if (!targetRef?.value) return;
 
     const element = targetRef.value;
@@ -385,7 +385,7 @@ export function useSpeechInput(targetRef) {
   const startSpeechInput = (options = {}) => {
     return startListening({
       continuous: false,
-      ...options
+      ...options,
     });
   };
 
@@ -416,6 +416,6 @@ export function useSpeechInput(targetRef) {
     confirmInput,
     cancelInput,
     setLanguage,
-    insertTextAtCursor
+    insertTextAtCursor,
   };
 }

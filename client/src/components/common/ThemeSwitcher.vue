@@ -45,11 +45,7 @@
     </el-select>
 
     <!-- 图标按钮 -->
-    <el-tooltip
-      v-else-if="type === 'icon'"
-      :content="themeToggleText"
-      placement="bottom"
-    >
+    <el-tooltip v-else-if="type === 'icon'" :content="themeToggleText" placement="bottom">
       <el-button
         :size="size"
         :type="iconButtonType"
@@ -92,7 +88,7 @@
         class="segment-option"
         :class="{
           active: getCurrentTheme() === option.value,
-          ...getThemeClass('segment-option')
+          ...getThemeClass('segment-option'),
         }"
         @click="setTheme(option.value)"
       >
@@ -106,9 +102,9 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { Sunny, Moon, Monitor } from '@element-plus/icons-vue'
-import { useDarkMode } from '@/composables/useDarkMode'
+import { computed } from 'vue';
+import { Sunny, Moon, Monitor } from '@element-plus/icons-vue';
+import { useDarkMode } from '@/composables/useDarkMode';
 
 // Props
 const props = defineProps({
@@ -116,44 +112,45 @@ const props = defineProps({
   type: {
     type: String,
     default: 'button',
-    validator: (value) => ['button', 'switch', 'select', 'icon', 'floating', 'segment'].includes(value)
+    validator: value =>
+      ['button', 'switch', 'select', 'icon', 'floating', 'segment'].includes(value),
   },
   // 尺寸
   size: {
     type: String,
     default: 'default',
-    validator: (value) => ['large', 'default', 'small'].includes(value)
+    validator: value => ['large', 'default', 'small'].includes(value),
   },
   // 按钮类型
   buttonType: {
     type: String,
-    default: 'default'
+    default: 'default',
   },
   // 图标按钮类型
   iconButtonType: {
     type: String,
-    default: 'text'
+    default: 'text',
   },
   // 是否显示文本
   showText: {
     type: Boolean,
-    default: true
+    default: true,
   },
   // 悬浮按钮是否显示文本
   showFloatingText: {
     type: Boolean,
-    default: false
+    default: false,
   },
   // 自定义图标
   customLightIcon: {
     type: [String, Object],
-    default: null
+    default: null,
   },
   customDarkIcon: {
     type: [String, Object],
-    default: null
-  }
-})
+    default: null,
+  },
+});
 
 // 使用深色模式
 const {
@@ -164,64 +161,64 @@ const {
   toggleTheme,
   setTheme,
   getCurrentTheme,
-  getThemeClass
-} = useDarkMode()
+  getThemeClass,
+} = useDarkMode();
 
 // 图标组件
-const LightIcon = Sunny
-const DarkIcon = Moon
-const AutoIcon = Monitor
+const LightIcon = Sunny;
+const DarkIcon = Moon;
+const AutoIcon = Monitor;
 
 // 计算属性
 const currentThemeIcon = computed(() => {
-  const currentTheme = getCurrentTheme()
-  if (currentTheme === 'auto') return AutoIcon
-  if (currentTheme === 'dark') return props.customDarkIcon || DarkIcon
-  return props.customLightIcon || LightIcon
-})
+  const currentTheme = getCurrentTheme();
+  if (currentTheme === 'auto') return AutoIcon;
+  if (currentTheme === 'dark') return props.customDarkIcon || DarkIcon;
+  return props.customLightIcon || LightIcon;
+});
 
 // 主题选项
 const themeOptions = computed(() => [
   {
     value: 'light',
     label: '浅色模式',
-    icon: '☀️'
+    icon: '☀️',
   },
   {
     value: 'dark',
     label: '深色模式',
-    icon: '🌙'
+    icon: '🌙',
   },
   {
     value: 'auto',
     label: '跟随系统',
-    icon: '🖥️'
-  }
-])
+    icon: '🖥️',
+  },
+]);
 
 // 分段控制器选项
 const segmentOptions = computed(() => [
   {
     value: 'light',
     label: '浅色',
-    icon: LightIcon
+    icon: LightIcon,
   },
   {
     value: 'dark',
     label: '深色',
-    icon: DarkIcon
+    icon: DarkIcon,
   },
   {
     value: 'auto',
     label: '自动',
-    icon: AutoIcon
-  }
-])
+    icon: AutoIcon,
+  },
+]);
 
 // 方法
-const handleSwitchChange = (value) => {
-  setTheme(value ? 'dark' : 'light')
-}
+const handleSwitchChange = value => {
+  setTheme(value ? 'dark' : 'light');
+};
 </script>
 
 <style lang="scss" scoped>

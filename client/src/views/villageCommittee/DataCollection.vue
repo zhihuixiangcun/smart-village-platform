@@ -189,12 +189,7 @@
         <el-table-column label="操作" width="280" fixed="right">
           <template #default="{ row }">
             <el-button-group>
-              <el-button
-                size="small"
-                type="primary"
-                link
-                @click="handleView(row)"
-              >
+              <el-button size="small" type="primary" link @click="handleView(row)">
                 <el-icon><View /></el-icon>
                 查看
               </el-button>
@@ -218,12 +213,7 @@
                 <el-icon><Edit /></el-icon>
                 编辑
               </el-button>
-              <el-button
-                size="small"
-                type="danger"
-                link
-                @click="handleDelete(row)"
-              >
+              <el-button size="small" type="danger" link @click="handleDelete(row)">
                 <el-icon><Delete /></el-icon>
                 删除
               </el-button>
@@ -279,12 +269,7 @@
       :before-close="handleCloseCreateDialog"
       destroy-on-close
     >
-      <el-form
-        ref="taskFormRef"
-        :model="taskForm"
-        :rules="taskFormRules"
-        label-width="100px"
-      >
+      <el-form ref="taskFormRef" :model="taskForm" :rules="taskFormRules" label-width="100px">
         <el-form-item label="任务标题" prop="title">
           <el-input
             v-model="taskForm.title"
@@ -378,7 +363,12 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="目标人群">
-              <el-select v-model="taskForm.targetGroup" placeholder="选择目标人群" clearable style="width: 100%">
+              <el-select
+                v-model="taskForm.targetGroup"
+                placeholder="选择目标人群"
+                clearable
+                style="width: 100%"
+              >
                 <el-option label="全体村民" value="all" />
                 <el-option label="党员" value="party_members" />
                 <el-option label="低保户" value="low_income" />
@@ -475,7 +465,12 @@
               />
             </el-descriptions-item>
             <el-descriptions-item label="截止日期">
-              <span :class="{ 'text-danger': isOverdue(currentTask.deadline) && currentTask.status !== 'completed' }">
+              <span
+                :class="{
+                  'text-danger':
+                    isOverdue(currentTask.deadline) && currentTask.status !== 'completed',
+                }"
+              >
                 {{ formatDateTime(currentTask.deadline) }}
               </span>
             </el-descriptions-item>
@@ -498,7 +493,12 @@
           </template>
           <el-table :data="collectedFiles" stripe border style="width: 100%">
             <el-table-column prop="residentName" label="提交人" width="120" />
-            <el-table-column prop="fileName" label="文件名称" min-width="200" show-overflow-tooltip />
+            <el-table-column
+              prop="fileName"
+              label="文件名称"
+              min-width="200"
+              show-overflow-tooltip
+            />
             <el-table-column prop="fileType" label="文件类型" width="100">
               <template #default="{ row }">
                 <el-tag size="small">{{ row.fileType }}</el-tag>
@@ -580,9 +580,7 @@
             drag
           >
             <el-icon class="el-icon--upload"><UploadFilled /></el-icon>
-            <div class="el-upload__text">
-              将文件拖到此处，或<em>点击上传</em>
-            </div>
+            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
             <template #tip>
               <div class="el-upload__tip">
                 支持上传图片、PDF、Word、Excel等格式文件，单个文件不超过10MB
@@ -613,62 +611,82 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
-  FolderOpened, Plus, Files, Clock, CircleCheck, Document,
-  Search, Refresh, View, Upload, Edit, Delete, Bell, Calendar,
-  User, Grape, Money, Folder, Memo, Cellphone, ChatLineRound,
-  Phone, Download, UploadFilled
-} from '@element-plus/icons-vue'
-import { collectionApi } from '@/api/cadre'
+  FolderOpened,
+  Plus,
+  Files,
+  Clock,
+  CircleCheck,
+  Document,
+  Search,
+  Refresh,
+  View,
+  Upload,
+  Edit,
+  Delete,
+  Bell,
+  Calendar,
+  User,
+  Grape,
+  Money,
+  Folder,
+  Memo,
+  Cellphone,
+  ChatLineRound,
+  Phone,
+  Download,
+  UploadFilled,
+} from '@element-plus/icons-vue';
+import { collectionApi } from '@/api/cadre';
 
 // ==================== 响应式状态 ====================
-const loading = ref(false)
-const submitting = ref(false)
-const searchingResidents = ref(false)
+const loading = ref(false);
+const submitting = ref(false);
+const searchingResidents = ref(false);
 
 // 筛选条件
 const filters = reactive({
   search: '',
   type: '',
   status: '',
-  deadlineRange: null
-})
+  deadlineRange: null,
+});
 
 // 分页信息
 const pagination = reactive({
   page: 1,
   limit: 20,
-  total: 0
-})
+  total: 0,
+});
 
 // 统计数据
 const stats = reactive({
   totalTasks: 0,
   pendingTasks: 0,
   completedTasks: 0,
-  totalFiles: 0
-})
+  totalFiles: 0,
+});
 
 // 任务列表
-const taskList = ref([])
-const selectedTasks = ref([])
+const taskList = ref([]);
+const selectedTasks = ref([]);
 
 // 对话框状态
-const showCreateDialog = ref(false)
-const showDetailDialog = ref(false)
-const showCollectDialog = ref(false)
-const editingTask = ref(null)
-const currentTask = ref(null)
+const showCreateDialog = ref(false);
+const showDetailDialog = ref(false);
+const showCollectDialog = ref(false);
+const editingTask = ref(null);
+const currentTask = ref(null);
 
 // 已收集文件列表
-const collectedFiles = ref([])
+const collectedFiles = ref([]);
 
 // 村民选项
-const residentOptions = ref([])
-const fileList = ref([])
-const uploadRef = ref(null)
+const residentOptions = ref([]);
+const fileList = ref([]);
+const uploadRef = ref(null);
 
 // ==================== 表单数据 ====================
 const taskForm = reactive({
@@ -680,57 +698,45 @@ const taskForm = reactive({
   deadline: null,
   targetGroup: '',
   requiredFiles: [],
-  notificationMethods: ['app']
-})
+  notificationMethods: ['app'],
+});
 
 const taskFormRules = {
   title: [
     { required: true, message: '请输入任务标题', trigger: 'blur' },
-    { min: 5, max: 100, message: '标题长度在5到100个字符', trigger: 'blur' }
+    { min: 5, max: 100, message: '标题长度在5到100个字符', trigger: 'blur' },
   ],
-  type: [
-    { required: true, message: '请选择资料类型', trigger: 'change' }
-  ],
-  description: [
-    { required: true, message: '请输入任务描述', trigger: 'blur' }
-  ],
-  targetCount: [
-    { required: true, message: '请输入目标数量', trigger: 'blur' }
-  ],
-  deadline: [
-    { required: true, message: '请选择截止日期', trigger: 'change' }
-  ],
-  priority: [
-    { required: true, message: '请选择优先级', trigger: 'change' }
-  ]
-}
+  type: [{ required: true, message: '请选择资料类型', trigger: 'change' }],
+  description: [{ required: true, message: '请输入任务描述', trigger: 'blur' }],
+  targetCount: [{ required: true, message: '请输入目标数量', trigger: 'blur' }],
+  deadline: [{ required: true, message: '请选择截止日期', trigger: 'change' }],
+  priority: [{ required: true, message: '请选择优先级', trigger: 'change' }],
+};
 
 const collectForm = reactive({
   residentId: '',
   files: [],
-  remark: ''
-})
+  remark: '',
+});
 
 const collectFormRules = {
-  residentId: [
-    { required: true, message: '请选择村民', trigger: 'change' }
-  ]
-}
+  residentId: [{ required: true, message: '请选择村民', trigger: 'change' }],
+};
 
 // 表单引用
-const taskFormRef = ref(null)
-const collectFormRef = ref(null)
+const taskFormRef = ref(null);
+const collectFormRef = ref(null);
 
 // 上传配置
 const uploadAction = computed(() => {
-  return '/api/v1/cadre/collection/upload'
-})
+  return '/api/v1/cadre/collection/upload';
+});
 
 const uploadHeaders = computed(() => {
   return {
-    'Authorization': `Bearer ${localStorage.getItem('token')}`
-  }
-})
+    Authorization: `Bearer ${localStorage.getItem('token')}`,
+  };
+});
 
 // ==================== 方法 ====================
 
@@ -738,55 +744,55 @@ const uploadHeaders = computed(() => {
  * 加载收集任务列表
  */
 const loadTaskList = async () => {
-  loading.value = true
+  loading.value = true;
   try {
     const params = {
       page: pagination.page,
       limit: pagination.limit,
-      ...filters
-    }
+      ...filters,
+    };
 
     // 清理空值参数
     Object.keys(params).forEach(key => {
       if (params[key] === '' || params[key] === null || params[key] === undefined) {
-        delete params[key]
+        delete params[key];
       }
-    })
+    });
 
-    const response = await collectionApi.getCollectionTasks(params)
+    const response = await collectionApi.getCollectionTasks(params);
 
     if (response.success) {
-      taskList.value = response.data.tasks || []
-      pagination.total = response.pagination?.total || 0
+      taskList.value = response.data.tasks || [];
+      pagination.total = response.pagination?.total || 0;
     } else {
-      ElMessage.error(response.message || '获取任务列表失败')
+      ElMessage.error(response.message || '获取任务列表失败');
     }
   } catch (error) {
-    console.error('加载任务列表失败:', error)
+    console.error('加载任务列表失败:', error);
     // 使用模拟数据
-    loadMockTasks()
+    loadMockTasks();
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 /**
  * 加载统计数据
  */
 const loadStats = async () => {
   try {
-    const response = await collectionApi.getCollectionStats()
+    const response = await collectionApi.getCollectionStats();
     if (response.success) {
-      Object.assign(stats, response.data)
+      Object.assign(stats, response.data);
     }
   } catch (error) {
     // 使用模拟数据
-    stats.totalTasks = 15
-    stats.pendingTasks = 8
-    stats.completedTasks = 7
-    stats.totalFiles = 234
+    stats.totalTasks = 15;
+    stats.pendingTasks = 8;
+    stats.completedTasks = 7;
+    stats.totalFiles = 234;
   }
-}
+};
 
 /**
  * 加载模拟数据
@@ -805,7 +811,7 @@ const loadMockTasks = () => {
       deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
       status: 'pending',
       priority: 'important',
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     },
     {
       _id: '2',
@@ -819,66 +825,66 @@ const loadMockTasks = () => {
       deadline: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
       status: 'pending',
       priority: 'urgent',
-      createdAt: new Date().toISOString()
-    }
-  ]
-  pagination.total = taskList.value.length
-}
+      createdAt: new Date().toISOString(),
+    },
+  ];
+  pagination.total = taskList.value.length;
+};
 
 /**
  * 搜索
  */
 const handleSearch = () => {
-  pagination.page = 1
-  loadTaskList()
-}
+  pagination.page = 1;
+  loadTaskList();
+};
 
 /**
  * 重置筛选
  */
 const handleReset = () => {
-  filters.search = ''
-  filters.type = ''
-  filters.status = ''
-  filters.deadlineRange = null
-  pagination.page = 1
-  loadTaskList()
-}
+  filters.search = '';
+  filters.type = '';
+  filters.status = '';
+  filters.deadlineRange = null;
+  pagination.page = 1;
+  loadTaskList();
+};
 
 /**
  * 分页大小变化
  */
-const handleSizeChange = (size) => {
-  pagination.limit = size
-  loadTaskList()
-}
+const handleSizeChange = size => {
+  pagination.limit = size;
+  loadTaskList();
+};
 
 /**
  * 页码变化
  */
-const handleCurrentChange = (page) => {
-  pagination.page = page
-  loadTaskList()
-}
+const handleCurrentChange = page => {
+  pagination.page = page;
+  loadTaskList();
+};
 
 /**
  * 选择变化
  */
-const handleSelectionChange = (selection) => {
-  selectedTasks.value = selection
-}
+const handleSelectionChange = selection => {
+  selectedTasks.value = selection;
+};
 
 /**
  * 查看详情
  */
-const handleView = async (row) => {
-  currentTask.value = row
-  showDetailDialog.value = true
+const handleView = async row => {
+  currentTask.value = row;
+  showDetailDialog.value = true;
 
   try {
-    const response = await collectionApi.getCollectedFiles(row._id)
+    const response = await collectionApi.getCollectedFiles(row._id);
     if (response.success) {
-      collectedFiles.value = response.data.files || []
+      collectedFiles.value = response.data.files || [];
     }
   } catch (error) {
     // 使用模拟数据
@@ -889,7 +895,7 @@ const handleView = async (row) => {
         fileName: '身份证复印件.jpg',
         fileType: 'jpg',
         fileSize: '2.3 MB',
-        submittedAt: new Date().toISOString()
+        submittedAt: new Date().toISOString(),
       },
       {
         _id: '2',
@@ -897,26 +903,26 @@ const handleView = async (row) => {
         fileName: '体检报告.pdf',
         fileType: 'pdf',
         fileSize: '5.6 MB',
-        submittedAt: new Date().toISOString()
-      }
-    ]
+        submittedAt: new Date().toISOString(),
+      },
+    ];
   }
-}
+};
 
 /**
  * 收集资料
  */
-const handleCollect = (row) => {
-  currentTask.value = row
-  showCollectDialog.value = true
-  showDetailDialog.value = false
-}
+const handleCollect = row => {
+  currentTask.value = row;
+  showCollectDialog.value = true;
+  showDetailDialog.value = false;
+};
 
 /**
  * 编辑任务
  */
-const handleEdit = (row) => {
-  editingTask.value = row
+const handleEdit = row => {
+  editingTask.value = row;
   Object.assign(taskForm, {
     title: row.title,
     type: row.type,
@@ -926,88 +932,84 @@ const handleEdit = (row) => {
     deadline: new Date(row.deadline),
     targetGroup: row.targetGroup || '',
     requiredFiles: row.requiredFiles || [],
-    notificationMethods: row.notificationMethods || ['app']
-  })
-  showCreateDialog.value = true
-}
+    notificationMethods: row.notificationMethods || ['app'],
+  });
+  showCreateDialog.value = true;
+};
 
 /**
  * 删除任务
  */
-const handleDelete = async (row) => {
+const handleDelete = async row => {
   try {
-    await ElMessageBox.confirm(
-      `确定要删除任务 "${row.title}" 吗？`,
-      '确认删除',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
+    await ElMessageBox.confirm(`确定要删除任务 "${row.title}" 吗？`, '确认删除', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
 
-    const response = await collectionApi.deleteCollectionTask(row._id)
+    const response = await collectionApi.deleteCollectionTask(row._id);
     if (response.success) {
-      ElMessage.success('删除成功')
-      loadTaskList()
-      loadStats()
+      ElMessage.success('删除成功');
+      loadTaskList();
+      loadStats();
     }
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('删除失败')
+      ElMessage.error('删除失败');
     }
   }
-}
+};
 
 /**
  * 提交任务
  */
 const handleSubmitTask = async () => {
-  if (!taskFormRef.value) return
+  if (!taskFormRef.value) return;
 
   try {
-    await taskFormRef.value.validate()
+    await taskFormRef.value.validate();
 
-    submitting.value = true
+    submitting.value = true;
 
-    const data = { ...taskForm }
+    const data = { ...taskForm };
     if (data.deadline) {
-      data.deadline = data.deadline.toISOString()
+      data.deadline = data.deadline.toISOString();
     }
 
-    let response
+    let response;
     if (editingTask.value) {
-      response = await collectionApi.updateCollectionTask(editingTask.value._id, data)
+      response = await collectionApi.updateCollectionTask(editingTask.value._id, data);
     } else {
-      response = await collectionApi.createCollectionTask(data)
+      response = await collectionApi.createCollectionTask(data);
     }
 
     if (response.success) {
-      ElMessage.success(editingTask.value ? '任务更新成功' : '任务创建成功')
-      handleCloseCreateDialog()
-      loadTaskList()
-      loadStats()
+      ElMessage.success(editingTask.value ? '任务更新成功' : '任务创建成功');
+      handleCloseCreateDialog();
+      loadTaskList();
+      loadStats();
     } else {
-      ElMessage.error(response.message || '操作失败')
+      ElMessage.error(response.message || '操作失败');
     }
   } catch (error) {
     if (error !== 'validation failed') {
-      ElMessage.error('操作失败')
-      console.error('提交任务失败:', error)
+      ElMessage.error('操作失败');
+      console.error('提交任务失败:', error);
     }
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
-}
+};
 
 /**
  * 关闭创建对话框
  */
 const handleCloseCreateDialog = () => {
-  showCreateDialog.value = false
-  editingTask.value = null
-  resetTaskForm()
-}
+  showCreateDialog.value = false;
+  editingTask.value = null;
+  resetTaskForm();
+};
 
 /**
  * 重置任务表单
@@ -1015,207 +1017,208 @@ const handleCloseCreateDialog = () => {
 const resetTaskForm = () => {
   Object.keys(taskForm).forEach(key => {
     if (key === 'targetCount') {
-      taskForm[key] = 100
+      taskForm[key] = 100;
     } else if (key === 'priority') {
-      taskForm[key] = 'normal'
+      taskForm[key] = 'normal';
     } else if (key === 'notificationMethods') {
-      taskForm[key] = ['app']
+      taskForm[key] = ['app'];
     } else if (Array.isArray(taskForm[key])) {
-      taskForm[key] = []
+      taskForm[key] = [];
     } else {
-      taskForm[key] = ''
+      taskForm[key] = '';
     }
-  })
+  });
 
   if (taskFormRef.value) {
-    taskFormRef.value.resetFields()
+    taskFormRef.value.resetFields();
   }
-}
+};
 
 /**
  * 关闭详情对话框
  */
 const handleCloseDetailDialog = () => {
-  showDetailDialog.value = false
-  currentTask.value = null
-  collectedFiles.value = []
-}
+  showDetailDialog.value = false;
+  currentTask.value = null;
+  collectedFiles.value = [];
+};
 
 /**
  * 搜索村民
  */
-const searchResidents = async (query) => {
+const searchResidents = async query => {
   if (!query) {
-    residentOptions.value = []
-    return
+    residentOptions.value = [];
+    return;
   }
 
-  searchingResidents.value = true
+  searchingResidents.value = true;
   try {
-    const response = await collectionApi.searchResidents(query)
+    const response = await collectionApi.searchResidents(query);
     if (response.success) {
-      residentOptions.value = response.data.residents || []
+      residentOptions.value = response.data.residents || [];
     }
   } catch (error) {
     // 模拟数据
     residentOptions.value = [
       { id: '1', name: '张三', idCard: '330106199001011234' },
       { id: '2', name: '李四', idCard: '330106199002022345' },
-      { id: '3', name: '王五', idCard: '330106199003033456' }
-    ]
+      { id: '3', name: '王五', idCard: '330106199003033456' },
+    ];
   } finally {
-    searchingResidents.value = false
+    searchingResidents.value = false;
   }
-}
+};
 
 /**
  * 上传前校验
  */
-const beforeUpload = (file) => {
-  const isValidType = ['image/jpeg', 'image/png', 'application/pdf',
-    'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-  ].includes(file.type)
+const beforeUpload = file => {
+  const isValidType = [
+    'image/jpeg',
+    'image/png',
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  ].includes(file.type);
 
   if (!isValidType) {
-    ElMessage.error('只支持上传图片、PDF、Word、Excel格式的文件')
-    return false
+    ElMessage.error('只支持上传图片、PDF、Word、Excel格式的文件');
+    return false;
   }
 
-  const isValidSize = file.size / 1024 / 1024 < 10
+  const isValidSize = file.size / 1024 / 1024 < 10;
   if (!isValidSize) {
-    ElMessage.error('文件大小不能超过10MB')
-    return false
+    ElMessage.error('文件大小不能超过10MB');
+    return false;
   }
 
-  return true
-}
+  return true;
+};
 
 /**
  * 上传成功
  */
 const handleUploadSuccess = (response, file, fileList) => {
   if (response.success) {
-    ElMessage.success('文件上传成功')
-    collectForm.files.push(response.data.file)
+    ElMessage.success('文件上传成功');
+    collectForm.files.push(response.data.file);
   } else {
-    ElMessage.error(response.message || '文件上传失败')
+    ElMessage.error(response.message || '文件上传失败');
   }
-}
+};
 
 /**
  * 上传失败
  */
-const handleUploadError = (error) => {
-  ElMessage.error('文件上传失败')
-  console.error('上传错误:', error)
-}
+const handleUploadError = error => {
+  ElMessage.error('文件上传失败');
+  console.error('上传错误:', error);
+};
 
 /**
  * 上传进度
  */
 const handleUploadProgress = (event, file) => {
-  console.log('上传进度:', event.percent)
-}
+  console.log('上传进度:', event.percent);
+};
 
 /**
  * 提交收集
  */
 const handleSubmitCollect = async () => {
-  if (!collectFormRef.value) return
+  if (!collectFormRef.value) return;
 
   try {
-    await collectFormRef.value.validate()
+    await collectFormRef.value.validate();
 
     if (collectForm.files.length === 0) {
-      ElMessage.warning('请至少上传一个文件')
-      return
+      ElMessage.warning('请至少上传一个文件');
+      return;
     }
 
-    submitting.value = true
+    submitting.value = true;
 
     const data = {
       taskId: currentTask.value._id,
       residentId: collectForm.residentId,
       files: collectForm.files,
-      remark: collectForm.remark
-    }
+      remark: collectForm.remark,
+    };
 
-    const response = await collectionApi.submitCollectedFile(data)
+    const response = await collectionApi.submitCollectedFile(data);
 
     if (response.success) {
-      ElMessage.success('资料收集成功')
-      handleCloseCollectDialog()
-      loadTaskList()
-      loadStats()
+      ElMessage.success('资料收集成功');
+      handleCloseCollectDialog();
+      loadTaskList();
+      loadStats();
 
       if (showDetailDialog.value) {
-        handleView(currentTask.value)
+        handleView(currentTask.value);
       }
     } else {
-      ElMessage.error(response.message || '提交失败')
+      ElMessage.error(response.message || '提交失败');
     }
   } catch (error) {
     if (error !== 'validation failed') {
-      ElMessage.error('提交失败')
-      console.error('提交收集失败:', error)
+      ElMessage.error('提交失败');
+      console.error('提交收集失败:', error);
     }
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
-}
+};
 
 /**
  * 关闭收集对话框
  */
 const handleCloseCollectDialog = () => {
-  showCollectDialog.value = false
-  collectForm.residentId = ''
-  collectForm.files = []
-  collectForm.remark = ''
-  fileList.value = []
+  showCollectDialog.value = false;
+  collectForm.residentId = '';
+  collectForm.files = [];
+  collectForm.remark = '';
+  fileList.value = [];
 
   if (collectFormRef.value) {
-    collectFormRef.value.resetFields()
+    collectFormRef.value.resetFields();
   }
-}
+};
 
 /**
  * 下载文件
  */
-const handleDownloadFile = (file) => {
-  ElMessage.info('正在下载文件...')
+const handleDownloadFile = file => {
+  ElMessage.info('正在下载文件...');
   // 实现文件下载逻辑
-}
+};
 
 /**
  * 删除文件
  */
-const handleDeleteFile = async (file) => {
+const handleDeleteFile = async file => {
   try {
-    await ElMessageBox.confirm(
-      '确定要删除这个文件吗？',
-      '确认删除',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
+    await ElMessageBox.confirm('确定要删除这个文件吗？', '确认删除', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
 
-    const response = await collectionApi.deleteCollectedFile(file._id)
+    const response = await collectionApi.deleteCollectedFile(file._id);
     if (response.success) {
-      ElMessage.success('删除成功')
+      ElMessage.success('删除成功');
       if (currentTask.value) {
-        handleView(currentTask.value)
+        handleView(currentTask.value);
       }
     }
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('删除失败')
+      ElMessage.error('删除失败');
     }
   }
-}
+};
 
 /**
  * 批量提醒
@@ -1228,52 +1231,48 @@ const handleBatchRemind = async () => {
       {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'info'
+        type: 'info',
       }
-    )
+    );
 
-    const ids = selectedTasks.value.map(t => t._id)
-    const response = await collectionApi.batchRemind(ids)
+    const ids = selectedTasks.value.map(t => t._id);
+    const response = await collectionApi.batchRemind(ids);
 
     if (response.success) {
-      ElMessage.success('提醒发送成功')
+      ElMessage.success('提醒发送成功');
     }
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('提醒发送失败')
+      ElMessage.error('提醒发送失败');
     }
   }
-}
+};
 
 /**
  * 批量延长截止
  */
 const handleBatchExtend = async () => {
   try {
-    const { value } = await ElMessageBox.prompt(
-      '请输入延长天数',
-      '批量延长截止日期',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        inputPattern: /^\d+$/,
-        inputErrorMessage: '请输入有效的天数'
-      }
-    )
+    const { value } = await ElMessageBox.prompt('请输入延长天数', '批量延长截止日期', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      inputPattern: /^\d+$/,
+      inputErrorMessage: '请输入有效的天数',
+    });
 
-    const ids = selectedTasks.value.map(t => t._id)
-    const response = await collectionApi.batchExtendDeadline(ids, parseInt(value))
+    const ids = selectedTasks.value.map(t => t._id);
+    const response = await collectionApi.batchExtendDeadline(ids, parseInt(value));
 
     if (response.success) {
-      ElMessage.success('截止日期已延长')
-      loadTaskList()
+      ElMessage.success('截止日期已延长');
+      loadTaskList();
     }
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('操作失败')
+      ElMessage.error('操作失败');
     }
   }
-}
+};
 
 /**
  * 批量删除
@@ -1286,142 +1285,142 @@ const handleBatchDelete = async () => {
       {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
       }
-    )
+    );
 
-    const ids = selectedTasks.value.map(t => t._id)
-    const response = await collectionApi.batchDeleteTasks(ids)
+    const ids = selectedTasks.value.map(t => t._id);
+    const response = await collectionApi.batchDeleteTasks(ids);
 
     if (response.success) {
-      ElMessage.success('删除成功')
-      loadTaskList()
-      loadStats()
-      selectedTasks.value = []
+      ElMessage.success('删除成功');
+      loadTaskList();
+      loadStats();
+      selectedTasks.value = [];
     }
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('删除失败')
+      ElMessage.error('删除失败');
     }
   }
-}
+};
 
 /**
  * 禁用过去的日期
  */
-const disabledDate = (time) => {
-  return time.getTime() < Date.now() - 24 * 60 * 60 * 1000
-}
+const disabledDate = time => {
+  return time.getTime() < Date.now() - 24 * 60 * 60 * 1000;
+};
 
 // ==================== 工具函数 ====================
 
 /**
  * 格式化日期
  */
-const formatDate = (date) => {
-  if (!date) return ''
-  return new Date(date).toLocaleDateString('zh-CN')
-}
+const formatDate = date => {
+  if (!date) return '';
+  return new Date(date).toLocaleDateString('zh-CN');
+};
 
 /**
  * 格式化日期时间
  */
-const formatDateTime = (dateTime) => {
-  if (!dateTime) return ''
-  return new Date(dateTime).toLocaleString('zh-CN')
-}
+const formatDateTime = dateTime => {
+  if (!dateTime) return '';
+  return new Date(dateTime).toLocaleString('zh-CN');
+};
 
 /**
  * 判断是否逾期
  */
-const isOverdue = (deadline) => {
-  if (!deadline) return false
-  return new Date(deadline) < new Date()
-}
+const isOverdue = deadline => {
+  if (!deadline) return false;
+  return new Date(deadline) < new Date();
+};
 
 /**
  * 获取类型标签颜色
  */
-const getTypeTagColor = (type) => {
+const getTypeTagColor = type => {
   const colorMap = {
     resident: 'primary',
     agriculture: 'success',
     finance: 'warning',
     project: 'danger',
     meeting: 'info',
-    other: ''
-  }
-  return colorMap[type] || ''
-}
+    other: '',
+  };
+  return colorMap[type] || '';
+};
 
 /**
  * 获取类型标签文本
  */
-const getTypeLabel = (type) => {
+const getTypeLabel = type => {
   const labelMap = {
     resident: '村民信息',
     agriculture: '农业资料',
     finance: '财务票据',
     project: '项目文档',
     meeting: '会议记录',
-    other: '其他资料'
-  }
-  return labelMap[type] || type
-}
+    other: '其他资料',
+  };
+  return labelMap[type] || type;
+};
 
 /**
  * 获取状态标签类型
  */
-const getStatusTagType = (status) => {
+const getStatusTagType = status => {
   const typeMap = {
     pending: 'warning',
     completed: 'success',
-    overdue: 'danger'
-  }
-  return typeMap[status] || 'info'
-}
+    overdue: 'danger',
+  };
+  return typeMap[status] || 'info';
+};
 
 /**
  * 获取状态标签文本
  */
-const getStatusLabel = (status) => {
+const getStatusLabel = status => {
   const labelMap = {
     pending: '进行中',
     completed: '已完成',
-    overdue: '已逾期'
-  }
-  return labelMap[status] || status
-}
+    overdue: '已逾期',
+  };
+  return labelMap[status] || status;
+};
 
 /**
  * 获取优先级标签类型
  */
-const getPriorityTagType = (priority) => {
+const getPriorityTagType = priority => {
   const typeMap = {
     normal: '',
     important: 'warning',
-    urgent: 'danger'
-  }
-  return typeMap[priority] || ''
-}
+    urgent: 'danger',
+  };
+  return typeMap[priority] || '';
+};
 
 /**
  * 获取优先级标签文本
  */
-const getPriorityLabel = (priority) => {
+const getPriorityLabel = priority => {
   const labelMap = {
     normal: '普通',
     important: '重要',
-    urgent: '紧急'
-  }
-  return labelMap[priority] || priority
-}
+    urgent: '紧急',
+  };
+  return labelMap[priority] || priority;
+};
 
 // ==================== 生命周期 ====================
 onMounted(() => {
-  loadTaskList()
-  loadStats()
-})
+  loadTaskList();
+  loadStats();
+});
 </script>
 
 <style lang="scss" scoped>

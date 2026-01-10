@@ -15,47 +15,47 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
-import { ElMessage } from 'element-plus'
-import StepForm from '@/components/common/StepForm.vue'
-import { useLargeText } from '@/composables/useLargeText'
-import { profileApi } from '@/api/residentProfile'
-import { serviceApi } from '@/api/service'
-import { encryptionService } from '@/utils/encryption'
-import { auditLogService } from '@/utils/security'
+import { ref, reactive, onMounted, computed } from 'vue';
+import { ElMessage } from 'element-plus';
+import StepForm from '@/components/common/StepForm.vue';
+import { useLargeText } from '@/composables/useLargeText';
+import { profileApi } from '@/api/residentProfile';
+import { serviceApi } from '@/api/service';
+import { encryptionService } from '@/utils/encryption';
+import { auditLogService } from '@/utils/security';
 
 const props = defineProps({
   service: {
     type: Object,
-    required: true
-  }
-})
+    required: true,
+  },
+});
 
-const emit = defineEmits(['close', 'submitted'])
+const emit = defineEmits(['close', 'submitted']);
 
-const { isLargeText } = useLargeText()
+const { isLargeText } = useLargeText();
 
-const stepFormRef = ref(null)
+const stepFormRef = ref(null);
 
 // 步骤配置
 const steps = [
   {
     title: '基本信息',
-    description: '填写申请人基本资料'
+    description: '填写申请人基本资料',
   },
   {
     title: '家庭情况',
-    description: '填写家庭成员及经济状况'
+    description: '填写家庭成员及经济状况',
   },
   {
     title: '材料上传',
-    description: '上传证明材料'
+    description: '上传证明材料',
   },
   {
     title: '确认提交',
-    description: '核对信息并提交'
-  }
-]
+    description: '核对信息并提交',
+  },
+];
 
 // 表单数据
 const formData = reactive({
@@ -93,8 +93,8 @@ const formData = reactive({
   otherMaterials: [],
 
   // 备注
-  remark: ''
-})
+  remark: '',
+});
 
 // 困难类型选项
 const difficultyOptions = [
@@ -105,8 +105,8 @@ const difficultyOptions = [
   { label: '老年人', value: 'elderly' },
   { label: '单亲家庭', value: 'single' },
   { label: '遭遇自然灾害', value: 'disaster' },
-  { label: '其他', value: 'other' }
-]
+  { label: '其他', value: 'other' },
+];
 
 // 组件
 const BasicInfoStep = {
@@ -194,47 +194,51 @@ const BasicInfoStep = {
   props: ['formData'],
   emits: ['update', 'validate', 'voice-input'],
   setup(props, { emit }) {
-    const { Phone } = useElementPlusIcons()
+    const { Phone } = useElementPlusIcons();
 
     const rules = {
       applicantName: [{ required: true, message: '请输入申请人姓名', trigger: 'blur' }],
       applicantIdCard: [
         { required: true, message: '请输入身份证号', trigger: 'blur' },
-        { pattern: /^(\d{15}$|^\d{18}$|^\d{17}(\d|X|x)$)/, message: '请输入正确的身份证号', trigger: 'blur' }
+        {
+          pattern: /^(\d{15}$|^\d{18}$|^\d{17}(\d|X|x)$)/,
+          message: '请输入正确的身份证号',
+          trigger: 'blur',
+        },
       ],
       applicantPhone: [
         { required: true, message: '请输入联系电话', trigger: 'blur' },
-        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
+        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' },
       ],
       address: [{ required: true, message: '请输入现住址', trigger: 'blur' }],
       householdType: [{ required: true, message: '请选择户口性质', trigger: 'change' }],
-      householdRegistration: [{ required: true, message: '请输入户口所在地', trigger: 'blur' }]
-    }
+      householdRegistration: [{ required: true, message: '请输入户口所在地', trigger: 'blur' }],
+    };
 
     // 加载用户信息
     const loadUserInfo = async () => {
       try {
-        const response = await profileApi.getMyProfile()
-        const profile = response.data
+        const response = await profileApi.getMyProfile();
+        const profile = response.data;
 
         if (profile) {
-          props.formData.applicantName = profile.personalInfo?.name || ''
-          props.formData.applicantIdCard = profile.personalInfo?.idCard || ''
-          props.formData.applicantPhone = profile.contact?.phone || ''
-          props.formData.address = profile.contact?.address || ''
+          props.formData.applicantName = profile.personalInfo?.name || '';
+          props.formData.applicantIdCard = profile.personalInfo?.idCard || '';
+          props.formData.applicantPhone = profile.contact?.phone || '';
+          props.formData.address = profile.contact?.address || '';
         }
       } catch (error) {
-        console.error('Load user info error:', error)
+        console.error('Load user info error:', error);
       }
-    }
+    };
 
     onMounted(() => {
-      loadUserInfo()
-    })
+      loadUserInfo();
+    });
 
-    return { rules, Phone }
-  }
-}
+    return { rules, Phone };
+  },
+};
 
 const FamilyInfoStep = {
   template: `
@@ -458,27 +462,27 @@ const FamilyInfoStep = {
       yearlyIncome: [{ required: true, message: '请输入年收入', trigger: 'blur' }],
       incomeSource: [{ required: true, message: '请说明收入来源', trigger: 'blur' }],
       difficulties: [{ required: true, message: '请选择困难类型', trigger: 'change' }],
-      difficultyReason: [{ required: true, message: '请说明困难原因', trigger: 'blur' }]
-    }
+      difficultyReason: [{ required: true, message: '请说明困难原因', trigger: 'blur' }],
+    };
 
     const addFamilyMember = () => {
       props.formData.familyMembers.push({
         name: '',
         relationship: '',
         idCard: '',
-        monthlyIncome: 0
-      })
-      emit('update', { ...props.formData })
-    }
+        monthlyIncome: 0,
+      });
+      emit('update', { ...props.formData });
+    };
 
-    const removeFamilyMember = (index) => {
-      props.formData.familyMembers.splice(index, 1)
-      emit('update', { ...props.formData })
-    }
+    const removeFamilyMember = index => {
+      props.formData.familyMembers.splice(index, 1);
+      emit('update', { ...props.formData });
+    };
 
-    return { rules, addFamilyMember, removeFamilyMember }
-  }
-}
+    return { rules, addFamilyMember, removeFamilyMember };
+  },
+};
 
 const UploadStep = {
   template: `
@@ -579,16 +583,16 @@ const UploadStep = {
   emits: ['update', 'validate'],
   setup(props, { emit }) {
     const handleUpdate = () => {
-      emit('update', { ...props.formData })
-    }
+      emit('update', { ...props.formData });
+    };
 
-    const handleValidate = (isValid) => {
-      emit('validate', isValid)
-    }
+    const handleValidate = isValid => {
+      emit('validate', isValid);
+    };
 
-    return { handleUpdate, handleValidate }
-  }
-}
+    return { handleUpdate, handleValidate };
+  },
+};
 
 const ConfirmStep = {
   template: `
@@ -691,23 +695,23 @@ const ConfirmStep = {
   props: ['formData'],
   emits: ['validate'],
   setup(props, { emit }) {
-    const confirmed = ref(false)
+    const confirmed = ref(false);
 
     const perCapitaIncome = computed(() => {
-      return (props.formData.monthlyIncome / (props.formData.familyCount || 1)).toFixed(2)
-    })
+      return (props.formData.monthlyIncome / (props.formData.familyCount || 1)).toFixed(2);
+    });
 
-    const maskIdCard = (idCard) => {
-      if (!idCard) return ''
-      return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2')
-    }
+    const maskIdCard = idCard => {
+      if (!idCard) return '';
+      return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2');
+    };
 
-    const maskPhone = (phone) => {
-      if (!phone) return ''
-      return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')
-    }
+    const maskPhone = phone => {
+      if (!phone) return '';
+      return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
+    };
 
-    const getDifficultyLabel = (difficulty) => {
+    const getDifficultyLabel = difficulty => {
       const map = {
         illness: '疾病',
         disability: '残疾',
@@ -716,37 +720,37 @@ const ConfirmStep = {
         elderly: '老年人',
         single: '单亲家庭',
         disaster: '遭遇自然灾害',
-        other: '其他'
-      }
-      return map[difficulty] || difficulty
-    }
+        other: '其他',
+      };
+      return map[difficulty] || difficulty;
+    };
 
     const getUploadedFiles = () => {
-      const files = []
+      const files = [];
       if (props.formData.idCardPhotos?.length) {
-        files.push({ name: '身份证照片' })
+        files.push({ name: '身份证照片' });
       }
       if (props.formData.householdPhotos?.length) {
-        files.push({ name: '户口本照片' })
+        files.push({ name: '户口本照片' });
       }
       if (props.formData.incomeProof?.length) {
-        files.push({ name: '收入证明' })
+        files.push({ name: '收入证明' });
       }
       if (props.formData.medicalProof?.length) {
-        files.push({ name: '医疗证明' })
+        files.push({ name: '医疗证明' });
       }
       if (props.formData.disabilityProof?.length) {
-        files.push({ name: '残疾证明' })
+        files.push({ name: '残疾证明' });
       }
       if (props.formData.otherMaterials?.length) {
-        files.push({ name: '其他材料' })
+        files.push({ name: '其他材料' });
       }
-      return files
-    }
+      return files;
+    };
 
-    const handleConfirmChange = (val) => {
-      emit('validate', val)
-    }
+    const handleConfirmChange = val => {
+      emit('validate', val);
+    };
 
     return {
       confirmed,
@@ -755,29 +759,29 @@ const ConfirmStep = {
       maskPhone,
       getDifficultyLabel,
       getUploadedFiles,
-      handleConfirmChange
-    }
-  }
-}
+      handleConfirmChange,
+    };
+  },
+};
 
 // 处理数据更新
-const handleUpdate = (data) => {
-  Object.assign(formData, data)
-}
+const handleUpdate = data => {
+  Object.assign(formData, data);
+};
 
 // 处理语音输入
 const handleVoiceInput = (field, text) => {
   if (field === 'applicantName') {
-    const nameMatch = text.match(/(?:我叫|我是|姓名是)([\u4e00-\u9fa5]{2,4})/)
+    const nameMatch = text.match(/(?:我叫|我是|姓名是)([\u4e00-\u9fa5]{2,4})/);
     if (nameMatch) {
-      formData.applicantName = nameMatch[1]
-      ElMessage.success(`已识别姓名: ${formData.applicantName}`)
+      formData.applicantName = nameMatch[1];
+      ElMessage.success(`已识别姓名: ${formData.applicantName}`);
     }
   }
-}
+};
 
 // 提交申请
-const handleSubmit = async (data) => {
+const handleSubmit = async data => {
   try {
     // 加密敏感信息
     const encryptedData = {
@@ -786,27 +790,27 @@ const handleSubmit = async (data) => {
       applicantPhone: encryptionService.encrypt(data.applicantPhone),
       familyMembers: data.familyMembers.map(member => ({
         ...member,
-        idCard: encryptionService.encrypt(member.idCard)
-      }))
-    }
+        idCard: encryptionService.encrypt(member.idCard),
+      })),
+    };
 
     await serviceApi.submitSubsistenceApplication({
       ...encryptedData,
       serviceType: 'subsistence',
-      serviceName: '低保申请'
-    })
+      serviceName: '低保申请',
+    });
 
     // 记录操作日志
-    await auditLogService.logApplicationSubmit('subsistence', '低保申请')
+    await auditLogService.logApplicationSubmit('subsistence', '低保申请');
 
-    ElMessage.success('申请已提交,请耐心等待审核')
-    emit('submitted', data)
-    emit('close')
+    ElMessage.success('申请已提交,请耐心等待审核');
+    emit('submitted', data);
+    emit('close');
   } catch (error) {
-    ElMessage.error('提交失败: ' + error.message)
-    throw error
+    ElMessage.error('提交失败: ' + error.message);
+    throw error;
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>

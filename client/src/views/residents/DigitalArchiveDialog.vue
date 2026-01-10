@@ -1,10 +1,5 @@
 <template>
-  <el-dialog
-    v-model="visible"
-    title="村民数字化档案"
-    width="1000px"
-    :close-on-click-modal="false"
-  >
+  <el-dialog v-model="visible" title="村民数字化档案" width="1000px" :close-on-click-modal="false">
     <div class="digital-archive">
       <!-- 档案头部 -->
       <div class="archive-header">
@@ -26,18 +21,16 @@
             <div class="info-tags">
               <el-tag type="primary">{{ resident?.gender === 'male' ? '男' : '女' }}</el-tag>
               <el-tag type="success">{{ calculateAge(resident?.birthDate) }}岁</el-tag>
-              <el-tag :type="getStatusType(resident?.status)">{{ getStatusText(resident?.status) }}</el-tag>
+              <el-tag :type="getStatusType(resident?.status)">{{
+                getStatusText(resident?.status)
+              }}</el-tag>
             </div>
             <p class="resident-id">档案编号：{{ resident?.id }}</p>
           </div>
         </div>
         <div class="header-right">
-          <el-button type="primary" @click="showEditDialog" icon="Edit">
-            编辑档案
-          </el-button>
-          <el-button @click="exportArchive" icon="Download">
-            导出档案
-          </el-button>
+          <el-button type="primary" @click="showEditDialog" icon="Edit"> 编辑档案 </el-button>
+          <el-button @click="exportArchive" icon="Download"> 导出档案 </el-button>
         </div>
       </div>
 
@@ -54,8 +47,12 @@
                   </template>
                   <el-descriptions :column="1" border>
                     <el-descriptions-item label="姓名">{{ resident?.name }}</el-descriptions-item>
-                    <el-descriptions-item label="性别">{{ resident?.gender === 'male' ? '男' : '女' }}</el-descriptions-item>
-                    <el-descriptions-item label="出生日期">{{ formatDate(resident?.birthDate) }}</el-descriptions-item>
+                    <el-descriptions-item label="性别">{{
+                      resident?.gender === 'male' ? '男' : '女'
+                    }}</el-descriptions-item>
+                    <el-descriptions-item label="出生日期">{{
+                      formatDate(resident?.birthDate)
+                    }}</el-descriptions-item>
                     <el-descriptions-item label="身份证号">
                       <span class="sensitive-data" @click="toggleSensitiveData('idCard')">
                         {{ showSensitive.idCard ? resident?.idCard : maskIdCard(resident?.idCard) }}
@@ -68,9 +65,15 @@
                         <el-icon><{{ showSensitive.phone ? 'Hide' : 'View' }} /></el-icon>
                       </span>
                     </el-descriptions-item>
-                    <el-descriptions-item label="民族">{{ resident?.ethnicity || '汉族' }}</el-descriptions-item>
-                    <el-descriptions-item label="政治面貌">{{ resident?.politicalStatus || '群众' }}</el-descriptions-item>
-                    <el-descriptions-item label="婚姻状况">{{ resident?.maritalStatus || '未知' }}</el-descriptions-item>
+                    <el-descriptions-item label="民族">{{
+                      resident?.ethnicity || '汉族'
+                    }}</el-descriptions-item>
+                    <el-descriptions-item label="政治面貌">{{
+                      resident?.politicalStatus || '群众'
+                    }}</el-descriptions-item>
+                    <el-descriptions-item label="婚姻状况">{{
+                      resident?.maritalStatus || '未知'
+                    }}</el-descriptions-item>
                   </el-descriptions>
                 </el-card>
               </el-col>
@@ -81,13 +84,27 @@
                     <span>居住信息</span>
                   </template>
                   <el-descriptions :column="1" border>
-                    <el-descriptions-item label="户码">{{ resident?.householdCode }}</el-descriptions-item>
-                    <el-descriptions-item label="家庭角色">{{ getFamilyRoleText(resident?.familyRole) }}</el-descriptions-item>
-                    <el-descriptions-item label="现住地址">{{ resident?.address }}</el-descriptions-item>
-                    <el-descriptions-item label="户籍地址">{{ resident?.registeredAddress || resident?.address }}</el-descriptions-item>
-                    <el-descriptions-item label="居住性质">{{ resident?.residenceType || '常住' }}</el-descriptions-item>
-                    <el-descriptions-item label="迁入时间">{{ formatDate(resident?.moveInDate) || '本地户' }}</el-descriptions-item>
-                    <el-descriptions-item label="房屋产权">{{ resident?.propertyOwnership || '自有' }}</el-descriptions-item>
+                    <el-descriptions-item label="户码">{{
+                      resident?.householdCode
+                    }}</el-descriptions-item>
+                    <el-descriptions-item label="家庭角色">{{
+                      getFamilyRoleText(resident?.familyRole)
+                    }}</el-descriptions-item>
+                    <el-descriptions-item label="现住地址">{{
+                      resident?.address
+                    }}</el-descriptions-item>
+                    <el-descriptions-item label="户籍地址">{{
+                      resident?.registeredAddress || resident?.address
+                    }}</el-descriptions-item>
+                    <el-descriptions-item label="居住性质">{{
+                      resident?.residenceType || '常住'
+                    }}</el-descriptions-item>
+                    <el-descriptions-item label="迁入时间">{{
+                      formatDate(resident?.moveInDate) || '本地户'
+                    }}</el-descriptions-item>
+                    <el-descriptions-item label="房屋产权">{{
+                      resident?.propertyOwnership || '自有'
+                    }}</el-descriptions-item>
                   </el-descriptions>
                 </el-card>
               </el-col>
@@ -105,12 +122,24 @@
                     <span>教育就业</span>
                   </template>
                   <el-descriptions :column="1" border>
-                    <el-descriptions-item label="学历">{{ resident?.education || '未知' }}</el-descriptions-item>
-                    <el-descriptions-item label="专业">{{ resident?.major || '无' }}</el-descriptions-item>
-                    <el-descriptions-item label="职业">{{ resident?.occupation || '未知' }}</el-descriptions-item>
-                    <el-descriptions-item label="工作单位">{{ resident?.workplace || '无' }}</el-descriptions-item>
-                    <el-descriptions-item label="职务">{{ resident?.position || '无' }}</el-descriptions-item>
-                    <el-descriptions-item label="就业状态">{{ resident?.employmentStatus || '未知' }}</el-descriptions-item>
+                    <el-descriptions-item label="学历">{{
+                      resident?.education || '未知'
+                    }}</el-descriptions-item>
+                    <el-descriptions-item label="专业">{{
+                      resident?.major || '无'
+                    }}</el-descriptions-item>
+                    <el-descriptions-item label="职业">{{
+                      resident?.occupation || '未知'
+                    }}</el-descriptions-item>
+                    <el-descriptions-item label="工作单位">{{
+                      resident?.workplace || '无'
+                    }}</el-descriptions-item>
+                    <el-descriptions-item label="职务">{{
+                      resident?.position || '无'
+                    }}</el-descriptions-item>
+                    <el-descriptions-item label="就业状态">{{
+                      resident?.employmentStatus || '未知'
+                    }}</el-descriptions-item>
                   </el-descriptions>
                 </el-card>
               </el-col>
@@ -122,13 +151,20 @@
                   </template>
                   <el-descriptions :column="1" border>
                     <el-descriptions-item label="家庭类型">
-                      <el-tag v-if="resident?.householdType" :type="getHouseholdTypeTag(resident.householdType)">
+                      <el-tag
+                        v-if="resident?.householdType"
+                        :type="getHouseholdTypeTag(resident.householdType)"
+                      >
                         {{ getHouseholdTypeText(resident.householdType) }}
                       </el-tag>
                       <span v-else>普通户</span>
                     </el-descriptions-item>
-                    <el-descriptions-item label="收入水平">{{ resident?.incomeLevel || '未知' }}</el-descriptions-item>
-                    <el-descriptions-item label="主要收入来源">{{ resident?.incomeSource || '未知' }}</el-descriptions-item>
+                    <el-descriptions-item label="收入水平">{{
+                      resident?.incomeLevel || '未知'
+                    }}</el-descriptions-item>
+                    <el-descriptions-item label="主要收入来源">{{
+                      resident?.incomeSource || '未知'
+                    }}</el-descriptions-item>
                     <el-descriptions-item label="是否低保户">
                       <el-tag :type="resident?.isLowIncome ? 'warning' : 'success'">
                         {{ resident?.isLowIncome ? '是' : '否' }}
@@ -139,7 +175,9 @@
                         {{ resident?.isPoor ? '是' : '否' }}
                       </el-tag>
                     </el-descriptions-item>
-                    <el-descriptions-item label="扶贫状态">{{ resident?.povertyStatus || '非贫困户' }}</el-descriptions-item>
+                    <el-descriptions-item label="扶贫状态">{{
+                      resident?.povertyStatus || '非贫困户'
+                    }}</el-descriptions-item>
                   </el-descriptions>
                 </el-card>
               </el-col>
@@ -155,15 +193,25 @@
                         {{ getHealthStatusText(resident?.healthStatus) }}
                       </el-tag>
                     </el-descriptions-item>
-                    <el-descriptions-item label="残疾情况">{{ resident?.disabilityInfo || '无' }}</el-descriptions-item>
-                    <el-descriptions-item label="慢性病">{{ resident?.chronicDiseases || '无' }}</el-descriptions-item>
-                    <el-descriptions-item label="医保类型">{{ resident?.medicalInsuranceType || '城乡居民医保' }}</el-descriptions-item>
+                    <el-descriptions-item label="残疾情况">{{
+                      resident?.disabilityInfo || '无'
+                    }}</el-descriptions-item>
+                    <el-descriptions-item label="慢性病">{{
+                      resident?.chronicDiseases || '无'
+                    }}</el-descriptions-item>
+                    <el-descriptions-item label="医保类型">{{
+                      resident?.medicalInsuranceType || '城乡居民医保'
+                    }}</el-descriptions-item>
                     <el-descriptions-item label="参保状态">
-                      <el-tag :type="resident?.insuranceStatus === 'active' ? 'success' : 'warning'">
+                      <el-tag
+                        :type="resident?.insuranceStatus === 'active' ? 'success' : 'warning'"
+                      >
                         {{ resident?.insuranceStatus === 'active' ? '正常参保' : '未参保' }}
                       </el-tag>
                     </el-descriptions-item>
-                    <el-descriptions-item label="联系人">{{ resident?.emergencyContact || '无' }}</el-descriptions-item>
+                    <el-descriptions-item label="联系人">{{
+                      resident?.emergencyContact || '无'
+                    }}</el-descriptions-item>
                   </el-descriptions>
                 </el-card>
               </el-col>
@@ -192,11 +240,7 @@
               </template>
 
               <div class="photo-gallery">
-                <div
-                  v-for="photo in digitalRecord.photos"
-                  :key="photo.id"
-                  class="photo-item"
-                >
+                <div v-for="photo in digitalRecord.photos" :key="photo.id" class="photo-item">
                   <el-image
                     :src="photo.url"
                     :preview-src-list="digitalRecord.photos.map(p => p.url)"
@@ -212,9 +256,7 @@
                     <el-button size="small" @click="deletePhoto(photo)" icon="Delete" />
                   </div>
                 </div>
-                <div v-if="!digitalRecord.photos.length" class="no-photos">
-                  暂无照片记录
-                </div>
+                <div v-if="!digitalRecord.photos.length" class="no-photos">暂无照片记录</div>
               </div>
             </el-card>
 
@@ -246,7 +288,7 @@
                 </el-table-column>
                 <el-table-column prop="expiryDate" label="有效期至" width="120">
                   <template #default="scope">
-                    <span :class="{ 'expired': isExpired(scope.row.expiryDate) }">
+                    <span :class="{ expired: isExpired(scope.row.expiryDate) }">
                       {{ formatDate(scope.row.expiryDate) }}
                     </span>
                   </template>
@@ -315,21 +357,39 @@
                       <span class="risk-label">健康风险</span>
                       <el-progress
                         :percentage="analysis.healthRisk"
-                        :status="analysis.healthRisk > 70 ? 'exception' : analysis.healthRisk > 40 ? 'warning' : 'success'"
+                        :status="
+                          analysis.healthRisk > 70
+                            ? 'exception'
+                            : analysis.healthRisk > 40
+                              ? 'warning'
+                              : 'success'
+                        "
                       />
                     </div>
                     <div class="risk-item">
                       <span class="risk-label">经济风险</span>
                       <el-progress
                         :percentage="analysis.economicRisk"
-                        :status="analysis.economicRisk > 70 ? 'exception' : analysis.economicRisk > 40 ? 'warning' : 'success'"
+                        :status="
+                          analysis.economicRisk > 70
+                            ? 'exception'
+                            : analysis.economicRisk > 40
+                              ? 'warning'
+                              : 'success'
+                        "
                       />
                     </div>
                     <div class="risk-item">
                       <span class="risk-label">社会风险</span>
                       <el-progress
                         :percentage="analysis.socialRisk"
-                        :status="analysis.socialRisk > 70 ? 'exception' : analysis.socialRisk > 40 ? 'warning' : 'success'"
+                        :status="
+                          analysis.socialRisk > 70
+                            ? 'exception'
+                            : analysis.socialRisk > 40
+                              ? 'warning'
+                              : 'success'
+                        "
                       />
                     </div>
                   </div>
@@ -364,7 +424,7 @@
             </el-row>
 
             <!-- 数据统计 -->
-            <el-card class="analysis-card" shadow="never" style="margin-top: 20px;">
+            <el-card class="analysis-card" shadow="never" style="margin-top: 20px">
               <template #header>
                 <span>档案完整度分析</span>
               </template>
@@ -406,9 +466,7 @@
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="visible = false">关闭</el-button>
-        <el-button type="primary" @click="saveChanges" :loading="saving">
-          保存更改
-        </el-button>
+        <el-button type="primary" @click="saveChanges" :loading="saving"> 保存更改 </el-button>
       </div>
     </template>
 
@@ -421,55 +479,61 @@
     />
 
     <!-- 添加证件对话框 -->
-    <add-document-dialog
-      v-model="addDocumentVisible"
-      @confirm="handleAddDocument"
-    />
+    <add-document-dialog v-model="addDocumentVisible" @confirm="handleAddDocument" />
   </el-dialog>
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ref, reactive, computed, watch, onMounted } from 'vue';
+import { ElMessage } from 'element-plus';
 import {
-  UserFilled, Camera, Edit, Download, Plus, View, Hide,
-  Delete, Warning, Star, TrendCharts
-} from '@element-plus/icons-vue'
+  UserFilled,
+  Camera,
+  Edit,
+  Download,
+  Plus,
+  View,
+  Hide,
+  Delete,
+  Warning,
+  Star,
+  TrendCharts,
+} from '@element-plus/icons-vue';
 
 // 导入组件
-import ResidentFormDialog from './ResidentFormDialog.vue'
-import AddDocumentDialog from './AddDocumentDialog.vue'
+import ResidentFormDialog from './ResidentFormDialog.vue';
+import AddDocumentDialog from './AddDocumentDialog.vue';
 
 const props = defineProps({
   modelValue: {
     type: Boolean,
-    default: false
+    default: false,
   },
   resident: {
     type: Object,
-    default: null
-  }
-})
+    default: null,
+  },
+});
 
-const emit = defineEmits(['update:modelValue', 'refresh'])
+const emit = defineEmits(['update:modelValue', 'refresh']);
 
 // 响应式数据
-const activeTab = ref('basic')
-const saving = ref(false)
-const editDialogVisible = ref(false)
-const addDocumentVisible = ref(false)
+const activeTab = ref('basic');
+const saving = ref(false);
+const editDialogVisible = ref(false);
+const addDocumentVisible = ref(false);
 
 // 敏感数据显示控制
 const showSensitive = reactive({
   idCard: false,
-  phone: false
-})
+  phone: false,
+});
 
 // 数字化记录
 const digitalRecord = reactive({
   photos: [
     { id: 1, url: '/images/photo1.jpg', title: '证件照', uploadDate: '2024-01-15' },
-    { id: 2, url: '/images/photo2.jpg', title: '全家福', uploadDate: '2024-02-20' }
+    { id: 2, url: '/images/photo2.jpg', title: '全家福', uploadDate: '2024-02-20' },
   ],
   documents: [
     {
@@ -479,7 +543,7 @@ const digitalRecord = reactive({
       issueDate: '2020-01-01',
       expiryDate: '2030-01-01',
       status: 'valid',
-      visible: false
+      visible: false,
     },
     {
       id: 2,
@@ -488,8 +552,8 @@ const digitalRecord = reactive({
       issueDate: '2019-06-01',
       expiryDate: null,
       status: 'valid',
-      visible: false
-    }
+      visible: false,
+    },
   ],
   serviceRecords: [
     {
@@ -499,7 +563,7 @@ const digitalRecord = reactive({
       date: '2024-01-10',
       type: 'application',
       serviceType: '社会救助',
-      operator: '村委会'
+      operator: '村委会',
     },
     {
       id: 2,
@@ -508,10 +572,10 @@ const digitalRecord = reactive({
       date: '2024-03-15',
       type: 'service',
       serviceType: '医疗服务',
-      operator: '卫生院'
-    }
-  ]
-})
+      operator: '卫生院',
+    },
+  ],
+});
 
 // 智能分析数据
 const analysis = reactive({
@@ -524,7 +588,7 @@ const analysis = reactive({
     { category: '基础信息', percentage: 100 },
     { category: '社会信息', percentage: 80 },
     { category: '健康信息', percentage: 75 },
-    { category: '数字化记录', percentage: 85 }
+    { category: '数字化记录', percentage: 85 },
   ],
   careSuggestions: [
     {
@@ -532,248 +596,251 @@ const analysis = reactive({
       title: '定期健康关怀',
       description: '建议每季度进行健康状况回访',
       type: 'health',
-      priority: 'medium'
+      priority: 'medium',
     },
     {
       id: 2,
       title: '就业帮扶',
       description: '可为其提供就业培训和岗位推荐',
       type: 'employment',
-      priority: 'high'
-    }
-  ]
-})
+      priority: 'high',
+    },
+  ],
+});
 
 // 计算属性
 const visible = computed({
   get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
-})
+  set: value => emit('update:modelValue', value),
+});
 
 // 方法
-const calculateAge = (birthDate) => {
-  if (!birthDate) return 0
-  const birth = new Date(birthDate)
-  const today = new Date()
-  let age = today.getFullYear() - birth.getFullYear()
-  const monthDiff = today.getMonth() - birth.getMonth()
+const calculateAge = birthDate => {
+  if (!birthDate) return 0;
+  const birth = new Date(birthDate);
+  const today = new Date();
+  let age = today.getFullYear() - birth.getFullYear();
+  const monthDiff = today.getMonth() - birth.getMonth();
   if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-    age--
+    age--;
   }
-  return age
-}
+  return age;
+};
 
-const toggleSensitiveData = (field) => {
-  showSensitive[field] = !showSensitive[field]
-}
+const toggleSensitiveData = field => {
+  showSensitive[field] = !showSensitive[field];
+};
 
-const maskIdCard = (idCard) => {
-  if (!idCard) return ''
-  return idCard.replace(/^(.{6}).*(.{4})$/, '$1**********$2')
-}
+const maskIdCard = idCard => {
+  if (!idCard) return '';
+  return idCard.replace(/^(.{6}).*(.{4})$/, '$1**********$2');
+};
 
-const maskPhone = (phone) => {
-  if (!phone) return ''
-  return phone.replace(/^(.{3}).*(.{4})$/, '$1****$2')
-}
+const maskPhone = phone => {
+  if (!phone) return '';
+  return phone.replace(/^(.{3}).*(.{4})$/, '$1****$2');
+};
 
-const handleAvatarSuccess = (response) => {
+const handleAvatarSuccess = response => {
   if (response.success) {
     // 更新头像
-    ElMessage.success('头像更新成功')
-    emit('refresh')
+    ElMessage.success('头像更新成功');
+    emit('refresh');
   }
-}
+};
 
-const beforeAvatarUpload = (file) => {
-  const isValidType = file.type.startsWith('image/')
-  const isValidSize = file.size / 1024 / 1024 < 2
+const beforeAvatarUpload = file => {
+  const isValidType = file.type.startsWith('image/');
+  const isValidSize = file.size / 1024 / 1024 < 2;
 
   if (!isValidType) {
-    ElMessage.error('只能上传图片文件!')
-    return false
+    ElMessage.error('只能上传图片文件!');
+    return false;
   }
   if (!isValidSize) {
-    ElMessage.error('图片大小不能超过 2MB!')
-    return false
+    ElMessage.error('图片大小不能超过 2MB!');
+    return false;
   }
-  return true
-}
+  return true;
+};
 
 const showEditDialog = () => {
-  editDialogVisible.value = true
-}
+  editDialogVisible.value = true;
+};
 
 const handleEditSuccess = () => {
-  editDialogVisible.value = false
-  emit('refresh')
-  ElMessage.success('档案更新成功')
-}
+  editDialogVisible.value = false;
+  emit('refresh');
+  ElMessage.success('档案更新成功');
+};
 
 const exportArchive = () => {
-  ElMessage.info('档案导出功能开发中...')
-}
+  ElMessage.info('档案导出功能开发中...');
+};
 
-const handlePhotoSuccess = (response) => {
+const handlePhotoSuccess = response => {
   if (response.success) {
     digitalRecord.photos.push({
       id: Date.now(),
       url: response.data.url,
       title: '新照片',
-      uploadDate: new Date().toISOString().split('T')[0]
-    })
-    ElMessage.success('照片添加成功')
+      uploadDate: new Date().toISOString().split('T')[0],
+    });
+    ElMessage.success('照片添加成功');
   }
-}
+};
 
-const editPhoto = (photo) => {
-  ElMessage.info('编辑照片功能开发中...')
-}
+const editPhoto = photo => {
+  ElMessage.info('编辑照片功能开发中...');
+};
 
-const deletePhoto = (photo) => {
-  const index = digitalRecord.photos.findIndex(p => p.id === photo.id)
+const deletePhoto = photo => {
+  const index = digitalRecord.photos.findIndex(p => p.id === photo.id);
   if (index > -1) {
-    digitalRecord.photos.splice(index, 1)
-    ElMessage.success('照片删除成功')
+    digitalRecord.photos.splice(index, 1);
+    ElMessage.success('照片删除成功');
   }
-}
+};
 
 const showAddDocumentDialog = () => {
-  addDocumentVisible.value = true
-}
+  addDocumentVisible.value = true;
+};
 
-const handleAddDocument = (document) => {
+const handleAddDocument = document => {
   digitalRecord.documents.push({
     ...document,
     id: Date.now(),
-    visible: false
-  })
-  addDocumentVisible.value = false
-  ElMessage.success('证件添加成功')
-}
+    visible: false,
+  });
+  addDocumentVisible.value = false;
+  ElMessage.success('证件添加成功');
+};
 
-const toggleDocumentVisibility = (id) => {
-  const doc = digitalRecord.documents.find(d => d.id === id)
+const toggleDocumentVisibility = id => {
+  const doc = digitalRecord.documents.find(d => d.id === id);
   if (doc) {
-    doc.visible = !doc.visible
+    doc.visible = !doc.visible;
   }
-}
+};
 
-const getDocumentDisplay = (doc) => {
-  return doc.visible ? doc.number : maskIdCard(doc.number)
-}
+const getDocumentDisplay = doc => {
+  return doc.visible ? doc.number : maskIdCard(doc.number);
+};
 
-const isExpired = (date) => {
-  return date && new Date(date) < new Date()
-}
+const isExpired = date => {
+  return date && new Date(date) < new Date();
+};
 
-const viewDocument = (doc) => {
-  ElMessage.info('查看证件功能开发中...')
-}
+const viewDocument = doc => {
+  ElMessage.info('查看证件功能开发中...');
+};
 
-const editDocument = (doc) => {
-  ElMessage.info('编辑证件功能开发中...')
-}
+const editDocument = doc => {
+  ElMessage.info('编辑证件功能开发中...');
+};
 
 const saveChanges = async () => {
-  saving.value = true
+  saving.value = true;
   try {
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    ElMessage.success('更改已保存')
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    ElMessage.success('更改已保存');
   } finally {
-    saving.value = false
+    saving.value = false;
   }
-}
+};
 
 // 工具函数
-const formatDate = (date) => {
-  if (!date) return ''
-  return new Date(date).toLocaleDateString()
-}
+const formatDate = date => {
+  if (!date) return '';
+  return new Date(date).toLocaleDateString();
+};
 
-const getStatusType = (status) => {
-  const map = { active: 'success', inactive: 'danger', pending: 'warning' }
-  return map[status] || 'info'
-}
+const getStatusType = status => {
+  const map = { active: 'success', inactive: 'danger', pending: 'warning' };
+  return map[status] || 'info';
+};
 
-const getStatusText = (status) => {
-  const map = { active: '正常', inactive: '异常', pending: '待审' }
-  return map[status] || '未知'
-}
+const getStatusText = status => {
+  const map = { active: '正常', inactive: '异常', pending: '待审' };
+  return map[status] || '未知';
+};
 
-const getFamilyRoleText = (role) => {
-  const map = { head: '户主', spouse: '配偶', child: '子女', parent: '父母', other: '其他' }
-  return map[role] || '未知'
-}
+const getFamilyRoleText = role => {
+  const map = { head: '户主', spouse: '配偶', child: '子女', parent: '父母', other: '其他' };
+  return map[role] || '未知';
+};
 
-const getHouseholdTypeText = (type) => {
-  const map = { normal: '普通户', poor: '贫困户', lowIncome: '低保户', disabled: '残疾户' }
-  return map[type] || '普通户'
-}
+const getHouseholdTypeText = type => {
+  const map = { normal: '普通户', poor: '贫困户', lowIncome: '低保户', disabled: '残疾户' };
+  return map[type] || '普通户';
+};
 
-const getHouseholdTypeTag = (type) => {
-  const map = { normal: 'success', poor: 'danger', lowIncome: 'warning', disabled: 'info' }
-  return map[type] || 'success'
-}
+const getHouseholdTypeTag = type => {
+  const map = { normal: 'success', poor: 'danger', lowIncome: 'warning', disabled: 'info' };
+  return map[type] || 'success';
+};
 
-const getHealthStatusType = (status) => {
-  const map = { healthy: 'success', chronic: 'warning', disabled: 'danger' }
-  return map[status] || 'info'
-}
+const getHealthStatusType = status => {
+  const map = { healthy: 'success', chronic: 'warning', disabled: 'danger' };
+  return map[status] || 'info';
+};
 
-const getHealthStatusText = (status) => {
-  const map = { healthy: '健康', chronic: '慢性病', disabled: '残疾' }
-  return map[status] || '未知'
-}
+const getHealthStatusText = status => {
+  const map = { healthy: '健康', chronic: '慢性病', disabled: '残疾' };
+  return map[status] || '未知';
+};
 
-const getDocumentStatusType = (doc) => {
-  if (isExpired(doc.expiryDate)) return 'danger'
-  return 'success'
-}
+const getDocumentStatusType = doc => {
+  if (isExpired(doc.expiryDate)) return 'danger';
+  return 'success';
+};
 
-const getDocumentStatusText = (doc) => {
-  if (isExpired(doc.expiryDate)) return '已过期'
-  return '有效'
-}
+const getDocumentStatusText = doc => {
+  if (isExpired(doc.expiryDate)) return '已过期';
+  return '有效';
+};
 
-const getServiceType = (type) => {
-  const map = { application: 'primary', service: 'success', consultation: 'info' }
-  return map[type] || 'primary'
-}
+const getServiceType = type => {
+  const map = { application: 'primary', service: 'success', consultation: 'info' };
+  return map[type] || 'primary';
+};
 
-const getRiskLevelType = (level) => {
-  const map = { '低风险': 'success', '中风险': 'warning', '高风险': 'danger' }
-  return map[level] || 'info'
-}
+const getRiskLevelType = level => {
+  const map = { 低风险: 'success', 中风险: 'warning', 高风险: 'danger' };
+  return map[level] || 'info';
+};
 
-const getSuggestionColor = (priority) => {
-  const map = { low: '#67c23a', medium: '#e6a23c', high: '#f56c6c' }
-  return map[priority] || '#909399'
-}
+const getSuggestionColor = priority => {
+  const map = { low: '#67c23a', medium: '#e6a23c', high: '#f56c6c' };
+  return map[priority] || '#909399';
+};
 
-const getSuggestionIcon = (type) => {
-  const map = { health: 'Star', employment: 'TrendCharts', education: 'Warning' }
-  return map[type] || 'Star'
-}
+const getSuggestionIcon = type => {
+  const map = { health: 'Star', employment: 'TrendCharts', education: 'Warning' };
+  return map[type] || 'Star';
+};
 
-const getCompletenessColor = (percentage) => {
-  if (percentage >= 90) return '#67c23a'
-  if (percentage >= 70) return '#e6a23c'
-  return '#f56c6c'
-}
+const getCompletenessColor = percentage => {
+  if (percentage >= 90) return '#67c23a';
+  if (percentage >= 70) return '#e6a23c';
+  return '#f56c6c';
+};
 
-const getProgressStatus = (percentage) => {
-  if (percentage >= 90) return 'success'
-  if (percentage >= 70) return undefined
-  return 'exception'
-}
+const getProgressStatus = percentage => {
+  if (percentage >= 90) return 'success';
+  if (percentage >= 70) return undefined;
+  return 'exception';
+};
 
 // 监听器
-watch(() => props.modelValue, (val) => {
-  if (val) {
-    activeTab.value = 'basic'
+watch(
+  () => props.modelValue,
+  val => {
+    if (val) {
+      activeTab.value = 'basic';
+    }
   }
-})
+);
 </script>
 
 <style lang="scss" scoped>

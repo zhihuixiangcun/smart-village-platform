@@ -69,13 +69,7 @@
           <el-icon><Setting /></el-icon>
         </el-button>
 
-        <el-button
-          type="warning"
-          size="large"
-          circle
-          @click="clearHistory"
-          class="clear-button"
-        >
+        <el-button type="warning" size="large" circle @click="clearHistory" class="clear-button">
           <el-icon><Delete /></el-icon>
         </el-button>
       </div>
@@ -87,12 +81,7 @@
     </div>
 
     <!-- 设置面板 -->
-    <el-drawer
-      v-model="showSettings"
-      title="语音设置"
-      direction="rtl"
-      size="400px"
-    >
+    <el-drawer v-model="showSettings" title="语音设置" direction="rtl" size="400px">
       <div class="settings-content">
         <el-form :model="settings" label-width="120px">
           <!-- 语言和方言设置 -->
@@ -124,10 +113,7 @@
           </el-form-item>
 
           <el-form-item label="唤醒词">
-            <el-input
-              v-model="settings.wakeWordText"
-              placeholder="输入唤醒词，用逗号分隔"
-            />
+            <el-input v-model="settings.wakeWordText" placeholder="输入唤醒词，用逗号分隔" />
           </el-form-item>
 
           <!-- 录音设置 -->
@@ -206,33 +192,26 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, nextTick, watch } from 'vue'
-import { ElMessage, ElNotification } from 'element-plus'
-import {
-  Microphone,
-  VideoPause,
-  Setting,
-  Delete,
-  User,
-  Robot
-} from '@element-plus/icons-vue'
-import { useVoiceInteraction } from '@/composables/useVoiceInteraction'
+import { ref, reactive, onMounted, nextTick, watch } from 'vue';
+import { ElMessage, ElNotification } from 'element-plus';
+import { Microphone, VideoPause, Setting, Delete, User, Robot } from '@element-plus/icons-vue';
+import { useVoiceInteraction } from '@/composables/useVoiceInteraction';
 
 // Props
 const props = defineProps({
   autoInit: {
     type: Boolean,
-    default: true
+    default: true,
   },
   showHistory: {
     type: Boolean,
-    default: true
+    default: true,
   },
   theme: {
     type: String,
-    default: 'default'
-  }
-})
+    default: 'default',
+  },
+});
 
 // 语音交互实例
 const {
@@ -244,18 +223,18 @@ const {
   synthesizeSpeech,
   on,
   off,
-  cleanup
+  cleanup,
 } = useVoiceInteraction({
   enableVisualFeedback: true,
   autoDetectDialect: true,
-  enableWakeWord: true
-})
+  enableWakeWord: true,
+});
 
 // 组件状态
-const showSettings = ref(false)
-const showTestDialog = ref(false)
-const conversationHistoryRef = ref(null)
-const dialects = ref([])
+const showSettings = ref(false);
+const showTestDialog = ref(false);
+const conversationHistoryRef = ref(null);
+const dialects = ref([]);
 
 // 设置表单
 const settings = reactive({
@@ -268,251 +247,258 @@ const settings = reactive({
   silenceTimeout: config.silenceTimeout,
   enableVisualFeedback: config.enableVisualFeedback,
   backendUrl: config.backendUrl,
-  pythonServiceUrl: config.pythonServiceUrl
-})
+  pythonServiceUrl: config.pythonServiceUrl,
+});
 
 // 测试表单
 const testForm = reactive({
-  testText: '这是一个语音功能测试，您能听到我的声音吗？'
-})
+  testText: '这是一个语音功能测试，您能听到我的声音吗？',
+});
 
-const testResult = ref('')
+const testResult = ref('');
 
 // 生命周期
 onMounted(async () => {
   if (props.autoInit) {
-    await initVoiceService()
+    await initVoiceService();
   }
 
   // 加载方言列表
-  await loadDialects()
+  await loadDialects();
 
   // 监听语音事件
-  setupEventListeners()
-})
+  setupEventListeners();
+});
 
 // 监听设置变化
-watch(settings, (newSettings) => {
-  // 更新配置
-  Object.assign(config, {
-    autoDetectDialect: newSettings.autoDetectDialect,
-    preferredDialect: newSettings.preferredDialect,
-    preferredVoice: newSettings.preferredVoice,
-    enableWakeWord: newSettings.enableWakeWord,
-    wakeWords: newSettings.wakeWordText.split(',').map(w => w.trim()).filter(w => w),
-    maxRecordingDuration: newSettings.maxRecordingDuration,
-    silenceTimeout: newSettings.silenceTimeout,
-    enableVisualFeedback: newSettings.enableVisualFeedback,
-    backendUrl: newSettings.backendUrl,
-    pythonServiceUrl: newSettings.pythonServiceUrl
-  })
-}, { deep: true })
+watch(
+  settings,
+  newSettings => {
+    // 更新配置
+    Object.assign(config, {
+      autoDetectDialect: newSettings.autoDetectDialect,
+      preferredDialect: newSettings.preferredDialect,
+      preferredVoice: newSettings.preferredVoice,
+      enableWakeWord: newSettings.enableWakeWord,
+      wakeWords: newSettings.wakeWordText
+        .split(',')
+        .map(w => w.trim())
+        .filter(w => w),
+      maxRecordingDuration: newSettings.maxRecordingDuration,
+      silenceTimeout: newSettings.silenceTimeout,
+      enableVisualFeedback: newSettings.enableVisualFeedback,
+      backendUrl: newSettings.backendUrl,
+      pythonServiceUrl: newSettings.pythonServiceUrl,
+    });
+  },
+  { deep: true }
+);
 
 // 初始化语音服务
 const initVoiceService = async () => {
   try {
-    const success = await initialize()
+    const success = await initialize();
     if (success) {
       ElNotification({
         title: '成功',
         message: '语音服务初始化成功',
-        type: 'success'
-      })
+        type: 'success',
+      });
     } else {
       ElNotification({
         title: '警告',
         message: '语音服务初始化失败，部分功能可能不可用',
-        type: 'warning'
-      })
+        type: 'warning',
+      });
     }
   } catch (error) {
-    console.error('语音服务初始化失败:', error)
-    ElMessage.error('语音服务初始化失败: ' + error.message)
+    console.error('语音服务初始化失败:', error);
+    ElMessage.error('语音服务初始化失败: ' + error.message);
   }
-}
+};
 
 // 加载方言列表
 const loadDialects = async () => {
   try {
-    const response = await fetch(`${config.backendUrl}/api/v1/voice/dialects`)
+    const response = await fetch(`${config.backendUrl}/api/v1/voice/dialects`);
     if (response.ok) {
-      const data = await response.json()
-      dialects.value = data.data.dialects
+      const data = await response.json();
+      dialects.value = data.data.dialects;
     }
   } catch (error) {
-    console.error('加载方言列表失败:', error)
+    console.error('加载方言列表失败:', error);
   }
-}
+};
 
 // 设置事件监听器
 const setupEventListeners = () => {
   // 录音开始
   on('recordingStarted', () => {
-    ElMessage.info('开始录音...')
-  })
+    ElMessage.info('开始录音...');
+  });
 
   // 录音停止
   on('recordingStopped', () => {
-    ElMessage.info('录音结束，正在处理...')
-  })
+    ElMessage.info('录音结束，正在处理...');
+  });
 
   // 语音识别完成
-  on('speechRecognized', (result) => {
+  on('speechRecognized', result => {
     if (result.text) {
       ElNotification({
         title: '识别结果',
         message: result.text,
         type: 'info',
-        duration: 3000
-      })
+        duration: 3000,
+      });
     }
-  })
+  });
 
   // 语音播放开始
   on('speechStarted', () => {
-    ElMessage.info('正在播放语音...')
-  })
+    ElMessage.info('正在播放语音...');
+  });
 
   // 语音播放结束
   on('speechEnded', () => {
     // 可以在这里添加播放结束后的处理
-  })
+  });
 
   // 命令执行
-  on('commandExecuted', (command) => {
+  on('commandExecuted', command => {
     ElNotification({
       title: '命令执行',
       message: `执行命令: ${command.intent}`,
-      type: 'success'
-    })
-  })
+      type: 'success',
+    });
+  });
 
   // 对话更新
   on('conversationUpdate', () => {
     nextTick(() => {
       // 滚动到底部
       if (conversationHistoryRef.value) {
-        conversationHistoryRef.value.scrollTop = conversationHistoryRef.value.scrollHeight
+        conversationHistoryRef.value.scrollTop = conversationHistoryRef.value.scrollHeight;
       }
-    })
-  })
-}
+    });
+  });
+};
 
 // 切换录音状态
 const toggleRecording = () => {
   if (state.isRecording) {
-    stopRecording()
+    stopRecording();
   } else {
-    startRecording()
+    startRecording();
   }
-}
+};
 
 // 切换设置面板
 const toggleSettings = () => {
-  showSettings.value = !showSettings.value
-}
+  showSettings.value = !showSettings.value;
+};
 
 // 清除历史记录
 const clearHistory = () => {
-  state.conversationHistory = []
-  ElMessage.success('对话历史已清除')
-}
+  state.conversationHistory = [];
+  ElMessage.success('对话历史已清除');
+};
 
 // 检查服务状态
 const checkServices = async () => {
   try {
     const results = await Promise.allSettled([
       fetch(`${config.backendUrl}/health`),
-      fetch(`${config.pythonServiceUrl}/health`)
-    ])
+      fetch(`${config.pythonServiceUrl}/health`),
+    ]);
 
-    const backendStatus = results[0].status === 'fulfilled' ? '正常' : '异常'
-    const pythonStatus = results[1].status === 'fulfilled' ? '正常' : '异常'
+    const backendStatus = results[0].status === 'fulfilled' ? '正常' : '异常';
+    const pythonStatus = results[1].status === 'fulfilled' ? '正常' : '异常';
 
-    ElMessage.success(`服务状态 - 后端: ${backendStatus}, Python: ${pythonStatus}`)
+    ElMessage.success(`服务状态 - 后端: ${backendStatus}, Python: ${pythonStatus}`);
   } catch (error) {
-    ElMessage.error('服务检查失败: ' + error.message)
+    ElMessage.error('服务检查失败: ' + error.message);
   }
-}
+};
 
 // 测试语音功能
 const testVoice = () => {
-  showTestDialog.value = true
-  testResult.value = ''
-}
+  showTestDialog.value = true;
+  testResult.value = '';
+};
 
 // 测试语音合成
 const testSpeechSynthesis = async () => {
   if (!testForm.testText) {
-    ElMessage.warning('请输入测试文本')
-    return
+    ElMessage.warning('请输入测试文本');
+    return;
   }
 
   try {
-    testResult.value = '正在合成语音...'
-    await synthesizeSpeech(testForm.testText)
-    testResult.value = '语音合成测试成功'
+    testResult.value = '正在合成语音...';
+    await synthesizeSpeech(testForm.testText);
+    testResult.value = '语音合成测试成功';
   } catch (error) {
-    testResult.value = `语音合成测试失败: ${error.message}`
+    testResult.value = `语音合成测试失败: ${error.message}`;
   }
-}
+};
 
 // 测试语音识别
 const testSpeechRecognition = async () => {
   try {
-    testResult.value = '请开始说话...'
-    await startRecording()
+    testResult.value = '请开始说话...';
+    await startRecording();
     // 这里会在录音结束后自动处理
   } catch (error) {
-    testResult.value = `语音识别测试失败: ${error.message}`
+    testResult.value = `语音识别测试失败: ${error.message}`;
   }
-}
+};
 
 // 获取状态图标
 const getStatusIcon = () => {
-  if (state.isRecording) return 'VideoPause'
-  if (state.isProcessing) return 'Loading'
-  if (state.isSpeaking) return 'Speaker'
-  return 'Microphone'
-}
+  if (state.isRecording) return 'VideoPause';
+  if (state.isProcessing) return 'Loading';
+  if (state.isSpeaking) return 'Speaker';
+  return 'Microphone';
+};
 
 // 获取状态图标样式
 const getStatusIconClass = () => {
   return {
-    'recording': state.isRecording,
-    'processing': state.isProcessing,
-    'speaking': state.isSpeaking
-  }
-}
+    recording: state.isRecording,
+    processing: state.isProcessing,
+    speaking: state.isSpeaking,
+  };
+};
 
 // 获取状态文本
 const getStatusText = () => {
-  if (state.isRecording) return '录音中...'
-  if (state.isProcessing) return '处理中...'
-  if (state.isSpeaking) return '播放中...'
-  if (!state.isSupported) return '不支持'
-  if (!state.hasPermission) return '需要权限'
-  return '就绪'
-}
+  if (state.isRecording) return '录音中...';
+  if (state.isProcessing) return '处理中...';
+  if (state.isSpeaking) return '播放中...';
+  if (!state.isSupported) return '不支持';
+  if (!state.hasPermission) return '需要权限';
+  return '就绪';
+};
 
 // 格式化时间
-const formatTime = (timestamp) => {
-  return new Date(timestamp).toLocaleTimeString()
-}
+const formatTime = timestamp => {
+  return new Date(timestamp).toLocaleTimeString();
+};
 
 // 格式化录音时间
-const formatRecordingTime = (milliseconds) => {
-  const seconds = Math.floor(milliseconds / 1000)
-  const minutes = Math.floor(seconds / 60)
-  const remainingSeconds = seconds % 60
-  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
-}
+const formatRecordingTime = milliseconds => {
+  const seconds = Math.floor(milliseconds / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+};
 
 // 格式化时长
-const formatDuration = (value) => {
-  const seconds = value / 1000
-  return `${seconds}秒`
-}
+const formatDuration = value => {
+  const seconds = value / 1000;
+  return `${seconds}秒`;
+};
 </script>
 
 <style scoped>
@@ -596,7 +582,8 @@ const formatDuration = (value) => {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   50% {

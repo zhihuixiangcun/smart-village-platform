@@ -38,11 +38,7 @@
             :class="{ 'top-three': index < 3 }"
           >
             <div class="rank-number">{{ index + 1 }}</div>
-            <van-image
-              :src="person.avatar || '/default-avatar.png'"
-              class="avatar"
-              round
-            />
+            <van-image :src="person.avatar || '/default-avatar.png'" class="avatar" round />
             <div class="person-info">
               <div class="person-name">{{ person.name }}</div>
               <div class="person-role">{{ person.role }}</div>
@@ -102,60 +98,60 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, watch } from 'vue'
-import { showToast, showLoadingToast, closeToast } from 'vant'
-import villageApi from '@/api/villageManagement'
+import { ref, reactive, onMounted, watch } from 'vue';
+import { showToast, showLoadingToast, closeToast } from 'vant';
+import villageApi from '@/api/villageManagement';
 
 // 响应式数据
-const activeChart = ref('workload')
-const trendPeriod = ref('7d')
-const statsCards = ref([])
-const rankingData = ref([])
+const activeChart = ref('workload');
+const trendPeriod = ref('7d');
+const statsCards = ref([]);
+const rankingData = ref([]);
 const exportOptions = ref([
   { type: 'excel', text: 'Excel报表', icon: 'table' },
   { type: 'pdf', text: 'PDF报告', icon: 'description' },
-  { type: 'image', text: '图表图片', icon: 'photo-o' }
-])
+  { type: 'image', text: '图表图片', icon: 'photo-o' },
+]);
 
 // 图表实例
-const workloadChart = ref(null)
-const completionChart = ref(null)
-const trendChart = ref(null)
+const workloadChart = ref(null);
+const completionChart = ref(null);
+const trendChart = ref(null);
 
-let workloadChartInstance = null
-let completionChartInstance = null
-let trendChartInstance = null
+let workloadChartInstance = null;
+let completionChartInstance = null;
+let trendChartInstance = null;
 
 // 方法
 const loadStatistics = async () => {
   try {
-    showLoadingToast({ message: '加载统计数据...', forbidClick: true })
+    showLoadingToast({ message: '加载统计数据...', forbidClick: true });
 
     // 获取个人统计数据
-    const endDate = new Date()
-    const startDate = new Date()
-    startDate.setDate(startDate.getDate() - 30)
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - 30);
 
     const response = await villageApi.getPersonalStatistics(
       startDate.toISOString().split('T')[0],
       endDate.toISOString().split('T')[0]
-    )
+    );
 
-    const data = response.data.data
-    updateStatsCards(data)
-    updateRankingData(data)
+    const data = response.data.data;
+    updateStatsCards(data);
+    updateRankingData(data);
 
-    closeToast()
+    closeToast();
   } catch (error) {
-    closeToast()
-    console.error('加载统计数据失败:', error)
-    showToast('加载失败')
+    closeToast();
+    console.error('加载统计数据失败:', error);
+    showToast('加载失败');
   }
-}
+};
 
-const updateStatsCards = (data) => {
-  const docStats = data.documentStatistics || {}
-  const performanceStats = data.performanceMetrics?.documentMetrics || {}
+const updateStatsCards = data => {
+  const docStats = data.documentStatistics || {};
+  const performanceStats = data.performanceMetrics?.documentMetrics || {};
 
   statsCards.value = [
     {
@@ -163,47 +159,47 @@ const updateStatsCards = (data) => {
       label: '总任务数',
       value: docStats.totalCollections || 0,
       icon: 'todo-list-o',
-      type: 'primary'
+      type: 'primary',
     },
     {
       key: 'completed',
       label: '已完成',
       value: docStats.approvedCollections || 0,
       icon: 'passed',
-      type: 'success'
+      type: 'success',
     },
     {
       key: 'pending',
       label: '进行中',
       value: docStats.totalCollections - docStats.approvedCollections,
       icon: 'clock-o',
-      type: 'warning'
+      type: 'warning',
     },
     {
       key: 'approvalRate',
       label: '通过率',
       value: `${Math.round(docStats.approvalRate || 0)}%`,
       icon: 'chart-trending-o',
-      type: 'primary'
+      type: 'primary',
     },
     {
       key: 'files',
       label: '文件数',
       value: docStats.totalFiles || 0,
       icon: 'folder-o',
-      type: 'success'
+      type: 'success',
     },
     {
       key: 'avgTime',
       label: '平均用时',
       value: `${Math.round(performanceStats.avgCompletionTime || 0)}h`,
       icon: 'clock-o',
-      type: 'info'
-    }
-  ]
-}
+      type: 'info',
+    },
+  ];
+};
 
-const updateRankingData = (data) => {
+const updateRankingData = data => {
   // 模拟排名数据
   rankingData.value = [
     {
@@ -211,315 +207,326 @@ const updateRankingData = (data) => {
       name: '张三',
       role: '村主任',
       avatar: '',
-      score: 95
+      score: 95,
     },
     {
       userId: '2',
       name: '李四',
       role: '会计',
       avatar: '',
-      score: 88
+      score: 88,
     },
     {
       userId: '3',
       name: '王五',
       role: '村委委员',
       avatar: '',
-      score: 82
+      score: 82,
     },
     {
       userId: '4',
       name: '赵六',
       role: '工作人员',
       avatar: '',
-      score: 76
+      score: 76,
     },
     {
       userId: '5',
       name: '钱七',
       role: '志愿者',
       avatar: '',
-      score: 70
-    }
-  ]
-}
+      score: 70,
+    },
+  ];
+};
 
 const initWorkloadChart = () => {
-  if (!workloadChart.value) return
+  if (!workloadChart.value) return;
 
-  const ctx = workloadChart.value.getContext('2d')
+  const ctx = workloadChart.value.getContext('2d');
 
   // 创建工作量统计图
   const chartData = {
     labels: ['资料收集', '值班管理', '数据统计', '任务完成', '文件上传'],
-    datasets: [{
-      label: '工作量',
-      data: [25, 30, 15, 20, 35],
-      backgroundColor: [
-        'rgba(54, 162, 235, 0.8)',
-        'rgba(255, 206, 86, 0.8)',
-        'rgba(75, 192, 192, 0.8)',
-        'rgba(153, 102, 255, 0.8)',
-        'rgba(255, 99, 132, 0.8)'
-      ],
-      borderColor: [
-        'rgba(54, 162, 235, 1)',
-        'rgba(255, 206, 86, 1)',
-        'rgba(75, 192, 192, 1)',
-        'rgba(153, 102, 255, 1)',
-        'rgba(255, 99, 132, 1)'
-      ],
-      borderWidth: 1
-    }]
-  }
+    datasets: [
+      {
+        label: '工作量',
+        data: [25, 30, 15, 20, 35],
+        backgroundColor: [
+          'rgba(54, 162, 235, 0.8)',
+          'rgba(255, 206, 86, 0.8)',
+          'rgba(75, 192, 192, 0.8)',
+          'rgba(153, 102, 255, 0.8)',
+          'rgba(255, 99, 132, 0.8)',
+        ],
+        borderColor: [
+          'rgba(54, 162, 235, 1)',
+          'rgba(255, 206, 86, 1)',
+          'rgba(75, 192, 192, 1)',
+          'rgba(153, 102, 255, 1)',
+          'rgba(255, 99, 132, 1)',
+        ],
+        borderWidth: 1,
+      },
+    ],
+  };
 
   // 这里使用简化的图表实现
-  drawBarChart(ctx, chartData)
-}
+  drawBarChart(ctx, chartData);
+};
 
 const initCompletionChart = () => {
-  if (!completionChart.value) return
+  if (!completionChart.value) return;
 
-  const ctx = completionChart.value.getContext('2d')
+  const ctx = completionChart.value.getContext('2d');
 
   // 创建完成率分析图
   const chartData = {
     labels: ['周一', '周二', '周三', '周四', '周五'],
-    datasets: [{
-      label: '完成率',
-      data: [85, 92, 78, 88, 95],
-      borderColor: 'rgba(75, 192, 192, 1)',
-      backgroundColor: 'rgba(75, 192, 192, 0.2)',
-      tension: 0.4,
-      fill: true
-    }]
-  }
+    datasets: [
+      {
+        label: '完成率',
+        data: [85, 92, 78, 88, 95],
+        borderColor: 'rgba(75, 192, 192, 1)',
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        tension: 0.4,
+        fill: true,
+      },
+    ],
+  };
 
   // 这里使用简化的图表实现
-  drawLineChart(ctx, chartData)
-}
+  drawLineChart(ctx, chartData);
+};
 
 const initTrendChart = () => {
-  if (!trendChart.value) return
+  if (!trendChart.value) return;
 
-  const ctx = trendChart.value.getContext('2d')
+  const ctx = trendChart.value.getContext('2d');
 
   // 根据时间周期生成数据
-  const days = parseInt(trendPeriod.value)
-  const labels = []
-  const data = []
+  const days = parseInt(trendPeriod.value);
+  const labels = [];
+  const data = [];
 
   for (let i = days - 1; i >= 0; i--) {
-    const date = new Date()
-    date.setDate(date.getDate() - i)
-    labels.push(date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' }))
-    data.push(Math.floor(Math.random() * 20) + 10)
+    const date = new Date();
+    date.setDate(date.getDate() - i);
+    labels.push(date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' }));
+    data.push(Math.floor(Math.random() * 20) + 10);
   }
 
   const chartData = {
     labels,
-    datasets: [{
-      label: '工作量',
-      data,
-      borderColor: 'rgba(54, 162, 235, 1)',
-      backgroundColor: 'rgba(54, 162, 235, 0.2)',
-      tension: 0.4,
-      fill: true
-    }]
-  }
+    datasets: [
+      {
+        label: '工作量',
+        data,
+        borderColor: 'rgba(54, 162, 235, 1)',
+        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        tension: 0.4,
+        fill: true,
+      },
+    ],
+  };
 
-  drawLineChart(ctx, chartData)
-}
+  drawLineChart(ctx, chartData);
+};
 
 // 简化的柱状图绘制
 const drawBarChart = (ctx, chartData) => {
-  const canvas = ctx.canvas
-  const width = canvas.width = canvas.offsetWidth * 2
-  const height = canvas.height = canvas.offsetHeight * 2
-  ctx.scale(2, 2)
+  const canvas = ctx.canvas;
+  const width = (canvas.width = canvas.offsetWidth * 2);
+  const height = (canvas.height = canvas.offsetHeight * 2);
+  ctx.scale(2, 2);
 
-  const padding = 40
-  const barWidth = (width / 2 - padding * 2) / chartData.labels.length * 0.6
-  const maxValue = Math.max(...chartData.datasets[0].data)
-  const scale = (height / 2 - padding * 2) / maxValue
+  const padding = 40;
+  const barWidth = ((width / 2 - padding * 2) / chartData.labels.length) * 0.6;
+  const maxValue = Math.max(...chartData.datasets[0].data);
+  const scale = (height / 2 - padding * 2) / maxValue;
 
   // 清除画布
-  ctx.clearRect(0, 0, width / 2, height / 2)
+  ctx.clearRect(0, 0, width / 2, height / 2);
 
   // 绘制坐标轴
-  ctx.strokeStyle = '#ccc'
-  ctx.lineWidth = 1
-  ctx.beginPath()
-  ctx.moveTo(padding, padding)
-  ctx.lineTo(padding, height / 2 - padding)
-  ctx.lineTo(width / 2 - padding, height / 2 - padding)
-  ctx.stroke()
+  ctx.strokeStyle = '#ccc';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(padding, padding);
+  ctx.lineTo(padding, height / 2 - padding);
+  ctx.lineTo(width / 2 - padding, height / 2 - padding);
+  ctx.stroke();
 
   // 绘制柱状图
   chartData.labels.forEach((label, index) => {
-    const value = chartData.datasets[0].data[index]
-    const x = padding + (index * (width / 2 - padding * 2) / chartData.labels.length) + barWidth * 0.2
-    const barHeight = value * scale
-    const y = height / 2 - padding - barHeight
+    const value = chartData.datasets[0].data[index];
+    const x =
+      padding + (index * (width / 2 - padding * 2)) / chartData.labels.length + barWidth * 0.2;
+    const barHeight = value * scale;
+    const y = height / 2 - padding - barHeight;
 
     // 绘制柱子
-    ctx.fillStyle = chartData.datasets[0].backgroundColor[index]
-    ctx.fillRect(x, y, barWidth, barHeight)
+    ctx.fillStyle = chartData.datasets[0].backgroundColor[index];
+    ctx.fillRect(x, y, barWidth, barHeight);
 
     // 绘制标签
-    ctx.fillStyle = '#333'
-    ctx.font = '12px Arial'
-    ctx.textAlign = 'center'
-    ctx.fillText(label, x + barWidth / 2, height / 2 - padding + 20)
+    ctx.fillStyle = '#333';
+    ctx.font = '12px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(label, x + barWidth / 2, height / 2 - padding + 20);
 
     // 绘制数值
-    ctx.fillText(value, x + barWidth / 2, y - 5)
-  })
-}
+    ctx.fillText(value, x + barWidth / 2, y - 5);
+  });
+};
 
 // 简化的折线图绘制
 const drawLineChart = (ctx, chartData) => {
-  const canvas = ctx.canvas
-  const width = canvas.width = canvas.offsetWidth * 2
-  const height = canvas.height = canvas.offsetHeight * 2
-  ctx.scale(2, 2)
+  const canvas = ctx.canvas;
+  const width = (canvas.width = canvas.offsetWidth * 2);
+  const height = (canvas.height = canvas.offsetHeight * 2);
+  ctx.scale(2, 2);
 
-  const padding = 40
-  const pointSpacing = (width / 2 - padding * 2) / (chartData.labels.length - 1)
-  const maxValue = Math.max(...chartData.datasets[0].data)
-  const scale = (height / 2 - padding * 2) / maxValue
+  const padding = 40;
+  const pointSpacing = (width / 2 - padding * 2) / (chartData.labels.length - 1);
+  const maxValue = Math.max(...chartData.datasets[0].data);
+  const scale = (height / 2 - padding * 2) / maxValue;
 
   // 清除画布
-  ctx.clearRect(0, 0, width / 2, height / 2)
+  ctx.clearRect(0, 0, width / 2, height / 2);
 
   // 绘制坐标轴
-  ctx.strokeStyle = '#ccc'
-  ctx.lineWidth = 1
-  ctx.beginPath()
-  ctx.moveTo(padding, padding)
-  ctx.lineTo(padding, height / 2 - padding)
-  ctx.lineTo(width / 2 - padding, height / 2 - padding)
-  ctx.stroke()
+  ctx.strokeStyle = '#ccc';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(padding, padding);
+  ctx.lineTo(padding, height / 2 - padding);
+  ctx.lineTo(width / 2 - padding, height / 2 - padding);
+  ctx.stroke();
 
   // 绘制数据点和线
-  ctx.strokeStyle = chartData.datasets[0].borderColor
-  ctx.fillStyle = chartData.datasets[0].backgroundColor
-  ctx.lineWidth = 2
-  ctx.beginPath()
+  ctx.strokeStyle = chartData.datasets[0].borderColor;
+  ctx.fillStyle = chartData.datasets[0].backgroundColor;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
 
   chartData.datasets[0].data.forEach((value, index) => {
-    const x = padding + index * pointSpacing
-    const y = height / 2 - padding - (value * scale)
+    const x = padding + index * pointSpacing;
+    const y = height / 2 - padding - value * scale;
 
     if (index === 0) {
-      ctx.moveTo(x, y)
+      ctx.moveTo(x, y);
     } else {
-      ctx.lineTo(x, y)
+      ctx.lineTo(x, y);
     }
-  })
-  ctx.stroke()
+  });
+  ctx.stroke();
 
   // 绘制填充区域
-  ctx.lineTo(padding + (chartData.labels.length - 1) * pointSpacing, height / 2 - padding)
-  ctx.lineTo(padding, height / 2 - padding)
-  ctx.closePath()
-  ctx.fill()
+  ctx.lineTo(padding + (chartData.labels.length - 1) * pointSpacing, height / 2 - padding);
+  ctx.lineTo(padding, height / 2 - padding);
+  ctx.closePath();
+  ctx.fill();
 
   // 绘制数据点
   chartData.datasets[0].data.forEach((value, index) => {
-    const x = padding + index * pointSpacing
-    const y = height / 2 - padding - (value * scale)
+    const x = padding + index * pointSpacing;
+    const y = height / 2 - padding - value * scale;
 
-    ctx.fillStyle = '#fff'
-    ctx.beginPath()
-    ctx.arc(x, y, 4, 0, Math.PI * 2)
-    ctx.fill()
-    ctx.strokeStyle = chartData.datasets[0].borderColor
-    ctx.stroke()
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = chartData.datasets[0].borderColor;
+    ctx.stroke();
 
     // 绘制标签
-    ctx.fillStyle = '#333'
-    ctx.font = '12px Arial'
-    ctx.textAlign = 'center'
-    ctx.fillText(chartData.labels[index], x, height / 2 - padding + 20)
+    ctx.fillStyle = '#333';
+    ctx.font = '12px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(chartData.labels[index], x, height / 2 - padding + 20);
 
     // 绘制数值
-    ctx.fillText(value, x, y - 10)
-  })
-}
+    ctx.fillText(value, x, y - 10);
+  });
+};
 
-const handleExport = (type) => {
-  showToast(`导出${type === 'excel' ? 'Excel' : type === 'pdf' ? 'PDF' : '图片'}文件`)
+const handleExport = type => {
+  showToast(`导出${type === 'excel' ? 'Excel' : type === 'pdf' ? 'PDF' : '图片'}文件`);
 
   // 这里可以调用实际的导出API
   switch (type) {
     case 'excel':
-      exportExcel()
-      break
+      exportExcel();
+      break;
     case 'pdf':
-      exportPDF()
-      break
+      exportPDF();
+      break;
     case 'image':
-      exportChartImage()
-      break
+      exportChartImage();
+      break;
   }
-}
+};
 
 const exportExcel = () => {
   // 导出Excel逻辑
   setTimeout(() => {
-    showToast('Excel报表已生成并下载')
-  }, 1000)
-}
+    showToast('Excel报表已生成并下载');
+  }, 1000);
+};
 
 const exportPDF = () => {
   // 导出PDF逻辑
   setTimeout(() => {
-    showToast('PDF报告已生成并下载')
-  }, 1000)
-}
+    showToast('PDF报告已生成并下载');
+  }, 1000);
+};
 
 const exportChartImage = () => {
   // 导出图表图片
-  const canvas = activeChart.value === 'workload' ? workloadChart.value :
-                activeChart.value === 'completion' ? completionChart.value : trendChart.value
+  const canvas =
+    activeChart.value === 'workload'
+      ? workloadChart.value
+      : activeChart.value === 'completion'
+        ? completionChart.value
+        : trendChart.value;
 
   if (canvas) {
-    const link = document.createElement('a')
-    link.download = `work-statistics-${Date.now()}.png`
-    link.href = canvas.toDataURL()
-    link.click()
-    showToast('图表图片已下载')
+    const link = document.createElement('a');
+    link.download = `work-statistics-${Date.now()}.png`;
+    link.href = canvas.toDataURL();
+    link.click();
+    showToast('图表图片已下载');
   }
-}
+};
 
 // 监听趋势周期变化
 watch(trendPeriod, () => {
-  initTrendChart()
-})
+  initTrendChart();
+});
 
 // 监听图表切换
 watch(activeChart, () => {
   // 延迟一下确保DOM已更新
   setTimeout(() => {
     if (activeChart.value === 'workload' && !workloadChartInstance) {
-      initWorkloadChart()
+      initWorkloadChart();
     } else if (activeChart.value === 'completion' && !completionChartInstance) {
-      initCompletionChart()
+      initCompletionChart();
     }
-  }, 100)
-})
+  }, 100);
+});
 
 // 生命周期
 onMounted(() => {
-  loadStatistics()
+  loadStatistics();
 
   // 延迟初始化图表，确保DOM已渲染
   setTimeout(() => {
-    initWorkloadChart()
-    initTrendChart()
-  }, 300)
-})
+    initWorkloadChart();
+    initTrendChart();
+  }, 300);
+});
 </script>
 
 <style scoped>

@@ -46,7 +46,10 @@
               <!-- 家庭树状图 -->
               <div v-if="familyTree.length > 0" class="family-tree">
                 <!-- 祖父母层 -->
-                <div v-if="getGenerationMembers(-2).length > 0" class="generation-level grandparents">
+                <div
+                  v-if="getGenerationMembers(-2).length > 0"
+                  class="generation-level grandparents"
+                >
                   <div class="generation-title">祖父母辈</div>
                   <div class="members-row">
                     <div
@@ -126,7 +129,10 @@
                 </div>
 
                 <!-- 孙辈层 -->
-                <div v-if="getGenerationMembers(2).length > 0" class="generation-level grandchildren">
+                <div
+                  v-if="getGenerationMembers(2).length > 0"
+                  class="generation-level grandchildren"
+                >
                   <div class="generation-title">孙辈</div>
                   <div class="members-row">
                     <div
@@ -148,9 +154,7 @@
               <!-- 空状态 -->
               <div v-else class="empty-family-tree">
                 <el-empty description="暂无家庭关系数据" />
-                <el-button type="primary" @click="showAddRelationDialog">
-                  添加家庭成员
-                </el-button>
+                <el-button type="primary" @click="showAddRelationDialog"> 添加家庭成员 </el-button>
               </div>
             </div>
           </el-card>
@@ -187,10 +191,7 @@
                 <el-table-column prop="relationToTarget" label="关系" width="80" />
                 <el-table-column prop="verified" label="状态" width="60">
                   <template #default="scope">
-                    <el-tag
-                      :type="scope.row.verified ? 'success' : 'warning'"
-                      size="small"
-                    >
+                    <el-tag :type="scope.row.verified ? 'success' : 'warning'" size="small">
                       {{ scope.row.verified ? '已验证' : '待验证' }}
                     </el-tag>
                   </template>
@@ -220,11 +221,7 @@
             <div v-if="recommendedRelations.length > 0" class="relation-recommendations">
               <el-divider content-position="left">智能推荐</el-divider>
               <div class="recommendation-list">
-                <div
-                  v-for="rec in recommendedRelations"
-                  :key="rec.id"
-                  class="recommendation-item"
-                >
+                <div v-for="rec in recommendedRelations" :key="rec.id" class="recommendation-item">
                   <div class="rec-info">
                     <el-avatar :size="30" :src="rec.avatar" :icon="UserFilled" />
                     <div class="rec-details">
@@ -236,9 +233,7 @@
                     <el-button size="small" type="primary" @click="acceptRecommendation(rec)">
                       接受
                     </el-button>
-                    <el-button size="small" @click="rejectRecommendation(rec)">
-                      忽略
-                    </el-button>
+                    <el-button size="small" @click="rejectRecommendation(rec)"> 忽略 </el-button>
                   </div>
                 </div>
               </div>
@@ -275,7 +270,9 @@
                 <div class="member-option">
                   <el-avatar :size="20" :src="member.avatar" :icon="UserFilled" />
                   <span>{{ member.name }}</span>
-                  <span class="member-info">{{ member.age }}岁 - {{ member.gender === 'male' ? '男' : '女' }}</span>
+                  <span class="member-info"
+                    >{{ member.age }}岁 - {{ member.gender === 'male' ? '男' : '女' }}</span
+                  >
                 </div>
               </el-option>
             </el-select>
@@ -348,66 +345,69 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, reactive, computed, watch, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
-  UserFilled, Plus, Edit, Delete, Refresh, MagicStick, Download, Star
-} from '@element-plus/icons-vue'
+  UserFilled,
+  Plus,
+  Edit,
+  Delete,
+  Refresh,
+  MagicStick,
+  Download,
+  Star,
+} from '@element-plus/icons-vue';
 
 // Props
 const props = defineProps({
   modelValue: {
     type: Boolean,
-    default: false
+    default: false,
   },
   resident: {
     type: Object,
-    default: () => ({})
-  }
-})
+    default: () => ({}),
+  },
+});
 
 // Emits
-const emit = defineEmits(['update:modelValue', 'refresh'])
+const emit = defineEmits(['update:modelValue', 'refresh']);
 
 // 响应式数据
 const dialogVisible = computed({
   get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
-})
+  set: value => emit('update:modelValue', value),
+});
 
-const relationFormRef = ref()
-const relationDialogVisible = ref(false)
-const relationDialogMode = ref('add') // 'add' | 'edit'
-const saving = ref(false)
-const selectedMember = ref(null)
+const relationFormRef = ref();
+const relationDialogVisible = ref(false);
+const relationDialogMode = ref('add'); // 'add' | 'edit'
+const saving = ref(false);
+const selectedMember = ref(null);
 
 // 家庭树数据
-const familyTree = ref([])
-const currentRelations = ref([])
-const availableMembers = ref([])
-const recommendedRelations = ref([])
+const familyTree = ref([]);
+const currentRelations = ref([]);
+const availableMembers = ref([]);
+const recommendedRelations = ref([]);
 
 // 关系表单
 const relationForm = reactive({
   memberId: '',
   relation: '',
   verified: false,
-  note: ''
-})
+  note: '',
+});
 
 const relationRules = {
-  memberId: [
-    { required: true, message: '请选择家庭成员', trigger: 'change' }
-  ],
-  relation: [
-    { required: true, message: '请选择关系类型', trigger: 'change' }
-  ]
-}
+  memberId: [{ required: true, message: '请选择家庭成员', trigger: 'change' }],
+  relation: [{ required: true, message: '请选择关系类型', trigger: 'change' }],
+};
 
 // 计算属性
-const getGenerationMembers = (generation) => {
-  return familyTree.value.filter(member => member.generation === generation)
-}
+const getGenerationMembers = generation => {
+  return familyTree.value.filter(member => member.generation === generation);
+};
 
 // 方法
 const loadFamilyData = async () => {
@@ -420,7 +420,7 @@ const loadFamilyData = async () => {
         generation: -2,
         relationToTarget: '祖父',
         avatar: '',
-        verified: true
+        verified: true,
       },
       {
         id: 2,
@@ -428,7 +428,7 @@ const loadFamilyData = async () => {
         generation: -2,
         relationToTarget: '祖母',
         avatar: '',
-        verified: true
+        verified: true,
       },
       {
         id: 3,
@@ -436,7 +436,7 @@ const loadFamilyData = async () => {
         generation: -1,
         relationToTarget: '父亲',
         avatar: '',
-        verified: true
+        verified: true,
       },
       {
         id: 4,
@@ -444,7 +444,7 @@ const loadFamilyData = async () => {
         generation: -1,
         relationToTarget: '母亲',
         avatar: '',
-        verified: true
+        verified: true,
       },
       {
         id: props.resident.id,
@@ -452,7 +452,7 @@ const loadFamilyData = async () => {
         generation: 0,
         relationToTarget: '本人',
         avatar: props.resident.avatar,
-        verified: true
+        verified: true,
       },
       {
         id: 5,
@@ -460,7 +460,7 @@ const loadFamilyData = async () => {
         generation: 0,
         relationToTarget: '配偶',
         avatar: '',
-        verified: true
+        verified: true,
       },
       {
         id: 6,
@@ -468,7 +468,7 @@ const loadFamilyData = async () => {
         generation: 1,
         relationToTarget: '儿子',
         avatar: '',
-        verified: true
+        verified: true,
       },
       {
         id: 7,
@@ -476,11 +476,11 @@ const loadFamilyData = async () => {
         generation: 1,
         relationToTarget: '女儿',
         avatar: '',
-        verified: false
-      }
-    ]
+        verified: false,
+      },
+    ];
 
-    currentRelations.value = familyTree.value.filter(member => member.id !== props.resident.id)
+    currentRelations.value = familyTree.value.filter(member => member.id !== props.resident.id);
 
     // 模拟推荐关系
     recommendedRelations.value = [
@@ -489,9 +489,9 @@ const loadFamilyData = async () => {
         name: '张三叔',
         avatar: '',
         reason: '同户籍，年龄相符，可能是叔叔',
-        confidence: 0.8
-      }
-    ]
+        confidence: 0.8,
+      },
+    ];
 
     // 加载可用成员
     availableMembers.value = [
@@ -500,85 +500,81 @@ const loadFamilyData = async () => {
         name: '王大妈',
         age: 65,
         gender: 'female',
-        idCard: '320123195501011234'
+        idCard: '320123195501011234',
       },
       {
         id: 10,
         name: '李小六',
         age: 25,
         gender: 'male',
-        idCard: '320123199801011234'
-      }
-    ]
+        idCard: '320123199801011234',
+      },
+    ];
   } catch (error) {
-    ElMessage.error('加载家庭数据失败')
+    ElMessage.error('加载家庭数据失败');
   }
-}
+};
 
-const selectMember = (member) => {
-  selectedMember.value = member
-}
+const selectMember = member => {
+  selectedMember.value = member;
+};
 
 const showAddRelationDialog = () => {
-  relationDialogMode.value = 'add'
+  relationDialogMode.value = 'add';
   Object.assign(relationForm, {
     memberId: '',
     relation: '',
     verified: false,
-    note: ''
-  })
-  relationDialogVisible.value = true
-}
+    note: '',
+  });
+  relationDialogVisible.value = true;
+};
 
-const editRelation = (relation) => {
-  relationDialogMode.value = 'edit'
+const editRelation = relation => {
+  relationDialogMode.value = 'edit';
   Object.assign(relationForm, {
     memberId: relation.id,
     relation: relation.relationToTarget,
     verified: relation.verified,
-    note: relation.note || ''
-  })
-  relationDialogVisible.value = true
-}
+    note: relation.note || '',
+  });
+  relationDialogVisible.value = true;
+};
 
-const deleteRelation = async (relation) => {
+const deleteRelation = async relation => {
   try {
-    await ElMessageBox.confirm(
-      `确定要删除与 ${relation.name} 的关系吗？`,
-      '删除确认',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
+    await ElMessageBox.confirm(`确定要删除与 ${relation.name} 的关系吗？`, '删除确认', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
 
-    const index = currentRelations.value.findIndex(r => r.id === relation.id)
+    const index = currentRelations.value.findIndex(r => r.id === relation.id);
     if (index > -1) {
-      currentRelations.value.splice(index, 1)
+      currentRelations.value.splice(index, 1);
     }
 
-    const treeIndex = familyTree.value.findIndex(m => m.id === relation.id)
+    const treeIndex = familyTree.value.findIndex(m => m.id === relation.id);
     if (treeIndex > -1) {
-      familyTree.value.splice(treeIndex, 1)
+      familyTree.value.splice(treeIndex, 1);
     }
 
-    ElMessage.success('关系删除成功')
+    ElMessage.success('关系删除成功');
   } catch {
     // 用户取消操作
   }
-}
+};
 
 const saveRelation = async () => {
   try {
-    await relationFormRef.value.validate()
+    await relationFormRef.value.validate();
 
-    saving.value = true
+    saving.value = true;
 
     // 模拟保存关系
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const member = availableMembers.value.find(m => m.id === relationForm.memberId)
+    const member = availableMembers.value.find(m => m.id === relationForm.memberId);
     if (member) {
       const newRelation = {
         id: member.id,
@@ -587,93 +583,93 @@ const saveRelation = async () => {
         relationToTarget: relationForm.relation,
         avatar: member.avatar || '',
         verified: relationForm.verified,
-        note: relationForm.note
-      }
+        note: relationForm.note,
+      };
 
       if (relationDialogMode.value === 'add') {
-        familyTree.value.push(newRelation)
-        currentRelations.value.push(newRelation)
+        familyTree.value.push(newRelation);
+        currentRelations.value.push(newRelation);
       } else {
         // 编辑模式
-        const index = currentRelations.value.findIndex(r => r.id === relationForm.memberId)
+        const index = currentRelations.value.findIndex(r => r.id === relationForm.memberId);
         if (index > -1) {
-          Object.assign(currentRelations.value[index], newRelation)
+          Object.assign(currentRelations.value[index], newRelation);
         }
-        const treeIndex = familyTree.value.findIndex(m => m.id === relationForm.memberId)
+        const treeIndex = familyTree.value.findIndex(m => m.id === relationForm.memberId);
         if (treeIndex > -1) {
-          Object.assign(familyTree.value[treeIndex], newRelation)
+          Object.assign(familyTree.value[treeIndex], newRelation);
         }
       }
 
-      ElMessage.success(`关系${relationDialogMode.value === 'add' ? '添加' : '更新'}成功`)
-      relationDialogVisible.value = false
+      ElMessage.success(`关系${relationDialogMode.value === 'add' ? '添加' : '更新'}成功`);
+      relationDialogVisible.value = false;
     }
   } catch (error) {
-    ElMessage.error('保存失败')
+    ElMessage.error('保存失败');
   } finally {
-    saving.value = false
+    saving.value = false;
   }
-}
+};
 
-const getGenerationByRelation = (relation) => {
+const getGenerationByRelation = relation => {
   const generationMap = {
-    'grandfather': -2,
-    'grandmother': -2,
-    'maternal_grandfather': -2,
-    'maternal_grandmother': -2,
-    'father': -1,
-    'mother': -1,
-    'spouse': 0,
-    'brother': 0,
-    'sister': 0,
-    'son': 1,
-    'daughter': 1,
-    'grandson': 2,
-    'granddaughter': 2,
-    'maternal_grandson': 2,
-    'maternal_granddaughter': 2
-  }
-  return generationMap[relation] || 0
-}
+    grandfather: -2,
+    grandmother: -2,
+    maternal_grandfather: -2,
+    maternal_grandmother: -2,
+    father: -1,
+    mother: -1,
+    spouse: 0,
+    brother: 0,
+    sister: 0,
+    son: 1,
+    daughter: 1,
+    grandson: 2,
+    granddaughter: 2,
+    maternal_grandson: 2,
+    maternal_granddaughter: 2,
+  };
+  return generationMap[relation] || 0;
+};
 
-const acceptRecommendation = async (recommendation) => {
+const acceptRecommendation = async recommendation => {
   try {
     // 自动设置关系信息
-    relationForm.memberId = recommendation.id
-    relationForm.relation = recommendation.suggestedRelation || ''
-    relationForm.verified = false
+    relationForm.memberId = recommendation.id;
+    relationForm.relation = recommendation.suggestedRelation || '';
+    relationForm.verified = false;
 
-    showAddRelationDialog()
+    showAddRelationDialog();
 
     // 从推荐列表中移除
-    const index = recommendedRelations.value.findIndex(r => r.id === recommendation.id)
+    const index = recommendedRelations.value.findIndex(r => r.id === recommendation.id);
     if (index > -1) {
-      recommendedRelations.value.splice(index, 1)
+      recommendedRelations.value.splice(index, 1);
     }
   } catch (error) {
-    ElMessage.error('操作失败')
+    ElMessage.error('操作失败');
   }
-}
+};
 
-const rejectRecommendation = (recommendation) => {
-  const index = recommendedRelations.value.findIndex(r => r.id === recommendation.id)
+const rejectRecommendation = recommendation => {
+  const index = recommendedRelations.value.findIndex(r => r.id === recommendation.id);
   if (index > -1) {
-    recommendedRelations.value.splice(index, 1)
+    recommendedRelations.value.splice(index, 1);
   }
-  ElMessage.info('已忽略该推荐')
-}
+  ElMessage.info('已忽略该推荐');
+};
 
 const refreshFamily = () => {
-  loadFamilyData()
-  ElMessage.success('家庭数据已刷新')
-}
+  loadFamilyData();
+  ElMessage.success('家庭数据已刷新');
+};
 
 const autoDetectRelations = async () => {
   try {
-    ElMessage.info('正在智能识别家庭关系...')
+    ElMessage.info('正在智能识别家庭关系...');
 
     // 模拟智能识别
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
     recommendedRelations.value = [
       {
@@ -682,7 +678,7 @@ const autoDetectRelations = async () => {
         avatar: '',
         reason: '同户籍，年龄相符，可能是叔叔',
         suggestedRelation: 'uncle',
-        confidence: 0.85
+        confidence: 0.85,
       },
       {
         id: 12,
@@ -690,56 +686,56 @@ const autoDetectRelations = async () => {
         avatar: '',
         reason: '同村，经常来往，可能是姨妈',
         suggestedRelation: 'aunt',
-        confidence: 0.7
-      }
-    ]
+        confidence: 0.7,
+      },
+    ];
 
-    ElMessage.success(`智能识别完成，发现 ${recommendedRelations.value.length} 个可能的关系`)
+    ElMessage.success(`智能识别完成，发现 ${recommendedRelations.value.length} 个可能的关系`);
   } catch (error) {
-    ElMessage.error('智能识别失败')
+    ElMessage.error('智能识别失败');
   }
-}
+};
 
 const exportFamilyTree = () => {
-  ElMessage.info('导出功能开发中...')
-}
+  ElMessage.info('导出功能开发中...');
+};
 
 const saveAllChanges = async () => {
   try {
-    saving.value = true
+    saving.value = true;
 
     // 模拟保存所有更改
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
-    ElMessage.success('所有更改已保存')
-    emit('refresh')
+    ElMessage.success('所有更改已保存');
+    emit('refresh');
   } catch (error) {
-    ElMessage.error('保存失败')
+    ElMessage.error('保存失败');
   } finally {
-    saving.value = false
+    saving.value = false;
   }
-}
+};
 
 const handleClose = () => {
-  dialogVisible.value = false
-}
+  dialogVisible.value = false;
+};
 
 // 监听器
 watch(
   () => props.resident,
-  (newResident) => {
+  newResident => {
     if (newResident && Object.keys(newResident).length > 0) {
-      loadFamilyData()
+      loadFamilyData();
     }
   },
   { immediate: true }
-)
+);
 
 onMounted(() => {
   if (props.resident && Object.keys(props.resident).length > 0) {
-    loadFamilyData()
+    loadFamilyData();
   }
-})
+});
 </script>
 
 <style lang="scss" scoped>

@@ -28,81 +28,55 @@ export function useDashboardRealtime(options = {}) {
 
   // 事件处理器映射
   const handlers = {
-    // 新通知
-    'new-notification': (data) => {
-      console.log('[Dashboard] 新通知:', data);
+    'new-notification': data => {
       lastUpdate.value = { type: 'notification', data, timestamp: Date.now() };
       options.onNotificationUpdate?.(data);
     },
 
-    // 通知已读
-    'notification-read': (data) => {
-      console.log('[Dashboard] 通知已读:', data);
+    'notification-read': data => {
       options.onNotificationUpdate?.(data);
     },
 
-    // 通知删除
-    'notification-deleted': (data) => {
-      console.log('[Dashboard] 通知已删除:', data);
+    'notification-deleted': data => {
       options.onNotificationUpdate?.(data);
     },
 
-    // 新待办事项
-    'new-todo': (data) => {
-      console.log('[Dashboard] 新待办事项:', data);
+    'new-todo': data => {
       lastUpdate.value = { type: 'todo', data, timestamp: Date.now() };
       options.onTodoUpdate?.(data);
     },
 
-    // 待办事项状态更新
-    'todo-updated': (data) => {
-      console.log('[Dashboard] 待办事项更新:', data);
+    'todo-updated': data => {
       options.onTodoUpdate?.(data);
     },
 
-    // 待办事项完成
-    'todo-completed': (data) => {
-      console.log('[Dashboard] 待办事项完成:', data);
+    'todo-completed': data => {
       options.onTodoUpdate?.(data);
     },
 
-    // 值班表更新
-    'duty-schedule-updated': (data) => {
-      console.log('[Dashboard] 值班表更新:', data);
+    'duty-schedule-updated': data => {
       lastUpdate.value = { type: 'duty', data, timestamp: Date.now() };
       options.onDutyUpdate?.(data);
     },
 
-    // 统计数据更新
-    'statistics-updated': (data) => {
-      console.log('[Dashboard] 统计数据更新:', data);
+    'statistics-updated': data => {
       options.onStatisticsUpdate?.(data);
     },
 
-    // 村民动态更新
-    'activity-new': (data) => {
-      console.log('[Dashboard] 新村民动态:', data);
-      // 可选：添加村民动态更新回调
-    },
+    'activity-new': data => {},
 
-    // 紧急广播
-    'emergency-alert': (data) => {
-      console.log('[Dashboard] 紧急广播:', data);
+    'emergency-alert': data => {
       lastUpdate.value = { type: 'emergency', data, timestamp: Date.now() };
       options.onEmergencyAlert?.(data);
     },
 
-    // 系统通知
-    'system-notification': (data) => {
-      console.log('[Dashboard] 系统通知:', data);
+    'system-notification': data => {
       options.onSystemNotification?.(data);
     },
 
-    // 村务更新
-    'village-update': (data) => {
-      console.log('[Dashboard] 村务更新:', data);
+    'village-update': data => {
       options.onVillageUpdate?.(data);
-    }
+    },
   };
 
   /**
@@ -110,7 +84,6 @@ export function useDashboardRealtime(options = {}) {
    */
   function connect() {
     if (isConnected.value || isConnecting.value) {
-      console.log('[Dashboard] Socket 已连接或正在连接');
       return;
     }
 
@@ -118,12 +91,10 @@ export function useDashboardRealtime(options = {}) {
     connectionStatus.value = 'connecting';
 
     try {
-      // 如果 socketService 还未连接，则连接
       if (!socketService.socket) {
         socketService.connect();
       }
 
-      // 等待连接成功
       const checkConnection = setInterval(() => {
         if (socketService.isConnected) {
           clearInterval(checkConnection);
@@ -131,7 +102,6 @@ export function useDashboardRealtime(options = {}) {
         }
       }, 100);
 
-      // 超时处理
       setTimeout(() => {
         clearInterval(checkConnection);
         if (isConnecting.value) {
@@ -139,9 +109,7 @@ export function useDashboardRealtime(options = {}) {
           connectionStatus.value = 'error';
         }
       }, 5000);
-
     } catch (error) {
-      console.error('[Dashboard] Socket 连接失败:', error);
       isConnecting.value = false;
       connectionStatus.value = 'error';
     }
@@ -152,35 +120,28 @@ export function useDashboardRealtime(options = {}) {
    */
   function setupEventListeners() {
     if (!socketService.socket) {
-      console.error('[Dashboard] Socket 实例不存在');
       return;
     }
 
     const socket = socketService.socket;
 
-    // 监听所有仪表板相关事件
     Object.keys(handlers).forEach(event => {
       socket.on(event, handlers[event]);
     });
 
-    // 监听连接状态变化
     socket.on('connect', () => {
-      console.log('[Dashboard] Socket 已连接:', socket.id);
       isConnected.value = true;
       isConnecting.value = false;
       connectionStatus.value = 'connected';
 
-      // 加入村庄房间
       joinVillageRoom();
     });
 
     socket.on('disconnect', () => {
-      console.log('[Dashboard] Socket 已断开');
       isConnected.value = false;
       connectionStatus.value = 'disconnected';
     });
 
-    // 如果已经连接，直接设置状态
     if (socketService.isConnected) {
       isConnected.value = true;
       isConnecting.value = false;
@@ -208,14 +169,12 @@ export function useDashboardRealtime(options = {}) {
   function joinVillageRoom() {
     const villageId = userStore.villageId || userStore.user?.villageId || 'default';
     socketService.joinVillage(villageId);
-    console.log('[Dashboard] 已加入村庄房间:', villageId);
   }
 
   /**
    * 断开连接
    */
   function disconnect() {
-    console.log('[Dashboard] 断开 Socket 连接');
     removeEventListeners();
     isConnected.value = false;
     connectionStatus.value = 'disconnected';
@@ -227,18 +186,15 @@ export function useDashboardRealtime(options = {}) {
    */
   function refreshData(dataType) {
     if (!socketService.socket || !isConnected.value) {
-      console.warn('[Dashboard] Socket 未连接，无法刷新数据');
       return false;
     }
 
-    // 发送刷新请求到服务器
     socketService.socket.emit('dashboard-refresh', {
       villageId: userStore.villageId,
       dataType,
-      userId: userStore.user?.id || userStore.user?._id
+      userId: userStore.user?.id || userStore.user?._id,
     });
 
-    console.log('[Dashboard] 请求刷新数据:', dataType);
     return true;
   }
 
@@ -251,7 +207,7 @@ export function useDashboardRealtime(options = {}) {
     socketService.socket.emit('dashboard-heartbeat', {
       userId: userStore.user?.id || userStore.user?._id,
       villageId: userStore.villageId,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
   }
 
@@ -264,7 +220,7 @@ export function useDashboardRealtime(options = {}) {
       isConnecting: isConnecting.value,
       status: connectionStatus.value,
       socketId: socketService.socket?.id || null,
-      lastUpdate: lastUpdate.value
+      lastUpdate: lastUpdate.value,
     };
   }
 
@@ -292,7 +248,7 @@ export function useDashboardRealtime(options = {}) {
     getConnectionInfo,
 
     // Socket 服务实例（供高级使用）
-    socketService
+    socketService,
   };
 }
 

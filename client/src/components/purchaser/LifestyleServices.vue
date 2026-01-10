@@ -44,11 +44,7 @@
       <div class="sub-filter-section" v-if="activeSubCategories.length > 0">
         <el-radio-group v-model="activeSubCategory" @change="handleFilter">
           <el-radio-button label="">全部</el-radio-button>
-          <el-radio-button
-            v-for="sub in activeSubCategories"
-            :key="sub.value"
-            :label="sub.value"
-          >
+          <el-radio-button v-for="sub in activeSubCategories" :key="sub.value" :label="sub.value">
             {{ sub.label }}
           </el-radio-button>
         </el-radio-group>
@@ -102,9 +98,7 @@
             <el-icon><Search /></el-icon>
           </template>
         </el-input>
-        <el-button type="primary" @click="handleFilter">
-          筛选
-        </el-button>
+        <el-button type="primary" @click="handleFilter"> 筛选 </el-button>
       </div>
 
       <!-- 加载状态 -->
@@ -116,9 +110,7 @@
       <!-- 空状态 -->
       <div v-else-if="filteredServices.length === 0" class="empty-container">
         <el-empty :description="`附近暂无${currentCategoryLabel}推荐`">
-          <el-button type="primary" @click="expandSearch">
-            扩大搜索范围
-          </el-button>
+          <el-button type="primary" @click="expandSearch"> 扩大搜索范围 </el-button>
         </el-empty>
       </div>
 
@@ -139,7 +131,10 @@
                   <el-icon><Location /></el-icon>
                   {{ service.distance?.toFixed(1) }}km
                 </div>
-                <div class="category-badge" :style="{ background: getCategoryColor(service.category) }">
+                <div
+                  class="category-badge"
+                  :style="{ background: getCategoryColor(service.category) }"
+                >
                   {{ service.categoryLabel }}
                 </div>
               </div>
@@ -167,7 +162,9 @@
               <!-- 价格信息 -->
               <div class="service-price" v-if="service.priceLevel || service.avgPrice">
                 <span class="price-label">人均</span>
-                <span class="price-value">¥{{ service.avgPrice || getAvgPrice(service.priceLevel) }}</span>
+                <span class="price-value"
+                  >¥{{ service.avgPrice || getAvgPrice(service.priceLevel) }}</span
+                >
                 <span class="price-unit">/人</span>
               </div>
 
@@ -180,7 +177,7 @@
               <!-- 营业时间 -->
               <div class="business-hours" v-if="service.businessHours">
                 <el-icon><Clock /></el-icon>
-                <span :class="{ 'closed': !service.isOpen }">
+                <span :class="{ closed: !service.isOpen }">
                   {{ service.isOpen ? '营业中' : '已打烊' }} {{ service.businessHours }}
                 </span>
               </div>
@@ -227,19 +224,12 @@
 
       <!-- 加载更多 -->
       <div class="load-more" v-if="hasMore && !loading">
-        <el-button @click="loadMore" :loading="loadingMore">
-          加载更多
-        </el-button>
+        <el-button @click="loadMore" :loading="loadingMore"> 加载更多 </el-button>
       </div>
     </el-card>
 
     <!-- 地图视图对话框 -->
-    <el-dialog
-      v-model="mapDialogVisible"
-      title="附近吃喝玩乐地图"
-      width="90%"
-      top="5vh"
-    >
+    <el-dialog v-model="mapDialogVisible" title="附近吃喝玩乐地图" width="90%" top="5vh">
       <div class="map-container" id="lifestyleMap">
         <div class="map-placeholder">
           <el-icon><MapLocation /></el-icon>
@@ -253,11 +243,7 @@
     </el-dialog>
 
     <!-- 详情对话框 -->
-    <el-dialog
-      v-model="detailDialogVisible"
-      :title="currentService?.name"
-      width="700px"
-    >
+    <el-dialog v-model="detailDialogVisible" :title="currentService?.name" width="700px">
       <div class="service-detail" v-if="currentService">
         <!-- 图片轮播 -->
         <div class="detail-gallery">
@@ -267,12 +253,7 @@
         <!-- 基本信息 -->
         <div class="detail-info">
           <div class="detail-meta">
-            <el-rate
-              v-model="currentService.rating"
-              disabled
-              show-score
-              text-color="#ff9900"
-            />
+            <el-rate v-model="currentService.rating" disabled show-score text-color="#ff9900" />
             <span class="detail-price">
               人均 ¥{{ currentService.avgPrice || getAvgPrice(currentService.priceLevel) }}
             </span>
@@ -330,36 +311,51 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { ElMessage } from 'element-plus';
 import {
-  Compass, Refresh, MapLocation, Location, Search, Loading,
-  Star, Phone, Clock, ShoppingCart, House,
-  Football, Ticket, Grid, Food, Burger, IceCream
-} from '@element-plus/icons-vue'
-import api from '@/api'
+  Compass,
+  Refresh,
+  MapLocation,
+  Location,
+  Search,
+  Loading,
+  Star,
+  Phone,
+  Clock,
+  ShoppingCart,
+  House,
+  Football,
+  Ticket,
+  Grid,
+  Food,
+  Burger,
+  IceCream,
+} from '@element-plus/icons-vue';
+import api from '@/api';
 
-const router = useRouter()
+const router = useRouter();
 
-const loading = ref(false)
-const loadingMore = ref(false)
-const activeCategory = ref('all')
-const activeSubCategory = ref('')
-const mapDialogVisible = ref(false)
-const detailDialogVisible = ref(false)
-const currentService = ref(null)
-const locationInfo = ref({ city: '杭州市' })
-const hasMore = ref(true)
+const loading = ref(false);
+const loadingMore = ref(false);
+const activeCategory = ref('all');
+const activeSubCategory = ref('');
+const mapDialogVisible = ref(false);
+const detailDialogVisible = ref(false);
+const currentService = ref(null);
+const locationInfo = ref({ city: '杭州市' });
+const hasMore = ref(true);
 
-const defaultCoverImage = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200"%3E%3Crect width="300" height="200" fill="%23f0f0f0"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" fill="%23999" font-size="16"%3E暂无图片%3C/text%3E%3C/svg%3E'
+const defaultCoverImage =
+  'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200"%3E%3Crect width="300" height="200" fill="%23f0f0f0"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" fill="%23999" font-size="16"%3E暂无图片%3C/text%3E%3C/svg%3E';
 
 const filters = reactive({
   distance: 5,
   sortBy: 'distance',
   priceLevel: '',
-  keyword: ''
-})
+  keyword: '',
+});
 
 const categories = [
   {
@@ -367,7 +363,7 @@ const categories = [
     label: '全部',
     icon: Grid,
     color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    count: 0
+    count: 0,
   },
   {
     key: 'dining',
@@ -382,8 +378,8 @@ const categories = [
       { label: '烧烤', value: 'bbq' },
       { label: '快餐', value: 'fastfood' },
       { label: '小吃', value: 'snack' },
-      { label: '饮品', value: 'drink' }
-    ]
+      { label: '饮品', value: 'drink' },
+    ],
   },
   {
     key: 'entertainment',
@@ -397,8 +393,8 @@ const categories = [
       { label: '网吧', value: 'internet_bar' },
       { label: '健身房', value: 'gym' },
       { label: '电影院', value: 'cinema' },
-      { label: '棋牌室', value: 'chess' }
-    ]
+      { label: '棋牌室', value: 'chess' },
+    ],
   },
   {
     key: 'hotel',
@@ -410,8 +406,8 @@ const categories = [
       { label: '全部', value: '' },
       { label: '酒店', value: 'hotel' },
       { label: '民宿', value: 'homestay' },
-      { label: '宾馆', value: 'guesthouse' }
-    ]
+      { label: '宾馆', value: 'guesthouse' },
+    ],
   },
   {
     key: 'shopping',
@@ -423,8 +419,8 @@ const categories = [
       { label: '全部', value: '' },
       { label: '商场', value: 'mall' },
       { label: '超市', value: 'supermarket' },
-      { label: '便利店', value: 'convenience' }
-    ]
+      { label: '便利店', value: 'convenience' },
+    ],
   },
   {
     key: 'tourism',
@@ -436,10 +432,10 @@ const categories = [
       { label: '全部', value: '' },
       { label: '景点', value: 'scenic' },
       { label: '农家乐', value: 'farm' },
-      { label: '采摘园', value: 'picking' }
-    ]
-  }
-]
+      { label: '采摘园', value: 'picking' },
+    ],
+  },
+];
 
 // 模拟数据
 const servicesData = ref([
@@ -460,7 +456,7 @@ const servicesData = ref([
     isOpen: true,
     tags: ['农家菜', '环境优美', '停车位充足'],
     features: ['免费WiFi', '包厢', '停车位', '支持外卖'],
-    description: '正宗本地农家菜，食材新鲜，口味地道，环境优雅。'
+    description: '正宗本地农家菜，食材新鲜，口味地道，环境优雅。',
   },
   {
     _id: '2',
@@ -479,7 +475,7 @@ const servicesData = ref([
     isOpen: true,
     tags: ['音响效果好', '环境整洁', '价格实惠'],
     features: ['包厢', '小吃饮料', '免费停车', '生日特惠'],
-    description: '专业的KTV设备，舒适的包厢环境，性价比高。'
+    description: '专业的KTV设备，舒适的包厢环境，性价比高。',
   },
   {
     _id: '3',
@@ -498,7 +494,7 @@ const servicesData = ref([
     isOpen: true,
     tags: ['风景优美', '服务周到', '体验独特'],
     features: ['山景房', '农家早餐', '免费接送', '采摘体验'],
-    description: '位于茶园中的精品民宿，环境清幽，体验乡村生活。'
+    description: '位于茶园中的精品民宿，环境清幽，体验乡村生活。',
   },
   {
     _id: '4',
@@ -517,7 +513,7 @@ const servicesData = ref([
     isOpen: true,
     tags: ['品牌齐全', '餐饮丰富', '交通便利'],
     features: ['免费WiFi', '母婴室', '停车场', '会员服务'],
-    description: '大型综合购物中心，集购物、餐饮、娱乐于一体。'
+    description: '大型综合购物中心，集购物、餐饮、娱乐于一体。',
   },
   {
     _id: '5',
@@ -536,7 +532,7 @@ const servicesData = ref([
     isOpen: true,
     tags: ['亲子游', '体验好', '空气清新'],
     features: ['茶文化体验', '农家饭', '免费品茶', '茶叶购买'],
-    description: '体验采茶乐趣，了解茶文化，品味农家美食。'
+    description: '体验采茶乐趣，了解茶文化，品味农家美食。',
   },
   {
     _id: '6',
@@ -555,7 +551,7 @@ const servicesData = ref([
     isOpen: true,
     tags: ['环境舒适', '免费WiFi', '适合办公'],
     features: ['免费WiFi', '充电插座', '外卖服务', '会员积分'],
-    description: '全球知名咖啡品牌，提供优质咖啡和舒适环境。'
+    description: '全球知名咖啡品牌，提供优质咖啡和舒适环境。',
   },
   {
     _id: '7',
@@ -574,7 +570,7 @@ const servicesData = ref([
     isOpen: true,
     tags: ['种类丰富', '价格实惠', '风味独特'],
     features: ['传统小吃', '手工制作', '本地特产'],
-    description: '汇集各种传统小吃和地方特色美食。'
+    description: '汇集各种传统小吃和地方特色美食。',
   },
   {
     _id: '8',
@@ -593,164 +589,163 @@ const servicesData = ref([
     isOpen: true,
     tags: ['设施齐全', '教练专业', '环境干净'],
     features: ['健身器材', '游泳池', '私教课程', '淋浴间'],
-    description: '专业健身中心，提供健身、游泳、瑜伽等服务。'
-  }
-])
+    description: '专业健身中心，提供健身、游泳、瑜伽等服务。',
+  },
+]);
 
-const filteredServices = ref([])
-const recommendReason = ref('')
+const filteredServices = ref([]);
+const recommendReason = ref('');
 
 // 当前分类标签
 const currentCategoryLabel = computed(() => {
-  const category = categories.find(c => c.key === activeCategory.value)
-  return category?.label || '服务'
-})
+  const category = categories.find(c => c.key === activeCategory.value);
+  return category?.label || '服务';
+});
 
 // 激活的子分类
 const activeSubCategories = computed(() => {
-  const category = categories.find(c => c.key === activeCategory.value)
-  return category?.subCategories || []
-})
+  const category = categories.find(c => c.key === activeCategory.value);
+  return category?.subCategories || [];
+});
 
 // 切换分类
-const switchCategory = (key) => {
-  activeCategory.value = key
-  activeSubCategory.value = ''
-  handleFilter()
-}
+const switchCategory = key => {
+  activeCategory.value = key;
+  activeSubCategory.value = '';
+  handleFilter();
+};
 
 // 获取分类颜色
-const getCategoryColor = (category) => {
-  const cat = categories.find(c => c.key === category)
-  return cat?.color || '#667eea'
-}
+const getCategoryColor = category => {
+  const cat = categories.find(c => c.key === category);
+  return cat?.color || '#667eea';
+};
 
 // 获取平均价格
-const getAvgPrice = (level) => {
-  const prices = { 1: '30-50', 2: '50-100', 3: '100-200', 4: '200+' }
-  return prices[level] || '待定'
-}
+const getAvgPrice = level => {
+  const prices = { 1: '30-50', 2: '50-100', 3: '100-200', 4: '200+' };
+  return prices[level] || '待定';
+};
 
 // 筛选服务
 const handleFilter = () => {
-  loading.value = true
+  loading.value = true;
 
   setTimeout(() => {
-    let filtered = [...servicesData.value]
+    let filtered = [...servicesData.value];
 
     // 按分类筛选
     if (activeCategory.value !== 'all') {
-      filtered = filtered.filter(s => s.category === activeCategory.value)
+      filtered = filtered.filter(s => s.category === activeCategory.value);
     }
 
     // 按子分类筛选
     if (activeSubCategory.value) {
-      filtered = filtered.filter(s => s.subCategory === activeSubCategory.value)
+      filtered = filtered.filter(s => s.subCategory === activeSubCategory.value);
     }
 
     // 按距离筛选
     if (filters.distance) {
-      filtered = filtered.filter(s => s.distance <= filters.distance)
+      filtered = filtered.filter(s => s.distance <= filters.distance);
     }
 
     // 按价格筛选
     if (filters.priceLevel) {
-      filtered = filtered.filter(s => s.priceLevel === filters.priceLevel)
+      filtered = filtered.filter(s => s.priceLevel === filters.priceLevel);
     }
 
     // 按关键词筛选
     if (filters.keyword) {
-      filtered = filtered.filter(s =>
-        s.name.includes(filters.keyword) ||
-        s.tags?.some(tag => tag.includes(filters.keyword))
-      )
+      filtered = filtered.filter(
+        s => s.name.includes(filters.keyword) || s.tags?.some(tag => tag.includes(filters.keyword))
+      );
     }
 
     // 排序
     switch (filters.sortBy) {
       case 'distance':
-        filtered.sort((a, b) => a.distance - b.distance)
-        break
+        filtered.sort((a, b) => a.distance - b.distance);
+        break;
       case 'rating':
-        filtered.sort((a, b) => b.rating - a.rating)
-        break
+        filtered.sort((a, b) => b.rating - a.rating);
+        break;
       case 'price_asc':
-        filtered.sort((a, b) => a.avgPrice - b.avgPrice)
-        break
+        filtered.sort((a, b) => a.avgPrice - b.avgPrice);
+        break;
       default:
-        break
+        break;
     }
 
-    filteredServices.value = filtered.slice(0, 12)
-    hasMore.value = filtered.length > 12
+    filteredServices.value = filtered.slice(0, 12);
+    hasMore.value = filtered.length > 12;
 
     // 生成推荐理由
     if (filteredServices.value.length > 0) {
-      const nearest = filteredServices.value[0]
-      recommendReason.value = `为您推荐附近${filteredServices.value.length}家${currentCategoryLabel.value}，最近的是${nearest.name}，仅${nearest.distance.toFixed(1)}公里`
+      const nearest = filteredServices.value[0];
+      recommendReason.value = `为您推荐附近${filteredServices.value.length}家${currentCategoryLabel.value}，最近的是${nearest.name}，仅${nearest.distance.toFixed(1)}公里`;
     } else {
-      recommendReason.value = ''
+      recommendReason.value = '';
     }
 
-    loading.value = false
-  }, 300)
-}
+    loading.value = false;
+  }, 300);
+};
 
 // 刷新
 const handleRefresh = () => {
-  handleFilter()
-}
+  handleFilter();
+};
 
 // 扩大搜索范围
 const expandSearch = () => {
-  filters.distance = Math.min(filters.distance + 5, 20)
-  handleFilter()
-}
+  filters.distance = Math.min(filters.distance + 5, 20);
+  handleFilter();
+};
 
 // 地图视图
 const handleMapView = () => {
-  mapDialogVisible.value = true
-}
+  mapDialogVisible.value = true;
+};
 
 // 加载更多
 const loadMore = () => {
-  loadingMore.value = true
+  loadingMore.value = true;
   setTimeout(() => {
     // 模拟加载更多
-    loadingMore.value = false
-    hasMore.value = false
-    ElMessage.success('没有更多了')
-  }, 1000)
-}
+    loadingMore.value = false;
+    hasMore.value = false;
+    ElMessage.success('没有更多了');
+  }, 1000);
+};
 
 // 查看详情
-const viewServiceDetail = (service) => {
-  currentService.value = service
-  detailDialogVisible.value = true
-}
+const viewServiceDetail = service => {
+  currentService.value = service;
+  detailDialogVisible.value = true;
+};
 
 // 导航
-const handleNavigate = (service) => {
-  ElMessage.success(`正在为您导航到${service.name}...`)
-}
+const handleNavigate = service => {
+  ElMessage.success(`正在为您导航到${service.name}...`);
+};
 
 // 电话
-const handleCall = (service) => {
+const handleCall = service => {
   if (service.phone) {
-    ElMessage.success(`正在拨打${service.phone}...`)
+    ElMessage.success(`正在拨打${service.phone}...`);
   } else {
-    ElMessage.warning('该商家未提供联系电话')
+    ElMessage.warning('该商家未提供联系电话');
   }
-}
+};
 
 // 收藏
-const handleCollect = (service) => {
-  ElMessage.success(`已收藏${service.name}`)
-}
+const handleCollect = service => {
+  ElMessage.success(`已收藏${service.name}`);
+};
 
 onMounted(() => {
-  handleFilter()
-})
+  handleFilter();
+});
 </script>
 
 <style scoped>
@@ -910,11 +905,7 @@ onMounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0) 0%,
-    rgba(0, 0, 0, 0.5) 100%
-  );
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.5) 100%);
   padding: 12px;
   display: flex;
   flex-direction: column;

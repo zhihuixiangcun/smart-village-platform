@@ -1,10 +1,5 @@
 <template>
-  <el-dialog
-    v-model="dialogVisible"
-    title="数据导入"
-    width="800px"
-    :close-on-click-modal="false"
-  >
+  <el-dialog v-model="dialogVisible" title="数据导入" width="800px" :close-on-click-modal="false">
     <div class="import-container">
       <!-- 导入步骤 -->
       <el-steps :active="currentStep" finish-status="success" align-center>
@@ -31,13 +26,9 @@
             :limit="1"
           >
             <el-icon class="el-icon--upload"><UploadFilled /></el-icon>
-            <div class="el-upload__text">
-              将文件拖到此处，或<em>点击上传</em>
-            </div>
+            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
             <template #tip>
-              <div class="el-upload__tip">
-                支持.xlsx、.xls、.csv格式文件，文件大小不超过10MB
-              </div>
+              <div class="el-upload__tip">支持.xlsx、.xls、.csv格式文件，文件大小不超过10MB</div>
             </template>
           </el-upload>
 
@@ -162,12 +153,7 @@
             </el-row>
           </div>
 
-          <el-table
-            :data="paginatedPreviewData"
-            border
-            style="width: 100%"
-            max-height="400"
-          >
+          <el-table :data="paginatedPreviewData" border style="width: 100%" max-height="400">
             <el-table-column type="index" label="序号" width="60" />
             <el-table-column prop="name" label="姓名" width="100" />
             <el-table-column prop="gender" label="性别" width="80" />
@@ -176,10 +162,7 @@
             <el-table-column prop="address" label="地址" min-width="200" show-overflow-tooltip />
             <el-table-column label="状态" width="100">
               <template #default="scope">
-                <el-tag
-                  :type="getRowStatusType(scope.row._status)"
-                  size="small"
-                >
+                <el-tag :type="getRowStatusType(scope.row._status)" size="small">
                   {{ getRowStatusText(scope.row._status) }}
                 </el-tag>
               </template>
@@ -242,9 +225,7 @@
                   <el-button @click="viewImportLog" v-if="importResult.log_file">
                     查看详细日志
                   </el-button>
-                  <el-button type="primary" @click="completeImport">
-                    完成
-                  </el-button>
+                  <el-button type="primary" @click="completeImport"> 完成 </el-button>
                 </div>
               </template>
             </el-result>
@@ -256,11 +237,7 @@
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button
-          v-if="currentStep > 0"
-          @click="prevStep"
-          :disabled="importing"
-        >
+        <el-button v-if="currentStep > 0" @click="prevStep" :disabled="importing">
           上一步
         </el-button>
         <el-button
@@ -278,41 +255,46 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ref, reactive, computed, watch } from 'vue';
+import { ElMessage } from 'element-plus';
 import {
-  UploadFilled, Download, Document, Check, Warning, CircleCheck
-} from '@element-plus/icons-vue'
-import { residentAPI } from '@/api/resident'
-import { useUserStore } from '@/stores/user'
+  UploadFilled,
+  Download,
+  Document,
+  Check,
+  Warning,
+  CircleCheck,
+} from '@element-plus/icons-vue';
+import { residentAPI } from '@/api/resident';
+import { useUserStore } from '@/stores/user';
 
 const props = defineProps({
   modelValue: {
     type: Boolean,
-    default: false
-  }
-})
+    default: false,
+  },
+});
 
-const emit = defineEmits(['update:modelValue', 'success'])
+const emit = defineEmits(['update:modelValue', 'success']);
 
-const userStore = useUserStore()
+const userStore = useUserStore();
 
 // 响应式数据
-const currentStep = ref(0)
-const importing = ref(false)
-const uploadRef = ref()
-const fileList = ref([])
-const fileData = ref([])
-const fileColumns = ref([])
-const previewData = ref([])
-const previewPage = ref(1)
-const previewPageSize = ref(10)
+const currentStep = ref(0);
+const importing = ref(false);
+const uploadRef = ref();
+const fileList = ref([]);
+const fileData = ref([]);
+const fileColumns = ref([]);
+const previewData = ref([]);
+const previewPage = ref(1);
+const previewPageSize = ref(10);
 
 // 上传配置
-const uploadUrl = `${import.meta.env.VITE_APP_BASE_API}/upload/import`
+const uploadUrl = `${import.meta.env.VITE_APP_BASE_API}/upload/import`;
 const uploadHeaders = computed(() => ({
-  Authorization: `Bearer ${userStore.token}`
-}))
+  Authorization: `Bearer ${userStore.token}`,
+}));
 
 // 字段映射配置
 const fieldMappings = reactive([
@@ -321,58 +303,58 @@ const fieldMappings = reactive([
     label: '姓名',
     required: true,
     fileColumn: '',
-    description: '村民真实姓名'
+    description: '村民真实姓名',
   },
   {
     systemField: 'gender',
     label: '性别',
     required: true,
     fileColumn: '',
-    description: '男/女 或 M/F'
+    description: '男/女 或 M/F',
   },
   {
     systemField: 'idCard',
     label: '身份证号',
     required: true,
     fileColumn: '',
-    description: '18位有效身份证号'
+    description: '18位有效身份证号',
   },
   {
     systemField: 'phone',
     label: '联系电话',
     required: true,
     fileColumn: '',
-    description: '11位手机号码'
+    description: '11位手机号码',
   },
   {
     systemField: 'birthDate',
     label: '出生日期',
     required: false,
     fileColumn: '',
-    description: 'YYYY-MM-DD格式'
+    description: 'YYYY-MM-DD格式',
   },
   {
     systemField: 'address',
     label: '居住地址',
     required: false,
     fileColumn: '',
-    description: '详细居住地址'
+    description: '详细居住地址',
   },
   {
     systemField: 'occupation',
     label: '职业',
     required: false,
     fileColumn: '',
-    description: '从事职业'
+    description: '从事职业',
   },
   {
     systemField: 'healthStatus',
     label: '健康状态',
     required: false,
     fileColumn: '',
-    description: '健康/慢性病/残疾'
-  }
-])
+    description: '健康/慢性病/残疾',
+  },
+]);
 
 // 导入结果
 const importResult = reactive({
@@ -381,108 +363,110 @@ const importResult = reactive({
   total: 0,
   success_count: 0,
   error_count: 0,
-  log_file: ''
-})
+  log_file: '',
+});
 
 // 对话框显示状态
 const dialogVisible = computed({
   get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
-})
+  set: value => emit('update:modelValue', value),
+});
 
 // 计算属性
 const canNextStep = computed(() => {
   switch (currentStep.value) {
     case 0:
-      return fileList.value.length > 0
+      return fileList.value.length > 0;
     case 1:
-      return fieldMappings.some(mapping => mapping.required && mapping.fileColumn)
+      return fieldMappings.some(mapping => mapping.required && mapping.fileColumn);
     case 2:
-      return validRecords.value > 0
+      return validRecords.value > 0;
     default:
-      return false
+      return false;
   }
-})
+});
 
 const validRecords = computed(() => {
-  return previewData.value.filter(row => row._status === 'valid').length
-})
+  return previewData.value.filter(row => row._status === 'valid').length;
+});
 
 const errorRecords = computed(() => {
-  return previewData.value.filter(row => row._status === 'error').length
-})
+  return previewData.value.filter(row => row._status === 'error').length;
+});
 
 const duplicateRecords = computed(() => {
-  return previewData.value.filter(row => row._status === 'duplicate').length
-})
+  return previewData.value.filter(row => row._status === 'duplicate').length;
+});
 
 const paginatedPreviewData = computed(() => {
-  const start = (previewPage.value - 1) * previewPageSize.value
-  const end = start + previewPageSize.value
-  return previewData.value.slice(start, end)
-})
+  const start = (previewPage.value - 1) * previewPageSize.value;
+  const end = start + previewPageSize.value;
+  return previewData.value.slice(start, end);
+});
 
 // 方法
 const downloadTemplate = async () => {
   try {
-    await residentAPI.downloadImportTemplate()
-    ElMessage.success('模板下载成功')
+    await residentAPI.downloadImportTemplate();
+    ElMessage.success('模板下载成功');
   } catch (error) {
-    ElMessage.error('模板下载失败')
+    ElMessage.error('模板下载失败');
   }
-}
+};
 
-const beforeFileUpload = (file) => {
-  const isExcel = /\.(xlsx|xls|csv)$/.test(file.name)
-  const isLt10M = file.size / 1024 / 1024 < 10
+const beforeFileUpload = file => {
+  const isExcel = /\.(xlsx|xls|csv)$/.test(file.name);
+  const isLt10M = file.size / 1024 / 1024 < 10;
 
   if (!isExcel) {
-    ElMessage.error('只能上传Excel或CSV格式文件!')
-    return false
+    ElMessage.error('只能上传Excel或CSV格式文件!');
+    return false;
   }
   if (!isLt10M) {
-    ElMessage.error('文件大小不能超过10MB!')
-    return false
+    ElMessage.error('文件大小不能超过10MB!');
+    return false;
   }
-  return true
-}
+  return true;
+};
 
-const handleFileSuccess = (response) => {
+const handleFileSuccess = response => {
   if (response.success) {
-    fileData.value = response.data.data
-    fileColumns.value = response.data.columns
-    ElMessage.success('文件上传成功')
+    fileData.value = response.data.data;
+    fileColumns.value = response.data.columns;
+    ElMessage.success('文件上传成功');
   } else {
-    ElMessage.error('文件解析失败')
+    ElMessage.error('文件解析失败');
   }
-}
+};
 
 const handleFileError = () => {
-  ElMessage.error('文件上传失败')
-}
+  ElMessage.error('文件上传失败');
+};
 
 const autoMapping = () => {
   fieldMappings.forEach(mapping => {
     const matchedColumn = fileColumns.value.find(column => {
-      const columnLower = column.toLowerCase()
-      const fieldLower = mapping.label.toLowerCase()
+      const columnLower = column.toLowerCase();
+      const fieldLower = mapping.label.toLowerCase();
 
-      return columnLower.includes(fieldLower) ||
-             fieldLower.includes(columnLower) ||
-             getFieldAliases(mapping.systemField).some(alias =>
-               columnLower.includes(alias.toLowerCase())
-             )
-    })
+      return (
+        columnLower.includes(fieldLower) ||
+        fieldLower.includes(columnLower) ||
+        getFieldAliases(mapping.systemField).some(alias =>
+          columnLower.includes(alias.toLowerCase())
+        )
+      );
+    });
 
     if (matchedColumn) {
-      mapping.fileColumn = matchedColumn
+      mapping.fileColumn = matchedColumn;
     }
-  })
+  });
 
-  ElMessage.success('智能映射完成')
-}
+  ElMessage.success('智能映射完成');
+};
 
-const getFieldAliases = (field) => {
+const getFieldAliases = field => {
   const aliases = {
     name: ['姓名', 'name', '名字'],
     gender: ['性别', 'gender', '性'],
@@ -491,160 +475,168 @@ const getFieldAliases = (field) => {
     birthDate: ['出生日期', 'birth', '生日', '出生'],
     address: ['地址', 'address', '住址'],
     occupation: ['职业', 'job', '工作'],
-    healthStatus: ['健康状态', 'health', '健康']
-  }
-  return aliases[field] || []
-}
+    healthStatus: ['健康状态', 'health', '健康'],
+  };
+  return aliases[field] || [];
+};
 
 const clearMapping = () => {
   fieldMappings.forEach(mapping => {
-    mapping.fileColumn = ''
-  })
-  ElMessage.success('映射已清空')
-}
+    mapping.fileColumn = '';
+  });
+  ElMessage.success('映射已清空');
+};
 
-const getExampleData = (column) => {
-  if (!column || !fileData.value.length) return ''
+const getExampleData = column => {
+  if (!column || !fileData.value.length) return '';
 
-  const examples = fileData.value.slice(0, 3).map(row => row[column]).filter(Boolean)
-  return examples.join(', ')
-}
+  const examples = fileData.value
+    .slice(0, 3)
+    .map(row => row[column])
+    .filter(Boolean);
+  return examples.join(', ');
+};
 
 const processPreviewData = () => {
   previewData.value = fileData.value.map(row => {
-    const processedRow = {}
-    const errors = []
+    const processedRow = {};
+    const errors = [];
 
     // 映射字段
     fieldMappings.forEach(mapping => {
       if (mapping.fileColumn) {
-        processedRow[mapping.systemField] = row[mapping.fileColumn]
+        processedRow[mapping.systemField] = row[mapping.fileColumn];
       }
-    })
+    });
 
     // 验证必填字段
     fieldMappings.forEach(mapping => {
       if (mapping.required && !processedRow[mapping.systemField]) {
-        errors.push(`${mapping.label}不能为空`)
+        errors.push(`${mapping.label}不能为空`);
       }
-    })
+    });
 
     // 验证数据格式
-    if (processedRow.idCard && !/^[1-9]\d{5}(18|19|20)\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/.test(processedRow.idCard)) {
-      errors.push('身份证号格式不正确')
+    if (
+      processedRow.idCard &&
+      !/^[1-9]\d{5}(18|19|20)\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/.test(
+        processedRow.idCard
+      )
+    ) {
+      errors.push('身份证号格式不正确');
     }
 
     if (processedRow.phone && !/^1[3-9]\d{9}$/.test(processedRow.phone)) {
-      errors.push('手机号格式不正确')
+      errors.push('手机号格式不正确');
     }
 
     // 确定状态
-    let status = 'valid'
+    let status = 'valid';
     if (errors.length > 0) {
-      status = 'error'
+      status = 'error';
     } else if (isDuplicate(processedRow)) {
-      status = 'duplicate'
+      status = 'duplicate';
     }
 
-    processedRow._status = status
-    processedRow._errors = errors
+    processedRow._status = status;
+    processedRow._errors = errors;
 
-    return processedRow
-  })
-}
+    return processedRow;
+  });
+};
 
-const isDuplicate = (row) => {
+const isDuplicate = row => {
   // 简化处理：检查身份证号是否重复
-  return previewData.value.some(existingRow =>
-    existingRow.idCard === row.idCard && existingRow._status !== 'error'
-  )
-}
+  return previewData.value.some(
+    existingRow => existingRow.idCard === row.idCard && existingRow._status !== 'error'
+  );
+};
 
-const getRowStatusType = (status) => {
+const getRowStatusType = status => {
   const typeMap = {
     valid: 'success',
     error: 'danger',
-    duplicate: 'warning'
-  }
-  return typeMap[status] || 'info'
-}
+    duplicate: 'warning',
+  };
+  return typeMap[status] || 'info';
+};
 
-const getRowStatusText = (status) => {
+const getRowStatusText = status => {
   const textMap = {
     valid: '有效',
     error: '错误',
-    duplicate: '重复'
-  }
-  return textMap[status] || '未知'
-}
+    duplicate: '重复',
+  };
+  return textMap[status] || '未知';
+};
 
 const nextStep = async () => {
   if (currentStep.value === 1) {
     // 处理预览数据
-    processPreviewData()
+    processPreviewData();
   } else if (currentStep.value === 2) {
     // 开始导入
-    await startImport()
+    await startImport();
   }
 
-  currentStep.value++
-}
+  currentStep.value++;
+};
 
 const prevStep = () => {
-  currentStep.value--
-}
+  currentStep.value--;
+};
 
 const startImport = async () => {
-  importing.value = true
+  importing.value = true;
 
   try {
-    const validData = previewData.value.filter(row => row._status === 'valid')
+    const validData = previewData.value.filter(row => row._status === 'valid');
     const response = await residentAPI.importResidents({
       data: validData,
-      mappings: fieldMappings
-    })
+      mappings: fieldMappings,
+    });
 
     if (response.success) {
-      Object.assign(importResult, response.data)
-      ElMessage.success('数据导入成功')
+      Object.assign(importResult, response.data);
+      ElMessage.success('数据导入成功');
     } else {
       Object.assign(importResult, {
         success: false,
-        message: response.message || '导入失败'
-      })
+        message: response.message || '导入失败',
+      });
     }
   } catch (error) {
     Object.assign(importResult, {
       success: false,
-      message: '导入过程中发生错误'
-    })
-    ElMessage.error('导入失败')
+      message: '导入过程中发生错误',
+    });
+    ElMessage.error('导入失败');
   } finally {
-    importing.value = false
+    importing.value = false;
   }
-}
+};
 
 const viewImportLog = () => {
-  window.open(importResult.log_file, '_blank')
-}
+  window.open(importResult.log_file, '_blank');
+};
 
 const completeImport = () => {
-  emit('success')
-  dialogVisible.value = false
-  resetDialog()
-}
+  emit('success');
+  dialogVisible.value = false;
+  resetDialog();
+};
 
 const resetDialog = () => {
-  currentStep.value = 0
-  fileList.value = []
-  fileData.value = []
-  fileColumns.value = []
-  previewData.value = []
-  previewPage.value = 1
+  currentStep.value = 0;
+  fileList.value = [];
+  fileData.value = [];
+  fileColumns.value = [];
+  previewData.value = [];
+  previewPage.value = 1;
 
   fieldMappings.forEach(mapping => {
-    mapping.fileColumn = ''
-  })
+    mapping.fileColumn = '';
+  });
 
   Object.assign(importResult, {
     success: false,
@@ -652,16 +644,19 @@ const resetDialog = () => {
     total: 0,
     success_count: 0,
     error_count: 0,
-    log_file: ''
-  })
-}
+    log_file: '',
+  });
+};
 
 // 监听对话框关闭
-watch(() => props.modelValue, (newVal) => {
-  if (!newVal) {
-    resetDialog()
+watch(
+  () => props.modelValue,
+  newVal => {
+    if (!newVal) {
+      resetDialog();
+    }
   }
-})
+);
 </script>
 
 <style lang="scss" scoped>

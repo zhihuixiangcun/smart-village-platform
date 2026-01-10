@@ -13,12 +13,10 @@ export function useOnline() {
 
   const handleOnline = () => {
     isOnline.value = true;
-    console.log('网络已连接');
   };
 
   const handleOffline = () => {
     isOnline.value = false;
-    console.log('网络已断开');
   };
 
   onMounted(() => {
@@ -32,7 +30,7 @@ export function useOnline() {
   });
 
   return {
-    isOnline
+    isOnline,
   };
 }
 
@@ -84,7 +82,7 @@ export function useOfflineQueue() {
     syncing,
     syncQueue,
     addToQueue,
-    updateQueueLength
+    updateQueueLength,
   };
 }
 
@@ -101,7 +99,7 @@ export function useDeviceInfo() {
     screenWidth: 0,
     screenHeight: 0,
     pixelRatio: 1,
-    touchSupported: false
+    touchSupported: false,
   });
 
   const updateDeviceInfo = () => {
@@ -118,7 +116,7 @@ export function useDeviceInfo() {
       screenWidth: width,
       screenHeight: height,
       pixelRatio: window.devicePixelRatio || 1,
-      touchSupported: 'ontouchstart' in window
+      touchSupported: 'ontouchstart' in window,
     };
   };
 
@@ -132,7 +130,7 @@ export function useDeviceInfo() {
   });
 
   return {
-    deviceInfo
+    deviceInfo,
   };
 }
 
@@ -140,9 +138,7 @@ export function useDeviceInfo() {
  * 大字模式 Hook
  */
 export function useElderlyMode() {
-  const isElderlyMode = ref(
-    localStorage.getItem('elderly-mode') === 'true'
-  );
+  const isElderlyMode = ref(localStorage.getItem('elderly-mode') === 'true');
 
   const toggleElderlyMode = () => {
     isElderlyMode.value = !isElderlyMode.value;
@@ -156,7 +152,7 @@ export function useElderlyMode() {
     }
   };
 
-  const setElderlyMode = (enabled) => {
+  const setElderlyMode = enabled => {
     isElderlyMode.value = enabled;
     localStorage.setItem('elderly-mode', enabled ? 'true' : 'false');
 
@@ -174,7 +170,7 @@ export function useElderlyMode() {
     }
 
     // 监听存储变化（跨标签页同步）
-    window.addEventListener('storage', (e) => {
+    window.addEventListener('storage', e => {
       if (e.key === 'elderly-mode') {
         isElderlyMode.value = e.newValue === 'true';
         if (isElderlyMode.value) {
@@ -189,7 +185,7 @@ export function useElderlyMode() {
   return {
     isElderlyMode,
     toggleElderlyMode,
-    setElderlyMode
+    setElderlyMode,
   };
 }
 
@@ -219,12 +215,12 @@ export function useSpeechRecognition() {
     recognition.interimResults = true;
 
     // 事件监听
-    recognition.onresult = (event) => {
+    recognition.onresult = event => {
       const result = event.results[0][0];
       transcript.value = result.transcript;
     };
 
-    recognition.onerror = (event) => {
+    recognition.onerror = event => {
       error.value = event.error;
       isListening.value = false;
     };
@@ -272,7 +268,7 @@ export function useSpeechRecognition() {
     error,
     start,
     stop,
-    reset
+    reset,
   };
 }
 
@@ -302,23 +298,22 @@ export function useSpeechSynthesis() {
 
       // 配置
       utterance.lang = options.lang || 'zh-CN';
-      utterance.rate = options.rate || 0.8;  // 语速（默认较慢）
-      utterance.pitch = options.pitch || 1;  // 音调
-      utterance.volume = options.volume || 1;  // 音量
+      utterance.rate = options.rate || 0.8; // 语速（默认较慢）
+      utterance.pitch = options.pitch || 1; // 音调
+      utterance.volume = options.volume || 1; // 音量
 
       // 事件监听
       utterance.onend = () => {
         speaking.value = false;
       };
 
-      utterance.onerror = (event) => {
+      utterance.onerror = event => {
         error.value = event.error;
         speaking.value = false;
       };
 
       // 开始朗读
       window.speechSynthesis.speak(utterance);
-
     } catch (err) {
       error.value = err.message;
       speaking.value = false;
@@ -349,7 +344,7 @@ export function useSpeechSynthesis() {
     speak,
     stop,
     pause,
-    resume
+    resume,
   };
 }
 
@@ -370,7 +365,7 @@ export function useHapticFeedback() {
       double: [10, 50, 10],
       success: [10, 30, 10],
       error: [50, 50, 50],
-      warning: [20, 20, 20]
+      warning: [20, 20, 20],
     };
 
     try {
@@ -381,7 +376,7 @@ export function useHapticFeedback() {
   };
 
   return {
-    vibrate
+    vibrate,
   };
 }
 
@@ -405,16 +400,16 @@ export function useGeolocation() {
       error.value = null;
 
       navigator.geolocation.getCurrentPosition(
-        (pos) => {
+        pos => {
           position.value = {
             latitude: pos.coords.latitude,
             longitude: pos.coords.longitude,
-            accuracy: pos.coords.accuracy
+            accuracy: pos.coords.accuracy,
           };
           loading.value = false;
           resolve(position.value);
         },
-        (err) => {
+        err => {
           error.value = err.message;
           loading.value = false;
           reject(err);
@@ -422,7 +417,7 @@ export function useGeolocation() {
         {
           enableHighAccuracy: true,
           timeout: 10000,
-          maximumAge: 0
+          maximumAge: 0,
         }
       );
     });
@@ -432,7 +427,7 @@ export function useGeolocation() {
     loading,
     position,
     error,
-    getCurrentPosition
+    getCurrentPosition,
   };
 }
 
@@ -450,7 +445,7 @@ export function useCamera() {
       input.accept = 'image/*';
       input.capture = 'environment';
 
-      input.onchange = (e) => {
+      input.onchange = e => {
         const file = e.target.files[0];
         if (file) {
           resolve(file);
@@ -471,6 +466,6 @@ export function useCamera() {
   return {
     loading,
     error,
-    takePhoto
+    takePhoto,
   };
 }

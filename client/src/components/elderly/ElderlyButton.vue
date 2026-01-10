@@ -29,69 +29,70 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref } from 'vue';
 
 const props = defineProps({
   // 按钮类型
   type: {
     type: String,
     default: 'primary',
-    validator: (value) => ['primary', 'secondary', 'success', 'warning', 'danger', 'text'].includes(value)
+    validator: value =>
+      ['primary', 'secondary', 'success', 'warning', 'danger', 'text'].includes(value),
   },
   // 尺寸
   size: {
     type: String,
     default: 'large',
-    validator: (value) => ['small', 'medium', 'large', 'extra-large'].includes(value)
+    validator: value => ['small', 'medium', 'large', 'extra-large'].includes(value),
   },
   // 图标类名
   icon: {
     type: String,
-    default: ''
+    default: '',
   },
   // 原生类型
   nativeType: {
     type: String,
     default: 'button',
-    validator: (value) => ['button', 'submit', 'reset'].includes(value)
+    validator: value => ['button', 'submit', 'reset'].includes(value),
   },
   // 是否禁用
   disabled: {
     type: Boolean,
-    default: false
+    default: false,
   },
   // 是否加载中
   loading: {
     type: Boolean,
-    default: false
+    default: false,
   },
   // 是否显示轮廓
   plain: {
     type: Boolean,
-    default: false
+    default: false,
   },
   // 是否圆角
   round: {
     type: Boolean,
-    default: false
+    default: false,
   },
   // 是否需要长按确认
   longPressConfirm: {
     type: Boolean,
-    default: false
+    default: false,
   },
   // 长按确认时长
   longPressDuration: {
     type: Number,
-    default: 800
-  }
-})
+    default: 800,
+  },
+});
 
-const emit = defineEmits(['click', 'long-press'])
+const emit = defineEmits(['click', 'long-press']);
 
-const ripple = ref(null)
-let longPressTimer = null
-let isLongPressing = false
+const ripple = ref(null);
+let longPressTimer = null;
+let isLongPressing = false;
 
 // 计算按钮样式类
 const buttonClass = computed(() => {
@@ -104,91 +105,91 @@ const buttonClass = computed(() => {
       'is-loading': props.loading,
       'is-plain': props.plain,
       'is-round': props.round,
-      'is-long-pressing': isLongPressing
-    }
-  ]
-})
+      'is-long-pressing': isLongPressing,
+    },
+  ];
+});
 
 // 处理点击
-const handleClick = (e) => {
-  if (props.disabled || props.loading) return
-  if (props.longPressConfirm) return // 长按确认模式下，普通点击不触发
+const handleClick = e => {
+  if (props.disabled || props.loading) return;
+  if (props.longPressConfirm) return; // 长按确认模式下，普通点击不触发
 
-  triggerHaptic('light')
-  createRipple(e)
-  emit('click', e)
-}
+  triggerHaptic('light');
+  createRipple(e);
+  emit('click', e);
+};
 
 // 处理触摸开始
-const handleTouchStart = (e) => {
-  if (!props.longPressConfirm) return
+const handleTouchStart = e => {
+  if (!props.longPressConfirm) return;
 
   longPressTimer = setTimeout(() => {
-    isLongPressing = true
-    triggerHaptic('heavy')
+    isLongPressing = true;
+    triggerHaptic('heavy');
 
     // 震动提示
     if ('vibrate' in navigator) {
-      navigator.vibrate([50, 100, 50])
+      navigator.vibrate([50, 100, 50]);
     }
 
-    emit('long-press', e)
-  }, props.longPressDuration)
-}
+    emit('long-press', e);
+  }, props.longPressDuration);
+};
 
 // 处理触摸结束
 const handleTouchEnd = () => {
   if (longPressTimer) {
-    clearTimeout(longPressTimer)
-    longPressTimer = null
+    clearTimeout(longPressTimer);
+    longPressTimer = null;
   }
 
   if (isLongPressing) {
-    isLongPressing = false
+    isLongPressing = false;
   }
-}
+};
 
 // 触觉反馈
-const triggerHaptic = (type) => {
-  if (!('vibrate' in navigator)) return
+const triggerHaptic = type => {
+  if (!('vibrate' in navigator)) return;
 
   const patterns = {
     light: [10],
     medium: [20],
     heavy: [30],
     success: [10, 30, 10],
-    error: [50, 50, 50]
-  }
+    error: [50, 50, 50],
+  };
 
   try {
-    navigator.vibrate(patterns[type] || patterns.light)
+    navigator.vibrate(patterns[type] || patterns.light);
   } catch (err) {
-    console.warn('触觉反馈不可用:', err)
+    console.warn('触觉反馈不可用:', err);
   }
-}
+};
 
 // 创建波纹效果
-const createRipple = (event) => {
-  if (!ripple.value) return
+const createRipple = event => {
+  if (!ripple.value) return;
 
-  const button = event.currentTarget
-  const rect = button.getBoundingClientRect()
-  const size = Math.max(rect.width, rect.height)
-  const x = event.clientX - rect.left - size / 2
-  const y = event.clientY - rect.top - size / 2
+  const button = event.currentTarget;
+  const rect = button.getBoundingClientRect();
+  const size = Math.max(rect.width, rect.height);
+  const x = event.clientX - rect.left - size / 2;
+  const y = event.clientY - rect.top - size / 2;
 
-  const rippleEl = document.createElement('span')
-  rippleEl.style.width = rippleEl.style.height = `${size}px`
-  rippleEl.style.left = `${x}px`
-  rippleEl.style.top = `${y}px`
-  rippleEl.classList.add('elderly-button__ripple-element')
+  const rippleEl = document.createElement('span');
+  rippleEl.style.width = rippleEl.style.height = `${size}px`;
+  rippleEl.style.left = `${x}px`;
+  rippleEl.style.top = `${y}px`;
+  rippleEl.classList.add('elderly-button__ripple-element');
 
-  ripple.value.appendChild(rippleEl)
+  ripple.value.appendChild(rippleEl);
 
   setTimeout(() => {
-    rippleEl.remove()
-  }, 600)
-}
+    rippleEl.remove();
+  }, 600);
+};
 </script>
 
 <style lang="scss" scoped>
@@ -264,23 +265,23 @@ const createRipple = (event) => {
 
   // 类型样式
   &--primary {
-    background: linear-gradient(135deg, #E85D4C 0%, #FF6B6B 100%);
-    color: #FFFFFF;
+    background: linear-gradient(135deg, #e85d4c 0%, #ff6b6b 100%);
+    color: #ffffff;
     box-shadow: 0 4px 12px rgba(232, 93, 76, 0.3);
 
     &:hover:not(.is-disabled) {
-      background: linear-gradient(135deg, #FF8A7A 0%, #FF8585 100%);
+      background: linear-gradient(135deg, #ff8a7a 0%, #ff8585 100%);
       box-shadow: 0 6px 16px rgba(232, 93, 76, 0.4);
     }
 
     &:active:not(.is-disabled) {
-      background: linear-gradient(135deg, #C73E2F 0%, #E85D4C 100%);
+      background: linear-gradient(135deg, #c73e2f 0%, #e85d4c 100%);
     }
 
     &.is-plain {
       background: transparent;
-      border: 3px solid #E85D4C;
-      color: #E85D4C;
+      border: 3px solid #e85d4c;
+      color: #e85d4c;
 
       &:hover:not(.is-disabled) {
         background: rgba(232, 93, 76, 0.1);
@@ -289,18 +290,18 @@ const createRipple = (event) => {
   }
 
   &--secondary {
-    background: linear-gradient(135deg, #52A885 0%, #5FB894 100%);
-    color: #FFFFFF;
+    background: linear-gradient(135deg, #52a885 0%, #5fb894 100%);
+    color: #ffffff;
     box-shadow: 0 4px 12px rgba(82, 168, 133, 0.3);
 
     &:hover:not(.is-disabled) {
-      background: linear-gradient(135deg, #7BC4A3 0%, #8FD4B5 100%);
+      background: linear-gradient(135deg, #7bc4a3 0%, #8fd4b5 100%);
     }
 
     &.is-plain {
       background: transparent;
-      border: 3px solid #52A885;
-      color: #52A885;
+      border: 3px solid #52a885;
+      color: #52a885;
 
       &:hover:not(.is-disabled) {
         background: rgba(82, 168, 133, 0.1);
@@ -309,44 +310,44 @@ const createRipple = (event) => {
   }
 
   &--success {
-    background: linear-gradient(135deg, #67C23A 0%, #7DD44C 100%);
-    color: #FFFFFF;
+    background: linear-gradient(135deg, #67c23a 0%, #7dd44c 100%);
+    color: #ffffff;
     box-shadow: 0 4px 12px rgba(103, 194, 58, 0.3);
 
     &.is-plain {
       background: transparent;
-      border: 3px solid #67C23A;
-      color: #67C23A;
+      border: 3px solid #67c23a;
+      color: #67c23a;
     }
   }
 
   &--warning {
-    background: linear-gradient(135deg, #E6A23C 0%, #F0B94D 100%);
-    color: #FFFFFF;
+    background: linear-gradient(135deg, #e6a23c 0%, #f0b94d 100%);
+    color: #ffffff;
     box-shadow: 0 4px 12px rgba(230, 162, 60, 0.3);
 
     &.is-plain {
       background: transparent;
-      border: 3px solid #E6A23C;
-      color: #E6A23C;
+      border: 3px solid #e6a23c;
+      color: #e6a23c;
     }
   }
 
   &--danger {
-    background: linear-gradient(135deg, #F56C6C 0%, #FF8080 100%);
-    color: #FFFFFF;
+    background: linear-gradient(135deg, #f56c6c 0%, #ff8080 100%);
+    color: #ffffff;
     box-shadow: 0 4px 12px rgba(245, 108, 108, 0.3);
 
     &.is-plain {
       background: transparent;
-      border: 3px solid #F56C6C;
-      color: #F56C6C;
+      border: 3px solid #f56c6c;
+      color: #f56c6c;
     }
   }
 
   &--text {
     background: transparent;
-    color: #E85D4C;
+    color: #e85d4c;
     box-shadow: none;
 
     &:hover:not(.is-disabled) {
@@ -398,7 +399,8 @@ const createRipple = (event) => {
 
 // 长按确认动画
 @keyframes longPressPulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     box-shadow: 0 0 0 0 rgba(232, 93, 76, 0.7);
   }

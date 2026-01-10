@@ -12,8 +12,8 @@ const request = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001',
   timeout: 30000,
   headers: {
-    'Content-Type': 'application/json'
-  }
+    'Content-Type': 'application/json',
+  },
 });
 
 // 请求加载状态管理
@@ -29,7 +29,7 @@ function showLoading() {
     loadingInstance = ElLoading.service({
       lock: true,
       text: '加载中...',
-      background: 'rgba(0, 0, 0, 0.7)'
+      background: 'rgba(0, 0, 0, 0.7)',
     });
   }
 }
@@ -137,7 +137,7 @@ request.interceptors.response.use(
 export function get(url, params = {}, config = {}) {
   return request.get(url, {
     params,
-    ...config
+    ...config,
   });
 }
 
@@ -183,9 +183,9 @@ export function del(url, config = {}) {
 export function upload(url, formData, config = {}) {
   return request.post(url, formData, {
     headers: {
-      'Content-Type': 'multipart/form-data'
+      'Content-Type': 'multipart/form-data',
     },
-    ...config
+    ...config,
   });
 }
 
@@ -197,25 +197,27 @@ export function upload(url, formData, config = {}) {
  * @returns {Promise} 请求Promise
  */
 export function download(url, filename, params = {}) {
-  return request.get(url, {
-    params,
-    responseType: 'blob',
-    hideLoading: false
-  }).then(response => {
-    // 创建下载链接
-    const blob = new Blob([response.data]);
-    const downloadUrl = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = downloadUrl;
-    link.download = filename || 'download';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(downloadUrl);
+  return request
+    .get(url, {
+      params,
+      responseType: 'blob',
+      hideLoading: false,
+    })
+    .then(response => {
+      // 创建下载链接
+      const blob = new Blob([response.data]);
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = filename || 'download';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
 
-    ElMessage.success('文件下载成功');
-    return response;
-  });
+      ElMessage.success('文件下载成功');
+      return response;
+    });
 }
 
 // 导出默认实例

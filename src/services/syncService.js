@@ -276,23 +276,23 @@ class SyncService {
     // 执行操作
     let result;
     switch (operation.operationType) {
-      case 'create':
-        result = await this.handleCreate(Model, operation, syncLog);
-        break;
-      case 'update':
-        result = await this.handleUpdate(Model, operation, syncLog);
-        break;
-      case 'delete':
-        result = await this.handleDelete(Model, operation, syncLog);
-        break;
-      case 'batch_create':
-        result = await this.handleBatchCreate(Model, operation, syncLog);
-        break;
-      case 'batch_update':
-        result = await this.handleBatchUpdate(Model, operation, syncLog);
-        break;
-      default:
-        throw new Error(`不支持的操作类型: ${operation.operationType}`);
+    case 'create':
+      result = await this.handleCreate(Model, operation, syncLog);
+      break;
+    case 'update':
+      result = await this.handleUpdate(Model, operation, syncLog);
+      break;
+    case 'delete':
+      result = await this.handleDelete(Model, operation, syncLog);
+      break;
+    case 'batch_create':
+      result = await this.handleBatchCreate(Model, operation, syncLog);
+      break;
+    case 'batch_update':
+      result = await this.handleBatchUpdate(Model, operation, syncLog);
+      break;
+    default:
+      throw new Error(`不支持的操作类型: ${operation.operationType}`);
     }
 
     // 更新PendingOperation状态
@@ -599,40 +599,40 @@ class SyncService {
     let resolved = false;
 
     switch (conflictResolution) {
-      case 'server_wins':
-        resolvedData = latestVersion.dataSnapshot;
-        resolved = true;
-        break;
+    case 'server_wins':
+      resolvedData = latestVersion.dataSnapshot;
+      resolved = true;
+      break;
 
-      case 'client_wins':
+    case 'client_wins':
+      resolvedData = operation.payload;
+      resolved = true;
+      break;
+
+    case 'latest_timestamp':
+      const clientTime = new Date(operation.payload.updatedAt || operation.clientUpdatedAt);
+      const serverTime = new Date(latestVersion.dataSnapshot.updatedAt || latestVersion.createdAt);
+
+      if (clientTime > serverTime) {
         resolvedData = operation.payload;
-        resolved = true;
-        break;
+      } else {
+        resolvedData = latestVersion.dataSnapshot;
+      }
+      resolved = true;
+      break;
 
-      case 'latest_timestamp':
-        const clientTime = new Date(operation.payload.updatedAt || operation.clientUpdatedAt);
-        const serverTime = new Date(latestVersion.dataSnapshot.updatedAt || latestVersion.createdAt);
+    case 'merge':
+      // 尝试智能合并
+      resolvedData = await this.smartMerge(
+        operation.payload,
+        latestVersion.dataSnapshot,
+        latestVersion.previousData
+      );
+      resolved = resolvedData !== null;
+      break;
 
-        if (clientTime > serverTime) {
-          resolvedData = operation.payload;
-        } else {
-          resolvedData = latestVersion.dataSnapshot;
-        }
-        resolved = true;
-        break;
-
-      case 'merge':
-        // 尝试智能合并
-        resolvedData = await this.smartMerge(
-          operation.payload,
-          latestVersion.dataSnapshot,
-          latestVersion.previousData
-        );
-        resolved = resolvedData !== null;
-        break;
-
-      default:
-        resolved = false;
+    default:
+      resolved = false;
     }
 
     if (resolved) {
@@ -706,9 +706,9 @@ class SyncService {
       userId,
       deviceId
     })
-    .sort({ createdAt: -1 })
-    .limit(5)
-    .lean();
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .lean();
 
     return {
       pending: pendingCount,
@@ -732,12 +732,12 @@ class SyncService {
       villageId,
       status
     })
-    .sort({ severity: -1, createdAt: -1 })
-    .skip(skip)
-    .limit(limit)
-    .populate('userId', 'username name')
-    .populate('resolvedBy', 'username name')
-    .lean();
+      .sort({ severity: -1, createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate('userId', 'username name')
+      .populate('resolvedBy', 'username name')
+      .lean();
 
     return conflicts;
   }
@@ -752,18 +752,18 @@ class SyncService {
     }
 
     switch (resolution) {
-      case 'client_wins':
-        await conflict.resolveClientWins(userId, note);
-        break;
-      case 'server_wins':
-        await conflict.resolveServerWins(userId, note);
-        break;
-      case 'merge':
-        // 合并逻辑需要在前端提供合并后的数据
-        await conflict.resolveMerge(resolution.mergedData, userId, note);
-        break;
-      default:
-        throw new Error(`不支持的解决方案: ${resolution}`);
+    case 'client_wins':
+      await conflict.resolveClientWins(userId, note);
+      break;
+    case 'server_wins':
+      await conflict.resolveServerWins(userId, note);
+      break;
+    case 'merge':
+      // 合并逻辑需要在前端提供合并后的数据
+      await conflict.resolveMerge(resolution.mergedData, userId, note);
+      break;
+    default:
+      throw new Error(`不支持的解决方案: ${resolution}`);
     }
 
     // 更新关联的PendingOperation

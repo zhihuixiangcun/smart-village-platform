@@ -8,7 +8,7 @@ export const financeAPI = {
   getFinanceStats() {
     return request({
       url: '/api/v1/finance/stats',
-      method: 'get'
+      method: 'get',
     });
   },
 
@@ -17,7 +17,7 @@ export const financeAPI = {
     return request({
       url: '/api/v1/finance/trend',
       method: 'get',
-      params
+      params,
     });
   },
 
@@ -26,7 +26,7 @@ export const financeAPI = {
     return request({
       url: '/api/v1/finance/transactions/recent',
       method: 'get',
-      params
+      params,
     });
   },
 
@@ -37,7 +37,7 @@ export const financeAPI = {
     return request({
       url: '/api/v1/finance/expenses',
       method: 'get',
-      params
+      params,
     });
   },
 
@@ -45,7 +45,7 @@ export const financeAPI = {
   getExpenseDetail(id) {
     return request({
       url: `/api/v1/finance/expenses/${id}`,
-      method: 'get'
+      method: 'get',
     });
   },
 
@@ -54,7 +54,7 @@ export const financeAPI = {
     return request({
       url: '/api/v1/finance/expenses',
       method: 'post',
-      data
+      data,
     });
   },
 
@@ -63,7 +63,7 @@ export const financeAPI = {
     return request({
       url: `/api/v1/finance/expenses/${id}`,
       method: 'put',
-      data
+      data,
     });
   },
 
@@ -71,7 +71,7 @@ export const financeAPI = {
   deleteExpense(id) {
     return request({
       url: `/api/v1/finance/expenses/${id}`,
-      method: 'delete'
+      method: 'delete',
     });
   },
 
@@ -80,7 +80,7 @@ export const financeAPI = {
     return request({
       url: '/api/v1/finance/expenses/batch',
       method: 'delete',
-      data: { ids }
+      data: { ids },
     });
   },
 
@@ -90,7 +90,7 @@ export const financeAPI = {
       url: '/api/v1/finance/expenses/export',
       method: 'get',
       params,
-      responseType: 'blob'
+      responseType: 'blob',
     });
   },
 
@@ -101,7 +101,7 @@ export const financeAPI = {
     return request({
       url: '/api/v1/finance/approvals',
       method: 'get',
-      params
+      params,
     });
   },
 
@@ -109,7 +109,7 @@ export const financeAPI = {
   getApprovalDetail(id) {
     return request({
       url: `/api/v1/finance/approvals/${id}`,
-      method: 'get'
+      method: 'get',
     });
   },
 
@@ -118,7 +118,7 @@ export const financeAPI = {
     return request({
       url: '/api/v1/finance/approvals',
       method: 'post',
-      data
+      data,
     });
   },
 
@@ -127,7 +127,7 @@ export const financeAPI = {
     return request({
       url: `/api/v1/finance/approvals/${id}/process`,
       method: 'post',
-      data
+      data,
     });
   },
 
@@ -136,7 +136,7 @@ export const financeAPI = {
     return request({
       url: '/api/v1/finance/approvals/batch-process',
       method: 'post',
-      data
+      data,
     });
   },
 
@@ -145,7 +145,7 @@ export const financeAPI = {
     return request({
       url: `/api/v1/finance/approvals/${id}/withdraw`,
       method: 'post',
-      data: { reason }
+      data: { reason },
     });
   },
 
@@ -153,7 +153,7 @@ export const financeAPI = {
   getApprovalHistory(id) {
     return request({
       url: `/api/v1/finance/approvals/${id}/history`,
-      method: 'get'
+      method: 'get',
     });
   },
 
@@ -161,7 +161,7 @@ export const financeAPI = {
   getApprovalTemplates() {
     return request({
       url: '/api/v1/finance/approval-templates',
-      method: 'get'
+      method: 'get',
     });
   },
 
@@ -170,7 +170,7 @@ export const financeAPI = {
     return request({
       url: '/api/v1/finance/approvals/delegate',
       method: 'post',
-      data
+      data,
     });
   },
 
@@ -181,7 +181,7 @@ export const financeAPI = {
     return request({
       url: '/api/v1/finance/budgets',
       method: 'get',
-      params
+      params,
     });
   },
 
@@ -189,7 +189,7 @@ export const financeAPI = {
   getBudgetDetail(id) {
     return request({
       url: `/api/v1/finance/budgets/${id}`,
-      method: 'get'
+      method: 'get',
     });
   },
 
@@ -198,7 +198,7 @@ export const financeAPI = {
     return request({
       url: '/api/v1/finance/budgets',
       method: 'post',
-      data
+      data,
     });
   },
 
@@ -207,7 +207,7 @@ export const financeAPI = {
     return request({
       url: `/api/v1/finance/budgets/${id}`,
       method: 'put',
-      data
+      data,
     });
   },
 
@@ -215,7 +215,7 @@ export const financeAPI = {
   deleteBudget(id) {
     return request({
       url: `/api/v1/finance/budgets/${id}`,
-      method: 'delete'
+      method: 'delete',
     });
   },
 
@@ -224,7 +224,7 @@ export const financeAPI = {
     return request({
       url: `/api/v1/finance/budgets/${id}/execution`,
       method: 'get',
-      params
+      params,
     });
   },
 
@@ -233,7 +233,7 @@ export const financeAPI = {
     return request({
       url: `/api/v1/finance/budgets/${id}/adjust`,
       method: 'post',
-      data
+      data,
     });
   },
 
@@ -244,7 +244,7 @@ export const financeAPI = {
     return request({
       url: '/api/v1/finance/reports',
       method: 'get',
-      params
+      params,
     });
   },
 
@@ -253,7 +253,7 @@ export const financeAPI = {
     return request({
       url: '/api/v1/finance/reports/generate',
       method: 'post',
-      data
+      data,
     });
   },
 
@@ -263,7 +263,7 @@ export const financeAPI = {
       url: `/api/v1/finance/reports/${id}/download`,
       method: 'get',
       params: { format },
-      responseType: 'blob'
+      responseType: 'blob',
     });
   },
 
@@ -272,7 +272,7 @@ export const financeAPI = {
     return request({
       url: '/api/v1/finance/reports/income-expense',
       method: 'get',
-      params
+      params,
     });
   },
 
@@ -281,7 +281,7 @@ export const financeAPI = {
     return request({
       url: '/api/v1/finance/reports/budget-execution',
       method: 'get',
-      params
+      params,
     });
   },
 
@@ -290,7 +290,7 @@ export const financeAPI = {
     return request({
       url: '/api/v1/finance/reports/cash-flow',
       method: 'get',
-      params
+      params,
     });
   },
 
@@ -303,8 +303,8 @@ export const financeAPI = {
       method: 'post',
       data: formData,
       headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+        'Content-Type': 'multipart/form-data',
+      },
     });
   },
 
@@ -313,7 +313,7 @@ export const financeAPI = {
     return request({
       url: '/api/v1/finance/receipts',
       method: 'get',
-      params
+      params,
     });
   },
 
@@ -321,7 +321,7 @@ export const financeAPI = {
   getReceiptDetail(id) {
     return request({
       url: `/api/v1/finance/receipts/${id}`,
-      method: 'get'
+      method: 'get',
     });
   },
 
@@ -329,7 +329,7 @@ export const financeAPI = {
   ocrReceipt(id) {
     return request({
       url: `/api/v1/finance/receipts/${id}/ocr`,
-      method: 'post'
+      method: 'post',
     });
   },
 
@@ -337,7 +337,7 @@ export const financeAPI = {
   deleteReceipt(id) {
     return request({
       url: `/api/v1/finance/receipts/${id}`,
-      method: 'delete'
+      method: 'delete',
     });
   },
 
@@ -347,7 +347,7 @@ export const financeAPI = {
   getAccountBalance() {
     return request({
       url: '/api/v1/finance/accounts/balance',
-      method: 'get'
+      method: 'get',
     });
   },
 
@@ -356,7 +356,7 @@ export const financeAPI = {
     return request({
       url: '/api/v1/finance/cash-flow',
       method: 'get',
-      params
+      params,
     });
   },
 
@@ -365,7 +365,7 @@ export const financeAPI = {
     return request({
       url: '/api/v1/finance/transfer',
       method: 'post',
-      data
+      data,
     });
   },
 
@@ -373,7 +373,7 @@ export const financeAPI = {
   getBankAccounts() {
     return request({
       url: '/api/v1/finance/bank-accounts',
-      method: 'get'
+      method: 'get',
     });
   },
 
@@ -381,7 +381,7 @@ export const financeAPI = {
   syncBankTransactions(accountId) {
     return request({
       url: `/api/v1/finance/bank-accounts/${accountId}/sync`,
-      method: 'post'
+      method: 'post',
     });
   },
 
@@ -391,7 +391,7 @@ export const financeAPI = {
   getFinanceConfig() {
     return request({
       url: '/api/v1/finance/config',
-      method: 'get'
+      method: 'get',
     });
   },
 
@@ -400,7 +400,7 @@ export const financeAPI = {
     return request({
       url: '/api/v1/finance/config',
       method: 'put',
-      data
+      data,
     });
   },
 
@@ -408,7 +408,7 @@ export const financeAPI = {
   getApprovalPermissions() {
     return request({
       url: '/api/v1/finance/approval-permissions',
-      method: 'get'
+      method: 'get',
     });
   },
 
@@ -417,7 +417,7 @@ export const financeAPI = {
     return request({
       url: '/api/v1/finance/approval-permissions',
       method: 'put',
-      data
+      data,
     });
   },
 
@@ -425,7 +425,7 @@ export const financeAPI = {
   getFinanceCategories() {
     return request({
       url: '/api/v1/finance/categories',
-      method: 'get'
+      method: 'get',
     });
   },
 
@@ -434,9 +434,9 @@ export const financeAPI = {
     return request({
       url: '/api/v1/finance/categories',
       method: 'put',
-      data
+      data,
     });
-  }
+  },
 };
 
 // 审批流程相关的专门API
@@ -450,7 +450,7 @@ export const approvalAPI = {
   approve(id, comment = '') {
     return financeAPI.processApproval(id, {
       action: 'approve',
-      comment
+      comment,
     });
   },
 
@@ -458,7 +458,7 @@ export const approvalAPI = {
   reject(id, comment) {
     return financeAPI.processApproval(id, {
       action: 'reject',
-      comment
+      comment,
     });
   },
 
@@ -467,7 +467,7 @@ export const approvalAPI = {
     return financeAPI.batchProcessApproval({
       ids,
       action: 'approve',
-      comment
+      comment,
     });
   },
 
@@ -476,7 +476,7 @@ export const approvalAPI = {
     return financeAPI.batchProcessApproval({
       ids,
       action: 'reject',
-      comment
+      comment,
     });
   },
 
@@ -487,8 +487,8 @@ export const approvalAPI = {
       method: 'post',
       data: {
         targetUserId,
-        comment
-      }
+        comment,
+      },
     });
   },
 
@@ -499,8 +499,8 @@ export const approvalAPI = {
       method: 'post',
       data: {
         userIds,
-        comment
-      }
+        comment,
+      },
     });
   },
 
@@ -511,8 +511,8 @@ export const approvalAPI = {
       method: 'post',
       data: {
         userIds,
-        comment
-      }
+        comment,
+      },
     });
   },
 
@@ -521,7 +521,7 @@ export const approvalAPI = {
     return request({
       url: '/api/v1/finance/approvers',
       method: 'get',
-      params: { type }
+      params: { type },
     });
   },
 
@@ -530,7 +530,7 @@ export const approvalAPI = {
     return request({
       url: `/api/v1/finance/approvals/${id}/reminder`,
       method: 'post',
-      data: { reminderTime }
+      data: { reminderTime },
     });
   },
 
@@ -539,9 +539,9 @@ export const approvalAPI = {
     return request({
       url: '/api/v1/finance/approval-stats',
       method: 'get',
-      params
+      params,
     });
-  }
+  },
 };
 
 // 导出默认API

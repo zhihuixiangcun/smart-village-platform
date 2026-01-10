@@ -6,7 +6,7 @@ export function useMobileGestures(options = {}) {
     longPressDelay = 800,
     doubleTapDelay = 300,
     pinchZoomEnabled = false,
-    rotationEnabled = false
+    rotationEnabled = false,
   } = options;
 
   // 触摸状态
@@ -24,7 +24,7 @@ export function useMobileGestures(options = {}) {
     scale: 1,
     rotation: 0,
     initialDistance: 0,
-    initialAngle: 0
+    initialAngle: 0,
   });
 
   // 回调函数
@@ -41,11 +41,11 @@ export function useMobileGestures(options = {}) {
     onRotate: null,
     onTouchStart: null,
     onTouchMove: null,
-    onTouchEnd: null
+    onTouchEnd: null,
   });
 
   // 设置回调
-  const setCallbacks = (newCallbacks) => {
+  const setCallbacks = newCallbacks => {
     callbacks.value = { ...callbacks.value, ...newCallbacks };
   };
 
@@ -60,11 +60,11 @@ export function useMobileGestures(options = {}) {
   const getAngle = (touch1, touch2) => {
     const dx = touch2.clientX - touch1.clientX;
     const dy = touch2.clientY - touch1.clientY;
-    return Math.atan2(dy, dx) * 180 / Math.PI;
+    return (Math.atan2(dy, dx) * 180) / Math.PI;
   };
 
   // 处理触摸开始
-  const handleTouchStart = (e) => {
+  const handleTouchStart = e => {
     const touch = e.touches[0];
     const now = Date.now();
 
@@ -79,7 +79,7 @@ export function useMobileGestures(options = {}) {
       distance: { x: 0, y: 0 },
       velocity: { x: 0, y: 0 },
       swipeDirection: null,
-      longPressTimer: null
+      longPressTimer: null,
     };
 
     // 多指触控
@@ -102,7 +102,7 @@ export function useMobileGestures(options = {}) {
   };
 
   // 处理触摸移动
-  const handleTouchMove = (e) => {
+  const handleTouchMove = e => {
     if (!touchState.value.isTracking) return;
 
     e.preventDefault();
@@ -118,8 +118,8 @@ export function useMobileGestures(options = {}) {
 
     touchState.value.distance.x = deltaX;
     touchState.value.distance.y = deltaY;
-    touchState.value.velocity.x = deltaX / deltaTime * 1000;
-    touchState.value.velocity.y = deltaY / deltaTime * 1000;
+    touchState.value.velocity.x = (deltaX / deltaTime) * 1000;
+    touchState.value.velocity.y = (deltaY / deltaTime) * 1000;
 
     // 清除长按定时器
     if (touchState.value.longPressTimer) {
@@ -155,7 +155,7 @@ export function useMobileGestures(options = {}) {
   };
 
   // 处理触摸结束
-  const handleTouchEnd = (e) => {
+  const handleTouchEnd = e => {
     if (!touchState.value.isTracking) return;
 
     const now = Date.now();
@@ -177,7 +177,7 @@ export function useMobileGestures(options = {}) {
       const swipeData = {
         direction: touchState.value.swipeDirection,
         distance: { x: distance.x, y: distance.y },
-        velocity: { x: velocity.x, y: velocity.y }
+        velocity: { x: velocity.x, y: velocity.y },
       };
 
       callbacks.value.onSwipe?.(swipeData, e);
@@ -218,7 +218,7 @@ export function useMobileGestures(options = {}) {
   };
 
   // 绑定事件监听
-  const bindGestures = (element) => {
+  const bindGestures = element => {
     if (!element) return;
 
     element.addEventListener('touchstart', handleTouchStart, { passive: false });
@@ -228,7 +228,7 @@ export function useMobileGestures(options = {}) {
   };
 
   // 解绑事件监听
-  const unbindGestures = (element) => {
+  const unbindGestures = element => {
     if (!element) return;
 
     element.removeEventListener('touchstart', handleTouchStart);
@@ -254,7 +254,7 @@ export function useMobileGestures(options = {}) {
     setCallbacks,
     bindGestures,
     unbindGestures,
-    cleanup
+    cleanup,
   };
 }
 
@@ -269,13 +269,13 @@ export const vSwipeDelete = {
     let currentX = 0;
     let isSwiping = false;
 
-    const handleTouchStart = (e) => {
+    const handleTouchStart = e => {
       startX = e.touches[0].clientX;
       isSwiping = true;
       el.style.transition = 'none';
     };
 
-    const handleTouchMove = (e) => {
+    const handleTouchMove = e => {
       if (!isSwiping) return;
 
       currentX = e.touches[0].clientX;
@@ -312,7 +312,7 @@ export const vSwipeDelete = {
           deleteBtn.style.position = 'absolute';
           deleteBtn.style.right = '0';
           deleteBtn.style.top = '0';
-          deleteBtn.style.width = `${threshold  }px`;
+          deleteBtn.style.width = `${threshold}px`;
           deleteBtn.style.height = '100%';
           deleteBtn.style.display = 'flex';
           deleteBtn.style.alignItems = 'center';
@@ -338,7 +338,7 @@ export const vSwipeDelete = {
     el.addEventListener('touchstart', handleTouchStart, { passive: true });
     el.addEventListener('touchmove', handleTouchMove, { passive: true });
     el.addEventListener('touchend', handleTouchEnd, { passive: true });
-  }
+  },
 };
 
 // 拖拽排序指令
@@ -352,7 +352,7 @@ export const vDragSort = {
     let draggedIndex = -1;
     let placeholder = null;
 
-    const handleDragStart = (e) => {
+    const handleDragStart = e => {
       const item = e.target.closest(itemSelector);
       if (!item) return;
 
@@ -362,7 +362,7 @@ export const vDragSort = {
       // 创建占位符
       placeholder = document.createElement('div');
       placeholder.className = 'drag-placeholder';
-      placeholder.style.height = `${item.offsetHeight  }px`;
+      placeholder.style.height = `${item.offsetHeight}px`;
       placeholder.style.background = '#f0f0f0';
       placeholder.style.border = '2px dashed #ccc';
 
@@ -371,7 +371,7 @@ export const vDragSort = {
       e.dataTransfer.setData('text/html', item.innerHTML);
     };
 
-    const handleDragOver = (e) => {
+    const handleDragOver = e => {
       e.preventDefault();
       e.dataTransfer.dropEffect = 'move';
 
@@ -383,7 +383,7 @@ export const vDragSort = {
       }
     };
 
-    const handleDrop = (e) => {
+    const handleDrop = e => {
       e.preventDefault();
 
       if (draggedElement) {
@@ -397,7 +397,7 @@ export const vDragSort = {
         onDragEnd?.({
           fromIndex: draggedIndex,
           toIndex: dropIndex,
-          element: draggedElement
+          element: draggedElement,
         });
 
         // 重置状态
@@ -421,16 +421,19 @@ export const vDragSort = {
     const getDragAfterElement = (container, y, selector) => {
       const draggableElements = [...container.querySelectorAll(selector)];
 
-      return draggableElements.reduce((closest, child) => {
-        const box = child.getBoundingClientRect();
-        const offset = y - box.top - box.height / 2;
+      return draggableElements.reduce(
+        (closest, child) => {
+          const box = child.getBoundingClientRect();
+          const offset = y - box.top - box.height / 2;
 
-        if (offset < 0 && offset > closest.offset) {
-          return { offset, element: child };
-        } else {
-          return closest;
-        }
-      }, { offset: Number.NEGATIVE_INFINITY }).element;
+          if (offset < 0 && offset > closest.offset) {
+            return { offset, element: child };
+          } else {
+            return closest;
+          }
+        },
+        { offset: Number.NEGATIVE_INFINITY }
+      ).element;
     };
 
     el.addEventListener('dragstart', handleDragStart);
@@ -442,7 +445,7 @@ export const vDragSort = {
     el.querySelectorAll(itemSelector).forEach(item => {
       item.draggable = true;
     });
-  }
+  },
 };
 
 // 惯性滚动
@@ -453,7 +456,7 @@ export function useInertiaScroll(element) {
   let startTime = 0;
   let animationId = null;
 
-  const handleTouchStart = (e) => {
+  const handleTouchStart = e => {
     isScrolling = true;
     startY = e.touches[0].clientY;
     scrollTop = element.scrollTop;
@@ -465,7 +468,7 @@ export function useInertiaScroll(element) {
     }
   };
 
-  const handleTouchMove = (e) => {
+  const handleTouchMove = e => {
     if (!isScrolling) return;
 
     const y = e.touches[0].clientY;
@@ -473,7 +476,7 @@ export function useInertiaScroll(element) {
     element.scrollTop = scrollTop + deltaY;
   };
 
-  const handleTouchEnd = (e) => {
+  const handleTouchEnd = e => {
     if (!isScrolling) return;
 
     isScrolling = false;
@@ -483,7 +486,7 @@ export function useInertiaScroll(element) {
     // 计算速度
     const deltaTime = endTime - startTime;
     const deltaY = startY - endY;
-    const velocity = deltaY / deltaTime * 1000;
+    const velocity = (deltaY / deltaTime) * 1000;
 
     // 惯性滚动
     if (Math.abs(velocity) > 100) {

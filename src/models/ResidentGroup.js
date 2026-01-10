@@ -32,7 +32,7 @@ const residentGroupSchema = new Schema({
   groupType: {
     type: String,
     enum: ['special_care', 'dynamic_monitoring', 'party_member',
-           'volunteer', 'grid_responsibility', 'custom'],
+      'volunteer', 'grid_responsibility', 'custom'],
     required: true,
     index: true
   },
@@ -326,30 +326,30 @@ residentGroupSchema.methods.applyRules = async function() {
 
     const condQuery = {};
     switch (cond.operator) {
-      case 'gt':
-        condQuery[cond.field] = { $gt: cond.value };
-        break;
-      case 'gte':
-        condQuery[cond.field] = { $gte: cond.value };
-        break;
-      case 'lt':
-        condQuery[cond.field] = { $lt: cond.value };
-        break;
-      case 'lte':
-        condQuery[cond.field] = { $lte: cond.value };
-        break;
-      case 'eq':
-        condQuery[cond.field] = cond.value;
-        break;
-      case 'ne':
-        condQuery[cond.field] = { $ne: cond.value };
-        break;
-      case 'in':
-        condQuery[cond.field] = { $in: cond.value };
-        break;
-      case 'nin':
-        condQuery[cond.field] = { $nin: cond.value };
-        break;
+    case 'gt':
+      condQuery[cond.field] = { $gt: cond.value };
+      break;
+    case 'gte':
+      condQuery[cond.field] = { $gte: cond.value };
+      break;
+    case 'lt':
+      condQuery[cond.field] = { $lt: cond.value };
+      break;
+    case 'lte':
+      condQuery[cond.field] = { $lte: cond.value };
+      break;
+    case 'eq':
+      condQuery[cond.field] = cond.value;
+      break;
+    case 'ne':
+      condQuery[cond.field] = { $ne: cond.value };
+      break;
+    case 'in':
+      condQuery[cond.field] = { $in: cond.value };
+      break;
+    case 'nin':
+      condQuery[cond.field] = { $nin: cond.value };
+      break;
     }
     query.$and.push(condQuery);
   });

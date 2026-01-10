@@ -43,7 +43,7 @@
             :precision="2"
             style="width: 120px"
           />
-          <span style="margin: 0 10px;">-</span>
+          <span style="margin: 0 10px">-</span>
           <el-input-number
             v-model="filters.maxPrice"
             placeholder="最高价"
@@ -133,7 +133,7 @@
               :src="row.image || '/placeholder-image.png'"
               :preview-src-list="[row.image]"
               fit="cover"
-              style="width: 60px; height: 60px; border-radius: 4px;"
+              style="width: 60px; height: 60px; border-radius: 4px"
             />
           </template>
         </el-table-column>
@@ -180,36 +180,16 @@
         <el-table-column label="操作" width="200" fixed="right">
           <template #default="{ row }">
             <el-button-group>
-              <el-button
-                size="small"
-                type="primary"
-                link
-                @click="handleView(row)"
-              >
+              <el-button size="small" type="primary" link @click="handleView(row)">
                 查看
               </el-button>
-              <el-button
-                size="small"
-                type="warning"
-                link
-                @click="handleEdit(row)"
-              >
+              <el-button size="small" type="warning" link @click="handleEdit(row)">
                 编辑
               </el-button>
-              <el-button
-                size="small"
-                type="success"
-                link
-                @click="handleToggleStatus(row)"
-              >
+              <el-button size="small" type="success" link @click="handleToggleStatus(row)">
                 {{ row.status === 'active' ? '下架' : '上架' }}
               </el-button>
-              <el-button
-                size="small"
-                type="danger"
-                link
-                @click="handleDelete(row)"
-              >
+              <el-button size="small" type="danger" link @click="handleDelete(row)">
                 删除
               </el-button>
             </el-button-group>
@@ -261,14 +241,18 @@
                 :src="detailDialog.data.image || '/placeholder-image.png'"
                 :preview-src-list="[detailDialog.data.image]"
                 fit="cover"
-                style="width: 100%; max-height: 300px;"
+                style="width: 100%; max-height: 300px"
               />
             </div>
           </el-col>
           <el-col :span="16">
             <el-descriptions :column="2" border>
-              <el-descriptions-item label="商品编号">{{ detailDialog.data.id }}</el-descriptions-item>
-              <el-descriptions-item label="商品名称">{{ detailDialog.data.name }}</el-descriptions-item>
+              <el-descriptions-item label="商品编号">{{
+                detailDialog.data.id
+              }}</el-descriptions-item>
+              <el-descriptions-item label="商品名称">{{
+                detailDialog.data.name
+              }}</el-descriptions-item>
               <el-descriptions-item label="分类">
                 <el-tag type="info">{{ getCategoryLabel(detailDialog.data.category) }}</el-tag>
               </el-descriptions-item>
@@ -277,9 +261,15 @@
                   {{ getStatusLabel(detailDialog.data.status) }}
                 </el-tag>
               </el-descriptions-item>
-              <el-descriptions-item label="价格">¥{{ formatAmount(detailDialog.data.price) }}</el-descriptions-item>
-              <el-descriptions-item label="库存">{{ detailDialog.data.stock }}</el-descriptions-item>
-              <el-descriptions-item label="销量">{{ detailDialog.data.sales }}</el-descriptions-item>
+              <el-descriptions-item label="价格"
+                >¥{{ formatAmount(detailDialog.data.price) }}</el-descriptions-item
+              >
+              <el-descriptions-item label="库存">{{
+                detailDialog.data.stock
+              }}</el-descriptions-item>
+              <el-descriptions-item label="销量">{{
+                detailDialog.data.sales
+              }}</el-descriptions-item>
               <el-descriptions-item label="评分">
                 <el-rate
                   v-model="detailDialog.data.rating"
@@ -288,15 +278,21 @@
                   text-color="#ff9900"
                 />
               </el-descriptions-item>
-              <el-descriptions-item label="重量">{{ detailDialog.data.weight || 'N/A' }}</el-descriptions-item>
-              <el-descriptions-item label="规格">{{ detailDialog.data.specification || 'N/A' }}</el-descriptions-item>
+              <el-descriptions-item label="重量">{{
+                detailDialog.data.weight || 'N/A'
+              }}</el-descriptions-item>
+              <el-descriptions-item label="规格">{{
+                detailDialog.data.specification || 'N/A'
+              }}</el-descriptions-item>
               <el-descriptions-item label="创建时间">
                 {{ formatDateTime(detailDialog.data.createdAt) }}
               </el-descriptions-item>
               <el-descriptions-item label="更新时间">
                 {{ formatDateTime(detailDialog.data.updatedAt) }}
               </el-descriptions-item>
-              <el-descriptions-item label="商品描述" :span="2">{{ detailDialog.data.description }}</el-descriptions-item>
+              <el-descriptions-item label="商品描述" :span="2">{{
+                detailDialog.data.description
+              }}</el-descriptions-item>
             </el-descriptions>
           </el-col>
         </el-row>
@@ -320,7 +316,11 @@
           <el-input v-model="productForm.name" placeholder="请输入商品名称" />
         </el-form-item>
         <el-form-item label="商品分类" prop="category">
-          <el-select v-model="productForm.category" placeholder="请选择商品分类" style="width: 100%">
+          <el-select
+            v-model="productForm.category"
+            placeholder="请选择商品分类"
+            style="width: 100%"
+          >
             <el-option label="农产品" value="agriculture" />
             <el-option label="手工艺品" value="handicraft" />
             <el-option label="特色食品" value="food" />
@@ -338,11 +338,7 @@
           />
         </el-form-item>
         <el-form-item label="库存" prop="stock">
-          <el-input-number
-            v-model="productForm.stock"
-            :min="0"
-            style="width: 100%"
-          />
+          <el-input-number v-model="productForm.stock" :min="0" style="width: 100%" />
         </el-form-item>
         <el-form-item label="重量">
           <el-input v-model="productForm.weight" placeholder="请输入商品重量（可选）" />
@@ -388,14 +384,14 @@
     </el-dialog>
 
     <!-- 批量分类对话框 -->
-    <el-dialog
-      v-model="batchCategoryDialog.visible"
-      title="批量设置分类"
-      width="400px"
-    >
+    <el-dialog v-model="batchCategoryDialog.visible" title="批量设置分类" width="400px">
       <el-form :model="batchCategoryForm" label-width="100px">
         <el-form-item label="新分类" required>
-          <el-select v-model="batchCategoryForm.category" placeholder="请选择分类" style="width: 100%">
+          <el-select
+            v-model="batchCategoryForm.category"
+            placeholder="请选择分类"
+            style="width: 100%"
+          >
             <el-option label="农产品" value="agriculture" />
             <el-option label="手工艺品" value="handicraft" />
             <el-option label="特色食品" value="food" />
@@ -433,14 +429,14 @@ const filters = reactive({
   category: '',
   status: '',
   minPrice: null,
-  maxPrice: null
+  maxPrice: null,
 });
 
 // 分页信息
 const pagination = reactive({
   page: 1,
   limit: 20,
-  total: 0
+  total: 0,
 });
 
 // 统计数据
@@ -448,24 +444,24 @@ const stats = reactive({
   totalProducts: 0,
   activeProducts: 0,
   todayOrders: 0,
-  todayRevenue: 0
+  todayRevenue: 0,
 });
 
 // 详情对话框
 const detailDialog = reactive({
   visible: false,
-  data: null
+  data: null,
 });
 
 // 表单对话框
 const formDialog = reactive({
   visible: false,
-  isEdit: false
+  isEdit: false,
 });
 
 // 批量分类对话框
 const batchCategoryDialog = reactive({
-  visible: false
+  visible: false,
 });
 
 // 商品表单
@@ -479,34 +475,30 @@ const productForm = reactive({
   specification: '',
   description: '',
   image: '',
-  status: 'active'
+  status: 'active',
 });
 
 // 批量分类表单
 const batchCategoryForm = reactive({
-  category: ''
+  category: '',
 });
 
 // 表单验证规则
 const productFormRules = {
   name: [
     { required: true, message: '请输入商品名称', trigger: 'blur' },
-    { min: 2, max: 100, message: '商品名称长度在2到100个字符', trigger: 'blur' }
+    { min: 2, max: 100, message: '商品名称长度在2到100个字符', trigger: 'blur' },
   ],
-  category: [
-    { required: true, message: '请选择商品分类', trigger: 'change' }
-  ],
+  category: [{ required: true, message: '请选择商品分类', trigger: 'change' }],
   price: [
     { required: true, message: '请输入商品价格', trigger: 'blur' },
-    { type: 'number', min: 0.01, message: '价格必须大于0', trigger: 'blur' }
+    { type: 'number', min: 0.01, message: '价格必须大于0', trigger: 'blur' },
   ],
   stock: [
     { required: true, message: '请输入商品库存', trigger: 'blur' },
-    { type: 'number', min: 0, message: '库存不能为负数', trigger: 'blur' }
+    { type: 'number', min: 0, message: '库存不能为负数', trigger: 'blur' },
   ],
-  description: [
-    { required: true, message: '请输入商品描述', trigger: 'blur' }
-  ]
+  description: [{ required: true, message: '请输入商品描述', trigger: 'blur' }],
 };
 
 // 表单引用
@@ -519,7 +511,7 @@ const loadProductList = async () => {
     const params = {
       page: pagination.page,
       limit: pagination.limit,
-      ...filters
+      ...filters,
     };
 
     // 清理空值参数
@@ -572,26 +564,26 @@ const handleReset = () => {
   loadProductList();
 };
 
-const handleSizeChange = (size) => {
+const handleSizeChange = size => {
   pagination.limit = size;
   loadProductList();
 };
 
-const handleCurrentChange = (page) => {
+const handleCurrentChange = page => {
   pagination.page = page;
   loadProductList();
 };
 
-const handleSelectionChange = (selection) => {
+const handleSelectionChange = selection => {
   selectedProducts.value = selection;
 };
 
-const handleView = (row) => {
+const handleView = row => {
   detailDialog.data = row;
   detailDialog.visible = true;
 };
 
-const handleEdit = (row) => {
+const handleEdit = row => {
   formDialog.isEdit = true;
   formDialog.visible = true;
 
@@ -601,17 +593,13 @@ const handleEdit = (row) => {
   });
 };
 
-const handleDelete = async (row) => {
+const handleDelete = async row => {
   try {
-    await ElMessageBox.confirm(
-      `确定要删除商品 "${row.name}" 吗？`,
-      '确认删除',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    );
+    await ElMessageBox.confirm(`确定要删除商品 "${row.name}" 吗？`, '确认删除', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
 
     ElMessage.success('商品删除成功');
     loadProductList();
@@ -623,20 +611,16 @@ const handleDelete = async (row) => {
   }
 };
 
-const handleToggleStatus = async (row) => {
+const handleToggleStatus = async row => {
   try {
     const newStatus = row.status === 'active' ? 'inactive' : 'active';
     const action = newStatus === 'active' ? '上架' : '下架';
 
-    await ElMessageBox.confirm(
-      `确定要${action}商品 "${row.name}" 吗？`,
-      `确认${action}`,
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    );
+    await ElMessageBox.confirm(`确定要${action}商品 "${row.name}" 吗？`, `确认${action}`, {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
 
     // 实现状态切换逻辑
     row.status = newStatus;
@@ -657,8 +641,7 @@ const showCreateDialog = () => {
 
 const resetProductForm = () => {
   Object.keys(productForm).forEach(key => {
-    productForm[key] = key === 'price' || key === 'stock' ? 0 :
-                    key === 'status' ? 'active' : '';
+    productForm[key] = key === 'price' || key === 'stock' ? 0 : key === 'status' ? 'active' : '';
   });
 
   if (productFormRef.value) {
@@ -666,10 +649,10 @@ const resetProductForm = () => {
   }
 };
 
-const handleImageUpload = (file) => {
+const handleImageUpload = file => {
   // 这里应该实现图片上传逻辑
   const reader = new FileReader();
-  reader.onload = (e) => {
+  reader.onload = e => {
     productForm.image = e.target.result;
   };
   reader.readAsDataURL(file);
@@ -727,7 +710,7 @@ const handleBatchSetActive = async () => {
       {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
       }
     );
 
@@ -748,7 +731,7 @@ const handleBatchSetInactive = async () => {
       {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
       }
     );
 
@@ -795,7 +778,7 @@ const handleBatchDelete = async () => {
       {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
       }
     );
 
@@ -809,53 +792,53 @@ const handleBatchDelete = async () => {
 };
 
 // 工具方法
-const formatAmount = (amount) => {
+const formatAmount = amount => {
   if (!amount) return '0.00';
   return parseFloat(amount).toLocaleString('zh-CN', {
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2
+    maximumFractionDigits: 2,
   });
 };
 
-const formatDateTime = (dateTime) => {
+const formatDateTime = dateTime => {
   if (!dateTime) return '';
   return new Date(dateTime).toLocaleString('zh-CN');
 };
 
-const getCategoryLabel = (category) => {
+const getCategoryLabel = category => {
   const categoryMap = {
     agriculture: '农产品',
     handicraft: '手工艺品',
     food: '特色食品',
     daily_necessities: '日用百货',
-    agricultural_supplies: '农资用品'
+    agricultural_supplies: '农资用品',
   };
   return categoryMap[category] || category;
 };
 
-const getStatusLabel = (status) => {
+const getStatusLabel = status => {
   const statusMap = {
     active: '在售',
     inactive: '下架',
-    out_of_stock: '缺货'
+    out_of_stock: '缺货',
   };
   return statusMap[status] || status;
 };
 
-const getStatusTagType = (status) => {
+const getStatusTagType = status => {
   const typeMap = {
     active: 'success',
     inactive: 'warning',
-    out_of_stock: 'danger'
+    out_of_stock: 'danger',
   };
   return typeMap[status] || 'info';
 };
 
-const getStockClass = (stock) => {
+const getStockClass = stock => {
   return {
     'stock-low': stock <= 10,
     'stock-normal': stock > 10 && stock <= 50,
-    'stock-high': stock > 50
+    'stock-high': stock > 50,
   };
 };
 

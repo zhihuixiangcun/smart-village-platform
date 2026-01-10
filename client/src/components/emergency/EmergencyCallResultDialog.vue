@@ -27,14 +27,11 @@
       </el-timeline>
 
       <div v-if="callResult?.emergencyId" class="result-info">
-        <el-alert
-          title="请保持电话畅通"
-          type="info"
-          :closable="false"
-          show-icon
-        >
+        <el-alert title="请保持电话畅通" type="info" :closable="false" show-icon>
           <template #default>
-            <p>您的应急呼叫编号：<strong>{{ callResult.emergencyId }}</strong></p>
+            <p>
+              您的应急呼叫编号：<strong>{{ callResult.emergencyId }}</strong>
+            </p>
             <p>救援人员正在赶来，预计到达时间：{{ callResult.estimatedArrival || '正在计算' }}</p>
           </template>
         </el-alert>
@@ -49,74 +46,74 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { SuccessFilled, WarningFilled, Loading } from '@element-plus/icons-vue'
+import { computed } from 'vue';
+import { SuccessFilled, WarningFilled, Loading } from '@element-plus/icons-vue';
 
 const props = defineProps({
   modelValue: {
     type: Boolean,
-    default: false
+    default: false,
   },
   callResult: {
     type: Object,
-    default: null
-  }
-})
+    default: null,
+  },
+});
 
-const emit = defineEmits(['update:modelValue', 'track'])
+const emit = defineEmits(['update:modelValue', 'track']);
 
 const dialogVisible = computed({
   get: () => props.modelValue,
-  set: (val) => emit('update:modelValue', val)
-})
+  set: val => emit('update:modelValue', val),
+});
 
 const status = computed(() => {
-  if (!props.callResult) return 'pending'
-  return props.callResult.success ? 'success' : 'error'
-})
+  if (!props.callResult) return 'pending';
+  return props.callResult.success ? 'success' : 'error';
+});
 
 const title = computed(() => {
   switch (status.value) {
     case 'success':
-      return '呼叫成功'
+      return '呼叫成功';
     case 'error':
-      return '呼叫失败'
+      return '呼叫失败';
     default:
-      return '处理中...'
+      return '处理中...';
   }
-})
+});
 
 const message = computed(() => {
-  if (!props.callResult) return '正在处理您的请求...'
+  if (!props.callResult) return '正在处理您的请求...';
 
   switch (status.value) {
     case 'success':
-      return '您的应急呼叫已受理，救援人员正在赶来'
+      return '您的应急呼叫已受理，救援人员正在赶来';
     case 'error':
-      return props.callResult.message || '呼叫失败，请重试或拨打紧急电话'
+      return props.callResult.message || '呼叫失败，请重试或拨打紧急电话';
     default:
-      return '正在处理您的请求...'
+      return '正在处理您的请求...';
   }
-})
+});
 
 const timeline = computed(() => {
-  if (!props.callResult?.timeline) return []
+  if (!props.callResult?.timeline) return [];
 
   return props.callResult.timeline.map(item => ({
     timestamp: item.timestamp || new Date().toLocaleString(),
     content: item.content,
-    type: item.type || 'primary'
-  }))
-})
+    type: item.type || 'primary',
+  }));
+});
 
 const handleClose = () => {
-  dialogVisible.value = false
-}
+  dialogVisible.value = false;
+};
 
 const handleTrack = () => {
-  emit('track', props.callResult)
-  handleClose()
-}
+  emit('track', props.callResult);
+  handleClose();
+};
 </script>
 
 <style scoped>

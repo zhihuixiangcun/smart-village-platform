@@ -627,9 +627,9 @@ syncLogSchema.statics.getActiveSessions = function() {
   return this.find({
     status: { $in: ['started', 'in_progress'] }
   })
-  .sort({ 'timing.startTime': -1 })
-  .populate('userId', 'username name')
-  .lean();
+    .sort({ 'timing.startTime': -1 })
+    .populate('userId', 'username name')
+    .lean();
 };
 
 /**

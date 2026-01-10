@@ -14,7 +14,7 @@ export const useCommitteeStore = defineStore('committee', () => {
     partyCommittee: [],
     villageCommittee: [],
     supervisoryCommittee: [],
-    departments: []
+    departments: [],
   });
 
   // 统计数据
@@ -22,7 +22,7 @@ export const useCommitteeStore = defineStore('committee', () => {
     totalMembers: 0,
     departments: 0,
     onDuty: 0,
-    partyMembers: 0
+    partyMembers: 0,
   });
 
   // 加载状态
@@ -33,7 +33,7 @@ export const useCommitteeStore = defineStore('committee', () => {
   const pagination = reactive({
     page: 1,
     pageSize: 10,
-    total: 0
+    total: 0,
   });
 
   // 搜索条件
@@ -42,7 +42,7 @@ export const useCommitteeStore = defineStore('committee', () => {
     position: '',
     department: '',
     status: '',
-    politicalStatus: ''
+    politicalStatus: '',
   });
 
   // 计算属性
@@ -65,7 +65,7 @@ export const useCommitteeStore = defineStore('committee', () => {
         page: pagination.page,
         pageSize: pagination.pageSize,
         ...searchParams,
-        ...params
+        ...params,
       };
 
       const response = await committeeApi.getMembers(queryParams);
@@ -87,7 +87,7 @@ export const useCommitteeStore = defineStore('committee', () => {
    * @param {string|number} id 成员ID
    * @returns {Promise} 请求结果
    */
-  const getMemberDetail = async (id) => {
+  const getMemberDetail = async id => {
     try {
       const response = await committeeApi.getMemberDetail(id);
       currentMember.value = response;
@@ -103,7 +103,7 @@ export const useCommitteeStore = defineStore('committee', () => {
    * @param {Object} data 成员数据
    * @returns {Promise} 请求结果
    */
-  const createMember = async (data) => {
+  const createMember = async data => {
     try {
       const response = await committeeApi.createMember(data);
 
@@ -153,7 +153,7 @@ export const useCommitteeStore = defineStore('committee', () => {
    * @param {string|number} id 成员ID
    * @returns {Promise} 请求结果
    */
-  const deleteMember = async (id) => {
+  const deleteMember = async id => {
     try {
       await committeeApi.deleteMember(id);
 
@@ -182,7 +182,7 @@ export const useCommitteeStore = defineStore('committee', () => {
    * @param {Array} ids 成员ID数组
    * @returns {Promise} 请求结果
    */
-  const batchDeleteMembers = async (ids) => {
+  const batchDeleteMembers = async ids => {
     try {
       await committeeApi.batchDeleteMembers(ids);
 
@@ -236,7 +236,7 @@ export const useCommitteeStore = defineStore('committee', () => {
    * @param {Object} data 组织架构数据
    * @returns {Promise} 请求结果
    */
-  const updateOrganization = async (data) => {
+  const updateOrganization = async data => {
     try {
       const response = await committeeApi.updateOrganization(data);
       organizationStructure.value = response;
@@ -351,7 +351,7 @@ export const useCommitteeStore = defineStore('committee', () => {
    * @param {string|number} memberId 成员ID
    * @returns {Promise} 请求结果
    */
-  const getWorkDuties = async (memberId) => {
+  const getWorkDuties = async memberId => {
     try {
       const response = await committeeApi.getWorkDuties(memberId);
       return Promise.resolve(response);
@@ -405,11 +405,7 @@ export const useCommitteeStore = defineStore('committee', () => {
    * 刷新数据
    */
   const refresh = async () => {
-    await Promise.all([
-      getMemberList(),
-      getStatistics(),
-      getOrganization()
-    ]);
+    await Promise.all([getMemberList(), getStatistics(), getOrganization()]);
   };
 
   return {
@@ -447,7 +443,7 @@ export const useCommitteeStore = defineStore('committee', () => {
     updateWorkDuties,
     exportMembers,
     clearCurrentMember,
-    refresh
+    refresh,
   };
 });
 

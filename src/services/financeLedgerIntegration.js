@@ -426,7 +426,7 @@ class FinanceLedgerIntegration {
       const stats = await LedgerProof.aggregate([
         {
           $match: {
-            villageId: villageId,
+            villageId,
             proofType: { $in: ['financial', 'reimbursement', 'budget'] },
             createdAt: { $gte: startDate }
           }

@@ -21,7 +21,9 @@
               </el-avatar>
               <div class="mt-4">
                 <h3 class="text-xl font-bold">{{ resident.name }}</h3>
-                <p class="text-gray-500 mt-1">{{ resident.gender }} · {{ calculateAge(resident.birthday) }}岁</p>
+                <p class="text-gray-500 mt-1">
+                  {{ resident.gender }} · {{ calculateAge(resident.birthday) }}岁
+                </p>
               </div>
             </div>
           </el-col>
@@ -100,9 +102,7 @@
         <el-table-column prop="occupation" label="职业" />
         <el-table-column label="操作" width="150" align="center">
           <template #default="{ row }">
-            <el-button type="primary" size="small" @click="handleEditFamily(row)">
-              编辑
-            </el-button>
+            <el-button type="primary" size="small" @click="handleEditFamily(row)"> 编辑 </el-button>
             <el-button type="danger" size="small" @click="handleDeleteFamily(row)">
               删除
             </el-button>
@@ -211,80 +211,78 @@
         </el-timeline-item>
       </el-timeline>
 
-      <div v-if="!changeRecords.length" class="text-center text-gray-500 py-8">
-        暂无变更记录
-      </div>
+      <div v-if="!changeRecords.length" class="text-center text-gray-500 py-8">暂无变更记录</div>
     </el-card>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
-import { Edit, Plus } from '@element-plus/icons-vue'
-import { formatDate, validateIdCard, validatePhone } from '@/utils/common'
+import { ref, computed, onMounted } from 'vue';
+import { ElMessage } from 'element-plus';
+import { Edit, Plus } from '@element-plus/icons-vue';
+import { formatDate, validateIdCard, validatePhone } from '@/utils/common';
 
 // Props定义
 const props = defineProps({
   resident: {
     type: Object,
-    required: true
-  }
-})
+    required: true,
+  },
+});
 
 // Emits定义
-const emit = defineEmits(['edit', 'close'])
+const emit = defineEmits(['edit', 'close']);
 
 // 响应式数据
-const familyMembers = ref([])
-const healthRecords = ref([])
-const activityRecords = ref([])
-const changeRecords = ref([])
+const familyMembers = ref([]);
+const healthRecords = ref([]);
+const activityRecords = ref([]);
+const changeRecords = ref([]);
 
 // 计算属性
-const calculateAge = (birthday) => {
-  if (!birthday) return 0
-  const birth = new Date(birthday)
-  const today = new Date()
-  let age = today.getFullYear() - birth.getFullYear()
-  const monthDiff = today.getMonth() - birth.getMonth()
+const calculateAge = birthday => {
+  if (!birthday) return 0;
+  const birth = new Date(birthday);
+  const today = new Date();
+  let age = today.getFullYear() - birth.getFullYear();
+  const monthDiff = today.getMonth() - birth.getMonth();
   if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-    age--
+    age--;
   }
-  return age
-}
+  return age;
+};
 
-const formatIdCard = (idCard) => {
-  const { formatted } = validateIdCard(idCard)
-  return formatted
-}
+const formatIdCard = idCard => {
+  const { formatted } = validateIdCard(idCard);
+  return formatted;
+};
 
-const formatPhone = (phone) => {
-  const { formatted } = validatePhone(phone)
-  return formatted
-}
+const formatPhone = phone => {
+  const { formatted } = validatePhone(phone);
+  return formatted;
+};
 
-const getHouseholdTypeTag = (type) => {
+const getHouseholdTypeTag = type => {
   const tagMap = {
-    '普通户': '',
-    '低保户': 'warning',
-    '五保户': 'danger',
-    '残疾户': 'info',
-    '贫困户': 'danger'
-  }
-  return tagMap[type] || ''
-}
+    普通户: '',
+    低保户: 'warning',
+    五保户: 'danger',
+    残疾户: 'info',
+    贫困户: 'danger',
+  };
+  return tagMap[type] || '';
+};
 
-const getHealthStatusTag = (status) => {
+const getHealthStatusTag = status => {
   const tagMap = {
-    '健康': 'success',
-    '一般': '',
-    '慢性病': 'warning',
-    '残疾': 'danger',
-    '其他': 'info'
-  }
-  return tagMap[status] || ''
-}
+    健康: 'success',
+    一般: '',
+    慢性病: 'warning',
+    残疾: 'danger',
+    其他: 'info',
+  };
+  return tagMap[status] || '';
+};
 
 // 数据加载方法
 const loadFamilyMembers = async () => {
@@ -298,7 +296,7 @@ const loadFamilyMembers = async () => {
         gender: '女',
         age: 45,
         phone: '13987654321',
-        occupation: '务农'
+        occupation: '务农',
       },
       {
         id: 2,
@@ -307,13 +305,13 @@ const loadFamilyMembers = async () => {
         gender: '男',
         age: 20,
         phone: '13876543210',
-        occupation: '学生'
-      }
-    ]
+        occupation: '学生',
+      },
+    ];
   } catch (error) {
-    console.error('加载家庭成员失败:', error)
+    console.error('加载家庭成员失败:', error);
   }
-}
+};
 
 const loadHealthRecords = async () => {
   try {
@@ -324,20 +322,20 @@ const loadHealthRecords = async () => {
         type: '年度体检',
         description: '血压正常，血糖偏高，建议控制饮食',
         doctor: '李医生',
-        checkDate: '2024-03-15'
+        checkDate: '2024-03-15',
       },
       {
         id: 2,
         type: '慢病随访',
         description: '糖尿病随访，血糖控制良好',
         doctor: '王医生',
-        checkDate: '2024-06-20'
-      }
-    ]
+        checkDate: '2024-06-20',
+      },
+    ];
   } catch (error) {
-    console.error('加载健康记录失败:', error)
+    console.error('加载健康记录失败:', error);
   }
-}
+};
 
 const loadActivityRecords = async () => {
   try {
@@ -350,7 +348,7 @@ const loadActivityRecords = async () => {
         participateDate: '2024-08-15',
         role: '参与者',
         status: '已完成',
-        remarks: '全程参与'
+        remarks: '全程参与',
       },
       {
         id: 2,
@@ -359,13 +357,13 @@ const loadActivityRecords = async () => {
         participateDate: '2024-09-01',
         role: '志愿者',
         status: '已完成',
-        remarks: '积极参与清理工作'
-      }
-    ]
+        remarks: '积极参与清理工作',
+      },
+    ];
   } catch (error) {
-    console.error('加载活动记录失败:', error)
+    console.error('加载活动记录失败:', error);
   }
-}
+};
 
 const loadChangeRecords = async () => {
   try {
@@ -376,49 +374,49 @@ const loadChangeRecords = async () => {
         changeType: '信息更新',
         description: '更新手机号码',
         operator: '村委会',
-        changeDate: '2024-07-10 14:30:00'
+        changeDate: '2024-07-10 14:30:00',
       },
       {
         id: 2,
         changeType: '地址变更',
         description: '搬迁到新住址',
         operator: '张三',
-        changeDate: '2024-05-20 09:15:00'
-      }
-    ]
+        changeDate: '2024-05-20 09:15:00',
+      },
+    ];
   } catch (error) {
-    console.error('加载变更记录失败:', error)
+    console.error('加载变更记录失败:', error);
   }
-}
+};
 
 // 事件处理方法
 const handleAddFamily = () => {
-  ElMessage.info('添加家庭成员功能开发中...')
-}
+  ElMessage.info('添加家庭成员功能开发中...');
+};
 
-const handleEditFamily = (row) => {
-  ElMessage.info(`编辑家庭成员 ${row.name} 功能开发中...`)
-}
+const handleEditFamily = row => {
+  ElMessage.info(`编辑家庭成员 ${row.name} 功能开发中...`);
+};
 
-const handleDeleteFamily = (row) => {
-  ElMessage.info(`删除家庭成员 ${row.name} 功能开发中...`)
-}
+const handleDeleteFamily = row => {
+  ElMessage.info(`删除家庭成员 ${row.name} 功能开发中...`);
+};
 
 const handleAddHealth = () => {
-  ElMessage.info('添加健康记录功能开发中...')
-}
+  ElMessage.info('添加健康记录功能开发中...');
+};
 
-const handleViewHealth = (record) => {
-  ElMessage.info(`查看健康记录详情功能开发中...`)
-}
+const handleViewHealth = record => {
+  ElMessage.info(`查看健康记录详情功能开发中...`);
+};
 
 // 生命周期
 onMounted(() => {
-  loadFamilyMembers()
-  loadHealthRecords()
-  loadActivityRecords()
-  loadChangeRecords()
-})
+  loadFamilyMembers();
+  loadHealthRecords();
+  loadActivityRecords();
+  loadChangeRecords();
+});
 </script>
 
 <style scoped>

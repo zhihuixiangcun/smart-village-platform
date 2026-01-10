@@ -67,7 +67,7 @@ class LedgerProofService {
       const nextBlockHeight = await LedgerProof.getNextBlockHeight(villageId);
 
       // 生成签名（如果未提供）
-      let signatureValue = signature;
+      const signatureValue = signature;
       let publicKeyValue = publicKey;
 
       if (!signatureValue) {
@@ -236,16 +236,16 @@ class LedgerProofService {
       let result;
 
       switch (blockchainType) {
-        case 'ethereum':
-          result = await this.uploadToEthereum(proof);
-          break;
-        case 'hyperledger':
-          result = await this.uploadToHyperledger(proof);
-          break;
-        case 'local':
-        default:
-          result = await this.uploadToLocal(proof);
-          break;
+      case 'ethereum':
+        result = await this.uploadToEthereum(proof);
+        break;
+      case 'hyperledger':
+        result = await this.uploadToHyperledger(proof);
+        break;
+      case 'local':
+      default:
+        result = await this.uploadToLocal(proof);
+        break;
       }
 
       // 更新存证状态
@@ -480,7 +480,7 @@ class LedgerProofService {
 
     // TODO: 实现实际的以太坊智能合约交互
     // 这里使用模拟实现
-    const mockTxHash = '0x' + crypto.randomBytes(32).toString('hex');
+    const mockTxHash = `0x${  crypto.randomBytes(32).toString('hex')}`;
     const mockBlockNumber = Math.floor(Math.random() * 10000000) + 15000000;
 
     Logger.info('模拟以太坊上链', {
@@ -495,7 +495,7 @@ class LedgerProofService {
         networkId: this.config.ethereum.chainId.toString(),
         transactionHash: mockTxHash,
         blockNumber: mockBlockNumber,
-        blockHash: '0x' + crypto.randomBytes(32).toString('hex'),
+        blockHash: `0x${  crypto.randomBytes(32).toString('hex')}`,
         confirmations: 1,
         gasUsed: 50000,
         status: 'confirmed',

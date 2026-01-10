@@ -4,7 +4,9 @@
     <div class="demo-header">
       <div class="device-info">
         <span class="device-type">设备类型: {{ deviceInfo.deviceType }}</span>
-        <span class="screen-size">屏幕尺寸: {{ deviceInfo.screenWidth }}x{{ deviceInfo.screenHeight }}</span>
+        <span class="screen-size"
+          >屏幕尺寸: {{ deviceInfo.screenWidth }}x{{ deviceInfo.screenHeight }}</span
+        >
         <span class="orientation">方向: {{ deviceInfo.orientation }}</span>
       </div>
       <div class="demo-controls">
@@ -16,13 +18,16 @@
     <!-- 响应式网格演示 -->
     <div class="demo-section">
       <h2>响应式网格布局</h2>
-      <div class="responsive-grid" v-responsive="{
-        breakpoints: {
-          mobile: { maxWidth: 767 },
-          tablet: { minWidth: 768, maxWidth: 1023 },
-          desktop: { minWidth: 1024 }
-        }
-      }">
+      <div
+        class="responsive-grid"
+        v-responsive="{
+          breakpoints: {
+            mobile: { maxWidth: 767 },
+            tablet: { minWidth: 768, maxWidth: 1023 },
+            desktop: { minWidth: 1024 },
+          },
+        }"
+      >
         <div class="grid-item" v-for="i in 12" :key="i">
           <div class="item-content">{{ i }}</div>
         </div>
@@ -34,10 +39,7 @@
       <h2>触摸交互功能</h2>
       <div class="touch-demo-grid">
         <!-- 基础触摸 -->
-        <div
-          class="touch-demo-box"
-          v-touch="() => handleTouch('基础触摸')"
-        >
+        <div class="touch-demo-box" v-touch="() => handleTouch('基础触摸')">
           <span class="touch-label">基础触摸</span>
           <span class="touch-count">{{ touchCount.basic }}</span>
         </div>
@@ -126,42 +128,12 @@
     <div class="demo-section">
       <h2>触摸反馈演示</h2>
       <div class="feedback-demo">
-        <button
-          class="feedback-btn"
-          @click="testHapticFeedback('light')"
-        >
-          轻量反馈
-        </button>
-        <button
-          class="feedback-btn"
-          @click="testHapticFeedback('medium')"
-        >
-          中等反馈
-        </button>
-        <button
-          class="feedback-btn"
-          @click="testHapticFeedback('heavy')"
-        >
-          强烈反馈
-        </button>
-        <button
-          class="feedback-btn"
-          @click="testHapticFeedback('success')"
-        >
-          成功反馈
-        </button>
-        <button
-          class="feedback-btn"
-          @click="testHapticFeedback('warning')"
-        >
-          警告反馈
-        </button>
-        <button
-          class="feedback-btn"
-          @click="testHapticFeedback('error')"
-        >
-          错误反馈
-        </button>
+        <button class="feedback-btn" @click="testHapticFeedback('light')">轻量反馈</button>
+        <button class="feedback-btn" @click="testHapticFeedback('medium')">中等反馈</button>
+        <button class="feedback-btn" @click="testHapticFeedback('heavy')">强烈反馈</button>
+        <button class="feedback-btn" @click="testHapticFeedback('success')">成功反馈</button>
+        <button class="feedback-btn" @click="testHapticFeedback('warning')">警告反馈</button>
+        <button class="feedback-btn" @click="testHapticFeedback('error')">错误反馈</button>
       </div>
     </div>
 
@@ -192,7 +164,13 @@
         <div class="style-card">
           <h3>动态字体大小</h3>
           <p :style="{ fontSize: dynamicFontSize }">这段文字会根据屏幕大小动态调整</p>
-          <el-slider v-model="fontScale" :min="0.5" :max="2" :step="0.1" @change="updateFontSize"></el-slider>
+          <el-slider
+            v-model="fontScale"
+            :min="0.5"
+            :max="2"
+            :step="0.1"
+            @change="updateFontSize"
+          ></el-slider>
         </div>
         <div class="style-card">
           <h3>动态间距</h3>
@@ -206,140 +184,140 @@
 </template>
 
 <script>
-import { ref, reactive, onMounted, onUnmounted, computed } from 'vue'
-import { useMobileAdaptation } from '@/composables/useMobileAdaptation'
+import { ref, reactive, onMounted, onUnmounted, computed } from 'vue';
+import { useMobileAdaptation } from '@/composables/useMobileAdaptation';
 
 export default {
   name: 'MobileAdaptationDemo',
   setup() {
-    const { deviceInfo, hapticFeedback, addHapticClass, removeHapticClass } = useMobileAdaptation()
+    const { deviceInfo, hapticFeedback, addHapticClass, removeHapticClass } = useMobileAdaptation();
 
     // 触摸计数
     const touchCount = reactive({
       basic: 0,
       longpress: 0,
       swipe: 0,
-      directional: 0
-    })
+      directional: 0,
+    });
 
     // 方向历史
-    const orientationHistory = ref([])
+    const orientationHistory = ref([]);
 
     // 字体缩放
-    const fontScale = ref(1)
-    const dynamicFontSize = ref('16px')
-    const dynamicSpacing = ref('16px')
+    const fontScale = ref(1);
+    const dynamicFontSize = ref('16px');
+    const dynamicSpacing = ref('16px');
 
     // 计算属性
     const orientationIcon = computed(() => {
       const icons = {
         portrait: '📱',
-        landscape: '📱'
-      }
-      return icons[deviceInfo.orientation] || '📱'
-    })
+        landscape: '📱',
+      };
+      return icons[deviceInfo.orientation] || '📱';
+    });
 
     // 监听方向变化
-    let lastOrientation = deviceInfo.orientation
+    let lastOrientation = deviceInfo.orientation;
 
     const handleOrientationChange = () => {
       if (deviceInfo.orientation !== lastOrientation) {
         orientationHistory.value.unshift({
           from: lastOrientation,
           to: deviceInfo.orientation,
-          time: new Date()
-        })
-        lastOrientation = deviceInfo.orientation
+          time: new Date(),
+        });
+        lastOrientation = deviceInfo.orientation;
 
         // 限制历史记录数量
         if (orientationHistory.value.length > 10) {
-          orientationHistory.value = orientationHistory.value.slice(0, 10)
+          orientationHistory.value = orientationHistory.value.slice(0, 10);
         }
       }
-    }
+    };
 
     // 处理触摸事件
-    const handleTouch = (type) => {
-      touchCount.basic++
-      addHapticClass(event.target, 'light')
-      console.log(`触摸事件: ${type}`)
-    }
+    const handleTouch = type => {
+      touchCount.basic++;
+      addHapticClass(event.target, 'light');
+      console.log(`触摸事件: ${type}`);
+    };
 
     // 处理长按
     const handleLongPress = () => {
-      touchCount.longpress++
-      hapticFeedback('medium')
-      console.log('长按事件触发')
-    }
+      touchCount.longpress++;
+      hapticFeedback('medium');
+      console.log('长按事件触发');
+    };
 
     // 处理滑动
-    const handleSwipe = (result) => {
-      touchCount.swipe++
-      hapticFeedback('light')
-      console.log(`滑动事件: ${result.direction}`)
-    }
+    const handleSwipe = result => {
+      touchCount.swipe++;
+      hapticFeedback('light');
+      console.log(`滑动事件: ${result.direction}`);
+    };
 
     // 处理方向滑动
-    const handleDirectionalSwipe = (result) => {
-      touchCount.directional++
-      hapticFeedback('light')
-      console.log(`方向滑动: ${result.direction}`)
-    }
+    const handleDirectionalSwipe = result => {
+      touchCount.directional++;
+      hapticFeedback('light');
+      console.log(`方向滑动: ${result.direction}`);
+    };
 
     // 测试触觉反馈
-    const testHapticFeedback = (type) => {
-      hapticFeedback(type)
+    const testHapticFeedback = type => {
+      hapticFeedback(type);
 
       // 为按钮添加视觉反馈
-      const btn = event.target
-      addHapticClass(btn, type)
+      const btn = event.target;
+      addHapticClass(btn, type);
       setTimeout(() => {
-        removeHapticClass(btn, type)
-      }, 300)
-    }
+        removeHapticClass(btn, type);
+      }, 300);
+    };
 
     // 切换主题
     const toggleTheme = () => {
-      const isDark = document.documentElement.classList.contains('dark')
+      const isDark = document.documentElement.classList.contains('dark');
       if (isDark) {
-        document.documentElement.classList.remove('dark')
-        localStorage.setItem('theme', 'light')
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
       } else {
-        document.documentElement.classList.add('dark')
-        localStorage.setItem('theme', 'dark')
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
       }
-      hapticFeedback('medium')
-    }
+      hapticFeedback('medium');
+    };
 
     // 更新字体大小
-    const updateFontSize = (scale) => {
-      const baseSize = 16
-      dynamicFontSize.value = `${baseSize * scale}px`
-      dynamicSpacing.value = `${baseSize * scale}px`
-    }
+    const updateFontSize = scale => {
+      const baseSize = 16;
+      dynamicFontSize.value = `${baseSize * scale}px`;
+      dynamicSpacing.value = `${baseSize * scale}px`;
+    };
 
     // 格式化时间
-    const formatTime = (date) => {
-      return date.toLocaleTimeString()
-    }
+    const formatTime = date => {
+      return date.toLocaleTimeString();
+    };
 
     onMounted(() => {
       // 初始化主题
-      const savedTheme = localStorage.getItem('theme')
+      const savedTheme = localStorage.getItem('theme');
       if (savedTheme === 'dark') {
-        document.documentElement.classList.add('dark')
+        document.documentElement.classList.add('dark');
       }
 
       // 初始化字体大小
-      updateFontSize(fontScale.value)
+      updateFontSize(fontScale.value);
 
       // 开始监听方向变化
-      const orientationTimer = setInterval(handleOrientationChange, 100)
+      const orientationTimer = setInterval(handleOrientationChange, 100);
 
       onUnmounted(() => {
-        clearInterval(orientationTimer)
-      })
-    })
+        clearInterval(orientationTimer);
+      });
+    });
 
     return {
       deviceInfo,
@@ -356,10 +334,10 @@ export default {
       testHapticFeedback,
       toggleTheme,
       updateFontSize,
-      formatTime
-    }
-  }
-}
+      formatTime,
+    };
+  },
+};
 </script>
 
 <style scoped>
@@ -459,15 +437,27 @@ export default {
 }
 
 .touch-demo-box.longpress {
-  background: linear-gradient(135deg, var(--el-color-warning-light-9) 0%, var(--el-color-warning-light-8) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--el-color-warning-light-9) 0%,
+    var(--el-color-warning-light-8) 100%
+  );
 }
 
 .touch-demo-box.swipe {
-  background: linear-gradient(135deg, var(--el-color-success-light-9) 0%, var(--el-color-success-light-8) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--el-color-success-light-9) 0%,
+    var(--el-color-success-light-8) 100%
+  );
 }
 
 .touch-demo-box.directional-swipe {
-  background: linear-gradient(135deg, var(--el-color-info-light-9) 0%, var(--el-color-info-light-8) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--el-color-info-light-9) 0%,
+    var(--el-color-info-light-8) 100%
+  );
 }
 
 .touch-label {
@@ -662,7 +652,8 @@ export default {
   color: var(--el-text-color-placeholder);
 }
 
-.from, .to {
+.from,
+.to {
   padding: 2px 8px;
   background: var(--el-color-primary-light-9);
   border-radius: 4px;
@@ -765,39 +756,87 @@ export default {
 
 /* 触觉反馈动画类 */
 @keyframes haptic-light {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
 }
 
 @keyframes haptic-medium {
-  0%, 100% { transform: scale(1); }
-  25% { transform: scale(1.08); }
-  75% { transform: scale(1.08); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.08);
+  }
+  75% {
+    transform: scale(1.08);
+  }
 }
 
 @keyframes haptic-heavy {
-  0%, 100% { transform: scale(1); }
-  25% { transform: scale(1.1); }
-  50% { transform: scale(1.05); }
-  75% { transform: scale(1.1); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  75% {
+    transform: scale(1.1);
+  }
 }
 
 @keyframes haptic-success {
-  0% { transform: scale(1) rotate(0deg); }
-  50% { transform: scale(1.08) rotate(2deg); }
-  100% { transform: scale(1) rotate(0deg); }
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.08) rotate(2deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
 }
 
 @keyframes haptic-warning {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-3px); }
-  75% { transform: translateX(3px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-3px);
+  }
+  75% {
+    transform: translateX(3px);
+  }
 }
 
 @keyframes haptic-error {
-  0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
-  20%, 40%, 60%, 80% { transform: translateX(2px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-2px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(2px);
+  }
 }
 
 .haptic-light {

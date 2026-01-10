@@ -66,9 +66,7 @@
     <!-- 空状态 -->
     <div v-if="!loading && reports.length === 0" class="empty-state">
       <van-empty description="暂无报告">
-        <van-button type="primary" @click="showReportGenerator = true">
-          生成第一个报告
-        </van-button>
+        <van-button type="primary" @click="showReportGenerator = true"> 生成第一个报告 </van-button>
       </van-empty>
     </div>
 
@@ -186,31 +184,31 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { showToast, showConfirmDialog } from 'vant'
-import villageApi from '@/api/villageManagement'
+import { ref, reactive, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { showToast, showConfirmDialog } from 'vant';
+import villageApi from '@/api/villageManagement';
 
-const router = useRouter()
+const router = useRouter();
 
 // 响应式数据
-const loading = ref(false)
-const finished = ref(false)
-const generating = ref(false)
-const showReportGenerator = ref(false)
-const showActionSheet = ref(false)
-const showDateRangePicker = ref(false)
-const activeAdvancedOptions = ref([])
+const loading = ref(false);
+const finished = ref(false);
+const generating = ref(false);
+const showReportGenerator = ref(false);
+const showActionSheet = ref(false);
+const showDateRangePicker = ref(false);
+const activeAdvancedOptions = ref([]);
 
-const reports = ref([])
-const currentReport = ref(null)
+const reports = ref([]);
+const currentReport = ref(null);
 
 // 分页参数
 const pagination = reactive({
   page: 1,
   limit: 20,
-  total: 0
-})
+  total: 0,
+});
 
 // 快速报告类型
 const quickReports = ref([
@@ -220,7 +218,7 @@ const quickReports = ref([
     description: '本月工作数据汇总',
     icon: 'chart-trending-o',
     color: '#409EFF',
-    type: 'monthly_summary'
+    type: 'monthly_summary',
   },
   {
     id: '2',
@@ -228,7 +226,7 @@ const quickReports = ref([
     description: '季度业务分析报告',
     icon: 'bar-chart-o',
     color: '#67C23A',
-    type: 'quarterly_analysis'
+    type: 'quarterly_analysis',
   },
   {
     id: '3',
@@ -236,7 +234,7 @@ const quickReports = ref([
     description: '年度工作总结报告',
     icon: 'orders-o',
     color: '#E6A23C',
-    type: 'annual_summary'
+    type: 'annual_summary',
   },
   {
     id: '4',
@@ -244,9 +242,9 @@ const quickReports = ref([
     description: '特定主题分析报告',
     icon: 'description',
     color: '#F56C6C',
-    type: 'special_report'
-  }
-])
+    type: 'special_report',
+  },
+]);
 
 // 报告表单
 const reportForm = reactive({
@@ -257,122 +255,122 @@ const reportForm = reactive({
   title: '',
   description: '',
   includeCharts: true,
-  autoRefresh: false
-})
+  autoRefresh: false,
+});
 
 // 报告操作
 const reportActions = ref([
   { name: '查看报告', value: 'view' },
   { name: '下载报告', value: 'download' },
   { name: '分享报告', value: 'share' },
-  { name: '删除报告', value: 'delete' }
-])
+  { name: '删除报告', value: 'delete' },
+]);
 
 // 方法
-const getReportIcon = (type) => {
+const getReportIcon = type => {
   const iconMap = {
-    'summary': 'chart-trending-o',
-    'detailed': 'bar-chart-o',
-    'custom': 'description',
-    'monthly': 'calendar-o',
-    'quarterly': 'logistics',
-    'annual': 'orders-o'
-  }
-  return iconMap[type] || 'description'
-}
+    summary: 'chart-trending-o',
+    detailed: 'bar-chart-o',
+    custom: 'description',
+    monthly: 'calendar-o',
+    quarterly: 'logistics',
+    annual: 'orders-o',
+  };
+  return iconMap[type] || 'description';
+};
 
-const getStatusType = (status) => {
+const getStatusType = status => {
   const typeMap = {
-    'generating': 'primary',
-    'completed': 'success',
-    'failed': 'danger',
-    'scheduled': 'warning'
-  }
-  return typeMap[status] || 'default'
-}
+    generating: 'primary',
+    completed: 'success',
+    failed: 'danger',
+    scheduled: 'warning',
+  };
+  return typeMap[status] || 'default';
+};
 
-const getStatusText = (status) => {
+const getStatusText = status => {
   const textMap = {
-    'generating': '生成中',
-    'completed': '已完成',
-    'failed': '失败',
-    'scheduled': '计划中'
-  }
-  return textMap[status] || status
-}
+    generating: '生成中',
+    completed: '已完成',
+    failed: '失败',
+    scheduled: '计划中',
+  };
+  return textMap[status] || status;
+};
 
-const formatReportLabel = (report) => {
-  const labels = []
+const formatReportLabel = report => {
+  const labels = [];
   if (report.generateTime) {
-    labels.push(`生成时间: ${formatDate(report.generateTime)}`)
+    labels.push(`生成时间: ${formatDate(report.generateTime)}`);
   }
   if (report.format) {
-    labels.push(`格式: ${report.format.toUpperCase()}`)
+    labels.push(`格式: ${report.format.toUpperCase()}`);
   }
   if (report.size) {
-    labels.push(`大小: ${formatFileSize(report.size)}`)
+    labels.push(`大小: ${formatFileSize(report.size)}`);
   }
-  return labels.join(' • ')
-}
+  return labels.join(' • ');
+};
 
-const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleString()
-}
+const formatDate = dateString => {
+  return new Date(dateString).toLocaleString();
+};
 
-const formatFileSize = (bytes) => {
-  if (bytes === 0) return '0 B'
-  const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-}
+const formatFileSize = bytes => {
+  if (bytes === 0) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+};
 
-const getDateRangeText = (dateRange) => {
-  if (!dateRange || dateRange.length === 0) return '选择时间范围'
-  if (dateRange.length === 1) return formatDate(dateRange[0])
-  return `${formatDate(dateRange[0])} - ${formatDate(dateRange[1])}`
-}
+const getDateRangeText = dateRange => {
+  if (!dateRange || dateRange.length === 0) return '选择时间范围';
+  if (dateRange.length === 1) return formatDate(dateRange[0]);
+  return `${formatDate(dateRange[0])} - ${formatDate(dateRange[1])}`;
+};
 
-const generateQuickReport = async (report) => {
+const generateQuickReport = async report => {
   try {
-    showToast(`正在生成${report.title}...`)
+    showToast(`正在生成${report.title}...`);
 
     const response = await villageApi.generateQuickReport({
       type: report.type,
-      format: 'pdf'
-    })
+      format: 'pdf',
+    });
 
     if (response.data.success) {
-      showToast('报告生成成功')
-      loadReports(true)
+      showToast('报告生成成功');
+      loadReports(true);
     }
   } catch (error) {
-    console.error('生成快速报告失败:', error)
-    showToast('生成失败')
+    console.error('生成快速报告失败:', error);
+    showToast('生成失败');
   }
-}
+};
 
 const generateReport = async () => {
   try {
-    generating.value = true
+    generating.value = true;
 
     // 验证表单
     if (reportForm.dataScope.length === 0) {
-      showToast('请选择数据范围')
-      return
+      showToast('请选择数据范围');
+      return;
     }
 
     if (!reportForm.dateRange || reportForm.dateRange.length === 0) {
-      showToast('请选择时间范围')
-      return
+      showToast('请选择时间范围');
+      return;
     }
 
-    const response = await villageApi.generateReport(reportForm)
+    const response = await villageApi.generateReport(reportForm);
 
     if (response.data.success) {
-      showToast('报告生成成功')
-      showReportGenerator.value = false
-      loadReports(true)
+      showToast('报告生成成功');
+      showReportGenerator.value = false;
+      loadReports(true);
 
       // 重置表单
       Object.assign(reportForm, {
@@ -383,178 +381,178 @@ const generateReport = async () => {
         title: '',
         description: '',
         includeCharts: true,
-        autoRefresh: false
-      })
+        autoRefresh: false,
+      });
     }
   } catch (error) {
-    console.error('生成报告失败:', error)
-    showToast('生成失败')
+    console.error('生成报告失败:', error);
+    showToast('生成失败');
   } finally {
-    generating.value = false
+    generating.value = false;
   }
-}
+};
 
-const viewReport = (report) => {
+const viewReport = report => {
   if (report.status === 'completed') {
     // 在新窗口打开报告
     if (report.url) {
-      window.open(report.url, '_blank')
+      window.open(report.url, '_blank');
     } else {
-      showToast('报告文件不可用')
+      showToast('报告文件不可用');
     }
   } else {
-    showToast('报告尚未生成完成')
+    showToast('报告尚未生成完成');
   }
-}
+};
 
-const showReportMenu = (report) => {
-  currentReport.value = report
-  showActionSheet.value = true
-}
+const showReportMenu = report => {
+  currentReport.value = report;
+  showActionSheet.value = true;
+};
 
-const onReportActionSelect = async (action) => {
-  showActionSheet.value = false
+const onReportActionSelect = async action => {
+  showActionSheet.value = false;
 
-  if (!currentReport.value) return
+  if (!currentReport.value) return;
 
   try {
     switch (action.value) {
       case 'view':
-        viewReport(currentReport.value)
-        break
+        viewReport(currentReport.value);
+        break;
       case 'download':
-        await downloadReport(currentReport.value)
-        break
+        await downloadReport(currentReport.value);
+        break;
       case 'share':
-        await shareReport(currentReport.value)
-        break
+        await shareReport(currentReport.value);
+        break;
       case 'delete':
-        await deleteReport(currentReport.value)
-        break
+        await deleteReport(currentReport.value);
+        break;
     }
   } catch (error) {
-    console.error('操作失败:', error)
-    showToast('操作失败')
+    console.error('操作失败:', error);
+    showToast('操作失败');
   }
-}
+};
 
-const downloadReport = async (report) => {
+const downloadReport = async report => {
   try {
-    showToast('正在下载...')
+    showToast('正在下载...');
 
-    const response = await villageApi.downloadReport(report.id)
+    const response = await villageApi.downloadReport(report.id);
 
     // 创建下载链接
     const blob = new Blob([response.data], {
-      type: getContentType(report.format)
-    })
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${report.title}.${report.format}`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    window.URL.revokeObjectURL(url)
+      type: getContentType(report.format),
+    });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${report.title}.${report.format}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
 
-    showToast('下载成功')
+    showToast('下载成功');
   } catch (error) {
-    showToast('下载失败')
+    showToast('下载失败');
   }
-}
+};
 
-const shareReport = async (report) => {
+const shareReport = async report => {
   try {
-    const response = await villageApi.shareReport(report.id)
+    const response = await villageApi.shareReport(report.id);
 
     if (response.data.success) {
-      const shareUrl = response.data.shareUrl
+      const shareUrl = response.data.shareUrl;
 
       // 复制到剪贴板
-      await navigator.clipboard.writeText(shareUrl)
-      showToast('分享链接已复制到剪贴板')
+      await navigator.clipboard.writeText(shareUrl);
+      showToast('分享链接已复制到剪贴板');
     }
   } catch (error) {
-    showToast('分享失败')
+    showToast('分享失败');
   }
-}
+};
 
-const deleteReport = async (report) => {
+const deleteReport = async report => {
   try {
     await showConfirmDialog({
       title: '确认删除',
       message: `确定要删除报告"${report.title}"吗？`,
-    })
+    });
 
-    const response = await villageApi.deleteReport(report.id)
+    const response = await villageApi.deleteReport(report.id);
 
     if (response.data.success) {
-      showToast('删除成功')
-      loadReports(true)
+      showToast('删除成功');
+      loadReports(true);
     }
   } catch (error) {
     if (error.name !== 'cancel') {
-      showToast('删除失败')
+      showToast('删除失败');
     }
   }
-}
+};
 
-const getContentType = (format) => {
+const getContentType = format => {
   const typeMap = {
-    'pdf': 'application/pdf',
-    'excel': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    'word': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-  }
-  return typeMap[format] || 'application/octet-stream'
-}
+    pdf: 'application/pdf',
+    excel: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    word: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  };
+  return typeMap[format] || 'application/octet-stream';
+};
 
 const onLoad = () => {
-  loadReports()
-}
+  loadReports();
+};
 
 const loadReports = async (reset = false) => {
   if (reset) {
-    pagination.page = 1
-    reports.value = []
-    finished.value = false
+    pagination.page = 1;
+    reports.value = [];
+    finished.value = false;
   }
 
-  loading.value = true
+  loading.value = true;
   try {
     const response = await villageApi.getReports({
       page: pagination.page,
-      limit: pagination.limit
-    })
+      limit: pagination.limit,
+    });
 
-    const newReports = response.data.data.docs || []
+    const newReports = response.data.data.docs || [];
 
     if (reset) {
-      reports.value = newReports
+      reports.value = newReports;
     } else {
-      reports.value.push(...newReports)
+      reports.value.push(...newReports);
     }
 
-    pagination.total = response.data.data.total || 0
-    pagination.page += 1
+    pagination.total = response.data.data.total || 0;
+    pagination.page += 1;
 
-    finished.value = reports.value.length >= pagination.total
+    finished.value = reports.value.length >= pagination.total;
   } catch (error) {
-    console.error('加载报告列表失败:', error)
-    showToast('加载失败')
+    console.error('加载报告列表失败:', error);
+    showToast('加载失败');
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
-const onDateRangeConfirm = (dateRange) => {
-  reportForm.dateRange = dateRange
-  showDateRangePicker.value = false
-}
+const onDateRangeConfirm = dateRange => {
+  reportForm.dateRange = dateRange;
+  showDateRangePicker.value = false;
+};
 
 // 生命周期
 onMounted(() => {
-  loadReports(true)
-})
+  loadReports(true);
+});
 </script>
 
 <style scoped>

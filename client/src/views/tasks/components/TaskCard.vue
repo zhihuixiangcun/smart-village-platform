@@ -1,5 +1,9 @@
 <template>
-  <div class="task-card" :class="{ 'is-overdue': task.isOverdue, 'is-completed': task.status === 'completed' }" @click="handleClick">
+  <div
+    class="task-card"
+    :class="{ 'is-overdue': task.isOverdue, 'is-completed': task.status === 'completed' }"
+    @click="handleClick"
+  >
     <div class="task-header">
       <div class="task-title">{{ task.title }}</div>
       <el-dropdown trigger="click" @command="handleCommand" @click.stop>
@@ -27,7 +31,7 @@
 
         <div class="meta-item" v-if="task.dueDate">
           <el-icon><Calendar /></el-icon>
-          <span :class="{ 'overdue': task.isOverdue }">
+          <span :class="{ overdue: task.isOverdue }">
             {{ formatDate(task.dueDate) }}
           </span>
         </div>
@@ -66,34 +70,34 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { MoreFilled, User, Calendar, List } from '@element-plus/icons-vue'
+import { computed } from 'vue';
+import { MoreFilled, User, Calendar, List } from '@element-plus/icons-vue';
 
 const props = defineProps({
   task: {
     type: Object,
-    required: true
-  }
-})
+    required: true,
+  },
+});
 
-const emit = defineEmits(['click', 'status-change'])
+const emit = defineEmits(['click', 'status-change']);
 
 const completedSubtasks = computed(() => {
-  return props.task.subtasks?.filter(st => st.completed).length || 0
-})
+  return props.task.subtasks?.filter(st => st.completed).length || 0;
+});
 
 const handleClick = () => {
-  emit('click', props.task)
-}
+  emit('click', props.task);
+};
 
-const handleCommand = (command) => {
+const handleCommand = command => {
   if (command === 'status') {
-    emit('status-change', props.task._id)
+    emit('status-change', props.task._id);
   }
   // Other commands handled by parent
-}
+};
 
-const getCategoryType = (category) => {
+const getCategoryType = category => {
   const types = {
     governance: 'primary',
     emergency: 'danger',
@@ -101,12 +105,12 @@ const getCategoryType = (category) => {
     service: 'info',
     infrastructure: 'warning',
     agriculture: 'success',
-    other: 'info'
-  }
-  return types[category] || 'info'
-}
+    other: 'info',
+  };
+  return types[category] || 'info';
+};
 
-const getCategoryLabel = (category) => {
+const getCategoryLabel = category => {
   const labels = {
     governance: '村务',
     emergency: '应急',
@@ -114,39 +118,39 @@ const getCategoryLabel = (category) => {
     service: '服务',
     infrastructure: '基建',
     agriculture: '农业',
-    other: '其他'
-  }
-  return labels[category] || category
-}
+    other: '其他',
+  };
+  return labels[category] || category;
+};
 
-const getStatusType = (status) => {
+const getStatusType = status => {
   const types = {
     pending: 'info',
     'in-progress': 'primary',
     completed: 'success',
     cancelled: 'danger',
-    'on-hold': 'warning'
-  }
-  return types[status] || 'info'
-}
+    'on-hold': 'warning',
+  };
+  return types[status] || 'info';
+};
 
-const getStatusLabel = (status) => {
+const getStatusLabel = status => {
   const labels = {
     pending: '待处理',
     'in-progress': '进行中',
     completed: '已完成',
     cancelled: '已取消',
-    'on-hold': '暂停'
-  }
-  return labels[status] || status
-}
+    'on-hold': '暂停',
+  };
+  return labels[status] || status;
+};
 
-const formatDate = (date) => {
-  const d = new Date(date)
-  const month = (d.getMonth() + 1).toString().padStart(2, '0')
-  const day = d.getDate().toString().padStart(2, '0')
-  return `${month}-${day}`
-}
+const formatDate = date => {
+  const d = new Date(date);
+  const month = (d.getMonth() + 1).toString().padStart(2, '0');
+  const day = d.getDate().toString().padStart(2, '0');
+  return `${month}-${day}`;
+};
 </script>
 
 <style scoped>

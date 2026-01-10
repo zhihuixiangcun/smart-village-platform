@@ -4,17 +4,17 @@
 import request from '@/utils/request';
 
 // 获取村委会成员列表
-export const getCommitteeList = (params) => {
+export const getCommitteeList = params => {
   return request.get('/committee', params);
 };
 
 // 获取村委会成员详情
-export const getCommitteeDetail = (id) => {
+export const getCommitteeDetail = id => {
   return request.get(`/committee/${id}`);
 };
 
 // 添加村委会成员
-export const createCommittee = (data) => {
+export const createCommittee = data => {
   return request.post('/committee', data);
 };
 
@@ -24,7 +24,7 @@ export const updateCommittee = (id, data) => {
 };
 
 // 删除村委会成员
-export const deleteCommittee = (id) => {
+export const deleteCommittee = id => {
   return request.delete(`/committee/${id}`);
 };
 
@@ -39,7 +39,7 @@ export const getCommitteePermissions = () => {
 };
 
 // 更新村委会权限配置
-export const updateCommitteePermissions = (data) => {
+export const updateCommitteePermissions = data => {
   return request.put('/committee/permissions', data);
 };
 
@@ -54,12 +54,12 @@ export const resignCommittee = (id, data) => {
 };
 
 // 获取村委会值班安排
-export const getDutySchedule = (params) => {
+export const getDutySchedule = params => {
   return request.get('/committee/duty-schedule', params);
 };
 
 // 更新值班安排
-export const updateDutySchedule = (data) => {
+export const updateDutySchedule = data => {
   return request.put('/committee/duty-schedule', data);
 };
 
@@ -69,7 +69,7 @@ export const getCurrentDuty = () => {
 };
 
 // 村委会成员工作统计
-export const getCommitteeWorkStats = (params) => {
+export const getCommitteeWorkStats = params => {
   return request.get('/committee/work-stats', params);
 };
 
@@ -87,5 +87,5 @@ export const committeeAPI = {
   getDutySchedule,
   updateDutySchedule,
   getCurrentDuty,
-  getCommitteeWorkStats
+  getCommitteeWorkStats,
 };

@@ -20,7 +20,7 @@ export const useFamilyStore = defineStore('family', () => {
   const pagination = ref({
     page: 1,
     pageSize: 20,
-    total: 0
+    total: 0,
   });
 
   // Filters
@@ -29,7 +29,7 @@ export const useFamilyStore = defineStore('family', () => {
     needsVisit: '',
     housingType: '',
     riskLevel: '',
-    keyword: ''
+    keyword: '',
   });
 
   // Computed
@@ -38,51 +38,42 @@ export const useFamilyStore = defineStore('family', () => {
 
     if (filters.value.keyword) {
       const keyword = filters.value.keyword.toLowerCase();
-      result = result.filter(f =>
-        f.houseNumber?.toLowerCase().includes(keyword) ||
-        f.headOfHousehold?.name?.toLowerCase().includes(keyword) ||
-        f.address?.detail?.toLowerCase().includes(keyword)
+      result = result.filter(
+        f =>
+          f.houseNumber?.toLowerCase().includes(keyword) ||
+          f.headOfHousehold?.name?.toLowerCase().includes(keyword) ||
+          f.address?.detail?.toLowerCase().includes(keyword)
       );
     }
 
     if (filters.value.familyType) {
-      result = result.filter(f =>
-        f.familyTypes?.includes(filters.value.familyType)
-      );
+      result = result.filter(f => f.familyTypes?.includes(filters.value.familyType));
     }
 
     if (filters.value.needsVisit !== '') {
       const needsVisit = filters.value.needsVisit === 'true';
-      result = result.filter(f =>
-        f.specialFlags?.needsRegularVisit === needsVisit
-      );
+      result = result.filter(f => f.specialFlags?.needsRegularVisit === needsVisit);
     }
 
     if (filters.value.riskLevel) {
-      result = result.filter(f =>
-        f.specialFlags?.riskLevel === filters.value.riskLevel
-      );
+      result = result.filter(f => f.specialFlags?.riskLevel === filters.value.riskLevel);
     }
 
     return result;
   });
 
   const familiesByPriority = computed(() => {
-    return [...filteredFamilies.value].sort((a, b) =>
-      (b.specialFlags?.helpPriority || 0) - (a.specialFlags?.helpPriority || 0)
+    return [...filteredFamilies.value].sort(
+      (a, b) => (b.specialFlags?.helpPriority || 0) - (a.specialFlags?.helpPriority || 0)
     );
   });
 
   const needsVisitFamilies = computed(() => {
-    return filteredFamilies.value.filter(f =>
-      f.specialFlags?.needsRegularVisit
-    );
+    return filteredFamilies.value.filter(f => f.specialFlags?.needsRegularVisit);
   });
 
   const highRiskFamilies = computed(() => {
-    return filteredFamilies.value.filter(f =>
-      f.specialFlags?.riskLevel === '高'
-    );
+    return filteredFamilies.value.filter(f => f.specialFlags?.riskLevel === '高');
   });
 
   // Actions
@@ -94,7 +85,7 @@ export const useFamilyStore = defineStore('family', () => {
       const response = await familyApi.familyApi.getFamilyList(villageId, {
         ...filters.value,
         ...pagination.value,
-        ...params
+        ...params,
       });
 
       families.value = response.data || [];
@@ -445,7 +436,7 @@ export const useFamilyStore = defineStore('family', () => {
       needsVisit: '',
       housingType: '',
       riskLevel: '',
-      keyword: ''
+      keyword: '',
     };
     pagination.value.page = 1;
   }
@@ -466,14 +457,14 @@ export const useFamilyStore = defineStore('family', () => {
     pagination.value = {
       page: 1,
       pageSize: 20,
-      total: 0
+      total: 0,
     };
     filters.value = {
       familyType: '',
       needsVisit: '',
       housingType: '',
       riskLevel: '',
-      keyword: ''
+      keyword: '',
     };
   }
 
@@ -514,6 +505,6 @@ export const useFamilyStore = defineStore('family', () => {
     setFilter,
     clearFilters,
     setPagination,
-    reset
+    reset,
   };
 });

@@ -20,25 +20,26 @@ export class CodeQualityChecker {
     this.addRule('vue-component-size', {
       name: 'Vue组件大小检查',
       description: '检查Vue组件的代码行数是否过大',
-      check: (ast) => {
+      check: ast => {
         const lines = ast.loc ? ast.loc.end.line - ast.loc.start.line : 0;
         return {
           passed: lines <= 300,
-          message: lines > 300 ? `组件代码行数过多 (${lines}行)，建议拆分为更小的组件` : '组件大小适中',
-          severity: lines > 500 ? 'error' : 'warning'
+          message:
+            lines > 300 ? `组件代码行数过多 (${lines}行)，建议拆分为更小的组件` : '组件大小适中',
+          severity: lines > 500 ? 'error' : 'warning',
         };
-      }
+      },
     });
 
     this.addRule('vue-props-validation', {
       name: 'Vue Props验证检查',
       description: '检查组件是否有完整的Props定义和验证',
-      check: (ast) => {
+      check: ast => {
         let hasProps = false;
         let hasValidation = false;
 
         // 检查props定义
-        this.traverse(ast, (node) => {
+        this.traverse(ast, node => {
           if (node.type === 'Property' && node.key.name === 'props') {
             hasProps = true;
             // 检查是否有验证
@@ -55,20 +56,20 @@ export class CodeQualityChecker {
         return {
           passed: hasValidation,
           message: hasValidation ? 'Props验证完整' : '建议为Props添加验证规则',
-          severity: hasValidation ? 'info' : 'warning'
+          severity: hasValidation ? 'info' : 'warning',
         };
-      }
+      },
     });
 
     this.addRule('vue-computed-dependencies', {
       name: 'Vue计算属性依赖检查',
       description: '检查计算属性是否有明确的依赖定义',
-      check: (ast) => {
+      check: ast => {
         const computedProps = [];
         const issues = [];
 
         // 查找计算属性
-        this.traverse(ast, (node) => {
+        this.traverse(ast, node => {
           if (node.type === 'Property' && node.key.name === 'computed') {
             if (node.value.type === 'ObjectExpression') {
               node.value.properties.forEach(prop => {
@@ -84,33 +85,33 @@ export class CodeQualityChecker {
           passed: true,
           message: `发现 ${computedProps.length} 个计算属性`,
           details: computedProps,
-          severity: 'info'
+          severity: 'info',
         };
-      }
+      },
     });
 
     // JavaScript规则
     this.addRule('function-length', {
       name: '函数长度检查',
       description: '检查函数长度是否合理',
-      check: (ast) => {
+      check: ast => {
         const functions = [];
         const issues = [];
 
-        this.traverse(ast, (node) => {
+        this.traverse(ast, node => {
           if (node.type === 'FunctionDeclaration' || node.type === 'ArrowFunctionExpression') {
             const lines = node.loc ? node.loc.end.line - node.loc.start.line : 0;
             functions.push({
               name: node.id ? node.id.name : 'anonymous',
               lines,
-              type: node.type
+              type: node.type,
             });
 
             if (lines > 50) {
               issues.push({
                 function: node.id ? node.id.name : 'anonymous',
                 lines,
-                message: `函数过长 (${lines}行)，建议拆分`
+                message: `函数过长 (${lines}行)，建议拆分`,
               });
             }
           }
@@ -118,21 +119,24 @@ export class CodeQualityChecker {
 
         return {
           passed: issues.length === 0,
-          message: issues.length === 0 ? `检查了 ${functions.length} 个函数，长度都合理` : `发现 ${issues.length} 个过长函数`,
+          message:
+            issues.length === 0
+              ? `检查了 ${functions.length} 个函数，长度都合理`
+              : `发现 ${issues.length} 个过长函数`,
           issues,
-          severity: issues.length > 0 ? 'warning' : 'info'
+          severity: issues.length > 0 ? 'warning' : 'info',
         };
-      }
+      },
     });
 
     this.addRule('variable-naming', {
       name: '变量命名规范检查',
       description: '检查变量命名是否符合规范',
-      check: (ast) => {
+      check: ast => {
         const variables = [];
         const issues = [];
 
-        this.traverse(ast, (node) => {
+        this.traverse(ast, node => {
           if (node.type === 'VariableDeclarator') {
             const name = node.id.name;
             variables.push(name);
@@ -141,7 +145,7 @@ export class CodeQualityChecker {
             if (!/^[a-z][a-zA-Z0-9]*$/.test(name) && !/^[A-Z][a-zA-Z0-9]*$/.test(name)) {
               issues.push({
                 name,
-                message: '变量命名不符合camelCase或PascalCase规范'
+                message: '变量命名不符合camelCase或PascalCase规范',
               });
             }
 
@@ -149,7 +153,7 @@ export class CodeQualityChecker {
             if (name.length === 1 || /^(temp|tmp|data|item)$/i.test(name)) {
               issues.push({
                 name,
-                message: '变量命名不够具体'
+                message: '变量命名不够具体',
               });
             }
           }
@@ -159,24 +163,24 @@ export class CodeQualityChecker {
           passed: issues.length === 0,
           message: issues.length === 0 ? '变量命名规范' : `发现 ${issues.length} 个命名问题`,
           issues,
-          severity: 'warning'
+          severity: 'warning',
         };
-      }
+      },
     });
 
     this.addRule('magic-numbers', {
       name: '魔法数字检查',
       description: '检查代码中是否使用魔法数字',
-      check: (ast) => {
+      check: ast => {
         const magicNumbers = [];
 
-        this.traverse(ast, (node) => {
+        this.traverse(ast, node => {
           if (node.type === 'Literal' && typeof node.value === 'number') {
             // 排除常见的数字
             if (![0, 1, -1, 2, 10, 100, 1000].includes(node.value)) {
               magicNumbers.push({
                 value: node.value,
-                line: node.loc ? node.loc.start.line : null
+                line: node.loc ? node.loc.start.line : null,
               });
             }
           }
@@ -184,39 +188,47 @@ export class CodeQualityChecker {
 
         return {
           passed: magicNumbers.length === 0,
-          message: magicNumbers.length === 0 ? '没有发现魔法数字' : `发现 ${magicNumbers.length} 个可能的魔法数字`,
+          message:
+            magicNumbers.length === 0
+              ? '没有发现魔法数字'
+              : `发现 ${magicNumbers.length} 个可能的魔法数字`,
           magicNumbers,
           suggestion: '建议将魔法数字提取为常量',
-          severity: magicNumbers.length > 5 ? 'warning' : 'info'
+          severity: magicNumbers.length > 5 ? 'warning' : 'info',
         };
-      }
+      },
     });
 
     this.addRule('console-usage', {
       name: 'Console使用检查',
       description: '检查代码中是否使用了console语句',
-      check: (ast) => {
+      check: ast => {
         const consoleStatements = [];
 
-        this.traverse(ast, (node) => {
-          if (node.type === 'CallExpression' &&
-              node.callee.type === 'MemberExpression' &&
-              node.callee.object.name === 'console') {
+        this.traverse(ast, node => {
+          if (
+            node.type === 'CallExpression' &&
+            node.callee.type === 'MemberExpression' &&
+            node.callee.object.name === 'console'
+          ) {
             consoleStatements.push({
               method: node.callee.property.name,
-              line: node.loc ? node.loc.start.line : null
+              line: node.loc ? node.loc.start.line : null,
             });
           }
         });
 
         return {
           passed: consoleStatements.length === 0,
-          message: consoleStatements.length === 0 ? '没有使用console语句' : `发现 ${consoleStatements.length} 个console语句`,
+          message:
+            consoleStatements.length === 0
+              ? '没有使用console语句'
+              : `发现 ${consoleStatements.length} 个console语句`,
           consoleStatements,
           suggestion: '生产环境应该移除console语句',
-          severity: consoleStatements.length > 0 ? 'warning' : 'info'
+          severity: consoleStatements.length > 0 ? 'warning' : 'info',
         };
-      }
+      },
     });
   }
 
@@ -244,12 +256,14 @@ export class CodeQualityChecker {
     const ast = this.parseCode(source);
 
     if (!ast) {
-      return [{
-        rule: 'parse-error',
-        passed: false,
-        message: '无法解析代码',
-        severity: 'error'
-      }];
+      return [
+        {
+          rule: 'parse-error',
+          passed: false,
+          message: '无法解析代码',
+          severity: 'error',
+        },
+      ];
     }
 
     for (const [id, rule] of this.rules) {
@@ -258,7 +272,7 @@ export class CodeQualityChecker {
         results.push({
           rule: id,
           ruleName: rule.name,
-          ...result
+          ...result,
         });
       } catch (error) {
         console.warn(`规则 ${id} 执行失败:`, error);
@@ -290,10 +304,10 @@ export class CodeQualityChecker {
         passed,
         errors,
         warnings,
-        score: Math.round((passed / total) * 100)
+        score: Math.round((passed / total) * 100),
       },
       results,
-      grade: this.calculateGrade(errors, warnings, total)
+      grade: this.calculateGrade(errors, warnings, total),
     };
   }
 
@@ -317,9 +331,9 @@ export class CodeQualityChecker {
       return {
         loc: {
           start: { line: 1 },
-          end: { line: source.split('\n').length }
+          end: { line: source.split('\n').length },
         },
-        type: 'Program'
+        type: 'Program',
       };
     } catch (error) {
       return null;
@@ -362,7 +376,7 @@ export class CodeQualityChecker {
           type: 'refactoring',
           title: '拆分大型组件',
           description: '将大组件拆分为多个更小的、职责单一的组件',
-          priority: 'high'
+          priority: 'high',
         });
         break;
 
@@ -371,7 +385,7 @@ export class CodeQualityChecker {
           type: 'refactoring',
           title: '函数拆分',
           description: '将长函数拆分为多个更小的、职责单一的函数',
-          priority: 'medium'
+          priority: 'medium',
         });
         break;
 
@@ -380,7 +394,7 @@ export class CodeQualityChecker {
           type: 'cleanup',
           title: '提取常量',
           description: '将魔法数字提取为有意义的常量',
-          priority: 'low'
+          priority: 'low',
         });
         break;
 
@@ -389,7 +403,7 @@ export class CodeQualityChecker {
           type: 'naming',
           title: '改善变量命名',
           description: '使用更具描述性的变量名',
-          priority: 'medium'
+          priority: 'medium',
         });
         break;
 
@@ -398,7 +412,7 @@ export class CodeQualityChecker {
           type: 'cleanup',
           title: '移除调试代码',
           description: '移除或注释掉console语句',
-          priority: 'medium'
+          priority: 'medium',
         });
         break;
       }
@@ -416,41 +430,41 @@ export class VueBestPracticesChecker {
     this.practices = [
       {
         name: '单一职责原则',
-        check: (component) => {
+        check: component => {
           // 检查组件是否只负责一个功能
           return {
             passed: true,
-            message: '组件职责单一'
+            message: '组件职责单一',
           };
-        }
+        },
       },
       {
         name: 'Props验证',
-        check: (component) => {
+        check: component => {
           return {
             passed: component.props !== undefined,
-            message: component.props !== undefined ? '有Props定义' : '缺少Props验证'
+            message: component.props !== undefined ? '有Props定义' : '缺少Props验证',
           };
-        }
+        },
       },
       {
         name: '事件命名规范',
-        check: (component) => {
+        check: component => {
           return {
             passed: true,
-            message: '事件命名符合规范'
+            message: '事件命名符合规范',
           };
-        }
+        },
       },
       {
         name: '避免直接修改Props',
-        check: (component) => {
+        check: component => {
           return {
             passed: true,
-            message: '未发现直接修改Props的代码'
+            message: '未发现直接修改Props的代码',
           };
-        }
-      }
+        },
+      },
     ];
   }
 
@@ -465,7 +479,7 @@ export class VueBestPracticesChecker {
         const result = practice.check(component);
         results.push({
           practice: practice.name,
-          ...result
+          ...result,
         });
       } catch (error) {
         console.warn(`检查 ${practice.name} 时出错:`, error);
@@ -484,45 +498,45 @@ export class PerformanceBestPracticesChecker {
     this.practices = [
       {
         name: 'v-for使用key',
-        check: (template) => {
+        check: template => {
           const hasVFor = /v-for/.test(template);
           const hasKey = /:key/.test(template);
           return {
             passed: !hasVFor || hasKey,
-            message: hasVFor && hasKey ? '正确使用了key' : (hasVFor ? '缺少key属性' : '未使用v-for')
+            message: hasVFor && hasKey ? '正确使用了key' : hasVFor ? '缺少key属性' : '未使用v-for',
           };
-        }
+        },
       },
       {
         name: '避免v-if和v-for同时使用',
-        check: (template) => {
+        check: template => {
           const hasConflict = /<[^>]*v-if[^>]*v-for/.test(template);
           return {
             passed: !hasConflict,
-            message: hasConflict ? '避免在同一个元素上同时使用v-if和v-for' : '语法正确'
+            message: hasConflict ? '避免在同一个元素上同时使用v-if和v-for' : '语法正确',
           };
-        }
+        },
       },
       {
         name: '合理使用computed和methods',
-        check: (script) => {
+        check: script => {
           // 检查是否有计算属性可以改为方法
           return {
             passed: true,
-            message: 'computed和methods使用合理'
+            message: 'computed和methods使用合理',
           };
-        }
+        },
       },
       {
         name: '避免深层响应式嵌套',
-        check: (script) => {
+        check: script => {
           const deepNesting = (script.match(/\./g) || []).length > 50;
           return {
             passed: !deepNesting,
-            message: deepNesting ? '存在深层嵌套，考虑扁平化数据结构' : '数据嵌套合理'
+            message: deepNesting ? '存在深层嵌套，考虑扁平化数据结构' : '数据嵌套合理',
           };
-        }
-      }
+        },
+      },
     ];
   }
 
@@ -537,7 +551,7 @@ export class PerformanceBestPracticesChecker {
         const result = practice.check(template || script);
         results.push({
           practice: practice.name,
-          ...result
+          ...result,
         });
       } catch (error) {
         console.warn(`检查 ${practice.name} 时出错:`, error);
@@ -558,32 +572,32 @@ export class SecurityChecker {
         name: 'XSS防护',
         pattern: /innerHTML|outerHTML|document\.write/g,
         description: '检查潜在的XSS漏洞',
-        severity: 'high'
+        severity: 'high',
       },
       {
         name: 'Eval使用',
         pattern: /eval\s*\(/g,
         description: '检查eval函数的使用',
-        severity: 'high'
+        severity: 'high',
       },
       {
         name: 'Function构造函数',
         pattern: /Function\s*\(/g,
         description: '检查Function构造函数的使用',
-        severity: 'medium'
+        severity: 'medium',
       },
       {
         name: 'setTimeout字符串参数',
         pattern: /setTimeout\s*\(\s*["']/g,
         description: '检查setTimeout的字符串参数',
-        severity: 'medium'
+        severity: 'medium',
       },
       {
         name: '本地存储敏感信息',
         pattern: /(localStorage|sessionStorage).*(password|token|secret)/gi,
         description: '检查是否在本地存储敏感信息',
-        severity: 'high'
-      }
+        severity: 'high',
+      },
     ];
   }
 
@@ -601,7 +615,7 @@ export class SecurityChecker {
           description: rule.description,
           matches: matches.length,
           severity: rule.severity,
-          locations: this.findLocations(code, rule.pattern)
+          locations: this.findLocations(code, rule.pattern),
         });
       }
     });
@@ -609,7 +623,7 @@ export class SecurityChecker {
     return {
       passed: results.length === 0,
       message: results.length === 0 ? '未发现安全问题' : `发现 ${results.length} 个潜在安全问题`,
-      issues: results
+      issues: results,
     };
   }
 
@@ -625,7 +639,7 @@ export class SecurityChecker {
       locations.push({
         line: lines.length,
         column: lines[lines.length - 1].length + 1,
-        text: match[0]
+        text: match[0],
       });
     }
 
@@ -648,5 +662,5 @@ export default {
   codeQualityChecker,
   vueBestPracticesChecker,
   performanceBestPracticesChecker,
-  securityChecker
+  securityChecker,
 };

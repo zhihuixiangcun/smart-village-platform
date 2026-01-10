@@ -139,9 +139,7 @@
         <van-cell>
           <template #title>
             <span class="result-title">搜索结果</span>
-            <span class="result-count" v-if="!isSearching">
-              ({{ totalCount }}条)
-            </span>
+            <span class="result-count" v-if="!isSearching"> ({{ totalCount }}条) </span>
           </template>
           <template #right-icon>
             <van-icon name="sort" @click="showSortPicker = true" />
@@ -168,10 +166,7 @@
           @click="openDocument(result)"
         >
           <template #left-icon>
-            <van-icon
-              :name="getFileIcon(result)"
-              :color="getFileColor(result)"
-            />
+            <van-icon :name="getFileIcon(result)" :color="getFileColor(result)" />
           </template>
           <template #right-icon>
             <div class="result-meta">
@@ -184,12 +179,7 @@
         </van-cell>
 
         <!-- 加载更多 -->
-        <van-cell
-          v-if="hasMore && !isSearching"
-          title="加载更多"
-          is-link
-          @click="loadMore"
-        >
+        <van-cell v-if="hasMore && !isSearching" title="加载更多" is-link @click="loadMore">
           <template #right-icon>
             <van-icon name="arrow-down" />
           </template>
@@ -237,12 +227,12 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { showToast } from 'vant'
-import villageApi from '@/api/villageManagement'
+import { ref, reactive, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { showToast } from 'vant';
+import villageApi from '@/api/villageManagement';
 
-const router = useRouter()
+const router = useRouter();
 
 // 响应式数据
 const searchForm = reactive({
@@ -254,57 +244,50 @@ const searchForm = reactive({
   status: '',
   sortBy: 'relevance',
   page: 1,
-  limit: 20
-})
+  limit: 20,
+});
 
-const showFilter = ref(false)
-const showSearchHistory = ref(false)
-const showCollectorPicker = ref(false)
-const showSortPicker = ref(false)
-const isSearching = ref(false)
-const hasSearched = ref(false)
-const hasMore = ref(true)
-const totalCount = ref(0)
+const showFilter = ref(false);
+const showSearchHistory = ref(false);
+const showCollectorPicker = ref(false);
+const showSortPicker = ref(false);
+const isSearching = ref(false);
+const hasSearched = ref(false);
+const hasMore = ref(true);
+const totalCount = ref(0);
 
-const searchResults = ref([])
-const searchHistory = ref([])
-const recommendations = ref([])
-const collectors = ref([])
-const selectedCollector = ref({})
+const searchResults = ref([]);
+const searchHistory = ref([]);
+const recommendations = ref([]);
+const collectors = ref([]);
+const selectedCollector = ref({});
 
-const quickTags = ref([
-  '重要文件',
-  '会议纪要',
-  '财务报表',
-  '村民档案',
-  '应急预案',
-  '工作计划'
-])
+const quickTags = ref(['重要文件', '会议纪要', '财务报表', '村民档案', '应急预案', '工作计划']);
 
 const sortOptions = ref([
   { name: '相关度排序', value: 'relevance' },
   { name: '时间排序', value: 'time' },
   { name: '热度排序', value: 'popularity' },
-  { name: '按类别分组', value: 'category' }
-])
+  { name: '按类别分组', value: 'category' },
+]);
 
 const collectorOptions = computed(() => {
   return collectors.value.map(c => ({
     text: `${c.name} - ${c.position}`,
-    value: c.userId
-  }))
-})
+    value: c.userId,
+  }));
+});
 
 // 方法
 const loadCollectors = async () => {
   try {
     // 获取收集人员列表
-    const response = await villageApi.getVillageUsers('village_id_here', { role: 'staff' })
-    collectors.value = response.data.data.docs || []
+    const response = await villageApi.getVillageUsers('village_id_here', { role: 'staff' });
+    collectors.value = response.data.data.docs || [];
   } catch (error) {
-    console.error('获取收集人员失败:', error)
+    console.error('获取收集人员失败:', error);
   }
-}
+};
 
 const loadRecommendations = async () => {
   try {
@@ -314,303 +297,308 @@ const loadRecommendations = async () => {
         _id: '1',
         title: '2024年村委会工作计划',
         reason: '基于您最近的工作内容推荐',
-        collectionDate: new Date()
+        collectionDate: new Date(),
       },
       {
         _id: '2',
         title: '村民信息统计表',
         reason: '这是本月最常访问的文档',
-        collectionDate: new Date()
-      }
-    ]
+        collectionDate: new Date(),
+      },
+    ];
   } catch (error) {
-    console.error('获取推荐失败:', error)
+    console.error('获取推荐失败:', error);
   }
-}
+};
 
 const handleSearch = async () => {
   if (!searchForm.keyword.trim() && !hasActiveFilters()) {
-    showToast('请输入搜索关键词或选择筛选条件')
-    return
+    showToast('请输入搜索关键词或选择筛选条件');
+    return;
   }
 
-  isSearching.value = true
-  hasSearched.value = true
-  searchResults.value = []
-  searchForm.page = 1
+  isSearching.value = true;
+  hasSearched.value = true;
+  searchResults.value = [];
+  searchForm.page = 1;
 
   try {
-    const response = await villageApi.searchDocuments(buildSearchParams())
-    searchResults.value = response.data.data || []
-    totalCount.value = response.data.data?.length || 0
-    hasMore.value = searchResults.value.length >= searchForm.limit
+    const response = await villageApi.searchDocuments(buildSearchParams());
+    searchResults.value = response.data.data || [];
+    totalCount.value = response.data.data?.length || 0;
+    hasMore.value = searchResults.value.length >= searchForm.limit;
 
     // 添加到搜索历史
-    addToSearchHistory(searchForm.keyword)
+    addToSearchHistory(searchForm.keyword);
   } catch (error) {
-    console.error('搜索失败:', error)
-    showToast('搜索失败')
+    console.error('搜索失败:', error);
+    showToast('搜索失败');
   } finally {
-    isSearching.value = false
-    showSearchHistory.value = false
+    isSearching.value = false;
+    showSearchHistory.value = false;
   }
-}
+};
 
 const loadMore = async () => {
-  if (!hasMore.value || isSearching.value) return
+  if (!hasMore.value || isSearching.value) return;
 
-  isSearching.value = true
-  searchForm.page++
+  isSearching.value = true;
+  searchForm.page++;
 
   try {
-    const response = await villageApi.searchDocuments(buildSearchParams())
-    const newResults = response.data.data || []
-    searchResults.value.push(...newResults)
-    hasMore.value = newResults.length >= searchForm.limit
+    const response = await villageApi.searchDocuments(buildSearchParams());
+    const newResults = response.data.data || [];
+    searchResults.value.push(...newResults);
+    hasMore.value = newResults.length >= searchForm.limit;
   } catch (error) {
-    console.error('加载更多失败:', error)
-    showToast('加载失败')
+    console.error('加载更多失败:', error);
+    showToast('加载失败');
   } finally {
-    isSearching.value = false
+    isSearching.value = false;
   }
-}
+};
 
 const buildSearchParams = () => {
   const params = {
     searchTerm: searchForm.keyword,
     page: searchForm.page,
     limit: searchForm.limit,
-    sortBy: searchForm.sortBy
-  }
+    sortBy: searchForm.sortBy,
+  };
 
-  if (searchForm.category) params.category = searchForm.category
-  if (searchForm.collectorId) params.collectorId = searchForm.collectorId
-  if (searchForm.status) params.status = searchForm.status
+  if (searchForm.category) params.category = searchForm.category;
+  if (searchForm.collectorId) params.collectorId = searchForm.collectorId;
+  if (searchForm.status) params.status = searchForm.status;
 
   // 处理时间范围
   if (searchForm.timeRange) {
-    const now = new Date()
-    const startDate = new Date()
+    const now = new Date();
+    const startDate = new Date();
 
     switch (searchForm.timeRange) {
       case 'today':
-        startDate.setHours(0, 0, 0, 0)
-        break
+        startDate.setHours(0, 0, 0, 0);
+        break;
       case 'week':
-        startDate.setDate(startDate.getDate() - 7)
-        break
+        startDate.setDate(startDate.getDate() - 7);
+        break;
       case 'month':
-        startDate.setMonth(startDate.getMonth() - 1)
-        break
+        startDate.setMonth(startDate.getMonth() - 1);
+        break;
     }
 
-    params.dateFrom = startDate.toISOString().split('T')[0]
-    params.dateTo = now.toISOString().split('T')[0]
+    params.dateFrom = startDate.toISOString().split('T')[0];
+    params.dateTo = now.toISOString().split('T')[0];
   }
 
-  return params
-}
+  return params;
+};
 
 const hasActiveFilters = () => {
-  return searchForm.category || searchForm.timeRange ||
-         searchForm.fileTypes.length > 0 || searchForm.collectorId || searchForm.status
-}
+  return (
+    searchForm.category ||
+    searchForm.timeRange ||
+    searchForm.fileTypes.length > 0 ||
+    searchForm.collectorId ||
+    searchForm.status
+  );
+};
 
 const handleClear = () => {
-  searchForm.keyword = ''
-  searchForm.category = ''
-  searchForm.timeRange = ''
-  searchForm.fileTypes = []
-  searchForm.collectorId = ''
-  searchForm.status = ''
-  searchForm.page = 1
-  selectedCollector.value = {}
+  searchForm.keyword = '';
+  searchForm.category = '';
+  searchForm.timeRange = '';
+  searchForm.fileTypes = [];
+  searchForm.collectorId = '';
+  searchForm.status = '';
+  searchForm.page = 1;
+  selectedCollector.value = {};
 
-  searchResults.value = []
-  hasSearched.value = false
-  hasMore.value = true
-  totalCount.value = 0
-}
+  searchResults.value = [];
+  hasSearched.value = false;
+  hasMore.value = true;
+  totalCount.value = 0;
+};
 
-const handleSort = (action) => {
-  searchForm.sortBy = action.value
-  showSortPicker.value = false
+const handleSort = action => {
+  searchForm.sortBy = action.value;
+  showSortPicker.value = false;
 
   if (hasSearched) {
-    handleSearch()
+    handleSearch();
   }
-}
+};
 
-const searchByTag = (tag) => {
-  searchForm.keyword = tag
-  handleSearch()
-}
+const searchByTag = tag => {
+  searchForm.keyword = tag;
+  handleSearch();
+};
 
-const searchByHistory = (keyword) => {
-  searchForm.keyword = keyword
-  showSearchHistory.value = false
-  handleSearch()
-}
+const searchByHistory = keyword => {
+  searchForm.keyword = keyword;
+  showSearchHistory.value = false;
+  handleSearch();
+};
 
-const onCollectorConfirm = (option) => {
-  const collector = collectors.value.find(c => c.userId === option.value)
-  selectedCollector.value = collector || {}
-  searchForm.collectorId = option.value
-  showCollectorPicker.value = false
-}
+const onCollectorConfirm = option => {
+  const collector = collectors.value.find(c => c.userId === option.value);
+  selectedCollector.value = collector || {};
+  searchForm.collectorId = option.value;
+  showCollectorPicker.value = false;
+};
 
 const applyFilter = () => {
-  showFilter.value = false
-  handleSearch()
-}
+  showFilter.value = false;
+  handleSearch();
+};
 
 const resetFilter = () => {
-  searchForm.category = ''
-  searchForm.timeRange = ''
-  searchForm.fileTypes = []
-  searchForm.collectorId = ''
-  searchForm.status = ''
-  selectedCollector.value = {}
-}
+  searchForm.category = '';
+  searchForm.timeRange = '';
+  searchForm.fileTypes = [];
+  searchForm.collectorId = '';
+  searchForm.status = '';
+  selectedCollector.value = {};
+};
 
-const openDocument = (document) => {
-  router.push(`/village/documents/${document._id}`)
-}
+const openDocument = document => {
+  router.push(`/village/documents/${document._id}`);
+};
 
-const addToSearchHistory = (keyword) => {
-  if (!keyword.trim()) return
+const addToSearchHistory = keyword => {
+  if (!keyword.trim()) return;
 
-  const history = [...searchHistory.value]
-  const index = history.indexOf(keyword)
+  const history = [...searchHistory.value];
+  const index = history.indexOf(keyword);
 
   if (index > -1) {
-    history.splice(index, 1)
+    history.splice(index, 1);
   }
 
-  history.unshift(keyword)
-  searchHistory.value = history.slice(0, 10)
+  history.unshift(keyword);
+  searchHistory.value = history.slice(0, 10);
 
   // 保存到本地存储
-  localStorage.setItem('searchHistory', JSON.stringify(searchHistory.value))
-}
+  localStorage.setItem('searchHistory', JSON.stringify(searchHistory.value));
+};
 
 const clearSearchHistory = () => {
-  searchHistory.value = []
-  localStorage.removeItem('searchHistory')
-}
+  searchHistory.value = [];
+  localStorage.removeItem('searchHistory');
+};
 
 // 格式化方法
-const formatResultLabel = (result) => {
-  const labels = []
+const formatResultLabel = result => {
+  const labels = [];
 
   if (result.collector?.name) {
-    labels.push(`收集人: ${result.collector.name}`)
+    labels.push(`收集人: ${result.collector.name}`);
   }
 
   if (result.category) {
-    labels.push(`类别: ${getCategoryText(result.category)}`)
+    labels.push(`类别: ${getCategoryText(result.category)}`);
   }
 
   if (result.files?.length) {
-    labels.push(`文件数: ${result.files.length}`)
+    labels.push(`文件数: ${result.files.length}`);
   }
 
-  return labels.join(' • ')
-}
+  return labels.join(' • ');
+};
 
-const formatTime = (time) => {
-  const date = new Date(time)
-  const now = new Date()
-  const diff = now - date
+const formatTime = time => {
+  const date = new Date(time);
+  const now = new Date();
+  const diff = now - date;
 
   if (diff < 60000) {
-    return '刚刚'
+    return '刚刚';
   } else if (diff < 3600000) {
-    return `${Math.floor(diff / 60000)}分钟前`
+    return `${Math.floor(diff / 60000)}分钟前`;
   } else if (diff < 86400000) {
-    return `${Math.floor(diff / 3600000)}小时前`
+    return `${Math.floor(diff / 3600000)}小时前`;
   } else {
-    return date.toLocaleDateString()
+    return date.toLocaleDateString();
   }
-}
+};
 
-const getFileIcon = (result) => {
+const getFileIcon = result => {
   if (result.files?.length > 0) {
-    const firstFile = result.files[0]
+    const firstFile = result.files[0];
     if (firstFile.mimeType?.startsWith('image/')) {
-      return 'photo-o'
+      return 'photo-o';
     } else if (firstFile.mimeType?.includes('pdf')) {
-      return 'description'
+      return 'description';
     } else if (firstFile.mimeType?.includes('word')) {
-      return 'edit'
+      return 'edit';
     } else if (firstFile.mimeType?.includes('excel')) {
-      return 'chart-trending-o'
+      return 'chart-trending-o';
     }
   }
-  return 'folder-o'
-}
+  return 'folder-o';
+};
 
-const getFileColor = (result) => {
+const getFileColor = result => {
   if (result.status === 'approved') {
-    return '#52c41a'
+    return '#52c41a';
   } else if (result.status === 'reviewing') {
-    return '#faad14'
+    return '#faad14';
   } else {
-    return '#1890ff'
+    return '#1890ff';
   }
-}
+};
 
-const getStatusType = (status) => {
+const getStatusType = status => {
   const statusMap = {
-    'collecting': 'primary',
-    'reviewing': 'warning',
-    'approved': 'success',
-    'rejected': 'danger',
-    'archived': 'default'
-  }
-  return statusMap[status] || 'default'
-}
+    collecting: 'primary',
+    reviewing: 'warning',
+    approved: 'success',
+    rejected: 'danger',
+    archived: 'default',
+  };
+  return statusMap[status] || 'default';
+};
 
-const getStatusText = (status) => {
+const getStatusText = status => {
   const statusMap = {
-    'collecting': '收集中',
-    'reviewing': '审核中',
-    'approved': '已完成',
-    'rejected': '已拒绝',
-    'archived': '已归档'
-  }
-  return statusMap[status] || status
-}
+    collecting: '收集中',
+    reviewing: '审核中',
+    approved: '已完成',
+    rejected: '已拒绝',
+    archived: '已归档',
+  };
+  return statusMap[status] || status;
+};
 
-const getCategoryText = (category) => {
+const getCategoryText = category => {
   const categoryMap = {
-    'village_affairs': '村务',
-    'resident_info': '村民信息',
-    'financial': '财务',
-    'project': '项目',
-    'meeting': '会议',
-    'policy': '政策',
-    'emergency': '应急',
-    'statistics': '统计',
-    'other': '其他'
-  }
-  return categoryMap[category] || category
-}
+    village_affairs: '村务',
+    resident_info: '村民信息',
+    financial: '财务',
+    project: '项目',
+    meeting: '会议',
+    policy: '政策',
+    emergency: '应急',
+    statistics: '统计',
+    other: '其他',
+  };
+  return categoryMap[category] || category;
+};
 
 // 生命周期
 onMounted(async () => {
   // 加载搜索历史
-  const history = localStorage.getItem('searchHistory')
+  const history = localStorage.getItem('searchHistory');
   if (history) {
-    searchHistory.value = JSON.parse(history)
+    searchHistory.value = JSON.parse(history);
   }
 
   // 加载收集人员
-  await loadCollectors()
+  await loadCollectors();
 
   // 加载推荐
-  await loadRecommendations()
-})
+  await loadRecommendations();
+});
 </script>
 
 <style scoped>

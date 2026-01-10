@@ -18,7 +18,7 @@ const permission = {
     } else {
       throw new Error('权限指令需要传入权限数组，如 v-permission="[\'resident:read\']"');
     }
-  }
+  },
 };
 
 /**
@@ -39,7 +39,7 @@ const role = {
     } else {
       throw new Error('角色指令需要传入角色数组，如 v-role="[\'admin\']"');
     }
-  }
+  },
 };
 
 /**
@@ -78,7 +78,7 @@ const auth = {
         el.parentNode && el.parentNode.removeChild(el);
       }
     }
-  }
+  },
 };
 
 export default {
@@ -86,5 +86,5 @@ export default {
     app.directive('permission', permission);
     app.directive('role', role);
     app.directive('auth', auth);
-  }
+  },
 };

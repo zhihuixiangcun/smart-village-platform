@@ -94,55 +94,55 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 
-const router = useRouter()
-const currentUser = ref(null)
-const showModal = ref(false)
-const selectedFeature = ref('')
-const featureDescription = ref('')
+const router = useRouter();
+const currentUser = ref(null);
+const showModal = ref(false);
+const selectedFeature = ref('');
+const featureDescription = ref('');
 
 const featureDescriptions = {
-  '资料收集': '数字化村务资料收集和管理，支持文档上传、分类整理、权限控制等功能。',
-  '值班管理': '智能化值班排班系统，自动生成值班表，支持调班、请假、紧急呼叫等功能。',
-  '数据统计': '实时村务数据分析统计，可视化图表展示，支持自定义报表生成。',
-  '智能搜索': '全文搜索和智能分类，支持关键词搜索、标签过滤、相似度匹配。',
-  '应急管理': '紧急事件快速响应，支持一键呼叫、资源调度、预案管理等功能。',
-  '报告中心': '自动化报告生成系统，支持多种格式导出，定时任务和模板管理。'
-}
+  资料收集: '数字化村务资料收集和管理，支持文档上传、分类整理、权限控制等功能。',
+  值班管理: '智能化值班排班系统，自动生成值班表，支持调班、请假、紧急呼叫等功能。',
+  数据统计: '实时村务数据分析统计，可视化图表展示，支持自定义报表生成。',
+  智能搜索: '全文搜索和智能分类，支持关键词搜索、标签过滤、相似度匹配。',
+  应急管理: '紧急事件快速响应，支持一键呼叫、资源调度、预案管理等功能。',
+  报告中心: '自动化报告生成系统，支持多种格式导出，定时任务和模板管理。',
+};
 
 onMounted(() => {
   // 从localStorage获取用户信息
-  const userStr = localStorage.getItem('user')
+  const userStr = localStorage.getItem('user');
   if (userStr) {
     try {
-      currentUser.value = JSON.parse(userStr)
+      currentUser.value = JSON.parse(userStr);
     } catch (e) {
-      console.error('解析用户信息失败:', e)
+      console.error('解析用户信息失败:', e);
     }
   }
-})
+});
 
 const handleLogout = () => {
-  localStorage.removeItem('user')
-  localStorage.removeItem('access_token')
-  localStorage.removeItem('refresh_token')
-  currentUser.value = null
-  router.push('/login')
-}
+  localStorage.removeItem('user');
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('refresh_token');
+  currentUser.value = null;
+  router.push('/login');
+};
 
-const showFeatureInfo = (feature) => {
-  selectedFeature.value = feature
-  featureDescription.value = featureDescriptions[feature] || '功能开发中...'
-  showModal.value = true
-}
+const showFeatureInfo = feature => {
+  selectedFeature.value = feature;
+  featureDescription.value = featureDescriptions[feature] || '功能开发中...';
+  showModal.value = true;
+};
 
 const closeModal = () => {
-  showModal.value = false
-  selectedFeature.value = ''
-  featureDescription.value = ''
-}
+  showModal.value = false;
+  selectedFeature.value = '';
+  featureDescription.value = '';
+};
 </script>
 
 <style scoped>
@@ -361,7 +361,8 @@ const closeModal = () => {
     gap: 1rem;
   }
 
-  .header-left, .header-right {
+  .header-left,
+  .header-right {
     flex-direction: column;
     gap: 0.5rem;
   }

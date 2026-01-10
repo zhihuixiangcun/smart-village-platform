@@ -7,13 +7,7 @@
     :close-on-press-escape="false"
     @close="handleClose"
   >
-    <el-form
-      ref="formRef"
-      :model="form"
-      :rules="rules"
-      label-width="100px"
-      class="resident-form"
-    >
+    <el-form ref="formRef" :model="form" :rules="rules" label-width="100px" class="resident-form">
       <el-tabs v-model="activeTab" type="border-card">
         <!-- 基本信息 -->
         <el-tab-pane label="基本信息" name="basic">
@@ -81,11 +75,7 @@
           <el-row :gutter="20">
             <el-col :span="12">
               <el-form-item label="联系电话" prop="phone">
-                <el-input
-                  v-model="form.phone"
-                  placeholder="请输入联系电话"
-                  maxlength="11"
-                />
+                <el-input v-model="form.phone" placeholder="请输入联系电话" maxlength="11" />
               </el-form-item>
             </el-col>
             <el-col :span="12">
@@ -209,14 +199,9 @@
           <el-row :gutter="20">
             <el-col :span="12">
               <el-form-item label="户码" prop="householdCode">
-                <el-input
-                  v-model="form.householdCode"
-                  placeholder="系统自动生成或手动输入"
-                >
+                <el-input v-model="form.householdCode" placeholder="系统自动生成或手动输入">
                   <template #append>
-                    <el-button @click="generateHouseholdCode" icon="Refresh">
-                      生成
-                    </el-button>
+                    <el-button @click="generateHouseholdCode" icon="Refresh"> 生成 </el-button>
                   </template>
                 </el-input>
               </el-form-item>
@@ -265,7 +250,11 @@
             </el-col>
             <el-col :span="12">
               <el-form-item label="与本人关系" prop="emergencyContact.relationship">
-                <el-select v-model="form.emergencyContact.relationship" placeholder="请选择" style="width: 100%">
+                <el-select
+                  v-model="form.emergencyContact.relationship"
+                  placeholder="请选择"
+                  style="width: 100%"
+                >
                   <el-option label="配偶" value="spouse" />
                   <el-option label="子女" value="child" />
                   <el-option label="父母" value="parent" />
@@ -293,12 +282,7 @@
       </el-tabs>
 
       <el-form-item label="备注" class="full-width">
-        <el-input
-          v-model="form.remark"
-          type="textarea"
-          :rows="3"
-          placeholder="请输入备注信息"
-        />
+        <el-input v-model="form.remark" type="textarea" :rows="3" placeholder="请输入备注信息" />
       </el-form-item>
     </el-form>
 
@@ -314,44 +298,44 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch, nextTick } from 'vue'
-import { ElMessage } from 'element-plus'
-import { Plus } from '@element-plus/icons-vue'
-import { residentAPI } from '@/api/resident'
-import { useUserStore } from '@/stores/user'
+import { ref, reactive, computed, watch, nextTick } from 'vue';
+import { ElMessage } from 'element-plus';
+import { Plus } from '@element-plus/icons-vue';
+import { residentAPI } from '@/api/resident';
+import { useUserStore } from '@/stores/user';
 
 const props = defineProps({
   modelValue: {
     type: Boolean,
-    default: false
+    default: false,
   },
   resident: {
     type: Object,
-    default: null
+    default: null,
   },
   mode: {
     type: String,
-    default: 'add' // 'add' | 'edit'
-  }
-})
+    default: 'add', // 'add' | 'edit'
+  },
+});
 
-const emit = defineEmits(['update:modelValue', 'confirm'])
+const emit = defineEmits(['update:modelValue', 'confirm']);
 
-const userStore = useUserStore()
-const formRef = ref()
-const submitting = ref(false)
-const activeTab = ref('basic')
+const userStore = useUserStore();
+const formRef = ref();
+const submitting = ref(false);
+const activeTab = ref('basic');
 
 // 对话框显示状态
 const dialogVisible = computed({
   get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
-})
+  set: value => emit('update:modelValue', value),
+});
 
 // 对话框标题
 const dialogTitle = computed(() => {
-  return props.mode === 'add' ? '新增村民档案' : '编辑村民档案'
-})
+  return props.mode === 'add' ? '新增村民档案' : '编辑村民档案';
+});
 
 // 表单数据
 const form = reactive({
@@ -380,47 +364,46 @@ const form = reactive({
     name: '',
     relationship: '',
     phone: '',
-    address: ''
+    address: '',
   },
-  remark: ''
-})
+  remark: '',
+});
 
 // 表单验证规则
 const rules = {
   name: [
     { required: true, message: '请输入姓名', trigger: 'blur' },
-    { min: 2, max: 10, message: '姓名长度在 2 到 10 个字符', trigger: 'blur' }
+    { min: 2, max: 10, message: '姓名长度在 2 到 10 个字符', trigger: 'blur' },
   ],
-  gender: [
-    { required: true, message: '请选择性别', trigger: 'change' }
-  ],
+  gender: [{ required: true, message: '请选择性别', trigger: 'change' }],
   idCard: [
     { required: true, message: '请输入身份证号', trigger: 'blur' },
-    { pattern: /^[1-9]\d{5}(18|19|20)\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/, message: '身份证号格式不正确', trigger: 'blur' }
+    {
+      pattern:
+        /^[1-9]\d{5}(18|19|20)\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/,
+      message: '身份证号格式不正确',
+      trigger: 'blur',
+    },
   ],
   phone: [
     { required: true, message: '请输入联系电话', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确', trigger: 'blur' }
+    { pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确', trigger: 'blur' },
   ],
-  address: [
-    { required: true, message: '请输入详细地址', trigger: 'blur' }
-  ],
-  householdCode: [
-    { required: true, message: '请输入或生成户码', trigger: 'blur' }
-  ]
-}
+  address: [{ required: true, message: '请输入详细地址', trigger: 'blur' }],
+  householdCode: [{ required: true, message: '请输入或生成户码', trigger: 'blur' }],
+};
 
 // 上传配置
-const uploadUrl = `${import.meta.env.VITE_APP_BASE_API}/upload/avatar`
+const uploadUrl = `${import.meta.env.VITE_APP_BASE_API}/upload/avatar`;
 const uploadHeaders = computed(() => ({
-  Authorization: `Bearer ${userStore.token}`
-}))
+  Authorization: `Bearer ${userStore.token}`,
+}));
 
 // 方法
 const handleClose = () => {
-  dialogVisible.value = false
-  resetForm()
-}
+  dialogVisible.value = false;
+  resetForm();
+};
 
 const resetForm = () => {
   Object.assign(form, {
@@ -449,131 +432,140 @@ const resetForm = () => {
       name: '',
       relationship: '',
       phone: '',
-      address: ''
+      address: '',
     },
-    remark: ''
-  })
+    remark: '',
+  });
 
-  activeTab.value = 'basic'
+  activeTab.value = 'basic';
   if (formRef.value) {
-    formRef.value.clearValidate()
+    formRef.value.clearValidate();
   }
-}
+};
 
-const fillForm = (resident) => {
+const fillForm = resident => {
   if (resident) {
     Object.assign(form, {
       ...resident,
       emergencyContact: {
         ...form.emergencyContact,
-        ...(resident.emergencyContact || {})
-      }
-    })
+        ...(resident.emergencyContact || {}),
+      },
+    });
   }
-}
+};
 
 const calculateAge = () => {
   if (form.birthDate) {
-    const birth = new Date(form.birthDate)
-    const today = new Date()
-    let age = today.getFullYear() - birth.getFullYear()
-    const monthDiff = today.getMonth() - birth.getMonth()
+    const birth = new Date(form.birthDate);
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
 
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-      age--
+      age--;
     }
 
-    form.age = age.toString()
+    form.age = age.toString();
   }
-}
+};
 
 const generateHouseholdCode = () => {
   // 生成户码：村庄代码 + 年份 + 序号
-  const villageCode = '001' // 从用户信息或配置中获取
-  const year = new Date().getFullYear().toString().slice(-2)
-  const random = Math.floor(Math.random() * 9999).toString().padStart(4, '0')
-  form.householdCode = `${villageCode}${year}${random}`
-}
+  const villageCode = '001'; // 从用户信息或配置中获取
+  const year = new Date().getFullYear().toString().slice(-2);
+  const random = Math.floor(Math.random() * 9999)
+    .toString()
+    .padStart(4, '0');
+  form.householdCode = `${villageCode}${year}${random}`;
+};
 
-const handleAvatarSuccess = (response) => {
+const handleAvatarSuccess = response => {
   if (response.success) {
-    form.avatar = response.data.url
-    ElMessage.success('头像上传成功')
+    form.avatar = response.data.url;
+    ElMessage.success('头像上传成功');
   } else {
-    ElMessage.error('头像上传失败')
+    ElMessage.error('头像上传失败');
   }
-}
+};
 
-const beforeAvatarUpload = (file) => {
-  const isJPG = file.type === 'image/jpeg' || file.type === 'image/png'
-  const isLt2M = file.size / 1024 / 1024 < 2
+const beforeAvatarUpload = file => {
+  const isJPG = file.type === 'image/jpeg' || file.type === 'image/png';
+  const isLt2M = file.size / 1024 / 1024 < 2;
 
   if (!isJPG) {
-    ElMessage.error('头像图片只能是 JPG 或 PNG 格式!')
-    return false
+    ElMessage.error('头像图片只能是 JPG 或 PNG 格式!');
+    return false;
   }
   if (!isLt2M) {
-    ElMessage.error('头像图片大小不能超过 2MB!')
-    return false
+    ElMessage.error('头像图片大小不能超过 2MB!');
+    return false;
   }
-  return true
-}
+  return true;
+};
 
 const handleSubmit = async () => {
   try {
-    await formRef.value.validate()
+    await formRef.value.validate();
 
-    submitting.value = true
+    submitting.value = true;
 
-    const submitData = { ...form }
+    const submitData = { ...form };
 
-    let response
+    let response;
     if (props.mode === 'add') {
-      response = await residentAPI.createResident(submitData)
+      response = await residentAPI.createResident(submitData);
     } else {
-      response = await residentAPI.updateResident(props.resident.id, submitData)
+      response = await residentAPI.updateResident(props.resident.id, submitData);
     }
 
     if (response.success) {
-      ElMessage.success(`${props.mode === 'add' ? '添加' : '保存'}成功`)
-      emit('confirm')
-      handleClose()
+      ElMessage.success(`${props.mode === 'add' ? '添加' : '保存'}成功`);
+      emit('confirm');
+      handleClose();
     }
   } catch (error) {
-    if (error !== false) { // 验证失败会返回 false
-      ElMessage.error(`${props.mode === 'add' ? '添加' : '保存'}失败`)
+    if (error !== false) {
+      // 验证失败会返回 false
+      ElMessage.error(`${props.mode === 'add' ? '添加' : '保存'}失败`);
     }
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
-}
+};
 
 // 监听身份证号变化，自动填充出生日期
-watch(() => form.idCard, (newVal) => {
-  if (newVal && newVal.length === 18) {
-    const year = newVal.slice(6, 10)
-    const month = newVal.slice(10, 12)
-    const day = newVal.slice(12, 14)
+watch(
+  () => form.idCard,
+  newVal => {
+    if (newVal && newVal.length === 18) {
+      const year = newVal.slice(6, 10);
+      const month = newVal.slice(10, 12);
+      const day = newVal.slice(12, 14);
 
-    if (year && month && day) {
-      form.birthDate = `${year}-${month}-${day}`
-      calculateAge()
+      if (year && month && day) {
+        form.birthDate = `${year}-${month}-${day}`;
+        calculateAge();
+      }
     }
   }
-})
+);
 
 // 监听对话框显示状态
-watch(() => props.modelValue, (newVal) => {
-  if (newVal) {
-    nextTick(() => {
-      if (props.mode === 'edit' && props.resident) {
-        fillForm(props.resident)
-      } else {
-        resetForm()
-      }
-    })
+watch(
+  () => props.modelValue,
+  newVal => {
+    if (newVal) {
+      nextTick(() => {
+        if (props.mode === 'edit' && props.resident) {
+          fillForm(props.resident);
+        } else {
+          resetForm();
+        }
+      });
+    }
   }
-})
+);
 </script>
 
 <style lang="scss" scoped>

@@ -13,8 +13,8 @@ vi.mock('element-plus', async () => {
       success: vi.fn(),
       error: vi.fn(),
       warning: vi.fn(),
-      info: vi.fn()
-    }
+      info: vi.fn(),
+    },
   };
 });
 
@@ -27,14 +27,14 @@ describe('ResidentCard.vue', () => {
     address: '浙江省杭州市余杭区瓶窑镇凤都村1号',
     familyType: '普通户',
     familyMembers: 4,
-    avatar: 'https://example.com/avatar.jpg'
+    avatar: 'https://example.com/avatar.jpg',
   });
 
   const defaultProps = {
     resident: mockResident,
     showActions: true,
     editable: true,
-    deletable: true
+    deletable: true,
   };
 
   beforeEach(() => {
@@ -44,31 +44,43 @@ describe('ResidentCard.vue', () => {
   describe('组件渲染', () => {
     it('应该正确渲染村民基本信息', async () => {
       const wrapper = await TestHelper.mountWithPlugins(ResidentCard, {
-        props: defaultProps
+        props: defaultProps,
       });
 
       // 检查村民姓名
       TestHelper.expectElementText(wrapper, '[data-testid="resident-name"]', mockResident.name);
 
       // 检查身份证号（应该脱敏显示）
-      TestHelper.expectElementText(wrapper, '[data-testid="resident-idcard"]', '330106********1234');
+      TestHelper.expectElementText(
+        wrapper,
+        '[data-testid="resident-idcard"]',
+        '330106********1234'
+      );
 
       // 检查手机号（应该脱敏显示）
       TestHelper.expectElementText(wrapper, '[data-testid="resident-phone"]', '138****8000');
 
       // 检查地址
-      TestHelper.expectElementText(wrapper, '[data-testid="resident-address"]', mockResident.address);
+      TestHelper.expectElementText(
+        wrapper,
+        '[data-testid="resident-address"]',
+        mockResident.address
+      );
 
       // 检查家庭类型
       TestHelper.expectElementText(wrapper, '[data-testid="family-type"]', mockResident.familyType);
 
       // 检查家庭成员数
-      TestHelper.expectElementText(wrapper, '[data-testid="family-members"]', `${mockResident.familyMembers}人`);
+      TestHelper.expectElementText(
+        wrapper,
+        '[data-testid="family-members"]',
+        `${mockResident.familyMembers}人`
+      );
     });
 
     it('应该显示头像', async () => {
       const wrapper = await TestHelper.mountWithPlugins(ResidentCard, {
-        props: defaultProps
+        props: defaultProps,
       });
 
       const avatar = wrapper.find('[data-testid="resident-avatar"]');
@@ -78,7 +90,7 @@ describe('ResidentCard.vue', () => {
 
     it('应该显示操作按钮', async () => {
       const wrapper = await TestHelper.mountWithPlugins(ResidentCard, {
-        props: defaultProps
+        props: defaultProps,
       });
 
       // 检查编辑按钮
@@ -99,8 +111,8 @@ describe('ResidentCard.vue', () => {
         props: {
           ...defaultProps,
           editable: false,
-          deletable: false
-        }
+          deletable: false,
+        },
       });
 
       // 编辑和删除按钮应该被隐藏
@@ -113,14 +125,14 @@ describe('ResidentCard.vue', () => {
 
     it('应该显示家庭状态标签', async () => {
       const specialResident = TestHelper.createMockResident({
-        familyType: '低保户'
+        familyType: '低保户',
       });
 
       const wrapper = await TestHelper.mountWithPlugins(ResidentCard, {
         props: {
           ...defaultProps,
-          resident: specialResident
-        }
+          resident: specialResident,
+        },
       });
 
       const specialTag = wrapper.find('[data-testid="special-tag"]');
@@ -132,7 +144,7 @@ describe('ResidentCard.vue', () => {
   describe('交互行为', () => {
     it('点击编辑按钮应该触发编辑事件', async () => {
       const wrapper = await TestHelper.mountWithPlugins(ResidentCard, {
-        props: defaultProps
+        props: defaultProps,
       });
 
       await TestHelper.click(wrapper, '[data-testid="edit-button"]');
@@ -142,7 +154,7 @@ describe('ResidentCard.vue', () => {
 
     it('点击删除按钮应该触发删除事件', async () => {
       const wrapper = await TestHelper.mountWithPlugins(ResidentCard, {
-        props: defaultProps
+        props: defaultProps,
       });
 
       // 模拟确认删除
@@ -156,7 +168,7 @@ describe('ResidentCard.vue', () => {
 
     it('取消删除时不应该触发删除事件', async () => {
       const wrapper = await TestHelper.mountWithPlugins(ResidentCard, {
-        props: defaultProps
+        props: defaultProps,
       });
 
       // 模拟取消删除
@@ -169,7 +181,7 @@ describe('ResidentCard.vue', () => {
 
     it('点击详情按钮应该触发详情事件', async () => {
       const wrapper = await TestHelper.mountWithPlugins(ResidentCard, {
-        props: defaultProps
+        props: defaultProps,
       });
 
       await TestHelper.click(wrapper, '[data-testid="detail-button"]');
@@ -179,7 +191,7 @@ describe('ResidentCard.vue', () => {
 
     it('点击头像应该查看大图', async () => {
       const wrapper = await TestHelper.mountWithPlugins(ResidentCard, {
-        props: defaultProps
+        props: defaultProps,
       });
 
       await TestHelper.click(wrapper, '[data-testid="resident-avatar"]');
@@ -189,15 +201,15 @@ describe('ResidentCard.vue', () => {
 
     it('点击手机号应该复制', async () => {
       const wrapper = await TestHelper.mountWithPlugins(ResidentCard, {
-        props: defaultProps
+        props: defaultProps,
       });
 
       // 模拟复制到剪贴板
       const mockWriteText = vi.fn().mockResolvedValue(undefined);
       Object.assign(navigator, {
         clipboard: {
-          writeText: mockWriteText
-        }
+          writeText: mockWriteText,
+        },
       });
 
       await TestHelper.click(wrapper, '[data-testid="resident-phone"]');
@@ -208,15 +220,15 @@ describe('ResidentCard.vue', () => {
 
     it('复制失败时显示错误提示', async () => {
       const wrapper = await TestHelper.mountWithPlugins(ResidentCard, {
-        props: defaultProps
+        props: defaultProps,
       });
 
       // 模拟复制失败
       const mockWriteText = vi.fn().mockRejectedValue(new Error('复制失败'));
       Object.assign(navigator, {
         clipboard: {
-          writeText: mockWriteText
-        }
+          writeText: mockWriteText,
+        },
       });
 
       await TestHelper.click(wrapper, '[data-testid="resident-phone"]');
@@ -231,11 +243,11 @@ describe('ResidentCard.vue', () => {
       Object.defineProperty(window, 'innerWidth', {
         writable: true,
         configurable: true,
-        value: 375
+        value: 375,
       });
 
       const wrapper = await TestHelper.mountWithPlugins(ResidentCard, {
-        props: defaultProps
+        props: defaultProps,
       });
 
       // 应该有紧凑布局的类
@@ -251,11 +263,11 @@ describe('ResidentCard.vue', () => {
       Object.defineProperty(window, 'innerWidth', {
         writable: true,
         configurable: true,
-        value: 1920
+        value: 1920,
       });
 
       const wrapper = await TestHelper.mountWithPlugins(ResidentCard, {
-        props: defaultProps
+        props: defaultProps,
       });
 
       // 不应该有紧凑布局的类
@@ -266,7 +278,7 @@ describe('ResidentCard.vue', () => {
   describe('数据脱敏', () => {
     it('应该正确脱敏身份证号', async () => {
       const wrapper = await TestHelper.mountWithPlugins(ResidentCard, {
-        props: defaultProps
+        props: defaultProps,
       });
 
       const idCardElement = wrapper.find('[data-testid="resident-idcard"]');
@@ -275,7 +287,7 @@ describe('ResidentCard.vue', () => {
 
     it('应该正确脱敏手机号', async () => {
       const wrapper = await TestHelper.mountWithPlugins(ResidentCard, {
-        props: defaultProps
+        props: defaultProps,
       });
 
       const phoneElement = wrapper.find('[data-testid="resident-phone"]');
@@ -286,8 +298,8 @@ describe('ResidentCard.vue', () => {
       const wrapper = await TestHelper.mountWithPlugins(ResidentCard, {
         props: {
           ...defaultProps,
-          showFullInfo: true
-        }
+          showFullInfo: true,
+        },
       });
 
       // 管理员应该看到完整身份证号
@@ -307,9 +319,9 @@ describe('ResidentCard.vue', () => {
           ...defaultProps,
           resident: {
             ...mockResident,
-            avatar: ''
-          }
-        }
+            avatar: '',
+          },
+        },
       });
 
       const avatar = wrapper.find('[data-testid="resident-avatar"]');
@@ -319,8 +331,8 @@ describe('ResidentCard.vue', () => {
     it('数据为空时显示占位内容', async () => {
       const wrapper = await TestHelper.mountWithPlugins(ResidentCard, {
         props: {
-          resident: null
-        }
+          resident: null,
+        },
       });
 
       TestHelper.expectElementVisible(wrapper, '[data-testid="empty-state"]');
@@ -330,7 +342,7 @@ describe('ResidentCard.vue', () => {
   describe('无障碍访问', () => {
     it('应该有正确的 ARIA 标签', async () => {
       const wrapper = await TestHelper.mountWithPlugins(ResidentCard, {
-        props: defaultProps
+        props: defaultProps,
       });
 
       const card = wrapper.find('[data-testid="resident-card"]');
@@ -340,7 +352,7 @@ describe('ResidentCard.vue', () => {
 
     it('操作按钮应该有正确的 ARIA 描述', async () => {
       const wrapper = await TestHelper.mountWithPlugins(ResidentCard, {
-        props: defaultProps
+        props: defaultProps,
       });
 
       const editButton = wrapper.find('[data-testid="edit-button"]');

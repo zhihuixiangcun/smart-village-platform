@@ -118,7 +118,7 @@ const dutyShiftSchema = new mongoose.Schema({
     endDate: {
       type: Date,
       validate: {
-        validator: function(v) {
+        validator(v) {
           return !v || v > this.effectivePeriod.startDate;
         },
         message: '结束日期必须晚于开始日期'

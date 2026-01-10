@@ -60,9 +60,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { ElMessage } from 'element-plus';
 import {
   UserFilled,
   ChatDotSquare,
@@ -71,11 +71,11 @@ import {
   User,
   Check,
   ArrowRight,
-  InfoFilled
-} from '@element-plus/icons-vue'
-import { markRaw } from 'vue'
+  InfoFilled,
+} from '@element-plus/icons-vue';
+import { markRaw } from 'vue';
 
-const router = useRouter()
+const router = useRouter();
 
 // 注册类型定义
 const registerTypes = ref([
@@ -86,7 +86,7 @@ const registerTypes = ref([
     description: '适用于村庄常住居民',
     features: ['一户一码管理', '村务公开查询', '便民服务申请', '语音助手支持'],
     disabled: false,
-    route: 'common-registration'
+    route: 'common-registration',
   },
   {
     value: 'cadre',
@@ -95,7 +95,7 @@ const registerTypes = ref([
     description: '适用于村委会工作人员',
     features: ['村务管理权限', '任务调度系统', '智能值班表', '数据统计报表'],
     disabled: false,
-    route: 'common-registration'
+    route: 'common-registration',
   },
   {
     value: 'official',
@@ -104,7 +104,7 @@ const registerTypes = ref([
     description: '适用于乡镇政府工作人员',
     features: ['多村管理权限', '政策发布功能', '数据监控大屏', '汇总统计报表'],
     disabled: false,
-    route: 'common-registration'
+    route: 'common-registration',
   },
   {
     value: 'purchaser',
@@ -113,7 +113,7 @@ const registerTypes = ref([
     description: '适用于农产品采购企业/个人',
     features: ['农产品采购', '智能推荐系统', '订单管理', '质量追溯'],
     disabled: false,
-    route: 'registration-wizard'
+    route: 'registration-wizard',
   },
   {
     value: 'admin',
@@ -122,34 +122,34 @@ const registerTypes = ref([
     description: '系统管理员（需授权码）',
     features: ['系统配置管理', '用户权限管理', '数据维护', '系统监控'],
     disabled: false,
-    route: 'common-registration'
-  }
-])
+    route: 'common-registration',
+  },
+]);
 
 // 选择注册类型
-const selectRegisterType = (type) => {
+const selectRegisterType = type => {
   if (type.disabled) {
-    ElMessage.warning('该注册类型即将开放，敬请期待')
-    return
+    ElMessage.warning('该注册类型即将开放，敬请期待');
+    return;
   }
 
   // 跳转到对应的注册向导
   if (type.route === 'registration-wizard') {
     // 采购商专用注册向导
-    router.push({ name: type.route })
+    router.push({ name: type.route });
   } else {
     // 通用注册向导（村民、村干部、乡镇官员、管理员）
     router.push({
       name: type.route,
-      query: { role: type.value }
-    })
+      query: { role: type.value },
+    });
   }
-}
+};
 
 // 跳转到登录页
 const goToLogin = () => {
-  router.push('/unified-login')
-}
+  router.push('/unified-login');
+};
 </script>
 
 <style scoped lang="scss">
@@ -172,8 +172,9 @@ const goToLogin = () => {
     left: 0;
     right: 0;
     bottom: 0;
-    background: radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+    background:
+      radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
     pointer-events: none;
   }
 
@@ -307,7 +308,11 @@ const goToLogin = () => {
         width: 90px;
         height: 90px;
         border-radius: 20px;
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        background: linear-gradient(
+          135deg,
+          rgba(102, 126, 234, 0.1) 0%,
+          rgba(118, 75, 162, 0.1) 100%
+        );
         display: flex;
         align-items: center;
         justify-content: center;
@@ -344,7 +349,7 @@ const goToLogin = () => {
           color: #606266;
 
           .el-icon {
-            color: #67C23A;
+            color: #67c23a;
             flex-shrink: 0;
           }
         }
@@ -355,7 +360,7 @@ const goToLogin = () => {
         align-items: center;
         justify-content: space-between;
         padding-top: 20px;
-        border-top: 1px solid #E4E7ED;
+        border-top: 1px solid #e4e7ed;
 
         .step-badge {
           padding: 6px 14px;
@@ -377,7 +382,7 @@ const goToLogin = () => {
         top: 15px;
         right: 15px;
         padding: 4px 10px;
-        background: #F56C6C;
+        background: #f56c6c;
         color: white;
         border-radius: 12px;
         font-size: 11px;
@@ -438,7 +443,8 @@ const goToLogin = () => {
 }
 
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(0, 0) rotate(0deg);
   }
   25% {

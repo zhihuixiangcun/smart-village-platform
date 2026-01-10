@@ -27,7 +27,7 @@ class NotificationService extends EventEmitter {
         timeout: 20000,
         reconnection: true,
         reconnectionAttempts: 5,
-        reconnectionDelay: 1000
+        reconnectionDelay: 1000,
       });
 
       this.socket.on('connect', () => {
@@ -43,21 +43,20 @@ class NotificationService extends EventEmitter {
         this.emit('disconnected');
       });
 
-      this.socket.on('error', (error) => {
+      this.socket.on('error', error => {
         console.error('通知服务连接错误:', error);
         this.emit('error', error);
       });
 
       // 监听公告通知
-      this.socket.on('announcement-notification', (data) => {
+      this.socket.on('announcement-notification', data => {
         this.handleAnnouncementNotification(data);
       });
 
       // 监听推送状态更新
-      this.socket.on('push-status-update', (data) => {
+      this.socket.on('push-status-update', data => {
         this.emit('pushStatusUpdate', data);
       });
-
     } catch (error) {
       console.error('初始化Socket连接失败:', error);
     }
@@ -71,42 +70,42 @@ class NotificationService extends EventEmitter {
     this.channels.set('app', {
       name: 'APP推送',
       enabled: true,
-      handler: this.sendAppNotification.bind(this)
+      handler: this.sendAppNotification.bind(this),
     });
 
     // 短信通知
     this.channels.set('sms', {
       name: '短信通知',
       enabled: false, // 需要配置短信服务
-      handler: this.sendSMSNotification.bind(this)
+      handler: this.sendSMSNotification.bind(this),
     });
 
     // 微信通知
     this.channels.set('wechat', {
       name: '微信通知',
       enabled: false, // 需要配置微信服务
-      handler: this.sendWeChatNotification.bind(this)
+      handler: this.sendWeChatNotification.bind(this),
     });
 
     // 村内大屏
     this.channels.set('display', {
       name: '村内大屏',
       enabled: true,
-      handler: this.sendDisplayNotification.bind(this)
+      handler: this.sendDisplayNotification.bind(this),
     });
 
     // 语音播报
     this.channels.set('voice', {
       name: '语音播报',
       enabled: true,
-      handler: this.sendVoiceNotification.bind(this)
+      handler: this.sendVoiceNotification.bind(this),
     });
 
     // 邮件通知
     this.channels.set('email', {
       name: '邮件通知',
       enabled: false, // 需要配置邮件服务
-      handler: this.sendEmailNotification.bind(this)
+      handler: this.sendEmailNotification.bind(this),
     });
   }
 
@@ -121,7 +120,7 @@ class NotificationService extends EventEmitter {
     console.log('发送公告通知:', {
       title: announcement.title,
       channels,
-      targetGroups
+      targetGroups,
     });
 
     const results = [];
@@ -145,14 +144,14 @@ class NotificationService extends EventEmitter {
         results.push({
           channel: channelName,
           success: true,
-          result
+          result,
         });
       } catch (error) {
         console.error(`${channelName} 推送失败:`, error);
         results.push({
           channel: channelName,
           success: false,
-          error: error.message
+          error: error.message,
         });
       }
     }
@@ -162,7 +161,7 @@ class NotificationService extends EventEmitter {
       announcement,
       channels,
       targetGroups,
-      results
+      results,
     });
 
     return results;
@@ -179,10 +178,10 @@ class NotificationService extends EventEmitter {
       data: {
         announcementId: announcement.id,
         category: announcement.category,
-        priority: announcement.priority
+        priority: announcement.priority,
       },
       targetGroups,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
 
     // 通过Socket.IO发送到客户端
@@ -196,7 +195,7 @@ class NotificationService extends EventEmitter {
         body: notification.body,
         icon: '/favicon.ico',
         badge: '/favicon.ico',
-        data: notification.data
+        data: notification.data,
       });
     }
 
@@ -219,7 +218,7 @@ class NotificationService extends EventEmitter {
     return {
       status: 'sent',
       content: smsContent,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
   }
 
@@ -231,7 +230,7 @@ class NotificationService extends EventEmitter {
     const wechatMessage = {
       title: announcement.title,
       description: announcement.summary,
-      url: `${window.location.origin}/announcements/${announcement.id}`
+      url: `${window.location.origin}/announcements/${announcement.id}`,
     };
 
     console.log('发送微信通知:', wechatMessage);
@@ -242,7 +241,7 @@ class NotificationService extends EventEmitter {
     return {
       status: 'sent',
       message: wechatMessage,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
   }
 
@@ -257,7 +256,7 @@ class NotificationService extends EventEmitter {
       priority: announcement.priority,
       category: announcement.category,
       duration: this.getDisplayDuration(announcement.priority),
-      style: this.getDisplayStyle(announcement.priority)
+      style: this.getDisplayStyle(announcement.priority),
     };
 
     // 通过Socket.IO发送到大屏设备
@@ -268,7 +267,7 @@ class NotificationService extends EventEmitter {
     return {
       status: 'sent',
       displayData,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
   }
 
@@ -281,9 +280,9 @@ class NotificationService extends EventEmitter {
       settings: announcement.pushSettings?.voiceSettings || {
         dialect: 'mandarin',
         speed: 1.0,
-        volume: 70
+        volume: 70,
       },
-      priority: announcement.priority
+      priority: announcement.priority,
     };
 
     // 通过Socket.IO发送到语音播报设备
@@ -302,7 +301,7 @@ class NotificationService extends EventEmitter {
     return {
       status: 'sent',
       voiceData,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
   }
 
@@ -314,7 +313,7 @@ class NotificationService extends EventEmitter {
     const emailData = {
       subject: `村务公告：${announcement.title}`,
       html: this.generateEmailHTML(announcement),
-      targetGroups
+      targetGroups,
     };
 
     console.log('发送邮件通知:', emailData);
@@ -325,7 +324,7 @@ class NotificationService extends EventEmitter {
     return {
       status: 'sent',
       emailData,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
   }
 
@@ -354,14 +353,14 @@ class NotificationService extends EventEmitter {
         new Notification(data.title, {
           body: data.content,
           icon: '/favicon.ico',
-          badge: '/favicon.ico'
+          badge: '/favicon.ico',
         });
       } else if (Notification.permission !== 'denied') {
         Notification.requestPermission().then(permission => {
           if (permission === 'granted') {
             new Notification(data.title, {
               body: data.content,
-              icon: '/favicon.ico'
+              icon: '/favicon.ico',
             });
           }
         });
@@ -376,7 +375,7 @@ class NotificationService extends EventEmitter {
     // 触发UI更新事件
     this.emit('uiUpdate', {
       type: 'notification',
-      data
+      data,
     });
   }
 
@@ -386,10 +385,10 @@ class NotificationService extends EventEmitter {
   getDisplayDuration(priority) {
     const durations = {
       emergency: 30000, // 30秒
-      urgent: 20000,    // 20秒
-      high: 15000,      // 15秒
-      normal: 10000,    // 10秒
-      low: 5000         // 5秒
+      urgent: 20000, // 20秒
+      high: 15000, // 15秒
+      normal: 10000, // 10秒
+      low: 5000, // 5秒
     };
     return durations[priority] || 10000;
   }
@@ -403,28 +402,28 @@ class NotificationService extends EventEmitter {
         backgroundColor: '#ff4757',
         color: '#ffffff',
         fontSize: '28px',
-        animation: 'blink 1s infinite'
+        animation: 'blink 1s infinite',
       },
       urgent: {
         backgroundColor: '#ffa502',
         color: '#ffffff',
-        fontSize: '24px'
+        fontSize: '24px',
       },
       high: {
         backgroundColor: '#ff6b6b',
         color: '#ffffff',
-        fontSize: '22px'
+        fontSize: '22px',
       },
       normal: {
         backgroundColor: '#3742fa',
         color: '#ffffff',
-        fontSize: '20px'
+        fontSize: '20px',
       },
       low: {
         backgroundColor: '#a4b0be',
         color: '#ffffff',
-        fontSize: '18px'
-      }
+        fontSize: '18px',
+      },
     };
     return styles[priority] || styles.normal;
   }
@@ -448,11 +447,11 @@ class NotificationService extends EventEmitter {
     }
 
     // 添加标题
-    text += `${announcement.title  }。`;
+    text += `${announcement.title}。`;
 
     // 添加摘要或部分内容
-    const content = announcement.summary ||
-                   announcement.content.replace(/<[^>]*>/g, '').substring(0, 200);
+    const content =
+      announcement.summary || announcement.content.replace(/<[^>]*>/g, '').substring(0, 200);
     text += content;
 
     // 添加结尾
@@ -513,7 +512,7 @@ class NotificationService extends EventEmitter {
     this.channels.forEach((channel, name) => {
       status[name] = {
         name: channel.name,
-        enabled: channel.enabled
+        enabled: channel.enabled,
       };
     });
     return status;

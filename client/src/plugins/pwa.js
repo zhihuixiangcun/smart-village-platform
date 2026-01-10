@@ -5,7 +5,7 @@ export default {
       registerSW = true,
       enablePush = true,
       enableShare = true,
-      enableOffline = true
+      enableOffline = true,
     } = options;
 
     // 注册Service Worker
@@ -52,8 +52,9 @@ export default {
         // 检查PWA环境
         checkPWAEnvironment() {
           // 检查是否在PWA模式下运行
-          const isPWA = window.matchMedia('(display-mode: standalone)').matches ||
-                       window.navigator.standalone === true;
+          const isPWA =
+            window.matchMedia('(display-mode: standalone)').matches ||
+            window.navigator.standalone === true;
 
           if (isPWA) {
             document.body.classList.add('pwa-mode');
@@ -90,7 +91,7 @@ export default {
         monitorInstallPrompt() {
           let deferredPrompt = null;
 
-          window.addEventListener('beforeinstallprompt', (e) => {
+          window.addEventListener('beforeinstallprompt', e => {
             // 阻止默认安装横幅
             e.preventDefault();
             deferredPrompt = e;
@@ -130,25 +131,27 @@ export default {
               return false;
             }
           };
-        }
-      }
+        },
+      },
     });
 
     // 提供注入
     app.provide('pwa', {
       isInstalled: () => {
-        return window.matchMedia('(display-mode: standalone)').matches ||
-               window.navigator.standalone === true;
+        return (
+          window.matchMedia('(display-mode: standalone)').matches ||
+          window.navigator.standalone === true
+        );
       },
 
       // 分享功能
-      share: async (data) => {
+      share: async data => {
         if (navigator.share) {
           try {
             await navigator.share({
               title: data.title || '智慧乡村',
               text: data.text || '',
-              url: data.url || window.location.href
+              url: data.url || window.location.href,
             });
             return true;
           } catch (error) {
@@ -163,16 +166,16 @@ export default {
           app.config.globalProperties.$message?.success('链接已复制到剪贴板');
           return true;
         }
-      }
+      },
     });
-  }
+  },
 };
 
 // 注册Service Worker
 async function registerServiceWorker() {
   try {
     const registration = await navigator.serviceWorker.register('/sw.js', {
-      scope: '/'
+      scope: '/',
     });
 
     console.log('SW registered successfully:', registration);
@@ -253,7 +256,7 @@ async function initializePushNotifications() {
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(
           'BMzFTLQaITlN1_vO3SvG5Jf2a5l7x1M9rQp3t4w6s8v0x2z4c6v8b0d2f4h6j8'
-        )
+        ),
       });
 
       // 发送订阅信息到服务器
@@ -303,7 +306,7 @@ async function syncOfflineData() {
       await fetch(item.url, {
         method: item.method,
         headers: item.headers,
-        body: item.body
+        body: item.body,
       });
     }
 
@@ -317,10 +320,8 @@ async function syncOfflineData() {
 
 // 工具函数：将base64字符串转换为Uint8Array
 function urlBase64ToUint8Array(base64String) {
-  const padding = '='.repeat((4 - base64String.length % 4) % 4);
-  const base64 = (base64String + padding)
-    .replace(/-/g, '+')
-    .replace(/_/g, '/');
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
 
   const rawData = window.atob(base64);
   const outputArray = new Uint8Array(rawData.length);
@@ -339,9 +340,9 @@ async function sendSubscriptionToServer(subscription) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
       },
-      body: JSON.stringify(subscription)
+      body: JSON.stringify(subscription),
     });
   } catch (error) {
     console.error('推送订阅发送失败:', error);

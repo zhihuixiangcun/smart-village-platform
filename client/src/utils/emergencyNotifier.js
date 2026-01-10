@@ -15,7 +15,7 @@ class EmergencyNotifier {
       emergency: '/sounds/emergency.mp3',
       urgent: '/sounds/urgent.mp3',
       normal: '/sounds/normal.mp3',
-      response: '/sounds/response.mp3'
+      response: '/sounds/response.mp3',
     };
     this.audioContext = null;
     this.isMuted = false;
@@ -77,7 +77,7 @@ class EmergencyNotifier {
       badge: '/badge-icon.png',
       tag: 'emergency-notification',
       requireInteraction: false,
-      silent: false
+      silent: false,
     };
 
     const finalOptions = { ...defaultOptions, ...options };
@@ -94,7 +94,7 @@ class EmergencyNotifier {
         const notification = new Notification(title, finalOptions);
 
         // Handle notification click
-        notification.onclick = (event) => {
+        notification.onclick = event => {
           event.preventDefault();
           window.focus();
           notification.close();
@@ -180,11 +180,7 @@ class EmergencyNotifier {
   playSound(type = 'normal', options = {}) {
     if (this.isMuted) return;
 
-    const {
-      volume = 1.0,
-      loop = false,
-      duration = null
-    } = options;
+    const { volume = 1.0, loop = false, duration = null } = options;
 
     const soundFile = this.sounds[type];
 
@@ -234,17 +230,14 @@ class EmergencyNotifier {
       emergency: 800,
       urgent: 600,
       normal: 400,
-      response: 500
+      response: 500,
     };
 
     oscillator.frequency.value = frequencies[type] || 400;
     oscillator.type = 'sine';
 
     gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(
-      0.01,
-      this.audioContext.currentTime + 0.5
-    );
+    gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.5);
 
     oscillator.start(this.audioContext.currentTime);
     oscillator.stop(this.audioContext.currentTime + 0.5);
@@ -274,13 +267,13 @@ class EmergencyNotifier {
     this.showNotification(title, {
       body: message,
       requireInteraction,
-      ...rest
+      ...rest,
     });
 
     // Play sound
     this.playSound(sound, {
       loop: true,
-      volume: 1.0
+      volume: 1.0,
     });
 
     // Vibrate
@@ -334,7 +327,7 @@ class EmergencyNotifier {
       id: Date.now(),
       title,
       options,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
 
     this.offlineQueue.push(notification);
@@ -349,10 +342,7 @@ class EmergencyNotifier {
    */
   saveOfflineQueue() {
     try {
-      localStorage.setItem(
-        'emergency_offline_queue',
-        JSON.stringify(this.offlineQueue)
-      );
+      localStorage.setItem('emergency_offline_queue', JSON.stringify(this.offlineQueue));
     } catch (error) {
       console.error('Failed to save offline queue:', error);
     }
@@ -412,7 +402,7 @@ class EmergencyNotifier {
     // Show online notification
     this.showNotification('网络已连接', {
       body: '已恢复在线状态',
-      icon: '/online-icon.png'
+      icon: '/online-icon.png',
     });
   }
 
@@ -425,7 +415,7 @@ class EmergencyNotifier {
     this.showNotification('网络已断开', {
       body: '通知将在恢复连接后发送',
       icon: '/offline-icon.png',
-      requireInteraction: true
+      requireInteraction: true,
     });
   }
 
@@ -480,9 +470,7 @@ class EmergencyNotifier {
   async registerServiceWorker() {
     if ('serviceWorker' in navigator) {
       try {
-        const registration = await navigator.serviceWorker.register(
-          '/service-worker.js'
-        );
+        const registration = await navigator.serviceWorker.register('/service-worker.js');
 
         console.log('Service Worker registered:', registration);
 

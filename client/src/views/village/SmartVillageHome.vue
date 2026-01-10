@@ -29,7 +29,7 @@
           <p>数字化乡村治理，服务美好生活</p>
           <div class="quick-stats">
             <div class="stat-item">
-              <div class="stat-number">{{ statistics.totalResidents || 1,234 }}</div>
+              <div class="stat-number">{{ (statistics.totalResidents || 1, 234) }}</div>
               <div class="stat-label">常住人口</div>
             </div>
             <div class="stat-item">
@@ -350,10 +350,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { useUserStore } from '@/stores/userStore'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, reactive, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/userStore';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
   SwitchButton,
   User,
@@ -373,67 +373,69 @@ import {
   Calendar,
   Document,
   Search,
-  Connection
-} from '@element-plus/icons-vue'
+  Connection,
+} from '@element-plus/icons-vue';
 
-const router = useRouter()
-const userStore = useUserStore()
+const router = useRouter();
+const userStore = useUserStore();
 
 // 响应式数据
-const currentUser = ref(null)
-const selectedTimeRange = ref('week')
-const lastUpdateTime = ref(new Date().toLocaleString())
+const currentUser = ref(null);
+const selectedTimeRange = ref('week');
+const lastUpdateTime = ref(new Date().toLocaleString());
 
 // 当前村庄信息
 const currentVillage = reactive({
   name: '智慧村',
   code: 'SM001',
   population: 1234,
-  households: 456
-})
+  households: 456,
+});
 
 // 统计数据
 const statistics = reactive({
   totalResidents: 1234,
   totalHouseholds: 456,
   pendingTasks: 12,
-  todayAnnouncements: 3
-})
+  todayAnnouncements: 3,
+});
 
 // 今日要务数据
 const urgentTasks = ref([
   { id: 1, title: '张三家水管破裂紧急维修', time: '10:30' },
   { id: 2, title: '村道路灯故障排查', time: '09:15' },
-  { id: 3, title: '独居老人健康回访', time: '08:45' }
-])
+  { id: 3, title: '独居老人健康回访', time: '08:45' },
+]);
 
 const normalTasks = ref([
   { id: 4, title: '整理本月财务报表', time: '14:00' },
   { id: 5, title: '更新村民信息档案', time: '15:30' },
-  { id: 6, title: '准备村民代表大会材料', time: '16:00' }
-])
+  { id: 6, title: '准备村民代表大会材料', time: '16:00' },
+]);
 
 const completedTasks = ref([
   { id: 7, title: '发布春耕生产通知', time: '11:20' },
   { id: 8, title: '处理村民医保报销申请', time: '10:15' },
-  { id: 9, title: '检查农田灌溉系统', time: '09:30' }
-])
+  { id: 9, title: '检查农田灌溉系统', time: '09:30' },
+]);
 
 // 方法
 const handleLogout = () => {
   ElMessageBox.confirm('确定要退出登录吗？', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
-    type: 'warning'
-  }).then(() => {
-    userStore.clearUserData()
-    localStorage.clear()
-    router.push('/login')
-    ElMessage.success('已安全退出')
-  }).catch(() => {})
-}
+    type: 'warning',
+  })
+    .then(() => {
+      userStore.clearUserData();
+      localStorage.clear();
+      router.push('/login');
+      ElMessage.success('已安全退出');
+    })
+    .catch(() => {});
+};
 
-const navigateToFunction = (functionType) => {
+const navigateToFunction = functionType => {
   const routes = {
     committee: '/village/committee',
     residents: '/residents',
@@ -441,56 +443,66 @@ const navigateToFunction = (functionType) => {
     information: '/village/announcements',
     services: '/village/services',
     statistics: '/village/statistics',
-    emergency: '/village/emergency'
-  }
+    emergency: '/village/emergency',
+  };
 
-  const route = routes[functionType] || '/village/home'
-  router.push(route)
-  ElMessage.success(`正在跳转到${getFunctionName(functionType)}...`)
-}
+  const route = routes[functionType] || '/village/home';
+  router.push(route);
+  ElMessage.success(`正在跳转到${getFunctionName(functionType)}...`);
+};
 
-const getFunctionName = (functionType) => {
+const getFunctionName = functionType => {
   const names = {
     committee: '村委管理',
     residents: '村民管理',
     governance: '村务治理',
     information: '信息公示',
     services: '便民服务',
-    emergency: '应急管理'
-  }
-  return names[functionType] || '未知功能'
-}
+    emergency: '应急管理',
+  };
+  return names[functionType] || '未知功能';
+};
 
 const refreshTasks = () => {
   // 模拟刷新任务
-  ElMessage.success('任务列表已刷新')
-  lastUpdateTime.value = new Date().toLocaleString()
-}
+  ElMessage.success('任务列表已刷新');
+  lastUpdateTime.value = new Date().toLocaleString();
+};
 
-const handleTask = (task) => {
+const handleTask = task => {
   ElMessageBox.confirm(`确定要处理"${task.title}"吗？`, '确认处理', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
-    type: 'info'
-  }).then(() => {
-    // 从对应任务列表中移除
-    if (urgentTasks.value.find(t => t.id === task.id)) {
-      urgentTasks.value = urgentTasks.value.filter(t => t.id !== task.id)
-      completedTasks.value.unshift({ ...task, time: new Date().toLocaleTimeString().slice(0, 5) })
-    } else if (normalTasks.value.find(t => t.id === task.id)) {
-      normalTasks.value = normalTasks.value.filter(t => t.id !== task.id)
-      completedTasks.value.unshift({ ...task, time: new Date().toLocaleTimeString().slice(0, 5) })
-    }
-    ElMessage.success('任务已标记为处理完成')
-  }).catch(() => {})
-}
+    type: 'info',
+  })
+    .then(() => {
+      // 从对应任务列表中移除
+      if (urgentTasks.value.find(t => t.id === task.id)) {
+        urgentTasks.value = urgentTasks.value.filter(t => t.id !== task.id);
+        completedTasks.value.unshift({
+          ...task,
+          time: new Date().toLocaleTimeString().slice(0, 5),
+        });
+      } else if (normalTasks.value.find(t => t.id === task.id)) {
+        normalTasks.value = normalTasks.value.filter(t => t.id !== task.id);
+        completedTasks.value.unshift({
+          ...task,
+          time: new Date().toLocaleTimeString().slice(0, 5),
+        });
+      }
+      ElMessage.success('任务已标记为处理完成');
+    })
+    .catch(() => {});
+};
 
-const updateStatistics = (timeRange) => {
+const updateStatistics = timeRange => {
   // 模拟根据时间范围更新统计数据
-  ElMessage.success(`已切换到${timeRange === 'today' ? '今日' : timeRange === 'week' ? '本周' : timeRange === 'month' ? '本月' : '本年'}数据`)
-}
+  ElMessage.success(
+    `已切换到${timeRange === 'today' ? '今日' : timeRange === 'week' ? '本周' : timeRange === 'month' ? '本月' : '本年'}数据`
+  );
+};
 
-const quickAction = (actionType) => {
+const quickAction = actionType => {
   const actions = {
     announcement: () => router.push('/village/announcements/create'),
     resident: () => router.push('/residents/add'),
@@ -499,41 +511,43 @@ const quickAction = (actionType) => {
     emergency: () => {
       ElMessageBox.alert('正在启动应急呼叫系统...', '应急呼叫', {
         confirmButtonText: '确定',
-        type: 'warning'
-      })
+        type: 'warning',
+      });
     },
-    search: () => router.push('/village/search')
-  }
+    search: () => router.push('/village/search'),
+  };
 
   if (actions[actionType]) {
-    actions[actionType]()
+    actions[actionType]();
   } else {
-    ElMessage.info('功能开发中...')
+    ElMessage.info('功能开发中...');
   }
-}
+};
 
 // 生命周期
 onMounted(() => {
   // 从localStorage获取用户信息
-  const userStr = localStorage.getItem('user')
+  const userStr = localStorage.getItem('user');
   if (userStr) {
     try {
-      currentUser.value = JSON.parse(userStr)
+      currentUser.value = JSON.parse(userStr);
     } catch (e) {
-      console.error('解析用户信息失败:', e)
+      console.error('解析用户信息失败:', e);
     }
   }
 
   // 初始化数据
-  console.log('智慧乡村主页加载完成')
-})
+  console.log('智慧乡村主页加载完成');
+});
 </script>
 
 <style scoped>
 .smart-village-home {
   min-height: 100vh;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', sans-serif;
 }
 
 /* 顶部导航 */

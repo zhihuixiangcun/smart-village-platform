@@ -52,7 +52,7 @@
           <span class="section-title">📊 我的任务</span>
         </template>
         <template #right-icon>
-          <span @click="refreshData" style="color: #1989fa;">
+          <span @click="refreshData" style="color: #1989fa">
             <van-icon name="replay" />
           </span>
         </template>
@@ -82,9 +82,7 @@
           <span class="section-title">📝 最近任务</span>
         </template>
         <template #right-icon>
-          <span @click="viewAllTasks" style="color: #1989fa; font-size: 14px;">
-            查看全部
-          </span>
+          <span @click="viewAllTasks" style="color: #1989fa; font-size: 14px"> 查看全部 </span>
         </template>
       </van-cell>
 
@@ -112,11 +110,7 @@
     </van-cell-group>
 
     <!-- 快速操作悬浮按钮 -->
-    <van-floating-bubble
-      axis="xy"
-      icon="plus"
-      @click="showQuickActions = true"
-    />
+    <van-floating-bubble axis="xy" icon="plus" @click="showQuickActions = true" />
 
     <!-- 快速操作弹窗 -->
     <van-action-sheet
@@ -129,94 +123,94 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { showToast, showConfirmDialog } from 'vant'
-import { useUserStore } from '@/stores/user'
-import villageApi from '@/api/villageManagement'
+import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { showToast, showConfirmDialog } from 'vant';
+import { useUserStore } from '@/stores/user';
+import villageApi from '@/api/villageManagement';
 
-const router = useRouter()
-const userStore = useUserStore()
+const router = useRouter();
+const userStore = useUserStore();
 
 // 响应式数据
-const loading = ref(false)
-const finished = ref(false)
-const showQuickActions = ref(false)
-const todayDutyList = ref([])
+const loading = ref(false);
+const finished = ref(false);
+const showQuickActions = ref(false);
+const todayDutyList = ref([]);
 const myStats = ref({
   totalCollections: 0,
   pendingReview: 0,
-  approvedCollections: 0
-})
-const recentTasks = ref([])
-const page = ref(1)
-const pageSize = 10
+  approvedCollections: 0,
+});
+const recentTasks = ref([]);
+const page = ref(1);
+const pageSize = 10;
 
 // 计算属性
 const pageTitle = computed(() => {
-  return '村务管理'
-})
+  return '村务管理';
+});
 
 const showTodayDuty = computed(() => {
-  return userStore.userInfo?.villageId
-})
+  return userStore.userInfo?.villageId;
+});
 
 const menuItems = ref([
   {
     name: 'document',
     text: '资料收集',
     icon: 'description',
-    route: '/village/documents'
+    route: '/village/documents',
   },
   {
     name: 'search',
     text: '资料查找',
     icon: 'search',
-    route: '/village/search'
+    route: '/village/search',
   },
   {
     name: 'statistics',
     text: '工作统计',
     icon: 'chart-trending-o',
-    route: '/village/statistics'
+    route: '/village/statistics',
   },
   {
     name: 'duty',
     text: '值班管理',
     icon: 'calendar-o',
-    route: '/village/duty'
+    route: '/village/duty',
   },
   {
     name: 'camera',
     text: '拍照上传',
     icon: 'photograph',
-    action: 'camera'
+    action: 'camera',
   },
   {
     name: 'report',
     text: '生成报告',
     icon: 'bar-chart-o',
-    route: '/village/reports'
-  }
-])
+    route: '/village/reports',
+  },
+]);
 
 const quickActions = ref([
   {
     name: 'new_document',
     text: '新建资料收集',
-    icon: 'add-o'
+    icon: 'add-o',
   },
   {
     name: 'upload_photo',
     text: '拍照上传',
-    icon: 'photograph'
+    icon: 'photograph',
   },
   {
     name: 'quick_search',
     text: '快速搜索',
-    icon: 'search'
-  }
-])
+    icon: 'search',
+  },
+]);
 
 // 方法
 const handleCallDuty = async () => {
@@ -224,206 +218,204 @@ const handleCallDuty = async () => {
     await showConfirmDialog({
       title: '呼叫值班人员',
       message: '确定要呼叫今日值班人员吗？',
-    })
+    });
 
     const result = await villageApi.callDutyOfficer(userStore.userInfo.villageId, {
       emergency: false,
-      message: '村委会需要您响应'
-    })
+      message: '村委会需要您响应',
+    });
 
-    showToast('呼叫已发送')
+    showToast('呼叫已发送');
   } catch (error) {
-    console.error('呼叫失败:', error)
+    console.error('呼叫失败:', error);
   }
-}
+};
 
-const handleCallOfficer = (officer) => {
+const handleCallOfficer = officer => {
   showConfirmDialog({
     title: '联系值班人员',
     message: `确定要联系 ${officer.userName} (${officer.userPhone}) 吗？`,
-  }).then(() => {
-    // 调用电话功能
-    window.location.href = `tel:${officer.userPhone}`
-  }).catch(() => {
-    // 取消操作
   })
-}
+    .then(() => {
+      // 调用电话功能
+      window.location.href = `tel:${officer.userPhone}`;
+    })
+    .catch(() => {
+      // 取消操作
+    });
+};
 
-const handleMenuClick = (item) => {
+const handleMenuClick = item => {
   if (item.route) {
-    router.push(item.route)
+    router.push(item.route);
   } else if (item.action) {
-    handleQuickAction(item)
+    handleQuickAction(item);
   }
-}
+};
 
-const handleQuickAction = async (action) => {
-  showQuickActions.value = false
+const handleQuickAction = async action => {
+  showQuickActions.value = false;
 
   switch (action.name) {
     case 'new_document':
-      router.push('/village/documents/new')
-      break
+      router.push('/village/documents/new');
+      break;
     case 'upload_photo':
     case 'camera':
       // 调用相机
-      const input = document.createElement('input')
-      input.type = 'file'
-      input.accept = 'image/*'
-      input.capture = 'camera'
-      input.onchange = (e) => {
-        const file = e.target.files[0]
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.capture = 'camera';
+      input.onchange = e => {
+        const file = e.target.files[0];
         if (file) {
           // 上传到临时收集任务
-          handlePhotoUpload(file)
+          handlePhotoUpload(file);
         }
-      }
-      input.click()
-      break
+      };
+      input.click();
+      break;
     case 'quick_search':
-      router.push('/village/search')
-      break
+      router.push('/village/search');
+      break;
   }
-}
+};
 
-const handlePhotoUpload = async (file) => {
+const handlePhotoUpload = async file => {
   try {
-    showToast('上传中...')
+    showToast('上传中...');
 
-    const formData = new FormData()
-    formData.append('files', file)
-    formData.append('description', '手机快速上传')
+    const formData = new FormData();
+    formData.append('files', file);
+    formData.append('description', '手机快速上传');
 
     // 创建快速收集任务
     const collection = await villageApi.createDocumentCollection({
       title: `快速收集_${new Date().toLocaleString()}`,
       category: 'other',
       description: '手机快速上传的资料',
-      collectionDate: new Date().toISOString()
-    })
+      collectionDate: new Date().toISOString(),
+    });
 
     // 上传文件
-    await villageApi.uploadFiles(collection.data._id, formData)
+    await villageApi.uploadFiles(collection.data._id, formData);
 
-    showToast('上传成功')
-    refreshData()
+    showToast('上传成功');
+    refreshData();
   } catch (error) {
-    console.error('上传失败:', error)
-    showToast('上传失败')
+    console.error('上传失败:', error);
+    showToast('上传失败');
   }
-}
+};
 
 const refreshData = async () => {
-  loading.value = true
+  loading.value = true;
   try {
-    await Promise.all([
-      loadTodayDuty(),
-      loadMyStats(),
-      loadRecentTasks()
-    ])
+    await Promise.all([loadTodayDuty(), loadMyStats(), loadRecentTasks()]);
   } catch (error) {
-    console.error('刷新数据失败:', error)
+    console.error('刷新数据失败:', error);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const loadTodayDuty = async () => {
-  if (!userStore.userInfo?.villageId) return
+  if (!userStore.userInfo?.villageId) return;
 
   try {
-    const response = await villageApi.getTodayDuty(userStore.userInfo.villageId)
-    todayDutyList.value = response.data.data || []
+    const response = await villageApi.getTodayDuty(userStore.userInfo.villageId);
+    todayDutyList.value = response.data.data || [];
   } catch (error) {
-    console.error('获取值班信息失败:', error)
+    console.error('获取值班信息失败:', error);
   }
-}
+};
 
 const loadMyStats = async () => {
   try {
-    const endDate = new Date()
-    const startDate = new Date()
-    startDate.setDate(startDate.getDate() - 30) // 最近30天
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - 30); // 最近30天
 
     const response = await villageApi.getPersonalStatistics(
       startDate.toISOString().split('T')[0],
       endDate.toISOString().split('T')[0]
-    )
+    );
 
-    const stats = response.data.data?.documentStatistics || {}
+    const stats = response.data.data?.documentStatistics || {};
     myStats.value = {
       totalCollections: stats.totalCollections || 0,
       pendingReview: stats.totalCollections - stats.approvedCollections,
-      approvedCollections: stats.approvedCollections || 0
-    }
+      approvedCollections: stats.approvedCollections || 0,
+    };
   } catch (error) {
-    console.error('获取统计数据失败:', error)
+    console.error('获取统计数据失败:', error);
   }
-}
+};
 
 const loadRecentTasks = async () => {
   try {
     const response = await villageApi.getMyDocuments({
       page: page.value,
-      limit: pageSize.value
-    })
+      limit: pageSize.value,
+    });
 
     if (page.value === 1) {
-      recentTasks.value = response.data.data.docs
+      recentTasks.value = response.data.data.docs;
     } else {
-      recentTasks.value.push(...response.data.data.docs)
+      recentTasks.value.push(...response.data.data.docs);
     }
 
-    finished.value = response.data.data.docs.length < pageSize.value
-    page.value++
+    finished.value = response.data.data.docs.length < pageSize.value;
+    page.value++;
   } catch (error) {
-    console.error('获取任务列表失败:', error)
-    finished.value = true
+    console.error('获取任务列表失败:', error);
+    finished.value = true;
   }
-}
+};
 
 const onLoad = () => {
-  loadRecentTasks()
-}
+  loadRecentTasks();
+};
 
 const viewAllTasks = () => {
-  router.push('/village/documents')
-}
+  router.push('/village/documents');
+};
 
-const viewTaskDetail = (task) => {
-  router.push(`/village/documents/${task._id}`)
-}
+const viewTaskDetail = task => {
+  router.push(`/village/documents/${task._id}`);
+};
 
-const formatTaskLabel = (task) => {
-  return `${task.category} - ${new Date(task.collectionDate).toLocaleDateString()}`
-}
+const formatTaskLabel = task => {
+  return `${task.category} - ${new Date(task.collectionDate).toLocaleDateString()}`;
+};
 
-const getStatusType = (status) => {
+const getStatusType = status => {
   const statusMap = {
-    'collecting': 'primary',
-    'reviewing': 'warning',
-    'approved': 'success',
-    'rejected': 'danger',
-    'archived': 'default'
-  }
-  return statusMap[status] || 'default'
-}
+    collecting: 'primary',
+    reviewing: 'warning',
+    approved: 'success',
+    rejected: 'danger',
+    archived: 'default',
+  };
+  return statusMap[status] || 'default';
+};
 
-const getStatusText = (status) => {
+const getStatusText = status => {
   const statusMap = {
-    'collecting': '收集中',
-    'reviewing': '审核中',
-    'approved': '已完成',
-    'rejected': '已拒绝',
-    'archived': '已归档'
-  }
-  return statusMap[status] || status
-}
+    collecting: '收集中',
+    reviewing: '审核中',
+    approved: '已完成',
+    rejected: '已拒绝',
+    archived: '已归档',
+  };
+  return statusMap[status] || status;
+};
 
 // 生命周期
 onMounted(() => {
-  refreshData()
-})
+  refreshData();
+});
 </script>
 
 <style scoped>

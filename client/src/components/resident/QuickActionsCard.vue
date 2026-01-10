@@ -64,9 +64,9 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { ElMessage } from 'element-plus';
 import {
   QRCode,
   Document,
@@ -76,10 +76,10 @@ import {
   FirstAid,
   Setting,
   Select,
-  Hide
-} from '@element-plus/icons-vue'
+  Hide,
+} from '@element-plus/icons-vue';
 
-const router = useRouter()
+const router = useRouter();
 
 // 所有可用快捷功能
 const allActions = ref([
@@ -91,7 +91,7 @@ const allActions = ref([
     route: '/my-qrcode',
     description: '扫码查看家庭信息',
     visible: true,
-    badge: null
+    badge: null,
   },
   {
     id: 'documents',
@@ -101,7 +101,7 @@ const allActions = ref([
     route: '/my-documents',
     description: '证件领取和办理',
     visible: true,
-    badge: '3'
+    badge: '3',
   },
   {
     id: 'services',
@@ -111,7 +111,7 @@ const allActions = ref([
     route: '/services',
     description: '在线办理业务',
     visible: true,
-    badge: null
+    badge: null,
   },
   {
     id: 'subsidy',
@@ -121,7 +121,7 @@ const allActions = ref([
     route: '/subsidy',
     description: '本月可领 ¥320',
     visible: true,
-    badge: null
+    badge: null,
   },
   {
     id: 'family',
@@ -131,7 +131,7 @@ const allActions = ref([
     route: '/family',
     description: '家庭成员信息',
     visible: true,
-    badge: null
+    badge: null,
   },
   {
     id: 'medical',
@@ -141,72 +141,72 @@ const allActions = ref([
     route: '/medical',
     description: '健康医疗服务',
     visible: false,
-    badge: null
-  }
-])
+    badge: null,
+  },
+]);
 
-const showCustomize = ref(false)
+const showCustomize = ref(false);
 
 // 显示的快捷功能(最多6个)
 const displayActions = computed(() => {
-  return allActions.value.filter(a => a.visible).slice(0, 6)
-})
+  return allActions.value.filter(a => a.visible).slice(0, 6);
+});
 
 // 处理快捷操作
-const handleAction = (action) => {
+const handleAction = action => {
   if (action.route) {
-    router.push(action.route)
+    router.push(action.route);
   } else if (action.action) {
     // 执行自定义操作
-    action.action()
+    action.action();
   } else {
-    ElMessage.info(`功能开发中: ${action.title}`)
+    ElMessage.info(`功能开发中: ${action.title}`);
   }
-}
+};
 
 // 显示右键菜单
 const showContextMenu = (event, action) => {
   // 可以实现右键菜单功能
-  console.log('Context menu for:', action)
-}
+  console.log('Context menu for:', action);
+};
 
 // 切换可见性
-const toggleVisibility = (action) => {
-  action.visible = !action.visible
-}
+const toggleVisibility = action => {
+  action.visible = !action.visible;
+};
 
 // 保存自定义设置
 const saveCustomization = () => {
   const settings = allActions.value.map(a => ({
     id: a.id,
-    visible: a.visible
-  }))
-  localStorage.setItem('quickActionsSettings', JSON.stringify(settings))
-  showCustomize.value = false
-  ElMessage.success('设置已保存')
-}
+    visible: a.visible,
+  }));
+  localStorage.setItem('quickActionsSettings', JSON.stringify(settings));
+  showCustomize.value = false;
+  ElMessage.success('设置已保存');
+};
 
 // 加载自定义设置
 const loadCustomization = () => {
-  const saved = localStorage.getItem('quickActionsSettings')
+  const saved = localStorage.getItem('quickActionsSettings');
   if (saved) {
     try {
-      const settings = JSON.parse(saved)
+      const settings = JSON.parse(saved);
       settings.forEach(setting => {
-        const action = allActions.value.find(a => a.id === setting.id)
+        const action = allActions.value.find(a => a.id === setting.id);
         if (action) {
-          action.visible = setting.visible
+          action.visible = setting.visible;
         }
-      })
+      });
     } catch (error) {
-      console.error('Failed to load quick actions settings:', error)
+      console.error('Failed to load quick actions settings:', error);
     }
   }
-}
+};
 
 onMounted(() => {
-  loadCustomization()
-})
+  loadCustomization();
+});
 </script>
 
 <style lang="scss" scoped>

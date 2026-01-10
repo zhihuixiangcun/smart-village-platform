@@ -6,11 +6,7 @@
       <div class="header-content">
         <h1>用户反馈管理</h1>
         <div class="header-actions">
-          <el-button
-            type="primary"
-            @click="exportFeedback"
-            :loading="exportLoading"
-          >
+          <el-button type="primary" @click="exportFeedback" :loading="exportLoading">
             <el-icon><Download /></el-icon>
             导出数据
           </el-button>
@@ -65,12 +61,7 @@
         </el-form-item>
 
         <el-form-item label="处理状态">
-          <el-select
-            v-model="filters.status"
-            placeholder="选择状态"
-            clearable
-            style="width: 130px"
-          >
+          <el-select v-model="filters.status" placeholder="选择状态" clearable style="width: 130px">
             <el-option
               v-for="status in statusOptions"
               :key="status.value"
@@ -226,11 +217,7 @@
 
         <el-table-column label="操作" width="200" fixed="right">
           <template #default="{ row }">
-            <el-button
-              type="primary"
-              size="small"
-              @click="viewFeedbackDetail(row)"
-            >
+            <el-button type="primary" size="small" @click="viewFeedbackDetail(row)">
               查看
             </el-button>
             <el-button
@@ -318,8 +305,8 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, reactive, onMounted, computed } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
   Download,
   Operation,
@@ -332,28 +319,28 @@ import {
   Warning,
   SuccessFilled,
   Clock,
-  Star
-} from '@element-plus/icons-vue'
-import { feedbackApi } from '@/api/feedbackApi'
-import FeedbackDetailDrawer from './components/FeedbackDetailDrawer.vue'
-import BatchProcessDialog from './components/BatchProcessDialog.vue'
-import AssignDialog from './components/AssignDialog.vue'
-import StatusUpdateDialog from './components/StatusUpdateDialog.vue'
-import InternalNoteDialog from './components/InternalNoteDialog.vue'
-import { formatDate } from '@/utils/dateUtils'
+  Star,
+} from '@element-plus/icons-vue';
+import { feedbackApi } from '@/api/feedbackApi';
+import FeedbackDetailDrawer from './components/FeedbackDetailDrawer.vue';
+import BatchProcessDialog from './components/BatchProcessDialog.vue';
+import AssignDialog from './components/AssignDialog.vue';
+import StatusUpdateDialog from './components/StatusUpdateDialog.vue';
+import InternalNoteDialog from './components/InternalNoteDialog.vue';
+import { formatDate } from '@/utils/dateUtils';
 
 // 响应式数据
-const loading = ref(false)
-const exportLoading = ref(false)
-const feedbackList = ref([])
-const selectedFeedbacks = ref([])
-const showDetailDrawer = ref(false)
-const showBatchProcess = ref(false)
-const showAssignDialog = ref(false)
-const showStatusDialog = ref(false)
-const showNoteDialog = ref(false)
-const currentFeedbackId = ref('')
-const currentFeedback = ref(null)
+const loading = ref(false);
+const exportLoading = ref(false);
+const feedbackList = ref([]);
+const selectedFeedbacks = ref([]);
+const showDetailDrawer = ref(false);
+const showBatchProcess = ref(false);
+const showAssignDialog = ref(false);
+const showStatusDialog = ref(false);
+const showNoteDialog = ref(false);
+const currentFeedbackId = ref('');
+const currentFeedback = ref(null);
 
 // 筛选条件
 const filters = reactive({
@@ -362,23 +349,23 @@ const filters = reactive({
   priority: '',
   assignedTeam: '',
   dateRange: [],
-  keyword: ''
-})
+  keyword: '',
+});
 
 // 分页数据
 const pagination = reactive({
   page: 1,
   limit: 20,
-  total: 0
-})
+  total: 0,
+});
 
 // 统计数据
 const statsData = ref([
   { key: 'total', label: '总反馈数', value: 0, icon: Message, type: 'primary' },
   { key: 'pending', label: '待处理', value: 0, icon: Clock, type: 'warning' },
   { key: 'resolved', label: '已解决', value: 0, icon: SuccessFilled, type: 'success' },
-  { key: 'satisfaction', label: '满意度', value: '0%', icon: Star, type: 'info' }
-])
+  { key: 'satisfaction', label: '满意度', value: '0%', icon: Star, type: 'info' },
+]);
 
 // 选项数据
 const categoryOptions = [
@@ -388,8 +375,8 @@ const categoryOptions = [
   { label: '投诉', value: 'complaint' },
   { label: '表扬', value: 'compliment' },
   { label: '问题咨询', value: 'question' },
-  { label: '使用困难', value: 'usage_difficulty' }
-]
+  { label: '使用困难', value: 'usage_difficulty' },
+];
 
 const statusOptions = [
   { label: '待处理', value: 'pending' },
@@ -397,136 +384,148 @@ const statusOptions = [
   { label: '处理中', value: 'in_progress' },
   { label: '已解决', value: 'resolved' },
   { label: '已关闭', value: 'closed' },
-  { label: '已拒绝', value: 'rejected' }
-]
+  { label: '已拒绝', value: 'rejected' },
+];
 
 const priorityOptions = [
   { label: '低', value: 'low' },
   { label: '中', value: 'medium' },
   { label: '高', value: 'high' },
-  { label: '紧急', value: 'urgent' }
-]
+  { label: '紧急', value: 'urgent' },
+];
 
 const teamOptions = [
   { label: '技术团队', value: 'tech' },
   { label: '产品团队', value: 'product' },
   { label: '运营团队', value: 'operation' },
-  { label: '客服团队', value: 'support' }
-]
+  { label: '客服团队', value: 'support' },
+];
 
 // 计算属性
 const formatDateTime = computed(() => {
-  return (dateStr) => {
-    if (!dateStr) return '-'
-    return formatDate(new Date(dateStr), 'YYYY-MM-DD HH:mm')
-  }
-})
+  return dateStr => {
+    if (!dateStr) return '-';
+    return formatDate(new Date(dateStr), 'YYYY-MM-DD HH:mm');
+  };
+});
 
 // 方法
 const loadFeedbackList = async () => {
   try {
-    loading.value = true
+    loading.value = true;
     const params = {
       ...filters,
       dateRange: filters.dateRange.length ? JSON.stringify(filters.dateRange) : undefined,
       page: pagination.page,
-      limit: pagination.limit
-    }
+      limit: pagination.limit,
+    };
 
-    const response = await feedbackApi.getFeedbackList(params)
-    feedbackList.value = response.data.feedbacks
-    pagination.total = response.data.pagination.total
+    const response = await feedbackApi.getFeedbackList(params);
+    feedbackList.value = response.data.feedbacks;
+    pagination.total = response.data.pagination.total;
   } catch (error) {
-    ElMessage.error('加载反馈列表失败')
-    console.error('加载反馈列表失败:', error)
+    ElMessage.error('加载反馈列表失败');
+    console.error('加载反馈列表失败:', error);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const loadStatsData = async () => {
   try {
-    const response = await feedbackApi.getFeedbackStats()
-    const stats = response.data
+    const response = await feedbackApi.getFeedbackStats();
+    const stats = response.data;
 
     statsData.value = [
       { key: 'total', label: '总反馈数', value: stats.total, icon: Message, type: 'primary' },
       { key: 'pending', label: '待处理', value: stats.pending, icon: Clock, type: 'warning' },
-      { key: 'resolved', label: '已解决', value: stats.resolved, icon: SuccessFilled, type: 'success' },
-      { key: 'satisfaction', label: '满意度', value: `${stats.avgSatisfaction}%`, icon: Star, type: 'info' }
-    ]
+      {
+        key: 'resolved',
+        label: '已解决',
+        value: stats.resolved,
+        icon: SuccessFilled,
+        type: 'success',
+      },
+      {
+        key: 'satisfaction',
+        label: '满意度',
+        value: `${stats.avgSatisfaction}%`,
+        icon: Star,
+        type: 'info',
+      },
+    ];
   } catch (error) {
-    console.error('加载统计数据失败:', error)
+    console.error('加载统计数据失败:', error);
   }
-}
+};
 
-const handleSelectionChange = (selection) => {
-  selectedFeedbacks.value = selection.map(item => item.feedbackId)
-}
+const handleSelectionChange = selection => {
+  selectedFeedbacks.value = selection.map(item => item.feedbackId);
+};
 
-const handleSizeChange = (size) => {
-  pagination.limit = size
-  pagination.page = 1
-  loadFeedbackList()
-}
+const handleSizeChange = size => {
+  pagination.limit = size;
+  pagination.page = 1;
+  loadFeedbackList();
+};
 
-const handleCurrentChange = (page) => {
-  pagination.page = page
-  loadFeedbackList()
-}
+const handleCurrentChange = page => {
+  pagination.page = page;
+  loadFeedbackList();
+};
 
-const viewFeedbackDetail = (feedback) => {
-  currentFeedbackId.value = feedback.feedbackId
-  showDetailDrawer.value = true
-}
+const viewFeedbackDetail = feedback => {
+  currentFeedbackId.value = feedback.feedbackId;
+  showDetailDrawer.value = true;
+};
 
-const processFeedback = (feedback) => {
-  currentFeedback.value = feedback
-  showStatusDialog.value = true
-}
+const processFeedback = feedback => {
+  currentFeedback.value = feedback;
+  showStatusDialog.value = true;
+};
 
-const assignFeedback = (feedback) => {
-  currentFeedback.value = feedback
-  showAssignDialog.value = true
-}
+const assignFeedback = feedback => {
+  currentFeedback.value = feedback;
+  showAssignDialog.value = true;
+};
 
-const updateStatus = (feedback) => {
-  currentFeedback.value = feedback
-  showStatusDialog.value = true
-}
+const updateStatus = feedback => {
+  currentFeedback.value = feedback;
+  showStatusDialog.value = true;
+};
 
-const addInternalNote = (feedback) => {
-  currentFeedback.value = feedback
-  showNoteDialog.value = true
-}
+const addInternalNote = feedback => {
+  currentFeedback.value = feedback;
+  showNoteDialog.value = true;
+};
 
 const exportFeedback = async () => {
   try {
-    exportLoading.value = true
+    exportLoading.value = true;
     const params = {
       ...filters,
-      dateRange: filters.dateRange.length ? JSON.stringify(filters.dateRange) : undefined
-    }
+      dateRange: filters.dateRange.length ? JSON.stringify(filters.dateRange) : undefined,
+    };
 
-    const response = await feedbackApi.exportFeedbackData(params)
+    const response = await feedbackApi.exportFeedbackData(params);
 
     // 创建下载链接
-    const blob = new Blob([response])
-    const url = window.URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `feedback_export_${formatDate(new Date(), 'YYYYMMDD_HHmmss')}.xlsx`
-    link.click()
-    window.URL.revokeObjectURL(url)
+    const blob = new Blob([response]);
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `feedback_export_${formatDate(new Date(), 'YYYYMMDD_HHmmss')}.xlsx`;
+    link.click();
+    window.URL.revokeObjectURL(url);
 
-    ElMessage.success('导出成功')
+    ElMessage.success('导出成功');
   } catch (error) {
-    ElMessage.error('导出失败')
-    console.error('导出失败:', error)
+    ElMessage.error('导出失败');
+    console.error('导出失败:', error);
   } finally {
-    exportLoading.value = false
+    exportLoading.value = false;
   }
-}
+};
 
 const resetFilters = () => {
   Object.assign(filters, {
@@ -535,19 +534,19 @@ const resetFilters = () => {
     priority: '',
     assignedTeam: '',
     dateRange: [],
-    keyword: ''
-  })
-  pagination.page = 1
-  loadFeedbackList()
-}
+    keyword: '',
+  });
+  pagination.page = 1;
+  loadFeedbackList();
+};
 
 // 辅助方法
-const getCategoryLabel = (category) => {
-  const option = categoryOptions.find(opt => opt.value === category)
-  return option ? option.label : category
-}
+const getCategoryLabel = category => {
+  const option = categoryOptions.find(opt => opt.value === category);
+  return option ? option.label : category;
+};
 
-const getCategoryTagType = (category) => {
+const getCategoryTagType = category => {
   const typeMap = {
     bug_report: 'danger',
     feature_request: 'primary',
@@ -555,48 +554,48 @@ const getCategoryTagType = (category) => {
     complaint: 'warning',
     compliment: 'success',
     question: 'info',
-    usage_difficulty: 'warning'
-  }
-  return typeMap[category] || 'info'
-}
+    usage_difficulty: 'warning',
+  };
+  return typeMap[category] || 'info';
+};
 
-const getStatusLabel = (status) => {
-  const option = statusOptions.find(opt => opt.value === status)
-  return option ? option.label : status
-}
+const getStatusLabel = status => {
+  const option = statusOptions.find(opt => opt.value === status);
+  return option ? option.label : status;
+};
 
-const getStatusTagType = (status) => {
+const getStatusTagType = status => {
   const typeMap = {
     pending: 'warning',
     in_review: 'primary',
     in_progress: 'primary',
     resolved: 'success',
     closed: 'info',
-    rejected: 'danger'
-  }
-  return typeMap[status] || 'info'
-}
+    rejected: 'danger',
+  };
+  return typeMap[status] || 'info';
+};
 
-const getPriorityLabel = (priority) => {
-  const option = priorityOptions.find(opt => opt.value === priority)
-  return option ? option.label : priority
-}
+const getPriorityLabel = priority => {
+  const option = priorityOptions.find(opt => opt.value === priority);
+  return option ? option.label : priority;
+};
 
-const getPriorityTagType = (priority) => {
+const getPriorityTagType = priority => {
   const typeMap = {
     low: 'info',
     medium: 'primary',
     high: 'warning',
-    urgent: 'danger'
-  }
-  return typeMap[priority] || 'info'
-}
+    urgent: 'danger',
+  };
+  return typeMap[priority] || 'info';
+};
 
 // 生命周期
 onMounted(() => {
-  loadFeedbackList()
-  loadStatsData()
-})
+  loadFeedbackList();
+  loadStatsData();
+});
 </script>
 
 <style lang="scss" scoped>

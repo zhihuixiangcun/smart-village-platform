@@ -65,7 +65,7 @@ const friendRequestSchema = new Schema({
   // 过期时间（7天后自动过期）
   expiresAt: {
     type: Date,
-    default: function() {
+    default() {
       const date = new Date();
       date.setDate(date.getDate() + 7);
       return date;

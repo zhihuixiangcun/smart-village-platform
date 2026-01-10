@@ -7,8 +7,8 @@
         :key="index"
         class="step"
         :class="{
-          'active': currentStep === index,
-          'completed': index < currentStep
+          active: currentStep === index,
+          completed: index < currentStep,
         }"
       >
         <div class="step-number">{{ index + 1 }}</div>
@@ -66,7 +66,9 @@
       <div v-if="currentStep === 2" class="step-content">
         <div class="verification-result">
           <div class="result-icon" :class="verificationResult.success ? 'success' : 'failed'">
-            <i :class="verificationResult.success ? 'fas fa-check-circle' : 'fas fa-times-circle'"></i>
+            <i
+              :class="verificationResult.success ? 'fas fa-check-circle' : 'fas fa-times-circle'"
+            ></i>
           </div>
 
           <h3>{{ verificationResult.success ? '验证成功' : '验证失败' }}</h3>
@@ -82,7 +84,10 @@
             </div>
             <div v-if="enableLiveness" class="detail-item">
               <span class="label">活体检测：</span>
-              <span class="value" :class="verificationResult.livenessVerified ? 'verified' : 'failed'">
+              <span
+                class="value"
+                :class="verificationResult.livenessVerified ? 'verified' : 'failed'"
+              >
                 {{ verificationResult.livenessVerified ? '通过' : '未通过' }}
               </span>
             </div>
@@ -97,10 +102,18 @@
           </div>
 
           <div class="result-actions">
-            <button @click="retryVerification" class="btn-secondary" v-if="!verificationResult.success">
+            <button
+              @click="retryVerification"
+              class="btn-secondary"
+              v-if="!verificationResult.success"
+            >
               <i class="fas fa-redo"></i> 重新验证
             </button>
-            <button @click="completeVerification" class="btn-primary" :class="verificationResult.success ? 'btn-success' : ''">
+            <button
+              @click="completeVerification"
+              class="btn-primary"
+              :class="verificationResult.success ? 'btn-success' : ''"
+            >
               {{ verificationResult.success ? '完成' : '返回' }}
             </button>
           </div>
@@ -134,41 +147,37 @@ import { faceVerificationAPI } from '@/api/faceRecognition';
 export default {
   name: 'FaceVerification',
   components: {
-    FaceCapture
+    FaceCapture,
   },
   props: {
     // 用户信息
     userId: {
       type: String,
-      required: true
+      required: true,
     },
     userInfo: {
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
     // 验证配置
     villageId: {
       type: String,
-      required: true
+      required: true,
     },
     enableLiveness: {
       type: Boolean,
-      default: true
+      default: true,
     },
     // 是否为代理操作
     isProxyOperation: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   data() {
     return {
       currentStep: 0,
-      steps: [
-        { title: '身份确认' },
-        { title: '人脸验证' },
-        { title: '验证结果' }
-      ],
+      steps: [{ title: '身份确认' }, { title: '人脸验证' }, { title: '验证结果' }],
 
       isProcessing: false,
       processingText: '',
@@ -183,8 +192,8 @@ export default {
         confidence: 0,
         livenessVerified: false,
         timestamp: null,
-        message: ''
-      }
+        message: '',
+      },
     };
   },
   methods: {
@@ -229,7 +238,7 @@ export default {
           userId: this.userId,
           villageId: this.villageId,
           requireLiveness: this.enableLiveness,
-          livenessResults: this.livenessResults
+          livenessResults: this.livenessResults,
         };
 
         // 调用验证API
@@ -242,7 +251,7 @@ export default {
             confidence: response.data.confidence,
             livenessVerified: response.data.livenessResult?.isLive || false,
             timestamp: response.data.verifiedAt || new Date().toISOString(),
-            message: response.data.isMatch ? '验证成功' : '人脸不匹配'
+            message: response.data.isMatch ? '验证成功' : '人脸不匹配',
           };
 
           // 记录验证日志
@@ -253,7 +262,6 @@ export default {
 
         this.nextStep();
         this.$emit('verificationCompleted', this.verificationResult);
-
       } catch (error) {
         console.error('人脸验证失败:', error);
 
@@ -263,12 +271,11 @@ export default {
           confidence: 0,
           livenessVerified: false,
           timestamp: new Date().toISOString(),
-          message: error.message || '验证服务异常'
+          message: error.message || '验证服务异常',
         };
 
         this.nextStep();
         this.logVerification('failed', { error: error.message });
-
       } finally {
         this.isProcessing = false;
       }
@@ -290,7 +297,7 @@ export default {
         confidence: 0,
         livenessVerified: false,
         timestamp: null,
-        message: ''
+        message: '',
       };
     },
 
@@ -311,7 +318,7 @@ export default {
         isProxyOperation: this.isProxyOperation,
         status,
         timestamp: new Date().toISOString(),
-        data
+        data,
       };
 
       // 发送到后端记录日志
@@ -335,7 +342,7 @@ export default {
     maskPhone(phone) {
       if (!phone || phone.length < 7) return phone;
       return phone.substring(0, 3) + '****' + phone.substring(phone.length - 4);
-    }
+    },
   },
 
   // 生命周期钩子
@@ -344,7 +351,7 @@ export default {
     if (this.isProxyOperation) {
       this.$store.dispatch('proxy/startProxySession', {
         principalUserId: this.userId,
-        operation: 'face_verification'
+        operation: 'face_verification',
       });
     }
   },
@@ -354,7 +361,7 @@ export default {
     if (this.isProxyOperation) {
       this.$store.dispatch('proxy/endProxySession');
     }
-  }
+  },
 };
 </script>
 
@@ -632,7 +639,9 @@ export default {
 }
 
 /* 按钮样式 */
-.btn-primary, .btn-secondary, .btn-success {
+.btn-primary,
+.btn-secondary,
+.btn-success {
   padding: 12px 30px;
   border: none;
   border-radius: 6px;
@@ -701,8 +710,12 @@ export default {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .error-toast {

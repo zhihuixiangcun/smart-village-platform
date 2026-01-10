@@ -120,13 +120,12 @@
                       <div class="note-text">{{ note.note }}</div>
                     </div>
                   </el-timeline-item>
-                  <el-timeline-item
-                    :timestamp="formatDate(row.createdAt)"
-                    type="primary"
-                  >
+                  <el-timeline-item :timestamp="formatDate(row.createdAt)" type="primary">
                     <div class="timeline-content">
                       <div class="action-title">建议提交</div>
-                      <div class="reviewer">提交人：{{ row.submitter.isAnonymous ? '匿名用户' : row.submitter.name }}</div>
+                      <div class="reviewer">
+                        提交人：{{ row.submitter.isAnonymous ? '匿名用户' : row.submitter.name }}
+                      </div>
                     </div>
                   </el-timeline-item>
                 </el-timeline>
@@ -134,12 +133,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column
-          prop="title"
-          label="建议标题"
-          min-width="200"
-          show-overflow-tooltip
-        />
+        <el-table-column prop="title" label="建议标题" min-width="200" show-overflow-tooltip />
         <el-table-column label="分类" width="120">
           <template #default="{ row }">
             <el-tag type="info" size="small">
@@ -149,10 +143,7 @@
         </el-table-column>
         <el-table-column label="状态" width="120">
           <template #default="{ row }">
-            <el-tag
-              :type="getStatusType(row.status)"
-              size="small"
-            >
+            <el-tag :type="getStatusType(row.status)" size="small">
               {{ getStatusText(row.status) }}
             </el-tag>
           </template>
@@ -169,11 +160,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column
-          prop="submitter.name"
-          label="提交人"
-          width="100"
-        >
+        <el-table-column prop="submitter.name" label="提交人" width="100">
           <template #default="{ row }">
             {{ row.submitter.isAnonymous ? '匿名用户' : row.submitter.name }}
           </template>
@@ -196,17 +183,8 @@
         />
         <el-table-column label="操作" width="150" fixed="right">
           <template #default="{ row }">
-            <el-button
-              size="small"
-              @click.stop="showDetail(row)"
-            >
-              详情
-            </el-button>
-            <el-button
-              size="small"
-              type="primary"
-              @click.stop="showTimeline(row)"
-            >
+            <el-button size="small" @click.stop="showDetail(row)"> 详情 </el-button>
+            <el-button size="small" type="primary" @click.stop="showTimeline(row)">
               时间线
             </el-button>
           </template>
@@ -226,11 +204,7 @@
     </el-card>
 
     <!-- 详情对话框 -->
-    <el-dialog
-      v-model="detailVisible"
-      title="建议详情"
-      width="800px"
-    >
+    <el-dialog v-model="detailVisible" title="建议详情" width="800px">
       <div v-if="currentSuggestion" class="suggestion-detail">
         <el-descriptions :column="2" border>
           <el-descriptions-item label="标题" :span="2">
@@ -256,7 +230,11 @@
             />
           </el-descriptions-item>
           <el-descriptions-item label="提交人">
-            {{ currentSuggestion.submitter.isAnonymous ? '匿名用户' : currentSuggestion.submitter.name }}
+            {{
+              currentSuggestion.submitter.isAnonymous
+                ? '匿名用户'
+                : currentSuggestion.submitter.name
+            }}
           </el-descriptions-item>
           <el-descriptions-item label="负责人">
             {{ currentSuggestion.assignedTo?.name || '未分配' }}
@@ -276,11 +254,7 @@
 
         <div class="tags-section" v-if="currentSuggestion.tags && currentSuggestion.tags.length">
           <h4>相关标签</h4>
-          <el-tag
-            v-for="tag in currentSuggestion.tags"
-            :key="tag"
-            style="margin-right: 8px"
-          >
+          <el-tag v-for="tag in currentSuggestion.tags" :key="tag" style="margin-right: 8px">
             {{ tag }}
           </el-tag>
         </div>
@@ -304,11 +278,7 @@
     </el-dialog>
 
     <!-- 时间线对话框 -->
-    <el-dialog
-      v-model="timelineVisible"
-      title="处理时间线"
-      width="700px"
-    >
+    <el-dialog v-model="timelineVisible" title="处理时间线" width="700px">
       <div v-if="currentSuggestion" class="timeline-dialog">
         <div class="suggestion-info">
           <h3>{{ currentSuggestion.title }}</h3>
@@ -355,7 +325,11 @@
               <div class="timeline-item-content">
                 <div class="action-header">
                   <span class="action-title">建议提交</span>
-                  <span class="reviewer">{{ currentSuggestion.submitter.isAnonymous ? '匿名用户' : currentSuggestion.submitter.name }}</span>
+                  <span class="reviewer">{{
+                    currentSuggestion.submitter.isAnonymous
+                      ? '匿名用户'
+                      : currentSuggestion.submitter.name
+                  }}</span>
                 </div>
                 <div class="note-content">提交了新的建议</div>
               </div>
@@ -368,229 +342,227 @@
 </template>
 
 <script>
-import { reactive, ref, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
-import { Search, Refresh, Plus } from '@element-plus/icons-vue'
-import { suggestionApi } from '../api/suggestion'
+import { reactive, ref, onMounted } from 'vue';
+import { ElMessage } from 'element-plus';
+import { Search, Refresh, Plus } from '@element-plus/icons-vue';
+import { suggestionApi } from '../api/suggestion';
 
 export default {
   name: 'SuggestionTracking',
   components: {
     Search,
     Refresh,
-    Plus
+    Plus,
   },
   setup() {
-    const suggestions = ref([])
-    const categories = ref([])
-    const loading = ref(false)
-    const detailVisible = ref(false)
-    const timelineVisible = ref(false)
-    const currentSuggestion = ref(null)
+    const suggestions = ref([]);
+    const categories = ref([]);
+    const loading = ref(false);
+    const detailVisible = ref(false);
+    const timelineVisible = ref(false);
+    const currentSuggestion = ref(null);
 
-    const searchKeyword = ref('')
-    const filterStatus = ref('')
-    const currentPage = ref(1)
-    const pageSize = ref(10)
-    const total = ref(0)
+    const searchKeyword = ref('');
+    const filterStatus = ref('');
+    const currentPage = ref(1);
+    const pageSize = ref(10);
+    const total = ref(0);
 
     const stats = reactive({
       total: 0,
       pending: 0,
       inProgress: 0,
-      completed: 0
-    })
+      completed: 0,
+    });
 
     const loadSuggestions = async () => {
       try {
-        loading.value = true
+        loading.value = true;
         const params = {
           village: 'default_village',
           status: filterStatus.value,
           page: currentPage.value,
-          limit: pageSize.value
-        }
+          limit: pageSize.value,
+        };
 
         if (searchKeyword.value) {
-          params.search = searchKeyword.value
+          params.search = searchKeyword.value;
         }
 
-        const response = await suggestionApi.getList(params)
-        suggestions.value = response.data.suggestions
-        total.value = response.data.pagination.totalCount
-
+        const response = await suggestionApi.getList(params);
+        suggestions.value = response.data.suggestions;
+        total.value = response.data.pagination.totalCount;
       } catch (error) {
-        ElMessage.error('加载建议列表失败：' + error.message)
+        ElMessage.error('加载建议列表失败：' + error.message);
       } finally {
-        loading.value = false
+        loading.value = false;
       }
-    }
+    };
 
     const loadStats = async () => {
       try {
-        const response = await suggestionApi.getStats('default_village')
-        const statsData = response.data.totalStats
+        const response = await suggestionApi.getStats('default_village');
+        const statsData = response.data.totalStats;
 
-        stats.total = statsData.total || 0
-        stats.pending = statsData.submitted || 0
-        stats.inProgress = statsData.inProgress || 0
-        stats.completed = statsData.completed || 0
-
+        stats.total = statsData.total || 0;
+        stats.pending = statsData.submitted || 0;
+        stats.inProgress = statsData.inProgress || 0;
+        stats.completed = statsData.completed || 0;
       } catch (error) {
-        console.error('加载统计数据失败:', error)
+        console.error('加载统计数据失败:', error);
       }
-    }
+    };
 
     const loadCategories = async () => {
       try {
-        const response = await suggestionApi.getCategories('default_village')
-        categories.value = response.data
+        const response = await suggestionApi.getCategories('default_village');
+        categories.value = response.data;
       } catch (error) {
-        console.error('加载分类失败:', error)
+        console.error('加载分类失败:', error);
       }
-    }
+    };
 
     const searchSuggestions = () => {
-      currentPage.value = 1
-      loadSuggestions()
-    }
+      currentPage.value = 1;
+      loadSuggestions();
+    };
 
-    const showDetail = (suggestion) => {
-      currentSuggestion.value = suggestion
-      detailVisible.value = true
-    }
+    const showDetail = suggestion => {
+      currentSuggestion.value = suggestion;
+      detailVisible.value = true;
+    };
 
-    const showTimeline = (suggestion) => {
-      currentSuggestion.value = suggestion
-      timelineVisible.value = true
-    }
+    const showTimeline = suggestion => {
+      currentSuggestion.value = suggestion;
+      timelineVisible.value = true;
+    };
 
     // 辅助函数
-    const getCategoryName = (categoryEn) => {
-      const category = categories.value.find(c => c.nameEn === categoryEn)
-      return category ? category.name : categoryEn
-    }
+    const getCategoryName = categoryEn => {
+      const category = categories.value.find(c => c.nameEn === categoryEn);
+      return category ? category.name : categoryEn;
+    };
 
-    const getStatusType = (status) => {
+    const getStatusType = status => {
       const types = {
         submitted: 'info',
         under_review: 'warning',
         in_progress: 'primary',
         completed: 'success',
-        rejected: 'danger'
-      }
-      return types[status] || 'info'
-    }
+        rejected: 'danger',
+      };
+      return types[status] || 'info';
+    };
 
-    const getStatusText = (status) => {
+    const getStatusText = status => {
       const texts = {
         submitted: '待审核',
         under_review: '审核中',
         in_progress: '进行中',
         completed: '已完成',
-        rejected: '已拒绝'
-      }
-      return texts[status] || status
-    }
+        rejected: '已拒绝',
+      };
+      return texts[status] || status;
+    };
 
-    const getPriorityType = (priority) => {
+    const getPriorityType = priority => {
       const types = {
         urgent: 'danger',
         high: 'warning',
         medium: 'primary',
-        low: 'info'
-      }
-      return types[priority] || 'info'
-    }
+        low: 'info',
+      };
+      return types[priority] || 'info';
+    };
 
-    const getPriorityText = (priority) => {
+    const getPriorityText = priority => {
       const texts = {
         urgent: '特急',
         high: '紧急',
         medium: '重要',
-        low: '一般'
-      }
-      return texts[priority] || priority
-    }
+        low: '一般',
+      };
+      return texts[priority] || priority;
+    };
 
-    const getProgressPercentage = (status) => {
+    const getProgressPercentage = status => {
       const percentages = {
         submitted: 10,
         under_review: 30,
         in_progress: 70,
         completed: 100,
-        rejected: 0
-      }
-      return percentages[status] || 0
-    }
+        rejected: 0,
+      };
+      return percentages[status] || 0;
+    };
 
-    const getProgressColor = (status) => {
+    const getProgressColor = status => {
       const colors = {
         submitted: '#909399',
         under_review: '#e6a23c',
         in_progress: '#409eff',
         completed: '#67c23a',
-        rejected: '#f56c6c'
-      }
-      return colors[status] || '#909399'
-    }
+        rejected: '#f56c6c',
+      };
+      return colors[status] || '#909399';
+    };
 
-    const getActionText = (action) => {
+    const getActionText = action => {
       const texts = {
         approved: '审核通过',
         rejected: '拒绝处理',
         needs_more_info: '需要更多信息',
         in_progress: '开始处理',
         completed: '处理完成',
-        under_review: '开始审核'
-      }
-      return texts[action] || action
-    }
+        under_review: '开始审核',
+      };
+      return texts[action] || action;
+    };
 
-    const getTimelineType = (action) => {
+    const getTimelineType = action => {
       const types = {
         approved: 'success',
         rejected: 'danger',
         needs_more_info: 'warning',
         in_progress: 'primary',
         completed: 'success',
-        under_review: 'info'
-      }
-      return types[action] || 'primary'
-    }
+        under_review: 'info',
+      };
+      return types[action] || 'primary';
+    };
 
-    const getTimelineIcon = (action) => {
+    const getTimelineIcon = action => {
       const icons = {
         approved: 'Check',
         rejected: 'Close',
         needs_more_info: 'QuestionFilled',
         in_progress: 'Loading',
         completed: 'CircleCheck',
-        under_review: 'View'
-      }
-      return icons[action] || 'InfoFilled'
-    }
+        under_review: 'View',
+      };
+      return icons[action] || 'InfoFilled';
+    };
 
     const getProcessingDays = (createdAt, status) => {
-      const created = new Date(createdAt)
-      const now = new Date()
-      const diffTime = Math.abs(now - created)
-      return Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-    }
+      const created = new Date(createdAt);
+      const now = new Date();
+      const diffTime = Math.abs(now - created);
+      return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    };
 
-    const formatDate = (dateString) => {
-      return new Date(dateString).toLocaleString('zh-CN')
-    }
+    const formatDate = dateString => {
+      return new Date(dateString).toLocaleString('zh-CN');
+    };
 
     const formatDateColumn = (row, column, cellValue) => {
-      return new Date(cellValue).toLocaleDateString('zh-CN')
-    }
+      return new Date(cellValue).toLocaleDateString('zh-CN');
+    };
 
     onMounted(() => {
-      loadSuggestions()
-      loadStats()
-      loadCategories()
-    })
+      loadSuggestions();
+      loadStats();
+      loadCategories();
+    });
 
     return {
       suggestions,
@@ -623,10 +595,10 @@ export default {
       getTimelineIcon,
       getProcessingDays,
       formatDate,
-      formatDateColumn
-    }
-  }
-}
+      formatDateColumn,
+    };
+  },
+};
 </script>
 
 <style scoped>
@@ -827,7 +799,7 @@ export default {
   padding: 15px;
   border-radius: 8px;
   border-left: 4px solid #409eff;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .action-header {

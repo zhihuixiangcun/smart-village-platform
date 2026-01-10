@@ -19,7 +19,7 @@ export const SPEAKERS = {
   male: { id: 1, name: '男声', desc: '沉稳男声' },
   female_emotional: { id: 3, name: '情感女声', desc: '情感丰富的女声' },
   male_emotional: { id: 4, name: '情感男声', desc: '情感丰富的男声' },
-  child: { id: 5, name: '童声', desc: '可爱童声' }
+  child: { id: 5, name: '童声', desc: '可爱童声' },
 };
 
 /**
@@ -31,7 +31,7 @@ export const SYNTHESIS_STATUS = {
   PLAYING: 'playing',
   PAUSED: 'paused',
   COMPLETED: 'completed',
-  ERROR: 'error'
+  ERROR: 'error',
 };
 
 class SpeechSynthesizer {
@@ -44,7 +44,7 @@ class SpeechSynthesizer {
       volume: options.volume || 5, // 0-15
       useNative: options.useNative !== false, // 默认优先使用原生API
       lang: options.lang || 'zh-CN',
-      autoPlay: options.autoPlay !== false
+      autoPlay: options.autoPlay !== false,
     };
 
     this.status = SYNTHESIS_STATUS.IDLE;
@@ -111,7 +111,7 @@ class SpeechSynthesizer {
       this.status = SYNTHESIS_STATUS.ERROR;
       this.emit('error', {
         code: 'synthesis_failed',
-        message: error.message
+        message: error.message,
       });
       throw error;
     }
@@ -161,12 +161,12 @@ class SpeechSynthesizer {
         this.emit('statusChange', this.status);
       };
 
-      this.currentUtterance.onerror = (event) => {
+      this.currentUtterance.onerror = event => {
         console.error('原生合成错误:', event.error);
         this.status = SYNTHESIS_STATUS.ERROR;
         this.emit('error', {
           code: event.error,
-          message: this.getErrorMessage(event.error)
+          message: this.getErrorMessage(event.error),
         });
         this.currentUtterance = null;
         reject(new Error(event.error));
@@ -184,17 +184,21 @@ class SpeechSynthesizer {
     try {
       const speakerConfig = SPEAKERS[this.config.speaker] || SPEAKERS.female;
 
-      const response = await axios.post(`${this.config.apiBaseUrl}/synthesize`, {
-        text,
-        person: speakerConfig.id,
-        speed: this.config.speed,
-        pitch: this.config.pitch,
-        volume: this.config.volume,
-        format: 'mp3'
-      }, {
-        responseType: 'arraybuffer',
-        timeout: 30000
-      });
+      const response = await axios.post(
+        `${this.config.apiBaseUrl}/synthesize`,
+        {
+          text,
+          person: speakerConfig.id,
+          speed: this.config.speed,
+          pitch: this.config.pitch,
+          volume: this.config.volume,
+          format: 'mp3',
+        },
+        {
+          responseType: 'arraybuffer',
+          timeout: 30000,
+        }
+      );
 
       // 创建音频元素并播放
       const audioBlob = new Blob([response.data], { type: 'audio/mpeg' });
@@ -226,7 +230,7 @@ class SpeechSynthesizer {
       this.audioElement.onloadedmetadata = () => {
         this.emit('duration', {
           duration: this.audioElement.duration,
-          text
+          text,
         });
       };
 
@@ -245,12 +249,12 @@ class SpeechSynthesizer {
         resolve();
       };
 
-      this.audioElement.onerror = (event) => {
+      this.audioElement.onerror = event => {
         console.error('音频播放错误:', event);
         this.status = SYNTHESIS_STATUS.ERROR;
         this.emit('error', {
           code: 'playback_error',
-          message: '音频播放失败'
+          message: '音频播放失败',
         });
         URL.revokeObjectURL(audioUrl);
         this.audioElement = null;
@@ -401,7 +405,7 @@ class SpeechSynthesizer {
   getSupportedSpeakers() {
     return Object.entries(SPEAKERS).map(([key, value]) => ({
       code: key,
-      ...value
+      ...value,
     }));
   }
 
@@ -412,11 +416,11 @@ class SpeechSynthesizer {
    */
   getErrorMessage(errorCode) {
     const errorMessages = {
-      'canceled': '播报已取消',
-      'interrupted': '播报被中断',
-      'synthesis_failed': '语音合成失败',
-      'playback_error': '音频播放失败',
-      'network': '网络错误'
+      canceled: '播报已取消',
+      interrupted: '播报被中断',
+      synthesis_failed: '语音合成失败',
+      playback_error: '音频播放失败',
+      network: '网络错误',
     };
     return errorMessages[errorCode] || '未知错误';
   }

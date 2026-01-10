@@ -1,67 +1,81 @@
 <template>
-  <div class="home-container">
-    <div class="hero-section">
-      <h1>智慧乡村综合服务平台</h1>
+  <div class="home-container" role="main">
+    <div class="hero-section" role="banner" aria-label="首页横幅">
+      <h1 tabindex="-1">智慧乡村综合服务平台</h1>
       <p>打造现代化、智能化的乡村管理与服务体系</p>
-      <div class="actions">
-        <button class="btn-primary" @click="goToDashboard">
-          进入系统
+      <div class="actions" role="group" aria-label="主要操作按钮">
+        <button
+          class="btn-primary"
+          @click="goToDashboard"
+          aria-label="进入系统"
+          :disabled="navigating"
+        >
+          <span v-if="!navigating">进入系统</span>
+          <span v-else>加载中...</span>
         </button>
-        <button class="btn-secondary">
-          了解更多
+        <button
+          class="btn-secondary"
+          @click="logoutAndLogin"
+          v-if="userStore.token"
+          aria-label="切换角色登录"
+        >
+          切换角色登录
         </button>
+        <button class="btn-secondary" aria-label="了解更多">了解更多</button>
       </div>
     </div>
 
-    <div class="features-section">
-      <div class="feature-card">
-        <div class="feature-icon">👥</div>
-        <h3>村民管理</h3>
-        <p>全面管理村民信息，实现数字化档案管理</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">🏛️</div>
-        <h3>村务治理</h3>
-        <p>透明公开的村务管理，推进民主决策</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">📢</div>
-        <h3>信息公示</h3>
-        <p>及时发布通知公告，保证信息传达</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">🛒</div>
-        <h3>生活服务</h3>
-        <p>丰富的便民服务，提高生活品质</p>
+    <div class="features-section" role="region" aria-label="功能特性">
+      <div
+        v-for="(feature, index) in features"
+        :key="index"
+        class="feature-card"
+        tabindex="0"
+        role="article"
+        :aria-label="feature.title"
+      >
+        <div class="feature-icon" aria-hidden="true">{{ feature.icon }}</div>
+        <h3>{{ feature.title }}</h3>
+        <p>{{ feature.description }}</p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useUserStore } from '@/stores/userStore'
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/userStore';
 
-const router = useRouter()
-const userStore = useUserStore()
+const router = useRouter();
+const userStore = useUserStore();
+const navigating = ref(false);
 
-const goToDashboard = () => {
-  // 检查用户是否已登录
-  const token = userStore.token
+const features = [
+  { icon: '👥', title: '村民管理', description: '全面管理村民信息，实现数字化档案管理' },
+  { icon: '🏛️', title: '村务治理', description: '透明公开的村务管理，推进民主决策' },
+  { icon: '📢', title: '信息公示', description: '及时发布通知公告，保证信息传达' },
+  { icon: '🛒', title: '生活服务', description: '丰富的便民服务，提高生活品质' },
+];
 
-  if (token && userStore.userInfo) {
-    // 已登录，跳转到仪表板
-    router.push('/dashboard')
-  } else {
-    // 未登录，跳转到登录页面
-    router.push('/login')
+const goToDashboard = async () => {
+  navigating.value = true;
+  try {
+    router.push('/auth/login');
+  } finally {
+    navigating.value = false;
   }
-}
+};
+
+const logoutAndLogin = () => {
+  userStore.clearUserData();
+  localStorage.clear();
+  router.push('/auth/login');
+};
 
 onMounted(() => {
-  console.log('Home页面已加载')
-})
+  // 页面加载完成
+});
 </script>
 
 <style scoped>
@@ -143,7 +157,9 @@ onMounted(() => {
   border-radius: 12px;
   text-align: center;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s, box-shadow 0.3s;
+  transition:
+    transform 0.3s,
+    box-shadow 0.3s;
 }
 
 .feature-card:hover {

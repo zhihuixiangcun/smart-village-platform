@@ -69,12 +69,7 @@
 
     <!-- 招聘信息列表 -->
     <div v-else-if="!showJobSeekers && filteredJobs.length > 0" class="jobs-list">
-      <div
-        v-for="job in paginatedJobs"
-        :key="job.id"
-        class="job-card"
-        @click="viewJobDetail(job)"
-      >
+      <div v-for="job in paginatedJobs" :key="job.id" class="job-card" @click="viewJobDetail(job)">
         <!-- 紧急标签 -->
         <div v-if="job.urgent" class="urgent-badge">
           <el-icon><Warning /></el-icon>
@@ -181,7 +176,9 @@
               <span class="gender">{{ seeker.gender === 'male' ? '男' : '女' }}</span>
             </div>
             <div class="expected-salary">
-              期望: {{ seeker.expectedSalaryMin }}-{{ seeker.expectedSalaryMax }}元/{{ getSalaryUnitLabel(seeker.expectedSalaryUnit) }}
+              期望: {{ seeker.expectedSalaryMin }}-{{ seeker.expectedSalaryMax }}元/{{
+                getSalaryUnitLabel(seeker.expectedSalaryUnit)
+              }}
             </div>
           </div>
         </div>
@@ -230,7 +227,12 @@
     </div>
 
     <!-- 空状态 -->
-    <div v-else-if="!loading && (showJobSeekers ? filteredSeekers.length === 0 : filteredJobs.length === 0)" class="empty-state">
+    <div
+      v-else-if="
+        !loading && (showJobSeekers ? filteredSeekers.length === 0 : filteredJobs.length === 0)
+      "
+      class="empty-state"
+    >
       <el-empty :description="showJobSeekers ? '暂无求职信息' : '暂无招聘信息'">
         <el-button type="primary" @click="refresh">刷新</el-button>
       </el-empty>
@@ -238,15 +240,13 @@
 
     <!-- 加载更多 -->
     <div v-if="hasMore" class="load-more">
-      <el-button :loading="loadingMore" @click="loadMore" text>
-        加载更多
-      </el-button>
+      <el-button :loading="loadingMore" @click="loadMore" text> 加载更多 </el-button>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue';
 import {
   Briefcase,
   Search,
@@ -260,23 +260,23 @@ import {
   Share,
   Medal,
   Calendar,
-  Message
-} from '@element-plus/icons-vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import type { JobPosting, JobSeeker, SortType } from '@/types/marketplace'
+  Message,
+} from '@element-plus/icons-vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import type { JobPosting, JobSeeker, SortType } from '@/types/marketplace';
 
 // 状态
-const loading = ref(true)
-const loadingMore = ref(false)
-const searchKeyword = ref('')
-const activeJobType = ref<string>('all')
-const currentSort = ref<SortType>('latest')
-const jobs = ref<JobPosting[]>([])
-const seekers = ref<JobSeeker[]>([])
-const showJobSeekers = ref(false)
-const page = ref(1)
-const pageSize = ref(10)
-const hasMore = ref(false)
+const loading = ref(true);
+const loadingMore = ref(false);
+const searchKeyword = ref('');
+const activeJobType = ref<string>('all');
+const currentSort = ref<SortType>('latest');
+const jobs = ref<JobPosting[]>([]);
+const seekers = ref<JobSeeker[]>([]);
+const showJobSeekers = ref(false);
+const page = ref(1);
+const pageSize = ref(10);
+const hasMore = ref(false);
 
 // 职位类型
 const jobTypes = ref([
@@ -285,92 +285,94 @@ const jobTypes = ref([
   { key: 'factory', label: '工厂', icon: '🏭', count: 0 },
   { key: 'construction', label: '建筑', icon: '🏗️', count: 0 },
   { key: 'service', label: '服务', icon: '🍽️', count: 0 },
-  { key: 'other', label: '其他', icon: '📦', count: 0 }
-])
+  { key: 'other', label: '其他', icon: '📦', count: 0 },
+]);
 
 // 计算属性
 const filteredJobs = computed(() => {
-  let result = jobs.value
+  let result = jobs.value;
 
   // 类型筛选
   if (activeJobType.value !== 'all') {
-    result = result.filter(j => j.companyType === activeJobType.value)
+    result = result.filter(j => j.companyType === activeJobType.value);
   }
 
   // 搜索筛选
   if (searchKeyword.value.trim()) {
-    const keyword = searchKeyword.value.toLowerCase()
-    result = result.filter(j =>
-      j.title.toLowerCase().includes(keyword) ||
-      j.company.toLowerCase().includes(keyword) ||
-      j.requirements.some(r => r.toLowerCase().includes(keyword))
-    )
+    const keyword = searchKeyword.value.toLowerCase();
+    result = result.filter(
+      j =>
+        j.title.toLowerCase().includes(keyword) ||
+        j.company.toLowerCase().includes(keyword) ||
+        j.requirements.some(r => r.toLowerCase().includes(keyword))
+    );
   }
 
   // 排序
   result = [...result].sort((a, b) => {
     switch (currentSort.value) {
       case 'salary_high':
-        return b.salaryMax - a.salaryMax
+        return b.salaryMax - a.salaryMax;
       case 'distance':
-        return (a.distance || Infinity) - (b.distance || Infinity)
+        return (a.distance || Infinity) - (b.distance || Infinity);
       case 'latest':
       default:
-        return new Date(b.publishTime).getTime() - new Date(a.publishTime).getTime()
+        return new Date(b.publishTime).getTime() - new Date(a.publishTime).getTime();
     }
-  })
+  });
 
-  return result
-})
+  return result;
+});
 
 const filteredSeekers = computed(() => {
-  let result = seekers.value
+  let result = seekers.value;
 
   if (searchKeyword.value.trim()) {
-    const keyword = searchKeyword.value.toLowerCase()
-    result = result.filter(s =>
-      s.name.toLowerCase().includes(keyword) ||
-      s.skills.some(skill => skill.toLowerCase().includes(keyword))
-    )
+    const keyword = searchKeyword.value.toLowerCase();
+    result = result.filter(
+      s =>
+        s.name.toLowerCase().includes(keyword) ||
+        s.skills.some(skill => skill.toLowerCase().includes(keyword))
+    );
   }
 
-  return result
-})
+  return result;
+});
 
 const paginatedJobs = computed(() => {
-  return filteredJobs.value.slice(0, page.value * pageSize.value)
-})
+  return filteredJobs.value.slice(0, page.value * pageSize.value);
+});
 
 const paginatedSeekers = computed(() => {
-  return filteredSeekers.value.slice(0, page.value * pageSize.value)
-})
+  return filteredSeekers.value.slice(0, page.value * pageSize.value);
+});
 
 const jobCount = computed(() => {
-  return showJobSeekers.value ? filteredSeekers.value.length : filteredJobs.value.length
-})
+  return showJobSeekers.value ? filteredSeekers.value.length : filteredJobs.value.length;
+});
 
 // 方法
 const toggleView = (view: 'jobs' | 'seekers') => {
-  showJobSeekers.value = view === 'seekers'
-  page.value = 1
-}
+  showJobSeekers.value = view === 'seekers';
+  page.value = 1;
+};
 
 const handleSearch = () => {
-  page.value = 1
-}
+  page.value = 1;
+};
 
 const handleSort = (sort: SortType) => {
-  currentSort.value = sort
-}
+  currentSort.value = sort;
+};
 
 const selectJobType = (type: string) => {
-  activeJobType.value = type
-  page.value = 1
-}
+  activeJobType.value = type;
+  page.value = 1;
+};
 
 const formatSalary = (job: JobPosting): string => {
   if (job.salaryType === 'negotiable') {
-    return '面议'
+    return '面议';
   }
 
   const unitLabels: Record<string, string> = {
@@ -378,23 +380,23 @@ const formatSalary = (job: JobPosting): string => {
     day: '天',
     month: '月',
     year: '年',
-    project: '项目'
-  }
+    project: '项目',
+  };
 
   if (job.salaryMin === job.salaryMax) {
-    return `${job.salaryMin}元/${unitLabels[job.salaryUnit]}`
+    return `${job.salaryMin}元/${unitLabels[job.salaryUnit]}`;
   }
-  return `${job.salaryMin}-${job.salaryMax}元/${unitLabels[job.salaryUnit]}`
-}
+  return `${job.salaryMin}-${job.salaryMax}元/${unitLabels[job.salaryUnit]}`;
+};
 
 const getSalaryUnitLabel = (unit: string): string => {
   const labels: Record<string, string> = {
     hour: '时',
     day: '天',
-    month: '月'
-  }
-  return labels[unit] || unit
-}
+    month: '月',
+  };
+  return labels[unit] || unit;
+};
 
 const getCompanyTypeLabel = (type: string): string => {
   const labels: Record<string, string> = {
@@ -402,38 +404,38 @@ const getCompanyTypeLabel = (type: string): string => {
     factory: '工厂',
     construction: '建筑',
     service: '服务',
-    other: '其他'
-  }
-  return labels[type] || type
-}
+    other: '其他',
+  };
+  return labels[type] || type;
+};
 
 const formatDistance = (distance: number): string => {
   if (distance < 1000) {
-    return `${Math.round(distance)}m`
+    return `${Math.round(distance)}m`;
   }
-  return `${(distance / 1000).toFixed(1)}km`
-}
+  return `${(distance / 1000).toFixed(1)}km`;
+};
 
 const formatTime = (time: string): string => {
-  const date = new Date(time)
-  const now = new Date()
-  const diff = now.getTime() - date.getTime()
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+  const date = new Date(time);
+  const now = new Date();
+  const diff = now.getTime() - date.getTime();
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
   if (days === 0) {
-    const hours = Math.floor(diff / (1000 * 60 * 60))
+    const hours = Math.floor(diff / (1000 * 60 * 60));
     if (hours === 0) {
-      const minutes = Math.floor(diff / (1000 * 60))
-      return minutes === 0 ? '刚刚' : `${minutes}分钟前`
+      const minutes = Math.floor(diff / (1000 * 60));
+      return minutes === 0 ? '刚刚' : `${minutes}分钟前`;
     }
-    return `${hours}小时前`
+    return `${hours}小时前`;
   } else if (days === 1) {
-    return '昨天'
+    return '昨天';
   } else if (days < 7) {
-    return `${days}天前`
+    return `${days}天前`;
   }
-  return `${date.getMonth() + 1}-${date.getDate()}`
-}
+  return `${date.getMonth() + 1}-${date.getDate()}`;
+};
 
 const viewJobDetail = (job: JobPosting) => {
   ElMessageBox.alert(
@@ -453,33 +455,31 @@ const viewJobDetail = (job: JobPosting) => {
     '职位详情',
     {
       dangerouslyUseHTMLString: true,
-      confirmButtonText: '申请职位'
+      confirmButtonText: '申请职位',
     }
   ).then(() => {
-    applyJob(job)
-  })
-}
+    applyJob(job);
+  });
+};
 
 const applyJob = (job: JobPosting) => {
-  ElMessageBox.confirm(
-    `申请 "${job.title}" 职位？\n公司将看到您的联系方式`,
-    '确认申请',
-    {
-      confirmButtonText: '确认申请',
-      cancelButtonText: '取消',
-      type: 'info'
-    }
-  ).then(() => {
-    ElMessage.success('申请成功！请耐心等待企业联系')
-  }).catch(() => {})
-}
+  ElMessageBox.confirm(`申请 "${job.title}" 职位？\n公司将看到您的联系方式`, '确认申请', {
+    confirmButtonText: '确认申请',
+    cancelButtonText: '取消',
+    type: 'info',
+  })
+    .then(() => {
+      ElMessage.success('申请成功！请耐心等待企业联系');
+    })
+    .catch(() => {});
+};
 
 /**
  * 脱敏显示电话号码
  */
 const maskPhone = (phone: string): string => {
-  return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')
-}
+  return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
+};
 
 const contactEmployer = async (job: JobPosting) => {
   try {
@@ -489,13 +489,13 @@ const contactEmployer = async (job: JobPosting) => {
       {
         confirmButtonText: '查看联系方式',
         cancelButtonText: '取消',
-        type: 'info'
+        type: 'info',
       }
-    )
+    );
 
     // 显示脱敏后的联系方式
-    const maskedPhone = maskPhone(job.contactPhone)
-    const wechatInfo = job.wechat ? `微信: ${job.wechat}` : '未提供微信'
+    const maskedPhone = maskPhone(job.contactPhone);
+    const wechatInfo = job.wechat ? `微信: ${job.wechat}` : '未提供微信';
 
     await ElMessageBox.alert(
       `<div style="text-align: left; line-height: 2;">
@@ -508,28 +508,28 @@ const contactEmployer = async (job: JobPosting) => {
         dangerouslyUseHTMLString: true,
         confirmButtonText: '复制电话',
         callback: () => {
-          navigator.clipboard.writeText(job.contactPhone)
-          ElMessage.success('电话号码已复制到剪贴板')
-        }
+          navigator.clipboard.writeText(job.contactPhone);
+          ElMessage.success('电话号码已复制到剪贴板');
+        },
       }
-    )
+    );
   } catch {
     // 用户取消
   }
-}
+};
 
 const shareJob = (job: JobPosting) => {
-  const text = `${job.title} - ${job.company}\n薪资: ${formatSalary(job)}\n地点: ${job.location}`
+  const text = `${job.title} - ${job.company}\n薪资: ${formatSalary(job)}\n地点: ${job.location}`;
   if (navigator.share) {
     navigator.share({
       title: job.title,
-      text: text
-    })
+      text: text,
+    });
   } else {
-    navigator.clipboard.writeText(text)
-    ElMessage.success('职位信息已复制')
+    navigator.clipboard.writeText(text);
+    ElMessage.success('职位信息已复制');
   }
-}
+};
 
 const viewSeekerDetail = (seeker: JobSeeker) => {
   ElMessageBox.alert(
@@ -546,43 +546,43 @@ const viewSeekerDetail = (seeker: JobSeeker) => {
     '求职者详情',
     {
       dangerouslyUseHTMLString: true,
-      confirmButtonText: '联系'
+      confirmButtonText: '联系',
     }
   ).then(() => {
-    contactSeeker(seeker)
-  })
-}
+    contactSeeker(seeker);
+  });
+};
 
 const contactSeeker = (seeker: JobSeeker) => {
-  ElMessage.success('联系方式: ' + seeker.phone)
-}
+  ElMessage.success('联系方式: ' + seeker.phone);
+};
 
 const inviteSeeker = (seeker: JobSeeker) => {
-  ElMessage.success('邀请已发送给求职者')
-}
+  ElMessage.success('邀请已发送给求职者');
+};
 
 const loadMore = async () => {
-  if (loadingMore.value || !hasMore.value) return
+  if (loadingMore.value || !hasMore.value) return;
 
-  loadingMore.value = true
+  loadingMore.value = true;
   try {
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    page.value++
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    page.value++;
   } finally {
-    loadingMore.value = false
+    loadingMore.value = false;
   }
-}
+};
 
 const refresh = async () => {
-  loading.value = true
-  await loadData()
-}
+  loading.value = true;
+  await loadData();
+};
 
 const loadData = async () => {
-  loading.value = true
+  loading.value = true;
   try {
     // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     // 模拟招聘数据
     jobs.value = [
@@ -607,7 +607,7 @@ const loadData = async () => {
         urgent: true,
         status: 'active',
         publishTime: new Date().toISOString(),
-        viewCount: 56
+        viewCount: 56,
       },
       {
         id: 'j2',
@@ -630,9 +630,9 @@ const loadData = async () => {
         urgent: false,
         status: 'active',
         publishTime: new Date(Date.now() - 86400000).toISOString(),
-        viewCount: 34
-      }
-    ]
+        viewCount: 34,
+      },
+    ];
 
     // 模拟求职数据
     seekers.value = [
@@ -651,7 +651,7 @@ const loadData = async () => {
         location: '李家村',
         verified: true,
         status: 'seeking',
-        publishTime: new Date().toISOString()
+        publishTime: new Date().toISOString(),
       },
       {
         id: 's2',
@@ -667,21 +667,21 @@ const loadData = async () => {
         location: '王家庄',
         verified: true,
         status: 'seeking',
-        publishTime: new Date(Date.now() - 172800000).toISOString()
-      }
-    ]
+        publishTime: new Date(Date.now() - 172800000).toISOString(),
+      },
+    ];
 
-    hasMore.value = true
+    hasMore.value = true;
 
     // 更新职位类型计数
-    updateJobTypeCounts()
+    updateJobTypeCounts();
   } catch (error) {
-    console.error('加载失败:', error)
-    ElMessage.error('加载失败，请重试')
+    console.error('加载失败:', error);
+    ElMessage.error('加载失败，请重试');
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const updateJobTypeCounts = () => {
   const counts: Record<string, number> = {
@@ -690,22 +690,22 @@ const updateJobTypeCounts = () => {
     factory: 0,
     construction: 0,
     service: 0,
-    other: 0
-  }
+    other: 0,
+  };
 
   jobs.value.forEach(job => {
-    counts[job.companyType]++
-  })
+    counts[job.companyType]++;
+  });
 
   jobTypes.value.forEach(type => {
-    type.count = counts[type.key] || 0
-  })
-}
+    type.count = counts[type.key] || 0;
+  });
+};
 
 // 生命周期
 onMounted(async () => {
-  await loadData()
-})
+  await loadData();
+});
 </script>
 
 <style lang="scss" scoped>

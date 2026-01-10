@@ -20,15 +20,9 @@
             @change="refreshData"
             size="small"
           />
-          <el-button @click="refreshData" icon="Refresh" size="small">
-            刷新数据
-          </el-button>
-          <el-button @click="exportReport" icon="Download" size="small">
-            导出报告
-          </el-button>
-          <el-button @click="shareReport" icon="Share" size="small">
-            分享报告
-          </el-button>
+          <el-button @click="refreshData" icon="Refresh" size="small"> 刷新数据 </el-button>
+          <el-button @click="exportReport" icon="Download" size="small"> 导出报告 </el-button>
+          <el-button @click="shareReport" icon="Share" size="small"> 分享报告 </el-button>
         </div>
       </div>
     </div>
@@ -117,7 +111,7 @@
         </el-col>
       </el-row>
 
-      <el-row :gutter="20" style="margin-top: 20px;">
+      <el-row :gutter="20" style="margin-top: 20px">
         <!-- 特殊群体统计 -->
         <el-col :span="8">
           <el-card title="特殊群体统计" shadow="never" class="chart-card">
@@ -148,7 +142,7 @@
         </el-col>
       </el-row>
 
-      <el-row :gutter="20" style="margin-top: 20px;">
+      <el-row :gutter="20" style="margin-top: 20px">
         <!-- 人口变化趋势 -->
         <el-col :span="24">
           <el-card title="人口变化趋势" shadow="never" class="chart-card large">
@@ -192,9 +186,9 @@
                     :percentage="scope.row.percentage"
                     :color="getProgressColor(scope.row.percentage)"
                     :show-text="false"
-                    style="width: 60px;"
+                    style="width: 60px"
                   />
-                  <span style="margin-left: 8px;">{{ scope.row.percentage }}%</span>
+                  <span style="margin-left: 8px">{{ scope.row.percentage }}%</span>
                 </template>
               </el-table-column>
               <el-table-column prop="trend" label="趋势" width="80" align="center">
@@ -216,11 +210,7 @@
               <div class="ranking-card">
                 <h4>年龄最大前10名</h4>
                 <div class="ranking-list">
-                  <div
-                    v-for="(item, index) in eldestResidents"
-                    :key="item.id"
-                    class="ranking-item"
-                  >
+                  <div v-for="(item, index) in eldestResidents" :key="item.id" class="ranking-item">
                     <div class="rank-number" :class="getRankClass(index)">
                       {{ index + 1 }}
                     </div>
@@ -236,11 +226,7 @@
               <div class="ranking-card">
                 <h4>家庭人口最多前10名</h4>
                 <div class="ranking-list">
-                  <div
-                    v-for="(item, index) in largestFamilies"
-                    :key="item.id"
-                    class="ranking-item"
-                  >
+                  <div v-for="(item, index) in largestFamilies" :key="item.id" class="ranking-item">
                     <div class="rank-number" :class="getRankClass(index)">
                       {{ index + 1 }}
                     </div>
@@ -256,11 +242,7 @@
               <div class="ranking-card">
                 <h4>特殊群体分布</h4>
                 <div class="ranking-list">
-                  <div
-                    v-for="(item, index) in specialGroups"
-                    :key="item.type"
-                    class="ranking-item"
-                  >
+                  <div v-for="(item, index) in specialGroups" :key="item.type" class="ranking-item">
                     <div class="rank-number" :class="getRankClass(index)">
                       {{ index + 1 }}
                     </div>
@@ -334,40 +316,50 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, nextTick, watch } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ref, reactive, computed, onMounted, nextTick, watch } from 'vue';
+import { ElMessage } from 'element-plus';
 import {
-  TrendCharts, UserFilled, House, Star, TrendUp, TrendDown,
-  ArrowDown, InfoFilled, Refresh, Download, Share, Printer
-} from '@element-plus/icons-vue'
-import * as echarts from 'echarts'
+  TrendCharts,
+  UserFilled,
+  House,
+  Star,
+  TrendUp,
+  TrendDown,
+  ArrowDown,
+  InfoFilled,
+  Refresh,
+  Download,
+  Share,
+  Printer,
+} from '@element-plus/icons-vue';
+import * as echarts from 'echarts';
 
 // 响应式数据
-const dateRange = ref([])
-const activeTab = ref('summary')
-const populationChartType = ref('pie')
-const ageChartPeriod = ref('current')
-const trendType = ref('total')
-const trendPeriod = ref('12months')
-const reportTemplate = ref('')
-const generatingReport = ref(false)
+const dateRange = ref([]);
+const activeTab = ref('summary');
+const populationChartType = ref('pie');
+const ageChartPeriod = ref('current');
+const trendType = ref('total');
+const trendPeriod = ref('12months');
+const reportTemplate = ref('');
+const generatingReport = ref(false);
 
 // 图表引用
-const populationChartRef = ref()
-const ageChartRef = ref()
-const specialGroupChartRef = ref()
-const educationChartRef = ref()
-const occupationChartRef = ref()
-const trendChartRef = ref()
-const reportContentRef = ref()
+const populationChartRef = ref();
+const ageChartRef = ref();
+const specialGroupChartRef = ref();
+const educationChartRef = ref();
+const occupationChartRef = ref();
+const trendChartRef = ref();
+const reportContentRef = ref();
 
 // 图表实例
-let populationChart = null
-let ageChart = null
-let specialGroupChart = null
-let educationChart = null
-let occupationChart = null
-let trendChart = null
+let populationChart = null;
+let ageChart = null;
+let specialGroupChart = null;
+let educationChart = null;
+let occupationChart = null;
+let trendChart = null;
 
 // 核心指标数据
 const keyMetrics = ref([
@@ -379,7 +371,7 @@ const keyMetrics = ref([
     change: 3.2,
     trend: 'up',
     color: '#409eff',
-    icon: 'UserFilled'
+    icon: 'UserFilled',
   },
   {
     key: 'households',
@@ -389,7 +381,7 @@ const keyMetrics = ref([
     change: 1.8,
     trend: 'up',
     color: '#67c23a',
-    icon: 'House'
+    icon: 'House',
   },
   {
     key: 'elderly',
@@ -399,7 +391,7 @@ const keyMetrics = ref([
     change: 5.2,
     trend: 'up',
     color: '#e6a23c',
-    icon: 'Star'
+    icon: 'Star',
   },
   {
     key: 'children',
@@ -409,16 +401,16 @@ const keyMetrics = ref([
     change: -2.1,
     trend: 'down',
     color: '#f56c6c',
-    icon: 'Star'
-  }
-])
+    icon: 'Star',
+  },
+]);
 
 // 年龄周期选项
 const agePeriods = ref([
   { key: 'current', label: '当前' },
   { key: 'lastYear', label: '去年同期' },
-  { key: 'comparison', label: '对比分析' }
-])
+  { key: 'comparison', label: '对比分析' },
+]);
 
 // 统计汇总数据
 const summaryData = ref([
@@ -429,7 +421,7 @@ const summaryData = ref([
     female: 603,
     percentage: 100,
     trend: 1,
-    notes: '较上月增长3.2%'
+    notes: '较上月增长3.2%',
   },
   {
     category: '儿童(0-14岁)',
@@ -438,7 +430,7 @@ const summaryData = ref([
     female: 109,
     percentage: 18.8,
     trend: -1,
-    notes: '较上月减少2.1%'
+    notes: '较上月减少2.1%',
   },
   {
     category: '青年(15-44岁)',
@@ -447,7 +439,7 @@ const summaryData = ref([
     female: 278,
     percentage: 45.5,
     trend: 1,
-    notes: '较上月增长1.5%'
+    notes: '较上月增长1.5%',
   },
   {
     category: '中年(45-64岁)',
@@ -456,7 +448,7 @@ const summaryData = ref([
     female: 123,
     percentage: 20.5,
     trend: 1,
-    notes: '较上月增长0.8%'
+    notes: '较上月增长0.8%',
   },
   {
     category: '老年(65岁以上)',
@@ -465,9 +457,9 @@ const summaryData = ref([
     female: 93,
     percentage: 15.2,
     trend: 1,
-    notes: '较上月增长5.2%'
-  }
-])
+    notes: '较上月增长5.2%',
+  },
+]);
 
 // 排行榜数据
 const eldestResidents = ref([
@@ -475,123 +467,123 @@ const eldestResidents = ref([
   { id: 2, name: '李大爷', age: 91 },
   { id: 3, name: '张奶奶', age: 88 },
   { id: 4, name: '刘爷爷', age: 86 },
-  { id: 5, name: '陈大妈', age: 84 }
-])
+  { id: 5, name: '陈大妈', age: 84 },
+]);
 
 const largestFamilies = ref([
   { id: 1, householder: '张大户', memberCount: 12 },
   { id: 2, householder: '李家庄', memberCount: 10 },
   { id: 3, householder: '王富贵', memberCount: 9 },
   { id: 4, householder: '赵四海', memberCount: 8 },
-  { id: 5, householder: '钱多多', memberCount: 7 }
-])
+  { id: 5, householder: '钱多多', memberCount: 7 },
+]);
 
 const specialGroups = ref([
   { type: 'lowIncome', name: '低保户', count: 45 },
   { type: 'disabled', name: '残疾人', count: 32 },
   { type: 'elderlyAlone', name: '独居老人', count: 28 },
   { type: 'veteran', name: '退伍军人', count: 23 },
-  { type: 'poverty', name: '建档立卡', count: 18 }
-])
+  { type: 'poverty', name: '建档立卡', count: 18 },
+]);
 
 // 报告模板
 const reportTemplates = ref([
   { id: 'monthly', name: '月度统计报告' },
   { id: 'quarterly', name: '季度分析报告' },
   { id: 'annual', name: '年度总结报告' },
-  { id: 'special', name: '专项调研报告' }
-])
+  { id: 'special', name: '专项调研报告' },
+]);
 
-const generatedReport = ref(null)
+const generatedReport = ref(null);
 
 // 方法
 const refreshData = () => {
-  ElMessage.success('数据已刷新')
+  ElMessage.success('数据已刷新');
   // 重新加载所有图表
   setTimeout(() => {
-    initCharts()
-  }, 100)
-}
+    initCharts();
+  }, 100);
+};
 
 const exportReport = () => {
-  ElMessage.info('导出功能开发中...')
-}
+  ElMessage.info('导出功能开发中...');
+};
 
 const shareReport = () => {
-  ElMessage.info('分享功能开发中...')
-}
+  ElMessage.info('分享功能开发中...');
+};
 
-const getChartTypeName = (type) => {
+const getChartTypeName = type => {
   const names = {
     pie: '饼图',
     doughnut: '环形图',
-    bar: '柱状图'
-  }
-  return names[type] || '饼图'
-}
+    bar: '柱状图',
+  };
+  return names[type] || '饼图';
+};
 
-const changeChartType = (type) => {
-  populationChartType.value = type
-  initPopulationChart()
-}
+const changeChartType = type => {
+  populationChartType.value = type;
+  initPopulationChart();
+};
 
-const changeAgePeriod = (period) => {
-  ageChartPeriod.value = period
-  initAgeChart()
-}
+const changeAgePeriod = period => {
+  ageChartPeriod.value = period;
+  initAgeChart();
+};
 
 const updateTrendChart = () => {
-  initTrendChart()
-}
+  initTrendChart();
+};
 
-const getRankClass = (index) => {
-  if (index === 0) return 'gold'
-  if (index === 1) return 'silver'
-  if (index === 2) return 'bronze'
-  return ''
-}
+const getRankClass = index => {
+  if (index === 0) return 'gold';
+  if (index === 1) return 'silver';
+  if (index === 2) return 'bronze';
+  return '';
+};
 
-const getProgressColor = (percentage) => {
-  if (percentage >= 80) return '#67c23a'
-  if (percentage >= 60) return '#e6a23c'
-  if (percentage >= 40) return '#409eff'
-  return '#f56c6c'
-}
+const getProgressColor = percentage => {
+  if (percentage >= 80) return '#67c23a';
+  if (percentage >= 60) return '#e6a23c';
+  if (percentage >= 40) return '#409eff';
+  return '#f56c6c';
+};
 
 // 图表初始化
 const initCharts = () => {
   nextTick(() => {
-    initPopulationChart()
-    initAgeChart()
-    initSpecialGroupChart()
-    initEducationChart()
-    initOccupationChart()
-    initTrendChart()
-  })
-}
+    initPopulationChart();
+    initAgeChart();
+    initSpecialGroupChart();
+    initEducationChart();
+    initOccupationChart();
+    initTrendChart();
+  });
+};
 
 const initPopulationChart = () => {
-  if (!populationChartRef.value) return
+  if (!populationChartRef.value) return;
 
   if (populationChart) {
-    populationChart.dispose()
+    populationChart.dispose();
   }
 
-  populationChart = echarts.init(populationChartRef.value)
+  populationChart = echarts.init(populationChartRef.value);
 
   const data = [
     { value: 642, name: '男性' },
-    { value: 603, name: '女性' }
-  ]
+    { value: 603, name: '女性' },
+  ];
 
   const option = {
     tooltip: {
       trigger: 'item',
-      formatter: '{a} <br/>{b}: {c} ({d}%)'
+      formatter: '{a} <br/>{b}: {c} ({d}%)',
     },
     legend: {
       orient: 'vertical',
-      left: 'left'
+      left: 'left',
     },
     color: ['#409eff', '#f56c6c'],
     series: [
@@ -605,44 +597,44 @@ const initPopulationChart = () => {
           itemStyle: {
             shadowBlur: 10,
             shadowOffsetX: 0,
-            shadowColor: 'rgba(0, 0, 0, 0.5)'
-          }
-        }
-      }
-    ]
-  }
+            shadowColor: 'rgba(0, 0, 0, 0.5)',
+          },
+        },
+      },
+    ],
+  };
 
-  populationChart.setOption(option)
-}
+  populationChart.setOption(option);
+};
 
 const initAgeChart = () => {
-  if (!ageChartRef.value) return
+  if (!ageChartRef.value) return;
 
   if (ageChart) {
-    ageChart.dispose()
+    ageChart.dispose();
   }
 
-  ageChart = echarts.init(ageChartRef.value)
+  ageChart = echarts.init(ageChartRef.value);
 
   const option = {
     tooltip: {
       trigger: 'axis',
       axisPointer: {
-        type: 'shadow'
-      }
+        type: 'shadow',
+      },
     },
     grid: {
       left: '3%',
       right: '4%',
       bottom: '3%',
-      containLabel: true
+      containLabel: true,
     },
     xAxis: {
       type: 'category',
-      data: ['0-14岁', '15-24岁', '25-34岁', '35-44岁', '45-54岁', '55-64岁', '65岁以上']
+      data: ['0-14岁', '15-24岁', '25-34岁', '35-44岁', '45-54岁', '55-64岁', '65岁以上'],
     },
     yAxis: {
-      type: 'value'
+      type: 'value',
     },
     series: [
       {
@@ -653,33 +645,33 @@ const initAgeChart = () => {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
             { offset: 0, color: '#83bff6' },
             { offset: 0.5, color: '#188df0' },
-            { offset: 1, color: '#188df0' }
-          ])
-        }
-      }
-    ]
-  }
+            { offset: 1, color: '#188df0' },
+          ]),
+        },
+      },
+    ],
+  };
 
-  ageChart.setOption(option)
-}
+  ageChart.setOption(option);
+};
 
 const initSpecialGroupChart = () => {
-  if (!specialGroupChartRef.value) return
+  if (!specialGroupChartRef.value) return;
 
   if (specialGroupChart) {
-    specialGroupChart.dispose()
+    specialGroupChart.dispose();
   }
 
-  specialGroupChart = echarts.init(specialGroupChartRef.value)
+  specialGroupChart = echarts.init(specialGroupChartRef.value);
 
   const data = specialGroups.value.map(group => ({
     value: group.count,
-    name: group.name
-  }))
+    name: group.name,
+  }));
 
   const option = {
     tooltip: {
-      trigger: 'item'
+      trigger: 'item',
     },
     series: [
       {
@@ -691,28 +683,28 @@ const initSpecialGroupChart = () => {
           itemStyle: {
             shadowBlur: 10,
             shadowOffsetX: 0,
-            shadowColor: 'rgba(0, 0, 0, 0.5)'
-          }
-        }
-      }
-    ]
-  }
+            shadowColor: 'rgba(0, 0, 0, 0.5)',
+          },
+        },
+      },
+    ],
+  };
 
-  specialGroupChart.setOption(option)
-}
+  specialGroupChart.setOption(option);
+};
 
 const initEducationChart = () => {
-  if (!educationChartRef.value) return
+  if (!educationChartRef.value) return;
 
   if (educationChart) {
-    educationChart.dispose()
+    educationChart.dispose();
   }
 
-  educationChart = echarts.init(educationChartRef.value)
+  educationChart = echarts.init(educationChartRef.value);
 
   const option = {
     tooltip: {
-      trigger: 'item'
+      trigger: 'item',
     },
     series: [
       {
@@ -724,84 +716,97 @@ const initEducationChart = () => {
           { value: 234, name: '初中' },
           { value: 289, name: '高中/中专' },
           { value: 345, name: '大专' },
-          { value: 221, name: '本科及以上' }
-        ]
-      }
-    ]
-  }
+          { value: 221, name: '本科及以上' },
+        ],
+      },
+    ],
+  };
 
-  educationChart.setOption(option)
-}
+  educationChart.setOption(option);
+};
 
 const initOccupationChart = () => {
-  if (!occupationChartRef.value) return
+  if (!occupationChartRef.value) return;
 
   if (occupationChart) {
-    occupationChart.dispose()
+    occupationChart.dispose();
   }
 
-  occupationChart = echarts.init(occupationChartRef.value)
+  occupationChart = echarts.init(occupationChartRef.value);
 
   const option = {
     tooltip: {
       trigger: 'axis',
       axisPointer: {
-        type: 'shadow'
-      }
+        type: 'shadow',
+      },
     },
     grid: {
       left: '3%',
       right: '4%',
       bottom: '3%',
-      containLabel: true
+      containLabel: true,
     },
     yAxis: {
       type: 'category',
-      data: ['务农', '务工', '个体经营', '企业职工', '公务员', '学生', '退休', '其他']
+      data: ['务农', '务工', '个体经营', '企业职工', '公务员', '学生', '退休', '其他'],
     },
     xAxis: {
-      type: 'value'
+      type: 'value',
     },
     series: [
       {
         name: '人数',
         type: 'bar',
-        data: [456, 234, 123, 89, 45, 167, 89, 42]
-      }
-    ]
-  }
+        data: [456, 234, 123, 89, 45, 167, 89, 42],
+      },
+    ],
+  };
 
-  occupationChart.setOption(option)
-}
+  occupationChart.setOption(option);
+};
 
 const initTrendChart = () => {
-  if (!trendChartRef.value) return
+  if (!trendChartRef.value) return;
 
   if (trendChart) {
-    trendChart.dispose()
+    trendChart.dispose();
   }
 
-  trendChart = echarts.init(trendChartRef.value)
+  trendChart = echarts.init(trendChartRef.value);
 
-  const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
-  const data = [1200, 1210, 1205, 1220, 1215, 1230, 1225, 1235, 1240, 1245, 1250, 1245]
+  const months = [
+    '1月',
+    '2月',
+    '3月',
+    '4月',
+    '5月',
+    '6月',
+    '7月',
+    '8月',
+    '9月',
+    '10月',
+    '11月',
+    '12月',
+  ];
+  const data = [1200, 1210, 1205, 1220, 1215, 1230, 1225, 1235, 1240, 1245, 1250, 1245];
 
   const option = {
     tooltip: {
-      trigger: 'axis'
+      trigger: 'axis',
     },
     grid: {
       left: '3%',
       right: '4%',
       bottom: '3%',
-      containLabel: true
+      containLabel: true,
     },
     xAxis: {
       type: 'category',
-      data: months
+      data: months,
     },
     yAxis: {
-      type: 'value'
+      type: 'value',
     },
     series: [
       {
@@ -812,27 +817,27 @@ const initTrendChart = () => {
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
             { offset: 0, color: 'rgba(64, 158, 255, 0.3)' },
-            { offset: 1, color: 'rgba(64, 158, 255, 0.1)' }
-          ])
-        }
-      }
-    ]
-  }
+            { offset: 1, color: 'rgba(64, 158, 255, 0.1)' },
+          ]),
+        },
+      },
+    ],
+  };
 
-  trendChart.setOption(option)
-}
+  trendChart.setOption(option);
+};
 
 const generateReport = async () => {
   if (!reportTemplate.value) {
-    ElMessage.warning('请选择报告模板')
-    return
+    ElMessage.warning('请选择报告模板');
+    return;
   }
 
-  generatingReport.value = true
+  generatingReport.value = true;
 
   try {
     // 模拟报告生成
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
     generatedReport.value = {
       title: `村民统计${getTemplateName(reportTemplate.value)}`,
@@ -847,7 +852,7 @@ const generateReport = async () => {
             <p>截至${new Date().toLocaleDateString()}，全村共有常住人口1245人，较上月增长3.2%。</p>
             <p>男性642人（51.6%），女性603人（48.4%），性别比例基本均衡。</p>
             <p>户籍人口456户，平均每户2.7人。</p>
-          `
+          `,
         },
         {
           id: 'age',
@@ -857,7 +862,7 @@ const generateReport = async () => {
             <p>青年（15-44岁）567人，占45.5%</p>
             <p>中年（45-64岁）255人，占20.5%</p>
             <p>老年（65岁以上）189人，占15.2%</p>
-          `
+          `,
         },
         {
           id: 'special',
@@ -866,38 +871,38 @@ const generateReport = async () => {
             <p>低保户45户，残疾人32人，独居老人28人。</p>
             <p>退伍军人23人，建档立卡贫困户18户。</p>
             <p>各类特殊群体均已建立专门档案，实施精准帮扶。</p>
-          `
-        }
-      ]
-    }
+          `,
+        },
+      ],
+    };
 
-    ElMessage.success('报告生成成功')
+    ElMessage.success('报告生成成功');
   } catch (error) {
-    ElMessage.error('报告生成失败')
+    ElMessage.error('报告生成失败');
   } finally {
-    generatingReport.value = false
+    generatingReport.value = false;
   }
-}
+};
 
-const getTemplateName = (id) => {
-  const template = reportTemplates.value.find(t => t.id === id)
-  return template?.name || '报告'
-}
+const getTemplateName = id => {
+  const template = reportTemplates.value.find(t => t.id === id);
+  return template?.name || '报告';
+};
 
 const formatDateRange = () => {
   if (dateRange.value && dateRange.value.length === 2) {
-    return `${dateRange.value[0]} 至 ${dateRange.value[1]}`
+    return `${dateRange.value[0]} 至 ${dateRange.value[1]}`;
   }
-  return '全部数据'
-}
+  return '全部数据';
+};
 
 const printReport = () => {
   if (!generatedReport.value) {
-    ElMessage.warning('请先生成报告')
-    return
+    ElMessage.warning('请先生成报告');
+    return;
   }
 
-  const printWindow = window.open('', '_blank')
+  const printWindow = window.open('', '_blank');
   printWindow.document.write(`
     <html>
       <head>
@@ -915,41 +920,55 @@ const printReport = () => {
         ${reportContentRef.value?.innerHTML || ''}
       </body>
     </html>
-  `)
-  printWindow.document.close()
-  printWindow.print()
-}
+  `);
+  printWindow.document.close();
+  printWindow.print();
+};
 
 const downloadReport = () => {
-  ElMessage.info('PDF下载功能开发中...')
-}
+  ElMessage.info('PDF下载功能开发中...');
+};
 
 // 响应式处理
 const handleResize = () => {
-  const charts = [populationChart, ageChart, specialGroupChart, educationChart, occupationChart, trendChart]
+  const charts = [
+    populationChart,
+    ageChart,
+    specialGroupChart,
+    educationChart,
+    occupationChart,
+    trendChart,
+  ];
   charts.forEach(chart => {
     if (chart) {
-      chart.resize()
+      chart.resize();
     }
-  })
-}
+  });
+};
 
 // 生命周期
 onMounted(() => {
-  initCharts()
-  window.addEventListener('resize', handleResize)
-})
+  initCharts();
+  window.addEventListener('resize', handleResize);
+});
 
 onUnmounted(() => {
-  window.removeEventListener('resize', handleResize)
+  window.removeEventListener('resize', handleResize);
   // 销毁图表实例
-  const charts = [populationChart, ageChart, specialGroupChart, educationChart, occupationChart, trendChart]
+  const charts = [
+    populationChart,
+    ageChart,
+    specialGroupChart,
+    educationChart,
+    occupationChart,
+    trendChart,
+  ];
   charts.forEach(chart => {
     if (chart) {
-      chart.dispose()
+      chart.dispose();
     }
-  })
-})
+  });
+});
 </script>
 
 <style lang="scss" scoped>

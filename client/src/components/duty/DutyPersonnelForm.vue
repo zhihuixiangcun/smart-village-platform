@@ -20,20 +20,12 @@
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="姓名" prop="name">
-              <el-input
-                v-model="formData.name"
-                placeholder="请输入姓名"
-                clearable
-              />
+              <el-input v-model="formData.name" placeholder="请输入姓名" clearable />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="职务" prop="position">
-              <el-input
-                v-model="formData.position"
-                placeholder="请输入职务"
-                clearable
-              />
+              <el-input v-model="formData.position" placeholder="请输入职务" clearable />
             </el-form-item>
           </el-col>
         </el-row>
@@ -41,11 +33,7 @@
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="手机号码" prop="phone">
-              <el-input
-                v-model="formData.phone"
-                placeholder="请输入手机号码"
-                clearable
-              />
+              <el-input v-model="formData.phone" placeholder="请输入手机号码" clearable />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -71,11 +59,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="状态" prop="status">
-              <el-switch
-                v-model="formData.isActive"
-                active-text="在岗"
-                inactive-text="离岗"
-              />
+              <el-switch v-model="formData.isActive" active-text="在岗" inactive-text="离岗" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -184,7 +168,7 @@
             :on-success="handleAvatarSuccess"
             :before-upload="beforeAvatarUpload"
           >
-            <img v-if="formData.avatar" :src="formData.avatar" class="avatar">
+            <img v-if="formData.avatar" :src="formData.avatar" class="avatar" />
             <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
           </el-upload>
           <div class="avatar-tip">支持 JPG、PNG 格式，文件大小不超过 2MB</div>
@@ -196,21 +180,9 @@
         <h3 class="section-title">个人值班二维码</h3>
         <el-form-item label="二维码">
           <div class="qr-code-container">
-            <img :src="qrCode" alt="个人值班二维码" class="qr-code">
-            <el-button
-              type="primary"
-              size="small"
-              @click="downloadQRCode"
-            >
-              下载二维码
-            </el-button>
-            <el-button
-              type="success"
-              size="small"
-              @click="generateQRCode"
-            >
-              重新生成
-            </el-button>
+            <img :src="qrCode" alt="个人值班二维码" class="qr-code" />
+            <el-button type="primary" size="small" @click="downloadQRCode"> 下载二维码 </el-button>
+            <el-button type="success" size="small" @click="generateQRCode"> 重新生成 </el-button>
           </div>
         </el-form-item>
       </div>
@@ -228,31 +200,31 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
-import { ElMessage } from 'element-plus'
-import { Plus } from '@element-plus/icons-vue'
-import { useDutyStore } from '@/stores/dutyStore'
+import { ref, computed, watch } from 'vue';
+import { ElMessage } from 'element-plus';
+import { Plus } from '@element-plus/icons-vue';
+import { useDutyStore } from '@/stores/dutyStore';
 
 const props = defineProps({
   modelValue: {
     type: Boolean,
-    default: false
+    default: false,
   },
   personnel: {
     type: Object,
-    default: null
-  }
-})
+    default: null,
+  },
+});
 
-const emit = defineEmits(['update:modelValue', 'confirm'])
+const emit = defineEmits(['update:modelValue', 'confirm']);
 
 // Store
-const dutyStore = useDutyStore()
+const dutyStore = useDutyStore();
 
 // 响应式数据
-const formRef = ref(null)
-const submitting = ref(false)
-const qrCode = ref(null)
+const formRef = ref(null);
+const submitting = ref(false);
+const qrCode = ref(null);
 
 // 表单数据
 const formData = ref({
@@ -269,12 +241,12 @@ const formData = ref({
   maxDutiesPerMonth: 15,
   maxConsecutiveDays: 3,
   preferredRestDays: ['0', '6'],
-  specialRequirements: ''
-})
+  specialRequirements: '',
+});
 
 // 计算属性
-const isEdit = computed(() => !!props.personnel)
-const uploadUrl = computed(() => '/api/upload/avatar')
+const isEdit = computed(() => !!props.personnel);
+const uploadUrl = computed(() => '/api/upload/avatar');
 
 // 选项数据
 const skillOptions = [
@@ -285,8 +257,8 @@ const skillOptions = [
   { label: '通讯联络', value: 'communication' },
   { label: '交通疏导', value: 'traffic' },
   { label: '群众安抚', value: 'comfort' },
-  { label: '信息记录', value: 'recording' }
-]
+  { label: '信息记录', value: 'recording' },
+];
 
 const areaOptions = [
   { label: '村委会办公室', value: 'office' },
@@ -296,41 +268,38 @@ const areaOptions = [
   { label: '老年活动中心', value: 'senior_center' },
   { label: '村幼儿园', value: 'kindergarten' },
   { label: '村内主要道路', value: 'main_roads' },
-  { label: '全村范围', value: 'entire_village' }
-]
+  { label: '全村范围', value: 'entire_village' },
+];
 
 // 表单验证规则
 const formRules = {
   name: [
     { required: true, message: '请输入姓名', trigger: 'blur' },
-    { min: 2, max: 10, message: '姓名长度在 2 到 10 个字符', trigger: 'blur' }
+    { min: 2, max: 10, message: '姓名长度在 2 到 10 个字符', trigger: 'blur' },
   ],
-  position: [
-    { required: true, message: '请输入职务', trigger: 'blur' }
-  ],
+  position: [{ required: true, message: '请输入职务', trigger: 'blur' }],
   phone: [
     { required: true, message: '请输入手机号码', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' }
+    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' },
   ],
   idCard: [
     { required: true, message: '请输入身份证号', trigger: 'blur' },
-    { pattern: /^[1-9]\d{5}(18|19|20)\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/, message: '请输入正确的身份证号', trigger: 'blur' }
+    {
+      pattern:
+        /^[1-9]\d{5}(18|19|20)\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/,
+      message: '请输入正确的身份证号',
+      trigger: 'blur',
+    },
   ],
-  availableShifts: [
-    { required: true, message: '请至少选择一个可值班班次', trigger: 'change' }
-  ],
-  maxDutiesPerMonth: [
-    { required: true, message: '请设置每月最多值班天数', trigger: 'blur' }
-  ],
-  maxConsecutiveDays: [
-    { required: true, message: '请设置连续值班天数限制', trigger: 'blur' }
-  ]
-}
+  availableShifts: [{ required: true, message: '请至少选择一个可值班班次', trigger: 'change' }],
+  maxDutiesPerMonth: [{ required: true, message: '请设置每月最多值班天数', trigger: 'blur' }],
+  maxConsecutiveDays: [{ required: true, message: '请设置连续值班天数限制', trigger: 'blur' }],
+};
 
 // 方法
 const initFormData = () => {
   if (props.personnel) {
-    formData.value = { ...formData.value, ...props.personnel }
+    formData.value = { ...formData.value, ...props.personnel };
   } else {
     formData.value = {
       name: '',
@@ -346,83 +315,86 @@ const initFormData = () => {
       maxDutiesPerMonth: 15,
       maxConsecutiveDays: 3,
       preferredRestDays: ['0', '6'],
-      specialRequirements: ''
-    }
+      specialRequirements: '',
+    };
   }
-}
+};
 
 const handleSubmit = async () => {
   try {
-    await formRef.value.validate()
-    submitting.value = true
+    await formRef.value.validate();
+    submitting.value = true;
 
-    emit('confirm', formData.value)
+    emit('confirm', formData.value);
   } catch (error) {
-    console.error('表单验证失败:', error)
+    console.error('表单验证失败:', error);
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
-}
+};
 
 const handleClose = () => {
-  emit('update:modelValue', false)
-  formRef.value?.resetFields()
-  qrCode.value = null
-}
+  emit('update:modelValue', false);
+  formRef.value?.resetFields();
+  qrCode.value = null;
+};
 
-const handleAvatarSuccess = (response) => {
+const handleAvatarSuccess = response => {
   if (response.code === 200) {
-    formData.value.avatar = response.data.url
-    ElMessage.success('头像上传成功')
+    formData.value.avatar = response.data.url;
+    ElMessage.success('头像上传成功');
   } else {
-    ElMessage.error(response.message || '头像上传失败')
+    ElMessage.error(response.message || '头像上传失败');
   }
-}
+};
 
-const beforeAvatarUpload = (file) => {
-  const isJPGorPNG = file.type === 'image/jpeg' || file.type === 'image/png'
-  const isLt2M = file.size / 1024 / 1024 < 2
+const beforeAvatarUpload = file => {
+  const isJPGorPNG = file.type === 'image/jpeg' || file.type === 'image/png';
+  const isLt2M = file.size / 1024 / 1024 < 2;
 
   if (!isJPGorPNG) {
-    ElMessage.error('头像只能是 JPG 或 PNG 格式!')
+    ElMessage.error('头像只能是 JPG 或 PNG 格式!');
   }
   if (!isLt2M) {
-    ElMessage.error('头像大小不能超过 2MB!')
+    ElMessage.error('头像大小不能超过 2MB!');
   }
 
-  return isJPGorPNG && isLt2M
-}
+  return isJPGorPNG && isLt2M;
+};
 
 const generateQRCode = async () => {
   try {
-    if (!props.personnel?.id) return
-    const qrCodeData = await dutyStore.generateQRCode(props.personnel.id)
-    qrCode.value = qrCodeData
+    if (!props.personnel?.id) return;
+    const qrCodeData = await dutyStore.generateQRCode(props.personnel.id);
+    qrCode.value = qrCodeData;
   } catch (error) {
-    console.error('生成二维码失败:', error)
+    console.error('生成二维码失败:', error);
   }
-}
+};
 
 const downloadQRCode = () => {
-  if (!qrCode.value) return
+  if (!qrCode.value) return;
 
-  const link = document.createElement('a')
-  link.href = qrCode.value
-  link.download = `值班二维码_${formData.value.name}.png`
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
-}
+  const link = document.createElement('a');
+  link.href = qrCode.value;
+  link.download = `值班二维码_${formData.value.name}.png`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
 
 // 监听对话框打开
-watch(() => props.modelValue, (newVal) => {
-  if (newVal) {
-    initFormData()
-    if (isEdit.value && props.personnel?.id) {
-      generateQRCode()
+watch(
+  () => props.modelValue,
+  newVal => {
+    if (newVal) {
+      initFormData();
+      if (isEdit.value && props.personnel?.id) {
+        generateQRCode();
+      }
     }
   }
-})
+);
 </script>
 
 <style lang="scss" scoped>

@@ -10,7 +10,7 @@ export function useStepForm(steps = [], options = {}) {
     autoSave = true, // 自动保存
     saveKey = 'step-form-data', // 保存key
     allowJump = false, // 允许跳步
-    onStepChange = null // 步骤变化回调
+    onStepChange = null, // 步骤变化回调
   } = options;
 
   // 当前步骤索引
@@ -44,18 +44,21 @@ export function useStepForm(steps = [], options = {}) {
     if (!autoSave) return;
 
     try {
-      localStorage.setItem(saveKey, JSON.stringify({
-        formData: formData.value,
-        currentStep: currentStep.value,
-        stepValidation: stepValidation.value
-      }));
+      localStorage.setItem(
+        saveKey,
+        JSON.stringify({
+          formData: formData.value,
+          currentStep: currentStep.value,
+          stepValidation: stepValidation.value,
+        })
+      );
     } catch (error) {
       console.error('Save data error:', error);
     }
   };
 
   // 更新表单数据
-  const updateFormData = (data) => {
+  const updateFormData = data => {
     formData.value = { ...formData.value, ...data };
     saveData();
   };
@@ -112,7 +115,7 @@ export function useStepForm(steps = [], options = {}) {
   };
 
   // 跳转到指定步骤
-  const goToStep = (index) => {
+  const goToStep = index => {
     if (!allowJump) {
       ElMessage.warning('请按顺序完成表单');
       return false;
@@ -128,7 +131,7 @@ export function useStepForm(steps = [], options = {}) {
   };
 
   // 提交表单
-  const submitForm = async (submitFn) => {
+  const submitForm = async submitFn => {
     try {
       // 验证所有步骤
       const allValid = stepValidation.value.every(v => v);
@@ -145,7 +148,7 @@ export function useStepForm(steps = [], options = {}) {
 
       return result;
     } catch (error) {
-      ElMessage.error(`提交失败: ${  error.message}`);
+      ElMessage.error(`提交失败: ${error.message}`);
       return false;
     }
   };
@@ -191,7 +194,7 @@ export function useStepForm(steps = [], options = {}) {
     goToStep,
     submitForm,
     resetForm,
-    saveData
+    saveData,
   };
 }
 

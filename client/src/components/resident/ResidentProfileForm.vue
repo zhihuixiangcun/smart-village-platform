@@ -1,12 +1,6 @@
 <template>
   <div class="resident-profile-form">
-    <el-form
-      ref="formRef"
-      :model="formData"
-      :rules="formRules"
-      label-width="120px"
-      size="default"
-    >
+    <el-form ref="formRef" :model="formData" :rules="formRules" label-width="120px" size="default">
       <!-- 基本信息 -->
       <div class="form-section">
         <h3>基本信息</h3>
@@ -61,7 +55,10 @@
           </el-col>
           <el-col :span="8">
             <el-form-item label="政治面貌" prop="personalInfo.politicalStatus">
-              <el-select v-model="formData.personalInfo.politicalStatus" placeholder="请选择政治面貌">
+              <el-select
+                v-model="formData.personalInfo.politicalStatus"
+                placeholder="请选择政治面貌"
+              >
                 <el-option label="群众" value="群众" />
                 <el-option label="中共党员" value="中共党员" />
                 <el-option label="共青团员" value="共青团员" />
@@ -175,7 +172,10 @@
           </el-col>
           <el-col :span="6">
             <el-form-item label="毕业年份" prop="education.graduationYear">
-              <el-input v-model="formData.education.graduationYear" placeholder="请输入毕业年份（可选）" />
+              <el-input
+                v-model="formData.education.graduationYear"
+                placeholder="请输入毕业年份（可选）"
+              />
             </el-form-item>
           </el-col>
         </el-row>
@@ -200,7 +200,10 @@
           </el-col>
           <el-col :span="6">
             <el-form-item label="工作单位" prop="employment.employer">
-              <el-input v-model="formData.employment.employer" placeholder="请输入工作单位（可选）" />
+              <el-input
+                v-model="formData.employment.employer"
+                placeholder="请输入工作单位（可选）"
+              />
             </el-form-item>
           </el-col>
           <el-col :span="6">
@@ -298,20 +301,12 @@
           <el-table :data="formData.familyRelations" style="width: 100%">
             <el-table-column label="姓名" width="120">
               <template #default="{ row, $index }">
-                <el-input
-                  v-model="row.name"
-                  placeholder="姓名"
-                  size="small"
-                />
+                <el-input v-model="row.name" placeholder="姓名" size="small" />
               </template>
             </el-table-column>
             <el-table-column label="关系" width="120">
               <template #default="{ row, $index }">
-                <el-select
-                  v-model="row.relationType"
-                  placeholder="关系"
-                  size="small"
-                >
+                <el-select v-model="row.relationType" placeholder="关系" size="small">
                   <el-option label="配偶" value="配偶" />
                   <el-option label="子女" value="子女" />
                   <el-option label="父母" value="父母" />
@@ -324,30 +319,17 @@
             </el-table-column>
             <el-table-column label="年龄" width="80">
               <template #default="{ row, $index }">
-                <el-input-number
-                  v-model="row.age"
-                  :min="0"
-                  :max="150"
-                  size="small"
-                />
+                <el-input-number v-model="row.age" :min="0" :max="150" size="small" />
               </template>
             </el-table-column>
             <el-table-column label="联系电话" width="150">
               <template #default="{ row, $index }">
-                <el-input
-                  v-model="row.phone"
-                  placeholder="联系电话"
-                  size="small"
-                />
+                <el-input v-model="row.phone" placeholder="联系电话" size="small" />
               </template>
             </el-table-column>
             <el-table-column label="职业">
               <template #default="{ row, $index }">
-                <el-input
-                  v-model="row.occupation"
-                  placeholder="职业"
-                  size="small"
-                />
+                <el-input v-model="row.occupation" placeholder="职业" size="small" />
               </template>
             </el-table-column>
             <el-table-column label="是否同住" width="100" align="center">
@@ -357,12 +339,7 @@
             </el-table-column>
             <el-table-column label="操作" width="100" fixed="right">
               <template #default="{ $index }">
-                <el-button
-                  link
-                  type="danger"
-                  @click="removeFamilyRelation($index)"
-                  size="small"
-                >
+                <el-button link type="danger" @click="removeFamilyRelation($index)" size="small">
                   删除
                 </el-button>
               </template>
@@ -392,31 +369,31 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch } from 'vue'
-import { ElMessage } from 'element-plus'
-import { Plus } from '@element-plus/icons-vue'
-import { validateIdCard, validatePhone } from '@/utils/validate'
+import { ref, reactive, watch } from 'vue';
+import { ElMessage } from 'element-plus';
+import { Plus } from '@element-plus/icons-vue';
+import { validateIdCard, validatePhone } from '@/utils/validate';
 
 // Props
 const props = defineProps({
   profile: {
     type: Object,
-    default: () => ({})
+    default: () => ({}),
   },
   mode: {
     type: String,
-    default: 'create' // create | edit
-  }
-})
+    default: 'create', // create | edit
+  },
+});
 
 // Emits
-const emit = defineEmits(['submit', 'cancel'])
+const emit = defineEmits(['submit', 'cancel']);
 
 // 表单引用
-const formRef = ref(null)
+const formRef = ref(null);
 
 // 提交状态
-const submitting = ref(false)
+const submitting = ref(false);
 
 // 表单数据
 const formData = reactive({
@@ -430,90 +407,88 @@ const formData = reactive({
     maritalStatus: '',
     healthStatus: '',
     bloodType: '',
-    photo: ''
+    photo: '',
   },
   contact: {
     phone: '',
     email: '',
     address: '',
     wechat: '',
-    qq: ''
+    qq: '',
   },
   education: {
     degree: '',
     school: '',
     major: '',
-    graduationYear: ''
+    graduationYear: '',
   },
   employment: {
     status: '',
     employer: '',
     position: '',
     income: {
-      monthly: null
-    }
+      monthly: null,
+    },
   },
   socialSecurity: {
     hasMedicalInsurance: false,
     medicalInsuranceType: '',
     hasPensionInsurance: false,
-    hasUnemploymentInsurance: false
+    hasUnemploymentInsurance: false,
   },
   tags: [],
   familyId: {
     familyCode: '',
-    familyName: ''
+    familyName: '',
   },
-  familyRelations: []
-})
+  familyRelations: [],
+});
 
 // 表单验证规则
 const formRules = {
   'personalInfo.name': [
     { required: true, message: '请输入姓名', trigger: 'blur' },
-    { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
+    { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' },
   ],
-  'personalInfo.gender': [
-    { required: true, message: '请选择性别', trigger: 'change' }
-  ],
-  'personalInfo.birthDate': [
-    { required: true, message: '请选择出生日期', trigger: 'change' }
-  ],
+  'personalInfo.gender': [{ required: true, message: '请选择性别', trigger: 'change' }],
+  'personalInfo.birthDate': [{ required: true, message: '请选择出生日期', trigger: 'change' }],
   'personalInfo.idCard': [
     { required: true, message: '请输入身份证号', trigger: 'blur' },
-    { validator: (rule, value, callback) => {
-      if (!validateIdCard(value)) {
-        callback(new Error('请输入正确的身份证号'))
-      } else {
-        callback()
-      }
-    }, trigger: 'blur' }
+    {
+      validator: (rule, value, callback) => {
+        if (!validateIdCard(value)) {
+          callback(new Error('请输入正确的身份证号'));
+        } else {
+          callback();
+        }
+      },
+      trigger: 'blur',
+    },
   ],
-  'personalInfo.ethnicity': [
-    { required: true, message: '请选择民族', trigger: 'change' }
-  ],
+  'personalInfo.ethnicity': [{ required: true, message: '请选择民族', trigger: 'change' }],
   'contact.phone': [
     { required: true, message: '请输入手机号码', trigger: 'blur' },
-    { validator: (rule, value, callback) => {
-      if (!validatePhone(value)) {
-        callback(new Error('请输入正确的手机号'))
-      } else {
-        callback()
-      }
-    }, trigger: 'blur' }
+    {
+      validator: (rule, value, callback) => {
+        if (!validatePhone(value)) {
+          callback(new Error('请输入正确的手机号'));
+        } else {
+          callback();
+        }
+      },
+      trigger: 'blur',
+    },
   ],
-  'contact.address': [
-    { required: true, message: '请输入家庭住址', trigger: 'blur' }
-  ]
-}
+  'contact.address': [{ required: true, message: '请输入家庭住址', trigger: 'blur' }],
+};
 
 // 初始化表单数据
 const initFormData = () => {
   if (props.mode === 'edit' && props.profile) {
     // 深拷贝避免直接修改props
-    Object.assign(formData, JSON.parse(JSON.stringify(props.profile)))
+    Object.assign(formData, JSON.parse(JSON.stringify(props.profile)));
   }
-}
+};
 
 // 添加家庭成员关系
 const addFamilyRelation = () => {
@@ -524,22 +499,22 @@ const addFamilyRelation = () => {
     phone: '',
     occupation: '',
     isCohabit: false,
-    guardianFor: []
-  })
-}
+    guardianFor: [],
+  });
+};
 
 // 删除家庭成员关系
-const removeFamilyRelation = (index) => {
-  formData.familyRelations.splice(index, 1)
-}
+const removeFamilyRelation = index => {
+  formData.familyRelations.splice(index, 1);
+};
 
 // 提交表单
 const handleSubmit = async () => {
   // 表单验证
-  const valid = await formRef.value.validate().catch(() => false)
-  if (!valid) return
+  const valid = await formRef.value.validate().catch(() => false);
+  if (!valid) return;
 
-  submitting.value = true
+  submitting.value = true;
 
   try {
     // 准备提交数据
@@ -549,29 +524,33 @@ const handleSubmit = async () => {
       employment: {
         ...formData.employment,
         income: {
-          monthly: formData.employment.income.monthly || 0
-        }
-      }
-    }
+          monthly: formData.employment.income.monthly || 0,
+        },
+      },
+    };
 
-    emit('submit', submitData)
+    emit('submit', submitData);
   } catch (error) {
-    ElMessage.error('提交失败')
-    console.error(error)
+    ElMessage.error('提交失败');
+    console.error(error);
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
-}
+};
 
 // 取消
 const handleCancel = () => {
-  emit('cancel')
-}
+  emit('cancel');
+};
 
 // 监听档案数据变化
-watch(() => props.profile, () => {
-  initFormData()
-}, { immediate: true })
+watch(
+  () => props.profile,
+  () => {
+    initFormData();
+  },
+  { immediate: true }
+);
 </script>
 
 <style lang="scss" scoped>

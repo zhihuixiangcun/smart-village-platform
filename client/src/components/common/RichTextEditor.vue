@@ -21,19 +21,42 @@
             </el-button>
           </el-tooltip>
           <el-tooltip content="删除线" placement="top">
-            <el-button @click="execCommand('strikeThrough')" :class="{ active: isActive('strikeThrough') }">
+            <el-button
+              @click="execCommand('strikeThrough')"
+              :class="{ active: isActive('strikeThrough') }"
+            >
               S
             </el-button>
           </el-tooltip>
         </el-button-group>
 
         <!-- 标题和字体 -->
-        <el-select v-model="currentFontSize" @change="changeFontSize" size="small" style="width: 80px">
-          <el-option v-for="size in fontSizes" :key="size.value" :label="size.label" :value="size.value" />
+        <el-select
+          v-model="currentFontSize"
+          @change="changeFontSize"
+          size="small"
+          style="width: 80px"
+        >
+          <el-option
+            v-for="size in fontSizes"
+            :key="size.value"
+            :label="size.label"
+            :value="size.value"
+          />
         </el-select>
 
-        <el-select v-model="currentHeading" @change="changeHeading" size="small" style="width: 100px">
-          <el-option v-for="heading in headings" :key="heading.value" :label="heading.label" :value="heading.value" />
+        <el-select
+          v-model="currentHeading"
+          @change="changeHeading"
+          size="small"
+          style="width: 100px"
+        >
+          <el-option
+            v-for="heading in headings"
+            :key="heading.value"
+            :label="heading.label"
+            :value="heading.value"
+          />
         </el-select>
 
         <!-- 颜色 -->
@@ -43,17 +66,26 @@
         <!-- 对齐 -->
         <el-button-group size="small">
           <el-tooltip content="左对齐" placement="top">
-            <el-button @click="execCommand('justifyLeft')" :class="{ active: isActive('justifyLeft') }">
+            <el-button
+              @click="execCommand('justifyLeft')"
+              :class="{ active: isActive('justifyLeft') }"
+            >
               <el-icon><AlignLeft /></el-icon>
             </el-button>
           </el-tooltip>
           <el-tooltip content="居中" placement="top">
-            <el-button @click="execCommand('justifyCenter')" :class="{ active: isActive('justifyCenter') }">
+            <el-button
+              @click="execCommand('justifyCenter')"
+              :class="{ active: isActive('justifyCenter') }"
+            >
               <el-icon><AlignCenter /></el-icon>
             </el-button>
           </el-tooltip>
           <el-tooltip content="右对齐" placement="top">
-            <el-button @click="execCommand('justifyRight')" :class="{ active: isActive('justifyRight') }">
+            <el-button
+              @click="execCommand('justifyRight')"
+              :class="{ active: isActive('justifyRight') }"
+            >
               <el-icon><AlignRight /></el-icon>
             </el-button>
           </el-tooltip>
@@ -62,12 +94,18 @@
         <!-- 列表 -->
         <el-button-group size="small">
           <el-tooltip content="无序列表" placement="top">
-            <el-button @click="execCommand('insertUnorderedList')" :class="{ active: isActive('insertUnorderedList') }">
+            <el-button
+              @click="execCommand('insertUnorderedList')"
+              :class="{ active: isActive('insertUnorderedList') }"
+            >
               <el-icon><List /></el-icon>
             </el-button>
           </el-tooltip>
           <el-tooltip content="有序列表" placement="top">
-            <el-button @click="execCommand('insertOrderedList')" :class="{ active: isActive('insertOrderedList') }">
+            <el-button
+              @click="execCommand('insertOrderedList')"
+              :class="{ active: isActive('insertOrderedList') }"
+            >
               <el-icon><Tickets /></el-icon>
             </el-button>
           </el-tooltip>
@@ -142,9 +180,9 @@
       ref="editorContainer"
       class="editor-container"
       :class="{
-        'fullscreen': isFullscreen,
-        'focus': isFocused,
-        'disabled': disabled
+        fullscreen: isFullscreen,
+        focus: isFocused,
+        disabled: disabled,
       }"
       :style="{ height: editorHeight }"
     >
@@ -230,83 +268,96 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ref, reactive, computed, watch, nextTick, onMounted, onUnmounted } from 'vue';
+import { ElMessage } from 'element-plus';
 import {
-  DArrowLeft, DArrowRight, AlignLeft, AlignCenter, AlignRight,
-  List, Tickets, Link, Picture, Grid, Minus, Delete,
-  RefreshLeft, RefreshRight, FullScreen, Upload
-} from '@element-plus/icons-vue'
-import SpeechInput from '@/components/common/SpeechInput.vue'
+  DArrowLeft,
+  DArrowRight,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  List,
+  Tickets,
+  Link,
+  Picture,
+  Grid,
+  Minus,
+  Delete,
+  RefreshLeft,
+  RefreshRight,
+  FullScreen,
+  Upload,
+} from '@element-plus/icons-vue';
+import SpeechInput from '@/components/common/SpeechInput.vue';
 
 // Props
 const props = defineProps({
   modelValue: {
     type: String,
-    default: ''
+    default: '',
   },
   placeholder: {
     type: String,
-    default: '请输入内容...'
+    default: '请输入内容...',
   },
   height: {
     type: [String, Number],
-    default: '300px'
+    default: '300px',
   },
   maxLength: {
     type: Number,
-    default: null
+    default: null,
   },
   showToolbar: {
     type: Boolean,
-    default: true
+    default: true,
   },
   disabled: {
     type: Boolean,
-    default: false
+    default: false,
   },
   uploadUrl: {
     type: String,
-    default: '/api/announcements/upload'
-  }
-})
+    default: '/api/announcements/upload',
+  },
+});
 
 // Emits
-const emit = defineEmits(['update:modelValue', 'change', 'focus', 'blur', 'imageUpload'])
+const emit = defineEmits(['update:modelValue', 'change', 'focus', 'blur', 'imageUpload']);
 
 // 响应式数据
-const editorRef = ref()
-const editorContainer = ref()
-const fileInput = ref()
+const editorRef = ref();
+const editorContainer = ref();
+const fileInput = ref();
 
-const currentContent = ref(props.modelValue)
-const isFocused = ref(false)
-const isFullscreen = ref(false)
-const isDragging = ref(false)
-const canUndo = ref(false)
-const canRedo = ref(false)
+const currentContent = ref(props.modelValue);
+const isFocused = ref(false);
+const isFullscreen = ref(false);
+const isDragging = ref(false);
+const canUndo = ref(false);
+const canRedo = ref(false);
 
 // 工具栏状态
-const currentFontSize = ref('14px')
-const currentHeading = ref('p')
-const textColor = ref('#000000')
-const backgroundColor = ref('#ffffff')
+const currentFontSize = ref('14px');
+const currentHeading = ref('p');
+const textColor = ref('#000000');
+const backgroundColor = ref('#ffffff');
 
 // 对话框状态
-const linkDialogVisible = ref(false)
-const tableDialogVisible = ref(false)
+const linkDialogVisible = ref(false);
+const tableDialogVisible = ref(false);
 
 const linkForm = reactive({
   text: '',
   url: '',
-  target: '_self'
-})
+  target: '_self',
+});
 
 const tableForm = reactive({
   rows: 3,
   cols: 3,
-  style: 'bordered'
-})
+  style: 'bordered',
+});
 
 // 配置选项
 const fontSizes = [
@@ -317,8 +368,8 @@ const fontSizes = [
   { label: '20px', value: '20px' },
   { label: '24px', value: '24px' },
   { label: '28px', value: '28px' },
-  { label: '32px', value: '32px' }
-]
+  { label: '32px', value: '32px' },
+];
 
 const headings = [
   { label: '正文', value: 'p' },
@@ -327,220 +378,220 @@ const headings = [
   { label: '标题3', value: 'h3' },
   { label: '标题4', value: 'h4' },
   { label: '标题5', value: 'h5' },
-  { label: '标题6', value: 'h6' }
-]
+  { label: '标题6', value: 'h6' },
+];
 
 // 计算属性
 const wordCount = computed(() => {
-  const text = editorRef.value?.textContent || ''
-  return text.length
-})
+  const text = editorRef.value?.textContent || '';
+  return text.length;
+});
 
 const editorHeight = computed(() => {
-  if (isFullscreen.value) return '100vh'
-  return typeof props.height === 'number' ? `${props.height}px` : props.height
-})
+  if (isFullscreen.value) return '100vh';
+  return typeof props.height === 'number' ? `${props.height}px` : props.height;
+});
 
 // 方法
 const execCommand = (command, value = null) => {
-  if (props.disabled) return
+  if (props.disabled) return;
 
-  document.execCommand(command, false, value)
-  updateContent()
-  updateToolbarState()
-}
+  document.execCommand(command, false, value);
+  updateContent();
+  updateToolbarState();
+};
 
-const isActive = (command) => {
+const isActive = command => {
   try {
-    return document.queryCommandState(command)
+    return document.queryCommandState(command);
   } catch {
-    return false
+    return false;
   }
-}
+};
 
 const updateContent = () => {
-  const content = editorRef.value?.innerHTML || ''
-  currentContent.value = content
-  emit('update:modelValue', content)
-  emit('change', content)
-}
+  const content = editorRef.value?.innerHTML || '';
+  currentContent.value = content;
+  emit('update:modelValue', content);
+  emit('change', content);
+};
 
 const updateToolbarState = () => {
-  canUndo.value = document.queryCommandEnabled('undo')
-  canRedo.value = document.queryCommandEnabled('redo')
+  canUndo.value = document.queryCommandEnabled('undo');
+  canRedo.value = document.queryCommandEnabled('redo');
 
   // 更新字体大小
   try {
-    const fontSize = document.queryCommandValue('fontSize')
+    const fontSize = document.queryCommandValue('fontSize');
     if (fontSize) {
-      currentFontSize.value = fontSize
+      currentFontSize.value = fontSize;
     }
   } catch (e) {
     // 忽略错误
   }
-}
+};
 
-const changeFontSize = (size) => {
-  execCommand('fontSize', size)
-}
+const changeFontSize = size => {
+  execCommand('fontSize', size);
+};
 
-const changeHeading = (tag) => {
-  execCommand('formatBlock', tag)
-}
+const changeHeading = tag => {
+  execCommand('formatBlock', tag);
+};
 
-const changeTextColor = (color) => {
-  execCommand('foreColor', color)
-}
+const changeTextColor = color => {
+  execCommand('foreColor', color);
+};
 
-const changeBackgroundColor = (color) => {
-  execCommand('backColor', color)
-}
+const changeBackgroundColor = color => {
+  execCommand('backColor', color);
+};
 
 const clearFormatting = () => {
-  execCommand('removeFormat')
-}
+  execCommand('removeFormat');
+};
 
 const insertLink = () => {
-  const selection = window.getSelection()
+  const selection = window.getSelection();
   if (selection.toString()) {
-    linkForm.text = selection.toString()
+    linkForm.text = selection.toString();
   } else {
-    linkForm.text = ''
+    linkForm.text = '';
   }
-  linkForm.url = ''
-  linkForm.target = '_self'
-  linkDialogVisible.value = true
-}
+  linkForm.url = '';
+  linkForm.target = '_self';
+  linkDialogVisible.value = true;
+};
 
 const confirmInsertLink = () => {
   if (!linkForm.url) {
-    ElMessage.warning('请输入链接地址')
-    return
+    ElMessage.warning('请输入链接地址');
+    return;
   }
 
-  const linkHtml = `<a href="${linkForm.url}" target="${linkForm.target}">${linkForm.text || linkForm.url}</a>`
-  execCommand('insertHTML', linkHtml)
-  linkDialogVisible.value = false
-}
+  const linkHtml = `<a href="${linkForm.url}" target="${linkForm.target}">${linkForm.text || linkForm.url}</a>`;
+  execCommand('insertHTML', linkHtml);
+  linkDialogVisible.value = false;
+};
 
 const triggerImageUpload = () => {
-  fileInput.value.click()
-}
+  fileInput.value.click();
+};
 
-const handleImageUpload = async (event) => {
-  const files = Array.from(event.target.files)
-  if (files.length === 0) return
+const handleImageUpload = async event => {
+  const files = Array.from(event.target.files);
+  if (files.length === 0) return;
 
   for (const file of files) {
-    await uploadImage(file)
+    await uploadImage(file);
   }
 
   // 清空文件输入
-  event.target.value = ''
-}
+  event.target.value = '';
+};
 
-const uploadImage = async (file) => {
+const uploadImage = async file => {
   try {
-    const formData = new FormData()
-    formData.append('file', file)
+    const formData = new FormData();
+    formData.append('file', file);
 
     const response = await fetch(props.uploadUrl, {
       method: 'POST',
-      body: formData
-    })
+      body: formData,
+    });
 
-    const result = await response.json()
+    const result = await response.json();
 
     if (result.success) {
-      const imageHtml = `<img src="${result.data.url}" alt="${file.name}" style="max-width: 100%; height: auto;" />`
-      execCommand('insertHTML', imageHtml)
-      emit('imageUpload', result.data)
+      const imageHtml = `<img src="${result.data.url}" alt="${file.name}" style="max-width: 100%; height: auto;" />`;
+      execCommand('insertHTML', imageHtml);
+      emit('imageUpload', result.data);
     } else {
-      ElMessage.error('图片上传失败')
+      ElMessage.error('图片上传失败');
     }
   } catch (error) {
-    ElMessage.error('图片上传失败')
-    console.error('图片上传错误:', error)
+    ElMessage.error('图片上传失败');
+    console.error('图片上传错误:', error);
   }
-}
+};
 
 const insertTable = () => {
-  tableForm.rows = 3
-  tableForm.cols = 3
-  tableForm.style = 'bordered'
-  tableDialogVisible.value = true
-}
+  tableForm.rows = 3;
+  tableForm.cols = 3;
+  tableForm.style = 'bordered';
+  tableDialogVisible.value = true;
+};
 
 const confirmInsertTable = () => {
-  const { rows, cols, style } = tableForm
+  const { rows, cols, style } = tableForm;
 
-  let tableClass = 'editor-table'
-  if (style === 'bordered') tableClass += ' table-bordered'
-  if (style === 'striped') tableClass += ' table-striped'
+  let tableClass = 'editor-table';
+  if (style === 'bordered') tableClass += ' table-bordered';
+  if (style === 'striped') tableClass += ' table-striped';
 
-  let tableHtml = `<table class="${tableClass}">`
+  let tableHtml = `<table class="${tableClass}">`;
 
   // 生成表头
-  tableHtml += '<thead><tr>'
+  tableHtml += '<thead><tr>';
   for (let j = 0; j < cols; j++) {
-    tableHtml += `<th>列${j + 1}</th>`
+    tableHtml += `<th>列${j + 1}</th>`;
   }
-  tableHtml += '</tr></thead>'
+  tableHtml += '</tr></thead>';
 
   // 生成表体
-  tableHtml += '<tbody>'
+  tableHtml += '<tbody>';
   for (let i = 0; i < rows; i++) {
-    tableHtml += '<tr>'
+    tableHtml += '<tr>';
     for (let j = 0; j < cols; j++) {
-      tableHtml += '<td>&nbsp;</td>'
+      tableHtml += '<td>&nbsp;</td>';
     }
-    tableHtml += '</tr>'
+    tableHtml += '</tr>';
   }
-  tableHtml += '</tbody></table><p><br></p>'
+  tableHtml += '</tbody></table><p><br></p>';
 
-  execCommand('insertHTML', tableHtml)
-  tableDialogVisible.value = false
-}
+  execCommand('insertHTML', tableHtml);
+  tableDialogVisible.value = false;
+};
 
 const insertHorizontalRule = () => {
-  execCommand('insertHorizontalRule')
-}
+  execCommand('insertHorizontalRule');
+};
 
 const toggleFullscreen = () => {
-  isFullscreen.value = !isFullscreen.value
+  isFullscreen.value = !isFullscreen.value;
 
   if (isFullscreen.value) {
-    document.body.style.overflow = 'hidden'
+    document.body.style.overflow = 'hidden';
   } else {
-    document.body.style.overflow = ''
+    document.body.style.overflow = '';
   }
 
   nextTick(() => {
-    editorRef.value.focus()
-  })
-}
+    editorRef.value.focus();
+  });
+};
 
 const handleInput = () => {
-  updateContent()
-}
+  updateContent();
+};
 
 const handleFocus = () => {
-  isFocused.value = true
-  emit('focus')
-}
+  isFocused.value = true;
+  emit('focus');
+};
 
 const handleBlur = () => {
-  isFocused.value = false
-  emit('blur')
-}
+  isFocused.value = false;
+  emit('blur');
+};
 
-const handleKeydown = (event) => {
+const handleKeydown = event => {
   // 检查字数限制
   if (props.maxLength && wordCount.value >= props.maxLength) {
     if (event.key.length === 1 && !event.ctrlKey && !event.metaKey) {
-      event.preventDefault()
-      ElMessage.warning(`内容长度不能超过${props.maxLength}字符`)
-      return
+      event.preventDefault();
+      ElMessage.warning(`内容长度不能超过${props.maxLength}字符`);
+      return;
     }
   }
 
@@ -548,117 +599,120 @@ const handleKeydown = (event) => {
   if (event.ctrlKey || event.metaKey) {
     switch (event.key) {
       case 'b':
-        event.preventDefault()
-        execCommand('bold')
-        break
+        event.preventDefault();
+        execCommand('bold');
+        break;
       case 'i':
-        event.preventDefault()
-        execCommand('italic')
-        break
+        event.preventDefault();
+        execCommand('italic');
+        break;
       case 'u':
-        event.preventDefault()
-        execCommand('underline')
-        break
+        event.preventDefault();
+        execCommand('underline');
+        break;
       case 'z':
-        event.preventDefault()
-        execCommand('undo')
-        break
+        event.preventDefault();
+        execCommand('undo');
+        break;
       case 'y':
-        event.preventDefault()
-        execCommand('redo')
-        break
+        event.preventDefault();
+        execCommand('redo');
+        break;
     }
   }
 
-  updateToolbarState()
-}
+  updateToolbarState();
+};
 
-const handlePaste = (event) => {
-  event.preventDefault()
+const handlePaste = event => {
+  event.preventDefault();
 
-  const clipboardData = event.clipboardData || window.clipboardData
-  const pastedData = clipboardData.getData('text/html') || clipboardData.getData('text/plain')
+  const clipboardData = event.clipboardData || window.clipboardData;
+  const pastedData = clipboardData.getData('text/html') || clipboardData.getData('text/plain');
 
   // 清理粘贴的HTML内容
-  const cleanHtml = cleanPastedHtml(pastedData)
-  execCommand('insertHTML', cleanHtml)
-}
+  const cleanHtml = cleanPastedHtml(pastedData);
+  execCommand('insertHTML', cleanHtml);
+};
 
-const cleanPastedHtml = (html) => {
+const cleanPastedHtml = html => {
   // 创建临时元素来清理HTML
-  const temp = document.createElement('div')
-  temp.innerHTML = html
+  const temp = document.createElement('div');
+  temp.innerHTML = html;
 
   // 移除脚本和样式
-  const scripts = temp.querySelectorAll('script, style')
-  scripts.forEach(el => el.remove())
+  const scripts = temp.querySelectorAll('script, style');
+  scripts.forEach(el => el.remove());
 
   // 移除危险属性
-  const elements = temp.querySelectorAll('*')
+  const elements = temp.querySelectorAll('*');
   elements.forEach(el => {
-    const allowedAttrs = ['href', 'src', 'alt', 'title', 'width', 'height']
+    const allowedAttrs = ['href', 'src', 'alt', 'title', 'width', 'height'];
     Array.from(el.attributes).forEach(attr => {
       if (!allowedAttrs.includes(attr.name)) {
-        el.removeAttribute(attr.name)
+        el.removeAttribute(attr.name);
       }
-    })
-  })
+    });
+  });
 
-  return temp.innerHTML
-}
+  return temp.innerHTML;
+};
 
-const handleDrop = (event) => {
-  event.preventDefault()
-  isDragging.value = false
+const handleDrop = event => {
+  event.preventDefault();
+  isDragging.value = false;
 
-  const files = Array.from(event.dataTransfer.files)
-  const imageFiles = files.filter(file => file.type.startsWith('image/'))
+  const files = Array.from(event.dataTransfer.files);
+  const imageFiles = files.filter(file => file.type.startsWith('image/'));
 
   if (imageFiles.length > 0) {
-    imageFiles.forEach(file => uploadImage(file))
+    imageFiles.forEach(file => uploadImage(file));
   }
-}
+};
 
-const handleDragOver = (event) => {
-  event.preventDefault()
-  isDragging.value = true
-}
+const handleDragOver = event => {
+  event.preventDefault();
+  isDragging.value = true;
+};
 
-const handleSpeechInput = (text) => {
-  execCommand('insertHTML', text)
-  ElMessage.success('语音输入完成')
-}
+const handleSpeechInput = text => {
+  execCommand('insertHTML', text);
+  ElMessage.success('语音输入完成');
+};
 
 // 监听modelValue变化
-watch(() => props.modelValue, (newValue) => {
-  if (newValue !== currentContent.value) {
-    currentContent.value = newValue
-    if (editorRef.value) {
-      editorRef.value.innerHTML = newValue
+watch(
+  () => props.modelValue,
+  newValue => {
+    if (newValue !== currentContent.value) {
+      currentContent.value = newValue;
+      if (editorRef.value) {
+        editorRef.value.innerHTML = newValue;
+      }
     }
   }
-})
+);
 
 // 生命周期
 onMounted(() => {
   // 初始化编辑器内容
   if (editorRef.value) {
-    editorRef.value.innerHTML = props.modelValue
+    editorRef.value.innerHTML = props.modelValue;
   }
 
   // 监听拖拽离开
-  document.addEventListener('dragleave', (event) => {
+  document.addEventListener('dragleave', event => {
     if (!editorContainer.value.contains(event.relatedTarget)) {
-      isDragging.value = false
+      isDragging.value = false;
     }
-  })
-})
+  });
+});
 
 onUnmounted(() => {
   if (isFullscreen.value) {
-    document.body.style.overflow = ''
+    document.body.style.overflow = '';
   }
-})
+});
 </script>
 
 <style lang="scss" scoped>
@@ -750,12 +804,24 @@ onUnmounted(() => {
         font-weight: 600;
       }
 
-      :deep(h1) { font-size: 28px; }
-      :deep(h2) { font-size: 24px; }
-      :deep(h3) { font-size: 20px; }
-      :deep(h4) { font-size: 18px; }
-      :deep(h5) { font-size: 16px; }
-      :deep(h6) { font-size: 14px; }
+      :deep(h1) {
+        font-size: 28px;
+      }
+      :deep(h2) {
+        font-size: 24px;
+      }
+      :deep(h3) {
+        font-size: 20px;
+      }
+      :deep(h4) {
+        font-size: 18px;
+      }
+      :deep(h5) {
+        font-size: 16px;
+      }
+      :deep(h6) {
+        font-size: 14px;
+      }
 
       :deep(p) {
         margin: 8px 0;
@@ -802,7 +868,8 @@ onUnmounted(() => {
         &.table-bordered {
           border: 1px solid var(--border-color);
 
-          th, td {
+          th,
+          td {
             border: 1px solid var(--border-color);
             padding: 8px 12px;
           }

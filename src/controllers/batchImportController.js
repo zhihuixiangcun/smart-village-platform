@@ -14,25 +14,25 @@ const batchImportService = new ResidentBatchImportService();
 
 // 配置文件上传
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
+  destination (req, file, cb) {
     const uploadDir = path.join(process.cwd(), 'uploads', 'batch-import');
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
     cb(null, uploadDir);
   },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-    cb(null, 'import-' + uniqueSuffix + path.extname(file.originalname));
+  filename (req, file, cb) {
+    const uniqueSuffix = `${Date.now()  }-${  Math.random().toString(36).substr(2, 9)}`;
+    cb(null, `import-${  uniqueSuffix  }${path.extname(file.originalname)}`);
   }
 });
 
 const upload = multer({
-  storage: storage,
+  storage,
   limits: {
     fileSize: 50 * 1024 * 1024 // 50MB
   },
-  fileFilter: function (req, file, cb) {
+  fileFilter (req, file, cb) {
     const allowedFormats = ['.xlsx', '.xls', '.csv'];
     const ext = path.extname(file.originalname).toLowerCase();
 
@@ -63,7 +63,7 @@ async function uploadAndCreateTask(req, res) {
       success: true,
       message: '文件上传成功，已创建导入任务',
       data: {
-        taskId: taskId,
+        taskId,
         fileName: req.file.originalname,
         fileSize: req.file.size
       }
@@ -78,7 +78,7 @@ async function uploadAndCreateTask(req, res) {
     logger.error('创建导入任务失败', { error: error.message });
     res.status(500).json({
       success: false,
-      message: '创建导入任务失败: ' + error.message
+      message: `创建导入任务失败: ${  error.message}`
     });
   }
 }
@@ -108,7 +108,7 @@ async function getTaskStatus(req, res) {
     logger.error('获取任务状态失败', { error: error.message });
     res.status(500).json({
       success: false,
-      message: '获取任务状态失败: ' + error.message
+      message: `获取任务状态失败: ${  error.message}`
     });
   }
 }
@@ -130,7 +130,7 @@ async function getAllTasks(req, res) {
     logger.error('获取任务列表失败', { error: error.message });
     res.status(500).json({
       success: false,
-      message: '获取任务列表失败: ' + error.message
+      message: `获取任务列表失败: ${  error.message}`
     });
   }
 }
@@ -153,7 +153,7 @@ async function cancelTask(req, res) {
     logger.error('取消任务失败', { error: error.message });
     res.status(500).json({
       success: false,
-      message: '取消任务失败: ' + error.message
+      message: `取消任务失败: ${  error.message}`
     });
   }
 }
@@ -174,7 +174,7 @@ async function downloadTemplate(req, res) {
     logger.error('下载模板失败', { error: error.message });
     res.status(500).json({
       success: false,
-      message: '下载模板失败: ' + error.message
+      message: `下载模板失败: ${  error.message}`
     });
   }
 }
@@ -206,7 +206,7 @@ async function getImportStats(req, res) {
     logger.error('获取导入统计失败', { error: error.message });
     res.status(500).json({
       success: false,
-      message: '获取导入统计失败: ' + error.message
+      message: `获取导入统计失败: ${  error.message}`
     });
   }
 }
@@ -228,7 +228,7 @@ async function downloadReport(req, res) {
     logger.error('下载报告失败', { error: error.message });
     res.status(500).json({
       success: false,
-      message: '下载报告失败: ' + error.message
+      message: `下载报告失败: ${  error.message}`
     });
   }
 }
@@ -256,7 +256,7 @@ async function validateData(req, res) {
     logger.error('验证数据失败', { error: error.message });
     res.status(500).json({
       success: false,
-      message: '验证数据失败: ' + error.message
+      message: `验证数据失败: ${  error.message}`
     });
   }
 }
@@ -298,7 +298,7 @@ async function importResidents(req, res) {
     logger.error('批量导入失败', { error: error.message });
     res.status(500).json({
       success: false,
-      message: '批量导入失败: ' + error.message
+      message: `批量导入失败: ${  error.message}`
     });
   }
 }

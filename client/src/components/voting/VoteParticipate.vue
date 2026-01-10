@@ -53,12 +53,7 @@
 
       <!-- 投票表单 -->
       <div class="vote-form">
-        <el-form
-          ref="voteForm"
-          :model="voteForm"
-          :rules="voteRules"
-          label-position="top"
-        >
+        <el-form ref="voteForm" :model="voteForm" :rules="voteRules" label-position="top">
           <!-- 投票选项 -->
           <el-form-item label="请选择您的投票选项" prop="selectedOptions">
             <div class="options-container">
@@ -126,10 +121,7 @@
               </el-checkbox-group>
 
               <!-- 评分投票 -->
-              <div
-                v-else-if="vote.voteType === 'rating'"
-                class="rating-options"
-              >
+              <div v-else-if="vote.voteType === 'rating'" class="rating-options">
                 <div
                   v-for="(option, index) in vote.options"
                   :key="option.optionId"
@@ -156,7 +148,18 @@
                       v-model="ratingScores[option.optionId]"
                       :max="10"
                       show-text
-                      :texts="['1分', '2分', '3分', '4分', '5分', '6分', '7分', '8分', '9分', '10分']"
+                      :texts="[
+                        '1分',
+                        '2分',
+                        '3分',
+                        '4分',
+                        '5分',
+                        '6分',
+                        '7分',
+                        '8分',
+                        '9分',
+                        '10分',
+                      ]"
                       @change="handleRatingChange"
                     ></el-rate>
                   </div>
@@ -164,11 +167,10 @@
               </div>
 
               <!-- 排序投票 -->
-              <div
-                v-else-if="vote.voteType === 'ranking'"
-                class="ranking-options"
-              >
-                <p class="ranking-instruction">请拖拽下方选项进行排序，排在最上方的为最preferred选项:</p>
+              <div v-else-if="vote.voteType === 'ranking'" class="ranking-options">
+                <p class="ranking-instruction">
+                  请拖拽下方选项进行排序，排在最上方的为最preferred选项:
+                </p>
                 <draggable
                   v-model="rankingOrder"
                   @change="handleRankingChange"
@@ -182,7 +184,9 @@
                     <div class="rank-number">{{ index + 1 }}</div>
                     <div class="option-content">
                       <h3>{{ getOptionTitle(optionId) }}</h3>
-                      <p v-if="getOptionDescription(optionId)">{{ getOptionDescription(optionId) }}</p>
+                      <p v-if="getOptionDescription(optionId)">
+                        {{ getOptionDescription(optionId) }}
+                      </p>
                     </div>
                     <div class="drag-handle">
                       <i class="el-icon-rank"></i>
@@ -194,11 +198,7 @@
           </el-form-item>
 
           <!-- 投票理由 (如果需要) -->
-          <el-form-item
-            v-if="vote.settings.requireComment"
-            label="投票理由"
-            prop="comment"
-          >
+          <el-form-item v-if="vote.settings.requireComment" label="投票理由" prop="comment">
             <el-input
               v-model="voteForm.comment"
               type="textarea"
@@ -235,11 +235,7 @@
 
           <!-- 隐私提醒 -->
           <div class="privacy-notice">
-            <el-alert
-              title="隐私说明"
-              :closable="false"
-              type="info"
-            >
+            <el-alert title="隐私说明" :closable="false" type="info">
               <div class="privacy-content">
                 <p v-if="vote.anonymousType === 'anonymous'">
                   <i class="el-icon-lock"></i>
@@ -273,10 +269,7 @@
               <i class="el-icon-check"></i>
               {{ vote.userVoteStatus.hasVoted ? '修改投票' : '提交投票' }}
             </el-button>
-            <el-button
-              size="large"
-              @click="$router.go(-1)"
-            >
+            <el-button size="large" @click="$router.go(-1)">
               <i class="el-icon-close"></i>
               取消
             </el-button>
@@ -288,14 +281,14 @@
 </template>
 
 <script>
-import { votingAPI } from '@/api/voting'
-import { formatDate } from '@/utils/dateUtils'
-import draggable from 'vuedraggable'
+import { votingAPI } from '@/api/voting';
+import { formatDate } from '@/utils/dateUtils';
+import draggable from 'vuedraggable';
 
 export default {
   name: 'VoteParticipate',
   components: {
-    draggable
+    draggable,
   },
   data() {
     return {
@@ -305,7 +298,7 @@ export default {
       voteForm: {
         selectedOptions: [],
         comment: '',
-        verificationMethod: 'password'
+        verificationMethod: 'password',
       },
       enableLocation: false,
       // 不同投票类型的选择状态
@@ -314,109 +307,109 @@ export default {
       ratingScores: {},
       rankingOrder: [],
       voteRules: {
-        selectedOptions: [
-          { required: true, message: '请选择投票选项', trigger: 'change' }
-        ],
-        comment: [
-          { required: true, message: '请填写投票理由', trigger: 'blur' }
-        ]
-      }
-    }
+        selectedOptions: [{ required: true, message: '请选择投票选项', trigger: 'change' }],
+        comment: [{ required: true, message: '请填写投票理由', trigger: 'blur' }],
+      },
+    };
   },
   computed: {
     voteId() {
-      return this.$route.params.id
+      return this.$route.params.id;
     },
     canSubmit() {
-      if (!this.vote) return false
+      if (!this.vote) return false;
 
       switch (this.vote.voteType) {
         case 'single_choice':
         case 'yes_no':
-          return !!this.singleChoice
+          return !!this.singleChoice;
         case 'multiple_choice':
-          return this.multipleChoices.length > 0
+          return this.multipleChoices.length > 0;
         case 'rating':
-          return Object.keys(this.ratingScores).length > 0 &&
-                 Object.values(this.ratingScores).every(score => score >= 1 && score <= 10)
+          return (
+            Object.keys(this.ratingScores).length > 0 &&
+            Object.values(this.ratingScores).every(score => score >= 1 && score <= 10)
+          );
         case 'ranking':
-          return this.rankingOrder.length === this.vote.options.length
+          return this.rankingOrder.length === this.vote.options.length;
         default:
-          return false
+          return false;
       }
-    }
+    },
   },
   created() {
-    this.loadVoteDetails()
+    this.loadVoteDetails();
   },
   methods: {
     async loadVoteDetails() {
-      this.loading = true
+      this.loading = true;
       try {
-        const response = await votingAPI.getVoteDetails(this.voteId)
+        const response = await votingAPI.getVoteDetails(this.voteId);
 
         if (response.data.success) {
-          this.vote = response.data.data
-          this.initializeVoteForm()
+          this.vote = response.data.data;
+          this.initializeVoteForm();
         }
       } catch (error) {
-        this.$message.error('加载投票详情失败')
-        console.error(error)
-        this.$router.go(-1)
+        this.$message.error('加载投票详情失败');
+        console.error(error);
+        this.$router.go(-1);
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
 
     initializeVoteForm() {
       // 如果用户已投票且可修改，预填充之前的选择
       if (this.vote.userVoteStatus.hasVoted && this.vote.userVoteStatus.canModify) {
-        const previousSelections = this.vote.userVoteStatus.selectedOptions
+        const previousSelections = this.vote.userVoteStatus.selectedOptions;
 
         switch (this.vote.voteType) {
           case 'single_choice':
           case 'yes_no':
-            this.singleChoice = previousSelections[0]?.optionId || ''
-            break
+            this.singleChoice = previousSelections[0]?.optionId || '';
+            break;
           case 'multiple_choice':
-            this.multipleChoices = previousSelections.map(s => s.optionId)
-            break
+            this.multipleChoices = previousSelections.map(s => s.optionId);
+            break;
           case 'rating':
             previousSelections.forEach(s => {
               if (s.rating) {
-                this.ratingScores[s.optionId] = s.rating
+                this.ratingScores[s.optionId] = s.rating;
               }
-            })
-            break
+            });
+            break;
           case 'ranking':
             this.rankingOrder = previousSelections
               .sort((a, b) => (a.ranking || 0) - (b.ranking || 0))
-              .map(s => s.optionId)
-            break
+              .map(s => s.optionId);
+            break;
         }
       } else {
         // 初始化排序投票的选项顺序
         if (this.vote.voteType === 'ranking') {
-          this.rankingOrder = this.vote.options.map(opt => opt.optionId)
+          this.rankingOrder = this.vote.options.map(opt => opt.optionId);
         }
       }
 
       // 设置表单验证规则
       if (this.vote.settings.requireComment) {
-        this.voteRules.comment[0].required = true
+        this.voteRules.comment[0].required = true;
       }
     },
 
     handleSingleChoiceChange() {
-      this.voteForm.selectedOptions = [{
-        optionId: this.singleChoice
-      }]
+      this.voteForm.selectedOptions = [
+        {
+          optionId: this.singleChoice,
+        },
+      ];
     },
 
     handleMultipleChoiceChange() {
       this.voteForm.selectedOptions = this.multipleChoices.map(optionId => ({
-        optionId
-      }))
+        optionId,
+      }));
     },
 
     handleRatingChange() {
@@ -424,162 +417,162 @@ export default {
         .filter(([_, rating]) => rating > 0)
         .map(([optionId, rating]) => ({
           optionId,
-          rating
-        }))
+          rating,
+        }));
     },
 
     handleRankingChange() {
       this.voteForm.selectedOptions = this.rankingOrder.map((optionId, index) => ({
         optionId,
-        ranking: index + 1
-      }))
+        ranking: index + 1,
+      }));
     },
 
     async submitVote() {
       // 表单验证
       try {
-        await this.$refs.voteForm.validate()
+        await this.$refs.voteForm.validate();
       } catch (error) {
-        this.$message.error('请检查表单填写')
-        return
+        this.$message.error('请检查表单填写');
+        return;
       }
 
       // 获取位置信息
-      let location = null
+      let location = null;
       if (this.enableLocation) {
-        location = await this.getCurrentLocation()
+        location = await this.getCurrentLocation();
       }
 
-      this.submitting = true
+      this.submitting = true;
       try {
         const voteData = {
           selectedOptions: this.voteForm.selectedOptions,
           comment: this.voteForm.comment,
           verificationMethod: this.voteForm.verificationMethod,
-          location
-        }
+          location,
+        };
 
-        const response = await votingAPI.castVote(this.voteId, voteData)
+        const response = await votingAPI.castVote(this.voteId, voteData);
 
         if (response.data.success) {
-          this.$message.success(response.data.message)
+          this.$message.success(response.data.message);
           // 跳转到结果页面或详情页面
-          this.$router.push(`/voting/${this.voteId}/results`)
+          this.$router.push(`/voting/${this.voteId}/results`);
         }
       } catch (error) {
-        const message = error.response?.data?.message || '投票提交失败'
-        this.$message.error(message)
-        console.error(error)
+        const message = error.response?.data?.message || '投票提交失败';
+        this.$message.error(message);
+        console.error(error);
       } finally {
-        this.submitting = false
+        this.submitting = false;
       }
     },
 
     async getCurrentLocation() {
       return new Promise((resolve, reject) => {
         if (!navigator.geolocation) {
-          resolve(null)
-          return
+          resolve(null);
+          return;
         }
 
         navigator.geolocation.getCurrentPosition(
           position => {
             resolve({
               longitude: position.coords.longitude,
-              latitude: position.coords.latitude
-            })
+              latitude: position.coords.latitude,
+            });
           },
           error => {
-            console.warn('获取位置失败:', error)
-            resolve(null)
+            console.warn('获取位置失败:', error);
+            resolve(null);
           },
           {
             timeout: 10000,
-            enableHighAccuracy: false
+            enableHighAccuracy: false,
           }
-        )
-      })
+        );
+      });
     },
 
     getOptionTitle(optionId) {
-      const option = this.vote.options.find(opt => opt.optionId === optionId)
-      return option ? option.title : '未知选项'
+      const option = this.vote.options.find(opt => opt.optionId === optionId);
+      return option ? option.title : '未知选项';
     },
 
     getOptionDescription(optionId) {
-      const option = this.vote.options.find(opt => opt.optionId === optionId)
-      return option ? option.description : ''
+      const option = this.vote.options.find(opt => opt.optionId === optionId);
+      return option ? option.description : '';
     },
 
     getInstructionTitle() {
       switch (this.vote.voteType) {
         case 'single_choice':
-          return '单选投票说明'
+          return '单选投票说明';
         case 'multiple_choice':
-          return '多选投票说明'
+          return '多选投票说明';
         case 'rating':
-          return '评分投票说明'
+          return '评分投票说明';
         case 'ranking':
-          return '排序投票说明'
+          return '排序投票说明';
         case 'yes_no':
-          return '是否投票说明'
+          return '是否投票说明';
         default:
-          return '投票说明'
+          return '投票说明';
       }
     },
 
     getInstructionDescription() {
       switch (this.vote.voteType) {
         case 'single_choice':
-          return '请从以下选项中选择一个您最赞同的选项'
+          return '请从以下选项中选择一个您最赞同的选项';
         case 'multiple_choice':
-          return `请从以下选项中选择您赞同的选项，最多可选择 ${this.vote.settings.maxChoices} 个`
+          return `请从以下选项中选择您赞同的选项，最多可选择 ${this.vote.settings.maxChoices} 个`;
         case 'rating':
-          return '请为每个选项打分，分数范围为1-10分，您可以选择对部分或全部选项打分'
+          return '请为每个选项打分，分数范围为1-10分，您可以选择对部分或全部选项打分';
         case 'ranking':
-          return '请通过拖拽对选项进行排序，排在最上方的为您最preferred的选项'
+          return '请通过拖拽对选项进行排序，排在最上方的为您最preferred的选项';
         case 'yes_no':
-          return '请选择您对此事项的态度'
+          return '请选择您对此事项的态度';
         default:
-          return '请按照投票要求进行选择'
+          return '请按照投票要求进行选择';
       }
     },
 
     getStatusType(vote) {
-      if (vote.voteStatus.isActive) return 'success'
-      if (vote.voteStatus.isExpired) return 'info'
-      return 'warning'
+      if (vote.voteStatus.isActive) return 'success';
+      if (vote.voteStatus.isExpired) return 'info';
+      return 'warning';
     },
 
     getStatusText(vote) {
-      if (vote.voteStatus.isActive) return '进行中'
-      if (vote.voteStatus.isExpired) return '已结束'
-      return '即将开始'
+      if (vote.voteStatus.isActive) return '进行中';
+      if (vote.voteStatus.isExpired) return '已结束';
+      return '即将开始';
     },
 
     getVoteTypeText(voteType) {
       const types = {
-        'single_choice': '单选投票',
-        'multiple_choice': '多选投票',
-        'ranking': '排序投票',
-        'rating': '评分投票',
-        'yes_no': '是否投票'
-      }
-      return types[voteType] || '未知类型'
+        single_choice: '单选投票',
+        multiple_choice: '多选投票',
+        ranking: '排序投票',
+        rating: '评分投票',
+        yes_no: '是否投票',
+      };
+      return types[voteType] || '未知类型';
     },
 
     getAnonymousTypeText(anonymousType) {
       const types = {
-        'real_name': '实名投票',
-        'anonymous': '匿名投票',
-        'semi_anonymous': '半匿名投票'
-      }
-      return types[anonymousType] || '未知类型'
+        real_name: '实名投票',
+        anonymous: '匿名投票',
+        semi_anonymous: '半匿名投票',
+      };
+      return types[anonymousType] || '未知类型';
     },
 
-    formatDate
-  }
-}
+    formatDate,
+  },
+};
 </script>
 
 <style scoped>
@@ -664,7 +657,8 @@ export default {
   box-shadow: 0 2px 8px rgba(64, 158, 255, 0.2);
 }
 
-.option-radio, .option-checkbox {
+.option-radio,
+.option-checkbox {
   width: 100%;
 }
 
@@ -834,7 +828,8 @@ export default {
     padding: 10px;
   }
 
-  .vote-header, .vote-form {
+  .vote-header,
+  .vote-form {
     padding: 15px;
   }
 

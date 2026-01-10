@@ -163,8 +163,8 @@ export function getUserRoles() {
 export function uploadAvatar(formData) {
   return post('/api/auth/avatar', formData, {
     headers: {
-      'Content-Type': 'multipart/form-data'
-    }
+      'Content-Type': 'multipart/form-data',
+    },
   });
 }
 
@@ -245,7 +245,7 @@ export const authApi = {
   getLoginHistory,
   clearLoginHistory,
   getOnlineUsers,
-  forceLogout
+  forceLogout,
 };
 
 export default authApi;

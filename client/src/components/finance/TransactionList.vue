@@ -157,12 +157,7 @@
         <el-table-column label="操作" width="200" fixed="right">
           <template #default="{ row }">
             <el-button-group>
-              <el-button
-                size="small"
-                type="primary"
-                link
-                @click="handleView(row)"
-              >
+              <el-button size="small" type="primary" link @click="handleView(row)">
                 查看
               </el-button>
               <el-button
@@ -174,20 +169,10 @@
               >
                 审批
               </el-button>
-              <el-button
-                size="small"
-                type="warning"
-                link
-                @click="handleEdit(row)"
-              >
+              <el-button size="small" type="warning" link @click="handleEdit(row)">
                 编辑
               </el-button>
-              <el-button
-                size="small"
-                type="danger"
-                link
-                @click="handleDelete(row)"
-              >
+              <el-button size="small" type="danger" link @click="handleDelete(row)">
                 删除
               </el-button>
             </el-button-group>
@@ -251,14 +236,18 @@
               {{ getStatusLabel(detailDialog.data.status) }}
             </el-tag>
           </el-descriptions-item>
-          <el-descriptions-item label="创建人">{{ detailDialog.data.createdBy }}</el-descriptions-item>
+          <el-descriptions-item label="创建人">{{
+            detailDialog.data.createdBy
+          }}</el-descriptions-item>
           <el-descriptions-item label="创建时间">
             {{ formatDateTime(detailDialog.data.createdAt) }}
           </el-descriptions-item>
           <el-descriptions-item label="更新时间">
             {{ formatDateTime(detailDialog.data.updatedAt) }}
           </el-descriptions-item>
-          <el-descriptions-item label="描述" :span="2">{{ detailDialog.data.description }}</el-descriptions-item>
+          <el-descriptions-item label="描述" :span="2">{{
+            detailDialog.data.description
+          }}</el-descriptions-item>
           <el-descriptions-item v-if="detailDialog.data.notes" label="备注" :span="2">
             {{ detailDialog.data.notes }}
           </el-descriptions-item>
@@ -271,7 +260,7 @@
             :src="detailDialog.data.invoiceImage"
             :preview-src-list="[detailDialog.data.invoiceImage]"
             fit="contain"
-            style="max-width: 100%; max-height: 300px;"
+            style="max-width: 100%; max-height: 300px"
           />
         </div>
       </div>
@@ -291,7 +280,11 @@
         label-width="100px"
       >
         <el-form-item label="交易类型" prop="type">
-          <el-select v-model="transactionForm.type" placeholder="请选择交易类型" style="width: 100%">
+          <el-select
+            v-model="transactionForm.type"
+            placeholder="请选择交易类型"
+            style="width: 100%"
+          >
             <el-option label="收入" value="income" />
             <el-option label="支出" value="expense" />
             <el-option label="转账" value="transfer" />
@@ -307,7 +300,11 @@
           />
         </el-form-item>
         <el-form-item label="分类" prop="category">
-          <el-select v-model="transactionForm.category" placeholder="请选择分类" style="width: 100%">
+          <el-select
+            v-model="transactionForm.category"
+            placeholder="请选择分类"
+            style="width: 100%"
+          >
             <el-option label="行政支出" value="administrative" />
             <el-option label="基础设施" value="infrastructure" />
             <el-option label="社会福利" value="social_welfare" />
@@ -339,7 +336,11 @@
             :show-file-list="false"
             :before-upload="handleInvoiceUpload"
           >
-            <img v-if="transactionForm.invoiceImage" :src="transactionForm.invoiceImage" class="invoice-image-preview" />
+            <img
+              v-if="transactionForm.invoiceImage"
+              :src="transactionForm.invoiceImage"
+              class="invoice-image-preview"
+            />
             <el-icon v-else class="invoice-uploader-icon"><Plus /></el-icon>
           </el-upload>
         </el-form-item>
@@ -356,11 +357,7 @@
     </el-dialog>
 
     <!-- 审批对话框 -->
-    <el-dialog
-      v-model="approvalDialog.visible"
-      title="交易审批"
-      width="500px"
-    >
+    <el-dialog v-model="approvalDialog.visible" title="交易审批" width="500px">
       <el-form :model="approvalForm" label-width="100px">
         <el-form-item label="审批结果" required>
           <el-radio-group v-model="approvalForm.action">
@@ -407,7 +404,7 @@ const approving = ref(false);
 const filters = reactive({
   search: '',
   type: '',
-  status: ''
+  status: '',
 });
 
 const dateRange = ref([]);
@@ -416,7 +413,7 @@ const dateRange = ref([]);
 const pagination = reactive({
   page: 1,
   limit: 20,
-  total: 0
+  total: 0,
 });
 
 // 财务统计
@@ -424,25 +421,25 @@ const stats = reactive({
   totalIncome: 0,
   totalExpense: 0,
   balance: 0,
-  pendingCount: 0
+  pendingCount: 0,
 });
 
 // 详情对话框
 const detailDialog = reactive({
   visible: false,
-  data: null
+  data: null,
 });
 
 // 表单对话框
 const formDialog = reactive({
   visible: false,
-  isEdit: false
+  isEdit: false,
 });
 
 // 审批对话框
 const approvalDialog = reactive({
   visible: false,
-  data: null
+  data: null,
 });
 
 // 交易表单
@@ -453,30 +450,24 @@ const transactionForm = reactive({
   category: '',
   description: '',
   notes: '',
-  invoiceImage: ''
+  invoiceImage: '',
 });
 
 // 审批表单
 const approvalForm = reactive({
   action: 'approve',
-  comment: ''
+  comment: '',
 });
 
 // 表单验证规则
 const transactionFormRules = {
-  type: [
-    { required: true, message: '请选择交易类型', trigger: 'change' }
-  ],
+  type: [{ required: true, message: '请选择交易类型', trigger: 'change' }],
   amount: [
     { required: true, message: '请输入交易金额', trigger: 'blur' },
-    { type: 'number', min: 0.01, message: '金额必须大于0', trigger: 'blur' }
+    { type: 'number', min: 0.01, message: '金额必须大于0', trigger: 'blur' },
   ],
-  category: [
-    { required: true, message: '请选择交易分类', trigger: 'change' }
-  ],
-  description: [
-    { required: true, message: '请输入交易描述', trigger: 'blur' }
-  ]
+  category: [{ required: true, message: '请选择交易分类', trigger: 'change' }],
+  description: [{ required: true, message: '请输入交易描述', trigger: 'blur' }],
 };
 
 // 表单引用
@@ -489,7 +480,7 @@ const loadTransactionList = async () => {
     const params = {
       page: pagination.page,
       limit: pagination.limit,
-      ...filters
+      ...filters,
     };
 
     // 添加日期范围
@@ -546,7 +537,7 @@ const handleReset = () => {
   loadTransactionList();
 };
 
-const handleDateRangeChange = (dates) => {
+const handleDateRangeChange = dates => {
   if (dates && dates.length === 2) {
     filters.startDate = dates[0];
     filters.endDate = dates[1];
@@ -557,26 +548,26 @@ const handleDateRangeChange = (dates) => {
   handleSearch();
 };
 
-const handleSizeChange = (size) => {
+const handleSizeChange = size => {
   pagination.limit = size;
   loadTransactionList();
 };
 
-const handleCurrentChange = (page) => {
+const handleCurrentChange = page => {
   pagination.page = page;
   loadTransactionList();
 };
 
-const handleSelectionChange = (selection) => {
+const handleSelectionChange = selection => {
   selectedTransactions.value = selection;
 };
 
-const handleView = (row) => {
+const handleView = row => {
   detailDialog.data = row;
   detailDialog.visible = true;
 };
 
-const handleEdit = (row) => {
+const handleEdit = row => {
   formDialog.isEdit = true;
   formDialog.visible = true;
 
@@ -586,17 +577,13 @@ const handleEdit = (row) => {
   });
 };
 
-const handleDelete = async (row) => {
+const handleDelete = async row => {
   try {
-    await ElMessageBox.confirm(
-      `确定要删除交易 "${row.description}" 吗？`,
-      '确认删除',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    );
+    await ElMessageBox.confirm(`确定要删除交易 "${row.description}" 吗？`, '确认删除', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
 
     const response = await apiService.deleteTransaction(row.id);
 
@@ -615,7 +602,7 @@ const handleDelete = async (row) => {
   }
 };
 
-const handleApprove = (row) => {
+const handleApprove = row => {
   approvalDialog.data = row;
   approvalDialog.visible = true;
   approvalForm.action = 'approve';
@@ -638,10 +625,10 @@ const resetTransactionForm = () => {
   }
 };
 
-const handleInvoiceUpload = (file) => {
+const handleInvoiceUpload = file => {
   // 这里应该实现图片上传逻辑
   const reader = new FileReader();
-  reader.onload = (e) => {
+  reader.onload = e => {
     transactionForm.invoiceImage = e.target.result;
   };
   reader.readAsDataURL(file);
@@ -689,7 +676,7 @@ const handleSubmitApproval = async () => {
 
     const approvalData = {
       action: approvalForm.action,
-      comment: approvalForm.comment
+      comment: approvalForm.comment,
     };
 
     const response = await apiService.approveTransaction(approvalDialog.data.id, approvalData);
@@ -734,7 +721,7 @@ const handleBatchApprove = async () => {
       {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
       }
     );
 
@@ -762,7 +749,7 @@ const handleBatchDelete = async () => {
       {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
       }
     );
 
@@ -776,74 +763,74 @@ const handleBatchDelete = async () => {
 };
 
 // 工具方法
-const formatAmount = (amount) => {
+const formatAmount = amount => {
   if (!amount) return '0.00';
   return parseFloat(amount).toLocaleString('zh-CN', {
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2
+    maximumFractionDigits: 2,
   });
 };
 
-const formatDateTime = (dateTime) => {
+const formatDateTime = dateTime => {
   if (!dateTime) return '';
   return new Date(dateTime).toLocaleString('zh-CN');
 };
 
-const getTypeLabel = (type) => {
+const getTypeLabel = type => {
   const typeMap = {
     income: '收入',
     expense: '支出',
-    transfer: '转账'
+    transfer: '转账',
   };
   return typeMap[type] || type;
 };
 
-const getTypeTagType = (type) => {
+const getTypeTagType = type => {
   const typeMap = {
     income: 'success',
     expense: 'danger',
-    transfer: 'warning'
+    transfer: 'warning',
   };
   return typeMap[type] || 'info';
 };
 
-const getStatusLabel = (status) => {
+const getStatusLabel = status => {
   const statusMap = {
     pending: '待审批',
     approved: '已通过',
     rejected: '已拒绝',
-    completed: '已完成'
+    completed: '已完成',
   };
   return statusMap[status] || status;
 };
 
-const getStatusTagType = (status) => {
+const getStatusTagType = status => {
   const typeMap = {
     pending: 'warning',
     approved: 'success',
     rejected: 'danger',
-    completed: 'info'
+    completed: 'info',
   };
   return typeMap[status] || 'info';
 };
 
-const getCategoryLabel = (category) => {
+const getCategoryLabel = category => {
   const categoryMap = {
     administrative: '行政支出',
     infrastructure: '基础设施',
     social_welfare: '社会福利',
     agricultural_subsidy: '农业补贴',
     other_income: '其他收入',
-    other_expense: '其他支出'
+    other_expense: '其他支出',
   };
   return categoryMap[category] || category;
 };
 
-const getAmountClass = (type) => {
+const getAmountClass = type => {
   return {
     'amount-income': type === 'income',
     'amount-expense': type === 'expense',
-    'amount-transfer': type === 'transfer'
+    'amount-transfer': type === 'transfer',
   };
 };
 

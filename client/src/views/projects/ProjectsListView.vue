@@ -137,11 +137,7 @@
               <el-table-column prop="name" label="项目名称" min-width="200" sortable>
                 <template #default="{ row }">
                   <div class="project-name">
-                    <el-link
-                      type="primary"
-                      @click="viewProject(row.id)"
-                      :underline="false"
-                    >
+                    <el-link type="primary" @click="viewProject(row.id)" :underline="false">
                       {{ row.name }}
                     </el-link>
                   </div>
@@ -186,11 +182,7 @@
 
               <el-table-column label="操作" width="200" fixed="right">
                 <template #default="{ row }">
-                  <el-button
-                    type="text"
-                    size="small"
-                    @click="viewProject(row.id)"
-                  >
+                  <el-button type="text" size="small" @click="viewProject(row.id)">
                     <el-icon><View /></el-icon>
                     查看
                   </el-button>
@@ -203,7 +195,7 @@
                     <el-icon><Edit /></el-icon>
                     编辑
                   </el-button>
-                  <el-dropdown @command="(command) => handleAction(command, row)">
+                  <el-dropdown @command="command => handleAction(command, row)">
                     <el-button type="text" size="small">
                       更多<el-icon><ArrowDown /></el-icon>
                     </el-button>
@@ -212,7 +204,11 @@
                         <el-dropdown-item command="milestone">里程碑</el-dropdown-item>
                         <el-dropdown-item command="report">项目报告</el-dropdown-item>
                         <el-dropdown-item command="documents">相关文档</el-dropdown-item>
-                        <el-dropdown-item command="delete" divided v-if="hasPermission('project:delete')">
+                        <el-dropdown-item
+                          command="delete"
+                          divided
+                          v-if="hasPermission('project:delete')"
+                        >
                           删除项目
                         </el-dropdown-item>
                       </el-dropdown-menu>
@@ -242,8 +238,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, computed, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
   OfficeBuilding,
   Plus,
@@ -254,19 +250,19 @@ import {
   Search,
   View,
   Edit,
-  ArrowDown
-} from '@element-plus/icons-vue'
+  ArrowDown,
+} from '@element-plus/icons-vue';
 
 // 响应式数据
-const loading = ref(false)
-const projects = ref([])
-const searchQuery = ref('')
-const filterStatus = ref('')
-const filterType = ref('')
-const currentPage = ref(1)
-const pageSize = ref(10)
-const sortField = ref('')
-const sortOrder = ref('')
+const loading = ref(false);
+const projects = ref([]);
+const searchQuery = ref('');
+const filterStatus = ref('');
+const filterType = ref('');
+const currentPage = ref(1);
+const pageSize = ref(10);
+const sortField = ref('');
+const sortOrder = ref('');
 
 // 模拟数据
 const mockProjects = [
@@ -286,8 +282,8 @@ const mockProjects = [
       { name: '设计规划', completed: true, date: '2024-10-15' },
       { name: '场地准备', completed: true, date: '2024-11-20' },
       { name: '主体建设', completed: false, expectedDate: '2025-01-15' },
-      { name: '设备安装', completed: false, expectedDate: '2025-02-28' }
-    ]
+      { name: '设备安装', completed: false, expectedDate: '2025-02-28' },
+    ],
   },
   {
     id: 2,
@@ -300,7 +296,7 @@ const mockProjects = [
     expectedEndDate: '2025-06-30',
     budget: 50000,
     spent: 7500,
-    manager: '李老师'
+    manager: '李老师',
   },
   {
     id: 3,
@@ -313,9 +309,9 @@ const mockProjects = [
     expectedEndDate: '2024-11-30',
     budget: 150000,
     spent: 148000,
-    manager: '王工头'
-  }
-]
+    manager: '王工头',
+  },
+];
 
 // 计算属性
 const projectStats = computed(() => {
@@ -324,104 +320,105 @@ const projectStats = computed(() => {
     planning: projects.value.filter(p => p.status === 'planning').length,
     inProgress: projects.value.filter(p => p.status === 'in_progress').length,
     completed: projects.value.filter(p => p.status === 'completed').length,
-    suspended: projects.value.filter(p => p.status === 'suspended').length
-  }
-  return stats
-})
+    suspended: projects.value.filter(p => p.status === 'suspended').length,
+  };
+  return stats;
+});
 
 const totalBudget = computed(() => {
-  return projects.value.reduce((sum, project) => sum + project.budget, 0)
-})
+  return projects.value.reduce((sum, project) => sum + project.budget, 0);
+});
 
 const filteredProjects = computed(() => {
-  let filtered = [...projects.value]
+  let filtered = [...projects.value];
 
   // 搜索过滤
   if (searchQuery.value) {
-    filtered = filtered.filter(project =>
-      project.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      project.description.toLowerCase().includes(searchQuery.value.toLowerCase())
-    )
+    filtered = filtered.filter(
+      project =>
+        project.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+        project.description.toLowerCase().includes(searchQuery.value.toLowerCase())
+    );
   }
 
   // 状态过滤
   if (filterStatus.value) {
-    filtered = filtered.filter(project => project.status === filterStatus.value)
+    filtered = filtered.filter(project => project.status === filterStatus.value);
   }
 
   // 类型过滤
   if (filterType.value) {
-    filtered = filtered.filter(project => project.type === filterType.value)
+    filtered = filtered.filter(project => project.type === filterType.value);
   }
 
-  return filtered
-})
+  return filtered;
+});
 
 // 生命周期
 onMounted(() => {
-  loadProjects()
-})
+  loadProjects();
+});
 
 // 方法
 const loadProjects = async () => {
-  loading.value = true
+  loading.value = true;
   try {
     // 这里调用API获取数据
     // const response = await api.getProjects()
     // projects.value = response.data.projects
 
     // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 500))
-    projects.value = mockProjects
+    await new Promise(resolve => setTimeout(resolve, 500));
+    projects.value = mockProjects;
   } catch (error) {
-    ElMessage.error('加载项目列表失败')
-    console.error('Load projects error:', error)
+    ElMessage.error('加载项目列表失败');
+    console.error('Load projects error:', error);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const handleSearch = () => {
-  currentPage.value = 1
-}
+  currentPage.value = 1;
+};
 
 const handleFilter = () => {
-  currentPage.value = 1
-}
+  currentPage.value = 1;
+};
 
 const handleSortChange = ({ prop, order }) => {
-  sortField.value = prop
-  sortOrder.value = order
-}
+  sortField.value = prop;
+  sortOrder.value = order;
+};
 
-const handleSizeChange = (size) => {
-  pageSize.value = size
-  currentPage.value = 1
-}
+const handleSizeChange = size => {
+  pageSize.value = size;
+  currentPage.value = 1;
+};
 
-const handleCurrentChange = (page) => {
-  currentPage.value = page
-}
+const handleCurrentChange = page => {
+  currentPage.value = page;
+};
 
-const viewProject = (id) => {
-  $router.push(`/projects/${id}`)
-}
+const viewProject = id => {
+  $router.push(`/projects/${id}`);
+};
 
-const editProject = (id) => {
-  $router.push(`/projects/${id}/edit`)
-}
+const editProject = id => {
+  $router.push(`/projects/${id}/edit`);
+};
 
 const handleAction = async (command, project) => {
   switch (command) {
     case 'milestone':
-      ElMessage.info(`查看 ${project.name} 的里程碑`)
-      break
+      ElMessage.info(`查看 ${project.name} 的里程碑`);
+      break;
     case 'report':
-      ElMessage.info(`查看 ${project.name} 的项目报告`)
-      break
+      ElMessage.info(`查看 ${project.name} 的项目报告`);
+      break;
     case 'documents':
-      ElMessage.info(`查看 ${project.name} 的相关文档`)
-      break
+      ElMessage.info(`查看 ${project.name} 的相关文档`);
+      break;
     case 'delete':
       try {
         await ElMessageBox.confirm(
@@ -430,70 +427,70 @@ const handleAction = async (command, project) => {
           {
             confirmButtonText: '确定',
             cancelButtonText: '取消',
-            type: 'warning'
+            type: 'warning',
           }
-        )
+        );
 
         // 这里调用删除API
-        ElMessage.success('项目删除成功')
-        await loadProjects()
+        ElMessage.success('项目删除成功');
+        await loadProjects();
       } catch (error) {
         // 用户取消删除
       }
-      break
+      break;
   }
-}
+};
 
 // 辅助方法
-const getTypeTagType = (type) => {
+const getTypeTagType = type => {
   const typeMap = {
     infrastructure: 'primary',
     education: 'success',
-    welfare: 'warning'
-  }
-  return typeMap[type] || 'info'
-}
+    welfare: 'warning',
+  };
+  return typeMap[type] || 'info';
+};
 
-const getTypeLabel = (type) => {
+const getTypeLabel = type => {
   const typeMap = {
     infrastructure: '基础设施',
     education: '教育培训',
-    welfare: '福利保障'
-  }
-  return typeMap[type] || type
-}
+    welfare: '福利保障',
+  };
+  return typeMap[type] || type;
+};
 
-const getStatusTagType = (status) => {
+const getStatusTagType = status => {
   const statusMap = {
     planning: 'info',
     in_progress: 'warning',
     completed: 'success',
-    suspended: 'danger'
-  }
-  return statusMap[status] || 'info'
-}
+    suspended: 'danger',
+  };
+  return statusMap[status] || 'info';
+};
 
-const getStatusLabel = (status) => {
+const getStatusLabel = status => {
   const statusMap = {
     planning: '规划中',
     in_progress: '进行中',
     completed: '已完成',
-    suspended: '暂停'
-  }
-  return statusMap[status] || status
-}
+    suspended: '暂停',
+  };
+  return statusMap[status] || status;
+};
 
-const getProgressColor = (progress) => {
-  if (progress < 30) return '#f56c6c'
-  if (progress < 70) return '#e6a23c'
-  return '#67c23a'
-}
+const getProgressColor = progress => {
+  if (progress < 30) return '#f56c6c';
+  if (progress < 70) return '#e6a23c';
+  return '#67c23a';
+};
 
 // 权限检查（这里使用模拟方法，实际应该从store获取）
-const hasPermission = (permission) => {
+const hasPermission = permission => {
   // 模拟权限检查
-  return true
-}
+  return true;
+};
 </script>
 
 <style lang="scss" scoped>

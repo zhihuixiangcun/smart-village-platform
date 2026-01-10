@@ -3,11 +3,7 @@
     <el-empty v-if="!items.length" description="暂无待审核内容" />
 
     <div v-else class="queue-list">
-      <div
-        v-for="item in items"
-        :key="item._id"
-        class="queue-item"
-      >
+      <div v-for="item in items" :key="item._id" class="queue-item">
         <div class="item-header">
           <div class="item-type">
             <el-tag :type="getTypeColor(item.type)" size="small">
@@ -62,66 +58,66 @@
 </template>
 
 <script setup>
-import { ref, defineProps, defineEmits } from 'vue'
-import { Select, Close, View } from '@element-plus/icons-vue'
+import { ref, defineProps, defineEmits } from 'vue';
+import { Select, Close, View } from '@element-plus/icons-vue';
 
 defineProps({
   items: {
     type: Array,
-    default: () => []
-  }
-})
+    default: () => [],
+  },
+});
 
-defineEmits(['approve', 'reject'])
+defineEmits(['approve', 'reject']);
 
 const pagination = ref({
   page: 1,
   pageSize: 10,
-  total: 0
-})
+  total: 0,
+});
 
-const getTypeLabel = (type) => {
+const getTypeLabel = type => {
   const labels = {
     agriculture: '农业知识',
     social: '朋友圈动态',
     announcement: '公告',
     governance: '村务公开',
-    finance: '财务公开'
-  }
-  return labels[type] || type
-}
+    finance: '财务公开',
+  };
+  return labels[type] || type;
+};
 
-const getTypeColor = (type) => {
+const getTypeColor = type => {
   const colors = {
     agriculture: 'success',
     social: 'primary',
     announcement: 'warning',
     governance: 'info',
-    finance: 'danger'
-  }
-  return colors[type] || 'info'
-}
+    finance: 'danger',
+  };
+  return colors[type] || 'info';
+};
 
-const formatTime = (time) => {
-  if (!time) return ''
-  const date = new Date(time)
-  const now = new Date()
-  const diff = now - date
-  const minutes = Math.floor(diff / 60000)
-  const hours = Math.floor(diff / 3600000)
-  const days = Math.floor(diff / 86400000)
+const formatTime = time => {
+  if (!time) return '';
+  const date = new Date(time);
+  const now = new Date();
+  const diff = now - date;
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
 
-  if (minutes < 1) return '刚刚'
-  if (minutes < 60) return `${minutes}分钟前`
-  if (hours < 24) return `${hours}小时前`
-  if (days < 7) return `${days}天前`
-  return date.toLocaleDateString('zh-CN')
-}
+  if (minutes < 1) return '刚刚';
+  if (minutes < 60) return `${minutes}分钟前`;
+  if (hours < 24) return `${hours}小时前`;
+  if (days < 7) return `${days}天前`;
+  return date.toLocaleDateString('zh-CN');
+};
 
-const viewDetail = (item) => {
+const viewDetail = item => {
   // TODO: 实现详情查看
-  console.log('View detail:', item)
-}
+  console.log('View detail:', item);
+};
 </script>
 
 <style scoped lang="scss">

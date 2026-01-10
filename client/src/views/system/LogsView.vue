@@ -21,10 +21,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref } from 'vue';
 
-const title = ref('操作日志')
-const name = ref('LogsView')
+const title = ref('操作日志');
+const name = ref('LogsView');
 </script>
 
 <style lang="scss" scoped>

@@ -67,7 +67,7 @@
         </div>
         <div class="overview-card children">
           <div class="card-icon">
-            <el-icon><Baby /></el-icon>
+            <el-icon><UserFilled /></el-icon>
           </div>
           <div class="card-content">
             <div class="number">{{ statistics.children }}</div>
@@ -103,7 +103,12 @@
           </el-input>
         </div>
         <div class="filter-controls">
-          <el-select v-model="searchParams.householdType" placeholder="家庭类型" clearable @change="handleSearch">
+          <el-select
+            v-model="searchParams.householdType"
+            placeholder="家庭类型"
+            clearable
+            @change="handleSearch"
+          >
             <el-option label="全部" value="" />
             <el-option label="普通户" value="普通户" />
             <el-option label="低保户" value="低保户" />
@@ -111,14 +116,24 @@
             <el-option label="残疾户" value="残疾户" />
             <el-option label="军人家庭" value="军人家庭" />
           </el-select>
-          <el-select v-model="searchParams.ageGroup" placeholder="年龄组" clearable @change="handleSearch">
+          <el-select
+            v-model="searchParams.ageGroup"
+            placeholder="年龄组"
+            clearable
+            @change="handleSearch"
+          >
             <el-option label="全部" value="" />
             <el-option label="0-18岁" value="0-18" />
             <el-option label="19-35岁" value="19-35" />
             <el-option label="36-60岁" value="36-60" />
             <el-option label="60岁以上" value="60+" />
           </el-select>
-          <el-select v-model="searchParams.education" placeholder="教育程度" clearable @change="handleSearch">
+          <el-select
+            v-model="searchParams.education"
+            placeholder="教育程度"
+            clearable
+            @change="handleSearch"
+          >
             <el-option label="全部" value="" />
             <el-option label="小学及以下" value="小学及以下" />
             <el-option label="初中" value="初中" />
@@ -200,13 +215,9 @@
           <el-table-column label="操作" width="200" fixed="right">
             <template #default="{ row }">
               <div class="action-buttons">
-                <el-button type="primary" size="small" @click="viewResident(row)">
-                  详情
-                </el-button>
-                <el-button type="success" size="small" @click="editResident(row)">
-                  编辑
-                </el-button>
-                <el-dropdown @command="(command) => handleMoreAction(command, row)">
+                <el-button type="primary" size="small" @click="viewResident(row)"> 详情 </el-button>
+                <el-button type="success" size="small" @click="editResident(row)"> 编辑 </el-button>
+                <el-dropdown @command="command => handleMoreAction(command, row)">
                   <el-button type="info" size="small">
                     更多<el-icon class="el-icon--right"><arrow-down /></el-icon>
                   </el-button>
@@ -257,7 +268,12 @@
       width="800px"
       @close="resetResidentForm"
     >
-      <el-form :model="residentForm" :rules="residentRules" ref="residentFormRef" label-width="100px">
+      <el-form
+        :model="residentForm"
+        :rules="residentRules"
+        ref="residentFormRef"
+        label-width="100px"
+      >
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="姓名" prop="name">
@@ -366,11 +382,7 @@
     </el-dialog>
 
     <!-- 家庭管理对话框 -->
-    <el-dialog
-      v-model="householdDialogVisible"
-      title="家庭管理"
-      width="900px"
-    >
+    <el-dialog v-model="householdDialogVisible" title="家庭管理" width="900px">
       <div class="household-content">
         <div class="household-header">
           <el-input v-model="householdSearch" placeholder="搜索户码或姓名" style="width: 300px">
@@ -391,9 +403,10 @@
   </div>
 </template>
 
-<script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+<script setup lang="ts">
+import { ref, reactive, computed, onMounted, watch } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import type { FormInstance, FormRules } from 'element-plus';
 import {
   Plus,
   House,
@@ -402,7 +415,7 @@ import {
   User,
   Coin,
   CaretLeft,
-  Baby,
+  UserFilled,
   Calendar,
   Search,
   Phone,
@@ -410,77 +423,85 @@ import {
   Service,
   Grid,
   Delete,
-  arrowDown
-} from '@element-plus/icons-vue'
+  ArrowDown,
+} from '@element-plus/icons-vue';
+import * as residentApi from '@/api/resident';
+
+// 类型定义
+interface Resident {
+  id: number;
+  name: string;
+  gender: string;
+  idCard: string;
+  phone: string;
+  address: string;
+  householdCode: string;
+  householdType: string;
+  relation: string;
+  education: string;
+  isLowIncome: boolean;
+  isDisabled: boolean;
+  isElderlyLivingAlone: boolean;
+  hasInsurance: boolean;
+  avatar: string;
+}
+
+interface SearchParams {
+  keyword: string;
+  householdType: string;
+  ageGroup: string;
+  education: string;
+}
+
+interface Pagination {
+  currentPage: number;
+  pageSize: number;
+  total: number;
+}
+
+interface Statistics {
+  totalResidents: number;
+  totalHouseholds: number;
+  lowIncomeHouseholds: number;
+  elderly: number;
+  children: number;
+  newThisMonth: number;
+}
 
 // 响应式数据
-const searchParams = reactive({
+const searchParams = reactive<SearchParams>({
   keyword: '',
   householdType: '',
   ageGroup: '',
-  education: ''
-})
+  education: '',
+});
 
-const pagination = reactive({
+const pagination = reactive<Pagination>({
   currentPage: 1,
   pageSize: 20,
-  total: 0
-})
+  total: 0,
+});
 
-const statistics = reactive({
-  totalResidents: 1234,
-  totalHouseholds: 456,
-  lowIncomeHouseholds: 23,
-  elderly: 187,
-  children: 298,
-  newThisMonth: 15
-})
+const statistics = reactive<Statistics>({
+  totalResidents: 0,
+  totalHouseholds: 0,
+  lowIncomeHouseholds: 0,
+  elderly: 0,
+  children: 0,
+  newThisMonth: 0,
+});
 
-const residents = ref([
-  {
-    id: 1,
-    name: '张小明',
-    gender: '男',
-    idCard: '330106199001011234',
-    phone: '13812345678',
-    address: '智慧村第一组123号',
-    householdCode: 'SM2024001',
-    householdType: '普通户',
-    relation: '户主',
-    education: '本科',
-    isLowIncome: false,
-    isDisabled: false,
-    isElderlyLivingAlone: false,
-    hasInsurance: true,
-    avatar: ''
-  },
-  {
-    id: 2,
-    name: '李小红',
-    gender: '女',
-    idCard: '330106199201015678',
-    phone: '13823456789',
-    address: '智慧村第一组123号',
-    householdCode: 'SM2024001',
-    householdType: '普通户',
-    relation: '配偶',
-    education: '大专',
-    isLowIncome: false,
-    isDisabled: false,
-    isElderlyLivingAlone: false,
-    hasInsurance: true,
-    avatar: ''
-  }
-])
-
-const selectedResidents = ref([])
-const residentDialogVisible = ref(false)
-const householdDialogVisible = ref(false)
-const householdSearch = ref('')
-const isEditing = ref(false)
+const residents = ref<Resident[]>([]);
+const selectedResidents = ref<Resident[]>([]);
+const residentDialogVisible = ref(false);
+const householdDialogVisible = ref(false);
+const householdSearch = ref('');
+const isEditing = ref(false);
+const loading = ref(false);
+const error = ref<string | null>(null);
 
 // 表单数据
-const residentForm = reactive({
+const residentForm = reactive<Omit<Resident, 'id'>>({
   name: '',
   gender: '男',
   idCard: '',
@@ -490,122 +511,158 @@ const residentForm = reactive({
   householdType: '普通户',
   relation: '户主',
   education: '高中',
-  specialTags: [],
-  avatar: ''
-})
+  isLowIncome: false,
+  isDisabled: false,
+  isElderlyLivingAlone: false,
+  hasInsurance: false,
+  avatar: '',
+});
 
-const residentRules = {
+const residentRules: FormRules = {
   name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
   idCard: [
     { required: true, message: '请输入身份证号', trigger: 'blur' },
-    { pattern: /^\d{17}[\dX]$/, message: '请输入正确的身份证号', trigger: 'blur' }
+    { pattern: /^\d{17}[\dX]$/, message: '请输入正确的身份证号', trigger: 'blur' },
   ],
   phone: [
     { required: true, message: '请输入手机号', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
+    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' },
   ],
   address: [{ required: true, message: '请输入家庭住址', trigger: 'blur' }],
-  householdCode: [{ required: true, message: '请输入户码', trigger: 'blur' }]
-}
+  householdCode: [{ required: true, message: '请输入户码', trigger: 'blur' }],
+};
 
-const residentFormRef = ref(null)
+const residentFormRef = ref<FormInstance | null>(null);
 
-// 计算属性
+// 计算属性 - 实现服务端分页
+const paginatedResidents = computed(() => {
+  const start = (pagination.currentPage - 1) * pagination.pageSize;
+  const end = start + pagination.pageSize;
+  return filteredResidents.value.slice(start, end);
+});
+
 const filteredResidents = computed(() => {
   return residents.value.filter(resident => {
-    const matchKeyword = !searchParams.keyword ||
+    const matchKeyword =
+      !searchParams.keyword ||
       resident.name.includes(searchParams.keyword) ||
       resident.idCard.includes(searchParams.keyword) ||
       resident.phone.includes(searchParams.keyword) ||
-      resident.address.includes(searchParams.keyword)
+      resident.address.includes(searchParams.keyword);
 
-    const matchHouseholdType = !searchParams.householdType ||
-      resident.householdType === searchParams.householdType
+    const matchHouseholdType =
+      !searchParams.householdType || resident.householdType === searchParams.householdType;
 
-    const matchAgeGroup = !searchParams.ageGroup ||
-      checkAgeGroup(resident.idCard, searchParams.ageGroup)
+    const matchAgeGroup =
+      !searchParams.ageGroup || checkAgeGroup(resident.idCard, searchParams.ageGroup);
 
-    const matchEducation = !searchParams.education ||
-      resident.education === searchParams.education
+    const matchEducation = !searchParams.education || resident.education === searchParams.education;
 
-    return matchKeyword && matchHouseholdType && matchAgeGroup && matchEducation
-  })
-})
+    return matchKeyword && matchHouseholdType && matchAgeGroup && matchEducation;
+  });
+});
 
 // 方法
-const calculateAge = (idCard) => {
-  if (!idCard) return 0
-  const birth = idCard.substring(6, 14)
-  const year = parseInt(birth.substring(0, 4))
-  const month = parseInt(birth.substring(4, 6))
-  const day = parseInt(birth.substring(6, 8))
-  const now = new Date()
-  let age = now.getFullYear() - year
+const calculateAge = (idCard: string): number => {
+  if (!idCard) return 0;
+  const birth = idCard.substring(6, 14);
+  const year = parseInt(birth.substring(0, 4));
+  const month = parseInt(birth.substring(4, 6));
+  const day = parseInt(birth.substring(6, 8));
+  const now = new Date();
+  let age = now.getFullYear() - year;
   if (now.getMonth() + 1 < month || (now.getMonth() + 1 === month && now.getDate() < day)) {
-    age--
+    age--;
   }
-  return age
-}
+  return age;
+};
 
-const checkAgeGroup = (idCard, ageGroup) => {
-  const age = calculateAge(idCard)
+const checkAgeGroup = (idCard: string, ageGroup: string): boolean => {
+  const age = calculateAge(idCard);
   switch (ageGroup) {
     case '0-18':
-      return age >= 0 && age <= 18
+      return age >= 0 && age <= 18;
     case '19-35':
-      return age >= 19 && age <= 35
+      return age >= 19 && age <= 35;
     case '36-60':
-      return age >= 36 && age <= 60
+      return age >= 36 && age <= 60;
     case '60+':
-      return age > 60
+      return age > 60;
     default:
-      return true
+      return true;
   }
-}
+};
 
-const maskIdCard = (idCard) => {
-  if (!idCard) return ''
-  return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2')
-}
+const maskIdCard = (idCard: string): string => {
+  if (!idCard) return '';
+  return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2');
+};
 
-const getHouseholdTypeColor = (type) => {
-  const colorMap = {
-    '普通户': '',
-    '低保户': 'warning',
-    '独生户': 'success',
-    '残疾户': 'info',
-    '军人家庭': 'primary'
-  }
-  return colorMap[type] || ''
-}
+const getHouseholdTypeColor = (type: string): string => {
+  const colorMap: Record<string, string> = {
+    普通户: '',
+    低保户: 'warning',
+    独生户: 'success',
+    残疾户: 'info',
+    军人家庭: 'primary',
+  };
+  return colorMap[type] || '';
+};
 
 const handleSearch = () => {
-  pagination.currentPage = 1
-  // 搜索逻辑已在计算属性中实现
-}
+  pagination.currentPage = 1;
+  fetchResidents();
+};
 
-const handleSelectionChange = (selection) => {
-  selectedResidents.value = selection
-}
+const handleSelectionChange = (selection: Resident[]) => {
+  selectedResidents.value = selection;
+};
 
-const handleSizeChange = (size) => {
-  pagination.pageSize = size
-  handleSearch()
-}
+const handleSizeChange = (size: number) => {
+  pagination.pageSize = size;
+  fetchResidents();
+};
 
-const handleCurrentChange = (page) => {
-  pagination.currentPage = page
-}
+const handleCurrentChange = (page: number) => {
+  pagination.currentPage = page;
+  fetchResidents();
+};
+
+// API 调用
+const fetchResidents = async () => {
+  loading.value = true;
+  error.value = null;
+  try {
+    const response = await residentApi.getResidents({
+      page: pagination.currentPage,
+      pageSize: pagination.pageSize,
+      ...searchParams,
+    });
+    if (response.success) {
+      residents.value = response.data.items;
+      pagination.total = response.data.total;
+      updateStatistics();
+    } else {
+      throw new Error(response.error || '获取村民数据失败');
+    }
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : '未知错误';
+    ElMessage.error('加载村民数据失败');
+    console.error('[fetchResidents] Error:', err);
+  } finally {
+    loading.value = false;
+  }
+};
 
 const showAddResidentDialog = () => {
-  isEditing.value = false
-  residentDialogVisible.value = true
-  resetResidentForm()
-}
+  isEditing.value = false;
+  residentDialogVisible.value = true;
+  resetResidentForm();
+};
 
 const showHouseholdDialog = () => {
-  householdDialogVisible.value = true
-}
+  householdDialogVisible.value = true;
+};
 
 const resetResidentForm = () => {
   Object.assign(residentForm, {
@@ -618,151 +675,187 @@ const resetResidentForm = () => {
     householdType: '普通户',
     relation: '户主',
     education: '高中',
-    specialTags: [],
-    avatar: ''
-  })
+    isLowIncome: false,
+    isDisabled: false,
+    isElderlyLivingAlone: false,
+    hasInsurance: false,
+    avatar: '',
+  });
   if (residentFormRef.value) {
-    residentFormRef.value.resetFields()
+    residentFormRef.value.resetFields();
   }
-}
+};
 
 const saveResident = async () => {
-  if (!residentFormRef.value) return
+  if (!residentFormRef.value) return;
 
   try {
-    await residentFormRef.value.validate()
+    await residentFormRef.value.validate();
 
-    // 处理特殊标记
-    const newResident = {
-      id: isEditing.value ? residentForm.id : Date.now(),
+    const residentData = {
       ...residentForm,
-      isLowIncome: residentForm.specialTags.includes('低保'),
-      isDisabled: residentForm.specialTags.includes('残疾'),
-      isElderlyLivingAlone: residentForm.specialTags.includes('独居'),
-      hasInsurance: residentForm.specialTags.includes('医保')
-    }
+      isLowIncome: residentForm.isLowIncome,
+      isDisabled: residentForm.isDisabled,
+      isElderlyLivingAlone: residentForm.isElderlyLivingAlone,
+      hasInsurance: residentForm.hasInsurance,
+    };
 
     if (isEditing.value) {
-      const index = residents.value.findIndex(r => r.id === residentForm.id)
-      if (index !== -1) {
-        residents.value[index] = newResident
+      const response = await residentApi.updateResident(residentForm.id, residentData);
+      if (response.success) {
+        const index = residents.value.findIndex(r => r.id === residentForm.id);
+        if (index !== -1) {
+          residents.value[index] = { ...residentData, id: residentForm.id };
+        }
+        ElMessage.success('村民信息更新成功');
+        fetchResidents();
+      } else {
+        throw new Error(response.error || '更新失败');
       }
-      ElMessage.success('村民信息更新成功')
     } else {
-      residents.value.push(newResident)
-      ElMessage.success('村民添加成功')
+      const response = await residentApi.createResident(residentData);
+      if (response.success) {
+        ElMessage.success('村民添加成功');
+        fetchResidents();
+      } else {
+        throw new Error(response.error || '添加失败');
+      }
     }
 
-    residentDialogVisible.value = false
-    updateStatistics()
+    residentDialogVisible.value = false;
   } catch (error) {
-    console.error('表单验证失败:', error)
+    console.error('表单验证失败:', error);
+    if (error instanceof Error && error.message !== '') {
+      ElMessage.error(error.message);
+    }
   }
-}
+};
 
-const viewResident = (resident) => {
-  ElMessage.info(`查看 ${resident.name} 的详细信息`)
-}
+const viewResident = (resident: Resident) => {
+  ElMessage.info(`查看 ${resident.name} 的详细信息`);
+};
 
-const editResident = (resident) => {
-  isEditing.value = true
-  Object.assign(residentForm, {
-    ...resident,
-    specialTags: [
-      ...(resident.isLowIncome ? ['低保'] : []),
-      ...(resident.isDisabled ? ['残疾'] : []),
-      ...(resident.isElderlyLivingAlone ? ['独居'] : []),
-      ...(resident.hasInsurance ? ['医保'] : [])
-    ]
-  })
-  residentDialogVisible.value = true
-}
+const editResident = (resident: Resident) => {
+  isEditing.value = true;
+  Object.assign(residentForm, resident);
+  residentDialogVisible.value = true;
+};
 
-const handleMoreAction = (command, resident) => {
+const handleMoreAction = (command: string, resident: Resident) => {
   switch (command) {
     case 'household':
-      ElMessage.info(`查看 ${resident.name} 的家庭成员`)
-      break
+      ElMessage.info(`查看 ${resident.name} 的家庭成员`);
+      break;
     case 'documents':
-      ElMessage.info(`管理 ${resident.name} 的证件信息`)
-      break
+      ElMessage.info(`管理 ${resident.name} 的证件信息`);
+      break;
     case 'services':
-      ElMessage.info(`查看 ${resident.name} 的服务记录`)
-      break
+      ElMessage.info(`查看 ${resident.name} 的服务记录`);
+      break;
     case 'qrcode':
-      ElMessage.info(`生成 ${resident.name} 的户码二维码`)
-      break
+      ElMessage.info(`生成 ${resident.name} 的户码二维码`);
+      break;
     case 'delete':
-      deleteResident(resident)
-      break
+      deleteResident(resident);
+      break;
   }
-}
+};
 
-const deleteResident = (resident) => {
-  ElMessageBox.confirm(
-    `确定要删除 ${resident.name} 的信息吗？此操作不可恢复。`,
-    '删除确认',
-    {
-      confirmButtonText: '确定删除',
-      cancelButtonText: '取消',
-      type: 'error'
-    }
-  ).then(() => {
-    const index = residents.value.findIndex(r => r.id === resident.id)
-    if (index !== -1) {
-      residents.value.splice(index, 1)
-      ElMessage.success('删除成功')
-      updateStatistics()
-    }
-  }).catch(() => {})
-}
+const deleteResident = (resident: Resident) => {
+  ElMessageBox.confirm(`确定要删除 ${resident.name} 的信息吗？此操作不可恢复。`, '删除确认', {
+    confirmButtonText: '确定删除',
+    cancelButtonText: '取消',
+    type: 'error',
+  })
+    .then(async () => {
+      try {
+        const response = await residentApi.deleteResident(resident.id);
+        if (response.success) {
+          const index = residents.value.findIndex(r => r.id === resident.id);
+          if (index !== -1) {
+            residents.value.splice(index, 1);
+            ElMessage.success('删除成功');
+            updateStatistics();
+          }
+        } else {
+          throw new Error(response.error || '删除失败');
+        }
+      } catch (error) {
+        ElMessage.error('删除失败');
+        console.error('[deleteResident] Error:', error);
+      }
+    })
+    .catch(() => {});
+};
 
 const showAdvancedSearch = () => {
-  ElMessage.info('高级搜索功能开发中...')
-}
+  ElMessage.info('高级搜索功能开发中...');
+};
 
 const importData = () => {
-  ElMessage.info('批量导入功能开发中...')
-}
+  ElMessage.info('批量导入功能开发中...');
+};
 
-const exportData = () => {
-  ElMessage.success('数据导出成功')
-}
+const exportData = async () => {
+  try {
+    const response = await residentApi.exportResidents({
+      ...searchParams,
+      ids: selectedResidents.value.map(r => r.id),
+    });
+    if (response.success) {
+      ElMessage.success('数据导出成功');
+      // 触发文件下载
+      const blob = new Blob([response.data], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = `村民数据_${new Date().toLocaleDateString()}.xlsx`;
+      link.click();
+    } else {
+      throw new Error(response.error || '导出失败');
+    }
+  } catch (error) {
+    ElMessage.error('导出失败');
+    console.error('[exportData] Error:', error);
+  }
+};
 
 const generateHouseholdCode = () => {
-  const code = `SM${new Date().getFullYear()}${String(Math.floor(Math.random() * 10000)).padStart(4, '0')}`
-  ElMessage.success(`已生成户码: ${code}`)
-}
+  const code = `SM${new Date().getFullYear()}${String(Math.floor(Math.random() * 10000)).padStart(4, '0')}`;
+  ElMessage.success(`已生成户码: ${code}`);
+  return code;
+};
 
 const updateStatistics = () => {
-  statistics.totalResidents = residents.value.length
-  statistics.totalHouseholds = new Set(residents.value.map(r => r.householdCode)).size
-  statistics.lowIncomeHouseholds = residents.value.filter(r => r.isLowIncome).length
-  statistics.elderly = residents.value.filter(r => calculateAge(r.idCard) >= 65).length
-  statistics.children = residents.value.filter(r => calculateAge(r.idCard) < 18).length
-}
+  statistics.totalResidents = residents.value.length;
+  statistics.totalHouseholds = new Set(residents.value.map(r => r.householdCode)).size;
+  statistics.lowIncomeHouseholds = residents.value.filter(r => r.isLowIncome).length;
+  statistics.elderly = residents.value.filter(r => calculateAge(r.idCard) >= 65).length;
+  statistics.children = residents.value.filter(r => calculateAge(r.idCard) < 18).length;
+};
 
-const handleAvatarSuccess = (response) => {
-  residentForm.avatar = response.url
-}
+const handleAvatarSuccess = (response: { url: string }) => {
+  residentForm.avatar = response.url;
+};
 
-const beforeAvatarUpload = (file) => {
-  const isJPG = file.type === 'image/jpeg' || file.type === 'image/png'
-  const isLt2M = file.size / 1024 / 1024 < 2
+const beforeAvatarUpload = (file: File) => {
+  const isJPG = file.type === 'image/jpeg' || file.type === 'image/png';
+  const isLt2M = file.size / 1024 / 1024 < 2;
 
   if (!isJPG) {
-    ElMessage.error('上传头像图片只能是 JPG/PNG 格式!')
+    ElMessage.error('上传头像图片只能是 JPG/PNG 格式!');
   }
   if (!isLt2M) {
-    ElMessage.error('上传头像图片大小不能超过 2MB!')
+    ElMessage.error('上传头像图片大小不能超过 2MB!');
   }
-  return isJPG && isLt2M
-}
+  return isJPG && isLt2M;
+};
 
 // 生命周期
 onMounted(() => {
-  updateStatistics()
-})
+  fetchResidents();
+});
 </script>
 
 <style scoped>

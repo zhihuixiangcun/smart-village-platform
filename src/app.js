@@ -33,6 +33,14 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 // ============================================
+// 安全验证 - JWT密钥安全性检查
+// ============================================
+const path = require('path');
+const jwtSecurity = require(path.join(__dirname, '../scripts/jwt-security'));
+console.log('[SECURITY] Validating JWT secret security...');
+jwtSecurity.validateEnvironmentJWTSecret();
+
+// ============================================
 // 初始化数据库连接 - 必须在加载模型之前
 // ============================================
 const database = require('./config/database');
@@ -49,7 +57,6 @@ const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
-const path = require('path');
 const mongoose = require('mongoose');
 
 // ============================================
@@ -119,6 +126,10 @@ console.log('[DEBUG] ecommerceRoutes DISABLED (has undefined callbacks)');
 // AI chat routes
 const aiChatRoutes = require('./routes/aiChat');
 console.log('[DEBUG] aiChatRoutes loaded');
+
+// 行政区划路由
+const regionRoutes = require('./routes/regionRoutes');
+console.log('[DEBUG] regionRoutes loaded');
 
 // 导入村民管理路由
 // TODO: familyRoutes causing startup crash - temporarily disabled
@@ -195,17 +206,17 @@ mongoose.connect(MONGO_URI, {
   serverSelectionTimeoutMS: 10000, // 10 second timeout
   socketTimeoutMS: 45000,
 })
-.then(() => {
-  console.log('[DEBUG] MongoDB connected successfully');
-  console.log('[DEBUG] Database name:', mongoose.connection.name);
-  console.log('[DEBUG] Database host:', mongoose.connection.host);
-  console.log('[DEBUG] Database port:', mongoose.connection.port);
-})
-.catch((err) => {
-  console.error('[DEBUG] MongoDB connection error:', err.message);
-  console.log('[DEBUG] Application will continue without database connection');
+  .then(() => {
+    console.log('[DEBUG] MongoDB connected successfully');
+    console.log('[DEBUG] Database name:', mongoose.connection.name);
+    console.log('[DEBUG] Database host:', mongoose.connection.host);
+    console.log('[DEBUG] Database port:', mongoose.connection.port);
+  })
+  .catch((err) => {
+    console.error('[DEBUG] MongoDB connection error:', err.message);
+    console.log('[DEBUG] Application will continue without database connection');
   // Don't exit - allow app to run without DB for development
-});
+  });
 
 // 监听连接事件
 mongoose.connection.on('connected', () => {
@@ -256,40 +267,16 @@ app.use(helmet({
 }));
 
 app.use(compression());
-app.use(cors({
-  origin: [
-    process.env.CLIENT_URL || 'http://localhost:3000',
-    'http://localhost:3006',
-    'http://localhost:3007',
-    'http://localhost:3008',
-    'http://localhost:3009',
-    'http://localhost:3010',
-    'http://localhost:3011',
-    'http://localhost:3012',
-    'http://127.0.0.1:3006',
-    'http://127.0.0.1:3007',
-    'http://127.0.0.1:3008',
-    'http://127.0.0.1:3009',
-    'http://127.0.0.1:3010',
-    'http://127.0.0.1:3011',
-    'http://127.0.0.1:3012'
-  ],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: [
-    'Content-Type',
-    'Authorization',
-    'X-Requested-With',
-    'X-User-Id',
-    'X-Village-Id',
-    'X-Session-Id'
-  ]
-}));
+
+// 🔒 安全CORS策略配置
+const { secureCors } = require('../middleware/corsSecurity');
+app.use(secureCors.logger);
+app.use(cors(secureCors.config));
 
 // 请求体大小限制配置 - 安全配置防止 DoS 攻击
-// 默认 1MB，可根据环境变量调整
-const MAX_BODY_SIZE = process.env.MAX_BODY_SIZE || '1mb';
-const MAX_URL_ENCODED_SIZE = process.env.MAX_URL_ENCODED_SIZE || '1mb';
+// 硬编码安全限制，禁止环境变量覆盖
+const MAX_BODY_SIZE = '5mb';
+const MAX_URL_ENCODED_SIZE = '5mb';
 
 app.use(express.json({
   limit: MAX_BODY_SIZE,
@@ -598,6 +585,12 @@ console.log('[DEBUG] ecommerceRoutes DISABLED (has undefined callbacks)');
 if (aiChatRoutes) {
   app.use('/api/v1/ai', aiChatRoutes);
   console.log('[DEBUG] aiChatRoutes registered at /api/v1/ai');
+}
+
+// 行政区划路由
+if (regionRoutes) {
+  app.use('/api/v1/regions', regionRoutes);
+  console.log('[DEBUG] regionRoutes registered at /api/v1/regions');
 }
 
 // 村民管理系统路由 - Temporarily disabled (familyRoutes is null)
@@ -1117,9 +1110,9 @@ async function startServer() {
     });
 
     // 设置服务器超时
-    server.timeout = 30000; // 30秒
-    server.keepAliveTimeout = 65000; // 65秒
-    server.headersTimeout = 66000; // 66秒
+    server.timeout = 60000;       // 60秒 - 增加处理时间
+    server.keepAliveTimeout = 5000; // 5秒 - 快速回收空闲连接
+    server.headersTimeout = 66000;  // 66秒 - 与timeout保持合理比例
 
     // 优雅关闭处理
     const gracefulShutdown = async (signal) => {

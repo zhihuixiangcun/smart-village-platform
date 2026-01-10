@@ -9,7 +9,8 @@
         class="emergency-btn"
         @click="handleEmergencyCall"
         :loading="calling"
-        :disabled="calling">
+        :disabled="calling"
+      >
         <span class="btn-text">一键应急呼叫</span>
       </el-button>
     </div>
@@ -17,10 +18,12 @@
     <!-- 快速类型选择 -->
     <div class="quick-types" v-if="!calling && !isActive">
       <div class="type-grid">
-        <div v-for="type in emergencyTypes"
-             :key="type.value"
-             class="type-item"
-             @click="handleQuickCall(type.value)">
+        <div
+          v-for="type in emergencyTypes"
+          :key="type.value"
+          class="type-item"
+          @click="handleQuickCall(type.value)"
+        >
           <div class="type-icon" :style="{ backgroundColor: type.color }">
             <el-icon size="24">
               <component :is="type.icon" />
@@ -38,7 +41,8 @@
       width="600px"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
-      class="emergency-dialog">
+      class="emergency-dialog"
+    >
       <template #header>
         <div class="dialog-header">
           <el-icon class="header-icon" color="#f56c6c"><Warning /></el-icon>
@@ -51,20 +55,23 @@
         :model="emergencyData"
         :rules="formRules"
         label-width="100px"
-        class="emergency-form">
+        class="emergency-form"
+      >
         <!-- 事件类型 -->
         <el-form-item label="事件类型" prop="type">
           <el-select
             v-model="emergencyData.type"
             placeholder="请选择事件类型"
             style="width: 100%"
-            @change="handleTypeChange">
+            @change="handleTypeChange"
+          >
             <el-option
               v-for="type in emergencyTypes"
               :key="type.value"
               :label="type.name"
-              :value="type.value">
-              <div style="display: flex; align-items: center; gap: 8px;">
+              :value="type.value"
+            >
+              <div style="display: flex; align-items: center; gap: 8px">
                 <div class="type-option-icon" :style="{ backgroundColor: type.color }">
                   <el-icon size="16">
                     <component :is="type.icon" />
@@ -93,7 +100,8 @@
             :rows="4"
             placeholder="请详细描述发生的事件..."
             maxlength="500"
-            show-word-limit />
+            show-word-limit
+          />
         </el-form-item>
 
         <!-- 伤亡情况 -->
@@ -103,7 +111,8 @@
             :min="0"
             :max="999"
             placeholder="伤亡人数"
-            style="width: 150px;" />
+            style="width: 150px"
+          />
           <span class="form-tip">如无伤亡请填写0</span>
         </el-form-item>
 
@@ -124,14 +133,16 @@
           <el-input
             v-model="emergencyData.reporterName"
             placeholder="请输入您的姓名"
-            :readonly="userStore.isLoggedIn" />
+            :readonly="userStore.isLoggedIn"
+          />
         </el-form-item>
 
         <el-form-item label="联系电话" prop="reporterPhone">
           <el-input
             v-model="emergencyData.reporterPhone"
             placeholder="请输入联系电话"
-            :readonly="userStore.isLoggedIn">
+            :readonly="userStore.isLoggedIn"
+          >
             <template #prefix>
               <el-icon><Phone /></el-icon>
             </template>
@@ -142,7 +153,8 @@
           <el-select
             v-model="emergencyData.relationship"
             placeholder="请选择关系"
-            style="width: 100%">
+            style="width: 100%"
+          >
             <el-option label="本人" value="self" />
             <el-option label="家人" value="family" />
             <el-option label="朋友" value="friend" />
@@ -156,9 +168,7 @@
         <el-divider content-position="left" v-if="showVictimInfo">当事人信息</el-divider>
 
         <el-form-item label="当事人姓名" v-if="showVictimInfo">
-          <el-input
-            v-model="emergencyData.victimName"
-            placeholder="请输入当事人姓名" />
+          <el-input v-model="emergencyData.victimName" placeholder="请输入当事人姓名" />
         </el-form-item>
 
         <el-form-item label="年龄" v-if="showVictimInfo">
@@ -167,7 +177,8 @@
             :min="0"
             :max="150"
             placeholder="年龄"
-            style="width: 150px;" />
+            style="width: 150px"
+          />
         </el-form-item>
 
         <el-form-item label="性别" v-if="showVictimInfo">
@@ -183,17 +194,15 @@
             v-model="emergencyData.victimCondition"
             type="textarea"
             :rows="2"
-            placeholder="请描述当事人的身体状况..." />
+            placeholder="请描述当事人的身体状况..."
+          />
         </el-form-item>
 
         <!-- 位置信息 -->
         <el-divider content-position="left">事发位置</el-divider>
 
         <el-form-item label="详细地址" prop="address">
-          <el-input
-            v-model="emergencyData.address"
-            placeholder="请输入详细地址"
-            readonly>
+          <el-input v-model="emergencyData.address" placeholder="请输入详细地址" readonly>
             <template #append>
               <el-button @click="handleLocationInput">
                 <el-icon><Location /></el-icon>
@@ -235,12 +244,11 @@
             :limit="5"
             accept="image/*,video/*"
             list-type="picture-card"
-            class="media-upload">
+            class="media-upload"
+          >
             <el-icon><Plus /></el-icon>
             <template #tip>
-              <div class="upload-tip">
-                支持上传图片和视频，最多5个文件，每个文件不超过10MB
-              </div>
+              <div class="upload-tip">支持上传图片和视频，最多5个文件，每个文件不超过10MB</div>
             </template>
           </el-upload>
         </el-form-item>
@@ -248,14 +256,8 @@
 
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="handleCancel" :disabled="calling">
-            取消
-          </el-button>
-          <el-button
-            type="danger"
-            @click="handleSubmit"
-            :loading="calling"
-            :disabled="!canSubmit">
+          <el-button @click="handleCancel" :disabled="calling"> 取消 </el-button>
+          <el-button type="danger" @click="handleSubmit" :loading="calling" :disabled="!canSubmit">
             {{ calling ? '正在呼叫...' : '确认呼叫' }}
           </el-button>
         </div>
@@ -266,45 +268,54 @@
     <LocationPickerDialog
       v-model="locationPickerVisible"
       :default-location="currentLocation"
-      @selected="handleLocationSelected" />
+      @selected="handleLocationSelected"
+    />
 
     <!-- 呼叫成功弹窗 -->
-    <EmergencyCallResultDialog
-      v-model="resultDialogVisible"
-      :call-result="callResult" />
+    <EmergencyCallResultDialog v-model="resultDialogVisible" :call-result="callResult" />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, computed, reactive, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
-  Bell, Warning, Phone, Location, LocationInformation, Loading,
-  Plus, FirstAidKit, Flag, WarningFilled, Van, Tools  // Van 替代 Car, Flag 替代 Fire
-} from '@element-plus/icons-vue'
-import LocationPickerDialog from './LocationPickerDialog.vue'
-import EmergencyCallResultDialog from './EmergencyCallResultDialog.vue'
-import { useUserStore } from '@/stores/user'
-import { emergencyApi } from '@/api/emergency'
-import { geolocationService } from '@/utils/geolocation'
+  Bell,
+  Warning,
+  Phone,
+  Location,
+  LocationInformation,
+  Loading,
+  Plus,
+  FirstAidKit,
+  Flag,
+  WarningFilled,
+  Van,
+  Tools, // Van 替代 Car, Flag 替代 Fire
+} from '@element-plus/icons-vue';
+import LocationPickerDialog from './LocationPickerDialog.vue';
+import EmergencyCallResultDialog from './EmergencyCallResultDialog.vue';
+import { useUserStore } from '@/stores/user';
+import { emergencyApi } from '@/api/emergency';
+import { geolocationService } from '@/utils/geolocation';
 
 // Store
-const userStore = useUserStore()
+const userStore = useUserStore();
 
 // Refs
-const emergencyForm = ref(null)
-const mediaUpload = ref(null)
-const callDialogVisible = ref(false)
-const locationPickerVisible = ref(false)
-const resultDialogVisible = ref(false)
-const calling = ref(false)
-const isActive = ref(false)
-const locationLoading = ref(false)
+const emergencyForm = ref(null);
+const mediaUpload = ref(null);
+const callDialogVisible = ref(false);
+const locationPickerVisible = ref(false);
+const resultDialogVisible = ref(false);
+const calling = ref(false);
+const isActive = ref(false);
+const locationLoading = ref(false);
 
 // Data
-const currentLocation = ref(null)
-const mediaFiles = ref([])
-const callResult = ref(null)
+const currentLocation = ref(null);
+const mediaFiles = ref([]);
+const callResult = ref(null);
 
 const emergencyData = reactive({
   type: '',
@@ -320,240 +331,239 @@ const emergencyData = reactive({
   victimGender: 'male',
   victimCondition: '',
   address: '',
-  coordinates: null
-})
+  coordinates: null,
+});
 
 const emergencyTypes = [
   {
     name: '医疗急救',
     value: 'medical',
     icon: FirstAidKit,
-    color: '#f56c6c'
+    color: '#f56c6c',
   },
   {
     name: '火灾',
     value: 'fire',
-    icon: Flag,  // 替代 Fire
-    color: '#ff6b6b'
+    icon: Flag, // 替代 Fire
+    color: '#ff6b6b',
   },
   {
     name: '事故',
     value: 'accident',
-    icon: Van,  // 替代 Car
-    color: '#ffa940'
+    icon: Van, // 替代 Car
+    color: '#ffa940',
   },
   {
     name: '人员失踪',
     value: 'missing_person',
     icon: WarningFilled,
-    color: '#722ed1'
+    color: '#722ed1',
   },
   {
     name: '公共安全',
     value: 'public_security',
     icon: Warning,
-    color: '#13c2c2'
+    color: '#13c2c2',
   },
   {
     name: '自然灾害',
     value: 'natural_disaster',
     icon: Tools,
-    color: '#52c41a'
-  }
-]
+    color: '#52c41a',
+  },
+];
 
 // 表单验证规则
 const formRules = {
-  type: [
-    { required: true, message: '请选择事件类型', trigger: 'change' }
-  ],
+  type: [{ required: true, message: '请选择事件类型', trigger: 'change' }],
   description: [
     { required: true, message: '请描述事件情况', trigger: 'blur' },
-    { min: 10, message: '描述至少需要10个字符', trigger: 'blur' }
+    { min: 10, message: '描述至少需要10个字符', trigger: 'blur' },
   ],
-  reporterName: [
-    { required: true, message: '请输入报警人姓名', trigger: 'blur' }
-  ],
+  reporterName: [{ required: true, message: '请输入报警人姓名', trigger: 'blur' }],
   reporterPhone: [
     { required: true, message: '请输入联系电话', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' }
+    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' },
   ],
-  address: [
-    { required: true, message: '请输入事发地址', trigger: 'blur' }
-  ]
-}
+  address: [{ required: true, message: '请输入事发地址', trigger: 'blur' }],
+};
 
 // Computed
 const showCasualties = computed(() => {
-  return ['medical', 'fire', 'accident', 'natural_disaster'].includes(emergencyData.type)
-})
+  return ['medical', 'fire', 'accident', 'natural_disaster'].includes(emergencyData.type);
+});
 
 const showVictimRelation = computed(() => {
-  return emergencyData.type !== 'missing_person' && emergencyData.victimName
-})
+  return emergencyData.type !== 'missing_person' && emergencyData.victimName;
+});
 
 const showVictimInfo = computed(() => {
-  return emergencyData.type !== 'missing_person' && emergencyData.relationship !== 'self'
-})
+  return emergencyData.type !== 'missing_person' && emergencyData.relationship !== 'self';
+});
 
 const uploadUrl = computed(() => {
-  return '/api/v1/emergency/upload/media'
-})
+  return '/api/v1/emergency/upload/media';
+});
 
 const uploadHeaders = computed(() => {
-  return userStore.token ? {
-    Authorization: `Bearer ${userStore.token}`
-  } : {}
-})
+  return userStore.token
+    ? {
+        Authorization: `Bearer ${userStore.token}`,
+      }
+    : {};
+});
 
 const canSubmit = computed(() => {
-  return emergencyData.type &&
-         emergencyData.description &&
-         emergencyData.reporterName &&
-         emergencyData.reporterPhone &&
-         emergencyData.address
-})
+  return (
+    emergencyData.type &&
+    emergencyData.description &&
+    emergencyData.reporterName &&
+    emergencyData.reporterPhone &&
+    emergencyData.address
+  );
+});
 
 // Methods
 const handleEmergencyCall = () => {
   // 初始化表单数据
   if (userStore.isLoggedIn) {
-    emergencyData.reporterName = userStore.profile.displayName
-    emergencyData.reporterPhone = userStore.phone
-    emergencyData.relationship = 'self'
+    emergencyData.reporterName = userStore.profile.displayName;
+    emergencyData.reporterPhone = userStore.phone;
+    emergencyData.relationship = 'self';
   }
 
-  callDialogVisible.value = true
-}
+  callDialogVisible.value = true;
+};
 
-const handleQuickCall = (type) => {
-  emergencyData.type = type
-  handleEmergencyCall()
-}
+const handleQuickCall = type => {
+  emergencyData.type = type;
+  handleEmergencyCall();
+};
 
-const handleTypeChange = (value) => {
+const handleTypeChange = value => {
   // 根据类型自动设置一些默认值
   if (value === 'medical') {
-    emergencyData.urgency = 'high'
+    emergencyData.urgency = 'high';
   } else if (value === 'fire') {
-    emergencyData.urgency = 'high'
+    emergencyData.urgency = 'high';
   }
-}
+};
 
 const handleLocationInput = () => {
-  locationPickerVisible.value = true
-}
+  locationPickerVisible.value = true;
+};
 
 const handleGetLocation = async () => {
-  locationLoading.value = true
+  locationLoading.value = true;
   try {
-    const position = await geolocationService.getCurrentPosition()
+    const position = await geolocationService.getCurrentPosition();
     currentLocation.value = {
       latitude: position.coords.latitude,
       longitude: position.coords.longitude,
-      accuracy: position.coords.accuracy
-    }
+      accuracy: position.coords.accuracy,
+    };
 
     // 逆地理编码获取地址
     const address = await geolocationService.reverseGeocode(
       position.coords.latitude,
       position.coords.longitude
-    )
-    emergencyData.address = address
-    emergencyData.coordinates = currentLocation.value
+    );
+    emergencyData.address = address;
+    emergencyData.coordinates = currentLocation.value;
 
-    ElMessage.success('定位成功')
+    ElMessage.success('定位成功');
   } catch (error) {
-    ElMessage.error('获取位置失败: ' + error.message)
+    ElMessage.error('获取位置失败: ' + error.message);
   } finally {
-    locationLoading.value = false
+    locationLoading.value = false;
   }
-}
+};
 
 const handleRelocate = () => {
-  handleGetLocation()
-}
+  handleGetLocation();
+};
 
-const handleLocationSelected = (location) => {
-  currentLocation.value = location
-  emergencyData.coordinates = location
-  locationPickerVisible.value = false
-}
+const handleLocationSelected = location => {
+  currentLocation.value = location;
+  emergencyData.coordinates = location;
+  locationPickerVisible.value = false;
+};
 
-const formatLocation = (location) => {
-  return `${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}`
-}
+const formatLocation = location => {
+  return `${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}`;
+};
 
 const handleMediaSuccess = (response, file) => {
   mediaFiles.value.push({
     name: file.name,
     url: response.url,
-    type: file.type.startsWith('image/') ? 'image' : 'video'
-  })
-}
+    type: file.type.startsWith('image/') ? 'image' : 'video',
+  });
+};
 
-const handleMediaRemove = (file) => {
-  const index = mediaFiles.value.findIndex(item => item.name === file.name)
+const handleMediaRemove = file => {
+  const index = mediaFiles.value.findIndex(item => item.name === file.name);
   if (index > -1) {
-    mediaFiles.value.splice(index, 1)
+    mediaFiles.value.splice(index, 1);
   }
-}
+};
 
-const handleMediaError = (error) => {
-  ElMessage.error('文件上传失败: ' + error.message)
-}
+const handleMediaError = error => {
+  ElMessage.error('文件上传失败: ' + error.message);
+};
 
 const handleSubmit = async () => {
   try {
     // 表单验证
-    const valid = await emergencyForm.value.validate()
-    if (!valid) return
+    const valid = await emergencyForm.value.validate();
+    if (!valid) return;
 
-    calling.value = true
-    isActive.value = true
+    calling.value = true;
+    isActive.value = true;
 
     // 构建提交数据
     const submitData = {
       ...emergencyData,
       villageId: userStore.villageId,
       media: mediaFiles.value,
-      coordinates: currentLocation.value
-    }
+      coordinates: currentLocation.value,
+    };
 
     // 发起应急呼叫
-    const response = await emergencyApi.oneClickCall(submitData)
+    const response = await emergencyApi.oneClickCall(submitData);
 
-    callResult.value = response.data
-    callDialogVisible.value = false
-    resultDialogVisible.value = true
+    callResult.value = response.data;
+    callDialogVisible.value = false;
+    resultDialogVisible.value = true;
 
-    ElMessage.success('应急呼叫已受理，救援人员正在赶来')
-
+    ElMessage.success('应急呼叫已受理，救援人员正在赶来');
   } catch (error) {
-    ElMessage.error('应急呼叫失败: ' + error.message)
+    ElMessage.error('应急呼叫失败: ' + error.message);
   } finally {
-    calling.value = false
-    isActive.value = false
+    calling.value = false;
+    isActive.value = false;
   }
-}
+};
 
 const handleCancel = () => {
   if (calling.value) {
     ElMessageBox.confirm('呼叫正在进行中，确定要取消吗？', '确认取消', {
       type: 'warning',
       confirmButtonText: '确定取消',
-      cancelButtonText: '继续呼叫'
-    }).then(() => {
-      calling.value = false
-      isActive.value = false
-      callDialogVisible.value = false
-    }).catch(() => {
-      // 用户选择继续呼叫
+      cancelButtonText: '继续呼叫',
     })
+      .then(() => {
+        calling.value = false;
+        isActive.value = false;
+        callDialogVisible.value = false;
+      })
+      .catch(() => {
+        // 用户选择继续呼叫
+      });
   } else {
-    callDialogVisible.value = false
+    callDialogVisible.value = false;
   }
-}
+};
 
 const resetForm = () => {
   Object.assign(emergencyData, {
@@ -570,22 +580,22 @@ const resetForm = () => {
     victimGender: 'male',
     victimCondition: '',
     address: '',
-    coordinates: null
-  })
+    coordinates: null,
+  });
 
-  currentLocation.value = null
-  mediaFiles.value = []
+  currentLocation.value = null;
+  mediaFiles.value = [];
 
   if (emergencyForm.value) {
-    emergencyForm.value.resetFields()
+    emergencyForm.value.resetFields();
   }
-}
+};
 
 // Lifecycle
 onMounted(() => {
   // 自动获取当前位置
-  handleGetLocation()
-})
+  handleGetLocation();
+});
 </script>
 
 <style scoped>

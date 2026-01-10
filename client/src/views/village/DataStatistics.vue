@@ -99,7 +99,7 @@
             <template #header>
               <div class="chart-header">
                 <span>人口结构分析</span>
-                <el-select v-model="populationChartType" size="small" style="width: 100px;">
+                <el-select v-model="populationChartType" size="small" style="width: 100px">
                   <el-option label="年龄" value="age" />
                   <el-option label="性别" value="gender" />
                   <el-option label="教育" value="education" />
@@ -137,7 +137,7 @@
         </el-col>
       </el-row>
 
-      <el-row :gutter="24" style="margin-top: 24px;">
+      <el-row :gutter="24" style="margin-top: 24px">
         <!-- 项目进度统计 -->
         <el-col :span="12">
           <el-card class="chart-card">
@@ -145,9 +145,21 @@
               <div class="chart-header">
                 <span>项目进度统计</span>
                 <el-button-group size="small">
-                  <el-button :type="projectPeriod === 'month' ? 'primary' : ''" @click="projectPeriod = 'month'">月度</el-button>
-                  <el-button :type="projectPeriod === 'quarter' ? 'primary' : ''" @click="projectPeriod = 'quarter'">季度</el-button>
-                  <el-button :type="projectPeriod === 'year' ? 'primary' : ''" @click="projectPeriod = 'year'">年度</el-button>
+                  <el-button
+                    :type="projectPeriod === 'month' ? 'primary' : ''"
+                    @click="projectPeriod = 'month'"
+                    >月度</el-button
+                  >
+                  <el-button
+                    :type="projectPeriod === 'quarter' ? 'primary' : ''"
+                    @click="projectPeriod = 'quarter'"
+                    >季度</el-button
+                  >
+                  <el-button
+                    :type="projectPeriod === 'year' ? 'primary' : ''"
+                    @click="projectPeriod = 'year'"
+                    >年度</el-button
+                  >
                 </el-button-group>
               </div>
             </template>
@@ -163,7 +175,7 @@
             <template #header>
               <div class="chart-header">
                 <span>服务办理统计</span>
-                <el-select v-model="serviceType" size="small" style="width: 120px;">
+                <el-select v-model="serviceType" size="small" style="width: 120px">
                   <el-option label="全部服务" value="" />
                   <el-option label="证件办理" value="certificate" />
                   <el-option label="福利申请" value="welfare" />
@@ -188,7 +200,11 @@
             <div class="table-header">
               <span>人口详细信息</span>
               <div class="table-controls">
-                <el-select v-model="populationFilter.group" placeholder="分组方式" style="width: 120px; margin-right: 12px;">
+                <el-select
+                  v-model="populationFilter.group"
+                  placeholder="分组方式"
+                  style="width: 120px; margin-right: 12px"
+                >
                   <el-option label="按年龄组" value="age" />
                   <el-option label="按性别" value="gender" />
                   <el-option label="按教育程度" value="education" />
@@ -206,7 +222,7 @@
                     :percentage="row.percentage"
                     :stroke-width="8"
                     :show-text="false"
-                    style="width: 60px; margin-right: 8px;"
+                    style="width: 60px; margin-right: 8px"
                   />
                   <span>{{ row.percentage }}%</span>
                 </template>
@@ -230,9 +246,13 @@
                   placeholder="选择月份"
                   format="YYYY-MM"
                   value-format="YYYY-MM"
-                  style="width: 150px; margin-right: 12px;"
+                  style="width: 150px; margin-right: 12px"
                 />
-                <el-select v-model="financeTableType" placeholder="类型" style="width: 100px; margin-right: 12px;">
+                <el-select
+                  v-model="financeTableType"
+                  placeholder="类型"
+                  style="width: 100px; margin-right: 12px"
+                >
                   <el-option label="全部" value="" />
                   <el-option label="收入" value="income" />
                   <el-option label="支出" value="expense" />
@@ -244,9 +264,7 @@
             <el-table :data="financeTableData" stripe style="width: 100%">
               <el-table-column prop="category" label="分类" width="150" />
               <el-table-column prop="budget" label="预算金额" width="120" align="right">
-                <template #default="{ row }">
-                  ¥{{ row.budget.toLocaleString() }}
-                </template>
+                <template #default="{ row }"> ¥{{ row.budget.toLocaleString() }} </template>
               </el-table-column>
               <el-table-column prop="actual" label="实际金额" width="120" align="right">
                 <template #default="{ row }">
@@ -282,7 +300,11 @@
             <div class="table-header">
               <span>项目执行情况</span>
               <div class="table-controls">
-                <el-select v-model="projectStatus" placeholder="状态" style="width: 120px; margin-right: 12px;">
+                <el-select
+                  v-model="projectStatus"
+                  placeholder="状态"
+                  style="width: 120px; margin-right: 12px"
+                >
                   <el-option label="全部状态" value="" />
                   <el-option label="进行中" value="in_progress" />
                   <el-option label="已完成" value="completed" />
@@ -308,9 +330,7 @@
                 </template>
               </el-table-column>
               <el-table-column prop="budget" label="预算" width="100" align="right">
-                <template #default="{ row }">
-                  ¥{{ (row.budget / 10000).toFixed(1) }}万
-                </template>
+                <template #default="{ row }"> ¥{{ (row.budget / 10000).toFixed(1) }}万 </template>
               </el-table-column>
               <el-table-column prop="status" label="状态" width="100">
                 <template #default="{ row }">
@@ -337,7 +357,7 @@
                   end-placeholder="结束日期"
                   format="YYYY-MM-DD"
                   value-format="YYYY-MM-DD"
-                  style="margin-right: 12px;"
+                  style="margin-right: 12px"
                 />
                 <el-button type="primary" @click="loadServiceTableData">查询</el-button>
               </div>
@@ -354,12 +374,17 @@
                     :percentage="row.completionRate"
                     :stroke-width="8"
                     :show-text="false"
-                    style="width: 60px; margin-right: 8px;"
+                    style="width: 60px; margin-right: 8px"
                   />
                   <span>{{ row.completionRate }}%</span>
                 </template>
               </el-table-column>
-              <el-table-column prop="avgProcessTime" label="平均处理时长" width="130" align="center" />
+              <el-table-column
+                prop="avgProcessTime"
+                label="平均处理时长"
+                width="130"
+                align="center"
+              />
               <el-table-column prop="satisfaction" label="满意度" width="120">
                 <template #default="{ row }">
                   <el-rate
@@ -418,67 +443,136 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, nextTick } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ref, reactive, onMounted, nextTick } from 'vue';
+import { ElMessage } from 'element-plus';
 import {
-  Download, Refresh, User, House, FolderOpened, Money,
-  CaretTop, Minus
-} from '@element-plus/icons-vue'
-import * as echarts from 'echarts'
+  Download,
+  Refresh,
+  User,
+  House,
+  FolderOpened,
+  Money,
+  CaretTop,
+  Minus,
+} from '@element-plus/icons-vue';
+import * as echarts from 'echarts';
 
 // 数据状态
 const overviewData = reactive({
   totalPopulation: 3685,
   totalHouseholds: 1247,
   activeProjects: 18,
-  totalBudget: 5280000
-})
+  totalBudget: 5280000,
+});
 
-const populationChartType = ref('age')
-const financeDateRange = ref([])
-const projectPeriod = ref('month')
-const serviceType = ref('')
+const populationChartType = ref('age');
+const financeDateRange = ref([]);
+const projectPeriod = ref('month');
+const serviceType = ref('');
 
-const activeDataTable = ref('population')
+const activeDataTable = ref('population');
 
 // 过滤器
 const populationFilter = reactive({
-  group: 'age'
-})
+  group: 'age',
+});
 
-const financeTableDate = ref('')
-const financeTableType = ref('')
+const financeTableDate = ref('');
+const financeTableType = ref('');
 
-const projectStatus = ref('')
-const serviceDateRange = ref([])
+const projectStatus = ref('');
+const serviceDateRange = ref([]);
 
 // 图表引用
-const populationChart = ref(null)
-const financeChart = ref(null)
-const projectChart = ref(null)
-const serviceChart = ref(null)
+const populationChart = ref(null);
+const financeChart = ref(null);
+const projectChart = ref(null);
+const serviceChart = ref(null);
 
 // 图表实例
-let populationChartInstance = null
-let financeChartInstance = null
-let projectChartInstance = null
-let serviceChartInstance = null
+let populationChartInstance = null;
+let financeChartInstance = null;
+let projectChartInstance = null;
+let serviceChartInstance = null;
 
 // 表格数据
 const populationData = ref([
-  { group: '0-18岁', count: 586, percentage: 15.9, maleCount: 312, femaleCount: 274, description: '未成年人口' },
-  { group: '19-35岁', count: 892, percentage: 24.2, maleCount: 456, femaleCount: 436, description: '青年人口' },
-  { group: '36-50岁', count: 1024, percentage: 27.8, maleCount: 528, femaleCount: 496, description: '中年人口' },
-  { group: '51-65岁', count: 785, percentage: 21.3, maleCount: 402, femaleCount: 383, description: '中老年人口' },
-  { group: '65岁以上', count: 398, percentage: 10.8, maleCount: 189, femaleCount: 209, description: '老年人口' }
-])
+  {
+    group: '0-18岁',
+    count: 586,
+    percentage: 15.9,
+    maleCount: 312,
+    femaleCount: 274,
+    description: '未成年人口',
+  },
+  {
+    group: '19-35岁',
+    count: 892,
+    percentage: 24.2,
+    maleCount: 456,
+    femaleCount: 436,
+    description: '青年人口',
+  },
+  {
+    group: '36-50岁',
+    count: 1024,
+    percentage: 27.8,
+    maleCount: 528,
+    femaleCount: 496,
+    description: '中年人口',
+  },
+  {
+    group: '51-65岁',
+    count: 785,
+    percentage: 21.3,
+    maleCount: 402,
+    femaleCount: 383,
+    description: '中老年人口',
+  },
+  {
+    group: '65岁以上',
+    count: 398,
+    percentage: 10.8,
+    maleCount: 189,
+    femaleCount: 209,
+    description: '老年人口',
+  },
+]);
 
 const financeTableData = ref([
-  { category: '基础设施建设', budget: 1200000, actual: 1180000, variance: -1.7, progress: 98, note: '道路维修已完成' },
-  { category: '环境整治', budget: 800000, actual: 920000, variance: 15.0, progress: 115, note: '超出预算，需审批' },
-  { category: '公共服务', budget: 600000, actual: 450000, variance: -25.0, progress: 75, note: '部分项目延期' },
-  { category: '行政支出', budget: 400000, actual: 380000, variance: -5.0, progress: 95, note: '正常执行' }
-])
+  {
+    category: '基础设施建设',
+    budget: 1200000,
+    actual: 1180000,
+    variance: -1.7,
+    progress: 98,
+    note: '道路维修已完成',
+  },
+  {
+    category: '环境整治',
+    budget: 800000,
+    actual: 920000,
+    variance: 15.0,
+    progress: 115,
+    note: '超出预算，需审批',
+  },
+  {
+    category: '公共服务',
+    budget: 600000,
+    actual: 450000,
+    variance: -25.0,
+    progress: 75,
+    note: '部分项目延期',
+  },
+  {
+    category: '行政支出',
+    budget: 400000,
+    actual: 380000,
+    variance: -5.0,
+    progress: 95,
+    note: '正常执行',
+  },
+]);
 
 const projectTableData = ref([
   {
@@ -489,7 +583,7 @@ const projectTableData = ref([
     endDate: '2024-03-15',
     progress: 65,
     budget: 280000,
-    status: 'in_progress'
+    status: 'in_progress',
   },
   {
     name: '垃圾分类处理站建设',
@@ -499,7 +593,7 @@ const projectTableData = ref([
     endDate: '2024-04-20',
     progress: 30,
     budget: 150000,
-    status: 'in_progress'
+    status: 'in_progress',
   },
   {
     name: '文化活动中心改造',
@@ -509,9 +603,9 @@ const projectTableData = ref([
     endDate: '2024-02-28',
     progress: 100,
     budget: 120000,
-    status: 'completed'
-  }
-])
+    status: 'completed',
+  },
+]);
 
 const serviceTableData = ref([
   {
@@ -521,7 +615,7 @@ const serviceTableData = ref([
     pendingCount: 14,
     completionRate: 91,
     avgProcessTime: '3.2天',
-    satisfaction: 4.5
+    satisfaction: 4.5,
   },
   {
     serviceType: '社保申请',
@@ -530,7 +624,7 @@ const serviceTableData = ref([
     pendingCount: 11,
     completionRate: 88,
     avgProcessTime: '5.1天',
-    satisfaction: 4.2
+    satisfaction: 4.2,
   },
   {
     serviceType: '医疗救助',
@@ -539,88 +633,88 @@ const serviceTableData = ref([
     pendingCount: 2,
     completionRate: 94,
     avgProcessTime: '1.8天',
-    satisfaction: 4.8
-  }
-])
+    satisfaction: 4.8,
+  },
+]);
 
 // 导出对话框
 const exportDialog = reactive({
-  visible: false
-})
+  visible: false,
+});
 
 const exportForm = reactive({
   types: ['overview'],
   format: 'pdf',
-  dateRange: []
-})
+  dateRange: [],
+});
 
 // 方法
 const refreshData = () => {
-  ElMessage.success('数据刷新成功')
-  loadAllCharts()
-}
+  ElMessage.success('数据刷新成功');
+  loadAllCharts();
+};
 
 const exportReport = () => {
-  exportDialog.visible = true
-}
+  exportDialog.visible = true;
+};
 
 const confirmExport = () => {
-  ElMessage.success('报告导出成功')
-  exportDialog.visible = false
-}
+  ElMessage.success('报告导出成功');
+  exportDialog.visible = false;
+};
 
 const loadPopulationData = () => {
-  ElMessage.success('人口数据加载成功')
-}
+  ElMessage.success('人口数据加载成功');
+};
 
 const loadFinanceTableData = () => {
-  ElMessage.success('财务数据加载成功')
-}
+  ElMessage.success('财务数据加载成功');
+};
 
 const loadProjectTableData = () => {
-  ElMessage.success('项目数据加载成功')
-}
+  ElMessage.success('项目数据加载成功');
+};
 
 const loadServiceTableData = () => {
-  ElMessage.success('服务数据加载成功')
-}
+  ElMessage.success('服务数据加载成功');
+};
 
-const getProjectStatusType = (status) => {
+const getProjectStatusType = status => {
   const types = {
     planning: 'info',
     in_progress: 'primary',
     completed: 'success',
     paused: 'warning',
-    cancelled: 'danger'
-  }
-  return types[status] || 'info'
-}
+    cancelled: 'danger',
+  };
+  return types[status] || 'info';
+};
 
-const getProjectStatusText = (status) => {
+const getProjectStatusText = status => {
   const texts = {
     planning: '规划中',
     in_progress: '进行中',
     completed: '已完成',
     paused: '已暂停',
-    cancelled: '已取消'
-  }
-  return texts[status] || '未知'
-}
+    cancelled: '已取消',
+  };
+  return texts[status] || '未知';
+};
 
 // 初始化图表
 const initPopulationChart = () => {
-  if (!populationChart.value) return
+  if (!populationChart.value) return;
 
-  populationChartInstance = echarts.init(populationChart.value)
+  populationChartInstance = echarts.init(populationChart.value);
 
   const option = {
     tooltip: {
       trigger: 'item',
-      formatter: '{a} <br/>{b}: {c} ({d}%)'
+      formatter: '{a} <br/>{b}: {c} ({d}%)',
     },
     legend: {
       orient: 'vertical',
-      left: 'left'
+      left: 'left',
     },
     series: [
       {
@@ -632,122 +726,122 @@ const initPopulationChart = () => {
           { value: 892, name: '19-35岁' },
           { value: 1024, name: '36-50岁' },
           { value: 785, name: '51-65岁' },
-          { value: 398, name: '65岁以上' }
+          { value: 398, name: '65岁以上' },
         ],
         emphasis: {
           itemStyle: {
             shadowBlur: 10,
             shadowOffsetX: 0,
-            shadowColor: 'rgba(0, 0, 0, 0.5)'
-          }
-        }
-      }
-    ]
-  }
+            shadowColor: 'rgba(0, 0, 0, 0.5)',
+          },
+        },
+      },
+    ],
+  };
 
-  populationChartInstance.setOption(option)
-}
+  populationChartInstance.setOption(option);
+};
 
 const initFinanceChart = () => {
-  if (!financeChart.value) return
+  if (!financeChart.value) return;
 
-  financeChartInstance = echarts.init(financeChart.value)
+  financeChartInstance = echarts.init(financeChart.value);
 
   const option = {
     tooltip: {
-      trigger: 'axis'
+      trigger: 'axis',
     },
     legend: {
-      data: ['收入', '支出']
+      data: ['收入', '支出'],
     },
     xAxis: {
       type: 'category',
-      data: ['1月', '2月', '3月', '4月', '5月', '6月']
+      data: ['1月', '2月', '3月', '4月', '5月', '6月'],
     },
     yAxis: {
-      type: 'value'
+      type: 'value',
     },
     series: [
       {
         name: '收入',
         type: 'line',
         data: [120000, 132000, 101000, 134000, 90000, 230000],
-        smooth: true
+        smooth: true,
       },
       {
         name: '支出',
         type: 'line',
         data: [80000, 92000, 91000, 94000, 87000, 180000],
-        smooth: true
-      }
-    ]
-  }
+        smooth: true,
+      },
+    ],
+  };
 
-  financeChartInstance.setOption(option)
-}
+  financeChartInstance.setOption(option);
+};
 
 const initProjectChart = () => {
-  if (!projectChart.value) return
+  if (!projectChart.value) return;
 
-  projectChartInstance = echarts.init(projectChart.value)
+  projectChartInstance = echarts.init(projectChart.value);
 
   const option = {
     tooltip: {
       trigger: 'axis',
       axisPointer: {
-        type: 'shadow'
-      }
+        type: 'shadow',
+      },
     },
     legend: {
-      data: ['已完成', '进行中', '计划中']
+      data: ['已完成', '进行中', '计划中'],
     },
     xAxis: {
       type: 'category',
-      data: ['1月', '2月', '3月', '4月', '5月', '6月']
+      data: ['1月', '2月', '3月', '4月', '5月', '6月'],
     },
     yAxis: {
-      type: 'value'
+      type: 'value',
     },
     series: [
       {
         name: '已完成',
         type: 'bar',
         stack: 'total',
-        data: [2, 3, 4, 5, 3, 6]
+        data: [2, 3, 4, 5, 3, 6],
       },
       {
         name: '进行中',
         type: 'bar',
         stack: 'total',
-        data: [3, 4, 2, 3, 5, 2]
+        data: [3, 4, 2, 3, 5, 2],
       },
       {
         name: '计划中',
         type: 'bar',
         stack: 'total',
-        data: [1, 2, 3, 2, 3, 4]
-      }
-    ]
-  }
+        data: [1, 2, 3, 2, 3, 4],
+      },
+    ],
+  };
 
-  projectChartInstance.setOption(option)
-}
+  projectChartInstance.setOption(option);
+};
 
 const initServiceChart = () => {
-  if (!serviceChart.value) return
+  if (!serviceChart.value) return;
 
-  serviceChartInstance = echarts.init(serviceChart.value)
+  serviceChartInstance = echarts.init(serviceChart.value);
 
   const option = {
     tooltip: {
-      trigger: 'axis'
+      trigger: 'axis',
     },
     xAxis: {
       type: 'category',
-      data: ['证件办理', '福利申请', '便民服务', '投诉建议', '其他服务']
+      data: ['证件办理', '福利申请', '便民服务', '投诉建议', '其他服务'],
     },
     yAxis: {
-      type: 'value'
+      type: 'value',
     },
     series: [
       {
@@ -758,37 +852,37 @@ const initServiceChart = () => {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
             { offset: 0, color: '#83bff6' },
             { offset: 0.5, color: '#188df0' },
-            { offset: 1, color: '#188df0' }
-          ])
-        }
-      }
-    ]
-  }
+            { offset: 1, color: '#188df0' },
+          ]),
+        },
+      },
+    ],
+  };
 
-  serviceChartInstance.setOption(option)
-}
+  serviceChartInstance.setOption(option);
+};
 
 const loadAllCharts = () => {
   nextTick(() => {
-    initPopulationChart()
-    initFinanceChart()
-    initProjectChart()
-    initServiceChart()
-  })
-}
+    initPopulationChart();
+    initFinanceChart();
+    initProjectChart();
+    initServiceChart();
+  });
+};
 
 // 窗口大小改变时重新渲染图表
 const resizeCharts = () => {
-  if (populationChartInstance) populationChartInstance.resize()
-  if (financeChartInstance) financeChartInstance.resize()
-  if (projectChartInstance) projectChartInstance.resize()
-  if (serviceChartInstance) serviceChartInstance.resize()
-}
+  if (populationChartInstance) populationChartInstance.resize();
+  if (financeChartInstance) financeChartInstance.resize();
+  if (projectChartInstance) projectChartInstance.resize();
+  if (serviceChartInstance) serviceChartInstance.resize();
+};
 
 onMounted(() => {
-  loadAllCharts()
-  window.addEventListener('resize', resizeCharts)
-})
+  loadAllCharts();
+  window.addEventListener('resize', resizeCharts);
+});
 </script>
 
 <style scoped>

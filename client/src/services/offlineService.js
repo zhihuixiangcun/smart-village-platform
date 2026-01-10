@@ -11,10 +11,10 @@ const DB_VERSION = 1;
 
 // 数据存储对象名称
 const STORES = {
-  QUEUE: 'offline_queue',           // 离线操作队列
-  CACHE: 'offline_cache',           // 离线缓存数据
-  SYNC: 'sync_log',                 // 同步日志
-  ATTACHMENTS: 'attachments'        // 附件缓存
+  QUEUE: 'offline_queue', // 离线操作队列
+  CACHE: 'offline_cache', // 离线缓存数据
+  SYNC: 'sync_log', // 同步日志
+  ATTACHMENTS: 'attachments', // 附件缓存
 };
 
 class OfflineService {
@@ -50,14 +50,14 @@ class OfflineService {
         resolve(this.db);
       };
 
-      request.onupgradeneeded = (event) => {
+      request.onupgradeneeded = event => {
         const db = event.target.result;
 
         // 创建离线队列存储
         if (!db.objectStoreNames.contains(STORES.QUEUE)) {
           const queueStore = db.createObjectStore(STORES.QUEUE, {
             keyPath: 'id',
-            autoIncrement: true
+            autoIncrement: true,
           });
           queueStore.createIndex('timestamp', 'timestamp', { unique: false });
           queueStore.createIndex('endpoint', 'endpoint', { unique: false });
@@ -67,7 +67,7 @@ class OfflineService {
         // 创建离线缓存存储
         if (!db.objectStoreNames.contains(STORES.CACHE)) {
           const cacheStore = db.createObjectStore(STORES.CACHE, {
-            keyPath: 'key'
+            keyPath: 'key',
           });
           cacheStore.createIndex('timestamp', 'timestamp', { unique: false });
           cacheStore.createIndex('ttl', 'ttl', { unique: false });
@@ -77,7 +77,7 @@ class OfflineService {
         if (!db.objectStoreNames.contains(STORES.SYNC)) {
           const syncStore = db.createObjectStore(STORES.SYNC, {
             keyPath: 'id',
-            autoIncrement: true
+            autoIncrement: true,
           });
           syncStore.createIndex('timestamp', 'timestamp', { unique: false });
           syncStore.createIndex('status', 'status', { unique: false });
@@ -86,7 +86,7 @@ class OfflineService {
         // 创建附件缓存存储
         if (!db.objectStoreNames.contains(STORES.ATTACHMENTS)) {
           const attachmentStore = db.createObjectStore(STORES.ATTACHMENTS, {
-            keyPath: 'id'
+            keyPath: 'id',
           });
           attachmentStore.createIndex('type', 'type', { unique: false });
           attachmentStore.createIndex('timestamp', 'timestamp', { unique: false });
@@ -116,7 +116,7 @@ class OfflineService {
       options,
       timestamp: Date.now(),
       status: 'pending',
-      retryCount: 0
+      retryCount: 0,
     };
 
     return new Promise((resolve, reject) => {
@@ -205,7 +205,7 @@ class OfflineService {
       key,
       data,
       timestamp: Date.now(),
-      ttl: Date.now() + ttl
+      ttl: Date.now() + ttl,
     };
 
     return new Promise((resolve, reject) => {
@@ -304,7 +304,7 @@ class OfflineService {
       const index = store.index('ttl');
       const request = index.openCursor(IDBKeyRange.upperBound(Date.now()));
 
-      request.onsuccess = (event) => {
+      request.onsuccess = event => {
         const cursor = event.target.result;
         if (cursor) {
           cursor.delete();
@@ -337,7 +337,7 @@ class OfflineService {
       type,
       status,
       data,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
     return new Promise((resolve, reject) => {
@@ -372,7 +372,7 @@ class OfflineService {
       const request = index.openCursor(null, 'prev');
       const logs = [];
 
-      request.onsuccess = (event) => {
+      request.onsuccess = event => {
         const cursor = event.target.result;
         if (cursor && logs.length < limit) {
           logs.push(cursor.value);
@@ -437,9 +437,9 @@ class OfflineService {
             method: item.method,
             headers: {
               'Content-Type': 'application/json',
-              ...item.options.headers
+              ...item.options.headers,
             },
-            body: JSON.stringify(item.data)
+            body: JSON.stringify(item.data),
           });
 
           if (response.ok) {
@@ -447,7 +447,7 @@ class OfflineService {
             await this.removeFromQueue(item.id);
             await this.addSyncLog('queue', 'success', {
               endpoint: item.endpoint,
-              method: item.method
+              method: item.method,
             });
 
             console.log('同步成功:', item.endpoint);
@@ -465,7 +465,7 @@ class OfflineService {
             await this.removeFromQueue(item.id);
             await this.addSyncLog('queue', 'failed', {
               endpoint: item.endpoint,
-              error: error.message
+              error: error.message,
             });
           } else {
             // 更新队列项
@@ -499,7 +499,7 @@ class OfflineService {
       id,
       type,
       data,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
     return new Promise((resolve, reject) => {
@@ -584,7 +584,7 @@ class OfflineService {
       return {
         usage: estimate.usage,
         quota: estimate.quota,
-        usagePercent: ((estimate.usage / estimate.quota) * 100).toFixed(2)
+        usagePercent: ((estimate.usage / estimate.quota) * 100).toFixed(2),
       };
     }
     return null;

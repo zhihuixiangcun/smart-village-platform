@@ -16,76 +16,76 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Phone, Message, ChatDotRound } from '@element-plus/icons-vue'
+import { ref } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { Phone, Message, ChatDotRound } from '@element-plus/icons-vue';
 
 const props = defineProps({
   contactType: {
     type: String,
     default: 'phone', // phone, sms, chat
-    validator: (value) => ['phone', 'sms', 'chat'].includes(value)
+    validator: value => ['phone', 'sms', 'chat'].includes(value),
   },
   phoneNumber: {
     type: String,
-    default: ''
+    default: '',
   },
   buttonText: {
     type: String,
-    default: '联系'
+    default: '联系',
   },
   type: {
     type: String,
-    default: 'primary'
+    default: 'primary',
   },
   size: {
     type: String,
-    default: 'default'
+    default: 'default',
   },
   disabled: {
     type: Boolean,
-    default: false
+    default: false,
   },
   showText: {
     type: Boolean,
-    default: true
+    default: true,
   },
   confirmBeforeCall: {
     type: Boolean,
-    default: false
+    default: false,
   },
   customName: {
     type: String,
-    default: ''
-  }
-})
+    default: '',
+  },
+});
 
-const emit = defineEmits(['contact', 'before-contact'])
+const emit = defineEmits(['contact', 'before-contact']);
 
-const calling = ref(false)
+const calling = ref(false);
 
 const icon = computed(() => {
   const iconMap = {
     phone: Phone,
     sms: Message,
-    chat: ChatDotRound
-  }
-  return iconMap[props.contactType] || Phone
-})
+    chat: ChatDotRound,
+  };
+  return iconMap[props.contactType] || Phone;
+});
 
 const handleContact = async () => {
-  if (calling.value || props.disabled) return
+  if (calling.value || props.disabled) return;
 
   // 发出before-contact事件，允许父组件阻止联系
-  const canContinue = await new Promise((resolve) => {
+  const canContinue = await new Promise(resolve => {
     emit('before-contact', {
       type: props.contactType,
       contact: props.phoneNumber,
-      allow: resolve
-    })
-  })
+      allow: resolve,
+    });
+  });
 
-  if (!canContinue) return
+  if (!canContinue) return;
 
   // 如果需要确认
   if (props.confirmBeforeCall) {
@@ -96,37 +96,37 @@ const handleContact = async () => {
         {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
-          type: 'info'
+          type: 'info',
         }
-      )
+      );
     } catch {
-      return
+      return;
     }
   }
 
-  calling.value = true
+  calling.value = true;
 
   try {
-    await executeContact()
-    ElMessage.success(`${getContactText()}成功`)
+    await executeContact();
+    ElMessage.success(`${getContactText()}成功`);
     emit('contact', {
       type: props.contactType,
       contact: props.phoneNumber,
-      success: true
-    })
+      success: true,
+    });
   } catch (error) {
-    console.error('Contact failed:', error)
-    ElMessage.error(`${getContactText()}失败`)
+    console.error('Contact failed:', error);
+    ElMessage.error(`${getContactText()}失败`);
     emit('contact', {
       type: props.contactType,
       contact: props.phoneNumber,
       success: false,
-      error
-    })
+      error,
+    });
   } finally {
-    calling.value = false
+    calling.value = false;
   }
-}
+};
 
 const executeContact = () => {
   return new Promise((resolve, reject) => {
@@ -134,42 +134,42 @@ const executeContact = () => {
       case 'phone':
         // 拨打电话
         if (!props.phoneNumber) {
-          reject(new Error('电话号码不能为空'))
-          return
+          reject(new Error('电话号码不能为空'));
+          return;
         }
-        window.location.href = `tel:${props.phoneNumber}`
-        setTimeout(resolve, 1000)
-        break
+        window.location.href = `tel:${props.phoneNumber}`;
+        setTimeout(resolve, 1000);
+        break;
 
       case 'sms':
         // 发送短信
         if (!props.phoneNumber) {
-          reject(new Error('电话号码不能为空'))
-          return
+          reject(new Error('电话号码不能为空'));
+          return;
         }
-        window.location.href = `sms:${props.phoneNumber}`
-        setTimeout(resolve, 1000)
-        break
+        window.location.href = `sms:${props.phoneNumber}`;
+        setTimeout(resolve, 1000);
+        break;
 
       case 'chat':
         // 打开聊天界面
-        resolve()
-        break
+        resolve();
+        break;
 
       default:
-        reject(new Error('不支持的联系方式'))
+        reject(new Error('不支持的联系方式'));
     }
-  })
-}
+  });
+};
 
 const getContactText = () => {
   const textMap = {
     phone: '呼叫',
     sms: '发送短信',
-    chat: '发起聊天'
-  }
-  return textMap[props.contactType] || '联系'
-}
+    chat: '发起聊天',
+  };
+  return textMap[props.contactType] || '联系';
+};
 </script>
 
 <style lang="scss" scoped>

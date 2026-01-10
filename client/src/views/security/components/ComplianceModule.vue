@@ -19,7 +19,10 @@
         </el-col>
         <el-col :span="8">
           <div class="overview-item">
-            <div class="overview-value" :class="assessmentData.isCompliant ? 'compliant' : 'non-compliant'">
+            <div
+              class="overview-value"
+              :class="assessmentData.isCompliant ? 'compliant' : 'non-compliant'"
+            >
               {{ assessmentData.isCompliant ? '合规' : '不合规' }}
             </div>
             <div class="overview-label">合规状态</div>
@@ -59,11 +62,7 @@
         </el-table-column>
         <el-table-column label="操作">
           <template #default="scope">
-            <el-button
-              type="text"
-              size="small"
-              @click="viewDomainDetails(scope.row)"
-            >
+            <el-button type="text" size="small" @click="viewDomainDetails(scope.row)">
               查看详情
             </el-button>
           </template>
@@ -88,11 +87,7 @@
         <el-table-column prop="recommendations" label="整改建议" />
         <el-table-column label="操作" width="120">
           <template #default="scope">
-            <el-button
-              type="primary"
-              size="small"
-              @click="remediateItem(scope.row)"
-            >
+            <el-button type="primary" size="small" @click="remediateItem(scope.row)">
               开始整改
             </el-button>
           </template>
@@ -127,23 +122,13 @@
       <el-button type="primary" @click="refreshAssessment" :loading="refreshing">
         重新评估
       </el-button>
-      <el-button type="success" @click="generateRemediationPlan">
-        生成整改计划
-      </el-button>
-      <el-button type="warning" @click="startMonitoring">
-        启动持续监控
-      </el-button>
-      <el-button @click="exportComplianceReport">
-        导出合规报告
-      </el-button>
+      <el-button type="success" @click="generateRemediationPlan"> 生成整改计划 </el-button>
+      <el-button type="warning" @click="startMonitoring"> 启动持续监控 </el-button>
+      <el-button @click="exportComplianceReport"> 导出合规报告 </el-button>
     </div>
 
     <!-- 域详情对话框 -->
-    <el-dialog
-      v-model="domainDetailVisible"
-      :title="`${currentDomain?.domain} 域详情`"
-      width="80%"
-    >
+    <el-dialog v-model="domainDetailVisible" :title="`${currentDomain?.domain} 域详情`" width="80%">
       <div v-if="currentDomain">
         <h4>评估结果</h4>
         <p>得分: {{ currentDomain.score }}/100</p>
@@ -167,11 +152,7 @@
     </el-dialog>
 
     <!-- 整改对话框 -->
-    <el-dialog
-      v-model="remediationVisible"
-      title="整改项目"
-      width="60%"
-    >
+    <el-dialog v-model="remediationVisible" title="整改项目" width="60%">
       <div v-if="currentItem">
         <h4>{{ currentItem.title }}</h4>
         <p><strong>问题描述:</strong> {{ currentItem.description }}</p>
@@ -215,27 +196,27 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, watch } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import axios from 'axios'
+import { ref, reactive, computed, onMounted, watch } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import axios from 'axios';
 
 // Props
 const props = defineProps({
   moduleData: {
     type: Object,
-    default: () => ({})
-  }
-})
+    default: () => ({}),
+  },
+});
 
 // Emits
-const emit = defineEmits(['refresh'])
+const emit = defineEmits(['refresh']);
 
 // 响应式数据
-const refreshing = ref(false)
-const domainDetailVisible = ref(false)
-const remediationVisible = ref(false)
-const currentDomain = ref(null)
-const currentItem = ref(null)
+const refreshing = ref(false);
+const domainDetailVisible = ref(false);
+const remediationVisible = ref(false);
+const currentDomain = ref(null);
+const currentItem = ref(null);
 
 // 评估数据
 const assessmentData = reactive({
@@ -243,18 +224,18 @@ const assessmentData = reactive({
   overallScore: 0,
   isCompliant: false,
   domainScores: {},
-  nonCompliantItems: []
-})
+  nonCompliantItems: [],
+});
 
 // 整改计划
-const remediationPlan = ref(null)
+const remediationPlan = ref(null);
 
 // 整改表单
 const remediationForm = reactive({
   solution: '',
   assignee: '',
-  targetDate: ''
-})
+  targetDate: '',
+});
 
 // 计算属性
 const domainScores = computed(() => {
@@ -263,9 +244,9 @@ const domainScores = computed(() => {
     score: data.score,
     status: data.isCompliant ? 'compliant' : 'non-compliant',
     issues: data.issues || 0,
-    controls: data.controls || []
-  }))
-})
+    controls: data.controls || [],
+  }));
+});
 
 const nonCompliantItems = computed(() => {
   return assessmentData.nonCompliantItems.map(item => ({
@@ -275,110 +256,110 @@ const nonCompliantItems = computed(() => {
     category: item.category,
     severity: item.severity,
     recommendations: item.recommendations || [],
-    currentImplementation: item.currentImplementation
-  }))
-})
+    currentImplementation: item.currentImplementation,
+  }));
+});
 
 // 方法
-const getDomainName = (domain) => {
+const getDomainName = domain => {
   const domainNames = {
-    'physical': '物理安全',
-    'network': '网络安全',
-    'host': '主机安全',
-    'application': '应用安全',
-    'data': '数据安全',
-    'management': '安全管理',
-    'recovery': '备份恢复'
-  }
-  return domainNames[domain] || domain
-}
+    physical: '物理安全',
+    network: '网络安全',
+    host: '主机安全',
+    application: '应用安全',
+    data: '数据安全',
+    management: '安全管理',
+    recovery: '备份恢复',
+  };
+  return domainNames[domain] || domain;
+};
 
-const getComplianceClass = (score) => {
-  if (score >= 80) return 'excellent'
-  if (score >= 60) return 'good'
-  return 'poor'
-}
+const getComplianceClass = score => {
+  if (score >= 80) return 'excellent';
+  if (score >= 60) return 'good';
+  return 'poor';
+};
 
-const getScoreType = (score) => {
-  if (score >= 80) return 'success'
-  if (score >= 60) return 'warning'
-  return 'danger'
-}
+const getScoreType = score => {
+  if (score >= 80) return 'success';
+  if (score >= 60) return 'warning';
+  return 'danger';
+};
 
-const getProgressColor = (score) => {
-  if (score >= 80) return '#67C23A'
-  if (score >= 60) return '#E6A23C'
-  return '#F56C6C'
-}
+const getProgressColor = score => {
+  if (score >= 80) return '#67C23A';
+  if (score >= 60) return '#E6A23C';
+  return '#F56C6C';
+};
 
-const getSeverityType = (severity) => {
+const getSeverityType = severity => {
   const typeMap = {
-    'high': 'danger',
-    'medium': 'warning',
-    'low': 'info'
-  }
-  return typeMap[severity] || 'info'
-}
+    high: 'danger',
+    medium: 'warning',
+    low: 'info',
+  };
+  return typeMap[severity] || 'info';
+};
 
-const getTaskType = (priority) => {
+const getTaskType = priority => {
   const typeMap = {
-    'critical': 'danger',
-    'high': 'warning',
-    'medium': 'primary',
-    'low': 'info'
-  }
-  return typeMap[priority] || 'primary'
-}
+    critical: 'danger',
+    high: 'warning',
+    medium: 'primary',
+    low: 'info',
+  };
+  return typeMap[priority] || 'primary';
+};
 
 // 获取合规评估数据
 const fetchAssessmentData = async () => {
   try {
     const response = await axios.post('/api/v1/security/compliance-assessment', {
-      protectionLevel: assessmentData.protectionLevel
-    })
+      protectionLevel: assessmentData.protectionLevel,
+    });
 
     if (response.data.success) {
-      Object.assign(assessmentData, response.data.data)
+      Object.assign(assessmentData, response.data.data);
     }
   } catch (error) {
-    console.error('获取合规评估数据失败:', error)
-    ElMessage.error('获取合规评估数据失败')
+    console.error('获取合规评估数据失败:', error);
+    ElMessage.error('获取合规评估数据失败');
   }
-}
+};
 
 // 刷新评估
 const refreshAssessment = async () => {
-  refreshing.value = true
+  refreshing.value = true;
   try {
-    await fetchAssessmentData()
-    ElMessage.success('合规评估已刷新')
+    await fetchAssessmentData();
+    ElMessage.success('合规评估已刷新');
   } catch (error) {
-    ElMessage.error('刷新评估失败')
+    ElMessage.error('刷新评估失败');
   } finally {
-    refreshing.value = false
+    refreshing.value = false;
   }
-}
+};
 
 // 查看域详情
-const viewDomainDetails = (domain) => {
-  currentDomain.value = domain
-  domainDetailVisible.value = true
-}
+const viewDomainDetails = domain => {
+  currentDomain.value = domain;
+  domainDetailVisible.value = true;
+};
 
 // 整改项目
-const remediateItem = (item) => {
-  currentItem.value = item
-  remediationForm.solution = ''
-  remediationForm.assignee = ''
-  remediationForm.targetDate = ''
-  remediationVisible.value = true
-}
+const remediateItem = item => {
+  currentItem.value = item;
+  remediationForm.solution = '';
+  remediationForm.assignee = '';
+  remediationForm.targetDate = '';
+  remediationVisible.value = true;
+};
 
 // 提交整改
 const submitRemediation = async () => {
   if (!remediationForm.solution || !remediationForm.assignee || !remediationForm.targetDate) {
-    ElMessage.warning('请填写完整的整改信息')
-    return
+    ElMessage.warning('请填写完整的整改信息');
+    return;
   }
 
   try {
@@ -388,62 +369,66 @@ const submitRemediation = async () => {
     //   ...remediationForm
     // })
 
-    ElMessage.success('整改方案已提交')
-    remediationVisible.value = false
-    await fetchAssessmentData()
+    ElMessage.success('整改方案已提交');
+    remediationVisible.value = false;
+    await fetchAssessmentData();
   } catch (error) {
-    ElMessage.error('提交整改失败')
+    ElMessage.error('提交整改失败');
   }
-}
+};
 
 // 生成整改计划
 const generateRemediationPlan = async () => {
   try {
     const response = await axios.post('/api/v1/security/generate-remediation-plan', {
       assessmentId: assessmentData.assessmentId,
-      protectionLevel: assessmentData.protectionLevel
-    })
+      protectionLevel: assessmentData.protectionLevel,
+    });
 
     if (response.data.success) {
-      remediationPlan.value = response.data.data
-      ElMessage.success('整改计划已生成')
+      remediationPlan.value = response.data.data;
+      ElMessage.success('整改计划已生成');
     }
   } catch (error) {
-    console.error('生成整改计划失败:', error)
-    ElMessage.error('生成整改计划失败')
+    console.error('生成整改计划失败:', error);
+    ElMessage.error('生成整改计划失败');
   }
-}
+};
 
 // 启动持续监控
 const startMonitoring = async () => {
   try {
-    const response = await axios.get('/api/v1/security/continuous-compliance-monitoring')
+    const response = await axios.get('/api/v1/security/continuous-compliance-monitoring');
 
     if (response.data.success) {
-      ElMessage.success('持续监控已启动')
+      ElMessage.success('持续监控已启动');
     }
   } catch (error) {
-    console.error('启动持续监控失败:', error)
-    ElMessage.error('启动持续监控失败')
+    console.error('启动持续监控失败:', error);
+    ElMessage.error('启动持续监控失败');
   }
-}
+};
 
 // 导出合规报告
 const exportComplianceReport = () => {
-  ElMessage.info('导出功能开发中')
-}
+  ElMessage.info('导出功能开发中');
+};
 
 // 监听模块数据变化
-watch(() => props.moduleData, (newData) => {
-  if (newData && Object.keys(newData).length > 0) {
-    Object.assign(assessmentData, newData)
-  }
-}, { immediate: true })
+watch(
+  () => props.moduleData,
+  newData => {
+    if (newData && Object.keys(newData).length > 0) {
+      Object.assign(assessmentData, newData);
+    }
+  },
+  { immediate: true }
+);
 
 // 初始化
 onMounted(async () => {
-  await fetchAssessmentData()
-})
+  await fetchAssessmentData();
+});
 </script>
 
 <style scoped>
@@ -470,23 +455,23 @@ onMounted(async () => {
 }
 
 .overview-value.excellent {
-  color: #67C23A;
+  color: #67c23a;
 }
 
 .overview-value.good {
-  color: #409EFF;
+  color: #409eff;
 }
 
 .overview-value.poor {
-  color: #F56C6C;
+  color: #f56c6c;
 }
 
 .overview-value.compliant {
-  color: #67C23A;
+  color: #67c23a;
 }
 
 .overview-value.non-compliant {
-  color: #F56C6C;
+  color: #f56c6c;
 }
 
 .overview-label {

@@ -31,8 +31,8 @@ const feedbackApi = {
 
     const response = await axios.post(`${API_BASE_URL}/api/v1/feedback`, formData, {
       headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+        'Content-Type': 'multipart/form-data',
+      },
     });
     return response.data;
   },
@@ -50,7 +50,7 @@ const feedbackApi = {
    * 获取反馈详情
    * @param {string} feedbackId 反馈ID
    */
-  getFeedbackDetail: async (feedbackId) => {
+  getFeedbackDetail: async feedbackId => {
     const response = await axios.get(`${API_BASE_URL}/api/v1/feedback/${feedbackId}`);
     return response.data;
   },
@@ -107,7 +107,7 @@ const feedbackApi = {
    * 推荐改进方案
    * @param {Object} data 问题领域
    */
-  recommendImprovements: async (data) => {
+  recommendImprovements: async data => {
     const response = await axios.post(
       `${API_BASE_URL}/api/v1/feedback/recommend/improvements`,
       data
@@ -122,7 +122,7 @@ const feedbackApi = {
   exportFeedbackData: async (params = {}) => {
     const response = await axios.get(`${API_BASE_URL}/api/v1/feedback/export`, {
       params,
-      responseType: 'blob'
+      responseType: 'blob',
     });
     return response.data;
   },
@@ -133,10 +133,7 @@ const feedbackApi = {
    * @param {Object} params 分页参数
    */
   getUserFeedbackHistory: async (userId, params = {}) => {
-    const response = await axios.get(
-      `${API_BASE_URL}/api/v1/feedback/user/${userId}`,
-      { params }
-    );
+    const response = await axios.get(`${API_BASE_URL}/api/v1/feedback/user/${userId}`, { params });
     return response.data;
   },
 
@@ -144,7 +141,7 @@ const feedbackApi = {
    * 批量处理反馈
    * @param {Object} data 批量处理数据
    */
-  batchProcessFeedback: async (data) => {
+  batchProcessFeedback: async data => {
     const response = await axios.post(`${API_BASE_URL}/api/v1/feedback/batch`, data);
     return response.data;
   },
@@ -159,7 +156,7 @@ const feedbackApi = {
     { label: '投诉', value: 'complaint' },
     { label: '表扬', value: 'compliment' },
     { label: '问题咨询', value: 'question' },
-    { label: '使用困难', value: 'usage_difficulty' }
+    { label: '使用困难', value: 'usage_difficulty' },
   ],
 
   /**
@@ -171,7 +168,7 @@ const feedbackApi = {
     { label: '处理中', value: 'in_progress' },
     { label: '已解决', value: 'resolved' },
     { label: '已关闭', value: 'closed' },
-    { label: '已拒绝', value: 'rejected' }
+    { label: '已拒绝', value: 'rejected' },
   ],
 
   /**
@@ -181,8 +178,8 @@ const feedbackApi = {
     { label: '低', value: 'low' },
     { label: '中', value: 'medium' },
     { label: '高', value: 'high' },
-    { label: '紧急', value: 'urgent' }
-  ]
+    { label: '紧急', value: 'urgent' },
+  ],
 };
 
 export default feedbackApi;

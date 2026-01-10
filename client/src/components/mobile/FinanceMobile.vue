@@ -50,7 +50,10 @@
           <div class="card-info">
             <p class="card-label">预算余额</p>
             <p class="card-value">¥{{ formatCurrency(overviewData.budgetBalance) }}</p>
-            <p class="card-change" :class="overviewData.budgetUsageRate > 80 ? 'negative' : 'positive'">
+            <p
+              class="card-change"
+              :class="overviewData.budgetUsageRate > 80 ? 'negative' : 'positive'"
+            >
               使用率 {{ overviewData.budgetUsageRate }}%
             </p>
           </div>
@@ -67,7 +70,7 @@
           :percentage="overviewData.budgetUsageRate"
           :color="progressColor"
           :stroke-width="8"
-          show-text={false}
+          show-text="{false}"
         />
       </div>
     </div>
@@ -134,7 +137,7 @@
           v-show="fabExpanded"
           :style="{
             transform: `translateY(${-(index + 1) * 56}px)`,
-            transitionDelay: `${index * 30}ms`
+            transitionDelay: `${index * 30}ms`,
           }"
         >
           <span class="fab-tooltip">{{ action.label }}</span>
@@ -171,40 +174,49 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { ElMessage } from 'element-plus';
 import {
-  TrendCharts, ShoppingCart, PieChart, ArrowUp, ArrowDown,
-  Plus, Camera, Document, Money, Bell, Close
-} from '@element-plus/icons-vue'
-import { VanTabs, VanTab, VanPopup } from 'vant'
-import TransactionList from './TransactionList.vue'
-import InvoiceList from './InvoiceList.vue'
-import ApprovalList from './ApprovalList.vue'
-import ReportList from './ReportList.vue'
-import InvoiceOCR from './InvoiceOCR.vue'
-import QuickAddForm from './QuickAddForm.vue'
+  TrendCharts,
+  ShoppingCart,
+  PieChart,
+  ArrowUp,
+  ArrowDown,
+  Plus,
+  Camera,
+  Document,
+  Money,
+  Bell,
+  Close,
+} from '@element-plus/icons-vue';
+import { VanTabs, VanTab, VanPopup } from 'vant';
+import TransactionList from './TransactionList.vue';
+import InvoiceList from './InvoiceList.vue';
+import ApprovalList from './ApprovalList.vue';
+import ReportList from './ReportList.vue';
+import InvoiceOCR from './InvoiceOCR.vue';
+import QuickAddForm from './QuickAddForm.vue';
 
 // 路由
-const router = useRouter()
+const router = useRouter();
 
 // 响应式数据
-const selectedPeriod = ref('current')
-const activeTab = ref('transactions')
-const fabExpanded = ref(false)
-const showOCRPopup = ref(false)
-const showQuickAddPopup = ref(false)
+const selectedPeriod = ref('current');
+const activeTab = ref('transactions');
+const fabExpanded = ref(false);
+const showOCRPopup = ref(false);
+const showQuickAddPopup = ref(false);
 
 // 概览数据
 const overviewData = reactive({
-  income: 125680.50,
+  income: 125680.5,
   incomeGrowth: 12.5,
-  expense: 89432.30,
+  expense: 89432.3,
   expenseGrowth: 8.2,
-  budgetBalance: 36248.20,
-  budgetUsageRate: 71.3
-})
+  budgetBalance: 36248.2,
+  budgetUsageRate: 71.3,
+});
 
 // 快捷操作
 const quickActions = ref([
@@ -212,144 +224,146 @@ const quickActions = ref([
   { key: 'ocr', label: '扫码', icon: 'Camera', type: 'success' },
   { key: 'budget', label: '预算', icon: 'PieChart', type: 'warning' },
   { key: 'report', label: '报表', icon: 'TrendCharts', type: 'info' },
-  { key: 'approval', label: '审批', icon: 'DocumentChecked', type: 'danger' }
-])
+  { key: 'approval', label: '审批', icon: 'DocumentChecked', type: 'danger' },
+]);
 
 // 浮动按钮操作
 const fabActions = ref([
   { key: 'income', label: '收入', icon: 'Plus', type: 'success' },
   { key: 'expense', label: '支出', icon: 'Minus', type: 'danger' },
   { key: 'transfer', label: '转账', icon: 'Switch', type: 'warning' },
-  { key: 'ocr', label: '扫发票', icon: 'Camera', type: 'primary' }
-])
+  { key: 'ocr', label: '扫发票', icon: 'Camera', type: 'primary' },
+]);
 
 // 计算属性
 const progressColor = computed(() => {
-  const rate = overviewData.budgetUsageRate
-  if (rate < 60) return '#67c23a'
-  if (rate < 80) return '#e6a23c'
-  return '#f56c6c'
-})
+  const rate = overviewData.budgetUsageRate;
+  if (rate < 60) return '#67c23a';
+  if (rate < 80) return '#e6a23c';
+  return '#f56c6c';
+});
 
 // 方法
-const formatCurrency = (amount) => {
+const formatCurrency = amount => {
   return new Intl.NumberFormat('zh-CN', {
     style: 'currency',
     currency: 'CNY',
-    minimumFractionDigits: 2
-  }).format(amount).replace('¥', '')
-}
+    minimumFractionDigits: 2,
+  })
+    .format(amount)
+    .replace('¥', '');
+};
 
-const handlePeriodChange = (period) => {
+const handlePeriodChange = period => {
   // 加载对应时期的数据
-  loadOverviewData(period)
-}
+  loadOverviewData(period);
+};
 
-const loadOverviewData = async (period) => {
+const loadOverviewData = async period => {
   // 模拟API调用
-  ElMessage.loading('加载数据中...')
-  await new Promise(resolve => setTimeout(resolve, 500))
-  ElMessage.closeAll()
-}
+  ElMessage.loading('加载数据中...');
+  await new Promise(resolve => setTimeout(resolve, 500));
+  ElMessage.closeAll();
+};
 
 const showIncomeDetail = () => {
-  router.push('/finance/income')
-}
+  router.push('/finance/income');
+};
 
 const showExpenseDetail = () => {
-  router.push('/finance/expense')
-}
+  router.push('/finance/expense');
+};
 
 const showBudgetDetail = () => {
-  router.push('/finance/budget')
-}
+  router.push('/finance/budget');
+};
 
-const handleQuickAction = (action) => {
+const handleQuickAction = action => {
   switch (action) {
     case 'add':
-      showQuickAddPopup.value = true
-      break
+      showQuickAddPopup.value = true;
+      break;
     case 'ocr':
-      showOCRPopup.value = true
-      break
+      showOCRPopup.value = true;
+      break;
     case 'budget':
-      router.push('/finance/budget')
-      break
+      router.push('/finance/budget');
+      break;
     case 'report':
-      router.push('/finance/reports')
-      break
+      router.push('/finance/reports');
+      break;
     case 'approval':
-      activeTab.value = 'approvals'
-      break
+      activeTab.value = 'approvals';
+      break;
   }
-}
+};
 
-const handleTransactionClick = (transaction) => {
-  router.push(`/finance/transaction/${transaction.id}`)
-}
+const handleTransactionClick = transaction => {
+  router.push(`/finance/transaction/${transaction.id}`);
+};
 
-const handleInvoiceClick = (invoice) => {
-  router.push(`/finance/invoice/${invoice.id}`)
-}
+const handleInvoiceClick = invoice => {
+  router.push(`/finance/invoice/${invoice.id}`);
+};
 
-const handleApprovalClick = (approval) => {
-  router.push(`/finance/approval/${approval.id}`)
-}
+const handleApprovalClick = approval => {
+  router.push(`/finance/approval/${approval.id}`);
+};
 
-const handleReportClick = (report) => {
+const handleReportClick = report => {
   if (report.type === 'monthly') {
-    router.push('/finance/reports/monthly')
+    router.push('/finance/reports/monthly');
   } else if (report.type === 'yearly') {
-    router.push('/finance/reports/yearly')
+    router.push('/finance/reports/yearly');
   }
-}
+};
 
 const toggleFab = () => {
-  fabExpanded.value = !fabExpanded.value
-}
+  fabExpanded.value = !fabExpanded.value;
+};
 
-const handleFabAction = (action) => {
-  fabExpanded.value = false
+const handleFabAction = action => {
+  fabExpanded.value = false;
 
   switch (action) {
     case 'income':
-      showQuickAddPopup.value = true
+      showQuickAddPopup.value = true;
       // 传递收入类型
-      break
+      break;
     case 'expense':
-      showQuickAddPopup.value = true
+      showQuickAddPopup.value = true;
       // 传递支出类型
-      break
+      break;
     case 'transfer':
-      router.push('/finance/transfer')
-      break
+      router.push('/finance/transfer');
+      break;
     case 'ocr':
-      showOCRPopup.value = true
-      break
+      showOCRPopup.value = true;
+      break;
   }
-}
+};
 
-const handleOCRSuccess = (invoiceData) => {
-  showOCRPopup.value = false
-  ElMessage.success('发票识别成功')
+const handleOCRSuccess = invoiceData => {
+  showOCRPopup.value = false;
+  ElMessage.success('发票识别成功');
   // 跳转到确认页面
   router.push({
     path: '/finance/confirm',
-    query: { data: JSON.stringify(invoiceData) }
-  })
-}
+    query: { data: JSON.stringify(invoiceData) },
+  });
+};
 
-const handleQuickAddSuccess = (transaction) => {
-  showQuickAddPopup.value = false
-  ElMessage.success('记账成功')
+const handleQuickAddSuccess = transaction => {
+  showQuickAddPopup.value = false;
+  ElMessage.success('记账成功');
   // 刷新列表
-  window.location.reload()
-}
+  window.location.reload();
+};
 
 // 生命周期
 onMounted(() => {
-  loadOverviewData(selectedPeriod.value)
-})
+  loadOverviewData(selectedPeriod.value);
+});
 </script>
 
 <style lang="scss" scoped>

@@ -6,33 +6,19 @@
         <div class="actions-header">
           <h3>村委日常开支</h3>
           <div class="action-buttons">
-            <el-button 
-              type="primary" 
-              @click="showCreateDialog = true"
-              v-if="canCreateExpense"
-            >
+            <el-button type="primary" @click="showCreateDialog = true" v-if="canCreateExpense">
               <el-icon><Plus /></el-icon>
               新增开支
             </el-button>
-            <el-button 
-              type="success" 
-              @click="showRecurringDialog = true"
-              v-if="canCreateExpense"
-            >
+            <el-button type="success" @click="showRecurringDialog = true" v-if="canCreateExpense">
               <el-icon><Clock /></el-icon>
               定期开支
             </el-button>
-            <el-button 
-              @click="showImportDialog = true"
-              v-if="canCreateExpense"
-            >
+            <el-button @click="showImportDialog = true" v-if="canCreateExpense">
               <el-icon><Upload /></el-icon>
               批量导入
             </el-button>
-            <el-button 
-              @click="exportExpenses"
-              v-if="canViewReports"
-            >
+            <el-button @click="exportExpenses" v-if="canViewReports">
               <el-icon><Download /></el-icon>
               导出报表
             </el-button>
@@ -53,7 +39,7 @@
                 </div>
               </div>
             </el-col>
-            
+
             <el-col :span="6">
               <div class="stat-item">
                 <div class="stat-icon month">
@@ -65,7 +51,7 @@
                 </div>
               </div>
             </el-col>
-            
+
             <el-col :span="6">
               <div class="stat-item">
                 <div class="stat-icon pending">
@@ -78,7 +64,7 @@
                 </div>
               </div>
             </el-col>
-            
+
             <el-col :span="6">
               <div class="stat-item">
                 <div class="stat-icon overdue">
@@ -122,7 +108,7 @@
               <el-option label="其他" value="other" />
             </el-select>
           </el-form-item>
-          
+
           <el-form-item label="状态">
             <el-select v-model="filters.status" placeholder="全部状态" clearable>
               <el-option label="草稿" value="draft" />
@@ -133,7 +119,7 @@
               <el-option label="已取消" value="cancelled" />
             </el-select>
           </el-form-item>
-          
+
           <el-form-item label="紧急程度">
             <el-select v-model="filters.urgency" placeholder="全部" clearable>
               <el-option label="常规" value="routine" />
@@ -141,7 +127,7 @@
               <el-option label="应急" value="emergency" />
             </el-select>
           </el-form-item>
-          
+
           <el-form-item label="预算类型">
             <el-select v-model="filters.budgetType" placeholder="全部" clearable>
               <el-option label="预算内" value="budgeted" />
@@ -149,7 +135,7 @@
               <el-option label="应急" value="emergency" />
             </el-select>
           </el-form-item>
-          
+
           <el-form-item label="时间范围">
             <el-date-picker
               v-model="filters.dateRange"
@@ -161,12 +147,12 @@
               value-format="YYYY-MM-DD"
             />
           </el-form-item>
-          
+
           <el-form-item label="金额范围">
             <el-col :span="11">
-              <el-input-number 
-                v-model="filters.minAmount" 
-                placeholder="最小金额" 
+              <el-input-number
+                v-model="filters.minAmount"
+                placeholder="最小金额"
                 :min="0"
                 size="small"
               />
@@ -175,15 +161,15 @@
               <span>-</span>
             </el-col>
             <el-col :span="11">
-              <el-input-number 
-                v-model="filters.maxAmount" 
-                placeholder="最大金额" 
+              <el-input-number
+                v-model="filters.maxAmount"
+                placeholder="最大金额"
                 :min="0"
                 size="small"
               />
             </el-col>
           </el-form-item>
-          
+
           <el-form-item>
             <el-button type="primary" @click="searchExpenses">搜索</el-button>
             <el-button @click="resetFilters">重置</el-button>
@@ -200,16 +186,16 @@
             <span>开支记录 (共 {{ pagination.total }} 条)</span>
             <div class="header-actions">
               <el-button-group>
-                <el-button 
-                  :type="viewMode === 'table' ? 'primary' : ''" 
+                <el-button
+                  :type="viewMode === 'table' ? 'primary' : ''"
                   @click="viewMode = 'table'"
                   size="small"
                 >
                   <el-icon><List /></el-icon>
                   列表
                 </el-button>
-                <el-button 
-                  :type="viewMode === 'card' ? 'primary' : ''" 
+                <el-button
+                  :type="viewMode === 'card' ? 'primary' : ''"
                   @click="viewMode = 'card'"
                   size="small"
                 >
@@ -223,17 +209,13 @@
 
         <!-- 表格视图 -->
         <div v-if="viewMode === 'table'">
-          <el-table 
-            :data="expenses" 
-            v-loading="loading"
-            @selection-change="handleSelectionChange"
-          >
+          <el-table :data="expenses" v-loading="loading" @selection-change="handleSelectionChange">
             <el-table-column type="selection" width="55" />
-            
+
             <el-table-column prop="vouchers.voucherNumber" label="凭证号" width="120" />
-            
+
             <el-table-column prop="expenseTitle" label="开支项目" min-width="150" />
-            
+
             <el-table-column prop="expenseCategory" label="分类" width="120">
               <template #default="{ row }">
                 <el-tag :type="getCategoryColor(row.expenseCategory)" size="small">
@@ -241,13 +223,13 @@
                 </el-tag>
               </template>
             </el-table-column>
-            
+
             <el-table-column prop="amount" label="金额" width="120">
               <template #default="{ row }">
                 <span class="amount-text">¥{{ formatCurrency(row.amount) }}</span>
               </template>
             </el-table-column>
-            
+
             <el-table-column prop="urgency" label="紧急程度" width="100">
               <template #default="{ row }">
                 <el-tag :type="getUrgencyColor(row.urgency)" size="small">
@@ -255,7 +237,7 @@
                 </el-tag>
               </template>
             </el-table-column>
-            
+
             <el-table-column prop="status" label="状态" width="100">
               <template #default="{ row }">
                 <el-tag :type="getStatusColor(row.status)" size="small">
@@ -263,22 +245,22 @@
                 </el-tag>
               </template>
             </el-table-column>
-            
+
             <el-table-column prop="handler.handlerName" label="经手人" width="100" />
-            
+
             <el-table-column prop="expenseDate" label="开支日期" width="120">
               <template #default="{ row }">
                 {{ formatDate(row.expenseDate) }}
               </template>
             </el-table-column>
-            
+
             <el-table-column label="操作" width="200" fixed="right">
               <template #default="{ row }">
                 <el-button-group>
                   <el-button size="small" @click="viewExpense(row)">查看</el-button>
-                  <el-button 
-                    size="small" 
-                    type="primary" 
+                  <el-button
+                    size="small"
+                    type="primary"
                     @click="editExpense(row)"
                     v-if="canEditExpense(row)"
                   >
@@ -290,25 +272,18 @@
                     </el-button>
                     <template #dropdown>
                       <el-dropdown-menu>
-                        <el-dropdown-item 
-                          command="approve" 
+                        <el-dropdown-item
+                          command="approve"
                           v-if="row.status === 'pending_approval' && canApprove"
                         >
                           审批
                         </el-dropdown-item>
-                        <el-dropdown-item 
-                          command="pay" 
-                          v-if="row.status === 'approved' && canPay"
-                        >
+                        <el-dropdown-item command="pay" v-if="row.status === 'approved' && canPay">
                           标记支付
                         </el-dropdown-item>
-                        <el-dropdown-item 
-                          command="duplicate"
-                        >
-                          复制开支
-                        </el-dropdown-item>
-                        <el-dropdown-item 
-                          command="delete" 
+                        <el-dropdown-item command="duplicate"> 复制开支 </el-dropdown-item>
+                        <el-dropdown-item
+                          command="delete"
                           v-if="row.status === 'draft' && canDelete(row)"
                           divided
                         >
@@ -327,8 +302,8 @@
         <div v-else class="card-view">
           <el-row :gutter="16">
             <el-col :span="8" v-for="expense in expenses" :key="expense._id">
-              <daily-expense-card 
-                :expense="expense" 
+              <daily-expense-card
+                :expense="expense"
                 @view="viewExpense"
                 @edit="editExpense"
                 @approve="approveExpense"
@@ -341,24 +316,12 @@
 
         <!-- 批量操作 -->
         <div v-if="selectedExpenses.length > 0" class="batch-actions">
-          <el-alert
-            :title="`已选择 ${selectedExpenses.length} 项`"
-            type="info"
-            :closable="false"
-          >
+          <el-alert :title="`已选择 ${selectedExpenses.length} 项`" type="info" :closable="false">
             <template #default>
-              <el-button size="small" @click="batchApprove" v-if="canApprove">
-                批量审批
-              </el-button>
-              <el-button size="small" @click="batchPay" v-if="canPay">
-                批量支付
-              </el-button>
-              <el-button size="small" @click="batchExport">
-                批量导出
-              </el-button>
-              <el-button size="small" @click="clearSelection">
-                清除选择
-              </el-button>
+              <el-button size="small" @click="batchApprove" v-if="canApprove"> 批量审批 </el-button>
+              <el-button size="small" @click="batchPay" v-if="canPay"> 批量支付 </el-button>
+              <el-button size="small" @click="batchExport"> 批量导出 </el-button>
+              <el-button size="small" @click="clearSelection"> 清除选择 </el-button>
             </template>
           </el-alert>
         </div>
@@ -381,73 +344,69 @@
     </div>
 
     <!-- 对话框 -->
-    <daily-expense-create-dialog 
-      v-model="showCreateDialog"
-      @created="onExpenseCreated"
-    />
+    <daily-expense-create-dialog v-model="showCreateDialog" @created="onExpenseCreated" />
 
-    <daily-expense-detail-dialog 
-      v-model="showDetailDialog"
-      :expense="selectedExpense"
-    />
+    <daily-expense-detail-dialog v-model="showDetailDialog" :expense="selectedExpense" />
 
-    <daily-expense-edit-dialog 
+    <daily-expense-edit-dialog
       v-model="showEditDialog"
       :expense="selectedExpense"
       @updated="onExpenseUpdated"
     />
 
-    <expense-approval-dialog 
+    <expense-approval-dialog
       v-model="showApprovalDialog"
       :expense="selectedExpense"
       @approved="onExpenseApproved"
     />
 
-    <recurring-expense-dialog 
-      v-model="showRecurringDialog"
-      @created="onRecurringCreated"
-    />
+    <recurring-expense-dialog v-model="showRecurringDialog" @created="onRecurringCreated" />
 
-    <import-expenses-dialog 
-      v-model="showImportDialog"
-      @imported="onExpensesImported"
-    />
+    <import-expenses-dialog v-model="showImportDialog" @imported="onExpensesImported" />
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { 
-  Plus, Clock, Upload, Download, Calendar, TrendCharts, Warning,
-  List, Grid, ArrowDown
-} from '@element-plus/icons-vue'
-import DailyExpenseCard from './DailyExpenseCard.vue'
-import DailyExpenseCreateDialog from './DailyExpenseCreateDialog.vue'
-import DailyExpenseDetailDialog from './DailyExpenseDetailDialog.vue'
-import DailyExpenseEditDialog from './DailyExpenseEditDialog.vue'
-import ExpenseApprovalDialog from './ExpenseApprovalDialog.vue'
-import RecurringExpenseDialog from './RecurringExpenseDialog.vue'
-import ImportExpensesDialog from './ImportExpensesDialog.vue'
-import { dailyExpenseApi } from '@/api/dailyExpense'
-import { useUserStore } from '@/store/user'
+import { ref, reactive, onMounted, computed } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import {
+  Plus,
+  Clock,
+  Upload,
+  Download,
+  Calendar,
+  TrendCharts,
+  Warning,
+  List,
+  Grid,
+  ArrowDown,
+} from '@element-plus/icons-vue';
+import DailyExpenseCard from './DailyExpenseCard.vue';
+import DailyExpenseCreateDialog from './DailyExpenseCreateDialog.vue';
+import DailyExpenseDetailDialog from './DailyExpenseDetailDialog.vue';
+import DailyExpenseEditDialog from './DailyExpenseEditDialog.vue';
+import ExpenseApprovalDialog from './ExpenseApprovalDialog.vue';
+import RecurringExpenseDialog from './RecurringExpenseDialog.vue';
+import ImportExpensesDialog from './ImportExpensesDialog.vue';
+import { dailyExpenseApi } from '@/api/dailyExpense';
+import { useUserStore } from '@/store/user';
 
-const userStore = useUserStore()
+const userStore = useUserStore();
 
 // 响应式数据
-const loading = ref(false)
-const expenses = ref([])
-const selectedExpenses = ref([])
-const selectedExpense = ref(null)
-const viewMode = ref('table')
+const loading = ref(false);
+const expenses = ref([]);
+const selectedExpenses = ref([]);
+const selectedExpense = ref(null);
+const viewMode = ref('table');
 
 // 对话框控制
-const showCreateDialog = ref(false)
-const showDetailDialog = ref(false)
-const showEditDialog = ref(false)
-const showApprovalDialog = ref(false)
-const showRecurringDialog = ref(false)
-const showImportDialog = ref(false)
+const showCreateDialog = ref(false);
+const showDetailDialog = ref(false);
+const showEditDialog = ref(false);
+const showApprovalDialog = ref(false);
+const showRecurringDialog = ref(false);
+const showImportDialog = ref(false);
 
 // 筛选条件
 const filters = reactive({
@@ -457,15 +416,15 @@ const filters = reactive({
   budgetType: '',
   dateRange: [],
   minAmount: null,
-  maxAmount: null
-})
+  maxAmount: null,
+});
 
 // 分页
 const pagination = reactive({
   page: 1,
   limit: 20,
-  total: 0
-})
+  total: 0,
+});
 
 // 统计数据
 const dailyStats = reactive({
@@ -473,362 +432,366 @@ const dailyStats = reactive({
   thisMonth: 0,
   pendingCount: 0,
   pendingAmount: 0,
-  overdueCount: 0
-})
+  overdueCount: 0,
+});
 
 // 权限计算
 const canCreateExpense = computed(() => {
-  return userStore.hasPermission('daily_expense_management', 'create')
-})
+  return userStore.hasPermission('daily_expense_management', 'create');
+});
 
 const canApprove = computed(() => {
-  return userStore.hasPermission('daily_expense_management', 'approve')
-})
+  return userStore.hasPermission('daily_expense_management', 'approve');
+});
 
 const canPay = computed(() => {
-  return userStore.hasPermission('daily_expense_management', 'pay')
-})
+  return userStore.hasPermission('daily_expense_management', 'pay');
+});
 
 const canViewReports = computed(() => {
-  return userStore.hasPermission('report_generation', 'create')
-})
+  return userStore.hasPermission('report_generation', 'create');
+});
 
 // 生命周期
 onMounted(() => {
-  loadExpenses()
-  loadStatistics()
-})
+  loadExpenses();
+  loadStatistics();
+});
 
 // 方法
 const loadExpenses = async () => {
   try {
-    loading.value = true
+    loading.value = true;
     const params = {
       villageId: userStore.currentVillage._id,
       page: pagination.page,
       limit: pagination.limit,
-      ...buildSearchParams()
-    }
-    
-    const response = await dailyExpenseApi.getExpenseList(params)
-    expenses.value = response.data.expenses
-    pagination.total = response.data.total
+      ...buildSearchParams(),
+    };
+
+    const response = await dailyExpenseApi.getExpenseList(params);
+    expenses.value = response.data.expenses;
+    pagination.total = response.data.total;
   } catch (error) {
-    ElMessage.error('加载开支列表失败：' + error.message)
+    ElMessage.error('加载开支列表失败：' + error.message);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const loadStatistics = async () => {
   try {
     const response = await dailyExpenseApi.getStatistics(userStore.currentVillage._id, {
       year: new Date().getFullYear(),
-      month: new Date().getMonth() + 1
-    })
-    
-    const stats = response.data
-    dailyStats.thisMonth = stats.overall.totalAmount
-    dailyStats.pendingCount = stats.overall.pendingCount || 0
-    dailyStats.pendingAmount = stats.overall.pendingAmount || 0
-    
+      month: new Date().getMonth() + 1,
+    });
+
+    const stats = response.data;
+    dailyStats.thisMonth = stats.overall.totalAmount;
+    dailyStats.pendingCount = stats.overall.pendingCount || 0;
+    dailyStats.pendingAmount = stats.overall.pendingAmount || 0;
+
     // 模拟今日和逾期数据
-    dailyStats.today = Math.round(stats.overall.totalAmount * 0.1)
-    dailyStats.overdueCount = Math.round(Math.random() * 5)
+    dailyStats.today = Math.round(stats.overall.totalAmount * 0.1);
+    dailyStats.overdueCount = Math.round(Math.random() * 5);
   } catch (error) {
-    console.error('加载统计数据失败:', error)
+    console.error('加载统计数据失败:', error);
   }
-}
+};
 
 const buildSearchParams = () => {
-  const params = {}
-  
+  const params = {};
+
   Object.keys(filters).forEach(key => {
     if (filters[key] !== '' && filters[key] !== null) {
       if (key === 'dateRange' && filters[key].length === 2) {
-        params.startDate = filters[key][0]
-        params.endDate = filters[key][1]
+        params.startDate = filters[key][0];
+        params.endDate = filters[key][1];
       } else if (key !== 'dateRange') {
-        params[key] = filters[key]
+        params[key] = filters[key];
       }
     }
-  })
-  
-  return params
-}
+  });
+
+  return params;
+};
 
 const searchExpenses = () => {
-  pagination.page = 1
-  loadExpenses()
-}
+  pagination.page = 1;
+  loadExpenses();
+};
 
 const resetFilters = () => {
   Object.keys(filters).forEach(key => {
-    filters[key] = key === 'dateRange' ? [] : (typeof filters[key] === 'number' ? null : '')
-  })
-  pagination.page = 1
-  loadExpenses()
-}
+    filters[key] = key === 'dateRange' ? [] : typeof filters[key] === 'number' ? null : '';
+  });
+  pagination.page = 1;
+  loadExpenses();
+};
 
 // 表格操作
-const handleSelectionChange = (selection) => {
-  selectedExpenses.value = selection
-}
+const handleSelectionChange = selection => {
+  selectedExpenses.value = selection;
+};
 
 const clearSelection = () => {
-  selectedExpenses.value = []
-}
+  selectedExpenses.value = [];
+};
 
 // 权限检查
-const canEditExpense = (expense) => {
-  return ['draft', 'pending_approval'].includes(expense.status) &&
-         (expense.handler.handlerId === userStore.user._id || userStore.hasPermission('daily_expense_management', 'update'))
-}
+const canEditExpense = expense => {
+  return (
+    ['draft', 'pending_approval'].includes(expense.status) &&
+    (expense.handler.handlerId === userStore.user._id ||
+      userStore.hasPermission('daily_expense_management', 'update'))
+  );
+};
 
-const canDelete = (expense) => {
-  return expense.status === 'draft' &&
-         (expense.handler.handlerId === userStore.user._id || userStore.hasPermission('daily_expense_management', 'delete'))
-}
+const canDelete = expense => {
+  return (
+    expense.status === 'draft' &&
+    (expense.handler.handlerId === userStore.user._id ||
+      userStore.hasPermission('daily_expense_management', 'delete'))
+  );
+};
 
 // 操作处理
-const viewExpense = (expense) => {
-  selectedExpense.value = expense
-  showDetailDialog.value = true
-}
+const viewExpense = expense => {
+  selectedExpense.value = expense;
+  showDetailDialog.value = true;
+};
 
-const editExpense = (expense) => {
-  selectedExpense.value = expense
-  showEditDialog.value = true
-}
+const editExpense = expense => {
+  selectedExpense.value = expense;
+  showEditDialog.value = true;
+};
 
-const approveExpense = (expense) => {
-  selectedExpense.value = expense
-  showApprovalDialog.value = true
-}
+const approveExpense = expense => {
+  selectedExpense.value = expense;
+  showApprovalDialog.value = true;
+};
 
-const payExpense = (expense) => {
+const payExpense = expense => {
   // 标记支付
   ElMessageBox.prompt('请输入支付备注', '标记支付', {
     confirmButtonText: '确定',
-    cancelButtonText: '取消'
-  }).then(async ({ value }) => {
-    try {
-      await dailyExpenseApi.markAsPaid(expense._id, {
-        paymentDate: new Date().toISOString().split('T')[0],
-        paymentMethod: 'bank_transfer',
-        notes: value
-      })
-      ElMessage.success('已标记为支付')
-      loadExpenses()
-      loadStatistics()
-    } catch (error) {
-      ElMessage.error('标记支付失败：' + error.message)
-    }
-  }).catch(() => {})
-}
-
-const deleteExpense = async (expense) => {
-  try {
-    await ElMessageBox.confirm(
-      `确定要删除开支"${expense.expenseTitle}"吗？`,
-      '确认删除',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
+    cancelButtonText: '取消',
+  })
+    .then(async ({ value }) => {
+      try {
+        await dailyExpenseApi.markAsPaid(expense._id, {
+          paymentDate: new Date().toISOString().split('T')[0],
+          paymentMethod: 'bank_transfer',
+          notes: value,
+        });
+        ElMessage.success('已标记为支付');
+        loadExpenses();
+        loadStatistics();
+      } catch (error) {
+        ElMessage.error('标记支付失败：' + error.message);
       }
-    )
-    
-    await dailyExpenseApi.deleteExpense(expense._id)
-    ElMessage.success('开支删除成功')
-    loadExpenses()
-    loadStatistics()
+    })
+    .catch(() => {});
+};
+
+const deleteExpense = async expense => {
+  try {
+    await ElMessageBox.confirm(`确定要删除开支"${expense.expenseTitle}"吗？`, '确认删除', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
+
+    await dailyExpenseApi.deleteExpense(expense._id);
+    ElMessage.success('开支删除成功');
+    loadExpenses();
+    loadStatistics();
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('删除开支失败：' + error.message)
+      ElMessage.error('删除开支失败：' + error.message);
     }
   }
-}
+};
 
 const handleAction = (command, expense) => {
   switch (command) {
     case 'approve':
-      approveExpense(expense)
-      break
+      approveExpense(expense);
+      break;
     case 'pay':
-      payExpense(expense)
-      break
+      payExpense(expense);
+      break;
     case 'duplicate':
-      duplicateExpense(expense)
-      break
+      duplicateExpense(expense);
+      break;
     case 'delete':
-      deleteExpense(expense)
-      break
+      deleteExpense(expense);
+      break;
   }
-}
+};
 
-const duplicateExpense = (expense) => {
+const duplicateExpense = expense => {
   // 复制开支逻辑
   const duplicatedData = {
     ...expense,
     _id: undefined,
     expenseTitle: `[复制] ${expense.expenseTitle}`,
     status: 'draft',
-    vouchers: { voucherNumber: undefined }
-  }
-  selectedExpense.value = duplicatedData
-  showCreateDialog.value = true
-}
+    vouchers: { voucherNumber: undefined },
+  };
+  selectedExpense.value = duplicatedData;
+  showCreateDialog.value = true;
+};
 
 // 批量操作
 const batchApprove = () => {
-  ElMessage.info('批量审批功能开发中')
-}
+  ElMessage.info('批量审批功能开发中');
+};
 
 const batchPay = () => {
-  ElMessage.info('批量支付功能开发中')
-}
+  ElMessage.info('批量支付功能开发中');
+};
 
 const batchExport = () => {
-  ElMessage.info('批量导出功能开发中')
-}
+  ElMessage.info('批量导出功能开发中');
+};
 
 const exportExpenses = () => {
-  ElMessage.info('导出报表功能开发中')
-}
+  ElMessage.info('导出报表功能开发中');
+};
 
 // 分页处理
-const handleSizeChange = (size) => {
-  pagination.limit = size
-  pagination.page = 1
-  loadExpenses()
-}
+const handleSizeChange = size => {
+  pagination.limit = size;
+  pagination.page = 1;
+  loadExpenses();
+};
 
-const handleCurrentChange = (page) => {
-  pagination.page = page
-  loadExpenses()
-}
+const handleCurrentChange = page => {
+  pagination.page = page;
+  loadExpenses();
+};
 
 // 事件处理
 const onExpenseCreated = () => {
-  showCreateDialog.value = false
-  loadExpenses()
-  loadStatistics()
-}
+  showCreateDialog.value = false;
+  loadExpenses();
+  loadStatistics();
+};
 
 const onExpenseUpdated = () => {
-  showEditDialog.value = false
-  loadExpenses()
-}
+  showEditDialog.value = false;
+  loadExpenses();
+};
 
 const onExpenseApproved = () => {
-  showApprovalDialog.value = false
-  loadExpenses()
-  loadStatistics()
-}
+  showApprovalDialog.value = false;
+  loadExpenses();
+  loadStatistics();
+};
 
 const onRecurringCreated = () => {
-  showRecurringDialog.value = false
-  loadExpenses()
-}
+  showRecurringDialog.value = false;
+  loadExpenses();
+};
 
 const onExpensesImported = () => {
-  showImportDialog.value = false
-  loadExpenses()
-  loadStatistics()
-}
+  showImportDialog.value = false;
+  loadExpenses();
+  loadStatistics();
+};
 
 // 工具函数
-const formatCurrency = (amount) => {
-  if (amount === undefined || amount === null) return '0.00'
+const formatCurrency = amount => {
+  if (amount === undefined || amount === null) return '0.00';
   return Number(amount).toLocaleString('zh-CN', {
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  })
-}
+    maximumFractionDigits: 2,
+  });
+};
 
-const formatDate = (date) => {
-  if (!date) return '-'
-  return new Date(date).toLocaleDateString('zh-CN')
-}
+const formatDate = date => {
+  if (!date) return '-';
+  return new Date(date).toLocaleDateString('zh-CN');
+};
 
-const getCategoryName = (category) => {
+const getCategoryName = category => {
   const categoryMap = {
-    'office_supplies': '办公用品',
-    'utilities': '水电费',
-    'communication': '通讯费',
-    'transportation': '交通费',
-    'accommodation': '住宿费',
-    'meals_entertainment': '餐费接待',
-    'maintenance': '维修保养',
-    'training': '培训费',
-    'conference': '会议费',
-    'printing': '印刷费',
-    'postal': '邮寄费',
-    'cleaning': '清洁费',
-    'security': '安保费',
-    'insurance': '保险费',
-    'fuel': '燃料费',
-    'medical': '医疗费',
-    'emergency': '应急开支',
-    'other': '其他'
-  }
-  return categoryMap[category] || category
-}
+    office_supplies: '办公用品',
+    utilities: '水电费',
+    communication: '通讯费',
+    transportation: '交通费',
+    accommodation: '住宿费',
+    meals_entertainment: '餐费接待',
+    maintenance: '维修保养',
+    training: '培训费',
+    conference: '会议费',
+    printing: '印刷费',
+    postal: '邮寄费',
+    cleaning: '清洁费',
+    security: '安保费',
+    insurance: '保险费',
+    fuel: '燃料费',
+    medical: '医疗费',
+    emergency: '应急开支',
+    other: '其他',
+  };
+  return categoryMap[category] || category;
+};
 
-const getCategoryColor = (category) => {
+const getCategoryColor = category => {
   const colorMap = {
-    'office_supplies': '',
-    'utilities': 'warning',
-    'communication': 'info',
-    'transportation': 'success',
-    'emergency': 'danger',
-    'other': 'info'
-  }
-  return colorMap[category] || ''
-}
+    office_supplies: '',
+    utilities: 'warning',
+    communication: 'info',
+    transportation: 'success',
+    emergency: 'danger',
+    other: 'info',
+  };
+  return colorMap[category] || '';
+};
 
-const getStatusName = (status) => {
+const getStatusName = status => {
   const statusMap = {
-    'draft': '草稿',
-    'pending_approval': '待审批',
-    'approved': '已批准',
-    'paid': '已支付',
-    'rejected': '已拒绝',
-    'cancelled': '已取消'
-  }
-  return statusMap[status] || status
-}
+    draft: '草稿',
+    pending_approval: '待审批',
+    approved: '已批准',
+    paid: '已支付',
+    rejected: '已拒绝',
+    cancelled: '已取消',
+  };
+  return statusMap[status] || status;
+};
 
-const getStatusColor = (status) => {
+const getStatusColor = status => {
   const colorMap = {
-    'draft': 'info',
-    'pending_approval': 'warning',
-    'approved': 'success',
-    'paid': 'primary',
-    'rejected': 'danger',
-    'cancelled': 'info'
-  }
-  return colorMap[status] || ''
-}
+    draft: 'info',
+    pending_approval: 'warning',
+    approved: 'success',
+    paid: 'primary',
+    rejected: 'danger',
+    cancelled: 'info',
+  };
+  return colorMap[status] || '';
+};
 
-const getUrgencyName = (urgency) => {
+const getUrgencyName = urgency => {
   const urgencyMap = {
-    'routine': '常规',
-    'urgent': '紧急',
-    'emergency': '应急'
-  }
-  return urgencyMap[urgency] || urgency
-}
+    routine: '常规',
+    urgent: '紧急',
+    emergency: '应急',
+  };
+  return urgencyMap[urgency] || urgency;
+};
 
-const getUrgencyColor = (urgency) => {
+const getUrgencyColor = urgency => {
   const colorMap = {
-    'routine': '',
-    'urgent': 'warning',
-    'emergency': 'danger'
-  }
-  return colorMap[urgency] || ''
-}
+    routine: '',
+    urgent: 'warning',
+    emergency: 'danger',
+  };
+  return colorMap[urgency] || '';
+};
 </script>
 
 <style scoped>
@@ -973,21 +936,21 @@ const getUrgencyColor = (urgency) => {
   .daily-expense-management {
     padding: 16px;
   }
-  
+
   .actions-header {
     flex-direction: column;
     align-items: stretch;
     gap: 16px;
   }
-  
+
   .action-buttons {
     justify-content: center;
   }
-  
+
   .stat-item {
     margin-bottom: 12px;
   }
-  
+
   .header-actions {
     justify-content: center;
   }

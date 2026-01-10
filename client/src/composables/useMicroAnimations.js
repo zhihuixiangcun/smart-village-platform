@@ -13,7 +13,7 @@ export function useMicroAnimations() {
     duration: {
       fast: 150,
       normal: 300,
-      slow: 500
+      slow: 500,
     },
     easing: {
       ease: 'ease',
@@ -21,14 +21,14 @@ export function useMicroAnimations() {
       easeOut: 'ease-out',
       easeInOut: 'ease-in-out',
       bounce: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
-      smooth: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+      smooth: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
     },
     delay: {
       none: 0,
       short: 50,
       medium: 100,
-      long: 200
-    }
+      long: 200,
+    },
   };
 
   // 预定义动画效果
@@ -38,51 +38,59 @@ export function useMicroAnimations() {
       keyframes: [
         { transform: 'scale(1)', offset: 0 },
         { transform: 'scale(0.95)', offset: 0.5 },
-        { transform: 'scale(1)', offset: 1 }
+        { transform: 'scale(1)', offset: 1 },
       ],
       options: {
         duration: animationConfig.duration.fast,
-        easing: animationConfig.easing.easeOut
-      }
+        easing: animationConfig.easing.easeOut,
+      },
     },
 
     // 按钮悬停效果
     buttonHover: {
       keyframes: [
         { transform: 'translateY(0px)', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', offset: 0 },
-        { transform: 'translateY(-2px)', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', offset: 1 }
+        { transform: 'translateY(-2px)', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', offset: 1 },
       ],
       options: {
         duration: animationConfig.duration.normal,
         easing: animationConfig.easing.easeOut,
-        fill: 'forwards'
-      }
+        fill: 'forwards',
+      },
     },
 
     // 卡片悬停提升
     cardHover: {
       keyframes: [
-        { transform: 'translateY(0px) scale(1)', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', offset: 0 },
-        { transform: 'translateY(-4px) scale(1.02)', boxShadow: '0 8px 25px rgba(0,0,0,0.15)', offset: 1 }
+        {
+          transform: 'translateY(0px) scale(1)',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          offset: 0,
+        },
+        {
+          transform: 'translateY(-4px) scale(1.02)',
+          boxShadow: '0 8px 25px rgba(0,0,0,0.15)',
+          offset: 1,
+        },
       ],
       options: {
         duration: animationConfig.duration.normal,
         easing: animationConfig.easing.smooth,
-        fill: 'forwards'
-      }
+        fill: 'forwards',
+      },
     },
 
     // 输入框聚焦
     inputFocus: {
       keyframes: [
         { borderColor: '#dcdfe6', boxShadow: 'none', offset: 0 },
-        { borderColor: '#409eff', boxShadow: '0 0 0 2px rgba(64, 158, 255, 0.2)', offset: 1 }
+        { borderColor: '#409eff', boxShadow: '0 0 0 2px rgba(64, 158, 255, 0.2)', offset: 1 },
       ],
       options: {
         duration: animationConfig.duration.normal,
         easing: animationConfig.easing.easeOut,
-        fill: 'forwards'
-      }
+        fill: 'forwards',
+      },
     },
 
     // 表格行高亮
@@ -90,12 +98,12 @@ export function useMicroAnimations() {
       keyframes: [
         { backgroundColor: 'transparent', offset: 0 },
         { backgroundColor: '#f0f8ff', offset: 0.5 },
-        { backgroundColor: 'transparent', offset: 1 }
+        { backgroundColor: 'transparent', offset: 1 },
       ],
       options: {
         duration: animationConfig.duration.slow,
-        easing: animationConfig.easing.ease
-      }
+        easing: animationConfig.easing.ease,
+      },
     },
 
     // 数字计数动画
@@ -103,12 +111,12 @@ export function useMicroAnimations() {
       keyframes: [
         { transform: 'scale(1)', offset: 0 },
         { transform: 'scale(1.1)', offset: 0.5 },
-        { transform: 'scale(1)', offset: 1 }
+        { transform: 'scale(1)', offset: 1 },
       ],
       options: {
         duration: animationConfig.duration.normal,
-        easing: animationConfig.easing.bounce
-      }
+        easing: animationConfig.easing.bounce,
+      },
     },
 
     // 加载脉冲
@@ -116,26 +124,26 @@ export function useMicroAnimations() {
       keyframes: [
         { opacity: 0.4, transform: 'scale(1)', offset: 0 },
         { opacity: 1, transform: 'scale(1.05)', offset: 0.5 },
-        { opacity: 0.4, transform: 'scale(1)', offset: 1 }
+        { opacity: 0.4, transform: 'scale(1)', offset: 1 },
       ],
       options: {
         duration: animationConfig.duration.slow * 2,
         easing: animationConfig.easing.easeInOut,
-        iterations: Infinity
-      }
+        iterations: Infinity,
+      },
     },
 
     // 通知弹出
     notificationSlideIn: {
       keyframes: [
         { transform: 'translateX(100%)', opacity: 0, offset: 0 },
-        { transform: 'translateX(0)', opacity: 1, offset: 1 }
+        { transform: 'translateX(0)', opacity: 1, offset: 1 },
       ],
       options: {
         duration: animationConfig.duration.normal,
         easing: animationConfig.easing.smooth,
-        fill: 'forwards'
-      }
+        fill: 'forwards',
+      },
     },
 
     // 成功指示器
@@ -143,13 +151,13 @@ export function useMicroAnimations() {
       keyframes: [
         { transform: 'scale(0) rotate(0deg)', opacity: 0, offset: 0 },
         { transform: 'scale(1.2) rotate(360deg)', opacity: 1, offset: 0.7 },
-        { transform: 'scale(1) rotate(360deg)', opacity: 1, offset: 1 }
+        { transform: 'scale(1) rotate(360deg)', opacity: 1, offset: 1 },
       ],
       options: {
         duration: animationConfig.duration.slow,
         easing: animationConfig.easing.bounce,
-        fill: 'forwards'
-      }
+        fill: 'forwards',
+      },
     },
 
     // 错误震动
@@ -164,78 +172,78 @@ export function useMicroAnimations() {
         { transform: 'translateX(5px)', offset: 0.6 },
         { transform: 'translateX(-5px)', offset: 0.7 },
         { transform: 'translateX(5px)', offset: 0.8 },
-        { transform: 'translateX(0)', offset: 1 }
+        { transform: 'translateX(0)', offset: 1 },
       ],
       options: {
         duration: animationConfig.duration.slow,
-        easing: animationConfig.easing.ease
-      }
+        easing: animationConfig.easing.ease,
+      },
     },
 
     // 淡入效果
     fadeIn: {
       keyframes: [
         { opacity: 0, transform: 'translateY(20px)', offset: 0 },
-        { opacity: 1, transform: 'translateY(0)', offset: 1 }
+        { opacity: 1, transform: 'translateY(0)', offset: 1 },
       ],
       options: {
         duration: animationConfig.duration.normal,
         easing: animationConfig.easing.easeOut,
-        fill: 'forwards'
-      }
+        fill: 'forwards',
+      },
     },
 
     // 淡出效果
     fadeOut: {
       keyframes: [
         { opacity: 1, transform: 'translateY(0)', offset: 0 },
-        { opacity: 0, transform: 'translateY(-20px)', offset: 1 }
+        { opacity: 0, transform: 'translateY(-20px)', offset: 1 },
       ],
       options: {
         duration: animationConfig.duration.normal,
         easing: animationConfig.easing.easeIn,
-        fill: 'forwards'
-      }
+        fill: 'forwards',
+      },
     },
 
     // 滑入左侧
     slideInLeft: {
       keyframes: [
         { transform: 'translateX(-100%)', opacity: 0, offset: 0 },
-        { transform: 'translateX(0)', opacity: 1, offset: 1 }
+        { transform: 'translateX(0)', opacity: 1, offset: 1 },
       ],
       options: {
         duration: animationConfig.duration.normal,
         easing: animationConfig.easing.smooth,
-        fill: 'forwards'
-      }
+        fill: 'forwards',
+      },
     },
 
     // 滑入右侧
     slideInRight: {
       keyframes: [
         { transform: 'translateX(100%)', opacity: 0, offset: 0 },
-        { transform: 'translateX(0)', opacity: 1, offset: 1 }
+        { transform: 'translateX(0)', opacity: 1, offset: 1 },
       ],
       options: {
         duration: animationConfig.duration.normal,
         easing: animationConfig.easing.smooth,
-        fill: 'forwards'
-      }
+        fill: 'forwards',
+      },
     },
 
     // 旋转加载
     rotateLoading: {
       keyframes: [
         { transform: 'rotate(0deg)', offset: 0 },
-        { transform: 'rotate(360deg)', offset: 1 }
+        { transform: 'rotate(360deg)', offset: 1 },
       ],
       options: {
         duration: animationConfig.duration.slow * 2,
         easing: animationConfig.easing.ease,
-        iterations: Infinity
-      }
-    }
+        iterations: Infinity,
+      },
+    },
   };
 
   // 执行动画
@@ -253,7 +261,7 @@ export function useMicroAnimations() {
     // 合并配置
     const animationOptions = {
       ...animation.options,
-      ...options
+      ...options,
     };
 
     try {
@@ -266,7 +274,7 @@ export function useMicroAnimations() {
         element,
         animation: webAnimation,
         name: animationName,
-        startTime: Date.now()
+        startTime: Date.now(),
       });
 
       // 等待动画完成
@@ -302,7 +310,7 @@ export function useMicroAnimations() {
   };
 
   // 并行动画
-  const animateParallel = async (animations) => {
+  const animateParallel = async animations => {
     if (!globalAnimationEnabled.value || !Array.isArray(animations)) {
       return Promise.resolve();
     }
@@ -315,35 +323,35 @@ export function useMicroAnimations() {
   };
 
   // 简化的动画方法
-  const buttonClick = (element) => animate(element, 'buttonClick');
-  const buttonHover = (element) => animate(element, 'buttonHover');
-  const buttonUnhover = (element) => {
+  const buttonClick = element => animate(element, 'buttonClick');
+  const buttonHover = element => animate(element, 'buttonHover');
+  const buttonUnhover = element => {
     if (element) {
       element.style.transform = '';
       element.style.boxShadow = '';
     }
   };
 
-  const cardHover = (element) => animate(element, 'cardHover');
-  const cardUnhover = (element) => {
+  const cardHover = element => animate(element, 'cardHover');
+  const cardUnhover = element => {
     if (element) {
       element.style.transform = '';
       element.style.boxShadow = '';
     }
   };
 
-  const inputFocus = (element) => animate(element, 'inputFocus');
-  const inputBlur = (element) => {
+  const inputFocus = element => animate(element, 'inputFocus');
+  const inputBlur = element => {
     if (element) {
       element.style.borderColor = '';
       element.style.boxShadow = '';
     }
   };
 
-  const highlightTableRow = (element) => animate(element, 'tableRowHighlight');
-  const countNumber = (element) => animate(element, 'numberCount');
-  const showSuccess = (element) => animate(element, 'successIndicator');
-  const shakeError = (element) => animate(element, 'errorShake');
+  const highlightTableRow = element => animate(element, 'tableRowHighlight');
+  const countNumber = element => animate(element, 'numberCount');
+  const showSuccess = element => animate(element, 'successIndicator');
+  const shakeError = element => animate(element, 'errorShake');
   const fadeIn = (element, options) => animate(element, 'fadeIn', options);
   const fadeOut = (element, options) => animate(element, 'fadeOut', options);
   const slideInLeft = (element, options) => animate(element, 'slideInLeft', options);
@@ -362,7 +370,7 @@ export function useMicroAnimations() {
   };
 
   // 停止特定元素的动画
-  const stopElementAnimations = (element) => {
+  const stopElementAnimations = element => {
     for (const [id, state] of animationStates.value.entries()) {
       if (state.element === element) {
         try {
@@ -416,7 +424,7 @@ export function useMicroAnimations() {
 
     return animate(element, 'fadeIn', {
       duration,
-      fill: 'forwards'
+      fill: 'forwards',
     }).then(() => {
       element.style.width = `${toPercent}%`;
     });
@@ -428,7 +436,7 @@ export function useMicroAnimations() {
   };
 
   // 切换全局动画
-  const toggleGlobalAnimation = (enabled) => {
+  const toggleGlobalAnimation = enabled => {
     globalAnimationEnabled.value = enabled;
     if (!enabled) {
       stopAllAnimations();
@@ -476,6 +484,6 @@ export function useMicroAnimations() {
     animateProgress,
 
     // 预定义动画
-    animations
+    animations,
   };
 }

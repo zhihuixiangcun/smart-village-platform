@@ -155,7 +155,7 @@
           <div class="announcement-content">
             <div
               class="content-text"
-              :class="{ 'expanded': announcement.expanded }"
+              :class="{ expanded: announcement.expanded }"
               v-html="announcement.content"
             ></div>
             <el-button
@@ -168,7 +168,10 @@
             </el-button>
           </div>
 
-          <div class="announcement-footer" v-if="announcement.attachments && announcement.attachments.length > 0">
+          <div
+            class="announcement-footer"
+            v-if="announcement.attachments && announcement.attachments.length > 0"
+          >
             <div class="attachments">
               <el-icon><Paperclip /></el-icon>
               <span>附件:</span>
@@ -190,12 +193,7 @@
 
           <div class="announcement-actions">
             <el-button-group>
-              <el-button
-                size="small"
-                type="primary"
-                link
-                @click="handleView(announcement)"
-              >
+              <el-button size="small" type="primary" link @click="handleView(announcement)">
                 查看
               </el-button>
               <el-button
@@ -216,12 +214,7 @@
               >
                 删除
               </el-button>
-              <el-button
-                size="small"
-                type="info"
-                link
-                @click="handleShare(announcement)"
-              >
+              <el-button size="small" type="info" link @click="handleShare(announcement)">
                 分享
               </el-button>
             </el-button-group>
@@ -279,7 +272,10 @@
         <div class="detail-content">
           <div class="content" v-html="detailDialog.data.content"></div>
 
-          <div v-if="detailDialog.data.attachments && detailDialog.data.attachments.length > 0" class="attachments">
+          <div
+            v-if="detailDialog.data.attachments && detailDialog.data.attachments.length > 0"
+            class="attachments"
+          >
             <h4>附件列表</h4>
             <div class="attachment-list">
               <div
@@ -306,7 +302,11 @@
               {{ formatDateTime(detailDialog.data.publishedAt) }}
             </el-descriptions-item>
             <el-descriptions-item label="过期时间">
-              {{ detailDialog.data.expiresAt ? formatDateTime(detailDialog.data.expiresAt) : '永久有效' }}
+              {{
+                detailDialog.data.expiresAt
+                  ? formatDateTime(detailDialog.data.expiresAt)
+                  : '永久有效'
+              }}
             </el-descriptions-item>
             <el-descriptions-item label="阅读量">
               {{ detailDialog.data.readCount || 0 }} 次
@@ -342,7 +342,11 @@
         </el-form-item>
 
         <el-form-item label="公告分类" prop="category">
-          <el-select v-model="announcementForm.category" placeholder="请选择分类" style="width: 100%">
+          <el-select
+            v-model="announcementForm.category"
+            placeholder="请选择分类"
+            style="width: 100%"
+          >
             <el-option label="一般公告" value="general" />
             <el-option label="紧急通知" value="emergency" />
             <el-option label="政策宣传" value="policy" />
@@ -385,9 +389,7 @@
               选择文件
             </el-button>
             <template #tip>
-              <div class="el-upload__tip">
-                支持上传jpg/png/pdf文件，单个文件不超过10MB
-              </div>
+              <div class="el-upload__tip">支持上传jpg/png/pdf文件，单个文件不超过10MB</div>
             </template>
           </el-upload>
         </el-form-item>
@@ -457,9 +459,9 @@ import {
   Download,
   Search,
   Refresh,
-  Link,  // 替代 PaperClip
+  Link, // 替代 PaperClip
   Document,
-  Upload
+  Upload,
 } from '@element-plus/icons-vue';
 import apiService from '@/services/apiService';
 
@@ -475,7 +477,7 @@ const filters = reactive({
   category: '',
   status: '',
   priority: '',
-  dateRange: []
+  dateRange: [],
 });
 
 // 选中的分类
@@ -487,19 +489,19 @@ const selectedPriority = ref('');
 const pagination = reactive({
   page: 1,
   limit: 20,
-  total: 0
+  total: 0,
 });
 
 // 详情对话框
 const detailDialog = reactive({
   visible: false,
-  data: null
+  data: null,
 });
 
 // 表单对话框
 const formDialog = reactive({
   visible: false,
-  isEdit: false
+  isEdit: false,
 });
 
 // 公告表单
@@ -512,25 +514,21 @@ const announcementForm = reactive({
   publishTime: '',
   expireTime: '',
   targetUsers: [],
-  attachments: []
+  attachments: [],
 });
 
 // 表单验证规则
 const announcementFormRules = {
   title: [
     { required: true, message: '请输入公告标题', trigger: 'blur' },
-    { min: 5, max: 100, message: '标题长度在5到100个字符', trigger: 'blur' }
+    { min: 5, max: 100, message: '标题长度在5到100个字符', trigger: 'blur' },
   ],
-  category: [
-    { required: true, message: '请选择公告分类', trigger: 'change' }
-  ],
-  priority: [
-    { required: true, message: '请选择优先级', trigger: 'change' }
-  ],
+  category: [{ required: true, message: '请选择公告分类', trigger: 'change' }],
+  priority: [{ required: true, message: '请选择优先级', trigger: 'change' }],
   content: [
     { required: true, message: '请输入公告内容', trigger: 'blur' },
-    { min: 10, max: 5000, message: '内容长度在10到5000个字符', trigger: 'blur' }
-  ]
+    { min: 10, max: 5000, message: '内容长度在10到5000个字符', trigger: 'blur' },
+  ],
 };
 
 // 表单引用
@@ -542,7 +540,7 @@ const categories = [
   { label: '一般公告', value: 'general' },
   { label: '紧急通知', value: 'emergency' },
   { label: '政策宣传', value: 'policy' },
-  { label: '活动通知', value: 'activity' }
+  { label: '活动通知', value: 'activity' },
 ];
 
 // 状态选项
@@ -550,7 +548,7 @@ const statuses = [
   { label: '全部', value: '' },
   { label: '草稿', value: 'draft' },
   { label: '已发布', value: 'published' },
-  {el: '已归档', value: 'archived' }
+  { el: '已归档', value: 'archived' },
 ];
 
 // 优先级选项
@@ -559,16 +557,18 @@ const priorities = [
   { label: '普通', value: 'low' },
   { label: '一般', value: 'medium' },
   { label: '重要', value: 'high' },
-  { label: '紧急', value: 'urgent' }
+  { label: '紧急', value: 'urgent' },
 ];
 
 // 目标用户选项
 const targetUserOptions = ref([]);
 
 // 上传配置
-const uploadUrl = computed(() => `${import.meta.env.VITE_API_BASE_URL}/api/v1/announcements/upload`);
+const uploadUrl = computed(
+  () => `${import.meta.env.VITE_API_BASE_URL}/api/v1/announcements/upload`
+);
 const uploadHeaders = computed(() => ({
-  Authorization: `Bearer ${localStorage.getItem('jwt_token')}`
+  Authorization: `Bearer ${localStorage.getItem('jwt_token')}`,
 }));
 
 // 当前用户信息
@@ -587,7 +587,7 @@ const loadAnnouncementList = async () => {
       ...filters,
       category: selectedCategory.value,
       status: selectedStatus.value,
-      priority: selectedPriority.value
+      priority: selectedPriority.value,
     };
 
     // 清理空值参数
@@ -610,7 +610,7 @@ const loadAnnouncementList = async () => {
       announcementList.value = response.data.map(item => ({
         ...item,
         expanded: false,
-        content: formatContent(item.content)
+        content: formatContent(item.content),
       }));
       pagination.total = response.pagination?.total || 0;
     } else {
@@ -642,37 +642,37 @@ const handleReset = () => {
   loadAnnouncementList();
 };
 
-const handleCategoryChange = (category) => {
+const handleCategoryChange = category => {
   selectedCategory.value = category;
   handleSearch();
 };
 
-const handleStatusChange = (status) => {
+const handleStatusChange = status => {
   selectedStatus.value = status;
   handleSearch();
 };
 
-const handlePriorityChange = (priority) => {
+const handlePriorityChange = priority => {
   selectedPriority.value = priority;
   handleSearch();
 };
 
-const handleSizeChange = (size) => {
+const handleSizeChange = size => {
   pagination.limit = size;
   loadAnnouncementList();
 };
 
-const handleCurrentChange = (page) => {
+const handleCurrentChange = page => {
   pagination.page = page;
   loadAnnouncementList();
 };
 
-const handleView = (announcement) => {
+const handleView = announcement => {
   detailDialog.data = announcement;
   detailDialog.visible = true;
 };
 
-const handleEdit = (announcement) => {
+const handleEdit = announcement => {
   formDialog.isEdit = true;
   formDialog.visible = true;
 
@@ -689,22 +689,18 @@ const handleEdit = (announcement) => {
       name: attachment.name,
       url: attachment.url,
       uid: attachment.id,
-      status: 'success'
+      status: 'success',
     }));
   }
 };
 
-const handleDelete = async (announcement) => {
+const handleDelete = async announcement => {
   try {
-    await ElMessageBox.confirm(
-      `确定要删除公告"${announcement.title}"吗？`,
-      '确认删除',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    );
+    await ElMessageBox.confirm(`确定要删除公告"${announcement.title}"吗？`, '确认删除', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
 
     const response = await apiService.deleteAnnouncement(announcement.id);
 
@@ -722,13 +718,13 @@ const handleDelete = async (announcement) => {
   }
 };
 
-const handleShare = (announcement) => {
+const handleShare = announcement => {
   // 实现分享功能
   if (navigator.share) {
     navigator.share({
       title: announcement.title,
       text: announcement.content,
-      url: window.location.href
+      url: window.location.href,
     });
   } else {
     // 复制到剪贴板
@@ -773,8 +769,8 @@ const handleSubmitAnnouncement = async () => {
         name: file.name,
         url: file.url,
         size: file.size || 0,
-        type: file.raw?.type || 'application/octet-stream'
-      }))
+        type: file.raw?.type || 'application/octet-stream',
+      })),
     };
 
     let response;
@@ -816,7 +812,7 @@ const handleCloseDetailDialog = () => {
   detailDialog.data = null;
 };
 
-const toggleExpand = (announcement) => {
+const toggleExpand = announcement => {
   announcement.expanded = !announcement.expanded;
 };
 
@@ -834,95 +830,96 @@ const handleExport = () => {
 };
 
 // 工具方法
-const formatContent = (content) => {
+const formatContent = content => {
   if (!content) return '';
   // 简单的内容格式化，可以扩展更复杂的富文本处理
   return content.replace(/\n/g, '<br>');
 };
 
-const formatDateTime = (dateTime) => {
+const formatDateTime = dateTime => {
   if (!dateTime) return '';
   return new Date(dateTime).toLocaleString('zh-CN');
 };
 
-const formatFileSize = (size) => {
+const formatFileSize = size => {
   if (!size) return '0 B';
   const units = ['B', 'KB', 'MB', 'GB'];
   const index = Math.floor(Math.log(size) / Math.log(1024));
   return (size / Math.pow(1024, index)).toFixed(2) + ' ' + units[index];
 };
 
-const getCategoryLabel = (category) => {
+const getCategoryLabel = category => {
   const categoryMap = {
     general: '一般公告',
     emergency: '紧急通知',
     policy: '政策宣传',
-    activity: '活动通知'
+    activity: '活动通知',
   };
   return categoryMap[category] || category;
 };
 
-const getCategoryTagType = (category) => {
+const getCategoryTagType = category => {
   const typeMap = {
     general: '',
     emergency: 'danger',
     policy: 'warning',
-    activity: 'success'
+    activity: 'success',
   };
   return typeMap[category] || 'info';
 };
 
-const getStatusLabel = (status) => {
+const getStatusLabel = status => {
   const statusMap = {
     draft: '草稿',
     published: '已发布',
-    archived: '已归档'
+    archived: '已归档',
   };
   return statusMap[status] || status;
 };
 
-const getStatusTagType = (status) => {
+const getStatusTagType = status => {
   const typeMap = {
     draft: 'info',
     published: 'success',
-    archived: 'warning'
+    archived: 'warning',
   };
   return typeMap[status] || 'info';
 };
 
-const getPriorityLabel = (priority) => {
+const getPriorityLabel = priority => {
   const priorityMap = {
     low: '普通',
     medium: '一般',
     high: '重要',
-    urgent: '紧急'
+    urgent: '紧急',
   };
   return priorityMap[priority] || priority;
 };
 
-const getPriorityTagType = (priority) => {
+const getPriorityTagType = priority => {
   const typeMap = {
     low: 'info',
     medium: '',
     high: 'warning',
-    urgent: 'danger'
+    urgent: 'danger',
   };
   return typeMap[priority] || 'info';
 };
 
 // 权限检查
-const canEdit = (announcement) => {
-  return currentUser.value && (
-    currentUser.value.role === 'village_admin' ||
-    currentUser.value.role === 'super_admin' ||
-    announcement.authorId === currentUser.value.id
+const canEdit = announcement => {
+  return (
+    currentUser.value &&
+    (currentUser.value.role === 'village_admin' ||
+      currentUser.value.role === 'super_admin' ||
+      announcement.authorId === currentUser.value.id)
   );
 };
 
-const canDelete = (announcement) => {
-  return currentUser.value && (
-    currentUser.value.role === 'village_admin' ||
-    currentUser.value.role === 'super_admin'
+const canDelete = announcement => {
+  return (
+    currentUser.value &&
+    (currentUser.value.role === 'village_admin' || currentUser.value.role === 'super_admin')
   );
 };
 

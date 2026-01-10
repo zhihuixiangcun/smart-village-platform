@@ -4,18 +4,8 @@
     <div class="list-header">
       <h1>建议征集</h1>
       <div class="header-actions">
-        <el-button
-          type="primary"
-          @click="goToSubmit"
-          icon="el-icon-edit"
-        >
-          提交建议
-        </el-button>
-        <el-button
-          v-if="canManage"
-          @click="goToManage"
-          icon="el-icon-setting"
-        >
+        <el-button type="primary" @click="goToSubmit" icon="el-icon-edit"> 提交建议 </el-button>
+        <el-button v-if="canManage" @click="goToManage" icon="el-icon-setting">
           分类管理
         </el-button>
       </div>
@@ -150,40 +140,25 @@
           class="suggestion-card"
           :class="{
             'high-priority': suggestion.priority === 'high' || suggestion.priority === 'urgent',
-            'completed': suggestion.status === 'completed'
+            completed: suggestion.status === 'completed',
           }"
           @click="viewSuggestion(suggestion._id)"
         >
           <!-- 卡片头部 -->
           <div class="card-header">
             <div class="suggestion-status">
-              <el-tag
-                :type="getStatusType(suggestion.status)"
-                size="small"
-              >
+              <el-tag :type="getStatusType(suggestion.status)" size="small">
                 {{ getStatusText(suggestion.status) }}
               </el-tag>
-              <el-tag
-                v-if="suggestion.priority === 'urgent'"
-                type="danger"
-                size="small"
-              >
+              <el-tag v-if="suggestion.priority === 'urgent'" type="danger" size="small">
                 紧急
               </el-tag>
-              <el-tag
-                v-if="suggestion.priority === 'high'"
-                type="warning"
-                size="small"
-              >
+              <el-tag v-if="suggestion.priority === 'high'" type="warning" size="small">
                 高优先级
               </el-tag>
             </div>
             <div class="suggestion-category">
-              <el-tag
-                :color="suggestion.category?.color"
-                size="mini"
-                effect="light"
-              >
+              <el-tag :color="suggestion.category?.color" size="mini" effect="light">
                 <i :class="suggestion.category?.icon"></i>
                 {{ suggestion.category?.name }}
               </el-tag>
@@ -226,10 +201,7 @@
           <!-- 卡片底部 -->
           <div class="card-footer">
             <div class="submitter-info">
-              <el-avatar
-                :src="suggestion.submitter?.avatar"
-                :size="24"
-              >
+              <el-avatar :src="suggestion.submitter?.avatar" :size="24">
                 {{ suggestion.submitter?.realName?.charAt(0) }}
               </el-avatar>
               <span class="submitter-name">{{ suggestion.submitter?.realName }}</span>
@@ -299,11 +271,7 @@
 
     <!-- 我的建议快速入口 -->
     <div class="quick-actions">
-      <el-button
-        type="text"
-        @click="goToMySuggestions"
-        class="my-suggestions-btn"
-      >
+      <el-button type="text" @click="goToMySuggestions" class="my-suggestions-btn">
         <i class="el-icon-user"></i>
         我的建议 ({{ myStats.total || 0 }})
       </el-button>
@@ -312,8 +280,8 @@
 </template>
 
 <script>
-import { suggestionAPI } from '@/api/suggestion'
-import { formatDate, formatDateTime } from '@/utils/dateUtils'
+import { suggestionAPI } from '@/api/suggestion';
+import { formatDate, formatDateTime } from '@/utils/dateUtils';
 
 export default {
   name: 'SuggestionList',
@@ -329,7 +297,7 @@ export default {
         category: '',
         priority: '',
         dateRange: 'all',
-        search: ''
+        search: '',
       },
       sortBy: 'submittedAt',
       sortOrder: 'desc',
@@ -337,94 +305,98 @@ export default {
         page: 1,
         limit: 20,
         total: 0,
-        pages: 0
+        pages: 0,
       },
-      showManageActions: false
-    }
+      showManageActions: false,
+    };
   },
   computed: {
     canManage() {
-      return this.$store.getters.userRole === 'committee' || this.$store.getters.userRole === 'admin'
-    }
+      return (
+        this.$store.getters.userRole === 'committee' || this.$store.getters.userRole === 'admin'
+      );
+    },
   },
   async mounted() {
-    await this.loadCategories()
-    await this.loadSuggestions()
-    await this.loadStatistics()
-    await this.loadMyStats()
+    await this.loadCategories();
+    await this.loadSuggestions();
+    await this.loadStatistics();
+    await this.loadMyStats();
   },
   methods: {
     async loadCategories() {
       try {
-        const response = await suggestionAPI.getActiveCategories()
+        const response = await suggestionAPI.getActiveCategories();
         if (response.data.success) {
-          this.categories = response.data.data
+          this.categories = response.data.data;
         }
       } catch (error) {
-        console.error('获取分类失败:', error)
+        console.error('获取分类失败:', error);
       }
     },
 
     async loadSuggestions() {
-      this.loading = true
+      this.loading = true;
       try {
         const params = {
           page: this.pagination.page,
           limit: this.pagination.limit,
           sortBy: this.sortBy,
           sortOrder: this.sortOrder,
-          ...this.filters
-        }
+          ...this.filters,
+        };
 
         // 清理空参数
         Object.keys(params).forEach(key => {
           if (params[key] === '' || params[key] === 'all') {
-            delete params[key]
+            delete params[key];
           }
-        })
+        });
 
-        const response = await suggestionAPI.getSuggestionList(params)
+        const response = await suggestionAPI.getSuggestionList(params);
 
         if (response.data.success) {
-          this.suggestions = response.data.data.suggestions
-          this.pagination = response.data.data.pagination
+          this.suggestions = response.data.data.suggestions;
+          this.pagination = response.data.data.pagination;
         }
       } catch (error) {
-        this.$message.error('获取建议列表失败')
-        console.error(error)
+        this.$message.error('获取建议列表失败');
+        console.error(error);
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
 
     async loadStatistics() {
       try {
-        const response = await suggestionAPI.getStatistics({ dateRange: 30 })
+        const response = await suggestionAPI.getStatistics({ dateRange: 30 });
         if (response.data.success) {
-          const stats = response.data.data.baseStatistics
+          const stats = response.data.data.baseStatistics;
 
           this.statistics = {
             total: stats.reduce((sum, stat) => sum + stat.count, 0),
-            pending: stats.filter(s => ['submitted', 'under_review'].includes(s._id))
+            pending: stats
+              .filter(s => ['submitted', 'under_review'].includes(s._id))
               .reduce((sum, stat) => sum + stat.count, 0),
-            processing: stats.filter(s => ['approved', 'in_progress'].includes(s._id))
+            processing: stats
+              .filter(s => ['approved', 'in_progress'].includes(s._id))
               .reduce((sum, stat) => sum + stat.count, 0),
-            completed: stats.find(s => s._id === 'completed')?.count || 0
-          }
+            completed: stats.find(s => s._id === 'completed')?.count || 0,
+          };
         }
       } catch (error) {
-        console.error('获取统计数据失败:', error)
+        console.error('获取统计数据失败:', error);
       }
     },
 
     async loadMyStats() {
       try {
-        const response = await suggestionAPI.getMySuggestions({ page: 1, limit: 1 })
+        const response = await suggestionAPI.getMySuggestions({ page: 1, limit: 1 });
         if (response.data.success) {
-          this.myStats = response.data.data.pagination
+          this.myStats = response.data.data.pagination;
         }
       } catch (error) {
-        console.error('获取我的建议统计失败:', error)
+        console.error('获取我的建议统计失败:', error);
       }
     },
 
@@ -434,114 +406,116 @@ export default {
         category: '',
         priority: '',
         dateRange: 'all',
-        search: ''
-      }
-      this.sortBy = 'submittedAt'
-      this.sortOrder = 'desc'
-      this.pagination.page = 1
-      this.loadSuggestions()
+        search: '',
+      };
+      this.sortBy = 'submittedAt';
+      this.sortOrder = 'desc';
+      this.pagination.page = 1;
+      this.loadSuggestions();
     },
 
     handleSizeChange(newSize) {
-      this.pagination.limit = newSize
-      this.pagination.page = 1
-      this.loadSuggestions()
+      this.pagination.limit = newSize;
+      this.pagination.page = 1;
+      this.loadSuggestions();
     },
 
     handleCurrentChange(newPage) {
-      this.pagination.page = newPage
-      this.loadSuggestions()
+      this.pagination.page = newPage;
+      this.loadSuggestions();
     },
 
     viewSuggestion(suggestionId) {
-      this.$router.push(`/suggestions/${suggestionId}`)
+      this.$router.push(`/suggestions/${suggestionId}`);
     },
 
     async likeSuggestion(suggestionId) {
       try {
-        const response = await suggestionAPI.likeSuggestion(suggestionId)
+        const response = await suggestionAPI.likeSuggestion(suggestionId);
         if (response.data.success) {
           // 更新本地数据
-          const suggestion = this.suggestions.find(s => s._id === suggestionId)
+          const suggestion = this.suggestions.find(s => s._id === suggestionId);
           if (suggestion) {
-            const userId = this.$store.getters.userId
-            const hasLiked = suggestion.feedback?.likes?.some(like => like.user === userId)
+            const userId = this.$store.getters.userId;
+            const hasLiked = suggestion.feedback?.likes?.some(like => like.user === userId);
 
             if (hasLiked) {
               // 移除点赞
-              suggestion.feedback.likes = suggestion.feedback.likes.filter(like => like.user !== userId)
+              suggestion.feedback.likes = suggestion.feedback.likes.filter(
+                like => like.user !== userId
+              );
             } else {
               // 添加点赞
-              if (!suggestion.feedback) suggestion.feedback = { likes: [] }
-              suggestion.feedback.likes.push({ user: userId })
+              if (!suggestion.feedback) suggestion.feedback = { likes: [] };
+              suggestion.feedback.likes.push({ user: userId });
             }
           }
         }
       } catch (error) {
-        this.$message.error('操作失败')
-        console.error(error)
+        this.$message.error('操作失败');
+        console.error(error);
       }
     },
 
     hasLiked(suggestion) {
-      const userId = this.$store.getters.userId
-      return suggestion.feedback?.likes?.some(like => like.user === userId)
+      const userId = this.$store.getters.userId;
+      return suggestion.feedback?.likes?.some(like => like.user === userId);
     },
 
     goToSubmit() {
-      this.$router.push('/suggestions/submit')
+      this.$router.push('/suggestions/submit');
     },
 
     goToManage() {
-      this.$router.push('/suggestions/manage')
+      this.$router.push('/suggestions/manage');
     },
 
     goToMySuggestions() {
-      this.$router.push('/suggestions/my')
+      this.$router.push('/suggestions/my');
     },
 
     evaluateSuggestion(suggestionId) {
-      this.$router.push(`/suggestions/${suggestionId}/evaluate`)
+      this.$router.push(`/suggestions/${suggestionId}/evaluate`);
     },
 
     startImplementation(suggestionId) {
-      this.$router.push(`/suggestions/${suggestionId}/implement`)
+      this.$router.push(`/suggestions/${suggestionId}/implement`);
     },
 
     updateProgress(suggestionId) {
-      this.$router.push(`/suggestions/${suggestionId}/progress`)
+      this.$router.push(`/suggestions/${suggestionId}/progress`);
     },
 
     getStatusType(status) {
       const statusTypes = {
-        'submitted': 'primary',
-        'under_review': 'warning',
-        'approved': 'success',
-        'rejected': 'danger',
-        'in_progress': 'warning',
-        'completed': 'success',
-        'archived': 'info'
-      }
-      return statusTypes[status] || 'info'
+        submitted: 'primary',
+        under_review: 'warning',
+        approved: 'success',
+        rejected: 'danger',
+        in_progress: 'warning',
+        completed: 'success',
+        archived: 'info',
+      };
+      return statusTypes[status] || 'info';
     },
 
     getStatusText(status) {
       const statusTexts = {
-        'submitted': '已提交',
-        'under_review': '审核中',
-        'approved': '已通过',
-        'rejected': '已拒绝',
-        'in_progress': '实施中',
-        'completed': '已完成',
-        'archived': '已归档'
-      }
-      return statusTexts[status] || '未知'
+        submitted: '已提交',
+        under_review: '审核中',
+        approved: '已通过',
+        rejected: '已拒绝',
+        in_progress: '实施中',
+        completed: '已完成',
+        archived: '已归档',
+      };
+      return statusTexts[status] || '未知';
     },
 
     formatDate,
-    formatDateTime
-  }
-}
+    formatDateTime,
+  },
+};
 </script>
 
 <style scoped>
@@ -589,10 +563,18 @@ export default {
   color: white;
 }
 
-.stat-icon.submitted { background: #409eff; }
-.stat-icon.pending { background: #e6a23c; }
-.stat-icon.processing { background: #f56c6c; }
-.stat-icon.completed { background: #67c23a; }
+.stat-icon.submitted {
+  background: #409eff;
+}
+.stat-icon.pending {
+  background: #e6a23c;
+}
+.stat-icon.processing {
+  background: #f56c6c;
+}
+.stat-icon.completed {
+  background: #67c23a;
+}
 
 .stat-number {
   font-size: 28px;

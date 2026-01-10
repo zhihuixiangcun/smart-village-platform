@@ -1,12 +1,6 @@
 <template>
   <div class="family-form">
-    <el-form
-      ref="formRef"
-      :model="formData"
-      :rules="formRules"
-      label-width="120px"
-      size="default"
-    >
+    <el-form ref="formRef" :model="formData" :rules="formRules" label-width="120px" size="default">
       <!-- 基本信息 -->
       <div class="form-section">
         <h3>基本信息</h3>
@@ -108,10 +102,7 @@
         <el-row :gutter="20">
           <el-col :span="8">
             <el-form-item label="主要手机" prop="contact.primaryPhone">
-              <el-input
-                v-model="formData.contact.primaryPhone"
-                placeholder="请输入主要联系电话"
-              />
+              <el-input v-model="formData.contact.primaryPhone" placeholder="请输入主要联系电话" />
             </el-form-item>
           </el-col>
           <el-col :span="8">
@@ -162,18 +153,12 @@
       <div class="form-section">
         <div class="section-header">
           <h3>家庭成员</h3>
-          <el-button type="primary" icon="Plus" @click="addMember">
-            添加成员
-          </el-button>
+          <el-button type="primary" icon="Plus" @click="addMember"> 添加成员 </el-button>
         </div>
         <el-table :data="formData.members" style="width: 100%">
           <el-table-column label="姓名" width="120">
             <template #default="{ row, $index }">
-              <el-input
-                v-model="row.name"
-                placeholder="姓名"
-                @change="validateMember($index)"
-              />
+              <el-input v-model="row.name" placeholder="姓名" @change="validateMember($index)" />
             </template>
           </el-table-column>
           <el-table-column label="关系" width="120">

@@ -98,19 +98,13 @@
         <el-button icon="Download" @click="downloadQRCode" :loading="downloading">
           保存图片
         </el-button>
-        <el-button icon="Printer" @click="printQRCode">
-          打印张贴
-        </el-button>
-        <el-button icon="Share" @click="shareQRCode" type="primary">
-          分享家人
-        </el-button>
+        <el-button icon="Printer" @click="printQRCode"> 打印张贴 </el-button>
+        <el-button icon="Share" @click="shareQRCode" type="primary"> 分享家人 </el-button>
       </div>
 
       <!-- 刷新二维码 -->
       <div class="qrcode-refresh">
-        <el-button text icon="Refresh" @click="refreshQRCode">
-          刷新二维码
-        </el-button>
+        <el-button text icon="Refresh" @click="refreshQRCode"> 刷新二维码 </el-button>
         <span class="refresh-tip">定期刷新可提高安全性</span>
       </div>
     </div>
@@ -122,8 +116,8 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ref, computed, watch } from 'vue';
+import { ElMessage } from 'element-plus';
 import {
   User,
   House,
@@ -133,130 +127,130 @@ import {
   Refresh,
   Download,
   Printer,
-  Share
-} from '@element-plus/icons-vue'
-import VueQrcode from '@chenfengyuan/vue-qrcode'
-import { familyApi } from '@/api/family'
+  Share,
+} from '@element-plus/icons-vue';
+import VueQrcode from '@chenfengyuan/vue-qrcode';
+import { familyApi } from '@/api/family';
 
 const props = defineProps({
   modelValue: {
     type: Boolean,
-    default: false
+    default: false,
   },
   familyId: {
     type: String,
-    default: null
-  }
-})
+    default: null,
+  },
+});
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue']);
 
 const visible = computed({
   get: () => props.modelValue,
-  set: (val) => emit('update:modelValue', val)
-})
+  set: val => emit('update:modelValue', val),
+});
 
 // 家庭信息
 const familyInfo = ref({
   familyCode: '',
   headOfHousehold: '',
   memberCount: 0,
-  address: ''
-})
+  address: '',
+});
 
 // 二维码数据
-const familyQRCode = ref('')
-const privacyLevel = ref('village')
-const downloading = ref(false)
+const familyQRCode = ref('');
+const privacyLevel = ref('village');
+const downloading = ref(false);
 
 // 生成家庭二维码
 const generateFamilyQRCode = async () => {
   try {
     if (!props.familyId) {
-      ElMessage.error('缺少家庭ID')
-      return
+      ElMessage.error('缺少家庭ID');
+      return;
     }
 
     // 调用API获取家庭二维码数据
-    const response = await familyApi.getFamilyQRCode(props.familyId)
+    const response = await familyApi.getFamilyQRCode(props.familyId);
 
     if (response.data) {
-      familyQRCode.value = response.data.qrcode
+      familyQRCode.value = response.data.qrcode;
       familyInfo.value = {
         familyCode: response.data.familyCode,
         headOfHousehold: response.data.headOfHousehold,
         memberCount: response.data.memberCount,
-        address: response.data.address
-      }
-      privacyLevel.value = response.data.privacyLevel || 'village'
+        address: response.data.address,
+      };
+      privacyLevel.value = response.data.privacyLevel || 'village';
     }
   } catch (error) {
-    ElMessage.error('生成二维码失败')
-    console.error('Generate QR code error:', error)
+    ElMessage.error('生成二维码失败');
+    console.error('Generate QR code error:', error);
   }
-}
+};
 
 // 刷新二维码
 const refreshQRCode = async () => {
   try {
-    await familyApi.refreshFamilyQRCode(props.familyId)
-    await generateFamilyQRCode()
-    ElMessage.success('二维码已刷新')
+    await familyApi.refreshFamilyQRCode(props.familyId);
+    await generateFamilyQRCode();
+    ElMessage.success('二维码已刷新');
   } catch (error) {
-    ElMessage.error('刷新失败')
-    console.error('Refresh QR code error:', error)
+    ElMessage.error('刷新失败');
+    console.error('Refresh QR code error:', error);
   }
-}
+};
 
 // 隐私设置变更
-const handlePrivacyChange = async (value) => {
+const handlePrivacyChange = async value => {
   try {
     await familyApi.updatePrivacySettings(props.familyId, {
-      privacyLevel: value
-    })
-    ElMessage.success('隐私设置已更新')
+      privacyLevel: value,
+    });
+    ElMessage.success('隐私设置已更新');
   } catch (error) {
-    ElMessage.error('更新失败')
-    console.error('Update privacy error:', error)
+    ElMessage.error('更新失败');
+    console.error('Update privacy error:', error);
   }
-}
+};
 
 // 下载二维码
 const downloadQRCode = () => {
   try {
-    downloading.value = true
+    downloading.value = true;
 
     // 获取二维码图片
-    const qrcodeImg = document.querySelector('.qrcode-wrapper img')
+    const qrcodeImg = document.querySelector('.qrcode-wrapper img');
     if (!qrcodeImg) {
-      ElMessage.error('二维码未生成')
-      return
+      ElMessage.error('二维码未生成');
+      return;
     }
 
     // 创建下载链接
-    const link = document.createElement('a')
-    link.href = qrcodeImg.src
-    link.download = `家庭二维码-${familyInfo.value.familyCode}.png`
-    link.click()
+    const link = document.createElement('a');
+    link.href = qrcodeImg.src;
+    link.download = `家庭二维码-${familyInfo.value.familyCode}.png`;
+    link.click();
 
-    ElMessage.success('二维码已保存')
+    ElMessage.success('二维码已保存');
   } catch (error) {
-    ElMessage.error('保存失败')
-    console.error('Download error:', error)
+    ElMessage.error('保存失败');
+    console.error('Download error:', error);
   } finally {
-    downloading.value = false
+    downloading.value = false;
   }
-}
+};
 
 // 打印二维码
 const printQRCode = () => {
   try {
-    const printWindow = window.open('', '_blank')
-    const qrcodeImg = document.querySelector('.qrcode-wrapper img')
+    const printWindow = window.open('', '_blank');
+    const qrcodeImg = document.querySelector('.qrcode-wrapper img');
 
     if (!qrcodeImg) {
-      ElMessage.error('二维码未生成')
-      return
+      ElMessage.error('二维码未生成');
+      return;
     }
 
     printWindow.document.write(`
@@ -301,66 +295,69 @@ const printQRCode = () => {
           <p class="tip">扫码查看我们家信息</p>
         </body>
       </html>
-    `)
-    printWindow.document.close()
-    printWindow.print()
+    `);
+    printWindow.document.close();
+    printWindow.print();
   } catch (error) {
-    ElMessage.error('打印失败')
-    console.error('Print error:', error)
+    ElMessage.error('打印失败');
+    console.error('Print error:', error);
   }
-}
+};
 
 // 分享二维码
 const shareQRCode = async () => {
   try {
     // 检查是否支持Web Share API
     if (navigator.share) {
-      const qrcodeImg = document.querySelector('.qrcode-wrapper img')
-      if (!qrcodeImg) return
+      const qrcodeImg = document.querySelector('.qrcode-wrapper img');
+      if (!qrcodeImg) return;
 
       // 将图片转换为Blob
-      const response = await fetch(qrcodeImg.src)
-      const blob = await response.blob()
-      const file = new File([blob], '家庭二维码.png', { type: 'image/png' })
+      const response = await fetch(qrcodeImg.src);
+      const blob = await response.blob();
+      const file = new File([blob], '家庭二维码.png', { type: 'image/png' });
 
       await navigator.share({
         title: '我的家庭二维码',
         text: `扫码查看我们家信息\n户主：${familyInfo.value.headOfHousehold}`,
-        files: [file]
-      })
+        files: [file],
+      });
 
-      ElMessage.success('分享成功')
+      ElMessage.success('分享成功');
     } else {
       // 不支持分享API,复制链接
-      await navigator.clipboard.writeText(familyQRCode.value)
-      ElMessage.success('二维码链接已复制到剪贴板')
+      await navigator.clipboard.writeText(familyQRCode.value);
+      ElMessage.success('二维码链接已复制到剪贴板');
     }
   } catch (error) {
     if (error.name !== 'AbortError') {
-      ElMessage.error('分享失败')
-      console.error('Share error:', error)
+      ElMessage.error('分享失败');
+      console.error('Share error:', error);
     }
   }
-}
+};
 
 // 对话框关闭处理
 const handleClosed = () => {
   // 重置状态
-  familyQRCode.value = ''
+  familyQRCode.value = '';
   familyInfo.value = {
     familyCode: '',
     headOfHousehold: '',
     memberCount: 0,
-    address: ''
-  }
-}
+    address: '',
+  };
+};
 
 // 监听对话框打开
-watch(() => props.modelValue, (newVal) => {
-  if (newVal && props.familyId) {
-    generateFamilyQRCode()
+watch(
+  () => props.modelValue,
+  newVal => {
+    if (newVal && props.familyId) {
+      generateFamilyQRCode();
+    }
   }
-})
+);
 </script>
 
 <style lang="scss" scoped>

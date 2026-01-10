@@ -77,12 +77,7 @@
       </el-input>
 
       <!-- 定位按钮 -->
-      <el-button
-        size="small"
-        circle
-        @click="locateUser"
-        :loading="locating"
-      >
+      <el-button size="small" circle @click="locateUser" :loading="locating">
         <el-icon><aim /></el-icon>
       </el-button>
 
@@ -103,31 +98,26 @@
       <div class="legend-title">图例</div>
       <div class="legend-items">
         <div v-if="showLocations" class="legend-item">
-          <span class="legend-icon" style="background: #1890ff;"></span>
+          <span class="legend-icon" style="background: #1890ff"></span>
           <span class="legend-text">地点</span>
         </div>
         <div v-if="showDangerZones" class="legend-item">
-          <span class="legend-icon" style="background: #ff4d4f;"></span>
+          <span class="legend-icon" style="background: #ff4d4f"></span>
           <span class="legend-text">危险区域</span>
         </div>
         <div v-if="showResources" class="legend-item">
-          <span class="legend-icon" style="background: #52c41a;"></span>
+          <span class="legend-icon" style="background: #52c41a"></span>
           <span class="legend-text">应急资源</span>
         </div>
         <div v-if="showResidents" class="legend-item">
-          <span class="legend-icon" style="background: #faad14;"></span>
+          <span class="legend-icon" style="background: #faad14"></span>
           <span class="legend-text">村民</span>
         </div>
       </div>
     </div>
 
     <!-- 信息弹窗 -->
-    <el-dialog
-      v-model="infoWindowVisible"
-      :title="infoWindowTitle"
-      width="500px"
-      append-to-body
-    >
+    <el-dialog v-model="infoWindowVisible" :title="infoWindowTitle" width="500px" append-to-body>
       <div v-if="infoWindowData">
         <!-- 地点信息 -->
         <div v-if="infoWindowData.type === 'location'">
@@ -146,7 +136,8 @@
               {{ infoWindowData.data.contact.phone }}
             </el-descriptions-item>
             <el-descriptions-item label="服务时间" v-if="infoWindowData.data.serviceHours">
-              {{ infoWindowData.data.serviceHours.openTime }} - {{ infoWindowData.data.serviceHours.closeTime }}
+              {{ infoWindowData.data.serviceHours.openTime }} -
+              {{ infoWindowData.data.serviceHours.closeTime }}
             </el-descriptions-item>
           </el-descriptions>
         </div>
@@ -246,7 +237,7 @@ import {
   User,
   Search,
   Aim,
-  Ruler
+  Ruler,
 } from '@element-plus/icons-vue';
 import AMapLoader from '@amap/amap-jsapi-loader';
 import { mapApi } from '@/api/map';
@@ -255,16 +246,21 @@ import { mapApi } from '@/api/map';
 const props = defineProps({
   villageId: {
     type: String,
-    required: true
+    required: true,
   },
   height: {
     type: String,
-    default: '600px'
-  }
+    default: '600px',
+  },
 });
 
 // Emits
-const emit = defineEmits(['location-click', 'danger-zone-click', 'resource-click', 'resident-click']);
+const emit = defineEmits([
+  'location-click',
+  'danger-zone-click',
+  'resource-click',
+  'resident-click',
+]);
 
 // 响应式数据
 const mapContainer = ref(null);
@@ -302,7 +298,7 @@ const currentLayerName = computed(() => {
   const layers = {
     normal: '标准地图',
     satellite: '卫星地图',
-    hybrid: '混合地图'
+    hybrid: '混合地图',
   };
   return layers[currentLayer.value] || '标准地图';
 });
@@ -311,7 +307,7 @@ const availableLayers = computed(() => {
   return [
     { name: '标准地图', type: 'normal' },
     { name: '卫星地图', type: 'satellite' },
-    { name: '混合地图', type: 'hybrid' }
+    { name: '混合地图', type: 'hybrid' },
   ];
 });
 
@@ -342,25 +338,28 @@ const initMap = async () => {
 
     // 加载高德地图API
     window._AMapSecurityConfig = {
-      securityJsCode: AMAP_SECURITY_KEY
+      securityJsCode: AMAP_SECURITY_KEY,
     };
 
     const AMap = await AMapLoader.load({
       key: AMAP_KEY,
       version: '2.0',
-      plugins: ['AMap.Scale', 'AMap.ToolBar', 'AMap.ControlBar', 'AMap.Geolocation', 'AMap.Geocoder']
+      plugins: [
+        'AMap.Scale',
+        'AMap.ToolBar',
+        'AMap.ControlBar',
+        'AMap.Geolocation',
+        'AMap.Geocoder',
+      ],
     });
 
     // 创建地图实例
     map.value = new AMap.Map(mapContainer.value, {
       zoom: mapConfig.value.zoomLevel,
-      center: [
-        mapConfig.value.center.longitude,
-        mapConfig.value.center.latitude
-      ],
+      center: [mapConfig.value.center.longitude, mapConfig.value.center.latitude],
       mapStyle: 'amap://styles/normal',
       viewMode: '3D',
-      pitch: 0
+      pitch: 0,
     });
 
     // 添加控件
@@ -368,12 +367,14 @@ const initMap = async () => {
       map.value.addControl(new AMap.Scale());
     }
     if (mapConfig.value.controls.showToolbar) {
-      map.value.addControl(new AMap.ToolBar({
-        position: {
-          top: '110px',
-          right: '40px'
-        }
-      }));
+      map.value.addControl(
+        new AMap.ToolBar({
+          position: {
+            top: '110px',
+            right: '40px',
+          },
+        })
+      );
     }
 
     // 绘制村界
@@ -383,10 +384,9 @@ const initMap = async () => {
     await loadMapData();
 
     // 地图点击事件
-    map.value.on('click', (e) => {
+    map.value.on('click', e => {
       console.log('地图点击:', e.lnglat.getLng(), e.lnglat.getLat());
     });
-
   } catch (error) {
     console.error('初始化地图失败:', error);
     ElMessage.error('地图加载失败，请稍后重试');
@@ -409,7 +409,7 @@ const drawVillageBoundary = async () => {
     strokeColor: mapConfig.value.style.boundaryColor,
     strokeWeight: mapConfig.value.style.boundaryWidth,
     fillColor: mapConfig.value.style.fillColor,
-    fillOpacity: 0.3
+    fillOpacity: 0.3,
   });
 
   map.value.add(polygon);
@@ -447,7 +447,7 @@ const loadMapData = async () => {
 };
 
 // 绘制地点
-const drawLocations = (locations) => {
+const drawLocations = locations => {
   const AMap = window.AMap;
 
   Object.keys(locations).forEach(type => {
@@ -456,7 +456,7 @@ const drawLocations = (locations) => {
         position: [loc.location.coordinates[0], loc.location.coordinates[1]],
         title: loc.name,
         icon: getMarkerIcon(type),
-        extData: { type: 'location', data: loc }
+        extData: { type: 'location', data: loc },
       });
 
       marker.on('click', () => {
@@ -471,7 +471,7 @@ const drawLocations = (locations) => {
 };
 
 // 绘制危险区域
-const drawDangerZones = (zones) => {
+const drawDangerZones = zones => {
   const AMap = window.AMap;
 
   zones.forEach(zone => {
@@ -487,7 +487,7 @@ const drawDangerZones = (zones) => {
         strokeColor: fillColor,
         strokeWeight: 2,
         fillColor: fillColor,
-        fillOpacity: zone.displayConfig.fillOpacity
+        fillOpacity: zone.displayConfig.fillOpacity,
       });
 
       polygon.on('click', () => {
@@ -502,7 +502,7 @@ const drawDangerZones = (zones) => {
 };
 
 // 绘制应急资源
-const drawResources = (resources) => {
+const drawResources = resources => {
   const AMap = window.AMap;
 
   resources.forEach(resource => {
@@ -510,7 +510,7 @@ const drawResources = (resources) => {
       position: [resource.location.coordinates[0], resource.location.coordinates[1]],
       title: resource.name,
       icon: getResourceIcon(resource.resourceType),
-      extData: { type: 'resource', data: resource }
+      extData: { type: 'resource', data: resource },
     });
 
     marker.on('click', () => {
@@ -524,7 +524,7 @@ const drawResources = (resources) => {
 };
 
 // 绘制村民位置
-const drawResidents = (residents) => {
+const drawResidents = residents => {
   const AMap = window.AMap;
 
   residents.forEach(resident => {
@@ -532,7 +532,7 @@ const drawResidents = (residents) => {
       position: [resident.location.coordinates[0], resident.location.coordinates[1]],
       title: resident.name,
       icon: getResidentIcon(resident.status),
-      extData: { type: 'resident', data: resident }
+      extData: { type: 'resident', data: resident },
     });
 
     marker.on('click', () => {
@@ -546,20 +546,20 @@ const drawResidents = (residents) => {
 };
 
 // 切换图层
-const changeLayer = (layerType) => {
+const changeLayer = layerType => {
   currentLayer.value = layerType;
 
   const styles = {
     normal: 'amap://styles/normal',
     satellite: 'amap://styles/satellite',
-    hybrid: 'amap://styles/hybrid'
+    hybrid: 'amap://styles/hybrid',
   };
 
   map.value.setMapStyle(styles[layerType]);
 };
 
 // 切换图层显示
-const toggleLayer = (layerType) => {
+const toggleLayer = layerType => {
   switch (layerType) {
     case 'locations':
       showLocations.value = !showLocations.value;
@@ -631,7 +631,7 @@ const locateUser = () => {
   AMap.plugin('AMap.Geolocation', () => {
     const geolocation = new AMap.Geolocation({
       enableHighAccuracy: true,
-      timeout: 10000
+      timeout: 10000,
     });
 
     map.value.addControl(geolocation);
@@ -664,7 +664,7 @@ const showInfoWindow = (type, data) => {
     location: '地点信息',
     dangerZone: '危险区域',
     resource: '应急资源',
-    resident: '村民信息'
+    resident: '村民信息',
   };
 
   infoWindowTitle.value = titles[type];
@@ -672,62 +672,60 @@ const showInfoWindow = (type, data) => {
 };
 
 // 使用资源
-const useResource = (resource) => {
-  ElMessageBox.confirm(
-    `确认使用 ${resource.name} 吗？`,
-    '使用资源',
-    {
-      confirmButtonText: '确认',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }
-  ).then(() => {
-    // 这里调用使用资源的API
-    ElMessage.success('使用记录已提交');
-    infoWindowVisible.value = false;
-  }).catch(() => {
-    // 取消使用
-  });
+const useResource = resource => {
+  ElMessageBox.confirm(`确认使用 ${resource.name} 吗？`, '使用资源', {
+    confirmButtonText: '确认',
+    cancelButtonText: '取消',
+    type: 'warning',
+  })
+    .then(() => {
+      // 这里调用使用资源的API
+      ElMessage.success('使用记录已提交');
+      infoWindowVisible.value = false;
+    })
+    .catch(() => {
+      // 取消使用
+    });
 };
 
 // 工具函数
-const getMarkerIcon = (type) => {
+const getMarkerIcon = type => {
   // 返回不同类型地点的图标
   const icons = {
     government: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_b1.png',
     education: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_b2.png',
     medical: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_b3.png',
-    emergency: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_b4.png'
+    emergency: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_b4.png',
   };
   return icons[type] || icons.government;
 };
 
-const getResourceIcon = (type) => {
+const getResourceIcon = type => {
   // 返回不同类型资源的图标
   return 'https://webapi.amap.com/theme/v1.3/markers/n/mark_g.png';
 };
 
-const getResidentIcon = (status) => {
+const getResidentIcon = status => {
   // 返回不同状态村民的图标
   const icons = {
     home: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_r.png',
     away: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_y.png',
-    emergency: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_r.png'
+    emergency: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_r.png',
   };
   return icons[status] || icons.home;
 };
 
-const getDangerZoneColor = (level) => {
+const getDangerZoneColor = level => {
   const colors = {
     low: '#52c41a',
     medium: '#faad14',
     high: '#ff4d4f',
-    critical: '#722ed1'
+    critical: '#722ed1',
   };
   return colors[level] || '#faad14';
 };
 
-const getLocationTypeName = (type) => {
+const getLocationTypeName = type => {
   const types = {
     government: '政府机构',
     education: '教育机构',
@@ -740,12 +738,12 @@ const getLocationTypeName = (type) => {
     infrastructure: '基础设施',
     religious: '宗教场所',
     cultural: '文化场所',
-    other: '其他'
+    other: '其他',
   };
   return types[type] || type;
 };
 
-const getDangerTypeName = (type) => {
+const getDangerTypeName = type => {
   const types = {
     flood: '易涝区域',
     fire: '火灾高风险区',
@@ -759,42 +757,42 @@ const getDangerTypeName = (type) => {
     chemical: '化学品危险',
     explosive: '爆炸物危险',
     radiation: '辐射危险',
-    other: '其他危险'
+    other: '其他危险',
   };
   return types[type] || type;
 };
 
-const getDangerLevelName = (level) => {
+const getDangerLevelName = level => {
   const levels = {
     low: '低',
     medium: '中',
     high: '高',
-    critical: '严重'
+    critical: '严重',
   };
   return levels[level] || level;
 };
 
-const getDangerLevelType = (level) => {
+const getDangerLevelType = level => {
   const types = {
     low: 'success',
     medium: 'warning',
     high: 'error',
-    critical: 'error'
+    critical: 'error',
   };
   return types[level] || 'warning';
 };
 
-const getDangerZoneStatusName = (status) => {
+const getDangerZoneStatusName = status => {
   const statuses = {
     active: '活跃',
     monitoring: '监测中',
     resolved: '已解决',
-    inactive: '不活跃'
+    inactive: '不活跃',
   };
   return statuses[status] || status;
 };
 
-const getResourceTypeName = (type) => {
+const getResourceTypeName = type => {
   const types = {
     fire_hydrant: '消防栓',
     water_pump: '水泵',
@@ -811,44 +809,44 @@ const getResourceTypeName = (type) => {
     medical_equipment: '医疗设备',
     sandbag: '沙袋',
     portable_pump: '便携式水泵',
-    other: '其他'
+    other: '其他',
   };
   return types[type] || type;
 };
 
-const getResourceStatusName = (status) => {
+const getResourceStatusName = status => {
   const statuses = {
     available: '可用',
     in_use: '使用中',
     maintenance: '维护中',
     unavailable: '不可用',
-    damaged: '已损坏'
+    damaged: '已损坏',
   };
   return statuses[status] || status;
 };
 
-const getResourceStatusType = (status) => {
+const getResourceStatusType = status => {
   const types = {
     available: 'success',
     in_use: 'warning',
     maintenance: 'info',
     unavailable: 'info',
-    damaged: 'danger'
+    damaged: 'danger',
   };
   return types[status] || '';
 };
 
-const getResidentStatusName = (status) => {
+const getResidentStatusName = status => {
   const statuses = {
     home: '在家',
     away: '外出',
     emergency: '紧急',
-    offline: '离线'
+    offline: '离线',
   };
   return statuses[status] || status;
 };
 
-const formatTime = (time) => {
+const formatTime = time => {
   if (!time) return '';
   const date = new Date(time);
   return date.toLocaleString('zh-CN');

@@ -36,13 +36,13 @@ const props = defineProps({
   // 是否显示切换开关
   showToggle: {
     type: Boolean,
-    default: true
+    default: true,
   },
   // 默认模式
   defaultMode: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 
 // Emits
@@ -68,7 +68,7 @@ const inactiveText = computed(() => '标准');
 /**
  * 处理模式切换
  */
-const handleModeChange = (value) => {
+const handleModeChange = value => {
   toggleElderlyMode(value);
   emit('modeChange', value);
 
@@ -81,7 +81,7 @@ const handleModeChange = (value) => {
 // 暴露方法
 defineExpose({
   toggle: toggleElderlyMode,
-  isElderlyMode
+  isElderlyMode,
 });
 </script>
 
@@ -143,8 +143,8 @@ defineExpose({
 .high-contrast {
   --el-color-primary: #000080;
   --el-color-success: #006400;
-  --el-color-warning: #8B4500;
-  --el-color-danger: #8B0000;
+  --el-color-warning: #8b4500;
+  --el-color-danger: #8b0000;
   --el-color-info: #000000;
 
   .elderly-active :deep(*) {

@@ -71,7 +71,11 @@
         <!-- 撤回消息 -->
         <template v-else-if="message.type === 'recall'">
           <div class="recall-content">
-            {{ isSelf ? '你撤回了一条消息' : `${message.sender?.profile?.nickName || '对方'}撤回了一条消息` }}
+            {{
+              isSelf
+                ? '你撤回了一条消息'
+                : `${message.sender?.profile?.nickName || '对方'}撤回了一条消息`
+            }}
           </div>
         </template>
 
@@ -93,7 +97,11 @@
       </div>
 
       <!-- 操作菜单 -->
-      <el-dropdown v-if="!message.isRecalled && (isSelf || message.type !== 'system')" trigger="click" @command="handleCommand">
+      <el-dropdown
+        v-if="!message.isRecalled && (isSelf || message.type !== 'system')"
+        trigger="click"
+        @command="handleCommand"
+      >
         <div class="more-btn">
           <el-icon><MoreFilled /></el-icon>
         </div>
@@ -119,102 +127,111 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { Microphone, Document, Check, CircleCheck, MoreFilled, ChatDotRound, Delete, CopyDocument } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
-import 'dayjs/locale/zh-cn'
+import { computed } from 'vue';
+import {
+  Microphone,
+  Document,
+  Check,
+  CircleCheck,
+  MoreFilled,
+  ChatDotRound,
+  Delete,
+  CopyDocument,
+} from '@element-plus/icons-vue';
+import { ElMessage } from 'element-plus';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import 'dayjs/locale/zh-cn';
 
-dayjs.extend(relativeTime)
-dayjs.locale('zh-cn')
+dayjs.extend(relativeTime);
+dayjs.locale('zh-cn');
 
 const props = defineProps({
   message: {
     type: Object,
-    required: true
+    required: true,
   },
   isSelf: {
     type: Boolean,
-    default: false
+    default: false,
   },
   isGroup: {
     type: Boolean,
-    default: false
-  }
-})
+    default: false,
+  },
+});
 
-const emit = defineEmits(['reply', 'recall'])
+const emit = defineEmits(['reply', 'recall']);
 
 // 格式化时间
 const formattedTime = computed(() => {
-  const createdAt = props.message.createdAt
-  if (!createdAt) return ''
+  const createdAt = props.message.createdAt;
+  if (!createdAt) return '';
 
-  const now = dayjs()
-  const msgTime = dayjs(createdAt)
-  const diffMins = now.diff(msgTime, 'minute')
+  const now = dayjs();
+  const msgTime = dayjs(createdAt);
+  const diffMins = now.diff(msgTime, 'minute');
 
-  if (diffMins < 1) return '刚刚'
-  if (diffMins < 60) return msgTime.fromNow()
+  if (diffMins < 1) return '刚刚';
+  if (diffMins < 60) return msgTime.fromNow();
 
   // 超过1小时显示具体时间
-  return msgTime.format('HH:mm')
-})
+  return msgTime.format('HH:mm');
+});
 
 // 是否可以撤回（2分钟内）
 const canRecall = computed(() => {
-  if (!props.message.createdAt) return false
-  const diffMins = dayjs().diff(dayjs(props.message.createdAt), 'minute')
-  return diffMins <= 2
-})
+  if (!props.message.createdAt) return false;
+  const diffMins = dayjs().diff(dayjs(props.message.createdAt), 'minute');
+  return diffMins <= 2;
+});
 
 // 格式化文件大小
-const formatFileSize = (bytes) => {
-  if (!bytes) return '0 B'
-  const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i]
-}
+const formatFileSize = bytes => {
+  if (!bytes) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+};
 
 // 获取回复引用文本
-const getReplyRefText = (replyTo) => {
-  if (!replyTo) return ''
-  const sender = replyTo.sender?.profile?.nickName || replyTo.sender?.username || '对方'
-  const prefix = props.isSelf ? '' : `${sender}: `
+const getReplyRefText = replyTo => {
+  if (!replyTo) return '';
+  const sender = replyTo.sender?.profile?.nickName || replyTo.sender?.username || '对方';
+  const prefix = props.isSelf ? '' : `${sender}: `;
 
   if (replyTo.type === 'text') {
-    return prefix + replyTo.content?.text
+    return prefix + replyTo.content?.text;
   } else if (replyTo.type === 'image') {
-    return prefix + '[图片]'
+    return prefix + '[图片]';
   } else if (replyTo.type === 'voice') {
-    return prefix + '[语音]'
+    return prefix + '[语音]';
   } else if (replyTo.type === 'video') {
-    return prefix + '[视频]'
+    return prefix + '[视频]';
   } else if (replyTo.type === 'file') {
-    return prefix + '[文件]'
+    return prefix + '[文件]';
   } else if (replyTo.type === 'recall') {
-    return prefix + '[撤回的消息]'
+    return prefix + '[撤回的消息]';
   }
-  return prefix + '[消息]'
-}
+  return prefix + '[消息]';
+};
 
 // 处理操作命令
-const handleCommand = (command) => {
+const handleCommand = command => {
   switch (command) {
     case 'reply':
-      emit('reply', props.message)
-      break
+      emit('reply', props.message);
+      break;
     case 'recall':
-      emit('recall', props.message)
-      break
+      emit('recall', props.message);
+      break;
     case 'copy':
-      navigator.clipboard.writeText(props.message.content?.text || '')
-      ElMessage.success('已复制')
-      break
+      navigator.clipboard.writeText(props.message.content?.text || '');
+      ElMessage.success('已复制');
+      break;
   }
-}
+};
 </script>
 
 <style scoped>

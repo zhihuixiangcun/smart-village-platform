@@ -118,7 +118,7 @@
               :src="scope.row.qrCode"
               :preview-src-list="[scope.row.qrCode]"
               fit="cover"
-              style="width: 40px; height: 40px; cursor: pointer;"
+              style="width: 40px; height: 40px; cursor: pointer"
             />
           </template>
         </el-table-column>
@@ -136,13 +136,9 @@
         </el-table-column>
         <el-table-column label="操作" width="200" fixed="right">
           <template #default="scope">
-            <el-button type="primary" size="small" @click="handleView(scope.row)">
-              查看
-            </el-button>
-            <el-button type="warning" size="small" @click="handleEdit(scope.row)">
-              编辑
-            </el-button>
-            <el-dropdown @command="(command) => handleAction(command, scope.row)">
+            <el-button type="primary" size="small" @click="handleView(scope.row)"> 查看 </el-button>
+            <el-button type="warning" size="small" @click="handleEdit(scope.row)"> 编辑 </el-button>
+            <el-dropdown @command="command => handleAction(command, scope.row)">
               <el-button type="info" size="small">
                 更多<el-icon class="el-icon--right"><ArrowDown /></el-icon>
               </el-button>
@@ -236,11 +232,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="住房面积" prop="houseArea">
-              <el-input-number
-                v-model="householdForm.houseArea"
-                :min="0"
-                controls-position="right"
-              >
+              <el-input-number v-model="householdForm.houseArea" :min="0" controls-position="right">
                 <template #append>m²</template>
               </el-input-number>
             </el-form-item>
@@ -266,28 +258,35 @@
     </el-dialog>
 
     <!-- 住户详情对话框 -->
-    <el-dialog
-      v-model="showDetailDialog"
-      title="住户详情"
-      width="900px"
-      :fullscreen="isMobile"
-    >
+    <el-dialog v-model="showDetailDialog" title="住户详情" width="900px" :fullscreen="isMobile">
       <div class="detail-content" v-if="currentHousehold">
         <!-- 基本信息 -->
         <el-descriptions title="基本信息" :column="2" border>
           <el-descriptions-item label="家庭编号">{{ currentHousehold.code }}</el-descriptions-item>
-          <el-descriptions-item label="户主">{{ currentHousehold.householder }}</el-descriptions-item>
-          <el-descriptions-item label="身份证号">{{ maskIdCard(currentHousehold.idCard) }}</el-descriptions-item>
+          <el-descriptions-item label="户主">{{
+            currentHousehold.householder
+          }}</el-descriptions-item>
+          <el-descriptions-item label="身份证号">{{
+            maskIdCard(currentHousehold.idCard)
+          }}</el-descriptions-item>
           <el-descriptions-item label="联系电话">{{ currentHousehold.phone }}</el-descriptions-item>
-          <el-descriptions-item label="家庭住址" :span="2">{{ currentHousehold.address }}</el-descriptions-item>
+          <el-descriptions-item label="家庭住址" :span="2">{{
+            currentHousehold.address
+          }}</el-descriptions-item>
           <el-descriptions-item label="家庭类型">
             <el-tag :type="getCategoryTagType(currentHousehold.category)">
               {{ getCategoryText(currentHousehold.category) }}
             </el-tag>
           </el-descriptions-item>
-          <el-descriptions-item label="家庭人口">{{ currentHousehold.population }}人</el-descriptions-item>
-          <el-descriptions-item label="住房面积">{{ currentHousehold.houseArea }}m²</el-descriptions-item>
-          <el-descriptions-item label="创建时间">{{ formatDate(currentHousehold.createdAt) }}</el-descriptions-item>
+          <el-descriptions-item label="家庭人口"
+            >{{ currentHousehold.population }}人</el-descriptions-item
+          >
+          <el-descriptions-item label="住房面积"
+            >{{ currentHousehold.houseArea }}m²</el-descriptions-item
+          >
+          <el-descriptions-item label="创建时间">{{
+            formatDate(currentHousehold.createdAt)
+          }}</el-descriptions-item>
         </el-descriptions>
 
         <!-- 二维码展示 -->
@@ -298,7 +297,7 @@
               :src="currentHousehold.qrCode"
               :preview-src-list="[currentHousehold.qrCode]"
               fit="contain"
-              style="width: 200px; height: 200px;"
+              style="width: 200px; height: 200px"
             />
             <div class="qr-code-info">
               <p>扫描二维码可快速查看/更新家庭信息</p>
@@ -373,13 +372,9 @@
             accept=".xlsx,.xls"
           >
             <el-icon class="el-icon--upload"><UploadFilled /></el-icon>
-            <div class="el-upload__text">
-              将Excel文件拖到此处，或<em>点击上传</em>
-            </div>
+            <div class="el-upload__text">将Excel文件拖到此处，或<em>点击上传</em></div>
             <template #tip>
-              <div class="el-upload__tip">
-                请上传包含住户信息的Excel文件
-              </div>
+              <div class="el-upload__tip">请上传包含住户信息的Excel文件</div>
             </template>
           </el-upload>
         </el-form-item>
@@ -402,12 +397,7 @@
     </el-dialog>
 
     <!-- 打印设置对话框 -->
-    <el-dialog
-      v-model="showPrintDialog"
-      title="打印二维码"
-      width="500px"
-      :fullscreen="isMobile"
-    >
+    <el-dialog v-model="showPrintDialog" title="打印二维码" width="500px" :fullscreen="isMobile">
       <el-form ref="printFormRef" :model="printForm" label-width="100px">
         <el-form-item label="打印范围">
           <el-radio-group v-model="printForm.range">
@@ -446,9 +436,7 @@
 
       <template #footer>
         <el-button @click="showPrintDialog = false">取消</el-button>
-        <el-button type="primary" @click="handlePrint">
-          预览并打印
-        </el-button>
+        <el-button type="primary" @click="handlePrint"> 预览并打印 </el-button>
       </template>
     </el-dialog>
 
@@ -464,9 +452,9 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useCommitteeStore } from '@/stores/villageCommittee/committeeStore'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, computed, onMounted } from 'vue';
+import { useCommitteeStore } from '@/stores/villageCommittee/committeeStore';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
   Search,
   Refresh,
@@ -476,42 +464,42 @@ import {
   Operation,
   Printer,
   ArrowDown,
-  UploadFilled
-} from '@element-plus/icons-vue'
-import dayjs from 'dayjs'
+  UploadFilled,
+} from '@element-plus/icons-vue';
+import dayjs from 'dayjs';
 
-const committeeStore = useCommitteeStore()
+const committeeStore = useCommitteeStore();
 
 // 响应式数据
 const searchForm = ref({
   householder: '',
   code: '',
-  category: ''
-})
+  category: '',
+});
 
-const showAddDialog = ref(false)
-const showDetailDialog = ref(false)
-const showBatchDialog = ref(false)
-const showPrintDialog = ref(false)
-const isEdit = ref(false)
-const submitting = ref(false)
-const batchGenerating = ref(false)
-const isMobile = ref(false)
+const showAddDialog = ref(false);
+const showDetailDialog = ref(false);
+const showBatchDialog = ref(false);
+const showPrintDialog = ref(false);
+const isEdit = ref(false);
+const submitting = ref(false);
+const batchGenerating = ref(false);
+const isMobile = ref(false);
 
-const householdFormRef = ref()
-const batchFormRef = ref()
-const printFormRef = ref()
-const fileInput = ref()
+const householdFormRef = ref();
+const batchFormRef = ref();
+const printFormRef = ref();
+const fileInput = ref();
 
-const currentHousehold = ref(null)
-const selectedHouseholds = ref([])
-const batchFileList = ref([])
+const currentHousehold = ref(null);
+const selectedHouseholds = ref([]);
+const batchFileList = ref([]);
 
 const pagination = ref({
   page: 1,
   size: 20,
-  total: 0
-})
+  total: 0,
+});
 
 const householdForm = ref({
   householder: '',
@@ -521,21 +509,21 @@ const householdForm = ref({
   category: 'normal',
   population: 1,
   houseArea: 0,
-  remark: ''
-})
+  remark: '',
+});
 
 const batchForm = ref({
   mode: 'new',
   data: null,
-  printOptions: ['qrcode', 'address']
-})
+  printOptions: ['qrcode', 'address'],
+});
 
 const printForm = ref({
   range: 'selected',
   category: '',
   style: 'standard',
-  paperSize: 'A4'
-})
+  paperSize: 'A4',
+});
 
 // 家庭统计数据
 const householdStats = ref([
@@ -544,114 +532,102 @@ const householdStats = ref([
     label: '住户总数',
     value: '486',
     icon: 'House',
-    color: '#409eff'
+    color: '#409eff',
   },
   {
     key: 'lowIncome',
     label: '低保户',
     value: '32',
     icon: 'Money',
-    color: '#f56c6c'
+    color: '#f56c6c',
   },
   {
     key: 'elderly',
     label: '独居老人',
     value: '18',
     icon: 'UserFilled',
-    color: '#e6a23c'
+    color: '#e6a23c',
   },
   {
     key: 'disabled',
     label: '残疾家庭',
     value: '23',
     icon: 'Warning',
-    color: '#909399'
-  }
-])
+    color: '#909399',
+  },
+]);
 
 // 表单验证规则
 const householdRules = {
-  householder: [
-    { required: true, message: '请输入户主姓名', trigger: 'blur' }
-  ],
+  householder: [{ required: true, message: '请输入户主姓名', trigger: 'blur' }],
   idCard: [
     { required: true, message: '请输入身份证号', trigger: 'blur' },
-    { pattern: /^\d{17}[\dXx]$/, message: '请输入正确的身份证号', trigger: 'blur' }
+    { pattern: /^\d{17}[\dXx]$/, message: '请输入正确的身份证号', trigger: 'blur' },
   ],
   phone: [
     { required: true, message: '请输入联系电话', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' }
+    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' },
   ],
-  address: [
-    { required: true, message: '请输入家庭住址', trigger: 'blur' }
-  ],
-  category: [
-    { required: true, message: '请选择家庭类型', trigger: 'change' }
-  ],
-  population: [
-    { required: true, message: '请输入家庭人口', trigger: 'blur' }
-  ]
-}
+  address: [{ required: true, message: '请输入家庭住址', trigger: 'blur' }],
+  category: [{ required: true, message: '请选择家庭类型', trigger: 'change' }],
+  population: [{ required: true, message: '请输入家庭人口', trigger: 'blur' }],
+};
 
 const batchRules = {
-  mode: [
-    { required: true, message: '请选择生成方式', trigger: 'change' }
-  ],
-  data: [
-    { required: true, message: '请上传数据文件', trigger: 'change' }
-  ]
-}
+  mode: [{ required: true, message: '请选择生成方式', trigger: 'change' }],
+  data: [{ required: true, message: '请上传数据文件', trigger: 'change' }],
+};
 
 // 计算属性
 const filteredHouseholds = computed(() => {
-  let result = committeeStore.householdCodes
+  let result = committeeStore.householdCodes;
 
   if (searchForm.value.householder) {
-    result = result.filter(h => h.householder.includes(searchForm.value.householder))
+    result = result.filter(h => h.householder.includes(searchForm.value.householder));
   }
 
   if (searchForm.value.code) {
-    result = result.filter(h => h.code.includes(searchForm.value.code))
+    result = result.filter(h => h.code.includes(searchForm.value.code));
   }
 
   if (searchForm.value.category) {
-    result = result.filter(h => h.category === searchForm.value.category)
+    result = result.filter(h => h.category === searchForm.value.category);
   }
 
-  pagination.value.total = result.length
-  const start = (pagination.value.page - 1) * pagination.value.size
-  const end = start + pagination.value.size
-  return result.slice(start, end)
-})
+  pagination.value.total = result.length;
+  const start = (pagination.value.page - 1) * pagination.value.size;
+  const end = start + pagination.value.size;
+  return result.slice(start, end);
+});
 
 // 方法
 const handleSearch = () => {
-  pagination.value.page = 1
-}
+  pagination.value.page = 1;
+};
 
 const handleReset = () => {
   searchForm.value = {
     householder: '',
     code: '',
-    category: ''
-  }
-  pagination.value.page = 1
-}
+    category: '',
+  };
+  pagination.value.page = 1;
+};
 
-const handleSelectionChange = (selection) => {
-  selectedHouseholds.value = selection
-}
+const handleSelectionChange = selection => {
+  selectedHouseholds.value = selection;
+};
 
-const handleSizeChange = (size) => {
-  pagination.value.size = size
-  pagination.value.page = 1
-}
+const handleSizeChange = size => {
+  pagination.value.size = size;
+  pagination.value.page = 1;
+};
 
-const handleCurrentChange = (page) => {
-  pagination.value.page = page
-}
+const handleCurrentChange = page => {
+  pagination.value.page = page;
+};
 
-const handleView = (row) => {
+const handleView = row => {
   currentHousehold.value = {
     ...row,
     members: [
@@ -663,7 +639,7 @@ const handleView = (row) => {
         idCard: row.idCard,
         phone: row.phone,
         education: '高中',
-        occupation: '农民'
+        occupation: '农民',
       },
       {
         name: '张小红',
@@ -673,233 +649,229 @@ const handleView = (row) => {
         idCard: '330327197808206543',
         phone: '13812345678',
         education: '初中',
-        occupation: '农民'
-      }
-    ]
-  }
-  showDetailDialog.value = true
-}
+        occupation: '农民',
+      },
+    ],
+  };
+  showDetailDialog.value = true;
+};
 
-const handleEdit = (row) => {
-  isEdit.value = true
-  currentHousehold.value = row
-  householdForm.value = { ...row }
-  showAddDialog.value = true
-}
+const handleEdit = row => {
+  isEdit.value = true;
+  currentHousehold.value = row;
+  householdForm.value = { ...row };
+  showAddDialog.value = true;
+};
 
 const handleAction = (command, row) => {
-  currentHousehold.value = row
+  currentHousehold.value = row;
 
   switch (command) {
     case 'qrcode':
-      handleViewQRCode(row)
-      break
+      handleViewQRCode(row);
+      break;
     case 'members':
-      handleViewMembers(row)
-      break
+      handleViewMembers(row);
+      break;
     case 'history':
-      handleViewHistory(row)
-      break
+      handleViewHistory(row);
+      break;
     case 'print':
-      handlePrintSingle(row)
-      break
+      handlePrintSingle(row);
+      break;
     case 'delete':
-      handleDelete(row)
-      break
+      handleDelete(row);
+      break;
   }
-}
+};
 
-const handleViewQRCode = (row) => {
+const handleViewQRCode = row => {
   ElMessageBox.alert(
     `<img src="${row.qrCode}" style="width: 200px; height: 200px;" />`,
     '家庭二维码',
     {
       dangerouslyUseHTMLString: true,
-      center: true
+      center: true,
     }
-  )
-}
+  );
+};
 
-const handleViewMembers = (row) => {
-  handleView(row)
-}
+const handleViewMembers = row => {
+  handleView(row);
+};
 
-const handleViewHistory = (row) => {
-  ElMessage.info('查看更新历史')
-}
+const handleViewHistory = row => {
+  ElMessage.info('查看更新历史');
+};
 
-const handlePrintSingle = (row) => {
-  ElMessage.info(`打印 ${row.householder} 的二维码`)
-}
+const handlePrintSingle = row => {
+  ElMessage.info(`打印 ${row.householder} 的二维码`);
+};
 
-const handleDelete = (row) => {
-  ElMessageBox.confirm(
-    `确定要删除户主为 ${row.householder} 的家庭信息吗？`,
-    '删除确认',
-    {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }
-  ).then(async () => {
+const handleDelete = row => {
+  ElMessageBox.confirm(`确定要删除户主为 ${row.householder} 的家庭信息吗？`, '删除确认', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  }).then(async () => {
     try {
-      ElMessage.success('删除成功')
-      await committeeStore.fetchHouseholdCodes()
+      ElMessage.success('删除成功');
+      await committeeStore.fetchHouseholdCodes();
     } catch (error) {
-      ElMessage.error('删除失败')
+      ElMessage.error('删除失败');
     }
-  })
-}
+  });
+};
 
 const handleSubmit = async () => {
-  if (!householdFormRef.value) return
+  if (!householdFormRef.value) return;
 
-  await householdFormRef.value.validate(async (valid) => {
+  await householdFormRef.value.validate(async valid => {
     if (valid) {
-      submitting.value = true
+      submitting.value = true;
       try {
         if (isEdit.value) {
-          await committeeStore.updateHouseholdCode(currentHousehold.value.id, householdForm.value)
-          ElMessage.success('更新成功')
+          await committeeStore.updateHouseholdCode(currentHousehold.value.id, householdForm.value);
+          ElMessage.success('更新成功');
         } else {
-          await committeeStore.generateHouseholdCode(householdForm.value)
-          ElMessage.success('添加成功')
+          await committeeStore.generateHouseholdCode(householdForm.value);
+          ElMessage.success('添加成功');
         }
-        showAddDialog.value = false
-        await committeeStore.fetchHouseholdCodes()
+        showAddDialog.value = false;
+        await committeeStore.fetchHouseholdCodes();
       } catch (error) {
-        ElMessage.error('操作失败')
+        ElMessage.error('操作失败');
       } finally {
-        submitting.value = false
+        submitting.value = false;
       }
     }
-  })
-}
+  });
+};
 
 const handleAddMember = () => {
-  ElMessage.info('添加家庭成员')
-}
+  ElMessage.info('添加家庭成员');
+};
 
-const handleEditMember = (member) => {
-  ElMessage.info(`编辑 ${member.name} 的信息`)
-}
+const handleEditMember = member => {
+  ElMessage.info(`编辑 ${member.name} 的信息`);
+};
 
 const handleImport = () => {
-  fileInput.value.click()
-}
+  fileInput.value.click();
+};
 
-const handleFileImport = async (event) => {
-  const file = event.target.files[0]
-  if (!file) return
+const handleFileImport = async event => {
+  const file = event.target.files[0];
+  if (!file) return;
 
   try {
-    ElMessage.success('导入成功')
-    await committeeStore.fetchHouseholdCodes()
+    ElMessage.success('导入成功');
+    await committeeStore.fetchHouseholdCodes();
   } catch (error) {
-    ElMessage.error('导入失败')
+    ElMessage.error('导入失败');
   }
 
-  event.target.value = ''
-}
+  event.target.value = '';
+};
 
 const handleExport = () => {
-  ElMessage.success('导出成功')
-}
+  ElMessage.success('导出成功');
+};
 
-const downloadQRCode = (household) => {
-  const link = document.createElement('a')
-  link.href = household.qrCode
-  link.download = `${household.code}.png`
-  link.click()
-}
+const downloadQRCode = household => {
+  const link = document.createElement('a');
+  link.href = household.qrCode;
+  link.download = `${household.code}.png`;
+  link.click();
+};
 
-const handleBatchFileChange = (file) => {
-  batchFileList.value = [file]
-}
+const handleBatchFileChange = file => {
+  batchFileList.value = [file];
+};
 
 const handleBatchGenerate = async () => {
-  if (!batchFormRef.value) return
+  if (!batchFormRef.value) return;
 
-  await batchFormRef.value.validate(async (valid) => {
+  await batchFormRef.value.validate(async valid => {
     if (valid) {
-      batchGenerating.value = true
+      batchGenerating.value = true;
       try {
-        ElMessage.success('批量生成成功')
-        showBatchDialog.value = false
-        await committeeStore.fetchHouseholdCodes()
+        ElMessage.success('批量生成成功');
+        showBatchDialog.value = false;
+        await committeeStore.fetchHouseholdCodes();
       } catch (error) {
-        ElMessage.error('生成失败')
+        ElMessage.error('生成失败');
       } finally {
-        batchGenerating.value = false
+        batchGenerating.value = false;
       }
     }
-  })
-}
+  });
+};
 
 const handlePrint = () => {
-  ElMessage.success('准备打印')
-}
+  ElMessage.success('准备打印');
+};
 
 // 辅助函数
-const formatDate = (date) => {
-  return date ? dayjs(date).format('YYYY-MM-DD') : ''
-}
+const formatDate = date => {
+  return date ? dayjs(date).format('YYYY-MM-DD') : '';
+};
 
-const maskIdCard = (idCard) => {
-  if (!idCard) return ''
-  return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2')
-}
+const maskIdCard = idCard => {
+  if (!idCard) return '';
+  return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2');
+};
 
-const getCategoryTagType = (category) => {
+const getCategoryTagType = category => {
   const typeMap = {
     normal: 'primary',
     lowIncome: 'danger',
     singleChild: 'success',
     elderly: 'warning',
-    disabled: 'info'
-  }
-  return typeMap[category] || ''
-}
+    disabled: 'info',
+  };
+  return typeMap[category] || '';
+};
 
-const getCategoryText = (category) => {
+const getCategoryText = category => {
   const textMap = {
     normal: '普通住户',
     lowIncome: '低保户',
     singleChild: '独生子女户',
     elderly: '独居老人',
-    disabled: '残疾家庭'
-  }
-  return textMap[category] || category
-}
+    disabled: '残疾家庭',
+  };
+  return textMap[category] || category;
+};
 
-const getStatusTagType = (status) => {
+const getStatusTagType = status => {
   const typeMap = {
     active: 'success',
     inactive: 'warning',
-    moved: 'info'
-  }
-  return typeMap[status] || ''
-}
+    moved: 'info',
+  };
+  return typeMap[status] || '';
+};
 
-const getStatusText = (status) => {
+const getStatusText = status => {
   const textMap = {
     active: '正常',
     inactive: '未激活',
-    moved: '已搬迁'
-  }
-  return textMap[status] || status
-}
+    moved: '已搬迁',
+  };
+  return textMap[status] || status;
+};
 
 // 生命周期
 onMounted(async () => {
-  isMobile.value = window.innerWidth < 768
+  isMobile.value = window.innerWidth < 768;
 
   try {
-    await committeeStore.fetchHouseholdCodes()
+    await committeeStore.fetchHouseholdCodes();
   } catch (error) {
-    console.error('加载数据失败:', error)
+    console.error('加载数据失败:', error);
   }
-})
+});
 </script>
 
 <style lang="scss" scoped>

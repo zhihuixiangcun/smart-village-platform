@@ -106,7 +106,11 @@
             <el-menu-item index="messages">
               <el-icon><ChatDotRound /></el-icon>
               <span>消息中心</span>
-              <el-badge v-if="stats.unreadMessages > 0" :value="stats.unreadMessages" class="badge" />
+              <el-badge
+                v-if="stats.unreadMessages > 0"
+                :value="stats.unreadMessages"
+                class="badge"
+              />
             </el-menu-item>
             <el-menu-item index="settings">
               <el-icon><Setting /></el-icon>
@@ -124,8 +128,12 @@
             </div>
           </template>
           <div class="contact-info">
-            <p><el-icon><Message /></el-icon> 客服热线: 400-888-8888</p>
-            <p><el-icon><Clock /></el-icon> 工作时间: 9:00-18:00</p>
+            <p>
+              <el-icon><Message /></el-icon> 客服热线: 400-888-8888
+            </p>
+            <p>
+              <el-icon><Clock /></el-icon> 工作时间: 9:00-18:00
+            </p>
           </div>
         </el-card>
       </div>
@@ -209,35 +217,52 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ref, reactive, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { ElMessage } from 'element-plus';
 import {
-  User, CircleCheck, Edit, Refresh, DataBoard, ShoppingCart, Document,
-  UserFilled, Star, ChatDotRound, Setting, Phone, Message, Clock, Location, Compass,
-  Van, Share, ShoppingBag
-} from '@element-plus/icons-vue'
-import api from '@/api'
-import OverviewPanel from '@/components/purchaser/OverviewPanel.vue'
-import OrdersPanel from '@/components/purchaser/OrdersPanel.vue'
-import RequirementsPanel from '@/components/purchaser/RequirementsPanel.vue'
-import SuppliersPanel from '@/components/purchaser/SuppliersPanel.vue'
-import FavoritesPanel from '@/components/purchaser/FavoritesPanel.vue'
-import MessagesPanel from '@/components/purchaser/MessagesPanel.vue'
-import SettingsPanel from '@/components/purchaser/SettingsPanel.vue'
-import EditProfileDialog from '@/components/purchaser/EditProfileDialog.vue'
-import NearbySuppliers from '@/components/purchaser/NearbySuppliers.vue'
-import LifestyleServices from '@/components/purchaser/LifestyleServices.vue'
-import TransportationServices from '@/components/purchaser/TransportationServices.vue'
-import CarpoolingService from '@/components/purchaser/CarpoolingService.vue'
-import NearbyProducts from '@/components/purchaser/NearbyProducts.vue'
+  User,
+  CircleCheck,
+  Edit,
+  Refresh,
+  DataBoard,
+  ShoppingCart,
+  Document,
+  UserFilled,
+  Star,
+  ChatDotRound,
+  Setting,
+  Phone,
+  Message,
+  Clock,
+  Location,
+  Compass,
+  Van,
+  Share,
+  ShoppingBag,
+} from '@element-plus/icons-vue';
+import api from '@/api';
+import OverviewPanel from '@/components/purchaser/OverviewPanel.vue';
+import OrdersPanel from '@/components/purchaser/OrdersPanel.vue';
+import RequirementsPanel from '@/components/purchaser/RequirementsPanel.vue';
+import SuppliersPanel from '@/components/purchaser/SuppliersPanel.vue';
+import FavoritesPanel from '@/components/purchaser/FavoritesPanel.vue';
+import MessagesPanel from '@/components/purchaser/MessagesPanel.vue';
+import SettingsPanel from '@/components/purchaser/SettingsPanel.vue';
+import EditProfileDialog from '@/components/purchaser/EditProfileDialog.vue';
+import NearbySuppliers from '@/components/purchaser/NearbySuppliers.vue';
+import LifestyleServices from '@/components/purchaser/LifestyleServices.vue';
+import TransportationServices from '@/components/purchaser/TransportationServices.vue';
+import CarpoolingService from '@/components/purchaser/CarpoolingService.vue';
+import NearbyProducts from '@/components/purchaser/NearbyProducts.vue';
 
-const router = useRouter()
-const activeTab = ref('overview')
-const purchaserInfo = ref(null)
-const editDialogVisible = ref(false)
+const router = useRouter();
+const activeTab = ref('overview');
+const purchaserInfo = ref(null);
+const editDialogVisible = ref(false);
 
-const defaultAvatar = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ccircle cx="50" cy="50" r="50" fill="%23e0e0e0"/%3E%3C/svg%3E'
+const defaultAvatar =
+  'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ccircle cx="50" cy="50" r="50" fill="%23e0e0e0"/%3E%3C/svg%3E';
 
 const stats = reactive({
   totalOrders: 0,
@@ -245,226 +270,220 @@ const stats = reactive({
   suppliers: 0,
   totalAmount: 0,
   rating: 0,
-  unreadMessages: 0
-})
+  unreadMessages: 0,
+});
 
-const requirements = ref([])
-const suppliers = ref([])
-const favorites = ref([])
-const messages = ref([])
+const requirements = ref([]);
+const suppliers = ref([]);
+const favorites = ref([]);
+const messages = ref([]);
 
 // 获取采购商信息
 const fetchPurchaserInfo = async () => {
   try {
-    const response = await api.get('/api/v1/purchaser/me')
+    const response = await api.get('/api/v1/purchaser/me');
     if (response.success) {
-      purchaserInfo.value = response.data
+      purchaserInfo.value = response.data;
       // 更新统计数据
-      stats.totalOrders = response.data.statistics?.totalOrders || 0
-      stats.totalAmount = (response.data.statistics?.totalPurchaseAmount || 0).toLocaleString()
-      stats.rating = response.data.statistics?.averageRating?.toFixed(1) || '0.0'
+      stats.totalOrders = response.data.statistics?.totalOrders || 0;
+      stats.totalAmount = (response.data.statistics?.totalPurchaseAmount || 0).toLocaleString();
+      stats.rating = response.data.statistics?.averageRating?.toFixed(1) || '0.0';
     }
   } catch (error) {
-    console.error('获取采购商信息失败', error)
-    ElMessage.error('获取采购商信息失败')
+    console.error('获取采购商信息失败', error);
+    ElMessage.error('获取采购商信息失败');
   }
-}
+};
 
 // 获取统计数据
 const fetchStats = async () => {
   try {
-    const response = await api.get('/api/v1/purchaser/stats')
+    const response = await api.get('/api/v1/purchaser/stats');
     if (response.success) {
-      Object.assign(stats, response.data)
+      Object.assign(stats, response.data);
     }
   } catch (error) {
-    console.error('获取统计数据失败', error)
+    console.error('获取统计数据失败', error);
   }
-}
+};
 
 // 获取采购需求
 const fetchRequirements = async () => {
   try {
-    const response = await api.get('/api/v1/purchaser/requirements')
+    const response = await api.get('/api/v1/purchaser/requirements');
     if (response.success) {
-      requirements.value = response.data || []
+      requirements.value = response.data || [];
     }
   } catch (error) {
-    console.error('获取采购需求失败', error)
+    console.error('获取采购需求失败', error);
   }
-}
+};
 
 // 获取关注的供应商
 const fetchSuppliers = async () => {
   try {
-    const response = await api.get('/api/v1/purchaser/suppliers')
+    const response = await api.get('/api/v1/purchaser/suppliers');
     if (response.success) {
-      suppliers.value = response.data || []
-      stats.suppliers = suppliers.value.length
+      suppliers.value = response.data || [];
+      stats.suppliers = suppliers.value.length;
     }
   } catch (error) {
-    console.error('获取供应商列表失败', error)
+    console.error('获取供应商列表失败', error);
   }
-}
+};
 
 // 获取收藏列表
 const fetchFavorites = async () => {
   try {
-    const response = await api.get('/api/v1/purchaser/favorites')
+    const response = await api.get('/api/v1/purchaser/favorites');
     if (response.success) {
-      favorites.value = response.data || []
+      favorites.value = response.data || [];
     }
   } catch (error) {
-    console.error('获取收藏列表失败', error)
+    console.error('获取收藏列表失败', error);
   }
-}
+};
 
 // 获取消息列表
 const fetchMessages = async () => {
   try {
-    const response = await api.get('/api/v1/purchaser/messages')
+    const response = await api.get('/api/v1/purchaser/messages');
     if (response.success) {
-      messages.value = response.data || []
-      stats.unreadMessages = messages.value.filter(m => !m.read).length
+      messages.value = response.data || [];
+      stats.unreadMessages = messages.value.filter(m => !m.read).length;
     }
   } catch (error) {
-    console.error('获取消息列表失败', error)
+    console.error('获取消息列表失败', error);
   }
-}
+};
 
 // 标签页切换
-const handleTabSelect = (index) => {
-  activeTab.value = index
+const handleTabSelect = index => {
+  activeTab.value = index;
   // 根据标签页加载对应数据
   switch (index) {
     case 'orders':
       // 订单数据在面板组件中加载
-      break
+      break;
     case 'requirements':
-      fetchRequirements()
-      break
+      fetchRequirements();
+      break;
     case 'suppliers':
-      fetchSuppliers()
-      break
+      fetchSuppliers();
+      break;
     case 'favorites':
-      fetchFavorites()
-      break
+      fetchFavorites();
+      break;
     case 'messages':
-      fetchMessages()
-      break
+      fetchMessages();
+      break;
   }
-}
+};
 
 // 编辑资料
 const handleEditProfile = () => {
-  editDialogVisible.value = true
-}
+  editDialogVisible.value = true;
+};
 
 // 保存资料
-const handleSaveProfile = async (profileData) => {
+const handleSaveProfile = async profileData => {
   try {
-    const response = await api.put('/api/v1/purchaser/me', profileData)
+    const response = await api.put('/api/v1/purchaser/me', profileData);
     if (response.success) {
-      ElMessage.success('保存成功')
-      await fetchPurchaserInfo()
-      editDialogVisible.value = false
+      ElMessage.success('保存成功');
+      await fetchPurchaserInfo();
+      editDialogVisible.value = false;
     }
   } catch (error) {
-    console.error('保存资料失败', error)
-    ElMessage.error('保存失败')
+    console.error('保存资料失败', error);
+    ElMessage.error('保存失败');
   }
-}
+};
 
 // 刷新
 const handleRefresh = async () => {
-  await Promise.all([
-    fetchPurchaserInfo(),
-    fetchStats()
-  ])
-  ElMessage.success('刷新成功')
-}
+  await Promise.all([fetchPurchaserInfo(), fetchStats()]);
+  ElMessage.success('刷新成功');
+};
 
 // 查看订单详情
-const handleViewOrder = (order) => {
-  router.push(`/purchaser/orders/${order._id}`)
-}
+const handleViewOrder = order => {
+  router.push(`/purchaser/orders/${order._id}`);
+};
 
 // 添加采购需求
 const handleAddRequirement = () => {
-  router.push('/purchaser/requirements/create')
-}
+  router.push('/purchaser/requirements/create');
+};
 
 // 编辑采购需求
-const handleEditRequirement = (requirement) => {
-  router.push(`/purchaser/requirements/${requirement._id}/edit`)
-}
+const handleEditRequirement = requirement => {
+  router.push(`/purchaser/requirements/${requirement._id}/edit`);
+};
 
 // 删除采购需求
-const handleDeleteRequirement = async (requirement) => {
+const handleDeleteRequirement = async requirement => {
   try {
-    await api.delete(`/api/v1/purchaser/requirements/${requirement._id}`)
-    ElMessage.success('删除成功')
-    await fetchRequirements()
+    await api.delete(`/api/v1/purchaser/requirements/${requirement._id}`);
+    ElMessage.success('删除成功');
+    await fetchRequirements();
   } catch (error) {
-    console.error('删除失败', error)
-    ElMessage.error('删除失败')
+    console.error('删除失败', error);
+    ElMessage.error('删除失败');
   }
-}
+};
 
 // 取消关注供应商
-const handleUnfollow = async (supplier) => {
+const handleUnfollow = async supplier => {
   try {
-    await api.delete(`/api/v1/purchaser/suppliers/${supplier._id}`)
-    ElMessage.success('已取消关注')
-    await fetchSuppliers()
+    await api.delete(`/api/v1/purchaser/suppliers/${supplier._id}`);
+    ElMessage.success('已取消关注');
+    await fetchSuppliers();
   } catch (error) {
-    console.error('取消关注失败', error)
-    ElMessage.error('操作失败')
+    console.error('取消关注失败', error);
+    ElMessage.error('操作失败');
   }
-}
+};
 
 // 移除收藏
-const handleRemoveFavorite = async (favorite) => {
+const handleRemoveFavorite = async favorite => {
   try {
-    await api.delete(`/api/v1/purchaser/favorites/${favorite._id}`)
-    ElMessage.success('已移除收藏')
-    await fetchFavorites()
+    await api.delete(`/api/v1/purchaser/favorites/${favorite._id}`);
+    ElMessage.success('已移除收藏');
+    await fetchFavorites();
   } catch (error) {
-    console.error('移除收藏失败', error)
-    ElMessage.error('操作失败')
+    console.error('移除收藏失败', error);
+    ElMessage.error('操作失败');
   }
-}
+};
 
 // 标记消息已读
-const handleMarkRead = async (message) => {
+const handleMarkRead = async message => {
   try {
-    await api.put(`/api/v1/purchaser/messages/${message._id}/read`)
-    await fetchMessages()
+    await api.put(`/api/v1/purchaser/messages/${message._id}/read`);
+    await fetchMessages();
   } catch (error) {
-    console.error('标记失败', error)
+    console.error('标记失败', error);
   }
-}
+};
 
 // 保存设置
-const handleSaveSettings = async (settings) => {
+const handleSaveSettings = async settings => {
   try {
-    const response = await api.put('/api/v1/purchaser/preferences', settings)
+    const response = await api.put('/api/v1/purchaser/preferences', settings);
     if (response.success) {
-      ElMessage.success('设置保存成功')
-      await fetchPurchaserInfo()
+      ElMessage.success('设置保存成功');
+      await fetchPurchaserInfo();
     }
   } catch (error) {
-    console.error('保存设置失败', error)
-    ElMessage.error('保存失败')
+    console.error('保存设置失败', error);
+    ElMessage.error('保存失败');
   }
-}
+};
 
 onMounted(async () => {
-  await Promise.all([
-    fetchPurchaserInfo(),
-    fetchStats()
-  ])
-})
+  await Promise.all([fetchPurchaserInfo(), fetchStats()]);
+});
 </script>
 
 <style scoped>

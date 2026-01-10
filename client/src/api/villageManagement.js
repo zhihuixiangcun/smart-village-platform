@@ -22,8 +22,8 @@ const villageApi = {
   uploadFiles(collectionId, formData) {
     return request.post(`/api/village-management/documents/${collectionId}/files`, formData, {
       headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+        'Content-Type': 'multipart/form-data',
+      },
     });
   },
 
@@ -45,7 +45,7 @@ const villageApi = {
 
   downloadDocumentFile(collectionId, fileId) {
     return request.get(`/api/village-management/documents/${collectionId}/files/${fileId}`, {
-      responseType: 'blob'
+      responseType: 'blob',
     });
   },
 
@@ -57,7 +57,7 @@ const villageApi = {
   // 统计分析
   getPersonalStatistics(startDate, endDate) {
     return request.get('/api/village-management/statistics/personal', {
-      params: { startDate, endDate }
+      params: { startDate, endDate },
     });
   },
 
@@ -76,7 +76,7 @@ const villageApi = {
   // 村庄总览（需要管理员权限）
   getVillageOverview(villageId, params) {
     return request.get(`/api/village-management/overview/${villageId}`, { params });
-  }
+  },
 };
 
 export default villageApi;

@@ -16,7 +16,7 @@ export const useAnnouncementStore = defineStore('announcement', () => {
     views: 0,
     likes: 0,
     comments: 0,
-    shares: 0
+    shares: 0,
   });
 
   // 获取公告列表
@@ -40,7 +40,7 @@ export const useAnnouncementStore = defineStore('announcement', () => {
   };
 
   // 获取公告详情
-  const getAnnouncementById = async (id) => {
+  const getAnnouncementById = async id => {
     loading.value = true;
     try {
       const response = await api.get(`/api/announcements/${id}`);
@@ -60,7 +60,7 @@ export const useAnnouncementStore = defineStore('announcement', () => {
   };
 
   // 创建公告
-  const createAnnouncement = async (data) => {
+  const createAnnouncement = async data => {
     loading.value = true;
     try {
       const response = await api.post('/api/announcements', data);
@@ -113,7 +113,7 @@ export const useAnnouncementStore = defineStore('announcement', () => {
   };
 
   // 删除公告
-  const deleteAnnouncement = async (id) => {
+  const deleteAnnouncement = async id => {
     loading.value = true;
     try {
       const response = await api.delete(`/api/announcements/${id}`);
@@ -137,7 +137,7 @@ export const useAnnouncementStore = defineStore('announcement', () => {
   };
 
   // 置顶/取消置顶公告
-  const toggleTopAnnouncement = async (id) => {
+  const toggleTopAnnouncement = async id => {
     try {
       const response = await api.patch(`/api/announcements/${id}/top`);
 
@@ -158,7 +158,7 @@ export const useAnnouncementStore = defineStore('announcement', () => {
   };
 
   // 批量删除公告
-  const batchDeleteAnnouncements = async (ids) => {
+  const batchDeleteAnnouncements = async ids => {
     loading.value = true;
     try {
       const promises = ids.map(id => api.delete(`/api/announcements/${id}`));
@@ -183,12 +183,10 @@ export const useAnnouncementStore = defineStore('announcement', () => {
   };
 
   // 批量归档公告
-  const batchArchiveAnnouncements = async (ids) => {
+  const batchArchiveAnnouncements = async ids => {
     loading.value = true;
     try {
-      const promises = ids.map(id =>
-        api.put(`/api/announcements/${id}`, { status: 'archived' })
-      );
+      const promises = ids.map(id => api.put(`/api/announcements/${id}`, { status: 'archived' }));
       const responses = await Promise.all(promises);
 
       const allSuccess = responses.every(response => response.data.success);
@@ -218,7 +216,7 @@ export const useAnnouncementStore = defineStore('announcement', () => {
     loading.value = true;
     try {
       const response = await api.get(`/api/announcements/search/${encodeURIComponent(query)}`, {
-        params: options
+        params: options,
       });
 
       if (response.data.success) {
@@ -255,7 +253,7 @@ export const useAnnouncementStore = defineStore('announcement', () => {
   const getHotAnnouncements = async (limit = 10) => {
     try {
       const response = await api.get('/api/announcements/hot', {
-        params: { limit }
+        params: { limit },
       });
 
       if (response.data.success) {
@@ -303,15 +301,15 @@ export const useAnnouncementStore = defineStore('announcement', () => {
   };
 
   // 上传文件
-  const uploadFile = async (file) => {
+  const uploadFile = async file => {
     try {
       const formData = new FormData();
       formData.append('file', file);
 
       const response = await api.post('/api/announcements/upload', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          'Content-Type': 'multipart/form-data',
+        },
       });
 
       if (response.data.success) {
@@ -326,7 +324,7 @@ export const useAnnouncementStore = defineStore('announcement', () => {
   };
 
   // 点赞公告
-  const likeAnnouncement = async (id) => {
+  const likeAnnouncement = async id => {
     try {
       const response = await api.post(`/api/announcements/${id}/like`);
 
@@ -352,7 +350,7 @@ export const useAnnouncementStore = defineStore('announcement', () => {
   };
 
   // 分享公告
-  const shareAnnouncement = async (id) => {
+  const shareAnnouncement = async id => {
     try {
       const response = await api.post(`/api/announcements/${id}/share`);
 
@@ -396,7 +394,7 @@ export const useAnnouncementStore = defineStore('announcement', () => {
       views: 0,
       likes: 0,
       comments: 0,
-      shares: 0
+      shares: 0,
     });
   };
 
@@ -441,6 +439,6 @@ export const useAnnouncementStore = defineStore('announcement', () => {
     getStats: getAnnouncementStats,
     upload: uploadFile,
     like: likeAnnouncement,
-    share: shareAnnouncement
+    share: shareAnnouncement,
   };
 });

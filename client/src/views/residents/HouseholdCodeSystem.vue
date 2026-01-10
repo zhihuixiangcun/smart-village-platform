@@ -17,12 +17,8 @@
           <el-button @click="exportAllCodes" icon="Download" type="success">
             导出所有户码
           </el-button>
-          <el-button @click="showCodeScanner = true" icon="Search">
-            扫码查询
-          </el-button>
-          <el-button @click="showStatistics = true" icon="TrendCharts">
-            使用统计
-          </el-button>
+          <el-button @click="showCodeScanner = true" icon="Search"> 扫码查询 </el-button>
+          <el-button @click="showStatistics = true" icon="TrendCharts"> 使用统计 </el-button>
         </div>
       </div>
 
@@ -34,7 +30,7 @@
               v-model="searchForm.householdCode"
               placeholder="输入户码或扫码查询"
               clearable
-              style="width: 200px;"
+              style="width: 200px"
             >
               <template #append>
                 <el-button @click="scanCode" icon="QrCode">扫码</el-button>
@@ -150,10 +146,7 @@
 
           <el-table-column prop="status" label="状态" width="100">
             <template #default="scope">
-              <el-tag
-                :type="getStatusTagType(scope.row.status)"
-                size="small"
-              >
+              <el-tag :type="getStatusTagType(scope.row.status)" size="small">
                 {{ getStatusText(scope.row.status) }}
               </el-tag>
             </template>
@@ -199,22 +192,26 @@
                   查看
                 </el-button>
 
-                <el-dropdown @command="(command) => handleRowAction(command, scope.row)">
+                <el-dropdown @command="command => handleRowAction(command, scope.row)">
                   <el-button size="small" icon="MoreFilled" />
                   <template #dropdown>
                     <el-dropdown-menu>
-                      <el-dropdown-item v-if="scope.row.householdCode" command="print" icon="Printer">
+                      <el-dropdown-item
+                        v-if="scope.row.householdCode"
+                        command="print"
+                        icon="Printer"
+                      >
                         打印户码
                       </el-dropdown-item>
-                      <el-dropdown-item v-if="scope.row.householdCode" command="download" icon="Download">
+                      <el-dropdown-item
+                        v-if="scope.row.householdCode"
+                        command="download"
+                        icon="Download"
+                      >
                         下载户码
                       </el-dropdown-item>
-                      <el-dropdown-item command="history" icon="Clock">
-                        扫码记录
-                      </el-dropdown-item>
-                      <el-dropdown-item command="edit" icon="Edit">
-                        编辑信息
-                      </el-dropdown-item>
+                      <el-dropdown-item command="history" icon="Clock"> 扫码记录 </el-dropdown-item>
+                      <el-dropdown-item command="edit" icon="Edit"> 编辑信息 </el-dropdown-item>
                       <el-dropdown-item
                         v-if="scope.row.householdCode && scope.row.status === 'activated'"
                         command="disable"
@@ -257,13 +254,7 @@
     </div>
 
     <!-- 二维码显示对话框 -->
-    <el-dialog
-      v-model="showQrDialog"
-      title="户码二维码"
-      width="500px"
-      center
-      class="qr-dialog"
-    >
+    <el-dialog v-model="showQrDialog" title="户码二维码" width="500px" center class="qr-dialog">
       <div v-if="currentHousehold" class="qr-content">
         <div class="qr-code-container">
           <div ref="qrCodeRef" class="qr-code"></div>
@@ -278,26 +269,15 @@
         </div>
 
         <div class="qr-actions">
-          <el-button @click="downloadQrCode" type="primary" icon="Download">
-            下载二维码
-          </el-button>
-          <el-button @click="printQrCode" icon="Printer">
-            打印二维码
-          </el-button>
-          <el-button @click="shareQrCode" icon="Share">
-            分享户码
-          </el-button>
+          <el-button @click="downloadQrCode" type="primary" icon="Download"> 下载二维码 </el-button>
+          <el-button @click="printQrCode" icon="Printer"> 打印二维码 </el-button>
+          <el-button @click="shareQrCode" icon="Share"> 分享户码 </el-button>
         </div>
       </div>
     </el-dialog>
 
     <!-- 户码详情对话框 -->
-    <el-dialog
-      v-model="showDetailDialog"
-      title="户码详细信息"
-      width="800px"
-      class="detail-dialog"
-    >
+    <el-dialog v-model="showDetailDialog" title="户码详细信息" width="800px" class="detail-dialog">
       <div v-if="currentHousehold" class="household-detail">
         <el-tabs v-model="activeDetailTab">
           <!-- 基本信息 -->
@@ -363,8 +343,12 @@
                 </el-table-column>
                 <el-table-column label="操作" width="120">
                   <template #default="scope">
-                    <el-button @click="editMember(scope.row)" type="primary" size="small">编辑</el-button>
-                    <el-button @click="removeMember(scope.row)" type="danger" size="small">移除</el-button>
+                    <el-button @click="editMember(scope.row)" type="primary" size="small"
+                      >编辑</el-button
+                    >
+                    <el-button @click="removeMember(scope.row)" type="danger" size="small"
+                      >移除</el-button
+                    >
                   </template>
                 </el-table-column>
               </el-table>
@@ -409,11 +393,7 @@
     </el-dialog>
 
     <!-- 批量生成对话框 -->
-    <el-dialog
-      v-model="showBatchGenerator"
-      title="批量生成户码"
-      width="600px"
-    >
+    <el-dialog v-model="showBatchGenerator" title="批量生成户码" width="600px">
       <div class="batch-generator">
         <el-form :model="batchForm" label-width="120px">
           <el-form-item label="生成方式">
@@ -442,10 +422,7 @@
           </el-form-item>
 
           <el-form-item v-if="batchForm.format === 'custom'" label="自定义格式">
-            <el-input
-              v-model="batchForm.customFormat"
-              placeholder="例如：HH{YYYY}{MM}{DD}{NNNN}"
-            />
+            <el-input v-model="batchForm.customFormat" placeholder="例如：HH{YYYY}{MM}{DD}{NNNN}" />
             <div class="format-help">
               <small>
                 格式说明：{YYYY}年份，{MM}月份，{DD}日期，{NNNN}序号，{X}随机字母，{9}随机数字
@@ -468,11 +445,7 @@
     </el-dialog>
 
     <!-- 使用统计对话框 -->
-    <el-dialog
-      v-model="showStatistics"
-      title="使用统计分析"
-      width="900px"
-    >
+    <el-dialog v-model="showStatistics" title="使用统计分析" width="900px">
       <div class="statistics-content">
         <div class="stats-overview">
           <el-row :gutter="20">
@@ -537,90 +510,103 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, nextTick } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, reactive, computed, onMounted, nextTick } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
-  QrCode, House, CircleCheck, View, Plus, Download, Search,
-  TrendCharts, Printer, Edit, Delete, MoreFilled, Share,
-  CircleClose, Clock, Refresh
-} from '@element-plus/icons-vue'
-import QRCode from 'qrcode'
-import * as echarts from 'echarts'
+  QrCode,
+  House,
+  CircleCheck,
+  View,
+  Plus,
+  Download,
+  Search,
+  TrendCharts,
+  Printer,
+  Edit,
+  Delete,
+  MoreFilled,
+  Share,
+  CircleClose,
+  Clock,
+  Refresh,
+} from '@element-plus/icons-vue';
+import QRCode from 'qrcode';
+import * as echarts from 'echarts';
 
 // Props
 const props = defineProps({
   modelValue: {
     type: Boolean,
-    default: false
-  }
-})
+    default: false,
+  },
+});
 
 // Emits
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue']);
 
 // 响应式数据
-const loading = ref(false)
-const generating = ref(false)
-const showQrDialog = ref(false)
-const showDetailDialog = ref(false)
-const showBatchGenerator = ref(false)
-const showStatistics = ref(false)
-const showCodeScanner = ref(false)
-const activeDetailTab = ref('basic')
+const loading = ref(false);
+const generating = ref(false);
+const showQrDialog = ref(false);
+const showDetailDialog = ref(false);
+const showBatchGenerator = ref(false);
+const showStatistics = ref(false);
+const showCodeScanner = ref(false);
+const activeDetailTab = ref('basic');
 
-const qrCodeRef = ref()
-const monthlyTrendRef = ref()
-const purposeDistributionRef = ref()
+const qrCodeRef = ref();
+const monthlyTrendRef = ref();
+const purposeDistributionRef = ref();
 
 // 搜索表单
 const searchForm = reactive({
   householdCode: '',
   householderName: '',
-  status: ''
-})
+  status: '',
+});
 
 // 分页
 const pagination = reactive({
   currentPage: 1,
   pageSize: 20,
-  total: 0
-})
+  total: 0,
+});
 
 // 批量生成表单
 const batchForm = reactive({
   method: 'all',
   conditions: [],
   format: 'numeric_8',
-  customFormat: 'HH{YYYY}{MM}{DD}{NNNN}'
-})
+  customFormat: 'HH{YYYY}{MM}{DD}{NNNN}',
+});
 
 // 户码数据
-const households = ref([])
-const selectedHouseholds = ref([])
-const currentHousehold = ref(null)
-const householdMembers = ref([])
-const scanHistory = ref([])
+const households = ref([]);
+const selectedHouseholds = ref([]);
+const currentHousehold = ref(null);
+const householdMembers = ref([]);
+const scanHistory = ref([]);
 
 // 统计数据
 const stats = reactive({
   totalHouseholds: 0,
   generatedCodes: 0,
   activatedCodes: 0,
-  totalScans: 0
-})
+  totalScans: 0,
+});
 
 // 计算属性
 const dialogVisible = computed({
   get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
-})
+  set: value => emit('update:modelValue', value),
+});
 
 // 方法
 const loadHouseholds = async () => {
-  loading.value = true
+  loading.value = true;
   try {
     // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     // 模拟数据
     households.value = [
@@ -636,7 +622,7 @@ const loadHouseholds = async () => {
         createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
         updatedAt: new Date(),
         phone: '13800138001',
-        houseType: 'owned'
+        houseType: 'owned',
       },
       {
         id: 2,
@@ -650,7 +636,7 @@ const loadHouseholds = async () => {
         createdAt: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000),
         updatedAt: new Date(),
         phone: '13800138002',
-        houseType: 'rented'
+        houseType: 'rented',
       },
       {
         id: 3,
@@ -664,115 +650,144 @@ const loadHouseholds = async () => {
         createdAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000),
         updatedAt: new Date(),
         phone: null,
-        houseType: 'owned'
-      }
-    ]
+        houseType: 'owned',
+      },
+    ];
 
-    pagination.total = 50
+    pagination.total = 50;
 
     // 更新统计数据
-    updateStats()
-
+    updateStats();
   } catch (error) {
-    ElMessage.error('加载数据失败')
+    ElMessage.error('加载数据失败');
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const updateStats = () => {
-  stats.totalHouseholds = 50
-  stats.generatedCodes = 35
-  stats.activatedCodes = 28
-  stats.totalScans = 156
-}
+  stats.totalHouseholds = 50;
+  stats.generatedCodes = 35;
+  stats.activatedCodes = 28;
+  stats.totalScans = 156;
+};
 
 const searchHouseholds = () => {
-  console.log('搜索户码:', searchForm)
-  loadHouseholds()
-}
+  console.log('搜索户码:', searchForm);
+  loadHouseholds();
+};
 
 const resetSearch = () => {
   Object.assign(searchForm, {
     householdCode: '',
     householderName: '',
-    status: ''
-  })
-  loadHouseholds()
-}
+    status: '',
+  });
+  loadHouseholds();
+};
 
-const generateHouseholdCode = async (household) => {
+const generateHouseholdCode = async household => {
   try {
-    const newCode = generateCode()
+    const newCode = generateCode();
 
     // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 500))
+    await new Promise(resolve => setTimeout(resolve, 500));
 
-    household.householdCode = newCode
-    household.status = 'generated'
-    household.updatedAt = new Date()
+    household.householdCode = newCode;
+    household.status = 'generated';
+    household.updatedAt = new Date();
 
-    ElMessage.success(`户码生成成功: ${newCode}`)
-    updateStats()
+    ElMessage.success(`户码生成成功: ${newCode}`);
+    updateStats();
   } catch (error) {
-    ElMessage.error('户码生成失败')
+    ElMessage.error('户码生成失败');
   }
-}
+};
 
 const generateCode = () => {
-  const now = new Date()
-  const year = now.getFullYear()
-  const month = String(now.getMonth() + 1).padStart(2, '0')
-  const day = String(now.getDate()).padStart(2, '0')
-  const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0')
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const random = Math.floor(Math.random() * 10000)
+    .toString()
+    .padStart(4, '0');
 
-  return `HH${year}${month}${day}${random}`
-}
+  return `HH${year}${month}${day}${random}`;
+};
 
-const showQrCode = async (household) => {
-  currentHousehold.value = household
-  showQrDialog.value = true
+const showQrCode = async household => {
+  currentHousehold.value = household;
+  showQrDialog.value = true;
 
-  await nextTick()
-  await generateQRCode(household.householdCode)
-}
+  await nextTick();
+  await generateQRCode(household.householdCode);
+};
 
-const generateQRCode = async (code) => {
+const generateQRCode = async code => {
   try {
     const canvas = await QRCode.toCanvas(qrCodeRef.value, code, {
       width: 200,
       margin: 2,
       color: {
         dark: '#000000',
-        light: '#FFFFFF'
-      }
-    })
+        light: '#FFFFFF',
+      },
+    });
   } catch (error) {
-    console.error('生成二维码失败:', error)
+    console.error('生成二维码失败:', error);
   }
-}
+};
 
-const viewHouseholdDetails = (household) => {
-  currentHousehold.value = household
-  showDetailDialog.value = true
+const viewHouseholdDetails = household => {
+  currentHousehold.value = household;
+  showDetailDialog.value = true;
 
   // 加载家庭成员数据
-  loadHouseholdMembers(household.id)
+  loadHouseholdMembers(household.id);
   // 加载扫码记录
-  loadScanHistory(household.id)
-}
+  loadScanHistory(household.id);
+};
 
-const loadHouseholdMembers = (householdId) => {
+const loadHouseholdMembers = householdId => {
   // 模拟家庭成员数据
   householdMembers.value = [
-    { id: 1, name: '张三', gender: 'male', age: 45, relationship: '户主', idCard: '320123197812345678' },
-    { id: 2, name: '李梅', gender: 'female', age: 42, relationship: '配偶', idCard: '320123198012345678' },
-    { id: 3, name: '张小明', gender: 'male', age: 18, relationship: '子女', idCard: '320123200512345678' },
-    { id: 4, name: '张小红', gender: 'female', age: 15, relationship: '子女', idCard: '320123200812345678' }
-  ]
-}
+    {
+      id: 1,
+      name: '张三',
+      gender: 'male',
+      age: 45,
+      relationship: '户主',
+      idCard: '320123197812345678',
+    },
+    {
+      id: 2,
+      name: '李梅',
+      gender: 'female',
+      age: 42,
+      relationship: '配偶',
+      idCard: '320123198012345678',
+    },
+    {
+      id: 3,
+      name: '张小明',
+      gender: 'male',
+      age: 18,
+      relationship: '子女',
+      idCard: '320123200512345678',
+    },
+    {
+      id: 4,
+      name: '张小红',
+      gender: 'female',
+      age: 15,
+      relationship: '子女',
+      idCard: '320123200812345678',
+    },
+  ];
+};
 
-const loadScanHistory = (householdId) => {
+const loadScanHistory = householdId => {
   // 模拟扫码记录
   scanHistory.value = [
     {
@@ -780,47 +795,47 @@ const loadScanHistory = (householdId) => {
       scanUser: '村委工作人员',
       scanLocation: '村委会服务大厅',
       scanPurpose: '证明开具',
-      scanDevice: 'Android Phone'
+      scanDevice: 'Android Phone',
     },
     {
       scanTime: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
       scanUser: '快递员',
       scanLocation: '门口',
       scanPurpose: '包裹投递',
-      scanDevice: 'iPhone'
-    }
-  ]
-}
+      scanDevice: 'iPhone',
+    },
+  ];
+};
 
-const handleSelectionChange = (selection) => {
-  selectedHouseholds.value = selection
-}
+const handleSelectionChange = selection => {
+  selectedHouseholds.value = selection;
+};
 
 const handleRowAction = async (command, household) => {
   switch (command) {
     case 'print':
-      printQrCode(household)
-      break
+      printQrCode(household);
+      break;
     case 'download':
-      downloadQrCode(household)
-      break
+      downloadQrCode(household);
+      break;
     case 'history':
-      viewScanHistory(household)
-      break
+      viewScanHistory(household);
+      break;
     case 'edit':
-      editHousehold(household)
-      break
+      editHousehold(household);
+      break;
     case 'disable':
-      await toggleHouseholdStatus(household, 'disabled')
-      break
+      await toggleHouseholdStatus(household, 'disabled');
+      break;
     case 'enable':
-      await toggleHouseholdStatus(household, 'activated')
-      break
+      await toggleHouseholdStatus(household, 'activated');
+      break;
     case 'delete':
-      await deleteHousehold(household)
-      break
+      await deleteHousehold(household);
+      break;
   }
-}
+};
 
 const toggleHouseholdStatus = async (household, newStatus) => {
   try {
@@ -830,23 +845,23 @@ const toggleHouseholdStatus = async (household, newStatus) => {
       {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
       }
-    )
+    );
 
-    household.status = newStatus
-    household.updatedAt = new Date()
+    household.status = newStatus;
+    household.updatedAt = new Date();
 
-    ElMessage.success(`户码已${newStatus === 'disabled' ? '停用' : '启用'}`)
-    updateStats()
+    ElMessage.success(`户码已${newStatus === 'disabled' ? '停用' : '启用'}`);
+    updateStats();
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('状态变更失败')
+      ElMessage.error('状态变更失败');
     }
   }
-}
+};
 
-const deleteHousehold = async (household) => {
+const deleteHousehold = async household => {
   try {
     await ElMessageBox.confirm(
       `确定要删除户码 ${household.householdCode} 吗？删除后无法恢复。`,
@@ -854,72 +869,72 @@ const deleteHousehold = async (household) => {
       {
         confirmButtonText: '确定删除',
         cancelButtonText: '取消',
-        type: 'error'
+        type: 'error',
       }
-    )
+    );
 
-    const index = households.value.findIndex(h => h.id === household.id)
+    const index = households.value.findIndex(h => h.id === household.id);
     if (index > -1) {
-      households.value.splice(index, 1)
+      households.value.splice(index, 1);
     }
 
-    ElMessage.success('户码删除成功')
-    updateStats()
+    ElMessage.success('户码删除成功');
+    updateStats();
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('删除失败')
+      ElMessage.error('删除失败');
     }
   }
-}
+};
 
 const executeBatchGeneration = async () => {
-  generating.value = true
+  generating.value = true;
   try {
-    const count = getEstimatedCount()
+    const count = getEstimatedCount();
 
     // 模拟批量生成
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
-    ElMessage.success(`批量生成完成，共生成 ${count} 个户码`)
-    showBatchGenerator.value = false
-    loadHouseholds()
+    ElMessage.success(`批量生成完成，共生成 ${count} 个户码`);
+    showBatchGenerator.value = false;
+    loadHouseholds();
   } catch (error) {
-    ElMessage.error('批量生成失败')
+    ElMessage.error('批量生成失败');
   } finally {
-    generating.value = false
+    generating.value = false;
   }
-}
+};
 
 const getEstimatedCount = () => {
   if (batchForm.method === 'all') {
-    return stats.totalHouseholds - stats.generatedCodes
+    return stats.totalHouseholds - stats.generatedCodes;
   } else if (batchForm.method === 'selected') {
-    return selectedHouseholds.value.filter(h => !h.householdCode).length
+    return selectedHouseholds.value.filter(h => !h.householdCode).length;
   }
-  return 0
-}
+  return 0;
+};
 
 const downloadQrCode = (household = currentHousehold.value) => {
-  if (!household) return
+  if (!household) return;
 
   try {
-    const canvas = qrCodeRef.value
-    const link = document.createElement('a')
-    link.download = `户码_${household.householderName}_${household.householdCode}.png`
-    link.href = canvas.toDataURL()
-    link.click()
+    const canvas = qrCodeRef.value;
+    const link = document.createElement('a');
+    link.download = `户码_${household.householderName}_${household.householdCode}.png`;
+    link.href = canvas.toDataURL();
+    link.click();
 
-    ElMessage.success('二维码下载成功')
+    ElMessage.success('二维码下载成功');
   } catch (error) {
-    ElMessage.error('下载失败')
+    ElMessage.error('下载失败');
   }
-}
+};
 
 const printQrCode = (household = currentHousehold.value) => {
-  if (!household) return
+  if (!household) return;
 
-  const printWindow = window.open('', '_blank')
-  const canvas = qrCodeRef.value
+  const printWindow = window.open('', '_blank');
+  const canvas = qrCodeRef.value;
 
   printWindow.document.write(`
     <html>
@@ -955,108 +970,110 @@ const printQrCode = (household = currentHousehold.value) => {
         </div>
       </body>
     </html>
-  `)
+  `);
 
-  printWindow.document.close()
-  printWindow.print()
-}
+  printWindow.document.close();
+  printWindow.print();
+};
 
 const shareQrCode = (household = currentHousehold.value) => {
-  if (!household) return
+  if (!household) return;
 
   if (navigator.share) {
     navigator.share({
       title: `${household.householderName}户户码`,
       text: `户码：${household.householdCode}`,
-      url: window.location.origin + `/household/${household.householdCode}`
-    })
+      url: window.location.origin + `/household/${household.householdCode}`,
+    });
   } else {
     // 复制到剪贴板
-    navigator.clipboard.writeText(`户码：${household.householdCode}\n地址：${household.address}`)
-    ElMessage.success('户码信息已复制到剪贴板')
+    navigator.clipboard.writeText(`户码：${household.householdCode}\n地址：${household.address}`);
+    ElMessage.success('户码信息已复制到剪贴板');
   }
-}
+};
 
 const exportAllCodes = () => {
-  ElMessage.info('导出功能开发中...')
-}
+  ElMessage.info('导出功能开发中...');
+};
 
 const scanCode = () => {
-  ElMessage.info('扫码功能开发中...')
-}
+  ElMessage.info('扫码功能开发中...');
+};
 
 // 工具方法
-const getStatusTagType = (status) => {
+const getStatusTagType = status => {
   const typeMap = {
     not_generated: 'info',
     generated: 'warning',
     activated: 'success',
-    disabled: 'danger'
-  }
-  return typeMap[status] || 'info'
-}
+    disabled: 'danger',
+  };
+  return typeMap[status] || 'info';
+};
 
-const getStatusText = (status) => {
+const getStatusText = status => {
   const textMap = {
     not_generated: '未生成',
     generated: '已生成',
     activated: '已激活',
-    disabled: '已停用'
-  }
-  return textMap[status] || '未知'
-}
+    disabled: '已停用',
+  };
+  return textMap[status] || '未知';
+};
 
-const getHouseTypeText = (type) => {
+const getHouseTypeText = type => {
   const textMap = {
     owned: '自有房屋',
     rented: '租赁房屋',
     public: '公房',
-    other: '其他'
-  }
-  return textMap[type] || '未知'
-}
+    other: '其他',
+  };
+  return textMap[type] || '未知';
+};
 
-const maskIdCard = (idCard) => {
-  if (!idCard) return ''
-  return idCard.replace(/^(.{6})(.*)(.{4})$/, '$1********$3')
-}
+const maskIdCard = idCard => {
+  if (!idCard) return '';
+  return idCard.replace(/^(.{6})(.*)(.{4})$/, '$1********$3');
+};
 
-const formatDateTime = (date) => {
-  if (!date) return ''
-  return new Date(date).toLocaleString()
-}
+const formatDateTime = date => {
+  if (!date) return '';
+  return new Date(date).toLocaleString();
+};
 
 const getCurrentMonthScans = () => {
   // 模拟当月扫码次数
-  return Math.floor(Math.random() * 20) + 5
-}
+  return Math.floor(Math.random() * 20) + 5;
+};
 
 const getLastScanDays = () => {
-  if (!currentHousehold.value?.lastScanTime) return 0
-  const days = Math.floor((Date.now() - new Date(currentHousehold.value.lastScanTime)) / (24 * 60 * 60 * 1000))
-  return days
-}
+  if (!currentHousehold.value?.lastScanTime) return 0;
+  const days = Math.floor(
+    (Date.now() - new Date(currentHousehold.value.lastScanTime)) / (24 * 60 * 60 * 1000)
+  );
+  return days;
+};
 
 const getGenerationRate = () => {
-  if (stats.totalHouseholds === 0) return 0
-  return Math.round((stats.generatedCodes / stats.totalHouseholds) * 100)
-}
+  if (stats.totalHouseholds === 0) return 0;
+  return Math.round((stats.generatedCodes / stats.totalHouseholds) * 100);
+};
 
 const getActivationRate = () => {
-  if (stats.generatedCodes === 0) return 0
-  return Math.round((stats.activatedCodes / stats.generatedCodes) * 100)
-}
+  if (stats.generatedCodes === 0) return 0;
+  return Math.round((stats.activatedCodes / stats.generatedCodes) * 100);
+};
 
 const getUsageRate = () => {
-  if (stats.activatedCodes === 0) return 0
+  if (stats.activatedCodes === 0) return 0;
   // 模拟使用率计算
-  return Math.round(Math.random() * 30 + 60)
-}
+  return Math.round(Math.random() * 30 + 60);
+};
 
 // 生命周期
 onMounted(() => {
-  loadHouseholds()
-})
+  loadHouseholds();
+});
 </script>
 
 <style lang="scss" scoped>
@@ -1121,10 +1138,22 @@ onMounted(() => {
           align-items: center;
           justify-content: center;
 
-          &.total { background: rgba(64, 158, 255, 0.1); color: #409eff; }
-          &.generated { background: rgba(103, 194, 58, 0.1); color: #67c23a; }
-          &.activated { background: rgba(230, 162, 60, 0.1); color: #e6a23c; }
-          &.scan-count { background: rgba(245, 108, 108, 0.1); color: #f56c6c; }
+          &.total {
+            background: rgba(64, 158, 255, 0.1);
+            color: #409eff;
+          }
+          &.generated {
+            background: rgba(103, 194, 58, 0.1);
+            color: #67c23a;
+          }
+          &.activated {
+            background: rgba(230, 162, 60, 0.1);
+            color: #e6a23c;
+          }
+          &.scan-count {
+            background: rgba(245, 108, 108, 0.1);
+            color: #f56c6c;
+          }
         }
 
         .stat-content {

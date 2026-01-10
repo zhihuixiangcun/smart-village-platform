@@ -7,7 +7,7 @@ export class LazyImageLoader {
       root: null,
       rootMargin: '0px',
       threshold: 0.1,
-      ...options
+      ...options,
     };
 
     this.observer = null;
@@ -19,7 +19,7 @@ export class LazyImageLoader {
       this.observer = new IntersectionObserver(this.handleIntersection.bind(this), {
         root: this.options.root,
         rootMargin: this.options.rootMargin,
-        threshold: this.options.threshold
+        threshold: this.options.threshold,
       });
     }
 
@@ -52,10 +52,7 @@ export class LazyImageLoader {
     const windowWidth = window.innerWidth || document.documentElement.clientWidth;
 
     return (
-      rect.top >= 0 &&
-      rect.left >= 0 &&
-      rect.bottom <= windowHeight &&
-      rect.right <= windowWidth
+      rect.top >= 0 && rect.left >= 0 && rect.bottom <= windowHeight && rect.right <= windowWidth
     );
   }
 
@@ -98,7 +95,7 @@ export class VirtualList {
     this.options = {
       itemHeight: 50,
       bufferSize: 5,
-      ...options
+      ...options,
     };
 
     this.items = [];
@@ -132,7 +129,8 @@ export class VirtualList {
     );
     this.endIndex = Math.min(
       this.items.length - 1,
-      Math.ceil((this.scrollTop + this.containerHeight) / this.options.itemHeight) + this.options.bufferSize
+      Math.ceil((this.scrollTop + this.containerHeight) / this.options.itemHeight) +
+        this.options.bufferSize
     );
 
     this.visibleItems = this.items.slice(this.startIndex, this.endIndex + 1);
@@ -204,11 +202,11 @@ export function debounce(func, wait = 300) {
 // 节流
 export function throttle(func, limit = 300) {
   let inThrottle;
-  return function(...args) {
+  return function (...args) {
     if (!inThrottle) {
       func.apply(this, args);
       inThrottle = true;
-      setTimeout(() => inThrottle = false, limit);
+      setTimeout(() => (inThrottle = false), limit);
     }
   };
 }
@@ -270,11 +268,14 @@ export class ResourcePreloader {
 
     return new Promise((resolve, reject) => {
       const font = new FontFace('PreloadedFont', `url(${src})`);
-      font.load().then(() => {
-        document.fonts.add(font);
-        this.preloadedResources.add(src);
-        resolve();
-      }).catch(reject);
+      font
+        .load()
+        .then(() => {
+          document.fonts.add(font);
+          this.preloadedResources.add(src);
+          resolve();
+        })
+        .catch(reject);
     });
   }
 }
@@ -311,7 +312,7 @@ export class PerformanceMonitor {
       // 页面重定向时间
       redirectTime: timing.redirectEnd - timing.redirectStart,
       // 卸载时间
-      unloadTime: timing.unloadEventEnd - timing.unloadEventStart
+      unloadTime: timing.unloadEventEnd - timing.unloadEventStart,
     };
 
     return this.metrics;
@@ -321,14 +322,14 @@ export class PerformanceMonitor {
   observeLongTasks() {
     if (!window.PerformanceObserver) return;
 
-    const observer = new PerformanceObserver((list) => {
+    const observer = new PerformanceObserver(list => {
       const entries = list.getEntries();
       entries.forEach(entry => {
         if (entry.duration > 50) {
           console.warn('Long task detected:', {
             name: entry.name,
             duration: entry.duration,
-            startTime: entry.startTime
+            startTime: entry.startTime,
           });
         }
       });
@@ -346,13 +347,13 @@ export class PerformanceMonitor {
   observeResourceTiming() {
     if (!window.PerformanceObserver) return;
 
-    const observer = new PerformanceObserver((list) => {
+    const observer = new PerformanceObserver(list => {
       const entries = list.getEntries();
       const resources = entries.map(entry => ({
         name: entry.name,
         type: this.getResourceType(entry.name),
         duration: entry.duration,
-        size: entry.transferSize || 0
+        size: entry.transferSize || 0,
       }));
 
       // 找出加载时间最长的资源
@@ -376,16 +377,16 @@ export class PerformanceMonitor {
   getResourceType(url) {
     const extension = url.split('.').pop().toLowerCase();
     const typeMap = {
-      'js': 'script',
-      'css': 'stylesheet',
-      'png': 'image',
-      'jpg': 'image',
-      'jpeg': 'image',
-      'gif': 'image',
-      'svg': 'image',
-      'woff': 'font',
-      'woff2': 'font',
-      'ttf': 'font'
+      js: 'script',
+      css: 'stylesheet',
+      png: 'image',
+      jpg: 'image',
+      jpeg: 'image',
+      gif: 'image',
+      svg: 'image',
+      woff: 'font',
+      woff2: 'font',
+      ttf: 'font',
     };
     return typeMap[extension] || 'other';
   }
@@ -399,7 +400,7 @@ export class PerformanceMonitor {
       used: memory.usedJSHeapSize,
       total: memory.totalJSHeapSize,
       limit: memory.jsHeapSizeLimit,
-      usage: `${(memory.usedJSHeapSize / memory.jsHeapSizeLimit * 100).toFixed(2)  }%`
+      usage: `${((memory.usedJSHeapSize / memory.jsHeapSizeLimit) * 100).toFixed(2)}%`,
     };
 
     return this.metrics.memory;
@@ -415,7 +416,7 @@ export class PerformanceMonitor {
       const currentTime = performance.now();
 
       if (currentTime >= lastTime + 1000) {
-        const fps = Math.round(frames * 1000 / (currentTime - lastTime));
+        const fps = Math.round((frames * 1000) / (currentTime - lastTime));
         callback(fps);
 
         frames = 0;
@@ -445,7 +446,8 @@ export class NetworkMonitor {
   }
 
   getConnectionType() {
-    const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    const connection =
+      navigator.connection || navigator.mozConnection || navigator.webkitConnection;
     return connection ? connection.effectiveType : 'unknown';
   }
 
@@ -453,7 +455,8 @@ export class NetworkMonitor {
     window.addEventListener('online', this.handleOnline.bind(this));
     window.addEventListener('offline', this.handleOffline.bind(this));
 
-    const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    const connection =
+      navigator.connection || navigator.mozConnection || navigator.webkitConnection;
     if (connection) {
       connection.addEventListener('change', this.handleConnectionChange.bind(this));
     }
@@ -497,7 +500,8 @@ export class NetworkMonitor {
     window.removeEventListener('online', this.handleOnline);
     window.removeEventListener('offline', this.handleOffline);
 
-    const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    const connection =
+      navigator.connection || navigator.mozConnection || navigator.webkitConnection;
     if (connection) {
       connection.removeEventListener('change', this.handleConnectionChange);
     }
@@ -518,7 +522,7 @@ export class CacheManager {
     const item = {
       value,
       timestamp: Date.now(),
-      ttl: ttl ? Date.now() + ttl : null
+      ttl: ttl ? Date.now() + ttl : null,
     };
 
     try {
@@ -598,12 +602,7 @@ export class CacheManager {
 // 图片压缩
 export class ImageCompressor {
   static compress(file, options = {}) {
-    const {
-      quality = 0.8,
-      maxWidth = 1920,
-      maxHeight = 1920,
-      outputType = 'file'
-    } = options;
+    const { quality = 0.8, maxWidth = 1920, maxHeight = 1920, outputType = 'file' } = options;
 
     return new Promise((resolve, reject) => {
       const canvas = document.createElement('canvas');
@@ -634,13 +633,13 @@ export class ImageCompressor {
 
         // 转换为blob
         canvas.toBlob(
-          (blob) => {
+          blob => {
             if (outputType === 'blob') {
               resolve(blob);
             } else {
               const compressedFile = new File([blob], file.name, {
                 type: file.type,
-                lastModified: Date.now()
+                lastModified: Date.now(),
               });
               resolve(compressedFile);
             }
@@ -666,5 +665,5 @@ export default {
   PerformanceMonitor,
   NetworkMonitor,
   CacheManager,
-  ImageCompressor
+  ImageCompressor,
 };

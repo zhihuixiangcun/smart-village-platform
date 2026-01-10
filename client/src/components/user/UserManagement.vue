@@ -83,28 +83,13 @@
         <el-table-column label="操作" width="200" fixed="right">
           <template #default="{ row }">
             <el-button-group>
-              <el-button
-                size="small"
-                type="primary"
-                link
-                @click="handleView(row)"
-              >
+              <el-button size="small" type="primary" link @click="handleView(row)">
                 查看
               </el-button>
-              <el-button
-                size="small"
-                type="warning"
-                link
-                @click="handleEdit(row)"
-              >
+              <el-button size="small" type="warning" link @click="handleEdit(row)">
                 编辑
               </el-button>
-              <el-button
-                size="small"
-                type="danger"
-                link
-                @click="handleDelete(row)"
-              >
+              <el-button size="small" type="danger" link @click="handleDelete(row)">
                 删除
               </el-button>
             </el-button-group>
@@ -133,12 +118,8 @@
           已选择 <span class="count">{{ selectedUsers.length }}</span> 个用户
         </div>
         <div class="batch-actions">
-          <el-button type="warning" @click="handleBatchExport">
-            导出用户
-          </el-button>
-          <el-button type="danger" @click="handleBatchDelete">
-            批量删除
-          </el-button>
+          <el-button type="warning" @click="handleBatchExport"> 导出用户 </el-button>
+          <el-button type="danger" @click="handleBatchDelete"> 批量删除 </el-button>
         </div>
       </el-card>
     </div>
@@ -154,14 +135,18 @@
         <el-descriptions :column="2" border>
           <el-descriptions-item label="用户ID">{{ detailDialog.data.id }}</el-descriptions-item>
           <el-descriptions-item label="姓名">{{ detailDialog.data.name }}</el-descriptions-item>
-          <el-descriptions-item label="手机号">{{ formatPhone(detailDialog.data.phone) }}</el-descriptions-item>
+          <el-descriptions-item label="手机号">{{
+            formatPhone(detailDialog.data.phone)
+          }}</el-descriptions-item>
           <el-descriptions-item label="邮箱">{{ detailDialog.data.email }}</el-descriptions-item>
           <el-descriptions-item label="角色">
             <el-tag :type="getRoleTagType(detailDialog.data.role)">
               {{ getRoleLabel(detailDialog.data.role) }}
             </el-tag>
           </el-descriptions-item>
-          <el-descriptions-item label="村庄ID">{{ detailDialog.data.villageId }}</el-descriptions-item>
+          <el-descriptions-item label="村庄ID">{{
+            detailDialog.data.villageId
+          }}</el-descriptions-item>
           <el-descriptions-item label="状态">
             <el-tag :type="getStatusTagType(detailDialog.data.status)">
               {{ getStatusLabel(detailDialog.data.status) }}
@@ -184,12 +169,7 @@
       width="600px"
       :before-close="handleCloseFormDialog"
     >
-      <el-form
-        ref="userFormRef"
-        :model="userForm"
-        :rules="userFormRules"
-        label-width="100px"
-      >
+      <el-form ref="userFormRef" :model="userForm" :rules="userFormRules" label-width="100px">
         <el-form-item label="姓名" prop="name">
           <el-input v-model="userForm.name" placeholder="请输入姓名" />
         </el-form-item>
@@ -247,26 +227,26 @@ const submitting = ref(false);
 const filters = reactive({
   search: '',
   role: '',
-  status: ''
+  status: '',
 });
 
 // 分页信息
 const pagination = reactive({
   page: 1,
   limit: 20,
-  total: 0
+  total: 0,
 });
 
 // 详情对话框
 const detailDialog = reactive({
   visible: false,
-  data: null
+  data: null,
 });
 
 // 表单对话框
 const formDialog = reactive({
   visible: false,
-  isEdit: false
+  isEdit: false,
 });
 
 // 用户表单
@@ -277,32 +257,26 @@ const userForm = reactive({
   email: '',
   role: '',
   villageId: '',
-  status: 'active'
+  status: 'active',
 });
 
 // 表单验证规则
 const userFormRules = {
   name: [
     { required: true, message: '请输入姓名', trigger: 'blur' },
-    { min: 2, max: 20, message: '姓名长度在2到20个字符', trigger: 'blur' }
+    { min: 2, max: 20, message: '姓名长度在2到20个字符', trigger: 'blur' },
   ],
   phone: [
     { required: true, message: '请输入手机号', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
+    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' },
   ],
   email: [
     { required: true, message: '请输入邮箱', trigger: 'blur' },
-    { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' }
+    { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' },
   ],
-  role: [
-    { required: true, message: '请选择角色', trigger: 'change' }
-  ],
-  villageId: [
-    { required: true, message: '请输入村庄ID', trigger: 'blur' }
-  ],
-  status: [
-    { required: true, message: '请选择状态', trigger: 'change' }
-  ]
+  role: [{ required: true, message: '请选择角色', trigger: 'change' }],
+  villageId: [{ required: true, message: '请输入村庄ID', trigger: 'blur' }],
+  status: [{ required: true, message: '请选择状态', trigger: 'change' }],
 };
 
 // 表单引用
@@ -318,7 +292,7 @@ const loadUserList = async () => {
     const params = {
       page: pagination.page,
       limit: pagination.limit,
-      ...filters
+      ...filters,
     };
 
     // 清理空值参数
@@ -357,26 +331,26 @@ const handleReset = () => {
   loadUserList();
 };
 
-const handleSizeChange = (size) => {
+const handleSizeChange = size => {
   pagination.limit = size;
   loadUserList();
 };
 
-const handleCurrentChange = (page) => {
+const handleCurrentChange = page => {
   pagination.page = page;
   loadUserList();
 };
 
-const handleSelectionChange = (selection) => {
+const handleSelectionChange = selection => {
   selectedUsers.value = selection;
 };
 
-const handleView = (row) => {
+const handleView = row => {
   detailDialog.data = row;
   detailDialog.visible = true;
 };
 
-const handleEdit = (row) => {
+const handleEdit = row => {
   formDialog.isEdit = true;
   formDialog.visible = true;
 
@@ -386,17 +360,13 @@ const handleEdit = (row) => {
   });
 };
 
-const handleDelete = async (row) => {
+const handleDelete = async row => {
   try {
-    await ElMessageBox.confirm(
-      `确定要删除用户 "${row.name}" 吗？`,
-      '确认删除',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    );
+    await ElMessageBox.confirm(`确定要删除用户 "${row.name}" 吗？`, '确认删除', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
 
     const response = await apiService.deleteUser(row.id);
 
@@ -487,7 +457,7 @@ const handleBatchDelete = async () => {
       {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
       }
     );
 
@@ -501,50 +471,50 @@ const handleBatchDelete = async () => {
 };
 
 // 工具方法
-const formatPhone = (phone) => {
+const formatPhone = phone => {
   if (!phone) return '';
   return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$3');
 };
 
-const formatDateTime = (dateTime) => {
+const formatDateTime = dateTime => {
   if (!dateTime) return '';
   return new Date(dateTime).toLocaleString('zh-CN');
 };
 
-const getRoleLabel = (role) => {
+const getRoleLabel = role => {
   const roleMap = {
     resident: '村民',
     village_admin: '村委',
     accountant: '会计',
-    super_admin: '超管'
+    super_admin: '超管',
   };
   return roleMap[role] || role;
 };
 
-const getRoleTagType = (role) => {
+const getRoleTagType = role => {
   const typeMap = {
     resident: 'info',
     village_admin: 'warning',
     accountant: 'success',
-    super_admin: 'danger'
+    super_admin: 'danger',
   };
   return typeMap[role] || 'info';
 };
 
-const getStatusLabel = (status) => {
+const getStatusLabel = status => {
   const statusMap = {
     active: '活跃',
     inactive: '停用',
-    suspended: '暂停'
+    suspended: '暂停',
   };
   return statusMap[status] || status;
 };
 
-const getStatusTagType = (status) => {
+const getStatusTagType = status => {
   const typeMap = {
     active: 'success',
     inactive: 'danger',
-    suspended: 'warning'
+    suspended: 'warning',
   };
   return typeMap[status] || 'info';
 };

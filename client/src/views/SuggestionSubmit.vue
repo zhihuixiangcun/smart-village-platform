@@ -26,11 +26,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="建议分类" prop="category">
-              <el-select
-                v-model="form.category"
-                placeholder="请选择建议分类"
-                style="width: 100%"
-              >
+              <el-select v-model="form.category" placeholder="请选择建议分类" style="width: 100%">
                 <el-option
                   v-for="category in categories"
                   :key="category.nameEn"
@@ -71,11 +67,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="预估成本">
-              <el-input
-                v-model="form.estimatedCost"
-                placeholder="预估实施成本（元）"
-                type="number"
-              >
+              <el-input v-model="form.estimatedCost" placeholder="预估实施成本（元）" type="number">
                 <template #prepend>￥</template>
               </el-input>
             </el-form-item>
@@ -83,10 +75,7 @@
         </el-row>
 
         <el-form-item label="预估时间">
-          <el-input
-            v-model="form.estimatedTimeframe"
-            placeholder="预估实施时间周期，如：1-2个月"
-          />
+          <el-input v-model="form.estimatedTimeframe" placeholder="预估实施时间周期，如：1-2个月" />
         </el-form-item>
 
         <el-form-item label="相关标签">
@@ -110,12 +99,7 @@
             @blur="handleTagConfirm"
             style="width: 120px"
           />
-          <el-button
-            v-else
-            class="button-new-tag"
-            size="small"
-            @click="showTagInput"
-          >
+          <el-button v-else class="button-new-tag" size="small" @click="showTagInput">
             + 添加标签
           </el-button>
         </el-form-item>
@@ -134,9 +118,7 @@
             drag
           >
             <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-            <div class="el-upload__text">
-              将文件拖到此处，或<em>点击上传</em>
-            </div>
+            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
             <template #tip>
               <div class="el-upload__tip">
                 支持jpg/png/gif/pdf/doc/docx格式，单个文件不超过10MB，最多5个文件
@@ -184,12 +166,7 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button
-            type="primary"
-            @click="submitSuggestion"
-            :loading="submitting"
-            size="large"
-          >
+          <el-button type="primary" @click="submitSuggestion" :loading="submitting" size="large">
             {{ submitting ? '提交中...' : '提交建议' }}
           </el-button>
           <el-button @click="resetForm" size="large">重置</el-button>
@@ -216,20 +193,20 @@
 </template>
 
 <script>
-import { reactive, ref, onMounted, nextTick } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { UploadFilled } from '@element-plus/icons-vue'
-import { suggestionApi } from '../api/suggestion'
+import { reactive, ref, onMounted, nextTick } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { UploadFilled } from '@element-plus/icons-vue';
+import { suggestionApi } from '../api/suggestion';
 
 export default {
   name: 'SuggestionSubmit',
   components: {
-    UploadFilled
+    UploadFilled,
   },
   setup() {
-    const suggestionForm = ref(null)
-    const tagInput = ref(null)
-    const upload = ref(null)
+    const suggestionForm = ref(null);
+    const tagInput = ref(null);
+    const upload = ref(null);
 
     const form = reactive({
       title: '',
@@ -244,146 +221,141 @@ export default {
       estimatedTimeframe: '',
       tags: [],
       attachments: [],
-      village: 'default_village'
-    })
+      village: 'default_village',
+    });
 
     const rules = reactive({
       title: [
         { required: true, message: '请输入建议标题', trigger: 'blur' },
-        { min: 5, max: 100, message: '标题长度在 5 到 100 个字符', trigger: 'blur' }
+        { min: 5, max: 100, message: '标题长度在 5 到 100 个字符', trigger: 'blur' },
       ],
       content: [
         { required: true, message: '请输入建议内容', trigger: 'blur' },
-        { min: 10, max: 1000, message: '内容长度在 10 到 1000 个字符', trigger: 'blur' }
+        { min: 10, max: 1000, message: '内容长度在 10 到 1000 个字符', trigger: 'blur' },
       ],
-      category: [
-        { required: true, message: '请选择建议分类', trigger: 'change' }
-      ],
-      submitterName: [
-        { required: true, message: '请输入您的姓名', trigger: 'blur' }
-      ],
+      category: [{ required: true, message: '请选择建议分类', trigger: 'change' }],
+      submitterName: [{ required: true, message: '请输入您的姓名', trigger: 'blur' }],
       submitterPhone: [
         { required: true, message: '请输入您的联系电话', trigger: 'blur' },
-        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' }
-      ]
-    })
+        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' },
+      ],
+    });
 
-    const categories = ref([])
-    const submitting = ref(false)
-    const tagInputVisible = ref(false)
-    const tagInputValue = ref('')
+    const categories = ref([]);
+    const submitting = ref(false);
+    const tagInputVisible = ref(false);
+    const tagInputValue = ref('');
 
     const loadCategories = async () => {
       try {
-        const response = await suggestionApi.getCategories(form.village)
-        categories.value = response.data
+        const response = await suggestionApi.getCategories(form.village);
+        categories.value = response.data;
       } catch (error) {
-        ElMessage.error('加载分类失败：' + error.message)
+        ElMessage.error('加载分类失败：' + error.message);
       }
-    }
+    };
 
-    const handleTagClose = (tag) => {
-      form.tags.splice(form.tags.indexOf(tag), 1)
-    }
+    const handleTagClose = tag => {
+      form.tags.splice(form.tags.indexOf(tag), 1);
+    };
 
     const showTagInput = () => {
-      tagInputVisible.value = true
+      tagInputVisible.value = true;
       nextTick(() => {
-        tagInput.value.input.focus()
-      })
-    }
+        tagInput.value.input.focus();
+      });
+    };
 
     const handleTagConfirm = () => {
       if (tagInputValue.value && !form.tags.includes(tagInputValue.value)) {
-        form.tags.push(tagInputValue.value)
+        form.tags.push(tagInputValue.value);
       }
-      tagInputVisible.value = false
-      tagInputValue.value = ''
-    }
+      tagInputVisible.value = false;
+      tagInputValue.value = '';
+    };
 
     const handleFileChange = (file, fileList) => {
-      form.attachments = fileList
-    }
+      form.attachments = fileList;
+    };
 
     const handleFileRemove = (file, fileList) => {
-      form.attachments = fileList
-    }
+      form.attachments = fileList;
+    };
 
-    const beforeUpload = (file) => {
-      const isValidType = /\.(jpg|jpeg|png|gif|pdf|doc|docx)$/i.test(file.name)
-      const isValidSize = file.size / 1024 / 1024 < 10
+    const beforeUpload = file => {
+      const isValidType = /\.(jpg|jpeg|png|gif|pdf|doc|docx)$/i.test(file.name);
+      const isValidSize = file.size / 1024 / 1024 < 10;
 
       if (!isValidType) {
-        ElMessage.error('只能上传jpg/png/gif/pdf/doc/docx格式的文件!')
-        return false
+        ElMessage.error('只能上传jpg/png/gif/pdf/doc/docx格式的文件!');
+        return false;
       }
       if (!isValidSize) {
-        ElMessage.error('上传文件大小不能超过10MB!')
-        return false
+        ElMessage.error('上传文件大小不能超过10MB!');
+        return false;
       }
-      return false // 阻止自动上传
-    }
+      return false; // 阻止自动上传
+    };
 
     const submitSuggestion = async () => {
       try {
-        const valid = await suggestionForm.value.validate()
-        if (!valid) return
+        const valid = await suggestionForm.value.validate();
+        if (!valid) return;
 
-        submitting.value = true
+        submitting.value = true;
 
-        const formData = new FormData()
+        const formData = new FormData();
         Object.keys(form).forEach(key => {
           if (key === 'attachments') {
             form.attachments.forEach(file => {
               if (file.raw) {
-                formData.append('attachments', file.raw)
+                formData.append('attachments', file.raw);
               }
-            })
+            });
           } else if (key === 'tags') {
-            formData.append('tags', form.tags.join(','))
+            formData.append('tags', form.tags.join(','));
           } else {
-            formData.append(key, form[key])
+            formData.append(key, form[key]);
           }
-        })
+        });
 
-        await suggestionApi.submit(formData)
+        await suggestionApi.submit(formData);
 
-        ElMessage.success('建议提交成功！我们会尽快处理您的建议')
-        resetForm()
-
+        ElMessage.success('建议提交成功！我们会尽快处理您的建议');
+        resetForm();
       } catch (error) {
-        ElMessage.error('提交失败：' + error.message)
+        ElMessage.error('提交失败：' + error.message);
       } finally {
-        submitting.value = false
+        submitting.value = false;
       }
-    }
+    };
 
     const resetForm = () => {
-      suggestionForm.value.resetFields()
-      form.tags = []
-      form.attachments = []
-      upload.value.clearFiles()
-    }
+      suggestionForm.value.resetFields();
+      form.tags = [];
+      form.attachments = [];
+      upload.value.clearFiles();
+    };
 
     const saveDraft = () => {
-      const draft = { ...form }
-      localStorage.setItem('suggestion_draft', JSON.stringify(draft))
-      ElMessage.success('草稿已保存')
-    }
+      const draft = { ...form };
+      localStorage.setItem('suggestion_draft', JSON.stringify(draft));
+      ElMessage.success('草稿已保存');
+    };
 
     const loadDraft = () => {
-      const draft = localStorage.getItem('suggestion_draft')
+      const draft = localStorage.getItem('suggestion_draft');
       if (draft) {
-        const draftData = JSON.parse(draft)
-        Object.assign(form, draftData)
-        ElMessage.info('已加载上次保存的草稿')
+        const draftData = JSON.parse(draft);
+        Object.assign(form, draftData);
+        ElMessage.info('已加载上次保存的草稿');
       }
-    }
+    };
 
     onMounted(() => {
-      loadCategories()
-      loadDraft()
-    })
+      loadCategories();
+      loadDraft();
+    });
 
     return {
       form,
@@ -403,10 +375,10 @@ export default {
       beforeUpload,
       submitSuggestion,
       resetForm,
-      saveDraft
-    }
-  }
-}
+      saveDraft,
+    };
+  },
+};
 </script>
 
 <style scoped>

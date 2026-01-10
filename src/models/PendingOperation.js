@@ -470,8 +470,8 @@ pendingOperationSchema.statics.getConflictOperations = function(villageId) {
       { 'conflictInfo.hasConflict': true }
     ]
   })
-  .sort({ createdAt: -1 })
-  .populate('userId', 'username name');
+    .sort({ createdAt: -1 })
+    .populate('userId', 'username name');
 };
 
 /**
@@ -482,8 +482,8 @@ pendingOperationSchema.statics.getRetryableOperations = function() {
     syncStatus: 'failed',
     'syncStats.attemptCount': { $lt: 5 }
   })
-  .sort({ priority: -1, createdAt: 1 })
-  .lean();
+    .sort({ priority: -1, createdAt: 1 })
+    .lean();
 };
 
 /**

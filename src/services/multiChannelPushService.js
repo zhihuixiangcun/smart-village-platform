@@ -501,17 +501,17 @@ class MultiChannelPushService {
       let result;
 
       switch (this.config.sms.provider) {
-        case 'aliyun':
-          result = await this.sendAliyunSMS(user.phone, notification);
-          break;
-        case 'tencent':
-          result = await this.sendTencentSMS(user.phone, notification);
-          break;
-        case 'twilio':
-          result = await this.sendTwilioSMS(user.phone, notification);
-          break;
-        default:
-          result = { sent: false, skipped: true, reason: 'unknown_provider' };
+      case 'aliyun':
+        result = await this.sendAliyunSMS(user.phone, notification);
+        break;
+      case 'tencent':
+        result = await this.sendTencentSMS(user.phone, notification);
+        break;
+      case 'twilio':
+        result = await this.sendTwilioSMS(user.phone, notification);
+        break;
+      default:
+        result = { sent: false, skipped: true, reason: 'unknown_provider' };
       }
 
       if (result.sent) {

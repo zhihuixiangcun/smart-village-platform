@@ -5,16 +5,12 @@
       <el-card class="search-card">
         <div class="search-header">
           <h3>项目管理</h3>
-          <el-button 
-            type="primary" 
-            @click="showCreateDialog = true"
-            v-if="canCreateProject"
-          >
+          <el-button type="primary" @click="showCreateDialog = true" v-if="canCreateProject">
             <el-icon><Plus /></el-icon>
             新建项目
           </el-button>
         </div>
-        
+
         <div class="search-filters">
           <el-row :gutter="16">
             <el-col :span="6">
@@ -29,7 +25,7 @@
                 </template>
               </el-input>
             </el-col>
-            
+
             <el-col :span="4">
               <el-select v-model="filters.projectType" placeholder="项目类型" clearable>
                 <el-option label="基础设施" value="infrastructure" />
@@ -42,7 +38,7 @@
                 <el-option label="数字化建设" value="digital" />
               </el-select>
             </el-col>
-            
+
             <el-col :span="4">
               <el-select v-model="filters.status" placeholder="项目状态" clearable>
                 <el-option label="草稿" value="draft" />
@@ -54,7 +50,7 @@
                 <el-option label="已取消" value="cancelled" />
               </el-select>
             </el-col>
-            
+
             <el-col :span="4">
               <el-select v-model="filters.priority" placeholder="优先级" clearable>
                 <el-option label="低" value="low" />
@@ -63,7 +59,7 @@
                 <el-option label="紧急" value="urgent" />
               </el-select>
             </el-col>
-            
+
             <el-col :span="6">
               <el-date-picker
                 v-model="filters.dateRange"
@@ -76,7 +72,7 @@
               />
             </el-col>
           </el-row>
-          
+
           <div class="search-actions">
             <el-button @click="searchProjects" type="primary">搜索</el-button>
             <el-button @click="resetFilters">重置</el-button>
@@ -104,8 +100,8 @@
         <div v-if="viewMode === 'card'" class="card-view">
           <el-row :gutter="16">
             <el-col :span="8" v-for="project in projects" :key="project._id">
-              <project-card 
-                :project="project" 
+              <project-card
+                :project="project"
                 @view="viewProject"
                 @edit="editProject"
                 @delete="deleteProject"
@@ -137,10 +133,7 @@
             </el-table-column>
             <el-table-column prop="priority" label="优先级" width="80">
               <template #default="{ row }">
-                <el-tag 
-                  :type="getPriorityColor(row.priority)" 
-                  size="small"
-                >
+                <el-tag :type="getPriorityColor(row.priority)" size="small">
                   {{ getPriorityName(row.priority) }}
                 </el-tag>
               </template>
@@ -152,8 +145,8 @@
             </el-table-column>
             <el-table-column prop="progress.overallProgress" label="进度" width="120">
               <template #default="{ row }">
-                <el-progress 
-                  :percentage="row.progress.overallProgress" 
+                <el-progress
+                  :percentage="row.progress.overallProgress"
                   :color="getProgressColor(row.progress.overallProgress)"
                   :show-text="false"
                 />
@@ -174,9 +167,9 @@
               <template #default="{ row }">
                 <el-button-group>
                   <el-button size="small" @click="viewProject(row)">查看</el-button>
-                  <el-button 
-                    size="small" 
-                    type="primary" 
+                  <el-button
+                    size="small"
+                    type="primary"
                     @click="editProject(row)"
                     v-if="canEditProject(row)"
                   >
@@ -188,29 +181,16 @@
                     </el-button>
                     <template #dropdown>
                       <el-dropdown-menu>
-                        <el-dropdown-item 
-                          command="submit" 
-                          v-if="row.status === 'draft'"
-                        >
+                        <el-dropdown-item command="submit" v-if="row.status === 'draft'">
                           提交审批
                         </el-dropdown-item>
-                        <el-dropdown-item 
-                          command="start" 
-                          v-if="row.status === 'approved'"
-                        >
+                        <el-dropdown-item command="start" v-if="row.status === 'approved'">
                           启动项目
                         </el-dropdown-item>
-                        <el-dropdown-item 
-                          command="progress" 
-                          v-if="row.status === 'in_progress'"
-                        >
+                        <el-dropdown-item command="progress" v-if="row.status === 'in_progress'">
                           更新进度
                         </el-dropdown-item>
-                        <el-dropdown-item 
-                          command="delete" 
-                          v-if="row.status === 'draft'"
-                          divided
-                        >
+                        <el-dropdown-item command="delete" v-if="row.status === 'draft'" divided>
                           删除项目
                         </el-dropdown-item>
                       </el-dropdown-menu>
@@ -241,26 +221,20 @@
     </div>
 
     <!-- 创建项目对话框 -->
-    <project-create-dialog 
-      v-model="showCreateDialog"
-      @created="onProjectCreated"
-    />
+    <project-create-dialog v-model="showCreateDialog" @created="onProjectCreated" />
 
     <!-- 项目详情对话框 -->
-    <project-detail-dialog 
-      v-model="showDetailDialog"
-      :project="selectedProject"
-    />
+    <project-detail-dialog v-model="showDetailDialog" :project="selectedProject" />
 
     <!-- 编辑项目对话框 -->
-    <project-edit-dialog 
+    <project-edit-dialog
       v-model="showEditDialog"
       :project="selectedProject"
       @updated="onProjectUpdated"
     />
 
     <!-- 进度更新对话框 -->
-    <progress-update-dialog 
+    <progress-update-dialog
       v-model="showProgressDialog"
       :project="selectedProject"
       @updated="onProgressUpdated"
@@ -269,28 +243,28 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus, Search, ArrowDown } from '@element-plus/icons-vue'
-import ProjectCard from './ProjectCard.vue'
-import ProjectCreateDialog from './ProjectCreateDialog.vue'
-import ProjectDetailDialog from './ProjectDetailDialog.vue'
-import ProjectEditDialog from './ProjectEditDialog.vue'
-import ProgressUpdateDialog from './ProgressUpdateDialog.vue'
-import { projectApi } from '@/api/project'
-import { useUserStore } from '@/store/user'
+import { ref, reactive, onMounted, computed } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { Plus, Search, ArrowDown } from '@element-plus/icons-vue';
+import ProjectCard from './ProjectCard.vue';
+import ProjectCreateDialog from './ProjectCreateDialog.vue';
+import ProjectDetailDialog from './ProjectDetailDialog.vue';
+import ProjectEditDialog from './ProjectEditDialog.vue';
+import ProgressUpdateDialog from './ProgressUpdateDialog.vue';
+import { projectApi } from '@/api/project';
+import { useUserStore } from '@/store/user';
 
-const userStore = useUserStore()
+const userStore = useUserStore();
 
 // 响应式数据
-const loading = ref(false)
-const projects = ref([])
-const viewMode = ref('card')
-const showCreateDialog = ref(false)
-const showDetailDialog = ref(false)
-const showEditDialog = ref(false)
-const showProgressDialog = ref(false)
-const selectedProject = ref(null)
+const loading = ref(false);
+const projects = ref([]);
+const viewMode = ref('card');
+const showCreateDialog = ref(false);
+const showDetailDialog = ref(false);
+const showEditDialog = ref(false);
+const showProgressDialog = ref(false);
+const selectedProject = ref(null);
 
 // 搜索筛选
 const filters = reactive({
@@ -298,88 +272,88 @@ const filters = reactive({
   projectType: '',
   status: '',
   priority: '',
-  dateRange: []
-})
+  dateRange: [],
+});
 
 // 分页
 const pagination = reactive({
   page: 1,
   limit: 20,
-  total: 0
-})
+  total: 0,
+});
 
 // 权限计算
 const canCreateProject = computed(() => {
-  return userStore.hasPermission('project_management', 'create')
-})
+  return userStore.hasPermission('project_management', 'create');
+});
 
 // 生命周期
 onMounted(() => {
-  loadProjects()
-})
+  loadProjects();
+});
 
 // 方法
 const loadProjects = async () => {
   try {
-    loading.value = true
+    loading.value = true;
     const params = {
       villageId: userStore.currentVillage._id,
       page: pagination.page,
       limit: pagination.limit,
-      ...buildSearchParams()
-    }
-    
-    const response = await projectApi.getProjectList(params)
-    projects.value = response.data.projects
-    pagination.total = response.data.total
+      ...buildSearchParams(),
+    };
+
+    const response = await projectApi.getProjectList(params);
+    projects.value = response.data.projects;
+    pagination.total = response.data.total;
   } catch (error) {
-    ElMessage.error('加载项目列表失败：' + error.message)
+    ElMessage.error('加载项目列表失败：' + error.message);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const buildSearchParams = () => {
-  const params = {}
-  
-  if (filters.keyword) params.keyword = filters.keyword
-  if (filters.projectType) params.projectType = filters.projectType
-  if (filters.status) params.status = filters.status
-  if (filters.priority) params.priority = filters.priority
-  
+  const params = {};
+
+  if (filters.keyword) params.keyword = filters.keyword;
+  if (filters.projectType) params.projectType = filters.projectType;
+  if (filters.status) params.status = filters.status;
+  if (filters.priority) params.priority = filters.priority;
+
   if (filters.dateRange && filters.dateRange.length === 2) {
-    params.startDate = filters.dateRange[0]
-    params.endDate = filters.dateRange[1]
+    params.startDate = filters.dateRange[0];
+    params.endDate = filters.dateRange[1];
   }
-  
-  return params
-}
+
+  return params;
+};
 
 const searchProjects = () => {
-  pagination.page = 1
-  loadProjects()
-}
+  pagination.page = 1;
+  loadProjects();
+};
 
 const resetFilters = () => {
   Object.keys(filters).forEach(key => {
-    filters[key] = key === 'dateRange' ? [] : ''
-  })
-  pagination.page = 1
-  loadProjects()
-}
+    filters[key] = key === 'dateRange' ? [] : '';
+  });
+  pagination.page = 1;
+  loadProjects();
+};
 
 // 项目操作
-const viewProject = (project) => {
-  selectedProject.value = project
-  showDetailDialog.value = true
-}
+const viewProject = project => {
+  selectedProject.value = project;
+  showDetailDialog.value = true;
+};
 
-const editProject = (project) => {
-  selectedProject.value = project
-  showEditDialog.value = true
-}
+const editProject = project => {
+  selectedProject.value = project;
+  showEditDialog.value = true;
+};
 
-const deleteProject = async (project) => {
+const deleteProject = async project => {
   try {
     await ElMessageBox.confirm(
       `确定要删除项目"${project.projectName}"吗？此操作不可恢复。`,
@@ -387,99 +361,101 @@ const deleteProject = async (project) => {
       {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
       }
-    )
-    
-    await projectApi.deleteProject(project._id)
-    ElMessage.success('项目删除成功')
-    loadProjects()
+    );
+
+    await projectApi.deleteProject(project._id);
+    ElMessage.success('项目删除成功');
+    loadProjects();
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('删除项目失败：' + error.message)
+      ElMessage.error('删除项目失败：' + error.message);
     }
   }
-}
+};
 
-const submitProject = async (project) => {
+const submitProject = async project => {
   try {
-    await projectApi.submitProject(project._id)
-    ElMessage.success('项目已提交审批')
-    loadProjects()
+    await projectApi.submitProject(project._id);
+    ElMessage.success('项目已提交审批');
+    loadProjects();
   } catch (error) {
-    ElMessage.error('提交项目失败：' + error.message)
+    ElMessage.error('提交项目失败：' + error.message);
   }
-}
+};
 
-const startProject = async (project) => {
+const startProject = async project => {
   try {
-    await projectApi.startProject(project._id)
-    ElMessage.success('项目已启动')
-    loadProjects()
+    await projectApi.startProject(project._id);
+    ElMessage.success('项目已启动');
+    loadProjects();
   } catch (error) {
-    ElMessage.error('启动项目失败：' + error.message)
+    ElMessage.error('启动项目失败：' + error.message);
   }
-}
+};
 
-const updateProgress = (project) => {
-  selectedProject.value = project
-  showProgressDialog.value = true
-}
+const updateProgress = project => {
+  selectedProject.value = project;
+  showProgressDialog.value = true;
+};
 
 // 操作处理
 const handleAction = (command, project) => {
   switch (command) {
     case 'submit':
-      submitProject(project)
-      break
+      submitProject(project);
+      break;
     case 'start':
-      startProject(project)
-      break
+      startProject(project);
+      break;
     case 'progress':
-      updateProgress(project)
-      break
+      updateProgress(project);
+      break;
     case 'delete':
-      deleteProject(project)
-      break
+      deleteProject(project);
+      break;
   }
-}
+};
 
 // 权限检查
-const canEditProject = (project) => {
-  return ['draft', 'in_progress'].includes(project.status) &&
-         userStore.hasPermission('project_management', 'update')
-}
+const canEditProject = project => {
+  return (
+    ['draft', 'in_progress'].includes(project.status) &&
+    userStore.hasPermission('project_management', 'update')
+  );
+};
 
 // 分页处理
-const handleSizeChange = (size) => {
-  pagination.limit = size
-  pagination.page = 1
-  loadProjects()
-}
+const handleSizeChange = size => {
+  pagination.limit = size;
+  pagination.page = 1;
+  loadProjects();
+};
 
-const handleCurrentChange = (page) => {
-  pagination.page = page
-  loadProjects()
-}
+const handleCurrentChange = page => {
+  pagination.page = page;
+  loadProjects();
+};
 
 // 事件处理
 const onProjectCreated = () => {
-  showCreateDialog.value = false
-  loadProjects()
-}
+  showCreateDialog.value = false;
+  loadProjects();
+};
 
 const onProjectUpdated = () => {
-  showEditDialog.value = false
-  loadProjects()
-}
+  showEditDialog.value = false;
+  loadProjects();
+};
 
 const onProgressUpdated = () => {
-  showProgressDialog.value = false
-  loadProjects()
-}
+  showProgressDialog.value = false;
+  loadProjects();
+};
 
 // 工具函数
-const getProjectTypeName = (type) => {
+const getProjectTypeName = type => {
   const typeMap = {
     infrastructure: '基础设施',
     public_service: '公共服务',
@@ -494,12 +470,12 @@ const getProjectTypeName = (type) => {
     education: '教育培训',
     healthcare: '医疗卫生',
     tourism: '旅游发展',
-    other: '其他'
-  }
-  return typeMap[type] || type
-}
+    other: '其他',
+  };
+  return typeMap[type] || type;
+};
 
-const getProjectTypeColor = (type) => {
+const getProjectTypeColor = type => {
   const colorMap = {
     infrastructure: 'primary',
     public_service: 'success',
@@ -514,12 +490,12 @@ const getProjectTypeColor = (type) => {
     education: 'info',
     healthcare: 'success',
     tourism: '',
-    other: 'info'
-  }
-  return colorMap[type] || ''
-}
+    other: 'info',
+  };
+  return colorMap[type] || '';
+};
 
-const getStatusName = (status) => {
+const getStatusName = status => {
   const statusMap = {
     draft: '草稿',
     submitted: '已提交',
@@ -531,12 +507,12 @@ const getStatusName = (status) => {
     paused: '暂停',
     completed: '已完成',
     cancelled: '已取消',
-    closed: '已关闭'
-  }
-  return statusMap[status] || status
-}
+    closed: '已关闭',
+  };
+  return statusMap[status] || status;
+};
 
-const getStatusColor = (status) => {
+const getStatusColor = status => {
   const colorMap = {
     draft: 'info',
     submitted: 'primary',
@@ -548,41 +524,41 @@ const getStatusColor = (status) => {
     paused: 'warning',
     completed: 'success',
     cancelled: 'info',
-    closed: 'info'
-  }
-  return colorMap[status] || ''
-}
+    closed: 'info',
+  };
+  return colorMap[status] || '';
+};
 
-const getPriorityName = (priority) => {
+const getPriorityName = priority => {
   const priorityMap = {
     low: '低',
     medium: '中',
     high: '高',
-    urgent: '紧急'
-  }
-  return priorityMap[priority] || priority
-}
+    urgent: '紧急',
+  };
+  return priorityMap[priority] || priority;
+};
 
-const getPriorityColor = (priority) => {
+const getPriorityColor = priority => {
   const colorMap = {
     low: 'info',
     medium: '',
     high: 'warning',
-    urgent: 'danger'
-  }
-  return colorMap[priority] || ''
-}
+    urgent: 'danger',
+  };
+  return colorMap[priority] || '';
+};
 
-const getProgressColor = (progress) => {
-  if (progress < 30) return '#f56c6c'
-  if (progress < 70) return '#e6a23c'
-  return '#67c23a'
-}
+const getProgressColor = progress => {
+  if (progress < 30) return '#f56c6c';
+  if (progress < 70) return '#e6a23c';
+  return '#67c23a';
+};
 
-const formatDate = (date) => {
-  if (!date) return '-'
-  return new Date(date).toLocaleDateString('zh-CN')
-}
+const formatDate = date => {
+  if (!date) return '-';
+  return new Date(date).toLocaleDateString('zh-CN');
+};
 </script>
 
 <style scoped>
@@ -657,13 +633,13 @@ const formatDate = (date) => {
     align-items: stretch;
     gap: 16px;
   }
-  
+
   .list-header {
     flex-direction: column;
     align-items: stretch;
     gap: 16px;
   }
-  
+
   .card-view .el-col {
     margin-bottom: 16px;
   }

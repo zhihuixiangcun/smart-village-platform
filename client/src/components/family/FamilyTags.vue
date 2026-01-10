@@ -49,12 +49,7 @@
         >
           {{ tag.name }}
         </el-tag>
-        <el-button
-          size="small"
-          type="success"
-          plain
-          @click="showAddTagDialog"
-        >
+        <el-button size="small" type="success" plain @click="showAddTagDialog">
           <el-icon><Plus /></el-icon>
           添加标签
         </el-button>
@@ -65,11 +60,7 @@
     <div v-if="showMemberTags" class="tag-section">
       <h4>成员特殊标记</h4>
       <div class="member-tags-list">
-        <div
-          v-for="member in members"
-          :key="member._id"
-          class="member-tag-item"
-        >
+        <div v-for="member in members" :key="member._id" class="member-tag-item">
           <div class="member-info">
             <el-avatar :size="40" :src="member.avatar">
               {{ member.name?.charAt(0) }}
@@ -90,7 +81,7 @@
             >
               {{ specialTag }}
             </el-tag>
-            <el-dropdown trigger="click" @command="(tag) => handleAddMemberTag(member._id, tag)">
+            <el-dropdown trigger="click" @command="tag => handleAddMemberTag(member._id, tag)">
               <el-button size="small" plain circle>
                 <el-icon><Plus /></el-icon>
               </el-button>
@@ -113,18 +104,10 @@
     </div>
 
     <!-- 添加自定义标签对话框 -->
-    <el-dialog
-      v-model="addTagDialogVisible"
-      title="添加自定义标签"
-      width="400px"
-    >
+    <el-dialog v-model="addTagDialogVisible" title="添加自定义标签" width="400px">
       <el-form :model="newTag" label-width="80px">
         <el-form-item label="标签名称">
-          <el-input
-            v-model="newTag.name"
-            placeholder="请输入标签名称"
-            maxlength="20"
-          />
+          <el-input v-model="newTag.name" placeholder="请输入标签名称" maxlength="20" />
         </el-form-item>
         <el-form-item label="标签颜色">
           <el-color-picker v-model="newTag.color" />
@@ -139,43 +122,43 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { ElMessage } from 'element-plus'
-import { Plus } from '@element-plus/icons-vue'
-import { useFamilyStore } from '@/stores/familyStore'
+import { ref, computed } from 'vue';
+import { ElMessage } from 'element-plus';
+import { Plus } from '@element-plus/icons-vue';
+import { useFamilyStore } from '@/stores/familyStore';
 
 const props = defineProps({
   familyId: {
     type: String,
-    required: true
+    required: true,
   },
   familyTypes: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   customTags: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   members: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   showMemberTags: {
     type: Boolean,
-    default: true
-  }
-})
+    default: true,
+  },
+});
 
-const emit = defineEmits(['update:familyTypes', 'update:customTags', 'update:members'])
+const emit = defineEmits(['update:familyTypes', 'update:customTags', 'update:members']);
 
-const familyStore = useFamilyStore()
+const familyStore = useFamilyStore();
 
-const addTagDialogVisible = ref(false)
+const addTagDialogVisible = ref(false);
 const newTag = ref({
   name: '',
-  color: '#409EFF'
-})
+  color: '#409EFF',
+});
 
 // 可用的家庭类型
 const availableFamilyTypes = [
@@ -188,8 +171,8 @@ const availableFamilyTypes = [
   { label: '困难家庭', value: '困难家庭' },
   { label: '重点帮扶对象', value: '重点帮扶对象' },
   { label: '模范家庭', value: '模范家庭' },
-  { label: '创业家庭', value: '创业家庭' }
-]
+  { label: '创业家庭', value: '创业家庭' },
+];
 
 // 可用的特殊标签
 const availableSpecialTags = [
@@ -203,42 +186,42 @@ const availableSpecialTags = [
   '退役军人',
   '共产党员',
   '志愿者',
-  '空巢老人'
-]
+  '空巢老人',
+];
 
 // 添加家庭类型
 async function handleAddType(type) {
   try {
     // 如果是低保户等特殊类型，需要更新经济状况
-    const updatedTypes = [...props.familyTypes, type]
-    emit('update:familyTypes', updatedTypes)
+    const updatedTypes = [...props.familyTypes, type];
+    emit('update:familyTypes', updatedTypes);
 
     // 调用API更新
     await familyStore.updateFamily(props.familyId, {
-      familyTypes: updatedTypes
-    })
+      familyTypes: updatedTypes,
+    });
 
-    ElMessage.success('添加成功')
+    ElMessage.success('添加成功');
   } catch (error) {
-    ElMessage.error('添加失败')
-    console.error('Add family type error:', error)
+    ElMessage.error('添加失败');
+    console.error('Add family type error:', error);
   }
 }
 
 // 移除家庭类型
 async function handleRemoveType(type) {
   try {
-    const updatedTypes = props.familyTypes.filter(t => t !== type)
-    emit('update:familyTypes', updatedTypes)
+    const updatedTypes = props.familyTypes.filter(t => t !== type);
+    emit('update:familyTypes', updatedTypes);
 
     await familyStore.updateFamily(props.familyId, {
-      familyTypes: updatedTypes
-    })
+      familyTypes: updatedTypes,
+    });
 
-    ElMessage.success('移除成功')
+    ElMessage.success('移除成功');
   } catch (error) {
-    ElMessage.error('移除失败')
-    console.error('Remove family type error:', error)
+    ElMessage.error('移除失败');
+    console.error('Remove family type error:', error);
   }
 }
 
@@ -246,124 +229,120 @@ async function handleRemoveType(type) {
 function showAddTagDialog() {
   newTag.value = {
     name: '',
-    color: '#409EFF'
-  }
-  addTagDialogVisible.value = true
+    color: '#409EFF',
+  };
+  addTagDialogVisible.value = true;
 }
 
 // 添加自定义标签
 async function handleAddCustomTag() {
   if (!newTag.value.name) {
-    ElMessage.warning('请输入标签名称')
-    return
+    ElMessage.warning('请输入标签名称');
+    return;
   }
 
   try {
-    await familyStore.addFamilyTag(
-      props.familyId,
-      newTag.value.name,
-      newTag.value.color
-    )
+    await familyStore.addFamilyTag(props.familyId, newTag.value.name, newTag.value.color);
 
-    const updatedTags = [...props.customTags, { ...newTag.value }]
-    emit('update:customTags', updatedTags)
+    const updatedTags = [...props.customTags, { ...newTag.value }];
+    emit('update:customTags', updatedTags);
 
-    addTagDialogVisible.value = false
-    ElMessage.success('添加成功')
+    addTagDialogVisible.value = false;
+    ElMessage.success('添加成功');
   } catch (error) {
-    ElMessage.error('添加失败')
-    console.error('Add custom tag error:', error)
+    ElMessage.error('添加失败');
+    console.error('Add custom tag error:', error);
   }
 }
 
 // 移除自定义标签
 async function handleRemoveCustomTag(tagName) {
   try {
-    await familyStore.removeFamilyTag(props.familyId, tagName)
+    await familyStore.removeFamilyTag(props.familyId, tagName);
 
-    const updatedTags = props.customTags.filter(t => t.name !== tagName)
-    emit('update:customTags', updatedTags)
+    const updatedTags = props.customTags.filter(t => t.name !== tagName);
+    emit('update:customTags', updatedTags);
 
-    ElMessage.success('移除成功')
+    ElMessage.success('移除成功');
   } catch (error) {
-    ElMessage.error('移除失败')
-    console.error('Remove custom tag error:', error)
+    ElMessage.error('移除失败');
+    console.error('Remove custom tag error:', error);
   }
 }
 
 // 添加成员特殊标签
 async function handleAddMemberTag(memberId, tag) {
   try {
-    await familyStore.addMemberSpecialTag(memberId, tag)
+    await familyStore.addMemberSpecialTag(memberId, tag);
 
     // 更新成员列表
     const updatedMembers = props.members.map(m => {
       if (m._id === memberId) {
         return {
           ...m,
-          specialTags: [...(m.specialTags || []), tag]
-        }
+          specialTags: [...(m.specialTags || []), tag],
+        };
       }
-      return m
-    })
+      return m;
+    });
 
-    emit('update:members', updatedMembers)
-    ElMessage.success('添加成功')
+    emit('update:members', updatedMembers);
+    ElMessage.success('添加成功');
   } catch (error) {
-    ElMessage.error('添加失败')
-    console.error('Add member tag error:', error)
+    ElMessage.error('添加失败');
+    console.error('Add member tag error:', error);
   }
 }
 
 // 移除成员特殊标签
 async function handleRemoveMemberTag(memberId, tag) {
   try {
-    await familyStore.removeMemberSpecialTag(memberId, tag)
+    await familyStore.removeMemberSpecialTag(memberId, tag);
 
     const updatedMembers = props.members.map(m => {
       if (m._id === memberId) {
         return {
           ...m,
-          specialTags: m.specialTags.filter(t => t !== tag)
-        }
+          specialTags: m.specialTags.filter(t => t !== tag),
+        };
       }
-      return m
-    })
+      return m;
+    });
 
-    emit('update:members', updatedMembers)
-    ElMessage.success('移除成功')
+    emit('update:members', updatedMembers);
+    ElMessage.success('移除成功');
   } catch (error) {
-    ElMessage.error('移除失败')
-    console.error('Remove member tag error:', error)
+    ElMessage.error('移除失败');
+    console.error('Remove member tag error:', error);
   }
 }
 
 // 获取家庭类型颜色
 function getFamilyTypeColor(type) {
   const colorMap = {
-    '低保户': 'danger',
-    '残疾人家庭': 'warning',
-    '独居老人家庭': 'warning',
-    '重点帮扶对象': 'danger',
-    '模范家庭': 'success',
-    '创业家庭': 'success'
-  }
-  return colorMap[type] || 'primary'
+    低保户: 'danger',
+    残疾人家庭: 'warning',
+    独居老人家庭: 'warning',
+    重点帮扶对象: 'danger',
+    模范家庭: 'success',
+    创业家庭: 'success',
+  };
+  return colorMap[type] || 'primary';
 }
 
 // 获取特殊标签颜色
 function getSpecialTagColor(tag) {
   const colorMap = {
-    '独居老人': 'warning',
-    '残疾人': 'danger',
-    '慢性病患者': 'warning',
-    '重大疾病患者': 'danger',
-    '孕妇': 'success',
-    '婴幼儿': 'success',
-    '共产党员': 'danger',
-    '志愿者': 'success'
-  }
-  return colorMap[tag] || 'info'
+    独居老人: 'warning',
+    残疾人: 'danger',
+    慢性病患者: 'warning',
+    重大疾病患者: 'danger',
+    孕妇: 'success',
+    婴幼儿: 'success',
+    共产党员: 'danger',
+    志愿者: 'success',
+  };
+  return colorMap[tag] || 'info';
 }
 </script>
 
@@ -392,7 +371,7 @@ function getSpecialTagColor(tag) {
       justify-content: space-between;
       align-items: center;
       padding: 15px;
-      border: 1px solid #EBEEF5;
+      border: 1px solid #ebeef5;
       border-radius: 8px;
       margin-bottom: 15px;
 

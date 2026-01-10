@@ -23,12 +23,7 @@
             <el-icon><Warning /></el-icon>
             紧急呼叫
           </el-button>
-          <el-button
-            v-else
-            type="primary"
-            size="large"
-            @click="cancelEmergency"
-          >
+          <el-button v-else type="primary" size="large" @click="cancelEmergency">
             <el-icon><Close /></el-icon>
             取消警报
           </el-button>
@@ -133,11 +128,7 @@
                 >
                   处理
                 </el-button>
-                <el-button
-                  type="text"
-                  size="small"
-                  @click.stop="trackIncident(incident)"
-                >
+                <el-button type="text" size="small" @click.stop="trackIncident(incident)">
                   追踪
                 </el-button>
               </div>
@@ -188,7 +179,7 @@
         circle
         size="large"
         @click="triggerEmergency"
-        :class="{ 'active': emergencyActive }"
+        :class="{ active: emergencyActive }"
       />
     </div>
 
@@ -213,7 +204,10 @@
           <el-button type="text" @click="showCreateIncident = false">取消</el-button>
         </div>
         <div class="popup-content">
-          <CreateIncidentForm @success="handleIncidentCreated" @cancel="showCreateIncident = false" />
+          <CreateIncidentForm
+            @success="handleIncidentCreated"
+            @cancel="showCreateIncident = false"
+          />
         </div>
       </div>
     </van-popup>
@@ -234,52 +228,62 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
-  Warning, Close, Edit, Plus, ArrowRight, Location, SOS,
-  Phone, FirstAidKit, Lock, Van, Bell
-} from '@element-plus/icons-vue'
-import { VanTabs, VanTab, VanList, VanPullRefresh, VanPopup } from 'vant'
-import EmergencyContacts from './EmergencyContacts.vue'
-import CreateIncidentForm from './CreateIncidentForm.vue'
-import IncidentTracking from './IncidentTracking.vue'
+  Warning,
+  Close,
+  Edit,
+  Plus,
+  ArrowRight,
+  Location,
+  SOS,
+  Phone,
+  FirstAidKit,
+  Lock,
+  Van,
+  Bell,
+} from '@element-plus/icons-vue';
+import { VanTabs, VanTab, VanList, VanPullRefresh, VanPopup } from 'vant';
+import EmergencyContacts from './EmergencyContacts.vue';
+import CreateIncidentForm from './CreateIncidentForm.vue';
+import IncidentTracking from './IncidentTracking.vue';
 
 // 路由
-const router = useRouter()
+const router = useRouter();
 
 // 响应式数据
-const emergencyActive = ref(false)
-const emergencyLevel = ref('normal')
-const triggering = ref(false)
-const incidentFilter = ref('all')
-const refreshing = ref(false)
-const loading = ref(false)
-const finished = ref(false)
-const showEditContacts = ref(false)
-const showCreateIncident = ref(false)
-const showTracking = ref(false)
-const trackingIncident = ref(null)
+const emergencyActive = ref(false);
+const emergencyLevel = ref('normal');
+const triggering = ref(false);
+const incidentFilter = ref('all');
+const refreshing = ref(false);
+const loading = ref(false);
+const finished = ref(false);
+const showEditContacts = ref(false);
+const showCreateIncident = ref(false);
+const showTracking = ref(false);
+const trackingIncident = ref(null);
 
 // 应急状态
 const emergencyTitle = computed(() => {
   if (emergencyActive.value) {
-    return '紧急状态已激活'
+    return '紧急状态已激活';
   }
-  return '系统正常'
-})
+  return '系统正常';
+});
 
 const emergencyDesc = computed(() => {
   if (emergencyActive.value) {
-    return '所有应急响应人员已收到通知'
+    return '所有应急响应人员已收到通知';
   }
-  return '未检测到紧急事件'
-})
+  return '未检测到紧急事件';
+});
 
 const getStatusIcon = computed(() => {
-  return emergencyActive.value ? 'Warning' : 'CircleCheck'
-})
+  return emergencyActive.value ? 'Warning' : 'CircleCheck';
+});
 
 // 快速联系人
 const quickContacts = ref([
@@ -288,11 +292,11 @@ const quickContacts = ref([
   { id: 3, name: '卫生所', phone: '13800138002', type: 'medical', icon: 'FirstAidKit' },
   { id: 4, name: '派出所', phone: '110', type: 'police', icon: 'Lock' },
   { id: 5, name: '消防队', phone: '119', type: 'fire', icon: 'Bell' },
-  { id: 6, name: '救护车', phone: '120', type: 'medical', icon: 'FirstAidKit' }
-])
+  { id: 6, name: '救护车', phone: '120', type: 'medical', icon: 'FirstAidKit' },
+]);
 
 // 事件列表
-const incidents = ref([])
+const incidents = ref([]);
 
 // 应急预案
 const emergencyPlans = ref([
@@ -301,152 +305,140 @@ const emergencyPlans = ref([
     name: '防汛预案',
     description: '暴雨洪水应急响应流程',
     type: 'flood',
-    icon: 'Umbrella'
+    icon: 'Umbrella',
   },
   {
     id: 2,
     name: '火灾预案',
     description: '火灾事故应急处理方案',
     type: 'fire',
-    icon: 'FireExtinguisher'
+    icon: 'FireExtinguisher',
   },
   {
     id: 3,
     name: '疫情预案',
     description: '疫情防控应急响应措施',
     type: 'epidemic',
-    icon: 'FirstAidKit'
+    icon: 'FirstAidKit',
   },
   {
     id: 4,
     name: '地震预案',
     description: '地震灾害应急疏散方案',
     type: 'earthquake',
-    icon: 'Location'
-  }
-])
+    icon: 'Location',
+  },
+]);
 
 // 方法
 const triggerEmergency = async () => {
   if (emergencyActive.value) {
-    await cancelEmergency()
-    return
+    await cancelEmergency();
+    return;
   }
 
   try {
-    await ElMessageBox.confirm(
-      '确定要触发紧急呼叫吗？所有应急人员将收到通知。',
-      '紧急呼叫确认',
-      {
-        type: 'warning',
-        confirmButtonText: '确定',
-        cancelButtonText: '取消'
-      }
-    )
+    await ElMessageBox.confirm('确定要触发紧急呼叫吗？所有应急人员将收到通知。', '紧急呼叫确认', {
+      type: 'warning',
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+    });
 
-    triggering.value = true
+    triggering.value = true;
 
     // 触发震动和声音
     if ('vibrate' in navigator) {
-      navigator.vibrate([200, 100, 200])
+      navigator.vibrate([200, 100, 200]);
     }
 
     // 播放警报音
-    playAlarmSound()
+    playAlarmSound();
 
     // 发送紧急通知
-    await sendEmergencyAlert()
+    await sendEmergencyAlert();
 
-    emergencyActive.value = true
-    emergencyLevel.value = 'critical'
+    emergencyActive.value = true;
+    emergencyLevel.value = 'critical';
 
-    ElMessage.success('紧急呼叫已发送！')
+    ElMessage.success('紧急呼叫已发送！');
   } catch {
     // 用户取消
   } finally {
-    triggering.value = false
+    triggering.value = false;
   }
-}
+};
 
 const cancelEmergency = async () => {
   try {
-    await ElMessageBox.confirm(
-      '确定要取消紧急状态吗？',
-      '取消确认',
-      {
-        type: 'warning',
-        confirmButtonText: '确定',
-        cancelButtonText: '取消'
-      }
-    )
+    await ElMessageBox.confirm('确定要取消紧急状态吗？', '取消确认', {
+      type: 'warning',
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+    });
 
     // 停止警报
-    stopAlarmSound()
+    stopAlarmSound();
 
     // 发送取消通知
-    await sendCancelAlert()
+    await sendCancelAlert();
 
-    emergencyActive.value = false
-    emergencyLevel.value = 'normal'
+    emergencyActive.value = false;
+    emergencyLevel.value = 'normal';
 
-    ElMessage.info('紧急状态已取消')
+    ElMessage.info('紧急状态已取消');
   } catch {
     // 用户取消
   }
-}
+};
 
-const makeCall = (contact) => {
+const makeCall = contact => {
   if (contact.phone === '110' || contact.phone === '119' || contact.phone === '120') {
-    ElMessageBox.confirm(
-      `确定要拨打 ${contact.name} (${contact.phone}) 吗？`,
-      '拨打电话',
-      {
-        type: 'warning',
-        confirmButtonText: '拨打',
-        cancelButtonText: '取消'
-      }
-    ).then(() => {
-      window.location.href = `tel:${contact.phone}`
-    })
+    ElMessageBox.confirm(`确定要拨打 ${contact.name} (${contact.phone}) 吗？`, '拨打电话', {
+      type: 'warning',
+      confirmButtonText: '拨打',
+      cancelButtonText: '取消',
+    }).then(() => {
+      window.location.href = `tel:${contact.phone}`;
+    });
   } else {
-    window.location.href = `tel:${contact.phone}`
+    window.location.href = `tel:${contact.phone}`;
   }
-}
+};
 
-const maskPhone = (phone) => {
-  if (!phone || phone.length < 7) return phone
-  return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')
-}
+const maskPhone = phone => {
+  if (!phone || phone.length < 7) return phone;
+  return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
+};
 
 const onRefresh = async () => {
-  refreshing.value = true
-  incidents.value = []
-  await loadIncidents()
-  refreshing.value = false
-}
+  refreshing.value = true;
+  incidents.value = [];
+  await loadIncidents();
+  refreshing.value = false;
+};
 
 const loadIncidents = async () => {
-  if (loading.value || finished.value) return
+  if (loading.value || finished.value) return;
 
-  loading.value = true
+  loading.value = true;
 
   try {
     // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const newIncidents = generateMockIncidents()
+    const newIncidents = generateMockIncidents();
 
     if (newIncidents.length < 10) {
-      finished.value = true
+      finished.value = true;
     }
 
-    incidents.value.push(...newIncidents)
+    incidents.value.push(...newIncidents);
   } catch (error) {
-    ElMessage.error('加载失败')
+    ElMessage.error('加载失败');
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const generateMockIncidents = () => {
   const mockIncidents = [
@@ -458,7 +450,7 @@ const generateMockIncidents = () => {
       status: 'active',
       priority: 'high',
       reporter: '张三',
-      createTime: new Date()
+      createTime: new Date(),
     },
     {
       id: Date.now() + 2,
@@ -468,7 +460,7 @@ const generateMockIncidents = () => {
       status: 'resolved',
       priority: 'critical',
       reporter: '李四',
-      createTime: new Date(Date.now() - 3600000)
+      createTime: new Date(Date.now() - 3600000),
     },
     {
       id: Date.now() + 3,
@@ -478,159 +470,155 @@ const generateMockIncidents = () => {
       status: 'pending',
       priority: 'medium',
       reporter: '王五',
-      createTime: new Date(Date.now() - 7200000)
-    }
-  ]
+      createTime: new Date(Date.now() - 7200000),
+    },
+  ];
 
   // 根据筛选条件过滤
-  let filtered = mockIncidents
+  let filtered = mockIncidents;
 
   if (incidentFilter.value === 'active') {
-    filtered = mockIncidents.filter(i => i.status === 'active')
+    filtered = mockIncidents.filter(i => i.status === 'active');
   } else if (incidentFilter.value === 'resolved') {
-    filtered = mockIncidents.filter(i => i.status === 'resolved')
+    filtered = mockIncidents.filter(i => i.status === 'resolved');
   } else if (incidentFilter.value === 'my') {
-    filtered = mockIncidents.filter(i => i.reporter === '当前用户')
+    filtered = mockIncidents.filter(i => i.reporter === '当前用户');
   }
 
-  return filtered
-}
+  return filtered;
+};
 
-const getStatusType = (status) => {
+const getStatusType = status => {
   const typeMap = {
     pending: 'warning',
     active: 'danger',
-    resolved: 'success'
-  }
-  return typeMap[status] || 'info'
-}
+    resolved: 'success',
+  };
+  return typeMap[status] || 'info';
+};
 
-const getStatusText = (status) => {
+const getStatusText = status => {
   const textMap = {
     pending: '待处理',
     active: '进行中',
-    resolved: '已处理'
-  }
-  return textMap[status] || '未知'
-}
+    resolved: '已处理',
+  };
+  return textMap[status] || '未知';
+};
 
-const formatTime = (time) => {
-  const now = new Date()
-  const diff = now - time
-  const minutes = Math.floor(diff / 60000)
-  const hours = Math.floor(diff / 3600000)
+const formatTime = time => {
+  const now = new Date();
+  const diff = now - time;
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
 
-  if (minutes < 1) return '刚刚'
-  if (minutes < 60) return `${minutes}分钟前`
-  if (hours < 24) return `${hours}小时前`
-  return time.toLocaleDateString()
-}
+  if (minutes < 1) return '刚刚';
+  if (minutes < 60) return `${minutes}分钟前`;
+  if (hours < 24) return `${hours}小时前`;
+  return time.toLocaleDateString();
+};
 
-const viewIncident = (incident) => {
-  router.push(`/emergency/incident/${incident.id}`)
-}
+const viewIncident = incident => {
+  router.push(`/emergency/incident/${incident.id}`);
+};
 
-const handleIncident = (incident) => {
-  router.push(`/emergency/handle/${incident.id}`)
-}
+const handleIncident = incident => {
+  router.push(`/emergency/handle/${incident.id}`);
+};
 
-const trackIncident = (incident) => {
-  trackingIncident.value = incident
-  showTracking.value = true
-}
+const trackIncident = incident => {
+  trackingIncident.value = incident;
+  showTracking.value = true;
+};
 
-const activatePlan = (plan) => {
-  ElMessageBox.confirm(
-    `确定要激活"${plan.name}"吗？`,
-    '激活预案',
-    {
-      type: 'warning',
-      confirmButtonText: '激活',
-      cancelButtonText: '取消'
-    }
-  ).then(() => {
+const activatePlan = plan => {
+  ElMessageBox.confirm(`确定要激活"${plan.name}"吗？`, '激活预案', {
+    type: 'warning',
+    confirmButtonText: '激活',
+    cancelButtonText: '取消',
+  }).then(() => {
     // 激活预案
-    ElMessage.success(`已激活${plan.name}`)
-  })
-}
+    ElMessage.success(`已激活${plan.name}`);
+  });
+};
 
 const viewAllPlans = () => {
-  router.push('/emergency/plans')
-}
+  router.push('/emergency/plans');
+};
 
 const handleContactsSave = () => {
-  showEditContacts.value = false
-  ElMessage.success('联系人已更新')
-}
+  showEditContacts.value = false;
+  ElMessage.success('联系人已更新');
+};
 
 const handleIncidentCreated = () => {
-  showCreateIncident.value = false
-  onRefresh()
-  ElMessage.success('事件上报成功')
-}
+  showCreateIncident.value = false;
+  onRefresh();
+  ElMessage.success('事件上报成功');
+};
 
 // 音频控制
-let alarmAudio = null
+let alarmAudio = null;
 
 const playAlarmSound = () => {
   // 创建音频上下文
-  const audioContext = new (window.AudioContext || window.webkitAudioContext)()
-  const oscillator = audioContext.createOscillator()
-  const gainNode = audioContext.createGain()
+  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  const oscillator = audioContext.createOscillator();
+  const gainNode = audioContext.createGain();
 
-  oscillator.connect(gainNode)
-  gainNode.connect(audioContext.destination)
+  oscillator.connect(gainNode);
+  gainNode.connect(audioContext.destination);
 
-  oscillator.frequency.value = 800
-  oscillator.type = 'sine'
-  gainNode.gain.value = 0.3
+  oscillator.frequency.value = 800;
+  oscillator.type = 'sine';
+  gainNode.gain.value = 0.3;
 
-  oscillator.start()
-  oscillator.stop(audioContext.currentTime + 0.5)
+  oscillator.start();
+  oscillator.stop(audioContext.currentTime + 0.5);
 
   // 循环播放
   alarmAudio = setInterval(() => {
-    const osc = audioContext.createOscillator()
-    const gain = audioContext.createGain()
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
 
-    osc.connect(gain)
-    gain.connect(audioContext.destination)
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
 
-    osc.frequency.value = 800
-    osc.type = 'sine'
-    gain.gain.value = 0.3
+    osc.frequency.value = 800;
+    osc.type = 'sine';
+    gain.gain.value = 0.3;
 
-    osc.start()
-    osc.stop(audioContext.currentTime + 0.5)
-  }, 1000)
-}
+    osc.start();
+    osc.stop(audioContext.currentTime + 0.5);
+  }, 1000);
+};
 
 const stopAlarmSound = () => {
   if (alarmAudio) {
-    clearInterval(alarmAudio)
-    alarmAudio = null
+    clearInterval(alarmAudio);
+    alarmAudio = null;
   }
-}
+};
 
 // API调用
 const sendEmergencyAlert = async () => {
   // 模拟API调用
-  await new Promise(resolve => setTimeout(resolve, 500))
-}
+  await new Promise(resolve => setTimeout(resolve, 500));
+};
 
 const sendCancelAlert = async () => {
   // 模拟API调用
-  await new Promise(resolve => setTimeout(resolve, 500))
-}
+  await new Promise(resolve => setTimeout(resolve, 500));
+};
 
 // 生命周期
 onMounted(() => {
-  loadIncidents()
-})
+  loadIncidents();
+});
 
 onUnmounted(() => {
-  stopAlarmSound()
-})
+  stopAlarmSound();
+});
 </script>
 
 <style lang="scss" scoped>
@@ -1070,10 +1058,12 @@ onUnmounted(() => {
 }
 
 @keyframes blink {
-  0%, 50% {
+  0%,
+  50% {
     opacity: 1;
   }
-  51%, 100% {
+  51%,
+  100% {
     opacity: 0.5;
   }
 }

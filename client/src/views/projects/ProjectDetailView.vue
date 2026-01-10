@@ -28,11 +28,7 @@
               <el-icon><ArrowLeft /></el-icon>
               返回
             </el-button>
-            <el-button
-              type="primary"
-              @click="editProject"
-              v-if="hasPermission('project:write')"
-            >
+            <el-button type="primary" @click="editProject" v-if="hasPermission('project:write')">
               <el-icon><Edit /></el-icon>
               编辑项目
             </el-button>
@@ -74,7 +70,7 @@
             </el-col>
           </el-row>
 
-          <el-row :gutter="24" style="margin-top: 20px;">
+          <el-row :gutter="24" style="margin-top: 20px">
             <el-col :xs="24" :sm="12" :md="8">
               <div class="info-item">
                 <div class="info-label">项目预算</div>
@@ -104,7 +100,7 @@
               :percentage="project.progress"
               :color="getProgressColor(project.progress)"
               :stroke-width="12"
-              :format="(percentage) => `${percentage}%`"
+              :format="percentage => `${percentage}%`"
             />
           </div>
         </el-card>
@@ -252,22 +248,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import {
-  OfficeBuilding,
-  ArrowLeft,
-  Edit,
-  Plus,
-  UserFilled,
-  Upload
-} from '@element-plus/icons-vue'
+import { ref, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { OfficeBuilding, ArrowLeft, Edit, Plus, UserFilled, Upload } from '@element-plus/icons-vue';
 
 // 响应式数据
-const route = useRoute()
-const router = useRouter()
-const loading = ref(false)
+const route = useRoute();
+const router = useRouter();
+const loading = ref(false);
 const project = ref({
   id: null,
   name: '',
@@ -283,8 +272,8 @@ const project = ref({
   manager: '',
   milestones: [],
   team: [],
-  documents: []
-})
+  documents: [],
+});
 
 // 模拟项目数据
 const mockProjectData = {
@@ -292,7 +281,8 @@ const mockProjectData = {
     id: 1,
     name: '智慧农业大棚建设',
     type: 'infrastructure',
-    description: '建设现代化智能农业大棚，提升农业生产效率。项目采用最新的物联网技术，实现温湿度自动控制、水肥一体化管理、病虫害智能监测等功能。',
+    description:
+      '建设现代化智能农业大棚，提升农业生产效率。项目采用最新的物联网技术，实现温湿度自动控制、水肥一体化管理、病虫害智能监测等功能。',
     status: 'in_progress',
     progress: 65,
     startDate: '2024-10-01',
@@ -307,49 +297,49 @@ const mockProjectData = {
         description: '完成项目规划和设计方案',
         expectedDate: '2024-10-15',
         completedDate: '2024-10-14',
-        status: 'completed'
+        status: 'completed',
       },
       {
         name: '场地准备',
         description: '完成场地清理和平整工作',
         expectedDate: '2024-11-20',
         completedDate: '2024-11-18',
-        status: 'completed'
+        status: 'completed',
       },
       {
         name: '主体建设',
         description: '大棚主体结构建设',
         expectedDate: '2025-01-15',
         completedDate: null,
-        status: 'in_progress'
+        status: 'in_progress',
       },
       {
         name: '设备安装',
         description: '智能设备安装和调试',
         expectedDate: '2025-02-28',
         completedDate: null,
-        status: 'pending'
-      }
+        status: 'pending',
+      },
     ],
     team: [
       {
         id: 1,
         name: '张工程师',
         role: '项目经理',
-        avatar: ''
+        avatar: '',
       },
       {
         id: 2,
         name: '李技术员',
         role: '技术负责人',
-        avatar: ''
+        avatar: '',
       },
       {
         id: 3,
         name: '王施工员',
         role: '施工负责人',
-        avatar: ''
-      }
+        avatar: '',
+      },
     ],
     documents: [
       {
@@ -357,23 +347,23 @@ const mockProjectData = {
         name: '项目立项申请书.pdf',
         size: 2048576,
         uploadDate: '2024-09-20',
-        uploader: '张工程师'
+        uploader: '张工程师',
       },
       {
         id: 2,
         name: '项目设计方案.docx',
         size: 1024000,
         uploadDate: '2024-10-08',
-        uploader: '李技术员'
+        uploader: '李技术员',
       },
       {
         id: 3,
         name: '施工图纸.dwg',
         size: 5120000,
         uploadDate: '2024-11-01',
-        uploader: '王施工员'
-      }
-    ]
+        uploader: '王施工员',
+      },
+    ],
   },
   2: {
     id: 2,
@@ -394,36 +384,36 @@ const mockProjectData = {
         description: '调研村民培训需求和意愿',
         expectedDate: '2025-01-15',
         completedDate: '2025-01-14',
-        status: 'completed'
+        status: 'completed',
       },
       {
         name: '培训方案制定',
         description: '制定详细培训计划和课程安排',
         expectedDate: '2025-02-01',
         completedDate: null,
-        status: 'in_progress'
+        status: 'in_progress',
       },
       {
         name: '培训实施',
         description: '开展各类技能培训',
         expectedDate: '2025-05-31',
         completedDate: null,
-        status: 'pending'
-      }
+        status: 'pending',
+      },
     ],
     team: [
       {
         id: 4,
         name: '李老师',
         role: '项目负责人',
-        avatar: ''
+        avatar: '',
       },
       {
         id: 5,
         name: '王培训师',
         role: '培训师',
-        avatar: ''
-      }
+        avatar: '',
+      },
     ],
     documents: [
       {
@@ -431,142 +421,138 @@ const mockProjectData = {
         name: '培训需求调研报告.xlsx',
         size: 512000,
         uploadDate: '2025-01-16',
-        uploader: '李老师'
-      }
-    ]
-  }
-}
+        uploader: '李老师',
+      },
+    ],
+  },
+};
 
 // 生命周期
 onMounted(() => {
-  loadProject()
-})
+  loadProject();
+});
 
 // 方法
 const loadProject = async () => {
-  loading.value = true
+  loading.value = true;
   try {
-    const projectId = route.params.id
+    const projectId = route.params.id;
     // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 500))
+    await new Promise(resolve => setTimeout(resolve, 500));
 
-    const projectData = mockProjectData[projectId]
+    const projectData = mockProjectData[projectId];
     if (projectData) {
-      project.value = projectData
+      project.value = projectData;
     } else {
-      ElMessage.error('项目不存在')
-      router.push('/projects')
+      ElMessage.error('项目不存在');
+      router.push('/projects');
     }
   } catch (error) {
-    ElMessage.error('加载项目详情失败')
-    console.error('Load project error:', error)
+    ElMessage.error('加载项目详情失败');
+    console.error('Load project error:', error);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const editProject = () => {
-  router.push(`/projects/${project.value.id}/edit`)
-}
+  router.push(`/projects/${project.value.id}/edit`);
+};
 
 const addMilestone = () => {
-  ElMessage.info('添加里程碑功能开发中')
-}
+  ElMessage.info('添加里程碑功能开发中');
+};
 
 const addTeamMember = () => {
-  ElMessage.info('添加团队成员功能开发中')
-}
+  ElMessage.info('添加团队成员功能开发中');
+};
 
 const uploadDocument = () => {
-  ElMessage.info('上传文件功能开发中')
-}
+  ElMessage.info('上传文件功能开发中');
+};
 
-const downloadDocument = (document) => {
-  ElMessage.info(`下载文件: ${document.name}`)
-}
+const downloadDocument = document => {
+  ElMessage.info(`下载文件: ${document.name}`);
+};
 
-const deleteDocument = async (document) => {
+const deleteDocument = async document => {
   try {
-    await ElMessageBox.confirm(
-      `确定要删除文件"${document.name}"吗？`,
-      '确认删除',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
+    await ElMessageBox.confirm(`确定要删除文件"${document.name}"吗？`, '确认删除', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
 
-    ElMessage.success('文件删除成功')
+    ElMessage.success('文件删除成功');
     // 这里应该调用删除API
   } catch (error) {
     // 用户取消删除
   }
-}
+};
 
 // 辅助方法
-const formatDate = (dateString) => {
-  if (!dateString) return '-'
-  return new Date(dateString).toLocaleDateString('zh-CN')
-}
+const formatDate = dateString => {
+  if (!dateString) return '-';
+  return new Date(dateString).toLocaleDateString('zh-CN');
+};
 
-const formatFileSize = (bytes) => {
-  if (!bytes) return '0 B'
-  const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-}
+const formatFileSize = bytes => {
+  if (!bytes) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+};
 
-const getTypeTagType = (type) => {
+const getTypeTagType = type => {
   const typeMap = {
     infrastructure: 'primary',
     education: 'success',
-    welfare: 'warning'
-  }
-  return typeMap[type] || 'info'
-}
+    welfare: 'warning',
+  };
+  return typeMap[type] || 'info';
+};
 
-const getTypeLabel = (type) => {
+const getTypeLabel = type => {
   const typeMap = {
     infrastructure: '基础设施',
     education: '教育培训',
-    welfare: '福利保障'
-  }
-  return typeMap[type] || type
-}
+    welfare: '福利保障',
+  };
+  return typeMap[type] || type;
+};
 
-const getStatusTagType = (status) => {
+const getStatusTagType = status => {
   const statusMap = {
     planning: 'info',
     in_progress: 'warning',
     completed: 'success',
-    suspended: 'danger'
-  }
-  return statusMap[status] || 'info'
-}
+    suspended: 'danger',
+  };
+  return statusMap[status] || 'info';
+};
 
-const getStatusLabel = (status) => {
+const getStatusLabel = status => {
   const statusMap = {
     planning: '规划中',
     in_progress: '进行中',
     completed: '已完成',
-    suspended: '暂停'
-  }
-  return statusMap[status] || status
-}
+    suspended: '暂停',
+  };
+  return statusMap[status] || status;
+};
 
-const getProgressColor = (progress) => {
-  if (progress < 30) return '#f56c6c'
-  if (progress < 70) return '#e6a23c'
-  return '#67c23a'
-}
+const getProgressColor = progress => {
+  if (progress < 30) return '#f56c6c';
+  if (progress < 70) return '#e6a23c';
+  return '#67c23a';
+};
 
 // 权限检查
-const hasPermission = (permission) => {
+const hasPermission = permission => {
   // 模拟权限检查
-  return true
-}
+  return true;
+};
 </script>
 
 <style lang="scss" scoped>

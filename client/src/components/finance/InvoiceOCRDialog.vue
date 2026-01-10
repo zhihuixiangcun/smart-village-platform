@@ -84,11 +84,11 @@
       <!-- OCR识别结果 -->
       <div v-if="ocrResult" class="result-section">
         <h4>识别结果</h4>
-        
+
         <!-- 置信度显示 -->
         <div class="confidence-bar">
           <span>识别置信度：</span>
-          <el-progress 
+          <el-progress
             :percentage="Math.round(ocrResult.confidence * 100)"
             :color="getConfidenceColor(ocrResult.confidence)"
             :show-text="false"
@@ -101,35 +101,33 @@
           <template #header>
             <div class="card-header">
               <span>发票基本信息</span>
-              <el-tag v-if="ocrResult.confidence < 0.8" type="warning">
-                低置信度，请检查
-              </el-tag>
+              <el-tag v-if="ocrResult.confidence < 0.8" type="warning"> 低置信度，请检查 </el-tag>
             </div>
           </template>
-          
+
           <el-form :model="ocrResult" label-width="120px">
             <el-row :gutter="20">
               <el-col :span="12">
                 <el-form-item label="商户名称">
-                  <el-input 
-                    v-model="ocrResult.merchantName" 
+                  <el-input
+                    v-model="ocrResult.merchantName"
                     placeholder="商户名称"
                     :class="{ 'low-confidence': getFieldConfidence('merchantName') < 0.8 }"
                   />
                 </el-form-item>
               </el-col>
-              
+
               <el-col :span="12">
                 <el-form-item label="发票号码">
-                  <el-input 
-                    v-model="ocrResult.invoiceNumber" 
+                  <el-input
+                    v-model="ocrResult.invoiceNumber"
                     placeholder="发票号码"
                     :class="{ 'low-confidence': getFieldConfidence('invoiceNumber') < 0.8 }"
                   />
                 </el-form-item>
               </el-col>
             </el-row>
-            
+
             <el-row :gutter="20">
               <el-col :span="12">
                 <el-form-item label="总金额">
@@ -143,7 +141,7 @@
                   />
                 </el-form-item>
               </el-col>
-              
+
               <el-col :span="12">
                 <el-form-item label="税额">
                   <el-input-number
@@ -157,7 +155,7 @@
                 </el-form-item>
               </el-col>
             </el-row>
-            
+
             <el-row :gutter="20">
               <el-col :span="12">
                 <el-form-item label="开票日期">
@@ -172,11 +170,11 @@
                   />
                 </el-form-item>
               </el-col>
-              
+
               <el-col :span="12">
                 <el-form-item label="发票类型">
-                  <el-input 
-                    v-model="ocrResult.invoiceType" 
+                  <el-input
+                    v-model="ocrResult.invoiceType"
                     placeholder="发票类型"
                     :class="{ 'low-confidence': getFieldConfidence('invoiceType') < 0.8 }"
                   />
@@ -199,7 +197,7 @@
                     </el-form-item>
                   </el-col>
                 </el-row>
-                
+
                 <el-row :gutter="20" v-if="ocrResult.sellerName">
                   <el-col :span="12">
                     <el-form-item label="销售方">
@@ -212,7 +210,7 @@
                     </el-form-item>
                   </el-col>
                 </el-row>
-                
+
                 <!-- 商品明细 -->
                 <div v-if="ocrResult.items && ocrResult.items.length > 0">
                   <h5>商品明细</h5>
@@ -232,12 +230,7 @@
 
         <!-- 验证提示 -->
         <div v-if="validationErrors.length > 0" class="validation-section">
-          <el-alert
-            title="数据验证警告"
-            type="warning"
-            :closable="false"
-            show-icon
-          >
+          <el-alert title="数据验证警告" type="warning" :closable="false" show-icon>
             <ul>
               <li v-for="error in validationErrors" :key="error">{{ error }}</li>
             </ul>
@@ -258,253 +251,237 @@
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="handleClose">取消</el-button>
-        <el-button 
-          type="primary" 
-          @click="startOCR"
-          :loading="processing"
-          :disabled="!selectedFile"
-        >
+        <el-button type="primary" @click="startOCR" :loading="processing" :disabled="!selectedFile">
           开始识别
         </el-button>
-        <el-button 
-          v-if="ocrResult"
-          type="success" 
-          @click="useResult"
-        >
-          使用结果
-        </el-button>
+        <el-button v-if="ocrResult" type="success" @click="useResult"> 使用结果 </el-button>
       </div>
     </template>
   </el-dialog>
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { UploadFilled, Refresh, Picture, Crop, Loading } from '@element-plus/icons-vue'
-import { financeApi } from '@/api/project'
+import { ref, reactive, computed, watch } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { UploadFilled, Refresh, Picture, Crop, Loading } from '@element-plus/icons-vue';
+import { financeApi } from '@/api/project';
 
 const props = defineProps({
   modelValue: {
     type: Boolean,
-    default: false
-  }
-})
+    default: false,
+  },
+});
 
-const emit = defineEmits(['update:modelValue', 'recognized'])
+const emit = defineEmits(['update:modelValue', 'recognized']);
 
 // 响应式数据
-const uploadRef = ref()
-const fileList = ref([])
-const selectedFile = ref(null)
-const previewUrl = ref('')
-const processing = ref(false)
-const ocrResult = ref(null)
-const validationErrors = ref([])
-const processingTip = ref('')
+const uploadRef = ref();
+const fileList = ref([]);
+const selectedFile = ref(null);
+const previewUrl = ref('');
+const processing = ref(false);
+const ocrResult = ref(null);
+const validationErrors = ref([]);
+const processingTip = ref('');
 
 // OCR配置
 const ocrConfig = reactive({
   provider: 'baidu',
-  mode: 'high_accuracy'
-})
+  mode: 'high_accuracy',
+});
 
 // 计算属性
 const visible = computed({
   get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
-})
+  set: value => emit('update:modelValue', value),
+});
 
 const hasExtendedInfo = computed(() => {
-  return ocrResult.value && (
-    ocrResult.value.buyerName || 
-    ocrResult.value.sellerName || 
-    (ocrResult.value.items && ocrResult.value.items.length > 0)
-  )
-})
+  return (
+    ocrResult.value &&
+    (ocrResult.value.buyerName ||
+      ocrResult.value.sellerName ||
+      (ocrResult.value.items && ocrResult.value.items.length > 0))
+  );
+});
 
 // 监听器
-watch(visible, (newVal) => {
+watch(visible, newVal => {
   if (!newVal) {
-    resetDialog()
+    resetDialog();
   }
-})
+});
 
 // 方法
 const handleFileChange = (file, fileListData) => {
-  fileList.value = fileListData
-  selectedFile.value = file
-  
+  fileList.value = fileListData;
+  selectedFile.value = file;
+
   // 创建预览URL
   if (file.raw) {
-    previewUrl.value = URL.createObjectURL(file.raw)
+    previewUrl.value = URL.createObjectURL(file.raw);
   }
-  
+
   // 清除之前的结果
-  ocrResult.value = null
-  validationErrors.value = []
-}
+  ocrResult.value = null;
+  validationErrors.value = [];
+};
 
 const handleExceed = () => {
-  ElMessage.warning('只能选择一个文件进行识别')
-}
+  ElMessage.warning('只能选择一个文件进行识别');
+};
 
 const onImageLoad = () => {
   // 图片加载完成后可以进行预处理
-  console.log('图片加载完成')
-}
+  console.log('图片加载完成');
+};
 
 const rotateImage = () => {
   // 图片旋转功能
-  ElMessage.info('图片旋转功能开发中')
-}
+  ElMessage.info('图片旋转功能开发中');
+};
 
 const enhanceImage = () => {
   // 图片增强功能
-  ElMessage.info('图片增强功能开发中')
-}
+  ElMessage.info('图片增强功能开发中');
+};
 
 const cropImage = () => {
   // 图片裁剪功能
-  ElMessage.info('图片裁剪功能开发中')
-}
+  ElMessage.info('图片裁剪功能开发中');
+};
 
 const startOCR = async () => {
   if (!selectedFile.value) {
-    ElMessage.error('请先选择发票图片')
-    return
+    ElMessage.error('请先选择发票图片');
+    return;
   }
 
   try {
-    processing.value = true
-    processingTip.value = '正在上传图片...'
-    
-    setTimeout(() => {
-      processingTip.value = '正在分析图片内容...'
-    }, 1000)
-    
-    setTimeout(() => {
-      processingTip.value = '正在提取文字信息...'
-    }, 2000)
-    
-    setTimeout(() => {
-      processingTip.value = '正在验证识别结果...'
-    }, 3000)
+    processing.value = true;
+    processingTip.value = '正在上传图片...';
 
-    const response = await financeApi.processInvoiceOCR(
-      selectedFile.value.raw,
-      ocrConfig.provider
-    )
+    setTimeout(() => {
+      processingTip.value = '正在分析图片内容...';
+    }, 1000);
+
+    setTimeout(() => {
+      processingTip.value = '正在提取文字信息...';
+    }, 2000);
+
+    setTimeout(() => {
+      processingTip.value = '正在验证识别结果...';
+    }, 3000);
+
+    const response = await financeApi.processInvoiceOCR(selectedFile.value.raw, ocrConfig.provider);
 
     if (response.data.success) {
-      ocrResult.value = response.data.data
-      validateOCRResult()
-      
-      ElMessage.success(`发票识别成功，置信度：${Math.round(ocrResult.value.confidence * 100)}%`)
-    } else {
-      throw new Error(response.data.error || '识别失败')
-    }
+      ocrResult.value = response.data.data;
+      validateOCRResult();
 
+      ElMessage.success(`发票识别成功，置信度：${Math.round(ocrResult.value.confidence * 100)}%`);
+    } else {
+      throw new Error(response.data.error || '识别失败');
+    }
   } catch (error) {
-    ElMessage.error('发票识别失败：' + error.message)
+    ElMessage.error('发票识别失败：' + error.message);
   } finally {
-    processing.value = false
-    processingTip.value = ''
+    processing.value = false;
+    processingTip.value = '';
   }
-}
+};
 
 const validateOCRResult = () => {
-  validationErrors.value = []
-  
-  if (!ocrResult.value) return
-  
+  validationErrors.value = [];
+
+  if (!ocrResult.value) return;
+
   // 商户名称验证
   if (!ocrResult.value.merchantName || ocrResult.value.merchantName.trim().length === 0) {
-    validationErrors.value.push('商户名称不能为空')
+    validationErrors.value.push('商户名称不能为空');
   }
-  
+
   // 金额验证
   if (!ocrResult.value.amount || ocrResult.value.amount <= 0) {
-    validationErrors.value.push('金额必须大于0')
+    validationErrors.value.push('金额必须大于0');
   }
-  
+
   if (ocrResult.value.amount > 1000000) {
-    validationErrors.value.push('金额过大，请检查识别结果')
+    validationErrors.value.push('金额过大，请检查识别结果');
   }
-  
+
   // 税额验证
   if (ocrResult.value.taxAmount && ocrResult.value.amount) {
-    const taxRate = ocrResult.value.taxAmount / ocrResult.value.amount
+    const taxRate = ocrResult.value.taxAmount / ocrResult.value.amount;
     if (taxRate < 0 || taxRate > 0.5) {
-      validationErrors.value.push('税额与总额比例异常，请检查')
+      validationErrors.value.push('税额与总额比例异常，请检查');
     }
   }
-  
+
   // 日期验证
   if (!ocrResult.value.date) {
-    validationErrors.value.push('开票日期不能为空')
+    validationErrors.value.push('开票日期不能为空');
   } else {
-    const invoiceDate = new Date(ocrResult.value.date)
-    const now = new Date()
+    const invoiceDate = new Date(ocrResult.value.date);
+    const now = new Date();
     if (invoiceDate > now) {
-      validationErrors.value.push('开票日期不能晚于当前日期')
+      validationErrors.value.push('开票日期不能晚于当前日期');
     }
   }
-  
+
   // 发票号码验证
   if (ocrResult.value.invoiceNumber && !/^[A-Za-z0-9]{6,20}$/.test(ocrResult.value.invoiceNumber)) {
-    validationErrors.value.push('发票号码格式可能有误')
+    validationErrors.value.push('发票号码格式可能有误');
   }
-}
+};
 
-const getFieldConfidence = (field) => {
+const getFieldConfidence = field => {
   // 模拟字段级置信度
-  return ocrResult.value?.confidence || 0
-}
+  return ocrResult.value?.confidence || 0;
+};
 
-const getConfidenceColor = (confidence) => {
-  if (confidence >= 0.9) return '#67c23a'
-  if (confidence >= 0.8) return '#e6a23c'
-  return '#f56c6c'
-}
+const getConfidenceColor = confidence => {
+  if (confidence >= 0.9) return '#67c23a';
+  if (confidence >= 0.8) return '#e6a23c';
+  return '#f56c6c';
+};
 
 const useResult = () => {
   if (validationErrors.value.length > 0) {
-    ElMessageBox.confirm(
-      '检测到数据验证警告，是否仍要使用此结果？',
-      '确认使用',
-      {
-        confirmButtonText: '确定使用',
-        cancelButtonText: '继续修改',
-        type: 'warning'
-      }
-    ).then(() => {
-      emit('recognized', ocrResult.value)
-    }).catch(() => {
-      // 用户选择继续修改
+    ElMessageBox.confirm('检测到数据验证警告，是否仍要使用此结果？', '确认使用', {
+      confirmButtonText: '确定使用',
+      cancelButtonText: '继续修改',
+      type: 'warning',
     })
+      .then(() => {
+        emit('recognized', ocrResult.value);
+      })
+      .catch(() => {
+        // 用户选择继续修改
+      });
   } else {
-    emit('recognized', ocrResult.value)
+    emit('recognized', ocrResult.value);
   }
-}
+};
 
 const handleClose = () => {
-  visible.value = false
-}
+  visible.value = false;
+};
 
 const resetDialog = () => {
-  fileList.value = []
-  selectedFile.value = null
-  previewUrl.value = ''
-  ocrResult.value = null
-  validationErrors.value = []
-  processing.value = false
-  
+  fileList.value = [];
+  selectedFile.value = null;
+  previewUrl.value = '';
+  ocrResult.value = null;
+  validationErrors.value = [];
+  processing.value = false;
+
   // 清理预览URL
   if (previewUrl.value && previewUrl.value.startsWith('blob:')) {
-    URL.revokeObjectURL(previewUrl.value)
+    URL.revokeObjectURL(previewUrl.value);
   }
-}
+};
 </script>
 
 <style scoped>
@@ -710,22 +687,22 @@ const resetDialog = () => {
   .ocr-dialog {
     padding: 12px 0;
   }
-  
+
   .upload-content {
     padding: 16px;
   }
-  
+
   .upload-icon {
     font-size: 36px;
   }
-  
+
   .preview-tools {
     position: static;
     margin-top: 12px;
     background-color: transparent;
     backdrop-filter: none;
   }
-  
+
   .confidence-bar {
     flex-direction: column;
     align-items: stretch;

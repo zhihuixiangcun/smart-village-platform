@@ -14,9 +14,9 @@ export const vRipple = {
 
       const ripple = document.createElement('span');
       ripple.className = 'ripple';
-      ripple.style.width = ripple.style.height = `${size  }px`;
-      ripple.style.left = `${x  }px`;
-      ripple.style.top = `${y  }px`;
+      ripple.style.width = ripple.style.height = `${size}px`;
+      ripple.style.left = `${x}px`;
+      ripple.style.top = `${y}px`;
 
       button.appendChild(ripple);
 
@@ -28,7 +28,7 @@ export const vRipple = {
 
   beforeUnmount(el) {
     el.removeEventListener('click', createRipple);
-  }
+  },
 };
 
 // 长按指令
@@ -38,7 +38,7 @@ export const vLongPress = {
 
     let pressTimer = null;
 
-    const start = (e) => {
+    const start = e => {
       if (e.type === 'click' && e.button !== 0) return;
 
       if (pressTimer === null) {
@@ -74,32 +74,26 @@ export const vLongPress = {
     el.removeEventListener('mouseout', el._cancel);
     el.removeEventListener('touchend', el._cancel);
     el.removeEventListener('touchcancel', el._cancel);
-  }
+  },
 };
 
 // 滑动手势指令
 export const vSwipe = {
   mounted(el, binding) {
     const { value } = binding;
-    const {
-      onSwipeLeft,
-      onSwipeRight,
-      onSwipeUp,
-      onSwipeDown,
-      threshold = 50
-    } = value || {};
+    const { onSwipeLeft, onSwipeRight, onSwipeUp, onSwipeDown, threshold = 50 } = value || {};
 
     let touchStartX = 0;
     let touchStartY = 0;
     let touchEndX = 0;
     let touchEndY = 0;
 
-    const handleTouchStart = (e) => {
+    const handleTouchStart = e => {
       touchStartX = e.changedTouches[0].screenX;
       touchStartY = e.changedTouches[0].screenY;
     };
 
-    const handleTouchEnd = (e) => {
+    const handleTouchEnd = e => {
       touchEndX = e.changedTouches[0].screenX;
       touchEndY = e.changedTouches[0].screenY;
       handleSwipe();
@@ -140,20 +134,14 @@ export const vSwipe = {
   beforeUnmount(el) {
     el.removeEventListener('touchstart', el._handleTouchStart);
     el.removeEventListener('touchend', el._handleTouchEnd);
-  }
+  },
 };
 
 // 拖拽指令
 export const vDraggable = {
   mounted(el, binding) {
     const { value } = binding;
-    const {
-      axis = 'both',
-      boundary,
-      onDragStart,
-      onDrag,
-      onDragEnd
-    } = value || {};
+    const { axis = 'both', boundary, onDragStart, onDrag, onDragEnd } = value || {};
 
     let isDragging = false;
     let startX = 0;
@@ -161,7 +149,7 @@ export const vDraggable = {
     let initialLeft = 0;
     let initialTop = 0;
 
-    const handleStart = (e) => {
+    const handleStart = e => {
       isDragging = true;
       el.style.transition = 'none';
       el.style.cursor = 'grabbing';
@@ -181,7 +169,7 @@ export const vDraggable = {
       onDragStart?.(e);
     };
 
-    const handleMove = (e) => {
+    const handleMove = e => {
       if (!isDragging) return;
 
       e.preventDefault();
@@ -221,13 +209,13 @@ export const vDraggable = {
         }
       }
 
-      el.style.left = `${newLeft  }px`;
-      el.style.top = `${newTop  }px`;
+      el.style.left = `${newLeft}px`;
+      el.style.top = `${newTop}px`;
 
       onDrag?.(e, { left: newLeft, top: newTop });
     };
 
-    const handleEnd = (e) => {
+    const handleEnd = e => {
       if (!isDragging) return;
 
       isDragging = false;
@@ -252,7 +240,7 @@ export const vDraggable = {
     el._draggable = {
       handleStart,
       handleMove,
-      handleEnd
+      handleEnd,
     };
   },
 
@@ -271,25 +259,21 @@ export const vDraggable = {
       document.removeEventListener('mouseup', handleEnd);
       document.removeEventListener('touchend', handleEnd);
     }
-  }
+  },
 };
 
 // 虚拟滚动指令（用于长列表优化）
 export const vVirtualScroll = {
   mounted(el, binding) {
     const { value } = binding;
-    const {
-      items = [],
-      itemHeight = 50,
-      bufferSize = 5
-    } = value || {};
+    const { items = [], itemHeight = 50, bufferSize = 5 } = value || {};
 
     const state = {
       scrollTop: 0,
       containerHeight: el.clientHeight,
       startIndex: 0,
       endIndex: 0,
-      visibleItems: []
+      visibleItems: [],
     };
 
     const updateVisibleItems = () => {
@@ -303,15 +287,15 @@ export const vVirtualScroll = {
 
       // 更新DOM
       el.innerHTML = '';
-      el.style.height = `${items.length * itemHeight  }px`;
+      el.style.height = `${items.length * itemHeight}px`;
       el.style.position = 'relative';
 
       state.visibleItems.forEach((item, index) => {
         const itemEl = document.createElement('div');
         itemEl.style.position = 'absolute';
-        itemEl.style.top = `${(state.startIndex + index) * itemHeight  }px`;
+        itemEl.style.top = `${(state.startIndex + index) * itemHeight}px`;
         itemEl.style.width = '100%';
-        itemEl.style.height = `${itemHeight  }px`;
+        itemEl.style.height = `${itemHeight}px`;
         itemEl.innerHTML = binding.arg ? binding.arg(item) : item;
         el.appendChild(itemEl);
       });
@@ -331,7 +315,7 @@ export const vVirtualScroll = {
     el._virtualScroll = {
       handleScroll,
       update: updateVisibleItems,
-      state
+      state,
     };
   },
 
@@ -349,7 +333,7 @@ export const vVirtualScroll = {
     if (handleScroll) {
       el.removeEventListener('scroll', handleScroll);
     }
-  }
+  },
 };
 
 // 防抖指令
@@ -375,7 +359,7 @@ export const vDebounce = {
     if (el._debounceTimer) {
       clearTimeout(el._debounceTimer);
     }
-  }
+  },
 };
 
 // 节流指令
@@ -400,7 +384,7 @@ export const vThrottle = {
     if (el._throttleTimer) {
       clearTimeout(el._throttleTimer);
     }
-  }
+  },
 };
 
 // 复制到剪贴板指令
@@ -416,7 +400,7 @@ export const vCopy = {
 
   beforeUnmount(el) {
     el.removeEventListener('click', handleClick);
-  }
+  },
 };
 
 function handleClick() {

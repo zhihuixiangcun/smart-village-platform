@@ -99,7 +99,7 @@ class ModerationService {
         result.issues.push({
           type: patternName,
           severity: patternName === 'phone' || patternName === 'idCard' ? 'high' : 'medium',
-          matches: matches,
+          matches,
           message: `检测到${this.getPatternName(patternName)}信息`
         });
       }
@@ -170,12 +170,12 @@ class ModerationService {
 
     // 脱敏手机号
     masked = masked.replace(this.patterns.phone, (match) => {
-      return match.substring(0, 3) + '****' + match.substring(7);
+      return `${match.substring(0, 3)  }****${  match.substring(7)}`;
     });
 
     // 脱敏身份证号
     masked = masked.replace(this.patterns.idCard, (match) => {
-      return match.substring(0, 6) + '********' + match.substring(14);
+      return `${match.substring(0, 6)  }********${  match.substring(14)}`;
     });
 
     return masked;

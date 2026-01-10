@@ -1,18 +1,9 @@
 <template>
-  <el-dialog
-    v-model="visible"
-    title="在线办证服务"
-    width="900px"
-    :before-close="handleClose"
-  >
+  <el-dialog v-model="visible" title="在线办证服务" width="900px" :before-close="handleClose">
     <div class="certificate-service">
       <!-- 服务导航 -->
       <div class="service-nav">
-        <el-steps
-          :active="currentStep"
-          finish-status="success"
-          align-center
-        >
+        <el-steps :active="currentStep" finish-status="success" align-center>
           <el-step title="选择证件类型" icon="Menu" />
           <el-step title="填写申请信息" icon="EditPen" />
           <el-step title="上传材料" icon="Upload" />
@@ -86,18 +77,12 @@
             <el-row :gutter="20">
               <el-col :span="12">
                 <el-form-item label="联系电话" prop="applicantPhone">
-                  <el-input
-                    v-model="applicationForm.applicantPhone"
-                    placeholder="请输入联系电话"
-                  />
+                  <el-input v-model="applicationForm.applicantPhone" placeholder="请输入联系电话" />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
                 <el-form-item label="现住地址" prop="currentAddress">
-                  <el-input
-                    v-model="applicationForm.currentAddress"
-                    placeholder="请输入现住地址"
-                  />
+                  <el-input v-model="applicationForm.currentAddress" placeholder="请输入现住地址" />
                 </el-form-item>
               </el-col>
             </el-row>
@@ -182,11 +167,7 @@
             </template>
 
             <div class="material-list">
-              <div
-                v-for="material in requiredMaterials"
-                :key="material.id"
-                class="material-item"
-              >
+              <div v-for="material in requiredMaterials" :key="material.id" class="material-item">
                 <div class="material-info">
                   <h5>{{ material.name }}</h5>
                   <p>{{ material.description }}</p>
@@ -195,16 +176,14 @@
                   <el-upload
                     :action="uploadAction"
                     :file-list="material.files || []"
-                    :before-upload="(file) => beforeUpload(file, material.id)"
+                    :before-upload="file => beforeUpload(file, material.id)"
                     :on-success="(res, file) => handleUploadSuccess(res, file, material.id)"
-                    :on-remove="(file) => handleFileRemove(file, material.id)"
+                    :on-remove="file => handleFileRemove(file, material.id)"
                     accept="image/*,.pdf"
                     list-type="text"
                     :limit="material.maxFiles || 5"
                   >
-                    <el-button size="small" type="primary" icon="Upload">
-                      选择文件
-                    </el-button>
+                    <el-button size="small" type="primary" icon="Upload"> 选择文件 </el-button>
                   </el-upload>
                 </div>
               </div>
@@ -217,11 +196,7 @@
             </template>
 
             <div class="material-list">
-              <div
-                v-for="material in optionalMaterials"
-                :key="material.id"
-                class="material-item"
-              >
+              <div v-for="material in optionalMaterials" :key="material.id" class="material-item">
                 <div class="material-info">
                   <h5>{{ material.name }}</h5>
                   <p>{{ material.description }}</p>
@@ -230,16 +205,14 @@
                   <el-upload
                     :action="uploadAction"
                     :file-list="material.files || []"
-                    :before-upload="(file) => beforeUpload(file, material.id)"
+                    :before-upload="file => beforeUpload(file, material.id)"
                     :on-success="(res, file) => handleUploadSuccess(res, file, material.id)"
-                    :on-remove="(file) => handleFileRemove(file, material.id)"
+                    :on-remove="file => handleFileRemove(file, material.id)"
                     accept="image/*,.pdf"
                     list-type="text"
                     :limit="material.maxFiles || 3"
                   >
-                    <el-button size="small" type="success" icon="Upload">
-                      选择文件
-                    </el-button>
+                    <el-button size="small" type="success" icon="Upload"> 选择文件 </el-button>
                   </el-upload>
                 </div>
               </div>
@@ -253,9 +226,7 @@
             <span>智能识别 (实验功能)</span>
           </template>
           <div class="ocr-features">
-            <el-button type="info" icon="Camera" @click="startOCR">
-              拍照识别证件信息
-            </el-button>
+            <el-button type="info" icon="Camera" @click="startOCR"> 拍照识别证件信息 </el-button>
             <el-button type="warning" icon="Picture" @click="uploadForOCR">
               上传图片识别
             </el-button>
@@ -279,10 +250,18 @@
             <div class="confirm-section">
               <h4>申请人信息</h4>
               <el-descriptions :column="2" border>
-                <el-descriptions-item label="姓名">{{ applicationForm.applicantName }}</el-descriptions-item>
-                <el-descriptions-item label="身份证号">{{ maskIdCard(applicationForm.applicantIdCard) }}</el-descriptions-item>
-                <el-descriptions-item label="联系电话">{{ applicationForm.applicantPhone }}</el-descriptions-item>
-                <el-descriptions-item label="现住地址">{{ applicationForm.currentAddress }}</el-descriptions-item>
+                <el-descriptions-item label="姓名">{{
+                  applicationForm.applicantName
+                }}</el-descriptions-item>
+                <el-descriptions-item label="身份证号">{{
+                  maskIdCard(applicationForm.applicantIdCard)
+                }}</el-descriptions-item>
+                <el-descriptions-item label="联系电话">{{
+                  applicationForm.applicantPhone
+                }}</el-descriptions-item>
+                <el-descriptions-item label="现住地址">{{
+                  applicationForm.currentAddress
+                }}</el-descriptions-item>
               </el-descriptions>
             </div>
 
@@ -302,17 +281,13 @@
             <!-- 申请声明 -->
             <div class="confirm-section">
               <h4>申请声明</h4>
-              <el-alert
-                title="请仔细阅读以下声明"
-                type="info"
-                :closable="false"
-              >
+              <el-alert title="请仔细阅读以下声明" type="info" :closable="false">
                 <p>1. 本人确认所填写的信息真实有效，如有虚假信息愿承担相应责任；</p>
                 <p>2. 本人同意村委会对申请材料进行审核，并配合提供补充材料；</p>
                 <p>3. 本人了解证件办理时间为{{ selectedType?.processingDays }}个工作日；</p>
                 <p>4. 证件办理完成后将通过短信或电话方式通知本人领取。</p>
               </el-alert>
-              <el-checkbox v-model="agreeDeclaration" style="margin-top: 15px;">
+              <el-checkbox v-model="agreeDeclaration" style="margin-top: 15px">
                 本人已阅读并同意以上声明
               </el-checkbox>
             </div>
@@ -350,9 +325,7 @@
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="handleClose">关闭</el-button>
-        <el-button v-if="currentStep > 0 && !showProgress" @click="prevStep">
-          上一步
-        </el-button>
+        <el-button v-if="currentStep > 0 && !showProgress" @click="prevStep"> 上一步 </el-button>
         <el-button
           v-if="currentStep < 3 && !showProgress"
           type="primary"
@@ -374,11 +347,7 @@
     </template>
 
     <!-- OCR识别对话框 -->
-    <el-dialog
-      v-model="ocrDialogVisible"
-      title="证件信息识别"
-      width="500px"
-    >
+    <el-dialog v-model="ocrDialogVisible" title="证件信息识别" width="500px">
       <div class="ocr-dialog">
         <div class="upload-area">
           <el-upload
@@ -391,13 +360,9 @@
             :show-file-list="false"
           >
             <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-            <div class="el-upload__text">
-              将证件照片拖到此处，或<em>点击上传</em>
-            </div>
+            <div class="el-upload__text">将证件照片拖到此处，或<em>点击上传</em></div>
             <template #tip>
-              <div class="el-upload__tip">
-                支持jpg/png文件，且不超过5MB
-              </div>
+              <div class="el-upload__tip">支持jpg/png文件，且不超过5MB</div>
             </template>
           </el-upload>
         </div>
@@ -416,12 +381,8 @@
             </el-form-item>
           </el-form>
           <div class="ocr-actions">
-            <el-button type="primary" @click="applyOCRResult">
-              应用识别结果
-            </el-button>
-            <el-button @click="clearOCRResult">
-              重新识别
-            </el-button>
+            <el-button type="primary" @click="applyOCRResult"> 应用识别结果 </el-button>
+            <el-button @click="clearOCRResult"> 重新识别 </el-button>
           </div>
         </div>
       </div>
@@ -430,36 +391,45 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, reactive, computed, watch, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
-  Document, CreditCard, House, Money, Menu, EditPen,
-  Upload, Check, Camera, Picture, UploadFilled
-} from '@element-plus/icons-vue'
-import { certificateAPI } from '@/api/certificate'
+  Document,
+  CreditCard,
+  House,
+  Money,
+  Menu,
+  EditPen,
+  Upload,
+  Check,
+  Camera,
+  Picture,
+  UploadFilled,
+} from '@element-plus/icons-vue';
+import { certificateAPI } from '@/api/certificate';
 
 // Props
 const props = defineProps({
   modelValue: {
     type: Boolean,
-    default: false
+    default: false,
   },
   resident: {
     type: Object,
-    default: null
-  }
-})
+    default: null,
+  },
+});
 
 // Emits
-const emit = defineEmits(['update:modelValue', 'success'])
+const emit = defineEmits(['update:modelValue', 'success']);
 
 // 响应式数据
-const visible = ref(false)
-const currentStep = ref(0)
-const submitting = ref(false)
-const showProgress = ref(false)
-const agreeDeclaration = ref(false)
-const applicationNumber = ref('')
+const visible = ref(false);
+const currentStep = ref(0);
+const submitting = ref(false);
+const showProgress = ref(false);
+const agreeDeclaration = ref(false);
+const applicationNumber = ref('');
 
 // 证件类型
 const certificateTypes = ref([
@@ -470,7 +440,7 @@ const certificateTypes = ref([
     icon: 'House',
     processingDays: 3,
     feeRequired: false,
-    fee: 0
+    fee: 0,
   },
   {
     id: 'residence_proof',
@@ -479,7 +449,7 @@ const certificateTypes = ref([
     icon: 'House',
     processingDays: 2,
     feeRequired: false,
-    fee: 0
+    fee: 0,
   },
   {
     id: 'income_proof',
@@ -488,7 +458,7 @@ const certificateTypes = ref([
     icon: 'Money',
     processingDays: 5,
     feeRequired: false,
-    fee: 0
+    fee: 0,
   },
   {
     id: 'identity_proof',
@@ -497,7 +467,7 @@ const certificateTypes = ref([
     icon: 'CreditCard',
     processingDays: 1,
     feeRequired: false,
-    fee: 0
+    fee: 0,
   },
   {
     id: 'family_proof',
@@ -506,7 +476,7 @@ const certificateTypes = ref([
     icon: 'Document',
     processingDays: 3,
     feeRequired: false,
-    fee: 0
+    fee: 0,
   },
   {
     id: 'unmarried_proof',
@@ -515,14 +485,14 @@ const certificateTypes = ref([
     icon: 'Document',
     processingDays: 2,
     feeRequired: true,
-    fee: 10
-  }
-])
+    fee: 10,
+  },
+]);
 
-const selectedType = ref(null)
+const selectedType = ref(null);
 
 // 申请表单
-const applicationFormRef = ref()
+const applicationFormRef = ref();
 const applicationForm = reactive({
   applicantName: '',
   applicantIdCard: '',
@@ -536,257 +506,269 @@ const applicationForm = reactive({
   houseType: '',
   // 收入证明相关
   annualIncome: 0,
-  incomeSource: []
-})
+  incomeSource: [],
+});
 
 // 表单验证规则
 const applicationRules = {
-  applicantName: [
-    { required: true, message: '请输入申请人姓名', trigger: 'blur' }
-  ],
+  applicantName: [{ required: true, message: '请输入申请人姓名', trigger: 'blur' }],
   applicantIdCard: [
     { required: true, message: '请输入身份证号码', trigger: 'blur' },
-    { pattern: /^[1-9]\d{5}(18|19|20)\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/, message: '身份证号格式不正确', trigger: 'blur' }
+    {
+      pattern:
+        /^[1-9]\d{5}(18|19|20)\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/,
+      message: '身份证号格式不正确',
+      trigger: 'blur',
+    },
   ],
   applicantPhone: [
     { required: true, message: '请输入联系电话', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确', trigger: 'blur' }
+    { pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确', trigger: 'blur' },
   ],
-  currentAddress: [
-    { required: true, message: '请输入现住地址', trigger: 'blur' }
-  ]
-}
+  currentAddress: [{ required: true, message: '请输入现住地址', trigger: 'blur' }],
+};
 
 // 上传相关
-const uploadAction = '/api/upload/certificate'
-const requiredMaterials = ref([])
-const optionalMaterials = ref([])
+const uploadAction = '/api/upload/certificate';
+const requiredMaterials = ref([]);
+const optionalMaterials = ref([]);
 
 // OCR识别
-const ocrDialogVisible = ref(false)
-const ocrResult = ref(null)
+const ocrDialogVisible = ref(false);
+const ocrResult = ref(null);
 
 // 申请进度
-const progressSteps = ref([])
+const progressSteps = ref([]);
 
 // 计算属性
 const canProceedToNext = computed(() => {
   switch (currentStep.value) {
     case 0:
-      return selectedType.value !== null
+      return selectedType.value !== null;
     case 1:
-      return applicationFormRef.value?.validate ? true : false
+      return applicationFormRef.value?.validate ? true : false;
     case 2:
-      return completedRequiredMaterials.value === requiredMaterials.value.length
+      return completedRequiredMaterials.value === requiredMaterials.value.length;
     default:
-      return true
+      return true;
   }
-})
+});
 
 const completedRequiredMaterials = computed(() => {
-  return requiredMaterials.value.filter(material =>
-    material.files && material.files.length > 0
-  ).length
-})
+  return requiredMaterials.value.filter(material => material.files && material.files.length > 0)
+    .length;
+});
 
 const completedOptionalMaterials = computed(() => {
-  return optionalMaterials.value.filter(material =>
-    material.files && material.files.length > 0
-  ).length
-})
+  return optionalMaterials.value.filter(material => material.files && material.files.length > 0)
+    .length;
+});
 
 // 监听器
-watch(() => props.modelValue, (val) => {
-  visible.value = val
-  if (val && props.resident) {
-    // 自动填充居民信息
-    applicationForm.applicantName = props.resident.name
-    applicationForm.applicantIdCard = props.resident.idCard
-    applicationForm.applicantPhone = props.resident.phone
-    applicationForm.currentAddress = props.resident.address
+watch(
+  () => props.modelValue,
+  val => {
+    visible.value = val;
+    if (val && props.resident) {
+      // 自动填充居民信息
+      applicationForm.applicantName = props.resident.name;
+      applicationForm.applicantIdCard = props.resident.idCard;
+      applicationForm.applicantPhone = props.resident.phone;
+      applicationForm.currentAddress = props.resident.address;
+    }
   }
-})
+);
 
-watch(visible, (val) => {
-  emit('update:modelValue', val)
-})
+watch(visible, val => {
+  emit('update:modelValue', val);
+});
 
-watch(selectedType, (newType) => {
+watch(selectedType, newType => {
   if (newType) {
-    updateMaterialRequirements()
+    updateMaterialRequirements();
   }
-})
+});
 
 // 方法
-const selectCertificateType = (type) => {
-  selectedType.value = type
-}
+const selectCertificateType = type => {
+  selectedType.value = type;
+};
 
 const updateMaterialRequirements = () => {
-  const type = selectedType.value
-  if (!type) return
+  const type = selectedType.value;
+  if (!type) return;
 
   // 根据证件类型设置材料要求
   const materialMap = {
     household_proof: {
       required: [
         { id: 'id_card', name: '申请人身份证', description: '申请人身份证正反面照片', files: [] },
-        { id: 'household_book', name: '户口本', description: '户口本首页和本人页照片', files: [] }
+        { id: 'household_book', name: '户口本', description: '户口本首页和本人页照片', files: [] },
       ],
       optional: [
-        { id: 'authorization', name: '委托书', description: '如代办需提供委托书', files: [] }
-      ]
+        { id: 'authorization', name: '委托书', description: '如代办需提供委托书', files: [] },
+      ],
     },
     residence_proof: {
       required: [
         { id: 'id_card', name: '申请人身份证', description: '申请人身份证正反面照片', files: [] },
-        { id: 'residence_contract', name: '居住证明', description: '房屋租赁合同或房产证', files: [] }
+        {
+          id: 'residence_contract',
+          name: '居住证明',
+          description: '房屋租赁合同或房产证',
+          files: [],
+        },
       ],
       optional: [
-        { id: 'utility_bills', name: '水电费单据', description: '近3个月水电费缴费单据', files: [] }
-      ]
+        {
+          id: 'utility_bills',
+          name: '水电费单据',
+          description: '近3个月水电费缴费单据',
+          files: [],
+        },
+      ],
     },
     income_proof: {
       required: [
         { id: 'id_card', name: '申请人身份证', description: '申请人身份证正反面照片', files: [] },
-        { id: 'bank_statements', name: '银行流水', description: '近6个月银行流水', files: [] }
+        { id: 'bank_statements', name: '银行流水', description: '近6个月银行流水', files: [] },
       ],
       optional: [
         { id: 'work_certificate', name: '工作证明', description: '如有工作单位需提供', files: [] },
-        { id: 'business_license', name: '营业执照', description: '如有经营活动需提供', files: [] }
-      ]
-    }
-  }
+        { id: 'business_license', name: '营业执照', description: '如有经营活动需提供', files: [] },
+      ],
+    },
+  };
 
-  const materials = materialMap[type.id] || { required: [], optional: [] }
-  requiredMaterials.value = materials.required
-  optionalMaterials.value = materials.optional
-}
+  const materials = materialMap[type.id] || { required: [], optional: [] };
+  requiredMaterials.value = materials.required;
+  optionalMaterials.value = materials.optional;
+};
 
 const nextStep = async () => {
   if (currentStep.value === 1) {
     // 验证表单
-    const valid = await applicationFormRef.value.validate()
-    if (!valid) return
+    const valid = await applicationFormRef.value.validate();
+    if (!valid) return;
   }
 
   if (currentStep.value < 3) {
-    currentStep.value++
+    currentStep.value++;
   }
-}
+};
 
 const prevStep = () => {
   if (currentStep.value > 0) {
-    currentStep.value--
+    currentStep.value--;
   }
-}
+};
 
 const beforeUpload = (file, materialId) => {
-  const isValidType = file.type.startsWith('image/') || file.type === 'application/pdf'
-  const isValidSize = file.size / 1024 / 1024 < 10
+  const isValidType = file.type.startsWith('image/') || file.type === 'application/pdf';
+  const isValidSize = file.size / 1024 / 1024 < 10;
 
   if (!isValidType) {
-    ElMessage.error('只支持图片和PDF文件!')
-    return false
+    ElMessage.error('只支持图片和PDF文件!');
+    return false;
   }
   if (!isValidSize) {
-    ElMessage.error('文件大小不能超过10MB!')
-    return false
+    ElMessage.error('文件大小不能超过10MB!');
+    return false;
   }
 
-  return true
-}
+  return true;
+};
 
 const handleUploadSuccess = (response, file, materialId) => {
   if (response.success) {
     // 找到对应的材料并添加文件
-    const allMaterials = [...requiredMaterials.value, ...optionalMaterials.value]
-    const material = allMaterials.find(m => m.id === materialId)
+    const allMaterials = [...requiredMaterials.value, ...optionalMaterials.value];
+    const material = allMaterials.find(m => m.id === materialId);
     if (material) {
-      if (!material.files) material.files = []
+      if (!material.files) material.files = [];
       material.files.push({
         name: file.name,
         url: response.data.url,
-        uid: file.uid
-      })
+        uid: file.uid,
+      });
     }
-    ElMessage.success('上传成功')
+    ElMessage.success('上传成功');
   } else {
-    ElMessage.error(response.message || '上传失败')
+    ElMessage.error(response.message || '上传失败');
   }
-}
+};
 
 const handleFileRemove = (file, materialId) => {
-  const allMaterials = [...requiredMaterials.value, ...optionalMaterials.value]
-  const material = allMaterials.find(m => m.id === materialId)
+  const allMaterials = [...requiredMaterials.value, ...optionalMaterials.value];
+  const material = allMaterials.find(m => m.id === materialId);
   if (material && material.files) {
-    const index = material.files.findIndex(f => f.uid === file.uid)
+    const index = material.files.findIndex(f => f.uid === file.uid);
     if (index > -1) {
-      material.files.splice(index, 1)
+      material.files.splice(index, 1);
     }
   }
-}
+};
 
 const startOCR = () => {
-  ocrDialogVisible.value = true
-}
+  ocrDialogVisible.value = true;
+};
 
 const uploadForOCR = () => {
-  ocrDialogVisible.value = true
-}
+  ocrDialogVisible.value = true;
+};
 
-const beforeOCRUpload = (file) => {
-  const isValidType = file.type.startsWith('image/')
-  const isValidSize = file.size / 1024 / 1024 < 5
+const beforeOCRUpload = file => {
+  const isValidType = file.type.startsWith('image/');
+  const isValidSize = file.size / 1024 / 1024 < 5;
 
   if (!isValidType) {
-    ElMessage.error('只支持图片文件!')
-    return false
+    ElMessage.error('只支持图片文件!');
+    return false;
   }
   if (!isValidSize) {
-    ElMessage.error('图片大小不能超过5MB!')
-    return false
+    ElMessage.error('图片大小不能超过5MB!');
+    return false;
   }
 
-  return true
-}
+  return true;
+};
 
-const handleOCRSuccess = async (response) => {
+const handleOCRSuccess = async response => {
   if (response.success) {
-    ocrResult.value = response.data
-    ElMessage.success('识别成功')
+    ocrResult.value = response.data;
+    ElMessage.success('识别成功');
   } else {
-    ElMessage.error('识别失败: ' + (response.message || '未知错误'))
+    ElMessage.error('识别失败: ' + (response.message || '未知错误'));
   }
-}
+};
 
-const handleOCRError = (error) => {
-  console.error('OCR识别错误:', error)
-  ElMessage.error('识别失败，请重试')
-}
+const handleOCRError = error => {
+  console.error('OCR识别错误:', error);
+  ElMessage.error('识别失败，请重试');
+};
 
 const applyOCRResult = () => {
   if (ocrResult.value) {
-    applicationForm.applicantName = ocrResult.value.name || applicationForm.applicantName
-    applicationForm.applicantIdCard = ocrResult.value.idCard || applicationForm.applicantIdCard
-    applicationForm.currentAddress = ocrResult.value.address || applicationForm.currentAddress
+    applicationForm.applicantName = ocrResult.value.name || applicationForm.applicantName;
+    applicationForm.applicantIdCard = ocrResult.value.idCard || applicationForm.applicantIdCard;
+    applicationForm.currentAddress = ocrResult.value.address || applicationForm.currentAddress;
 
-    ElMessage.success('已应用识别结果')
-    ocrDialogVisible.value = false
+    ElMessage.success('已应用识别结果');
+    ocrDialogVisible.value = false;
   }
-}
+};
 
 const clearOCRResult = () => {
-  ocrResult.value = null
-}
+  ocrResult.value = null;
+};
 
 const submitApplication = async () => {
   if (!agreeDeclaration.value) {
-    ElMessage.warning('请先同意申请声明')
-    return
+    ElMessage.warning('请先同意申请声明');
+    return;
   }
 
-  submitting.value = true
+  submitting.value = true;
 
   try {
     // 构建提交数据
@@ -796,50 +778,50 @@ const submitApplication = async () => {
         name: applicationForm.applicantName,
         idCard: applicationForm.applicantIdCard,
         phone: applicationForm.applicantPhone,
-        address: applicationForm.currentAddress
+        address: applicationForm.currentAddress,
       },
       specificInfo: {},
-      materials: []
-    }
+      materials: [],
+    };
 
     // 添加证件特定信息
     if (selectedType.value.id === 'household_proof') {
       submitData.specificInfo = {
         proofPurpose: applicationForm.proofPurpose,
-        familyMembers: applicationForm.familyMembers
-      }
+        familyMembers: applicationForm.familyMembers,
+      };
     } else if (selectedType.value.id === 'residence_proof') {
       submitData.specificInfo = {
         residenceStartDate: applicationForm.residenceStartDate,
-        houseType: applicationForm.houseType
-      }
+        houseType: applicationForm.houseType,
+      };
     } else if (selectedType.value.id === 'income_proof') {
       submitData.specificInfo = {
         annualIncome: applicationForm.annualIncome,
-        incomeSource: applicationForm.incomeSource
-      }
+        incomeSource: applicationForm.incomeSource,
+      };
     }
 
     // 添加上传的材料
-    const allMaterials = [...requiredMaterials.value, ...optionalMaterials.value]
+    const allMaterials = [...requiredMaterials.value, ...optionalMaterials.value];
     allMaterials.forEach(material => {
       if (material.files && material.files.length > 0) {
         submitData.materials.push({
           materialType: material.id,
           files: material.files.map(file => ({
             name: file.name,
-            url: file.url
-          }))
-        })
+            url: file.url,
+          })),
+        });
       }
-    })
+    });
 
     // 调用API提交申请
-    const response = await certificateAPI.submitApplication(submitData)
+    const response = await certificateAPI.submitApplication(submitData);
 
     if (response.success) {
       // 生成申请编号
-      applicationNumber.value = response.data.applicationNumber
+      applicationNumber.value = response.data.applicationNumber;
 
       // 设置进度步骤
       progressSteps.value = [
@@ -849,7 +831,7 @@ const submitApplication = async () => {
           description: '您的申请已成功提交，等待初审',
           timestamp: new Date().toLocaleString(),
           type: 'primary',
-          icon: 'Check'
+          icon: 'Check',
         },
         {
           id: 2,
@@ -857,84 +839,83 @@ const submitApplication = async () => {
           description: '村委会将在1个工作日内进行初审',
           timestamp: '',
           type: 'info',
-          icon: 'Clock'
-        }
-      ]
+          icon: 'Clock',
+        },
+      ];
 
-      showProgress.value = true
-      currentStep.value = 0
+      showProgress.value = true;
+      currentStep.value = 0;
 
-      ElMessage.success('申请提交成功！')
+      ElMessage.success('申请提交成功！');
       emit('success', {
         type: selectedType.value,
         applicationNumber: applicationNumber.value,
-        applicant: applicationForm
-      })
+        applicant: applicationForm,
+      });
     } else {
-      ElMessage.error(response.message || '提交失败')
+      ElMessage.error(response.message || '提交失败');
     }
-
   } catch (error) {
-    console.error('提交申请失败:', error)
-    ElMessage.error('提交失败，请重试')
+    console.error('提交申请失败:', error);
+    ElMessage.error('提交失败，请重试');
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
-}
+};
 
-const maskIdCard = (idCard) => {
-  if (!idCard) return ''
-  return idCard.replace(/^(.{6}).*(.{4})$/, '$1**********$2')
-}
+const maskIdCard = idCard => {
+  if (!idCard) return '';
+  return idCard.replace(/^(.{6}).*(.{4})$/, '$1**********$2');
+};
 
 const handleClose = () => {
   if (currentStep.value > 0 || showProgress.value) {
     ElMessageBox.confirm('确定要关闭申请流程吗？未保存的信息将丢失。')
       .then(() => {
-        resetForm()
-        visible.value = false
+        resetForm();
+        visible.value = false;
       })
-      .catch(() => {})
+      .catch(() => {});
   } else {
-    visible.value = false
+    visible.value = false;
   }
-}
+};
 
 const resetForm = () => {
-  currentStep.value = 0
-  showProgress.value = false
-  selectedType.value = null
-  agreeDeclaration.value = false
-  applicationNumber.value = ''
+  currentStep.value = 0;
+  showProgress.value = false;
+  selectedType.value = null;
+  agreeDeclaration.value = false;
+  applicationNumber.value = '';
 
   // 重置表单
   Object.keys(applicationForm).forEach(key => {
     if (typeof applicationForm[key] === 'string') {
-      applicationForm[key] = ''
+      applicationForm[key] = '';
     } else if (Array.isArray(applicationForm[key])) {
-      applicationForm[key] = []
+      applicationForm[key] = [];
     } else {
-      applicationForm[key] = 0
+      applicationForm[key] = 0;
     }
-  })
+  });
 
   // 清空上传文件
   requiredMaterials.value.forEach(material => {
-    material.files = []
-  })
+    material.files = [];
+  });
   optionalMaterials.value.forEach(material => {
-    material.files = []
-  })
+    material.files = [];
+  });
 
   // 清空OCR结果
-  ocrResult.value = null
-  progressSteps.value = []
-}
+  ocrResult.value = null;
+  progressSteps.value = [];
+};
 
 // 生命周期
 onMounted(() => {
   // 初始化
-})
+});
 </script>
 
 <style lang="scss" scoped>

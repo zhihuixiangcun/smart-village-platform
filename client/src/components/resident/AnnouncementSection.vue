@@ -79,18 +79,14 @@
       </div>
     </div>
 
-    <el-empty
-      v-if="displayedAnnouncements.length === 0"
-      description="暂无公告"
-      :image-size="100"
-    />
+    <el-empty v-if="displayedAnnouncements.length === 0" description="暂无公告" :image-size="100" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
   Bell,
   ArrowRight,
@@ -100,29 +96,29 @@ import {
   Document,
   Notification,
   InfoFilled,
-  Warning
-} from '@element-plus/icons-vue'
-import { useFontSize } from '@/composables/useFontSize'
+  Warning,
+} from '@element-plus/icons-vue';
+import { useFontSize } from '@/composables/useFontSize';
 
 interface Announcement {
-  id: string
-  title: string
-  summary: string
-  type: 'policy' | 'notice' | 'urgent' | 'info'
-  content: string
-  publishTime: string
-  viewCount: number
-  isNew?: boolean
-  dialectContent?: string
+  id: string;
+  title: string;
+  summary: string;
+  type: 'policy' | 'notice' | 'urgent' | 'info';
+  content: string;
+  publishTime: string;
+  viewCount: number;
+  isNew?: boolean;
+  dialectContent?: string;
 }
 
-const router = useRouter()
-const { isLargeText } = useFontSize()
+const router = useRouter();
+const { isLargeText } = useFontSize();
 
 // 方言播报开关
-const dialectEnabled = ref(false)
-const isBroadcasting = ref(false)
-const broadcastingId = ref<string | null>(null)
+const dialectEnabled = ref(false);
+const isBroadcasting = ref(false);
+const broadcastingId = ref<string | null>(null);
 
 // 公告列表数据
 const announcements = ref<Announcement[]>([
@@ -135,7 +131,7 @@ const announcements = ref<Announcement[]>([
     publishTime: '2小时前',
     viewCount: 1523,
     isNew: true,
-    dialectContent: '关于2026年耕地地力保护补贴申请的方言播报内容...'
+    dialectContent: '关于2026年耕地地力保护补贴申请的方言播报内容...',
   },
   {
     id: '2',
@@ -145,7 +141,7 @@ const announcements = ref<Announcement[]>([
     content: '...',
     publishTime: '5小时前',
     viewCount: 3456,
-    isNew: true
+    isNew: true,
   },
   {
     id: '3',
@@ -154,14 +150,14 @@ const announcements = ref<Announcement[]>([
     type: 'notice',
     content: '...',
     publishTime: '1天前',
-    viewCount: 892
-  }
-])
+    viewCount: 892,
+  },
+]);
 
 // 显示最多3条公告
 const displayedAnnouncements = computed(() => {
-  return announcements.value.slice(0, 3)
-})
+  return announcements.value.slice(0, 3);
+});
 
 /**
  * 获取公告图标
@@ -171,10 +167,10 @@ const getAnnouncementIcon = (type: string) => {
     policy: Document,
     notice: Notification,
     urgent: Warning,
-    info: InfoFilled
-  }
-  return iconMap[type] || Document
-}
+    info: InfoFilled,
+  };
+  return iconMap[type] || Document;
+};
 
 /**
  * 处理公告点击
@@ -182,9 +178,9 @@ const getAnnouncementIcon = (type: string) => {
 const handleAnnouncementClick = (announcement: Announcement) => {
   router.push({
     path: '/announcements',
-    query: { id: announcement.id }
-  })
-}
+    query: { id: announcement.id },
+  });
+};
 
 /**
  * 处理方言播报开关（带错误处理）
@@ -192,95 +188,96 @@ const handleAnnouncementClick = (announcement: Announcement) => {
 const handleDialectToggle = (enabled: boolean) => {
   try {
     if (enabled) {
-      ElMessage.success('已启用方言播报，点击麦克风图标收听')
+      ElMessage.success('已启用方言播报，点击麦克风图标收听');
     } else {
-      ElMessage.info('已切换为普通话模式')
+      ElMessage.info('已切换为普通话模式');
     }
     // 保存用户偏好到 localStorage（带错误处理）
-    localStorage.setItem('dialect-enabled', String(enabled))
+    localStorage.setItem('dialect-enabled', String(enabled));
   } catch (error) {
-    console.error('Failed to save dialect preference:', error)
+    console.error('Failed to save dialect preference:', error);
     // 即使保存失败也不影响功能切换
-    ElMessage.warning('设置已应用，但无法保存（可能处于无痕模式）')
+    ElMessage.warning('设置已应用，但无法保存（可能处于无痕模式）');
   }
-}
+};
 
 /**
  * 处理语音播报
  */
 const handleVoiceBroadcast = async (announcement: Announcement) => {
   if (isBroadcasting.value) {
-    ElMessage.warning('正在播报中，请稍候...')
-    return
+    ElMessage.warning('正在播报中，请稍候...');
+    return;
   }
 
   try {
-    isBroadcasting.value = true
-    broadcastingId.value = announcement.id
+    isBroadcasting.value = true;
+    broadcastingId.value = announcement.id;
 
     // 检查浏览器支持
     if (!('speechSynthesis' in window)) {
-      ElMessage.error('您的浏览器不支持语音播报功能')
-      return
+      ElMessage.error('您的浏览器不支持语音播报功能');
+      return;
     }
 
     // 构建播报文本
-    const text = dialectEnabled.value && announcement.dialectContent
-      ? announcement.dialectContent
-      : `${announcement.title}。${announcement.summary}`
+    const text =
+      dialectEnabled.value && announcement.dialectContent
+        ? announcement.dialectContent
+        : `${announcement.title}。${announcement.summary}`;
 
     // 创建语音合成实例
-    const utterance = new SpeechSynthesisUtterance(text)
-    utterance.lang = dialectEnabled.value ? 'zh-CN' : 'zh-CN'
-    utterance.rate = 0.9 // 稍慢的语速
-    utterance.pitch = 1.0
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = dialectEnabled.value ? 'zh-CN' : 'zh-CN';
+    utterance.rate = 0.9; // 稍慢的语速
+    utterance.pitch = 1.0;
 
     // 播报结束
     utterance.onend = () => {
-      isBroadcasting.value = false
-      broadcastingId.value = null
-    }
+      isBroadcasting.value = false;
+      broadcastingId.value = null;
+    };
 
     // 播报错误
-    utterance.onerror = (event) => {
-      console.error('Speech synthesis error:', event)
-      isBroadcasting.value = false
-      broadcastingId.value = null
-      ElMessage.error('语音播报失败，请稍后重试')
-    }
+    utterance.onerror = event => {
+      console.error('Speech synthesis error:', event);
+      isBroadcasting.value = false;
+      broadcastingId.value = null;
+      ElMessage.error('语音播报失败，请稍后重试');
+    };
 
     // 开始播报
-    window.speechSynthesis.cancel() // 取消之前的播报
-    window.speechSynthesis.speak(utterance)
+    window.speechSynthesis.cancel(); // 取消之前的播报
+    window.speechSynthesis.speak(utterance);
 
-    ElMessage.success(dialectEnabled.value ? '正在使用方言播报...' : '正在播报...')
+    ElMessage.success(dialectEnabled.value ? '正在使用方言播报...' : '正在播报...');
   } catch (error) {
-    console.error('Voice broadcast error:', error)
-    isBroadcasting.value = false
-    broadcastingId.value = null
-    ElMessage.error('语音播报失败')
+    console.error('Voice broadcast error:', error);
+    isBroadcasting.value = false;
+    broadcastingId.value = null;
+    ElMessage.error('语音播报失败');
   }
-}
+};
 
 /**
  * 跳转到公告列表页面
  */
 const goToAnnouncementList = () => {
-  router.push('/announcements')
-}
+  router.push('/announcements');
+};
 
 // 组件挂载时加载用户偏好（带错误处理）
 onMounted(() => {
   try {
-    const dialectPreference = localStorage.getItem('dialect-enabled')
+    const dialectPreference = localStorage.getItem('dialect-enabled');
     if (dialectPreference !== null) {
-      dialectEnabled.value = dialectPreference === 'true'
+      dialectEnabled.value = dialectPreference === 'true';
     }
   } catch (error) {
-    console.warn('Failed to load dialect preference:', error)
+    console.warn('Failed to load dialect preference:', error);
     // 保持默认值
   }
-})
+});
 </script>
 
 <style lang="scss" scoped>

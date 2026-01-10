@@ -32,7 +32,7 @@
         <!-- 快捷功能网格 -->
         <section class="quick-actions">
           <h2 class="section-title">快捷服务</h2>
-          <div class="action-grid" :class="{ 'simplified': isSimplifiedMode }">
+          <div class="action-grid" :class="{ simplified: isSimplifiedMode }">
             <LargeButton
               v-for="action in quickActions"
               :key="action.id"
@@ -171,7 +171,7 @@ import {
   Home,
   ChatDotSquare,
   Document,
-  User
+  User,
 } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 
@@ -190,7 +190,7 @@ const currentNav = ref('home');
 const villageName = ref('智慧乡村示范村');
 const weather = ref({
   temperature: 25,
-  condition: '晴'
+  condition: '晴',
 });
 
 // 语音助手
@@ -208,29 +208,29 @@ const quickActions = ref([
     label: '村务公告',
     icon: 'Notification',
     type: 'primary',
-    route: '/announcements'
+    route: '/announcements',
   },
   {
     id: 'services',
     label: '便民服务',
     icon: 'Service',
     type: 'success',
-    route: '/services'
+    route: '/services',
   },
   {
     id: 'feedback',
     label: '意见反馈',
     icon: 'EditPen',
     type: 'warning',
-    route: '/feedback'
+    route: '/feedback',
   },
   {
     id: 'phone',
     label: '通讯录',
     icon: 'Phone',
     type: 'info',
-    route: '/contacts'
-  }
+    route: '/contacts',
+  },
 ]);
 
 // 公告列表
@@ -240,22 +240,22 @@ const announcements = ref([
     title: '关于开展全村环境整治的通知',
     time: '今天 09:00',
     priority: 'high',
-    priorityText: '重要'
+    priorityText: '重要',
   },
   {
     id: 2,
     title: '本周五村委会会议安排',
     time: '昨天 15:00',
     priority: 'normal',
-    priorityText: '普通'
-  }
+    priorityText: '普通',
+  },
 ]);
 
 // 待办事项
 const todos = ref([
   { id: 1, text: '完成医保缴费', completed: false },
   { id: 2, text: '参加村民代表大会', completed: false },
-  { id: 3, text: '领取疫苗接种证明', completed: true }
+  { id: 3, text: '领取疫苗接种证明', completed: true },
 ]);
 
 // 底部导航
@@ -263,13 +263,13 @@ const navItems = ref([
   { id: 'home', label: '首页', icon: Home },
   { id: 'services', label: '服务', icon: Service },
   { id: 'messages', label: '消息', icon: ChatDotSquare },
-  { id: 'profile', label: '我的', icon: User }
+  { id: 'profile', label: '我的', icon: User },
 ]);
 
 /**
  * 处理快捷操作
  */
-const handleAction = (action) => {
+const handleAction = action => {
   if (action.route) {
     router.push(action.route);
   } else if (action.handler) {
@@ -282,16 +282,12 @@ const handleAction = (action) => {
  */
 const handleEmergency = async () => {
   try {
-    await ElMessageBox.confirm(
-      '是否要发起紧急求助？系统将立即通知村干部。',
-      '紧急求助',
-      {
-        confirmButtonText: '确认求助',
-        cancelButtonText: '取消',
-        type: 'error',
-        distinguishCancelAndClose: true
-      }
-    );
+    await ElMessageBox.confirm('是否要发起紧急求助？系统将立即通知村干部。', '紧急求助', {
+      confirmButtonText: '确认求助',
+      cancelButtonText: '取消',
+      type: 'error',
+      distinguishCancelAndClose: true,
+    });
 
     // 发起求助
     ElMessage.success('求助信号已发送，请保持电话畅通');
@@ -308,14 +304,14 @@ const handleEmergency = async () => {
 /**
  * 处理语音识别结果
  */
-const handleVoiceResult = (data) => {
+const handleVoiceResult = data => {
   console.log('语音识别结果:', data);
 };
 
 /**
  * 处理语音命令
  */
-const handleVoiceCommand = async (command) => {
+const handleVoiceCommand = async command => {
   const { type, target } = command;
 
   switch (type) {
@@ -347,28 +343,28 @@ const handleVoiceCommand = async (command) => {
 /**
  * 处理语音错误
  */
-const handleVoiceError = (error) => {
+const handleVoiceError = error => {
   console.error('语音识别错误:', error);
 };
 
 /**
  * 查看公告
  */
-const viewAnnouncement = (announcement) => {
+const viewAnnouncement = announcement => {
   router.push(`/announcements/${announcement.id}`);
 };
 
 /**
  * 切换待办状态
  */
-const toggleTodo = (todo) => {
+const toggleTodo = todo => {
   todo.completed = !todo.completed;
 };
 
 /**
  * 处理导航
  */
-const handleNav = (item) => {
+const handleNav = item => {
   currentNav.value = item.id;
   if (item.route) {
     router.push(item.route);

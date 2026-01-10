@@ -77,9 +77,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="partyAge" label="党龄" width="80" sortable>
-          <template #default="scope">
-            {{ calculatePartyAge(scope.row.joinPartyDate) }}年
-          </template>
+          <template #default="scope"> {{ calculatePartyAge(scope.row.joinPartyDate) }}年 </template>
         </el-table-column>
         <el-table-column prop="memberType" label="党员类型" width="100">
           <template #default="scope">
@@ -102,13 +100,9 @@
         </el-table-column>
         <el-table-column label="操作" width="180" fixed="right">
           <template #default="scope">
-            <el-button type="primary" size="small" @click="handleView(scope.row)">
-              查看
-            </el-button>
-            <el-button type="warning" size="small" @click="handleEdit(scope.row)">
-              编辑
-            </el-button>
-            <el-dropdown @command="(command) => handleAction(command, scope.row)">
+            <el-button type="primary" size="small" @click="handleView(scope.row)"> 查看 </el-button>
+            <el-button type="warning" size="small" @click="handleEdit(scope.row)"> 编辑 </el-button>
+            <el-dropdown @command="command => handleAction(command, scope.row)">
               <el-button type="info" size="small">
                 更多<el-icon class="el-icon--right"><ArrowDown /></el-icon>
               </el-button>
@@ -146,12 +140,7 @@
       width="700px"
       :fullscreen="isMobile"
     >
-      <el-form
-        ref="memberFormRef"
-        :model="memberForm"
-        :rules="memberRules"
-        label-width="100px"
-      >
+      <el-form ref="memberFormRef" :model="memberForm" :rules="memberRules" label-width="100px">
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="姓名" prop="name">
@@ -277,30 +266,41 @@
     </el-dialog>
 
     <!-- 党员详情对话框 -->
-    <el-dialog
-      v-model="showDetailDialog"
-      title="党员详情"
-      width="800px"
-      :fullscreen="isMobile"
-    >
+    <el-dialog v-model="showDetailDialog" title="党员详情" width="800px" :fullscreen="isMobile">
       <div class="detail-content" v-if="currentMember">
         <el-descriptions :column="2" border>
           <el-descriptions-item label="姓名">{{ currentMember.name }}</el-descriptions-item>
           <el-descriptions-item label="性别">{{ currentMember.gender }}</el-descriptions-item>
-          <el-descriptions-item label="出生年月">{{ formatDate(currentMember.birthDate) }}</el-descriptions-item>
-          <el-descriptions-item label="身份证号">{{ maskIdCard(currentMember.idCard) }}</el-descriptions-item>
-          <el-descriptions-item label="入党时间">{{ formatDate(currentMember.joinPartyDate) }}</el-descriptions-item>
-          <el-descriptions-item label="党龄">{{ calculatePartyAge(currentMember.joinPartyDate) }}年</el-descriptions-item>
+          <el-descriptions-item label="出生年月">{{
+            formatDate(currentMember.birthDate)
+          }}</el-descriptions-item>
+          <el-descriptions-item label="身份证号">{{
+            maskIdCard(currentMember.idCard)
+          }}</el-descriptions-item>
+          <el-descriptions-item label="入党时间">{{
+            formatDate(currentMember.joinPartyDate)
+          }}</el-descriptions-item>
+          <el-descriptions-item label="党龄"
+            >{{ calculatePartyAge(currentMember.joinPartyDate) }}年</el-descriptions-item
+          >
           <el-descriptions-item label="党员类型">
             <el-tag :type="getMemberTypeTagType(currentMember.memberType)">
               {{ getMemberTypeText(currentMember.memberType) }}
             </el-tag>
           </el-descriptions-item>
-          <el-descriptions-item label="党内职务">{{ currentMember.position || '普通党员' }}</el-descriptions-item>
+          <el-descriptions-item label="党内职务">{{
+            currentMember.position || '普通党员'
+          }}</el-descriptions-item>
           <el-descriptions-item label="联系电话">{{ currentMember.phone }}</el-descriptions-item>
-          <el-descriptions-item label="学历">{{ getEducationText(currentMember.education) }}</el-descriptions-item>
-          <el-descriptions-item label="工作单位">{{ currentMember.workUnit || '无' }}</el-descriptions-item>
-          <el-descriptions-item label="家庭住址" :span="2">{{ currentMember.address }}</el-descriptions-item>
+          <el-descriptions-item label="学历">{{
+            getEducationText(currentMember.education)
+          }}</el-descriptions-item>
+          <el-descriptions-item label="工作单位">{{
+            currentMember.workUnit || '无'
+          }}</el-descriptions-item>
+          <el-descriptions-item label="家庭住址" :span="2">{{
+            currentMember.address
+          }}</el-descriptions-item>
           <el-descriptions-item label="活动参与度" :span="2">
             <el-progress
               :percentage="currentMember.activity || 0"
@@ -332,12 +332,7 @@
     </el-dialog>
 
     <!-- 党员统计对话框 -->
-    <el-dialog
-      v-model="showStatsDialog"
-      title="党员统计分析"
-      width="900px"
-      :fullscreen="isMobile"
-    >
+    <el-dialog v-model="showStatsDialog" title="党员统计分析" width="900px" :fullscreen="isMobile">
       <div class="stats-content">
         <el-row :gutter="20">
           <el-col :span="6" v-for="stat in partyStats" :key="stat.label">
@@ -349,10 +344,18 @@
         </el-row>
 
         <!-- 党员年龄分布图表 -->
-        <div class="chart-container" ref="ageChartRef" style="height: 300px; margin-top: 20px;"></div>
+        <div
+          class="chart-container"
+          ref="ageChartRef"
+          style="height: 300px; margin-top: 20px"
+        ></div>
 
         <!-- 党员学历分布图表 -->
-        <div class="chart-container" ref="educationChartRef" style="height: 300px; margin-top: 20px;"></div>
+        <div
+          class="chart-container"
+          ref="educationChartRef"
+          style="height: 300px; margin-top: 20px"
+        ></div>
       </div>
     </el-dialog>
 
@@ -363,7 +366,12 @@
       width="500px"
       :fullscreen="isMobile"
     >
-      <el-form ref="activityFormRef" :model="activityForm" :rules="activityRules" label-width="100px">
+      <el-form
+        ref="activityFormRef"
+        :model="activityForm"
+        :rules="activityRules"
+        label-width="100px"
+      >
         <el-form-item label="活动名称" prop="title">
           <el-input v-model="activityForm.title" placeholder="请输入活动名称" />
         </el-form-item>
@@ -402,50 +410,43 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
-import { useCommitteeStore } from '@/stores/villageCommittee/committeeStore'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import {
-  Search,
-  Refresh,
-  Plus,
-  Download,
-  ArrowDown,
-  DataAnalysis
-} from '@element-plus/icons-vue'
-import * as echarts from 'echarts'
-import dayjs from 'dayjs'
+import { ref, computed, onMounted, nextTick } from 'vue';
+import { useCommitteeStore } from '@/stores/villageCommittee/committeeStore';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { Search, Refresh, Plus, Download, ArrowDown, DataAnalysis } from '@element-plus/icons-vue';
+import * as echarts from 'echarts';
+import dayjs from 'dayjs';
 
-const committeeStore = useCommitteeStore()
+const committeeStore = useCommitteeStore();
 
 // 响应式数据
 const searchForm = ref({
   name: '',
   partyAge: '',
-  memberType: ''
-})
+  memberType: '',
+});
 
-const showAddDialog = ref(false)
-const showDetailDialog = ref(false)
-const showStatsDialog = ref(false)
-const showActivityDialog = ref(false)
-const isEdit = ref(false)
-const submitting = ref(false)
-const isMobile = ref(false)
+const showAddDialog = ref(false);
+const showDetailDialog = ref(false);
+const showStatsDialog = ref(false);
+const showActivityDialog = ref(false);
+const isEdit = ref(false);
+const submitting = ref(false);
+const isMobile = ref(false);
 
-const memberFormRef = ref()
-const activityFormRef = ref()
-const ageChartRef = ref()
-const educationChartRef = ref()
+const memberFormRef = ref();
+const activityFormRef = ref();
+const ageChartRef = ref();
+const educationChartRef = ref();
 
-const currentMember = ref(null)
-const selectedMembers = ref([])
+const currentMember = ref(null);
+const selectedMembers = ref([]);
 
 const pagination = ref({
   page: 1,
   size: 20,
-  total: 0
-})
+  total: 0,
+});
 
 const memberForm = ref({
   name: '',
@@ -459,374 +460,360 @@ const memberForm = ref({
   education: '',
   workUnit: '',
   address: '',
-  remark: ''
-})
+  remark: '',
+});
 
 const activityForm = ref({
   title: '',
   date: '',
   type: '',
-  description: ''
-})
+  description: '',
+});
 
 // 党员统计数据
 const partyStats = ref([
   { label: '党员总数', value: '156' },
   { label: '正式党员', value: '142' },
   { label: '预备党员', value: '8' },
-  { label: '流动党员', value: '6' }
-])
+  { label: '流动党员', value: '6' },
+]);
 
 // 表单验证规则
 const memberRules = {
   name: [
     { required: true, message: '请输入姓名', trigger: 'blur' },
-    { min: 2, max: 10, message: '长度在 2 到 10 个字符', trigger: 'blur' }
+    { min: 2, max: 10, message: '长度在 2 到 10 个字符', trigger: 'blur' },
   ],
-  birthDate: [
-    { required: true, message: '请选择出生日期', trigger: 'change' }
-  ],
+  birthDate: [{ required: true, message: '请选择出生日期', trigger: 'change' }],
   idCard: [
     { required: true, message: '请输入身份证号', trigger: 'blur' },
-    { pattern: /^\d{17}[\dXx]$/, message: '请输入正确的身份证号', trigger: 'blur' }
+    { pattern: /^\d{17}[\dXx]$/, message: '请输入正确的身份证号', trigger: 'blur' },
   ],
-  joinPartyDate: [
-    { required: true, message: '请选择入党时间', trigger: 'change' }
-  ],
-  memberType: [
-    { required: true, message: '请选择党员类型', trigger: 'change' }
-  ],
+  joinPartyDate: [{ required: true, message: '请选择入党时间', trigger: 'change' }],
+  memberType: [{ required: true, message: '请选择党员类型', trigger: 'change' }],
   phone: [
     { required: true, message: '请输入联系电话', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' }
-  ]
-}
+    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' },
+  ],
+};
 
 const activityRules = {
-  title: [
-    { required: true, message: '请输入活动名称', trigger: 'blur' }
-  ],
-  date: [
-    { required: true, message: '请选择活动日期', trigger: 'change' }
-  ],
-  type: [
-    { required: true, message: '请选择活动类型', trigger: 'change' }
-  ],
-  description: [
-    { required: true, message: '请输入活动描述', trigger: 'blur' }
-  ]
-}
+  title: [{ required: true, message: '请输入活动名称', trigger: 'blur' }],
+  date: [{ required: true, message: '请选择活动日期', trigger: 'change' }],
+  type: [{ required: true, message: '请选择活动类型', trigger: 'change' }],
+  description: [{ required: true, message: '请输入活动描述', trigger: 'blur' }],
+};
 
 // 计算属性
 const filteredMembers = computed(() => {
-  let result = committeeStore.partyMembers
+  let result = committeeStore.partyMembers;
 
   if (searchForm.value.name) {
-    result = result.filter(m => m.name.includes(searchForm.value.name))
+    result = result.filter(m => m.name.includes(searchForm.value.name));
   }
 
   if (searchForm.value.partyAge) {
     result = result.filter(m => {
-      const age = calculatePartyAge(m.joinPartyDate)
-      if (searchForm.value.partyAge === '1-5') return age >= 1 && age <= 5
-      if (searchForm.value.partyAge === '6-10') return age >= 6 && age <= 10
-      if (searchForm.value.partyAge === '11-20') return age >= 11 && age <= 20
-      if (searchForm.value.partyAge === '20+') return age > 20
-      return true
-    })
+      const age = calculatePartyAge(m.joinPartyDate);
+      if (searchForm.value.partyAge === '1-5') return age >= 1 && age <= 5;
+      if (searchForm.value.partyAge === '6-10') return age >= 6 && age <= 10;
+      if (searchForm.value.partyAge === '11-20') return age >= 11 && age <= 20;
+      if (searchForm.value.partyAge === '20+') return age > 20;
+      return true;
+    });
   }
 
   if (searchForm.value.memberType) {
-    result = result.filter(m => m.memberType === searchForm.value.memberType)
+    result = result.filter(m => m.memberType === searchForm.value.memberType);
   }
 
-  pagination.value.total = result.length
-  const start = (pagination.value.page - 1) * pagination.value.size
-  const end = start + pagination.value.size
-  return result.slice(start, end)
-})
+  pagination.value.total = result.length;
+  const start = (pagination.value.page - 1) * pagination.value.size;
+  const end = start + pagination.value.size;
+  return result.slice(start, end);
+});
 
 // 方法
 const handleSearch = () => {
-  pagination.value.page = 1
-}
+  pagination.value.page = 1;
+};
 
 const handleReset = () => {
   searchForm.value = {
     name: '',
     partyAge: '',
-    memberType: ''
-  }
-  pagination.value.page = 1
-}
+    memberType: '',
+  };
+  pagination.value.page = 1;
+};
 
-const handleSelectionChange = (selection) => {
-  selectedMembers.value = selection
-}
+const handleSelectionChange = selection => {
+  selectedMembers.value = selection;
+};
 
-const handleSizeChange = (size) => {
-  pagination.value.size = size
-  pagination.value.page = 1
-}
+const handleSizeChange = size => {
+  pagination.value.size = size;
+  pagination.value.page = 1;
+};
 
-const handleCurrentChange = (page) => {
-  pagination.value.page = page
-}
+const handleCurrentChange = page => {
+  pagination.value.page = page;
+};
 
-const handleView = (row) => {
+const handleView = row => {
   currentMember.value = {
     ...row,
     activities: [
       { id: 1, title: '党组织生活会', date: '2024-12-10', type: 'primary' },
       { id: 2, title: '志愿服务活动', date: '2024-12-05', type: 'success' },
-      { id: 3, title: '主题党日活动', date: '2024-11-25', type: 'warning' }
-    ]
-  }
-  showDetailDialog.value = true
-}
+      { id: 3, title: '主题党日活动', date: '2024-11-25', type: 'warning' },
+    ],
+  };
+  showDetailDialog.value = true;
+};
 
-const handleEdit = (row) => {
-  isEdit.value = true
-  memberForm.value = { ...row }
-  showAddDialog.value = true
-  showDetailDialog.value = false
-}
+const handleEdit = row => {
+  isEdit.value = true;
+  memberForm.value = { ...row };
+  showAddDialog.value = true;
+  showDetailDialog.value = false;
+};
 
 const handleAction = (command, row) => {
-  currentMember.value = row
+  currentMember.value = row;
 
   switch (command) {
     case 'activities':
-      handleViewActivities(row)
-      break
+      handleViewActivities(row);
+      break;
     case 'donations':
-      handleDonations(row)
-      break
+      handleDonations(row);
+      break;
     case 'awards':
-      handleAwards(row)
-      break
+      handleAwards(row);
+      break;
     case 'delete':
-      handleDelete(row)
-      break
+      handleDelete(row);
+      break;
   }
-}
+};
 
-const handleViewActivities = (row) => {
-  ElMessage.info(`查看 ${row.name} 的活动记录`)
-}
+const handleViewActivities = row => {
+  ElMessage.info(`查看 ${row.name} 的活动记录`);
+};
 
-const handleDonations = (row) => {
-  ElMessage.info(`查看 ${row.name} 的党费缴纳记录`)
-}
+const handleDonations = row => {
+  ElMessage.info(`查看 ${row.name} 的党费缴纳记录`);
+};
 
-const handleAwards = (row) => {
-  ElMessage.info(`查看 ${row.name} 的表彰奖励`)
-}
+const handleAwards = row => {
+  ElMessage.info(`查看 ${row.name} 的表彰奖励`);
+};
 
-const handleDelete = (row) => {
-  ElMessageBox.confirm(
-    `确定要删除党员 ${row.name} 的信息吗？`,
-    '删除确认',
-    {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }
-  ).then(async () => {
+const handleDelete = row => {
+  ElMessageBox.confirm(`确定要删除党员 ${row.name} 的信息吗？`, '删除确认', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  }).then(async () => {
     try {
-      await committeeStore.deletePartyMember(row.id)
-      ElMessage.success('删除成功')
-      await committeeStore.fetchPartyMembers()
+      await committeeStore.deletePartyMember(row.id);
+      ElMessage.success('删除成功');
+      await committeeStore.fetchPartyMembers();
     } catch (error) {
-      ElMessage.error('删除失败')
+      ElMessage.error('删除失败');
     }
-  })
-}
+  });
+};
 
 const handleSubmit = async () => {
-  if (!memberFormRef.value) return
+  if (!memberFormRef.value) return;
 
-  await memberFormRef.value.validate(async (valid) => {
+  await memberFormRef.value.validate(async valid => {
     if (valid) {
-      submitting.value = true
+      submitting.value = true;
       try {
         if (isEdit.value) {
-          await committeeStore.updatePartyMember(currentMember.value.id, memberForm.value)
-          ElMessage.success('更新成功')
+          await committeeStore.updatePartyMember(currentMember.value.id, memberForm.value);
+          ElMessage.success('更新成功');
         } else {
-          await committeeStore.createPartyMember(memberForm.value)
-          ElMessage.success('添加成功')
+          await committeeStore.createPartyMember(memberForm.value);
+          ElMessage.success('添加成功');
         }
-        showAddDialog.value = false
-        await committeeStore.fetchPartyMembers()
+        showAddDialog.value = false;
+        await committeeStore.fetchPartyMembers();
       } catch (error) {
-        ElMessage.error('操作失败')
+        ElMessage.error('操作失败');
       } finally {
-        submitting.value = false
+        submitting.value = false;
       }
     }
-  })
-}
+  });
+};
 
 const handleAddActivity = () => {
   activityForm.value = {
     title: '',
     date: '',
     type: '',
-    description: ''
-  }
-  showActivityDialog.value = true
-  showDetailDialog.value = false
-}
+    description: '',
+  };
+  showActivityDialog.value = true;
+  showDetailDialog.value = false;
+};
 
 const handleActivitySubmit = async () => {
-  if (!activityFormRef.value) return
+  if (!activityFormRef.value) return;
 
-  await activityFormRef.value.validate(async (valid) => {
+  await activityFormRef.value.validate(async valid => {
     if (valid) {
-      ElMessage.success('活动记录已添加')
-      showActivityDialog.value = false
+      ElMessage.success('活动记录已添加');
+      showActivityDialog.value = false;
     }
-  })
-}
+  });
+};
 
 const handleExport = async () => {
   try {
-    ElMessage.success('导出成功')
+    ElMessage.success('导出成功');
   } catch (error) {
-    ElMessage.error('导出失败')
+    ElMessage.error('导出失败');
   }
-}
+};
 
 const initCharts = async () => {
-  await nextTick()
+  await nextTick();
 
   // 年龄分布图表
   if (ageChartRef.value) {
-    const ageChart = echarts.init(ageChartRef.value)
+    const ageChart = echarts.init(ageChartRef.value);
     const ageOption = {
       title: {
-        text: '党员年龄分布'
+        text: '党员年龄分布',
       },
       tooltip: {
-        trigger: 'axis'
+        trigger: 'axis',
       },
       xAxis: {
         type: 'category',
-        data: ['20-30岁', '31-40岁', '41-50岁', '51-60岁', '60岁以上']
+        data: ['20-30岁', '31-40岁', '41-50岁', '51-60岁', '60岁以上'],
       },
       yAxis: {
-        type: 'value'
+        type: 'value',
       },
-      series: [{
-        data: [12, 45, 68, 25, 6],
-        type: 'bar',
-        itemStyle: {
-          color: '#409eff'
-        }
-      }]
-    }
-    ageChart.setOption(ageOption)
+      series: [
+        {
+          data: [12, 45, 68, 25, 6],
+          type: 'bar',
+          itemStyle: {
+            color: '#409eff',
+          },
+        },
+      ],
+    };
+    ageChart.setOption(ageOption);
   }
 
   // 学历分布图表
   if (educationChartRef.value) {
-    const educationChart = echarts.init(educationChartRef.value)
+    const educationChart = echarts.init(educationChartRef.value);
     const educationOption = {
       title: {
-        text: '党员学历分布'
+        text: '党员学历分布',
       },
       tooltip: {
-        trigger: 'item'
+        trigger: 'item',
       },
-      series: [{
-        type: 'pie',
-        radius: '60%',
-        data: [
-          { value: 25, name: '初中' },
-          { value: 68, name: '高中' },
-          { value: 42, name: '大专' },
-          { value: 18, name: '本科' },
-          { value: 3, name: '研究生' }
-        ],
-        emphasis: {
-          itemStyle: {
-            shadowBlur: 10,
-            shadowOffsetX: 0,
-            shadowColor: 'rgba(0, 0, 0, 0.5)'
-          }
-        }
-      }]
-    }
-    educationChart.setOption(educationOption)
+      series: [
+        {
+          type: 'pie',
+          radius: '60%',
+          data: [
+            { value: 25, name: '初中' },
+            { value: 68, name: '高中' },
+            { value: 42, name: '大专' },
+            { value: 18, name: '本科' },
+            { value: 3, name: '研究生' },
+          ],
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowOffsetX: 0,
+              shadowColor: 'rgba(0, 0, 0, 0.5)',
+            },
+          },
+        },
+      ],
+    };
+    educationChart.setOption(educationOption);
   }
-}
+};
 
 // 辅助函数
-const formatDate = (date) => {
-  return date ? dayjs(date).format('YYYY-MM-DD') : ''
-}
+const formatDate = date => {
+  return date ? dayjs(date).format('YYYY-MM-DD') : '';
+};
 
-const calculatePartyAge = (joinDate) => {
-  if (!joinDate) return 0
-  return dayjs().diff(dayjs(joinDate), 'year')
-}
+const calculatePartyAge = joinDate => {
+  if (!joinDate) return 0;
+  return dayjs().diff(dayjs(joinDate), 'year');
+};
 
-const maskIdCard = (idCard) => {
-  if (!idCard) return ''
-  return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2')
-}
+const maskIdCard = idCard => {
+  if (!idCard) return '';
+  return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2');
+};
 
-const getMemberTypeTagType = (type) => {
+const getMemberTypeTagType = type => {
   const typeMap = {
     formal: 'success',
     probationary: 'warning',
-    floating: 'info'
-  }
-  return typeMap[type] || ''
-}
+    floating: 'info',
+  };
+  return typeMap[type] || '';
+};
 
-const getMemberTypeText = (type) => {
+const getMemberTypeText = type => {
   const textMap = {
     formal: '正式党员',
     probationary: '预备党员',
-    floating: '流动党员'
-  }
-  return textMap[type] || type
-}
+    floating: '流动党员',
+  };
+  return textMap[type] || type;
+};
 
-const getEducationText = (education) => {
+const getEducationText = education => {
   const textMap = {
     junior: '初中',
     high: '高中',
     college: '大专',
     bachelor: '本科',
-    master: '研究生'
-  }
-  return textMap[education] || ''
-}
+    master: '研究生',
+  };
+  return textMap[education] || '';
+};
 
-const getActivityColor = (percentage) => {
-  if (percentage >= 80) return '#67c23a'
-  if (percentage >= 60) return '#e6a23c'
-  return '#f56c6c'
-}
+const getActivityColor = percentage => {
+  if (percentage >= 80) return '#67c23a';
+  if (percentage >= 60) return '#e6a23c';
+  return '#f56c6c';
+};
 
 // 生命周期
 onMounted(async () => {
-  isMobile.value = window.innerWidth < 768
+  isMobile.value = window.innerWidth < 768;
 
   try {
-    await committeeStore.fetchPartyMembers()
+    await committeeStore.fetchPartyMembers();
   } catch (error) {
-    console.error('加载数据失败:', error)
+    console.error('加载数据失败:', error);
   }
 
   // 监听统计对话框打开事件，初始化图表
   if (showStatsDialog.value) {
-    initCharts()
+    initCharts();
   }
-})
+});
 </script>
 
 <style lang="scss" scoped>

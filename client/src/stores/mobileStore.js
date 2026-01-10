@@ -18,7 +18,7 @@ export const useMobileStore = defineStore('mobile', () => {
     fontSize: 'standard', // standard, large, extraLarge
     highContrast: false,
     screenReader: false,
-    simplifiedMode: false
+    simplifiedMode: false,
   });
 
   // ==================== 语音设置 ====================
@@ -29,7 +29,7 @@ export const useMobileStore = defineStore('mobile', () => {
     pitch: 5, // 0-15
     volume: 5, // 0-15
     autoRead: false,
-    voiceCommand: true
+    voiceCommand: true,
   });
 
   // ==================== 离线状态 ====================
@@ -38,14 +38,14 @@ export const useMobileStore = defineStore('mobile', () => {
     pendingSyncs: 0,
     lastSyncTime: null,
     isSyncing: false,
-    syncProgress: 0
+    syncProgress: 0,
   });
 
   // ==================== 网络状态 ====================
   const networkStatus = ref({
     online: navigator.onLine,
     type: 'unknown', // wifi, cellular, unknown
-    effectiveType: 'unknown' // 4g, 3g, 2g, slow-2g
+    effectiveType: 'unknown', // 4g, 3g, 2g, slow-2g
   });
 
   // ==================== 设备信息 ====================
@@ -54,14 +54,14 @@ export const useMobileStore = defineStore('mobile', () => {
     platform: getPlatform(),
     isMobile: isMobile(),
     screenWidth: window.screen.width,
-    screenHeight: window.screen.height
+    screenHeight: window.screen.height,
   });
 
   // ==================== UI状态 ====================
   const uiState = ref({
     sidebarOpen: false,
     voiceAssistantOpen: false,
-    settingsPanelOpen: false
+    settingsPanelOpen: false,
   });
 
   // ==================== 计算属性 ====================
@@ -83,9 +83,11 @@ export const useMobileStore = defineStore('mobile', () => {
 
   // 是否可以同步
   const canSync = computed(() => {
-    return !offlineStatus.value.isOffline &&
-           !offlineStatus.value.isSyncing &&
-           offlineStatus.value.pendingSyncs > 0;
+    return (
+      !offlineStatus.value.isOffline &&
+      !offlineStatus.value.isSyncing &&
+      offlineStatus.value.pendingSyncs > 0
+    );
   });
 
   // 同步状态文本
@@ -103,7 +105,7 @@ export const useMobileStore = defineStore('mobile', () => {
   /**
    * 切换适老化模式
    */
-  const toggleElderlyMode = (enabled) => {
+  const toggleElderlyMode = enabled => {
     elderlyMode.value.enabled = enabled ?? !elderlyMode.value.enabled;
     saveToStorage();
   };
@@ -111,7 +113,7 @@ export const useMobileStore = defineStore('mobile', () => {
   /**
    * 设置字体大小
    */
-  const setFontSize = (size) => {
+  const setFontSize = size => {
     elderlyMode.value.fontSize = size;
     saveToStorage();
   };
@@ -143,7 +145,7 @@ export const useMobileStore = defineStore('mobile', () => {
   /**
    * 设置方言
    */
-  const setDialect = (dialect) => {
+  const setDialect = dialect => {
     speechSettings.value.dialect = dialect;
     saveToStorage();
   };
@@ -151,7 +153,7 @@ export const useMobileStore = defineStore('mobile', () => {
   /**
    * 设置发音人
    */
-  const setSpeaker = (speaker) => {
+  const setSpeaker = speaker => {
     speechSettings.value.speaker = speaker;
     saveToStorage();
   };
@@ -159,7 +161,7 @@ export const useMobileStore = defineStore('mobile', () => {
   /**
    * 设置语音参数
    */
-  const setSpeechParams = (params) => {
+  const setSpeechParams = params => {
     Object.assign(speechSettings.value, params);
     saveToStorage();
   };
@@ -167,14 +169,14 @@ export const useMobileStore = defineStore('mobile', () => {
   /**
    * 更新离线状态
    */
-  const updateOfflineStatus = (status) => {
+  const updateOfflineStatus = status => {
     Object.assign(offlineStatus.value, status);
   };
 
   /**
    * 更新网络状态
    */
-  const updateNetworkStatus = (status) => {
+  const updateNetworkStatus = status => {
     Object.assign(networkStatus.value, status);
     offlineStatus.value.isOffline = !status.online;
   };
@@ -182,21 +184,21 @@ export const useMobileStore = defineStore('mobile', () => {
   /**
    * 切换侧边栏
    */
-  const toggleSidebar = (open) => {
+  const toggleSidebar = open => {
     uiState.value.sidebarOpen = open ?? !uiState.value.sidebarOpen;
   };
 
   /**
    * 切换语音助手
    */
-  const toggleVoiceAssistant = (open) => {
+  const toggleVoiceAssistant = open => {
     uiState.value.voiceAssistantOpen = open ?? !uiState.value.voiceAssistantOpen;
   };
 
   /**
    * 切换设置面板
    */
-  const toggleSettingsPanel = (open) => {
+  const toggleSettingsPanel = open => {
     uiState.value.settingsPanelOpen = open ?? !uiState.value.settingsPanelOpen;
   };
 
@@ -209,7 +211,7 @@ export const useMobileStore = defineStore('mobile', () => {
       fontSize: 'standard',
       highContrast: false,
       screenReader: false,
-      simplifiedMode: false
+      simplifiedMode: false,
     };
 
     speechSettings.value = {
@@ -219,7 +221,7 @@ export const useMobileStore = defineStore('mobile', () => {
       pitch: 5,
       volume: 5,
       autoRead: false,
-      voiceCommand: true
+      voiceCommand: true,
     };
 
     saveToStorage();
@@ -253,7 +255,7 @@ export const useMobileStore = defineStore('mobile', () => {
     try {
       const config = {
         elderlyMode: elderlyMode.value,
-        speechSettings: speechSettings.value
+        speechSettings: speechSettings.value,
       };
       localStorage.setItem('mobile_store_config', JSON.stringify(config));
     } catch (error) {
@@ -288,7 +290,7 @@ export const useMobileStore = defineStore('mobile', () => {
   function getDeviceId() {
     let id = localStorage.getItem('device_id');
     if (!id) {
-      id = `device_${  Date.now()  }_${  Math.random().toString(36).substr(2, 9)}`;
+      id = `device_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       localStorage.setItem('device_id', id);
     }
     return id;
@@ -305,7 +307,9 @@ export const useMobileStore = defineStore('mobile', () => {
   }
 
   function isMobile() {
-    return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(navigator.userAgent);
+    return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
+      navigator.userAgent
+    );
   }
 
   // 返回状态和方法
@@ -344,6 +348,6 @@ export const useMobileStore = defineStore('mobile', () => {
     resetAll,
     loadFromStorage,
     saveToStorage,
-    init
+    init,
   };
 });

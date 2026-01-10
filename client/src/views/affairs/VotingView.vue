@@ -16,9 +16,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref } from 'vue';
 
-const title = ref('投票管理')
+const title = ref('投票管理');
 </script>
 
 <style lang="scss" scoped>

@@ -5,9 +5,7 @@
       <template #header>
         <div class="card-header">
           <span>家庭信息</span>
-          <el-button type="primary" @click="handleEdit">
-            编辑
-          </el-button>
+          <el-button type="primary" @click="handleEdit"> 编辑 </el-button>
         </div>
       </template>
 
@@ -33,7 +31,9 @@
           {{ family?.contact?.secondaryPhone || '未填写' }}
         </el-descriptions-item>
         <el-descriptions-item label="紧急联系人">
-          {{ family?.contact?.emergencyContact?.name }} ({{ family?.contact?.emergencyContact?.relationship }})
+          {{ family?.contact?.emergencyContact?.name }} ({{
+            family?.contact?.emergencyContact?.relationship
+          }})
         </el-descriptions-item>
       </el-descriptions>
     </el-card>
@@ -43,9 +43,7 @@
       <template #header>
         <div class="card-header">
           <span>家庭成员 ({{ family?.members?.length || 0 }}人)</span>
-          <el-button type="success" @click="handleAddMember">
-            添加成员
-          </el-button>
+          <el-button type="success" @click="handleAddMember"> 添加成员 </el-button>
         </div>
       </template>
 
@@ -91,11 +89,7 @@
 
         <el-table-column label="头像" width="80" align="center">
           <template #default="{ row }">
-            <el-avatar
-              :size="50"
-              :src="row.photo"
-              :alt="row.name"
-            >
+            <el-avatar :size="50" :src="row.photo" :alt="row.name">
               {{ row.name.charAt(0) }}
             </el-avatar>
           </template>
@@ -142,25 +136,24 @@
 
         <el-table-column label="操作" width="200" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="viewMemberProfile(row)">
-              查看档案
-            </el-button>
-            <el-button link type="primary" @click="editMember(row)">
-              编辑
-            </el-button>
+            <el-button link type="primary" @click="viewMemberProfile(row)"> 查看档案 </el-button>
+            <el-button link type="primary" @click="editMember(row)"> 编辑 </el-button>
             <el-dropdown @command="handleMemberAction">
               <el-button link>
                 更多<el-icon class="el-icon--right"><arrow-down /></el-icon>
               </el-button>
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item :command="{action: 'documents', member: row}">
+                  <el-dropdown-item :command="{ action: 'documents', member: row }">
                     查看文档
                   </el-dropdown-item>
-                  <el-dropdown-item :command="{action: 'setHead', member: row}" v-if="!row.isHead">
+                  <el-dropdown-item
+                    :command="{ action: 'setHead', member: row }"
+                    v-if="!row.isHead"
+                  >
                     设为户主
                   </el-dropdown-item>
-                  <el-dropdown-item :command="{action: 'remove', member: row}" divided>
+                  <el-dropdown-item :command="{ action: 'remove', member: row }" divided>
                     移除成员
                   </el-dropdown-item>
                 </el-dropdown-menu>
@@ -215,9 +208,7 @@
       <template #header>
         <div class="card-header">
           <span>代理关系</span>
-          <el-button type="success" @click="handleAddAgent">
-            添加代理
-          </el-button>
+          <el-button type="success" @click="handleAddAgent"> 添加代理 </el-button>
         </div>
       </template>
 
@@ -246,12 +237,8 @@
         </el-table-column>
         <el-table-column label="操作" width="150">
           <template #default="{ row, $index }">
-            <el-button link type="primary" @click="editAgent(row)">
-              编辑
-            </el-button>
-            <el-button link type="danger" @click="removeAgent($index)">
-              删除
-            </el-button>
+            <el-button link type="primary" @click="editAgent(row)"> 编辑 </el-button>
+            <el-button link type="danger" @click="removeAgent($index)"> 删除 </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -300,20 +287,20 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { ArrowDown } from '@element-plus/icons-vue'
+import { ref, computed } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { ArrowDown } from '@element-plus/icons-vue';
 
 // Props
 const props = defineProps({
   family: {
     type: Object,
-    required: true
-  }
-})
+    required: true,
+  },
+});
 
 // Emits
-const emit = defineEmits(['edit', 'addMember', 'editMember', 'addAgent'])
+const emit = defineEmits(['edit', 'addMember', 'editMember', 'addAgent']);
 
 // 操作日志（示例数据）
 const operationLogs = ref([
@@ -323,7 +310,7 @@ const operationLogs = ref([
     action: '创建家庭',
     operator: '张三',
     detail: '创建家庭档案',
-    createdAt: '2025-01-15 10:30:00'
+    createdAt: '2025-01-15 10:30:00',
   },
   {
     id: 2,
@@ -331,7 +318,7 @@ const operationLogs = ref([
     action: '更新信息',
     operator: '李四',
     detail: '修改联系电话',
-    createdAt: '2025-01-16 14:20:00'
+    createdAt: '2025-01-16 14:20:00',
   },
   {
     id: 3,
@@ -339,75 +326,75 @@ const operationLogs = ref([
     action: '添加成员',
     operator: '王五',
     detail: '添加家庭成员：王小明',
-    createdAt: '2025-01-17 09:15:00'
-  }
-])
+    createdAt: '2025-01-17 09:15:00',
+  },
+]);
 
 // 获取家庭类型标签
-const getFamilyTypeTag = (type) => {
+const getFamilyTypeTag = type => {
   const typeMap = {
-    '普通户': '',
-    '低保户': 'danger',
-    '特困户': 'warning',
-    '独生户': 'primary',
-    '双女户': 'success',
-    '其他': 'info'
-  }
-  return typeMap[type] || 'info'
-}
+    普通户: '',
+    低保户: 'danger',
+    特困户: 'warning',
+    独生户: 'primary',
+    双女户: 'success',
+    其他: 'info',
+  };
+  return typeMap[type] || 'info';
+};
 
 // 获取经济类型标签
-const getEconomicTypeTag = (type) => {
+const getEconomicTypeTag = type => {
   const typeMap = {
-    '低收入': 'danger',
-    '中等收入': '',
-    '高收入': 'success',
-    '其他': 'info'
-  }
-  return typeMap[type] || 'info'
-}
+    低收入: 'danger',
+    中等收入: '',
+    高收入: 'success',
+    其他: 'info',
+  };
+  return typeMap[type] || 'info';
+};
 
 // 获取标签类型
-const getTagType = (tag) => {
+const getTagType = tag => {
   const tagTypeMap = {
-    '党员户': 'danger',
-    '军人家庭': 'success',
-    '优抚对象': 'success',
-    '残疾人家庭': 'info',
-    '留守儿童': 'primary',
-    '空巢老人': 'warning',
-    '其他': ''
-  }
-  return tagTypeMap[tag] || ''
-}
+    党员户: 'danger',
+    军人家庭: 'success',
+    优抚对象: 'success',
+    残疾人家庭: 'info',
+    留守儿童: 'primary',
+    空巢老人: 'warning',
+    其他: '',
+  };
+  return tagTypeMap[tag] || '';
+};
 
 // 获取权限名称
-const getPermissionName = (permission) => {
+const getPermissionName = permission => {
   const permissionMap = {
-    'view_profile': '查看档案',
-    'edit_profile': '编辑档案',
-    'view_documents': '查看文档',
-    'upload_documents': '上传文档',
-    'apply_services': '申请服务'
-  }
-  return permissionMap[permission] || permission
-}
+    view_profile: '查看档案',
+    edit_profile: '编辑档案',
+    view_documents: '查看文档',
+    upload_documents: '上传文档',
+    apply_services: '申请服务',
+  };
+  return permissionMap[permission] || permission;
+};
 
 // 获取日志类型
-const getLogType = (type) => {
+const getLogType = type => {
   const typeMap = {
-    'create': 'success',
-    'update': 'primary',
-    'add': 'success',
-    'remove': 'danger',
-    'delete': 'danger'
-  }
-  return typeMap[type] || 'primary'
-}
+    create: 'success',
+    update: 'primary',
+    add: 'success',
+    remove: 'danger',
+    delete: 'danger',
+  };
+  return typeMap[type] || 'primary';
+};
 
 // 格式化地址
-const formatAddress = (address) => {
-  if (!address) return '未填写'
+const formatAddress = address => {
+  if (!address) return '未填写';
   const parts = [
     address.province,
     address.city,
@@ -415,114 +402,102 @@ const formatAddress = (address) => {
     address.town,
     address.village,
     address.group,
-    address.detail
-  ].filter(Boolean)
-  return parts.join('')
-}
+    address.detail,
+  ].filter(Boolean);
+  return parts.join('');
+};
 
 // 格式化收入
-const formatIncome = (income) => {
-  if (!income) return '未填写'
-  return `${income.toLocaleString()} 元`
-}
+const formatIncome = income => {
+  if (!income) return '未填写';
+  return `${income.toLocaleString()} 元`;
+};
 
 // 格式化日期
-const formatDate = (date) => {
-  return new Date(date).toLocaleString('zh-CN')
-}
+const formatDate = date => {
+  return new Date(date).toLocaleString('zh-CN');
+};
 
 // 身份证号脱敏
-const maskIdCard = (idCard) => {
-  if (!idCard) return ''
-  return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2')
-}
+const maskIdCard = idCard => {
+  if (!idCard) return '';
+  return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2');
+};
 
 // 编辑家庭
 const handleEdit = () => {
-  emit('edit', props.family)
-}
+  emit('edit', props.family);
+};
 
 // 添加成员
 const handleAddMember = () => {
-  emit('addMember', props.family)
-}
+  emit('addMember', props.family);
+};
 
 // 查看成员档案
-const viewMemberProfile = (member) => {
+const viewMemberProfile = member => {
   // 跳转到成员档案详情页
-  console.log('查看成员档案:', member)
-}
+  console.log('查看成员档案:', member);
+};
 
 // 编辑成员
-const editMember = (member) => {
-  emit('editMember', member)
-}
+const editMember = member => {
+  emit('editMember', member);
+};
 
 // 成员更多操作
 const handleMemberAction = ({ action, member }) => {
   switch (action) {
     case 'documents':
       // 查看成员文档
-      console.log('查看成员文档:', member)
-      break
+      console.log('查看成员文档:', member);
+      break;
     case 'setHead':
       // 设为户主
-      ElMessageBox.confirm(
-        `确定要将"${member.name}"设为户主吗？`,
-        '设置户主',
-        {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }
-      ).then(() => {
-        ElMessage.success('户主设置成功')
+      ElMessageBox.confirm(`确定要将"${member.name}"设为户主吗？`, '设置户主', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }).then(() => {
+        ElMessage.success('户主设置成功');
         // 实际应该调用API
-      })
-      break
+      });
+      break;
     case 'remove':
       // 移除成员
-      ElMessageBox.confirm(
-        `确定要将"${member.name}"从家庭中移除吗？`,
-        '移除成员',
-        {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }
-      ).then(() => {
-        ElMessage.success('成员移除成功')
+      ElMessageBox.confirm(`确定要将"${member.name}"从家庭中移除吗？`, '移除成员', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }).then(() => {
+        ElMessage.success('成员移除成功');
         // 实际应该调用API
-      })
-      break
+      });
+      break;
   }
-}
+};
 
 // 添加代理
 const handleAddAgent = () => {
-  emit('addAgent', props.family)
-}
+  emit('addAgent', props.family);
+};
 
 // 编辑代理
-const editAgent = (agent) => {
-  console.log('编辑代理:', agent)
-}
+const editAgent = agent => {
+  console.log('编辑代理:', agent);
+};
 
 // 删除代理
-const removeAgent = (index) => {
-  ElMessageBox.confirm(
-    '确定要删除这个代理关系吗？',
-    '删除代理',
-    {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }
-  ).then(() => {
-    ElMessage.success('代理删除成功')
+const removeAgent = index => {
+  ElMessageBox.confirm('确定要删除这个代理关系吗？', '删除代理', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  }).then(() => {
+    ElMessage.success('代理删除成功');
     // 实际应该调用API
-  })
-}
+  });
+};
 </script>
 
 <style lang="scss" scoped>

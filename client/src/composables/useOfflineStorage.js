@@ -11,7 +11,7 @@ export function useOfflineStorage(options = {}) {
     version = '1.0.0',
     maxRetries = 3,
     syncInterval = 30000, // 30秒
-    autoSync = true
+    autoSync = true,
   } = options;
 
   // 状态管理
@@ -28,7 +28,7 @@ export function useOfflineStorage(options = {}) {
     syncedItems: 0,
     pendingItems: 0,
     errorItems: 0,
-    cacheSize: 0
+    cacheSize: 0,
   });
 
   // 数据库连接
@@ -46,12 +46,12 @@ export function useOfflineStorage(options = {}) {
         reject(new Error('IndexedDB初始化失败'));
       };
 
-      request.onsuccess = (event) => {
+      request.onsuccess = event => {
         db = event.target.result;
         resolve(db);
       };
 
-      request.onupgradeneeded = (event) => {
+      request.onupgradeneeded = event => {
         const database = event.target.result;
 
         // 创建主数据表
@@ -64,14 +64,20 @@ export function useOfflineStorage(options = {}) {
 
         // 创建操作队列表
         if (!database.objectStoreNames.contains('operations')) {
-          const opsStore = database.createObjectStore('operations', { keyPath: 'id', autoIncrement: true });
+          const opsStore = database.createObjectStore('operations', {
+            keyPath: 'id',
+            autoIncrement: true,
+          });
           opsStore.createIndex('timestamp', 'timestamp', { unique: false });
           opsStore.createIndex('type', 'type', { unique: false });
         }
 
         // 创建冲突表
         if (!database.objectStoreNames.contains('conflicts')) {
-          const conflictStore = database.createObjectStore('conflicts', { keyPath: 'id', autoIncrement: true });
+          const conflictStore = database.createObjectStore('conflicts', {
+            keyPath: 'id',
+            autoIncrement: true,
+          });
           conflictStore.createIndex('dataId', 'dataId', { unique: false });
           conflictStore.createIndex('timestamp', 'timestamp', { unique: false });
         }
@@ -105,7 +111,7 @@ export function useOfflineStorage(options = {}) {
       lastModified: timestamp,
       syncStatus: isOnline.value ? 'pending' : 'offline',
       version: 1,
-      operation
+      operation,
     };
 
     // 检查是否存在冲突
@@ -125,7 +131,7 @@ export function useOfflineStorage(options = {}) {
       collection,
       dataId: id,
       data: dataObject.data,
-      retryCount: 0
+      retryCount: 0,
     };
 
     await putToStore(opsStore, operationObject);
@@ -192,7 +198,7 @@ export function useOfflineStorage(options = {}) {
         type: 'delete',
         collection,
         dataId: id,
-        retryCount: 0
+        retryCount: 0,
       };
       await putToStore(opsStore, operationObject);
     }
@@ -239,9 +245,8 @@ export function useOfflineStorage(options = {}) {
       lastSyncTime.value = new Date();
       updateStats();
       ElMessage.success(`同步完成：${completed}/${total} 项`);
-
     } catch (error) {
-      ElMessage.error(`同步失败：${  error.message}`);
+      ElMessage.error(`同步失败：${error.message}`);
     } finally {
       isSyncing.value = false;
       syncProgress.value = 0;
@@ -251,7 +256,7 @@ export function useOfflineStorage(options = {}) {
   /**
    * 同步单个操作
    */
-  const syncOperation = async (operation) => {
+  const syncOperation = async operation => {
     const { type, collection, dataId, data } = operation;
 
     let response;
@@ -282,7 +287,7 @@ export function useOfflineStorage(options = {}) {
       localData,
       serverData,
       timestamp: Date.now(),
-      status: 'pending'
+      status: 'pending',
     };
 
     const transaction = db.transaction(['conflicts'], 'readwrite');
@@ -357,7 +362,7 @@ export function useOfflineStorage(options = {}) {
 
     return new Promise((resolve, reject) => {
       const toDelete = [];
-      request.onsuccess = (event) => {
+      request.onsuccess = event => {
         const cursor = event.target.result;
         if (cursor) {
           if (cursor.value.syncStatus === 'synced') {
@@ -392,11 +397,11 @@ export function useOfflineStorage(options = {}) {
     const [dataCount, opsCount, conflictCount] = await Promise.all([
       countRecords(dataStore),
       countRecords(opsStore),
-      countRecords(conflictStore)
+      countRecords(conflictStore),
     ]);
 
     // 计算存储大小（近似值）
-    const estimate = await navigator.storage?.estimate?.() || {};
+    const estimate = (await navigator.storage?.estimate?.()) || {};
     const cacheSize = estimate.usage || 0;
 
     return {
@@ -404,7 +409,7 @@ export function useOfflineStorage(options = {}) {
       pendingOperations: opsCount,
       conflicts: conflictCount,
       cacheSize: Math.round(cacheSize / 1024 / 1024), // MB
-      quota: Math.round((estimate.quota || 0) / 1024 / 1024) // MB
+      quota: Math.round((estimate.quota || 0) / 1024 / 1024), // MB
     };
   };
 
@@ -437,7 +442,7 @@ export function useOfflineStorage(options = {}) {
     });
   };
 
-  const countRecords = (store) => {
+  const countRecords = store => {
     return new Promise((resolve, reject) => {
       const request = store.count();
       request.onsuccess = () => resolve(request.result);
@@ -456,7 +461,7 @@ export function useOfflineStorage(options = {}) {
     });
   };
 
-  const markOperationCompleted = async (operationId) => {
+  const markOperationCompleted = async operationId => {
     const transaction = db.transaction(['operations'], 'readwrite');
     const store = transaction.objectStore('operations');
     await deleteFromStore(store, operationId);
@@ -507,8 +512,8 @@ export function useOfflineStorage(options = {}) {
     const config = {
       method,
       headers: {
-        'Content-Type': 'application/json'
-      }
+        'Content-Type': 'application/json',
+      },
     };
 
     if (data) {
@@ -583,6 +588,6 @@ export function useOfflineStorage(options = {}) {
     isOfflineMode: computed(() => !isOnline.value),
     hasPendingOperations: computed(() => pendingOperations.value.length > 0),
     hasConflicts: computed(() => conflictQueue.value.length > 0),
-    canSync: computed(() => isOnline.value && !isSyncing.value)
+    canSync: computed(() => isOnline.value && !isSyncing.value),
   };
 }

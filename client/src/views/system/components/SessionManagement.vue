@@ -80,17 +80,11 @@
           <h3>活跃会话列表</h3>
           <div class="header-actions">
             <el-button-group>
-              <el-button
-                :type="viewMode === 'list' ? 'primary' : ''"
-                @click="viewMode = 'list'"
-              >
+              <el-button :type="viewMode === 'list' ? 'primary' : ''" @click="viewMode = 'list'">
                 <el-icon><List /></el-icon>
                 列表视图
               </el-button>
-              <el-button
-                :type="viewMode === 'map' ? 'primary' : ''"
-                @click="viewMode = 'map'"
-              >
+              <el-button :type="viewMode === 'map' ? 'primary' : ''" @click="viewMode = 'map'">
                 <el-icon><Location /></el-icon>
                 地图视图
               </el-button>
@@ -181,11 +175,7 @@
 
           <el-table-column label="操作" width="200" fixed="right">
             <template #default="{ row }">
-              <el-button
-                type="primary"
-                size="small"
-                @click="showSessionDetail(row)"
-              >
+              <el-button type="primary" size="small" @click="showSessionDetail(row)">
                 详情
               </el-button>
               <el-button
@@ -196,11 +186,7 @@
               >
                 延长
               </el-button>
-              <el-button
-                type="danger"
-                size="small"
-                @click="terminateSession(row)"
-              >
+              <el-button type="danger" size="small" @click="terminateSession(row)">
                 终止
               </el-button>
             </template>
@@ -258,10 +244,7 @@
             {{ getDeviceTypeLabel(currentSession.device.type) }}
           </el-descriptions-item>
           <el-descriptions-item label="信任级别">
-            <el-tag
-              :type="getTrustTagType(currentSession.device.trustLevel)"
-              size="small"
-            >
+            <el-tag :type="getTrustTagType(currentSession.device.trustLevel)" size="small">
               {{ getTrustLabel(currentSession.device.trustLevel) }}
             </el-tag>
           </el-descriptions-item>
@@ -316,11 +299,7 @@
     </el-dialog>
 
     <!-- 批量操作确认对话框 -->
-    <el-dialog
-      v-model="batchDialogVisible"
-      title="批量终止会话"
-      width="500px"
-    >
+    <el-dialog v-model="batchDialogVisible" title="批量终止会话" width="500px">
       <div class="batch-confirm">
         <el-alert
           title="确认操作"
@@ -351,24 +330,21 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, nextTick } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import {
-  Search, Refresh, Close, List, Location,
-  Monitor, Iphone
-} from '@element-plus/icons-vue'
-import * as echarts from 'echarts'
-import enhancedPermissionService from '@/services/enhancedPermissionService'
+import { ref, reactive, computed, onMounted, nextTick } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { Search, Refresh, Close, List, Location, Monitor, Iphone } from '@element-plus/icons-vue';
+import * as echarts from 'echarts';
+import enhancedPermissionService from '@/services/enhancedPermissionService';
 
 // 响应式数据
-const searchKeyword = ref('')
-const filterStatus = ref('')
-const filterDevice = ref('')
-const viewMode = ref('list')
-const detailDialogVisible = ref(false)
-const batchDialogVisible = ref(false)
-const currentSession = ref(null)
-const selectedSessions = ref([])
+const searchKeyword = ref('');
+const filterStatus = ref('');
+const filterDevice = ref('');
+const viewMode = ref('list');
+const detailDialogVisible = ref(false);
+const batchDialogVisible = ref(false);
+const currentSession = ref(null);
+const selectedSessions = ref([]);
 
 // 统计数据
 const sessionStats = ref([
@@ -377,79 +353,80 @@ const sessionStats = ref([
     label: '总会话数',
     value: 156,
     icon: 'Monitor',
-    type: 'primary'
+    type: 'primary',
   },
   {
     key: 'active',
     label: '活跃会话',
     value: 89,
     icon: 'Monitor',
-    type: 'success'
+    type: 'success',
   },
   {
     key: 'idle',
     label: '空闲会话',
     value: 45,
     icon: 'Monitor',
-    type: 'warning'
+    type: 'warning',
   },
   {
     key: 'expired',
     label: '过期会话',
     value: 22,
     icon: 'Monitor',
-    type: 'danger'
-  }
-])
+    type: 'danger',
+  },
+]);
 
 // 会话数据
-const sessions = ref([])
+const sessions = ref([]);
 
 // 分页数据
 const pagination = reactive({
   currentPage: 1,
   pageSize: 20,
-  total: 0
-})
+  total: 0,
+});
 
 // 计算属性
 const filteredSessions = computed(() => {
-  let result = sessions.value
+  let result = sessions.value;
 
   if (searchKeyword.value) {
-    const keyword = searchKeyword.value.toLowerCase()
-    result = result.filter(session =>
-      session.user.name.toLowerCase().includes(keyword) ||
-      session.sessionId.toLowerCase().includes(keyword)
-    )
+    const keyword = searchKeyword.value.toLowerCase();
+    result = result.filter(
+      session =>
+        session.user.name.toLowerCase().includes(keyword) ||
+        session.sessionId.toLowerCase().includes(keyword)
+    );
   }
 
   if (filterStatus.value) {
-    result = result.filter(session => session.status === filterStatus.value)
+    result = result.filter(session => session.status === filterStatus.value);
   }
 
   if (filterDevice.value) {
-    result = result.filter(session => session.device.type === filterDevice.value)
+    result = result.filter(session => session.device.type === filterDevice.value);
   }
 
-  pagination.total = result.length
+  pagination.total = result.length;
 
   // 分页
-  const start = (pagination.currentPage - 1) * pagination.pageSize
-  const end = start + pagination.pageSize
-  return result.slice(start, end)
-})
+  const start = (pagination.currentPage - 1) * pagination.pageSize;
+  const end = start + pagination.pageSize;
+  return result.slice(start, end);
+});
 
 // 方法
 const fetchSessions = async () => {
   try {
     // 生成模拟数据
-    const mockSessions = []
-    const now = new Date()
+    const mockSessions = [];
+    const now = new Date();
 
     for (let i = 0; i < 100; i++) {
-      const loginTime = new Date(now - Math.random() * 24 * 60 * 60 * 1000) // 24小时内
-      const lastActivity = new Date(loginTime.getTime() + Math.random() * (now - loginTime))
+      const loginTime = new Date(now - Math.random() * 24 * 60 * 60 * 1000); // 24小时内
+      const lastActivity = new Date(loginTime.getTime() + Math.random() * (now - loginTime));
 
       mockSessions.push({
         sessionId: `session_${i + 1}`,
@@ -457,17 +434,17 @@ const fetchSessions = async () => {
           id: `user_${i + 1}`,
           name: ['张三', '李四', '王五', '赵六'][i % 4] + (i + 1),
           role: ['村级管理员', '部门主管', '工作人员', '村民'][i % 4],
-          avatar: ''
+          avatar: '',
         },
         device: {
           type: ['desktop', 'mobile', 'tablet'][i % 3],
           name: ['Windows PC', 'iPhone', 'iPad'][i % 3],
-          trustLevel: ['trusted', 'known', 'unknown'][i % 3]
+          trustLevel: ['trusted', 'known', 'unknown'][i % 3],
         },
         location: {
           city: ['北京', '上海', '广州', '深圳'][i % 4],
           country: '中国',
-          coordinates: [116.4074 + Math.random() * 10, 39.9042 + Math.random() * 10]
+          coordinates: [116.4074 + Math.random() * 10, 39.9042 + Math.random() * 10],
         },
         ipAddress: `192.168.1.${100 + (i % 155)}`,
         status: ['active', 'idle', 'expired'][Math.floor(Math.random() * 3)],
@@ -477,248 +454,244 @@ const fetchSessions = async () => {
         security: {
           anomalies: Math.floor(Math.random() * 5),
           riskScore: Math.floor(Math.random() * 100),
-          events: Math.floor(Math.random() * 3)
-        }
-      })
+          events: Math.floor(Math.random() * 3),
+        },
+      });
     }
 
-    sessions.value = mockSessions
+    sessions.value = mockSessions;
   } catch (error) {
-    console.error('获取会话列表失败:', error)
-    ElMessage.error('获取会话列表失败')
+    console.error('获取会话列表失败:', error);
+    ElMessage.error('获取会话列表失败');
   }
-}
+};
 
 const generateActivities = (loginTime, lastActivity) => {
-  const activities = []
-  const actions = ['登录系统', '查看用户列表', '编辑权限', '访问财务模块', '生成报表']
+  const activities = [];
+  const actions = ['登录系统', '查看用户列表', '编辑权限', '访问财务模块', '生成报表'];
 
   activities.push({
     id: '1',
     action: '用户登录',
     detail: '从 ' + ['PC端', '移动端'][Math.floor(Math.random() * 2)] + ' 登录',
     location: '村委会办公室',
-    timestamp: loginTime
-  })
+    timestamp: loginTime,
+  });
 
-  const activityCount = Math.floor(Math.random() * 5) + 1
+  const activityCount = Math.floor(Math.random() * 5) + 1;
   for (let i = 1; i < activityCount; i++) {
     const timestamp = new Date(
       loginTime.getTime() + (lastActivity - loginTime) * (i / activityCount)
-    )
+    );
     activities.push({
       id: (i + 1).toString(),
       action: actions[Math.floor(Math.random() * actions.length)],
       detail: '操作详情',
       location: '在线',
-      timestamp
-    })
+      timestamp,
+    });
   }
 
-  return activities
-}
+  return activities;
+};
 
 const handleSearch = () => {
-  pagination.currentPage = 1
-}
+  pagination.currentPage = 1;
+};
 
 const handleFilter = () => {
-  pagination.currentPage = 1
-}
+  pagination.currentPage = 1;
+};
 
-const handleSelectionChange = (selection) => {
-  selectedSessions.value = selection
-}
+const handleSelectionChange = selection => {
+  selectedSessions.value = selection;
+};
 
-const handleSizeChange = (size) => {
-  pagination.pageSize = size
-  pagination.currentPage = 1
-}
+const handleSizeChange = size => {
+  pagination.pageSize = size;
+  pagination.currentPage = 1;
+};
 
-const handleCurrentChange = (page) => {
-  pagination.currentPage = page
-}
+const handleCurrentChange = page => {
+  pagination.currentPage = page;
+};
 
-const getDeviceIcon = (type) => {
+const getDeviceIcon = type => {
   const icons = {
     desktop: Monitor,
     mobile: Iphone,
-    tablet: Tablet
-  }
-  return icons[type] || Monitor
-}
+    tablet: Tablet,
+  };
+  return icons[type] || Monitor;
+};
 
-const getDeviceColor = (type) => {
+const getDeviceColor = type => {
   const colors = {
     desktop: '#409eff',
     mobile: '#67c23a',
-    tablet: '#e6a23c'
-  }
-  return colors[type] || '#909399'
-}
+    tablet: '#e6a23c',
+  };
+  return colors[type] || '#909399';
+};
 
-const getDeviceTypeLabel = (type) => {
+const getDeviceTypeLabel = type => {
   const labels = {
     desktop: 'PC',
     mobile: '手机',
-    tablet: '平板'
-  }
-  return labels[type] || '未知'
-}
+    tablet: '平板',
+  };
+  return labels[type] || '未知';
+};
 
-const getStatusTagType = (status) => {
+const getStatusTagType = status => {
   const types = {
     active: 'success',
     idle: 'warning',
-    expired: 'danger'
-  }
-  return types[status] || 'info'
-}
+    expired: 'danger',
+  };
+  return types[status] || 'info';
+};
 
-const getStatusLabel = (status) => {
+const getStatusLabel = status => {
   const labels = {
     active: '活跃',
     idle: '空闲',
-    expired: '过期'
-  }
-  return labels[status] || status
-}
+    expired: '过期',
+  };
+  return labels[status] || status;
+};
 
-const getTrustTagType = (level) => {
+const getTrustTagType = level => {
   const types = {
     trusted: 'success',
     known: 'warning',
-    unknown: 'danger'
-  }
-  return types[level] || 'info'
-}
+    unknown: 'danger',
+  };
+  return types[level] || 'info';
+};
 
-const getTrustLabel = (level) => {
+const getTrustLabel = level => {
   const labels = {
     trusted: '可信',
     known: '已知',
-    unknown: '未知'
-  }
-  return labels[level] || level
-}
+    unknown: '未知',
+  };
+  return labels[level] || level;
+};
 
-const formatDateTime = (date) => {
-  return new Date(date).toLocaleString()
-}
+const formatDateTime = date => {
+  return new Date(date).toLocaleString();
+};
 
 const formatDuration = (startTime, endTime) => {
-  const diff = endTime - startTime
-  const hours = Math.floor(diff / (1000 * 60 * 60))
-  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+  const diff = endTime - startTime;
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
 
   if (hours > 0) {
-    return `${hours}小时${minutes}分钟`
+    return `${hours}小时${minutes}分钟`;
   } else {
-    return `${minutes}分钟`
+    return `${minutes}分钟`;
   }
-}
+};
 
-const showSessionDetail = (session) => {
-  currentSession.value = session
-  detailDialogVisible.value = true
-}
+const showSessionDetail = session => {
+  currentSession.value = session;
+  detailDialogVisible.value = true;
+};
 
-const extendSession = async (session) => {
+const extendSession = async session => {
   try {
     // 调用API延长会话
-    ElMessage.success(`已延长用户 ${session.user.name} 的会话`)
-    session.status = 'active'
+    ElMessage.success(`已延长用户 ${session.user.name} 的会话`);
+    session.status = 'active';
   } catch (error) {
-    ElMessage.error('延长会话失败')
+    ElMessage.error('延长会话失败');
   }
-}
+};
 
-const terminateSession = async (session) => {
+const terminateSession = async session => {
   try {
-    await ElMessageBox.confirm(
-      `确定要终止用户 ${session.user.name} 的会话吗？`,
-      '确认终止',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
+    await ElMessageBox.confirm(`确定要终止用户 ${session.user.name} 的会话吗？`, '确认终止', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
 
-    const index = sessions.value.findIndex(s => s.sessionId === session.sessionId)
-    sessions.value.splice(index, 1)
+    const index = sessions.value.findIndex(s => s.sessionId === session.sessionId);
+    sessions.value.splice(index, 1);
 
-    ElMessage.success('会话已终止')
+    ElMessage.success('会话已终止');
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('终止会话失败')
+      ElMessage.error('终止会话失败');
     }
   }
-}
+};
 
 const batchTerminateSessions = () => {
   if (selectedSessions.value.length === 0) {
-    ElMessage.warning('请选择要终止的会话')
-    return
+    ElMessage.warning('请选择要终止的会话');
+    return;
   }
-  batchDialogVisible.value = true
-}
+  batchDialogVisible.value = true;
+};
 
 const executeBatchTerminate = async () => {
   try {
     selectedSessions.value.forEach(session => {
-      const index = sessions.value.findIndex(s => s.sessionId === session.sessionId)
+      const index = sessions.value.findIndex(s => s.sessionId === session.sessionId);
       if (index > -1) {
-        sessions.value.splice(index, 1)
+        sessions.value.splice(index, 1);
       }
-    })
+    });
 
-    ElMessage.success(`已终止 ${selectedSessions.value.length} 个会话`)
-    selectedSessions.value = []
-    batchDialogVisible.value = false
+    ElMessage.success(`已终止 ${selectedSessions.value.length} 个会话`);
+    selectedSessions.value = [];
+    batchDialogVisible.value = false;
   } catch (error) {
-    ElMessage.error('批量终止会话失败')
+    ElMessage.error('批量终止会话失败');
   }
-}
+};
 
 const refreshSessions = () => {
-  fetchSessions()
-  ElMessage.success('会话列表已刷新')
-}
+  fetchSessions();
+  ElMessage.success('会话列表已刷新');
+};
 
 const initSessionMap = () => {
-  const chartDom = document.querySelector('[ref="sessionMap"]')
-  if (!chartDom) return
+  const chartDom = document.querySelector('[ref="sessionMap"]');
+  if (!chartDom) return;
 
-  const chart = echarts.init(chartDom)
+  const chart = echarts.init(chartDom);
 
   // 准备地图数据
   const mapData = sessions.value.map(session => ({
     name: session.user.name,
     value: session.location.coordinates,
     itemStyle: {
-      color: session.status === 'active' ? '#67c23a' :
-             session.status === 'idle' ? '#e6a23c' : '#f56c6c'
-    }
-  }))
+      color:
+        session.status === 'active' ? '#67c23a' : session.status === 'idle' ? '#e6a23c' : '#f56c6c',
+    },
+  }));
 
   const option = {
     title: {
       text: '会话地理分布',
-      left: 'center'
+      left: 'center',
     },
     tooltip: {
       trigger: 'item',
       formatter: params => {
-        const session = sessions.value.find(s => s.user.name === params.name)
+        const session = sessions.value.find(s => s.user.name === params.name);
         if (session) {
           return `${session.user.name}<br/>
                   设备: ${getDeviceTypeLabel(session.device.type)}<br/>
                   状态: ${getStatusLabel(session.status)}<br/>
-                  IP: ${session.ipAddress}`
+                  IP: ${session.ipAddress}`;
         }
-        return params.name
-      }
+        return params.name;
+      },
     },
     geo: {
       map: 'china',
@@ -727,13 +700,13 @@ const initSessionMap = () => {
       center: [104.114129, 37.550339],
       itemStyle: {
         areaColor: '#e7e8ea',
-        borderColor: '#404a59'
+        borderColor: '#404a59',
       },
       emphasis: {
         itemStyle: {
-          areaColor: '#409eff'
-        }
-      }
+          areaColor: '#409eff',
+        },
+      },
     },
     series: [
       {
@@ -743,32 +716,32 @@ const initSessionMap = () => {
         data: mapData,
         symbolSize: 12,
         encode: {
-          value: 2
-        }
-      }
-    ]
-  }
+          value: 2,
+        },
+      },
+    ],
+  };
 
   // 注册中国地图（这里需要引入中国地图数据）
   // echarts.registerMap('china', chinaJson)
 
-  chart.setOption(option)
+  chart.setOption(option);
 
   // 监听窗口大小变化
   window.addEventListener('resize', () => {
-    chart.resize()
-  })
-}
+    chart.resize();
+  });
+};
 
 // 生命周期
 onMounted(async () => {
-  await fetchSessions()
+  await fetchSessions();
 
   if (viewMode.value === 'map') {
-    await nextTick()
-    initSessionMap()
+    await nextTick();
+    initSessionMap();
   }
-})
+});
 </script>
 
 <style lang="scss" scoped>

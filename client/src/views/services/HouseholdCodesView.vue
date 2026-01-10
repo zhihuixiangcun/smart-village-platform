@@ -3,7 +3,7 @@
 </template>
 
 <script setup>
-import HouseholdQR from '@/views/village/HouseholdQR.vue'
+import HouseholdQR from '@/views/village/HouseholdQR.vue';
 </script>
 
 <style scoped>

@@ -15,7 +15,7 @@ export function useDarkMode() {
     themes: {
       light: 'light',
       dark: 'dark',
-      auto: 'auto'
+      auto: 'auto',
     },
 
     // CSS变量映射
@@ -51,7 +51,7 @@ export function useDarkMode() {
 
         '--box-shadow': '0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04)',
         '--box-shadow-light': '0 2px 12px 0 rgba(0, 0, 0, 0.1)',
-        '--box-shadow-dark': '0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.12)'
+        '--box-shadow-dark': '0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.12)',
       },
 
       dark: {
@@ -85,8 +85,8 @@ export function useDarkMode() {
 
         '--box-shadow': '0 2px 4px rgba(0, 0, 0, 0.48), 0 0 6px rgba(0, 0, 0, 0.16)',
         '--box-shadow-light': '0 2px 12px 0 rgba(0, 0, 0, 0.4)',
-        '--box-shadow-dark': '0 2px 4px rgba(0, 0, 0, 0.48), 0 0 6px rgba(0, 0, 0, 0.48)'
-      }
+        '--box-shadow-dark': '0 2px 4px rgba(0, 0, 0, 0.48), 0 0 6px rgba(0, 0, 0, 0.48)',
+      },
     },
 
     // 特殊元素选择器配置
@@ -102,8 +102,8 @@ export function useDarkMode() {
         '.el-select',
         '.el-dialog',
         '.el-message',
-        '.el-notification'
-      ]
+        '.el-notification',
+      ],
     },
 
     // 存储键名
@@ -112,8 +112,8 @@ export function useDarkMode() {
     // 过渡动画配置
     transition: {
       duration: '0.3s',
-      easing: 'ease-in-out'
-    }
+      easing: 'ease-in-out',
+    },
   };
 
   // 检测系统主题偏好
@@ -123,7 +123,7 @@ export function useDarkMode() {
       systemPrefersDark.value = mediaQuery.matches;
 
       // 监听系统主题变化
-      mediaQuery.addEventListener('change', (e) => {
+      mediaQuery.addEventListener('change', e => {
         systemPrefersDark.value = e.matches;
         if (followSystem.value) {
           applyTheme(e.matches ? 'dark' : 'light');
@@ -133,12 +133,10 @@ export function useDarkMode() {
   };
 
   // 应用主题
-  const applyTheme = (theme) => {
+  const applyTheme = theme => {
     if (typeof document === 'undefined') return;
 
-    const targetTheme = theme === 'auto'
-      ? (systemPrefersDark.value ? 'dark' : 'light')
-      : theme;
+    const targetTheme = theme === 'auto' ? (systemPrefersDark.value ? 'dark' : 'light') : theme;
 
     isDark.value = targetTheme === 'dark';
 
@@ -164,13 +162,16 @@ export function useDarkMode() {
     updateElementPlusTheme(targetTheme);
 
     // 移除过渡效果
-    setTimeout(() => {
-      root.style.transition = '';
-    }, parseFloat(themeConfig.transition.duration) * 1000);
+    setTimeout(
+      () => {
+        root.style.transition = '';
+      },
+      parseFloat(themeConfig.transition.duration) * 1000
+    );
   };
 
   // 更新Element Plus组件主题
-  const updateElementPlusTheme = (theme) => {
+  const updateElementPlusTheme = theme => {
     const body = document.body;
 
     if (theme === 'dark') {
@@ -201,14 +202,14 @@ export function useDarkMode() {
   };
 
   // 设置主题
-  const setTheme = (theme) => {
+  const setTheme = theme => {
     followSystem.value = theme === 'auto';
     applyTheme(theme);
     saveThemePreference(theme);
   };
 
   // 保存主题偏好
-  const saveThemePreference = (theme) => {
+  const saveThemePreference = theme => {
     try {
       localStorage.setItem(themeConfig.storageKey, theme);
     } catch (error) {
@@ -237,9 +238,7 @@ export function useDarkMode() {
 
   // 获取主题颜色
   const getThemeColors = (theme = getCurrentTheme()) => {
-    const targetTheme = theme === 'auto'
-      ? (systemPrefersDark.value ? 'dark' : 'light')
-      : theme;
+    const targetTheme = theme === 'auto' ? (systemPrefersDark.value ? 'dark' : 'light') : theme;
 
     return themeConfig.cssVariables[targetTheme];
   };
@@ -248,9 +247,7 @@ export function useDarkMode() {
   const applyThemeToElement = (element, theme = getCurrentTheme()) => {
     if (!element) return;
 
-    const targetTheme = theme === 'auto'
-      ? (systemPrefersDark.value ? 'dark' : 'light')
-      : theme;
+    const targetTheme = theme === 'auto' ? (systemPrefersDark.value ? 'dark' : 'light') : theme;
 
     const variables = themeConfig.cssVariables[targetTheme];
 
@@ -263,7 +260,7 @@ export function useDarkMode() {
   };
 
   // 监听主题变化
-  const onThemeChange = (callback) => {
+  const onThemeChange = callback => {
     return watch(isDark, callback, { immediate: true });
   };
 
@@ -280,15 +277,17 @@ export function useDarkMode() {
 
   // 检查是否支持深色模式
   const isDarkModeSupported = () => {
-    return typeof window !== 'undefined' &&
-           window.matchMedia &&
-           window.matchMedia('(prefers-color-scheme: dark)').media !== 'not all';
+    return (
+      typeof window !== 'undefined' &&
+      window.matchMedia &&
+      window.matchMedia('(prefers-color-scheme: dark)').media !== 'not all'
+    );
   };
 
   // 计算属性
-  const themeIcon = computed(() => isDark.value ? '🌙' : '☀️');
-  const themeText = computed(() => isDark.value ? '深色模式' : '浅色模式');
-  const themeToggleText = computed(() => isDark.value ? '切换到浅色模式' : '切换到深色模式');
+  const themeIcon = computed(() => (isDark.value ? '🌙' : '☀️'));
+  const themeText = computed(() => (isDark.value ? '深色模式' : '浅色模式'));
+  const themeToggleText = computed(() => (isDark.value ? '切换到浅色模式' : '切换到深色模式'));
 
   // 初始化
   const initTheme = () => {
@@ -313,7 +312,9 @@ export function useDarkMode() {
     themeColorMeta.setAttribute('content', themeColor);
 
     // 状态栏样式（移动端）
-    let statusBarMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+    let statusBarMeta = document.querySelector(
+      'meta[name="apple-mobile-web-app-status-bar-style"]'
+    );
     if (!statusBarMeta) {
       statusBarMeta = document.createElement('meta');
       statusBarMeta.setAttribute('name', 'apple-mobile-web-app-status-bar-style');
@@ -351,6 +352,6 @@ export function useDarkMode() {
     initTheme,
 
     // 配置
-    themeConfig
+    themeConfig,
   };
 }

@@ -89,12 +89,7 @@
             <el-icon><View /></el-icon>
             查看
           </el-button>
-          <el-button 
-            size="small" 
-            type="primary" 
-            @click="$emit('edit', expense)"
-            v-if="canEdit"
-          >
+          <el-button size="small" type="primary" @click="$emit('edit', expense)" v-if="canEdit">
             <el-icon><Edit /></el-icon>
             编辑
           </el-button>
@@ -104,17 +99,14 @@
             </el-button>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item 
-                  command="approve" 
+                <el-dropdown-item
+                  command="approve"
                   v-if="expense.status === 'pending_approval' && canApprove"
                 >
                   <el-icon><Check /></el-icon>
                   审批
                 </el-dropdown-item>
-                <el-dropdown-item 
-                  command="pay" 
-                  v-if="expense.status === 'approved' && canPay"
-                >
+                <el-dropdown-item command="pay" v-if="expense.status === 'approved' && canPay">
                   <el-icon><CreditCard /></el-icon>
                   标记支付
                 </el-dropdown-item>
@@ -122,8 +114,8 @@
                   <el-icon><DocumentCopy /></el-icon>
                   复制开支
                 </el-dropdown-item>
-                <el-dropdown-item 
-                  command="delete" 
+                <el-dropdown-item
+                  command="delete"
                   v-if="expense.status === 'draft' && canDelete"
                   divided
                 >
@@ -140,174 +132,186 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { 
-  Money, Clock, Warning, View, Edit, ArrowDown, Check, 
-  CreditCard, DocumentCopy, Delete 
-} from '@element-plus/icons-vue'
-import { useUserStore } from '@/store/user'
+import { computed } from 'vue';
+import {
+  Money,
+  Clock,
+  Warning,
+  View,
+  Edit,
+  ArrowDown,
+  Check,
+  CreditCard,
+  DocumentCopy,
+  Delete,
+} from '@element-plus/icons-vue';
+import { useUserStore } from '@/store/user';
 
 const props = defineProps({
   expense: {
     type: Object,
-    required: true
-  }
-})
+    required: true,
+  },
+});
 
-const emit = defineEmits(['view', 'edit', 'approve', 'pay', 'delete'])
+const emit = defineEmits(['view', 'edit', 'approve', 'pay', 'delete']);
 
-const userStore = useUserStore()
+const userStore = useUserStore();
 
 // 权限计算
 const canEdit = computed(() => {
-  return ['draft', 'pending_approval'].includes(props.expense.status) &&
-         (props.expense.handler?.handlerId === userStore.user._id || 
-          userStore.hasPermission('daily_expense_management', 'update'))
-})
+  return (
+    ['draft', 'pending_approval'].includes(props.expense.status) &&
+    (props.expense.handler?.handlerId === userStore.user._id ||
+      userStore.hasPermission('daily_expense_management', 'update'))
+  );
+});
 
 const canApprove = computed(() => {
-  return userStore.hasPermission('daily_expense_management', 'approve')
-})
+  return userStore.hasPermission('daily_expense_management', 'approve');
+});
 
 const canPay = computed(() => {
-  return userStore.hasPermission('daily_expense_management', 'pay')
-})
+  return userStore.hasPermission('daily_expense_management', 'pay');
+});
 
 const canDelete = computed(() => {
-  return props.expense.status === 'draft' &&
-         (props.expense.handler?.handlerId === userStore.user._id || 
-          userStore.hasPermission('daily_expense_management', 'delete'))
-})
+  return (
+    props.expense.status === 'draft' &&
+    (props.expense.handler?.handlerId === userStore.user._id ||
+      userStore.hasPermission('daily_expense_management', 'delete'))
+  );
+});
 
 // 方法
-const handleAction = (command) => {
-  emit(command, props.expense)
-}
+const handleAction = command => {
+  emit(command, props.expense);
+};
 
-const getCardClass = (expense) => {
-  const classes = []
-  
+const getCardClass = expense => {
+  const classes = [];
+
   if (expense.urgency === 'emergency') {
-    classes.push('emergency-card')
+    classes.push('emergency-card');
   }
-  
-  if (expense.status === 'rejected') {
-    classes.push('rejected-card')
-  }
-  
-  if (expense.recurringInfo?.isRecurring) {
-    classes.push('recurring-card')
-  }
-  
-  return classes.join(' ')
-}
 
-const formatCurrency = (amount) => {
-  if (amount === undefined || amount === null) return '0.00'
+  if (expense.status === 'rejected') {
+    classes.push('rejected-card');
+  }
+
+  if (expense.recurringInfo?.isRecurring) {
+    classes.push('recurring-card');
+  }
+
+  return classes.join(' ');
+};
+
+const formatCurrency = amount => {
+  if (amount === undefined || amount === null) return '0.00';
   return Number(amount).toLocaleString('zh-CN', {
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  })
-}
+    maximumFractionDigits: 2,
+  });
+};
 
-const formatDate = (date) => {
-  if (!date) return '-'
-  return new Date(date).toLocaleDateString('zh-CN')
-}
+const formatDate = date => {
+  if (!date) return '-';
+  return new Date(date).toLocaleDateString('zh-CN');
+};
 
 const truncateText = (text, maxLength) => {
-  if (!text) return ''
-  return text.length > maxLength ? text.substring(0, maxLength) + '...' : text
-}
+  if (!text) return '';
+  return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+};
 
-const getCategoryName = (category) => {
+const getCategoryName = category => {
   const categoryMap = {
-    'office_supplies': '办公用品',
-    'utilities': '水电费',
-    'communication': '通讯费',
-    'transportation': '交通费',
-    'accommodation': '住宿费',
-    'meals_entertainment': '餐费接待',
-    'maintenance': '维修保养',
-    'training': '培训费',
-    'conference': '会议费',
-    'printing': '印刷费',
-    'postal': '邮寄费',
-    'cleaning': '清洁费',
-    'security': '安保费',
-    'insurance': '保险费',
-    'fuel': '燃料费',
-    'medical': '医疗费',
-    'emergency': '应急开支',
-    'other': '其他'
-  }
-  return categoryMap[category] || category
-}
+    office_supplies: '办公用品',
+    utilities: '水电费',
+    communication: '通讯费',
+    transportation: '交通费',
+    accommodation: '住宿费',
+    meals_entertainment: '餐费接待',
+    maintenance: '维修保养',
+    training: '培训费',
+    conference: '会议费',
+    printing: '印刷费',
+    postal: '邮寄费',
+    cleaning: '清洁费',
+    security: '安保费',
+    insurance: '保险费',
+    fuel: '燃料费',
+    medical: '医疗费',
+    emergency: '应急开支',
+    other: '其他',
+  };
+  return categoryMap[category] || category;
+};
 
-const getCategoryColor = (category) => {
+const getCategoryColor = category => {
   const colorMap = {
-    'office_supplies': '',
-    'utilities': 'warning',
-    'communication': 'info',
-    'transportation': 'success',
-    'emergency': 'danger',
-    'other': 'info'
-  }
-  return colorMap[category] || ''
-}
+    office_supplies: '',
+    utilities: 'warning',
+    communication: 'info',
+    transportation: 'success',
+    emergency: 'danger',
+    other: 'info',
+  };
+  return colorMap[category] || '';
+};
 
-const getStatusName = (status) => {
+const getStatusName = status => {
   const statusMap = {
-    'draft': '草稿',
-    'pending_approval': '待审批',
-    'approved': '已批准',
-    'paid': '已支付',
-    'rejected': '已拒绝',
-    'cancelled': '已取消'
-  }
-  return statusMap[status] || status
-}
+    draft: '草稿',
+    pending_approval: '待审批',
+    approved: '已批准',
+    paid: '已支付',
+    rejected: '已拒绝',
+    cancelled: '已取消',
+  };
+  return statusMap[status] || status;
+};
 
-const getStatusColor = (status) => {
+const getStatusColor = status => {
   const colorMap = {
-    'draft': 'info',
-    'pending_approval': 'warning',
-    'approved': 'success',
-    'paid': 'primary',
-    'rejected': 'danger',
-    'cancelled': 'info'
-  }
-  return colorMap[status] || ''
-}
+    draft: 'info',
+    pending_approval: 'warning',
+    approved: 'success',
+    paid: 'primary',
+    rejected: 'danger',
+    cancelled: 'info',
+  };
+  return colorMap[status] || '';
+};
 
-const getUrgencyName = (urgency) => {
+const getUrgencyName = urgency => {
   const urgencyMap = {
-    'routine': '常规',
-    'urgent': '紧急',
-    'emergency': '应急'
-  }
-  return urgencyMap[urgency] || urgency
-}
+    routine: '常规',
+    urgent: '紧急',
+    emergency: '应急',
+  };
+  return urgencyMap[urgency] || urgency;
+};
 
-const getUrgencyColor = (urgency) => {
+const getUrgencyColor = urgency => {
   const colorMap = {
-    'routine': '',
-    'urgent': 'warning',
-    'emergency': 'danger'
-  }
-  return colorMap[urgency] || ''
-}
+    routine: '',
+    urgent: 'warning',
+    emergency: 'danger',
+  };
+  return colorMap[urgency] || '';
+};
 
-const getFrequencyName = (frequency) => {
+const getFrequencyName = frequency => {
   const frequencyMap = {
-    'daily': '每日',
-    'weekly': '每周',
-    'monthly': '每月',
-    'quarterly': '每季度',
-    'yearly': '每年'
-  }
-  return frequencyMap[frequency] || frequency
-}
+    daily: '每日',
+    weekly: '每周',
+    monthly: '每月',
+    quarterly: '每季度',
+    yearly: '每年',
+  };
+  return frequencyMap[frequency] || frequency;
+};
 </script>
 
 <style scoped>
@@ -507,26 +511,26 @@ const getFrequencyName = (frequency) => {
     flex-direction: column;
     gap: 12px;
   }
-  
+
   .header-right {
     margin-left: 0;
     align-self: flex-start;
   }
-  
+
   .expense-title {
     font-size: 14px;
   }
-  
+
   .amount-value {
     font-size: 20px;
   }
-  
+
   .info-row {
     flex-direction: column;
     align-items: flex-start;
     gap: 4px;
   }
-  
+
   .info-value {
     margin-left: 0;
     text-align: left;

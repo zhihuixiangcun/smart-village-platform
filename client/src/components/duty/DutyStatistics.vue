@@ -185,49 +185,43 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick, watch } from 'vue'
-import { ElMessage } from 'element-plus'
-import {
-  Calendar,
-  CircleCheck,
-  Clock,
-  UserFilled,
-  Download
-} from '@element-plus/icons-vue'
-import * as echarts from 'echarts'
+import { ref, computed, onMounted, nextTick, watch } from 'vue';
+import { ElMessage } from 'element-plus';
+import { Calendar, CircleCheck, Clock, UserFilled, Download } from '@element-plus/icons-vue';
+import * as echarts from 'echarts';
 
 const props = defineProps({
   modelValue: {
     type: Boolean,
-    default: false
+    default: false,
   },
   statistics: {
     type: Object,
-    default: () => ({})
+    default: () => ({}),
   },
   personnel: {
     type: Array,
-    default: () => []
-  }
-})
+    default: () => [],
+  },
+});
 
-const emit = defineEmits(['update:modelValue', 'export'])
+const emit = defineEmits(['update:modelValue', 'export']);
 
 // 响应式数据
 const dateRange = ref([
   new Date(new Date().getFullYear(), new Date().getMonth() - 5, 1),
-  new Date()
-])
-const monthlyChart = ref(null)
-const shiftChart = ref(null)
-const workloadChart = ref(null)
-const attendanceChart = ref(null)
+  new Date(),
+]);
+const monthlyChart = ref(null);
+const shiftChart = ref(null);
+const workloadChart = ref(null);
+const attendanceChart = ref(null);
 
 // 图表实例
-let monthlyChartInstance = null
-let shiftChartInstance = null
-let workloadChartInstance = null
-let attendanceChartInstance = null
+let monthlyChartInstance = null;
+let shiftChartInstance = null;
+let workloadChartInstance = null;
+let attendanceChartInstance = null;
 
 // 计算属性
 const personnelStats = computed(() => {
@@ -238,263 +232,279 @@ const personnelStats = computed(() => {
     upcomingDuties: Math.floor(Math.random() * 10) + 1,
     attendanceRate: Math.floor(Math.random() * 30) + 70,
     avgDutiesPerMonth: (Math.random() * 5 + 2).toFixed(1),
-    preferredShifts: ['morning', 'afternoon', 'evening', 'night'].slice(0, Math.floor(Math.random() * 4) + 1),
-    lastDutyDate: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000)
-  }))
-})
+    preferredShifts: ['morning', 'afternoon', 'evening', 'night'].slice(
+      0,
+      Math.floor(Math.random() * 4) + 1
+    ),
+    lastDutyDate: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000),
+  }));
+});
 
 // 方法
-const formatDate = (date) => {
-  if (!date) return '-'
-  const d = new Date(date)
-  return `${d.getMonth() + 1}月${d.getDate()}日`
-}
+const formatDate = date => {
+  if (!date) return '-';
+  const d = new Date(date);
+  return `${d.getMonth() + 1}月${d.getDate()}日`;
+};
 
-const getShiftTypeName = (shiftType) => {
+const getShiftTypeName = shiftType => {
   const shiftMap = {
     morning: '早班',
     afternoon: '午班',
     evening: '晚班',
-    night: '夜班'
-  }
-  return shiftMap[shiftType] || shiftType
-}
+    night: '夜班',
+  };
+  return shiftMap[shiftType] || shiftType;
+};
 
-const getShiftTypeColor = (shiftType) => {
+const getShiftTypeColor = shiftType => {
   const colorMap = {
     morning: 'success',
     afternoon: 'warning',
     evening: 'danger',
-    night: 'info'
-  }
-  return colorMap[shiftType] || 'info'
-}
+    night: 'info',
+  };
+  return colorMap[shiftType] || 'info';
+};
 
-const getAttendanceColor = (rate) => {
-  if (rate >= 90) return '#67c23a'
-  if (rate >= 80) return '#e6a23c'
-  return '#f56c6c'
-}
+const getAttendanceColor = rate => {
+  if (rate >= 90) return '#67c23a';
+  if (rate >= 80) return '#e6a23c';
+  return '#f56c6c';
+};
 
 const initMonthlyChart = () => {
-  if (!monthlyChart.value) return
+  if (!monthlyChart.value) return;
 
-  monthlyChartInstance = echarts.init(monthlyChart.value)
-  const months = []
-  const data = []
+  monthlyChartInstance = echarts.init(monthlyChart.value);
+  const months = [];
+  const data = [];
 
   for (let i = 11; i >= 0; i--) {
-    const date = new Date()
-    date.setMonth(date.getMonth() - i)
-    months.push(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`)
-    data.push(Math.floor(Math.random() * 100) + 50)
+    const date = new Date();
+    date.setMonth(date.getMonth() - i);
+    months.push(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`);
+    data.push(Math.floor(Math.random() * 100) + 50);
   }
 
   const option = {
     tooltip: {
       trigger: 'axis',
-      formatter: '{b}<br />值班次数: {c}'
+      formatter: '{b}<br />值班次数: {c}',
     },
     xAxis: {
       type: 'category',
       data: months,
       axisLabel: {
-        formatter: (value) => {
-          const [year, month] = value.split('-')
-          return `${month}月`
-        }
-      }
+        formatter: value => {
+          const [year, month] = value.split('-');
+          return `${month}月`;
+        },
+      },
     },
     yAxis: {
       type: 'value',
-      name: '值班次数'
+      name: '值班次数',
     },
-    series: [{
-      data: data,
-      type: 'line',
-      smooth: true,
-      areaStyle: {
-        opacity: 0.3
+    series: [
+      {
+        data: data,
+        type: 'line',
+        smooth: true,
+        areaStyle: {
+          opacity: 0.3,
+        },
+        itemStyle: {
+          color: '#409eff',
+        },
       },
-      itemStyle: {
-        color: '#409eff'
-      }
-    }]
-  }
+    ],
+  };
 
-  monthlyChartInstance.setOption(option)
-}
+  monthlyChartInstance.setOption(option);
+};
 
 const initShiftChart = () => {
-  if (!shiftChart.value) return
+  if (!shiftChart.value) return;
 
-  shiftChartInstance = echarts.init(shiftChart.value)
+  shiftChartInstance = echarts.init(shiftChart.value);
   const data = [
     { name: '早班', value: 120, itemStyle: { color: '#67c23a' } },
     { name: '午班', value: 100, itemStyle: { color: '#e6a23c' } },
     { name: '晚班', value: 80, itemStyle: { color: '#f56c6c' } },
-    { name: '夜班', value: 40, itemStyle: { color: '#909399' } }
-  ]
+    { name: '夜班', value: 40, itemStyle: { color: '#909399' } },
+  ];
 
   const option = {
     tooltip: {
       trigger: 'item',
-      formatter: '{b}: {c} ({d}%)'
+      formatter: '{b}: {c} ({d}%)',
     },
     legend: {
       orient: 'vertical',
-      left: 'left'
+      left: 'left',
     },
-    series: [{
-      type: 'pie',
-      radius: ['40%', '70%'],
-      avoidLabelOverlap: false,
-      itemStyle: {
-        borderRadius: 10,
-        borderColor: '#fff',
-        borderWidth: 2
-      },
-      label: {
-        show: false,
-        position: 'center'
-      },
-      emphasis: {
+    series: [
+      {
+        type: 'pie',
+        radius: ['40%', '70%'],
+        avoidLabelOverlap: false,
+        itemStyle: {
+          borderRadius: 10,
+          borderColor: '#fff',
+          borderWidth: 2,
+        },
         label: {
-          show: true,
-          fontSize: 20,
-          fontWeight: 'bold'
-        }
+          show: false,
+          position: 'center',
+        },
+        emphasis: {
+          label: {
+            show: true,
+            fontSize: 20,
+            fontWeight: 'bold',
+          },
+        },
+        labelLine: {
+          show: false,
+        },
+        data: data,
       },
-      labelLine: {
-        show: false
-      },
-      data: data
-    }]
-  }
+    ],
+  };
 
-  shiftChartInstance.setOption(option)
-}
+  shiftChartInstance.setOption(option);
+};
 
 const initWorkloadChart = () => {
-  if (!workloadChart.value) return
+  if (!workloadChart.value) return;
 
-  workloadChartInstance = echarts.init(workloadChart.value)
+  workloadChartInstance = echarts.init(workloadChart.value);
   const data = props.personnel.slice(0, 10).map(person => ({
     name: person.name,
-    value: Math.floor(Math.random() * 30) + 10
-  }))
+    value: Math.floor(Math.random() * 30) + 10,
+  }));
 
   const option = {
     tooltip: {
       trigger: 'axis',
       axisPointer: {
-        type: 'shadow'
-      }
+        type: 'shadow',
+      },
     },
     xAxis: {
-      type: 'value'
+      type: 'value',
     },
     yAxis: {
       type: 'category',
       data: data.map(item => item.name),
-      inverse: true
+      inverse: true,
     },
-    series: [{
-      type: 'bar',
-      data: data.map(item => item.value),
-      itemStyle: {
-        color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
-          { offset: 0, color: '#83bff6' },
-          { offset: 0.5, color: '#188df0' },
-          { offset: 1, color: '#188df0' }
-        ])
-      }
-    }]
-  }
+    series: [
+      {
+        type: 'bar',
+        data: data.map(item => item.value),
+        itemStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+            { offset: 0, color: '#83bff6' },
+            { offset: 0.5, color: '#188df0' },
+            { offset: 1, color: '#188df0' },
+          ]),
+        },
+      },
+    ],
+  };
 
-  workloadChartInstance.setOption(option)
-}
+  workloadChartInstance.setOption(option);
+};
 
 const initAttendanceChart = () => {
-  if (!attendanceChart.value) return
+  if (!attendanceChart.value) return;
 
-  attendanceChartInstance = echarts.init(attendanceChart.value)
+  attendanceChartInstance = echarts.init(attendanceChart.value);
   const data = props.personnel.map(person => ({
     name: person.name,
-    value: Math.floor(Math.random() * 30) + 70
-  }))
+    value: Math.floor(Math.random() * 30) + 70,
+  }));
 
   const option = {
     tooltip: {
       trigger: 'item',
-      formatter: '{b}: {c}%'
+      formatter: '{b}: {c}%',
     },
     radar: {
       indicator: props.personnel.slice(0, 6).map(person => ({
         name: person.name,
-        max: 100
-      }))
+        max: 100,
+      })),
     },
-    series: [{
-      type: 'radar',
-      data: [{
-        value: data.slice(0, 6).map(item => item.value),
-        name: '出勤率',
-        areaStyle: {
-          opacity: 0.3
-        }
-      }]
-    }]
-  }
+    series: [
+      {
+        type: 'radar',
+        data: [
+          {
+            value: data.slice(0, 6).map(item => item.value),
+            name: '出勤率',
+            areaStyle: {
+              opacity: 0.3,
+            },
+          },
+        ],
+      },
+    ],
+  };
 
-  attendanceChartInstance.setOption(option)
-}
+  attendanceChartInstance.setOption(option);
+};
 
 const updateCharts = () => {
-  initMonthlyChart()
-}
+  initMonthlyChart();
+};
 
 const exportReport = () => {
-  emit('export', dateRange.value)
-}
+  emit('export', dateRange.value);
+};
 
 const resizeCharts = () => {
-  monthlyChartInstance?.resize()
-  shiftChartInstance?.resize()
-  workloadChartInstance?.resize()
-  attendanceChartInstance?.resize()
-}
+  monthlyChartInstance?.resize();
+  shiftChartInstance?.resize();
+  workloadChartInstance?.resize();
+  attendanceChartInstance?.resize();
+};
 
 // 生命周期
 onMounted(() => {
   nextTick(() => {
-    initMonthlyChart()
-    initShiftChart()
-    initWorkloadChart()
-    initAttendanceChart()
-    window.addEventListener('resize', resizeCharts)
-  })
-})
+    initMonthlyChart();
+    initShiftChart();
+    initWorkloadChart();
+    initAttendanceChart();
+    window.addEventListener('resize', resizeCharts);
+  });
+});
 
 // 监听对话框关闭
-watch(() => props.modelValue, (newVal) => {
-  if (!newVal) {
-    // 清理图表实例
-    monthlyChartInstance?.dispose()
-    shiftChartInstance?.dispose()
-    workloadChartInstance?.dispose()
-    attendanceChartInstance?.dispose()
-    window.removeEventListener('resize', resizeCharts)
-  } else {
-    nextTick(() => {
-      initMonthlyChart()
-      initShiftChart()
-      initWorkloadChart()
-      initAttendanceChart()
-      window.addEventListener('resize', resizeCharts)
-    })
+watch(
+  () => props.modelValue,
+  newVal => {
+    if (!newVal) {
+      // 清理图表实例
+      monthlyChartInstance?.dispose();
+      shiftChartInstance?.dispose();
+      workloadChartInstance?.dispose();
+      attendanceChartInstance?.dispose();
+      window.removeEventListener('resize', resizeCharts);
+    } else {
+      nextTick(() => {
+        initMonthlyChart();
+        initShiftChart();
+        initWorkloadChart();
+        initAttendanceChart();
+        window.addEventListener('resize', resizeCharts);
+      });
+    }
   }
-})
+);
 </script>
 
 <style lang="scss" scoped>

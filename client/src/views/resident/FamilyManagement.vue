@@ -8,15 +8,9 @@
 
     <!-- 操作工具栏 -->
     <div class="toolbar">
-      <el-button type="primary" icon="Plus" @click="showCreateDialog = true">
-        新建家庭
-      </el-button>
-      <el-button icon="Search" @click="showSearchDialog = true">
-        高级搜索
-      </el-button>
-      <el-button icon="Download" @click="exportData">
-        导出数据
-      </el-button>
+      <el-button type="primary" icon="Plus" @click="showCreateDialog = true"> 新建家庭 </el-button>
+      <el-button icon="Search" @click="showSearchDialog = true"> 高级搜索 </el-button>
+      <el-button icon="Download" @click="exportData"> 导出数据 </el-button>
       <div class="right-tools">
         <el-input
           v-model="searchKeyword"
@@ -125,27 +119,16 @@
         <el-table-column prop="contact.primaryPhone" label="联系电话" width="150" />
         <el-table-column prop="tags" label="标签" width="200">
           <template #default="{ row }">
-            <el-tag
-              v-for="tag in row.tags"
-              :key="tag"
-              size="small"
-              style="margin-right: 5px"
-            >
+            <el-tag v-for="tag in row.tags" :key="tag" size="small" style="margin-right: 5px">
               {{ tag }}
             </el-tag>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="200" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="viewFamily(row)">
-              查看
-            </el-button>
-            <el-button link type="primary" @click="editFamily(row)">
-              编辑
-            </el-button>
-            <el-button link type="danger" @click="deleteFamily(row)">
-              删除
-            </el-button>
+            <el-button link type="primary" @click="viewFamily(row)"> 查看 </el-button>
+            <el-button link type="primary" @click="editFamily(row)"> 编辑 </el-button>
+            <el-button link type="danger" @click="deleteFamily(row)"> 删除 </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -210,16 +193,16 @@
                   </el-button>
                   <template #dropdown>
                     <el-dropdown-menu>
-                      <el-dropdown-item :command="{action: 'members', family}">
+                      <el-dropdown-item :command="{ action: 'members', family }">
                         成员管理
                       </el-dropdown-item>
-                      <el-dropdown-item :command="{action: 'agents', family}">
+                      <el-dropdown-item :command="{ action: 'agents', family }">
                         代理设置
                       </el-dropdown-item>
-                      <el-dropdown-item :command="{action: 'qrcode', family}">
+                      <el-dropdown-item :command="{ action: 'qrcode', family }">
                         生成二维码
                       </el-dropdown-item>
-                      <el-dropdown-item :command="{action: 'delete', family}" divided>
+                      <el-dropdown-item :command="{ action: 'delete', family }" divided>
                         删除家庭
                       </el-dropdown-item>
                     </el-dropdown-menu>
@@ -261,11 +244,7 @@
     </el-dialog>
 
     <!-- 搜索对话框 -->
-    <el-dialog
-      v-model="showSearchDialog"
-      title="高级搜索"
-      width="600px"
-    >
+    <el-dialog v-model="showSearchDialog" title="高级搜索" width="600px">
       <FamilySearchForm
         :filters="searchFilters"
         @search="handleSearchSubmit"
@@ -290,116 +269,125 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { House, User, UserFilled, Star, Plus, Search, Download, ArrowDown } from '@element-plus/icons-vue'
-import FamilyForm from '@/components/resident/FamilyForm.vue'
-import FamilySearchForm from '@/components/resident/FamilySearchForm.vue'
-import FamilyDetail from '@/components/resident/FamilyDetail.vue'
-import { familyApi } from '@/api/family'
-import { exportToExcel } from '@/utils/export'
+import { ref, reactive, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import {
+  House,
+  User,
+  UserFilled,
+  Star,
+  Plus,
+  Search,
+  Download,
+  ArrowDown,
+} from '@element-plus/icons-vue';
+import FamilyForm from '@/components/resident/FamilyForm.vue';
+import FamilySearchForm from '@/components/resident/FamilySearchForm.vue';
+import FamilyDetail from '@/components/resident/FamilyDetail.vue';
+import { familyApi } from '@/api/family';
+import { exportToExcel } from '@/utils/export';
 
 // 响应式数据
-const loading = ref(false)
-const familyList = ref([])
-const stats = ref({})
-const viewMode = ref('card')
-const searchKeyword = ref('')
-const showCreateDialog = ref(false)
-const showSearchDialog = ref(false)
-const showDetailDialog = ref(false)
-const currentFamily = ref(null)
-const formMode = ref('create')
-const searchFilters = ref({})
+const loading = ref(false);
+const familyList = ref([]);
+const stats = ref({});
+const viewMode = ref('card');
+const searchKeyword = ref('');
+const showCreateDialog = ref(false);
+const showSearchDialog = ref(false);
+const showDetailDialog = ref(false);
+const currentFamily = ref(null);
+const formMode = ref('create');
+const searchFilters = ref({});
 
 // 分页数据
 const pagination = reactive({
   page: 1,
   limit: 20,
-  total: 0
-})
+  total: 0,
+});
 
 // 家庭类型标签颜色映射
-const getFamilyTypeTagType = (type) => {
+const getFamilyTypeTagType = type => {
   const typeMap = {
-    '普通户': '',
-    '低保户': 'danger',
-    '特困户': 'warning',
-    '独生户': 'success',
-    '双女户': 'info',
-    '其他': ''
-  }
-  return typeMap[type] || ''
-}
+    普通户: '',
+    低保户: 'danger',
+    特困户: 'warning',
+    独生户: 'success',
+    双女户: 'info',
+    其他: '',
+  };
+  return typeMap[type] || '';
+};
 
 // 加载家庭列表
 const loadFamilyList = async () => {
-  loading.value = true
+  loading.value = true;
   try {
     const params = {
       page: pagination.page,
       limit: pagination.limit,
       search: searchKeyword.value,
-      ...searchFilters.value
-    }
-    const response = await familyApi.getFamilyList(params)
-    familyList.value = response.data.families
-    pagination.total = response.data.pagination.total
+      ...searchFilters.value,
+    };
+    const response = await familyApi.getFamilyList(params);
+    familyList.value = response.data.families;
+    pagination.total = response.data.pagination.total;
   } catch (error) {
-    ElMessage.error('加载家庭列表失败')
-    console.error(error)
+    ElMessage.error('加载家庭列表失败');
+    console.error(error);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 // 加载统计数据
 const loadStats = async () => {
   try {
-    const response = await familyApi.getFamilyStats()
-    stats.value = response.data
+    const response = await familyApi.getFamilyStats();
+    stats.value = response.data;
   } catch (error) {
-    console.error('加载统计数据失败', error)
+    console.error('加载统计数据失败', error);
   }
-}
+};
 
 // 搜索处理
 const handleSearch = () => {
-  pagination.page = 1
-  loadFamilyList()
-}
+  pagination.page = 1;
+  loadFamilyList();
+};
 
 // 搜索提交
-const handleSearchSubmit = (filters) => {
-  searchFilters.value = filters
-  showSearchDialog.value = false
-  pagination.page = 1
-  loadFamilyList()
-}
+const handleSearchSubmit = filters => {
+  searchFilters.value = filters;
+  showSearchDialog.value = false;
+  pagination.page = 1;
+  loadFamilyList();
+};
 
 // 搜索重置
 const handleSearchReset = () => {
-  searchFilters.value = {}
-  showSearchDialog.value = false
-  pagination.page = 1
-  loadFamilyList()
-}
+  searchFilters.value = {};
+  showSearchDialog.value = false;
+  pagination.page = 1;
+  loadFamilyList();
+};
 
 // 查看家庭详情
-const viewFamily = (family) => {
-  currentFamily.value = family
-  showDetailDialog.value = true
-}
+const viewFamily = family => {
+  currentFamily.value = family;
+  showDetailDialog.value = true;
+};
 
 // 编辑家庭
-const editFamily = (family) => {
-  currentFamily.value = family
-  formMode.value = 'edit'
-  showCreateDialog.value = true
-}
+const editFamily = family => {
+  currentFamily.value = family;
+  formMode.value = 'edit';
+  showCreateDialog.value = true;
+};
 
 // 删除家庭
-const deleteFamily = async (family) => {
+const deleteFamily = async family => {
   try {
     await ElMessageBox.confirm(
       `确定要删除家庭"${family.familyName}"吗？此操作不可恢复！`,
@@ -407,86 +395,86 @@ const deleteFamily = async (family) => {
       {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
       }
-    )
+    );
 
-    await familyApi.deleteFamily(family._id)
-    ElMessage.success('删除成功')
-    loadFamilyList()
+    await familyApi.deleteFamily(family._id);
+    ElMessage.success('删除成功');
+    loadFamilyList();
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('删除失败')
-      console.error(error)
+      ElMessage.error('删除失败');
+      console.error(error);
     }
   }
-}
+};
 
 // 更多操作处理
 const handleMoreAction = ({ action, family }) => {
   switch (action) {
     case 'members':
       // 跳转到成员管理
-      break
+      break;
     case 'agents':
       // 显示代理设置对话框
-      break
+      break;
     case 'qrcode':
       // 生成家庭二维码
-      generateQRCode(family)
-      break
+      generateQRCode(family);
+      break;
     case 'delete':
-      deleteFamily(family)
-      break
+      deleteFamily(family);
+      break;
   }
-}
+};
 
 // 生成二维码
-const generateQRCode = (family) => {
-  ElMessage.info('功能开发中...')
-}
+const generateQRCode = family => {
+  ElMessage.info('功能开发中...');
+};
 
 // 家庭表单提交
-const handleFamilySubmit = async (formData) => {
+const handleFamilySubmit = async formData => {
   try {
     if (formMode.value === 'create') {
-      await familyApi.createFamily(formData)
-      ElMessage.success('创建成功')
+      await familyApi.createFamily(formData);
+      ElMessage.success('创建成功');
     } else {
-      await familyApi.updateFamily(currentFamily.value._id, formData)
-      ElMessage.success('更新成功')
+      await familyApi.updateFamily(currentFamily.value._id, formData);
+      ElMessage.success('更新成功');
     }
-    showCreateDialog.value = false
-    loadFamilyList()
+    showCreateDialog.value = false;
+    loadFamilyList();
   } catch (error) {
-    ElMessage.error(formMode.value === 'create' ? '创建失败' : '更新失败')
-    console.error(error)
+    ElMessage.error(formMode.value === 'create' ? '创建失败' : '更新失败');
+    console.error(error);
   }
-}
+};
 
 // 导出数据
 const exportData = () => {
-  exportToExcel(familyList.value, '家庭信息')
-  ElMessage.success('导出成功')
-}
+  exportToExcel(familyList.value, '家庭信息');
+  ElMessage.success('导出成功');
+};
 
 // 分页处理
-const handleSizeChange = (val) => {
-  pagination.limit = val
-  pagination.page = 1
-  loadFamilyList()
-}
+const handleSizeChange = val => {
+  pagination.limit = val;
+  pagination.page = 1;
+  loadFamilyList();
+};
 
-const handleCurrentChange = (val) => {
-  pagination.page = val
-  loadFamilyList()
-}
+const handleCurrentChange = val => {
+  pagination.page = val;
+  loadFamilyList();
+};
 
 // 生命周期
 onMounted(() => {
-  loadFamilyList()
-  loadStats()
-})
+  loadFamilyList();
+  loadStats();
+});
 </script>
 
 <style lang="scss" scoped>

@@ -7,8 +7,8 @@ const api = axios.create({
   baseURL: BASE_URL,
   timeout: 30000,
   headers: {
-    'Content-Type': 'application/json'
-  }
+    'Content-Type': 'application/json',
+  },
 });
 
 // 请求拦截器 - 添加认证令牌
@@ -84,7 +84,7 @@ export default {
   // 获取帖子评论
   getComments(postId, sortBy = 'createdAt') {
     return api.get(`/api/v1/agricultural/posts/${postId}/comments`, {
-      params: { sortBy }
+      params: { sortBy },
     });
   },
 
@@ -146,7 +146,7 @@ export default {
   // 搜索知识库
   searchKnowledge(query, filters = {}) {
     return api.get('/api/v1/agricultural/knowledge/search', {
-      params: { q: query, ...filters }
+      params: { q: query, ...filters },
     });
   },
 
@@ -161,7 +161,7 @@ export default {
       rating,
       review,
       practiceResult,
-      practiceNotes
+      practiceNotes,
     });
   },
 
@@ -169,9 +169,9 @@ export default {
   uploadImages(formData) {
     return api.post('/api/v1/agricultural/upload/images', formData, {
       headers: {
-        'Content-Type': 'multipart/form-data'
+        'Content-Type': 'multipart/form-data',
       },
-      timeout: 60000 // 上传文件超时时间更长
+      timeout: 60000, // 上传文件超时时间更长
     });
   },
 
@@ -179,9 +179,9 @@ export default {
   uploadVideos(formData) {
     return api.post('/api/v1/agricultural/upload/videos', formData, {
       headers: {
-        'Content-Type': 'multipart/form-data'
+        'Content-Type': 'multipart/form-data',
       },
-      timeout: 120000 // 视频上传超时时间更长
+      timeout: 120000, // 视频上传超时时间更长
     });
   },
 
@@ -201,7 +201,7 @@ export default {
       contentId,
       contentType, // 'post' 或 'comment'
       reason,
-      description
+      description,
     });
   },
 
@@ -248,5 +248,5 @@ export default {
   // 取消订阅时令提醒
   unsubscribeReminders(reminderTypes) {
     return api.post('/api/v1/agricultural/reminders/unsubscribe', { reminderTypes });
-  }
+  },
 };

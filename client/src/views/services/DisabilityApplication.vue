@@ -15,47 +15,47 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
-import StepForm from '@/components/common/StepForm.vue'
-import { useLargeText } from '@/composables/useLargeText'
-import { profileApi } from '@/api/residentProfile'
-import { serviceApi } from '@/api/service'
-import { encryptionService } from '@/utils/encryption'
-import { auditLogService } from '@/utils/security'
+import { ref, reactive, onMounted } from 'vue';
+import { ElMessage } from 'element-plus';
+import StepForm from '@/components/common/StepForm.vue';
+import { useLargeText } from '@/composables/useLargeText';
+import { profileApi } from '@/api/residentProfile';
+import { serviceApi } from '@/api/service';
+import { encryptionService } from '@/utils/encryption';
+import { auditLogService } from '@/utils/security';
 
 const props = defineProps({
   service: {
     type: Object,
-    required: true
-  }
-})
+    required: true,
+  },
+});
 
-const emit = defineEmits(['close', 'submitted'])
+const emit = defineEmits(['close', 'submitted']);
 
-const { isLargeText } = useLargeText()
+const { isLargeText } = useLargeText();
 
-const stepFormRef = ref(null)
+const stepFormRef = ref(null);
 
 // 步骤配置
 const steps = [
   {
     title: '基本信息',
-    description: '填写申请人基本资料'
+    description: '填写申请人基本资料',
   },
   {
     title: '残疾信息',
-    description: '填写残疾相关情况'
+    description: '填写残疾相关情况',
   },
   {
     title: '材料上传',
-    description: '上传证明材料'
+    description: '上传证明材料',
   },
   {
     title: '确认提交',
-    description: '核对信息并提交'
-  }
-]
+    description: '核对信息并提交',
+  },
+];
 
 // 表单数据
 const formData = reactive({
@@ -90,11 +90,11 @@ const formData = reactive({
   otherMaterials: [],
 
   // 备注
-  remark: ''
-})
+  remark: '',
+});
 
 // 残疾等级选项
-const disabilityLevels = ['一级', '二级', '三级', '四级']
+const disabilityLevels = ['一级', '二级', '三级', '四级'];
 
 // 残疾类型选项
 const disabilityTypes = [
@@ -104,14 +104,14 @@ const disabilityTypes = [
   '肢体残疾',
   '智力残疾',
   '精神残疾',
-  '多重残疾'
-]
+  '多重残疾',
+];
 
 // 补贴类型选项
 const subsidyTypeOptions = [
   { label: '困难残疾人生活补贴', value: 'living' },
-  { label: '重度残疾人护理补贴', value: 'nursing' }
-]
+  { label: '重度残疾人护理补贴', value: 'nursing' },
+];
 
 // 组件
 const BasicInfoStep = {
@@ -211,45 +211,49 @@ const BasicInfoStep = {
   props: ['formData'],
   emits: ['update', 'validate', 'voice-input'],
   setup(props, { emit }) {
-    const { Phone } = useElementPlusIcons()
+    const { Phone } = useElementPlusIcons();
 
     const rules = {
       applicantName: [{ required: true, message: '请输入申请人姓名', trigger: 'blur' }],
       applicantIdCard: [
         { required: true, message: '请输入身份证号', trigger: 'blur' },
-        { pattern: /^(\d{15}$|^\d{18}$|^\d{17}(\d|X|x)$)/, message: '请输入正确的身份证号', trigger: 'blur' }
+        {
+          pattern: /^(\d{15}$|^\d{18}$|^\d{17}(\d|X|x)$)/,
+          message: '请输入正确的身份证号',
+          trigger: 'blur',
+        },
       ],
       applicantPhone: [
         { required: true, message: '请输入联系电话', trigger: 'blur' },
-        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
+        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' },
       ],
-      address: [{ required: true, message: '请输入现住址', trigger: 'blur' }]
-    }
+      address: [{ required: true, message: '请输入现住址', trigger: 'blur' }],
+    };
 
     // 加载用户信息
     const loadUserInfo = async () => {
       try {
-        const response = await profileApi.getMyProfile()
-        const profile = response.data
+        const response = await profileApi.getMyProfile();
+        const profile = response.data;
 
         if (profile) {
-          props.formData.applicantName = profile.personalInfo?.name || ''
-          props.formData.applicantIdCard = profile.personalInfo?.idCard || ''
-          props.formData.applicantPhone = profile.contact?.phone || ''
-          props.formData.address = profile.contact?.address || ''
+          props.formData.applicantName = profile.personalInfo?.name || '';
+          props.formData.applicantIdCard = profile.personalInfo?.idCard || '';
+          props.formData.applicantPhone = profile.contact?.phone || '';
+          props.formData.address = profile.contact?.address || '';
         }
       } catch (error) {
-        console.error('Load user info error:', error)
+        console.error('Load user info error:', error);
       }
-    }
+    };
 
     onMounted(() => {
-      loadUserInfo()
-    })
+      loadUserInfo();
+    });
 
-    return { rules, Phone }
-  }
-}
+    return { rules, Phone };
+  },
+};
 
 const DisabilityInfoStep = {
   template: `
@@ -340,7 +344,7 @@ const DisabilityInfoStep = {
   props: ['formData'],
   emits: ['update', 'validate'],
   setup(props, { emit }) {
-    const disabilityLevels = ['一级', '二级', '三级', '四级']
+    const disabilityLevels = ['一级', '二级', '三级', '四级'];
     const disabilityTypes = [
       '视力残疾',
       '听力残疾',
@@ -348,8 +352,8 @@ const DisabilityInfoStep = {
       '肢体残疾',
       '智力残疾',
       '精神残疾',
-      '多重残疾'
-    ]
+      '多重残疾',
+    ];
 
     const rules = {
       disabilityCertificateNo: [{ required: true, message: '请输入残疾证号', trigger: 'blur' }],
@@ -362,14 +366,14 @@ const DisabilityInfoStep = {
           type: 'array',
           required: true,
           message: '请至少选择一种补贴类型',
-          trigger: 'change'
-        }
-      ]
-    }
+          trigger: 'change',
+        },
+      ],
+    };
 
-    return { disabilityLevels, disabilityTypes, rules }
-  }
-}
+    return { disabilityLevels, disabilityTypes, rules };
+  },
+};
 
 const UploadStep = {
   template: `
@@ -471,16 +475,16 @@ const UploadStep = {
   emits: ['update', 'validate'],
   setup(props, { emit }) {
     const handleUpdate = () => {
-      emit('update', { ...props.formData })
-    }
+      emit('update', { ...props.formData });
+    };
 
-    const handleValidate = (isValid) => {
-      emit('validate', isValid)
-    }
+    const handleValidate = isValid => {
+      emit('validate', isValid);
+    };
 
-    return { handleUpdate, handleValidate }
-  }
-}
+    return { handleUpdate, handleValidate };
+  },
+};
 
 const ConfirmStep = {
   template: `
@@ -576,57 +580,57 @@ const ConfirmStep = {
   props: ['formData'],
   emits: ['validate'],
   setup(props, { emit }) {
-    const confirmed = ref(false)
+    const confirmed = ref(false);
 
-    const maskIdCard = (idCard) => {
-      if (!idCard) return ''
-      return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2')
-    }
+    const maskIdCard = idCard => {
+      if (!idCard) return '';
+      return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2');
+    };
 
-    const maskPhone = (phone) => {
-      if (!phone) return ''
-      return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')
-    }
+    const maskPhone = phone => {
+      if (!phone) return '';
+      return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
+    };
 
-    const maskBankCard = (card) => {
-      if (!card) return ''
-      return card.replace(/(\d{4})\d+(\d{4})/, '$1 **** **** $2')
-    }
+    const maskBankCard = card => {
+      if (!card) return '';
+      return card.replace(/(\d{4})\d+(\d{4})/, '$1 **** **** $2');
+    };
 
-    const getSubsidyTypeLabel = (type) => {
+    const getSubsidyTypeLabel = type => {
       const map = {
         living: '困难残疾人生活补贴',
-        nursing: '重度残疾人护理补贴'
-      }
-      return map[type] || type
-    }
+        nursing: '重度残疾人护理补贴',
+      };
+      return map[type] || type;
+    };
 
     const getUploadedFiles = () => {
-      const files = []
+      const files = [];
       if (props.formData.idCardPhotos?.length) {
-        files.push({ name: '身份证照片' })
+        files.push({ name: '身份证照片' });
       }
       if (props.formData.disabilityCardPhotos?.length) {
-        files.push({ name: '残疾证照片' })
+        files.push({ name: '残疾证照片' });
       }
       if (props.formData.householdPhotos?.length) {
-        files.push({ name: '户口本照片' })
+        files.push({ name: '户口本照片' });
       }
       if (props.formData.bankCardPhotos?.length) {
-        files.push({ name: '银行卡照片' })
+        files.push({ name: '银行卡照片' });
       }
       if (props.formData.medicalRecords?.length) {
-        files.push({ name: '病历资料' })
+        files.push({ name: '病历资料' });
       }
       if (props.formData.otherMaterials?.length) {
-        files.push({ name: '其他材料' })
+        files.push({ name: '其他材料' });
       }
-      return files
-    }
+      return files;
+    };
 
-    const handleConfirmChange = (val) => {
-      emit('validate', val)
-    }
+    const handleConfirmChange = val => {
+      emit('validate', val);
+    };
 
     return {
       confirmed,
@@ -635,55 +639,55 @@ const ConfirmStep = {
       maskBankCard,
       getSubsidyTypeLabel,
       getUploadedFiles,
-      handleConfirmChange
-    }
-  }
-}
+      handleConfirmChange,
+    };
+  },
+};
 
 // 处理数据更新
-const handleUpdate = (data) => {
-  Object.assign(formData, data)
-}
+const handleUpdate = data => {
+  Object.assign(formData, data);
+};
 
 // 处理语音输入
 const handleVoiceInput = (field, text) => {
   if (field === 'applicantName') {
-    const nameMatch = text.match(/(?:我叫|我是|姓名是)([\u4e00-\u9fa5]{2,4})/)
+    const nameMatch = text.match(/(?:我叫|我是|姓名是)([\u4e00-\u9fa5]{2,4})/);
     if (nameMatch) {
-      formData.applicantName = nameMatch[1]
-      ElMessage.success(`已识别姓名: ${formData.applicantName}`)
+      formData.applicantName = nameMatch[1];
+      ElMessage.success(`已识别姓名: ${formData.applicantName}`);
     }
   }
-}
+};
 
 // 提交申请
-const handleSubmit = async (data) => {
+const handleSubmit = async data => {
   try {
     // 加密敏感信息
     const encryptedData = {
       ...data,
       applicantIdCard: encryptionService.encrypt(data.applicantIdCard),
       applicantPhone: encryptionService.encrypt(data.applicantPhone),
-      bankAccount: encryptionService.encrypt(data.bankAccount)
-    }
+      bankAccount: encryptionService.encrypt(data.bankAccount),
+    };
 
     await serviceApi.submitDisabilityApplication({
       ...encryptedData,
       serviceType: 'disability',
-      serviceName: '残疾补贴申请'
-    })
+      serviceName: '残疾补贴申请',
+    });
 
     // 记录操作日志
-    await auditLogService.logApplicationSubmit('disability', '残疾补贴申请')
+    await auditLogService.logApplicationSubmit('disability', '残疾补贴申请');
 
-    ElMessage.success('申请已提交,请耐心等待审核')
-    emit('submitted', data)
-    emit('close')
+    ElMessage.success('申请已提交,请耐心等待审核');
+    emit('submitted', data);
+    emit('close');
   } catch (error) {
-    ElMessage.error('提交失败: ' + error.message)
-    throw error
+    ElMessage.error('提交失败: ' + error.message);
+    throw error;
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>

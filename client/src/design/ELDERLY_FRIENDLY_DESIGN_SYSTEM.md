@@ -23,21 +23,25 @@
 ### 核心理念：简单、清晰、易用
 
 #### 1. 可读性优先
+
 - **大字体**：默认使用 18px-20px 基础字号
 - **高对比度**：文字与背景对比度至少 4.5:1
 - **简洁语言**：使用通俗易懂的词汇，避免专业术语
 
 #### 2. 易操作
+
 - **大触控区域**：最小触摸目标 48x48dp
 - **简化流程**：核心功能不超过 3 步完成
 - **明确反馈**：每次操作都有清晰的视觉和听觉反馈
 
 #### 3. 容错性
+
 - **可撤销**：重要操作提供撤销功能
 - **确认机制**：破坏性操作需要二次确认
 - **容错输入**：表单输入提供实时校验和提示
 
 #### 4. 一致性
+
 - **统一布局**：页面结构保持一致
 - **统一交互**：相同功能使用相同的交互方式
 - **统一视觉**：颜色、图标、字体使用保持一致
@@ -50,65 +54,65 @@
 
 ```scss
 // 品牌色 - 温暖的红色，代表乡村活力
-$primary: #E85D4C;
-$primary-light: #FF8A7A;
-$primary-dark: #C73E2F;
+$primary: #e85d4c;
+$primary-light: #ff8a7a;
+$primary-dark: #c73e2f;
 
 // 辅助色 - 稳重的绿色，代表农业与希望
-$secondary: #52A885;
-$secondary-light: #7BC4A3;
-$secondary-dark: #3D8A68;
+$secondary: #52a885;
+$secondary-light: #7bc4a3;
+$secondary-dark: #3d8a68;
 
 // 强调色 - 明亮的橙色，用于重要提示
-$accent: #FF9F43;
-$accent-light: #FFB873;
-$accent-dark: #E88A2A;
+$accent: #ff9f43;
+$accent-light: #ffb873;
+$accent-dark: #e88a2a;
 ```
 
 ### 功能色
 
 ```scss
 // 成功 - 柔和的绿色
-$success: #67C23A;
-$success-bg: #F0F9FF;
-$success-border: #B3E19D;
+$success: #67c23a;
+$success-bg: #f0f9ff;
+$success-border: #b3e19d;
 
 // 警告 - 温暖的橙色
-$warning: #E6A23C;
-$warning-bg: #FDF6EC;
-$warning-border: #F5DAB1;
+$warning: #e6a23c;
+$warning-bg: #fdf6ec;
+$warning-border: #f5dab1;
 
 // 危险 - 清晰的红色
-$danger: #F56C6C;
-$danger-bg: #FEF0F0;
-$danger-border: #FBC4C4;
+$danger: #f56c6c;
+$danger-bg: #fef0f0;
+$danger-border: #fbc4c4;
 
 // 信息 - 平静的蓝色
 $info: #909399;
-$info-bg: #F4F4F5;
-$info-border: #D3D4D6;
+$info-bg: #f4f4f5;
+$info-border: #d3d4d6;
 ```
 
 ### 中性色（高对比度版本）
 
 ```scss
 // 文字颜色 - 确保高对比度
-$text-primary: #1A1A1A;     // 主要文字，对比度 > 7:1
-$text-secondary: #4A4A4A;   // 次要文字，对比度 > 4.5:1
-$text-tertiary: #757575;    // 辅助文字
-$text-disabled: #BDBDBD;    // 禁用文字
+$text-primary: #1a1a1a; // 主要文字，对比度 > 7:1
+$text-secondary: #4a4a4a; // 次要文字，对比度 > 4.5:1
+$text-tertiary: #757575; // 辅助文字
+$text-disabled: #bdbdbd; // 禁用文字
 
 // 背景颜色
-$bg-primary: #FFFFFF;       // 主背景
-$bg-secondary: #F5F5F5;     // 次背景
-$bg-tertiary: #FAFAFA;      // 三级背景
-$bg-disabled: #F0F0F0;      // 禁用背景
+$bg-primary: #ffffff; // 主背景
+$bg-secondary: #f5f5f5; // 次背景
+$bg-tertiary: #fafafa; // 三级背景
+$bg-disabled: #f0f0f0; // 禁用背景
 
 // 边框颜色
-$border-base: #DCDFE6;      // 基础边框
-$border-light: #E4E7ED;     // 浅色边框
-$border-lighter: #EBEEF5;   // 更浅边框
-$border-extra-light: #F2F6FC; // 极浅边框
+$border-base: #dcdfe6; // 基础边框
+$border-light: #e4e7ed; // 浅色边框
+$border-lighter: #ebeef5; // 更浅边框
+$border-extra-light: #f2f6fc; // 极浅边框
 ```
 
 ### 适老化配色方案
@@ -119,8 +123,8 @@ $border-extra-light: #F2F6FC; // 极浅边框
   // 提高对比度
   --text-primary: #000000;
   --text-secondary: #333333;
-  --bg-primary: #FFFFFF;
-  --bg-secondary: #F0F0F0;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f0f0f0;
 
   // 去除装饰性颜色
   --decoration-color: transparent;
@@ -134,11 +138,13 @@ $border-extra-light: #F2F6FC; // 极浅边框
 ### 颜色使用规则
 
 #### 文字与背景对比度要求
+
 - **正常文字**（< 18pt）：对比度 ≥ 4.5:1
 - **大文字**（≥ 18pt 或 ≥ 14pt 粗体）：对比度 ≥ 3:1
 - **图标/图形**：对比度 ≥ 3:1
 
 #### 颜色禁忌
+
 - 避免使用蓝黑、蓝紫等难以区分的颜色
 - 避免红绿并用（红绿色盲友好）
 - 避免过浅的颜色（如 #FAFAFA）作为背景
@@ -151,39 +157,37 @@ $border-extra-light: #F2F6FC; // 极浅边框
 
 ```scss
 // 中文字体栈 - 优先使用易读字体
-$font-family-base: "PingFang SC", "Microsoft YaHei", "Heiti SC",
-                   "STHeiti", "SimHei", sans-serif;
+$font-family-base: 'PingFang SC', 'Microsoft YaHei', 'Heiti SC', 'STHeiti', 'SimHei', sans-serif;
 
 // 数字字体 - 使用等宽字体便于阅读
-$font-family-number: "SF Mono", "Monaco", "Inconsolata",
-                     "Fira Mono", "Droid Sans Mono", monospace;
+$font-family-number: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono', 'Droid Sans Mono', monospace;
 
 // 英文字体
-$font-family-en: -apple-system, BlinkMacSystemFont, "Segoe UI",
-                  Roboto, "Helvetica Neue", Arial, sans-serif;
+$font-family-en:
+  -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 ```
 
 ### 字号系统
 
 ```scss
 // 适老化字号体系（比常规大 20%）
-$font-size-xs: 14px;      // 极小文字 - 辅助说明
-$font-size-sm: 16px;      // 小文字 - 次要信息
-$font-size-base: 18px;    // 基础文字 - 正文
-$font-size-md: 20px;      // 中等文字 - 小标题
-$font-size-lg: 24px;      // 大文字 - 标题
-$font-size-xl: 32px;      // 超大文字 - 重要标题
-$font-size-xxl: 40px;     // 特大文字 - 关键信息
+$font-size-xs: 14px; // 极小文字 - 辅助说明
+$font-size-sm: 16px; // 小文字 - 次要信息
+$font-size-base: 18px; // 基础文字 - 正文
+$font-size-md: 20px; // 中等文字 - 小标题
+$font-size-lg: 24px; // 大文字 - 标题
+$font-size-xl: 32px; // 超大文字 - 重要标题
+$font-size-xxl: 40px; // 特大文字 - 关键信息
 
 // 行高系统（宽松行高，提高可读性）
-$line-height-loose: 1.8;  // 18px: 32.4px
+$line-height-loose: 1.8; // 18px: 32.4px
 $line-height-normal: 1.6; // 18px: 28.8px
-$line-height-tight: 1.4;  // 18px: 25.2px
+$line-height-tight: 1.4; // 18px: 25.2px
 
 // 字重（使用清晰字重）
-$font-weight-normal: 400;   // 常规
-$font-weight-medium: 500;   // 中等 - 用于标题
-$font-weight-bold: 600;     // 粗体 - 用于强调
+$font-weight-normal: 400; // 常规
+$font-weight-medium: 500; // 中等 - 用于标题
+$font-weight-bold: 600; // 粗体 - 用于强调
 ```
 
 ### 字体应用示例
@@ -229,23 +233,23 @@ $font-weight-bold: 600;     // 粗体 - 用于强调
 ```scss
 // 大字模式
 .elderly-mode-large {
-  font-size: 24px;  // 基础字号提升到 24px
+  font-size: 24px; // 基础字号提升到 24px
   line-height: 1.8;
-  letter-spacing: 0.05em;  // 增加字间距
+  letter-spacing: 0.05em; // 增加字间距
 }
 
 // 超大字模式（视力障碍用户）
 .elderly-mode-extra-large {
-  font-size: 32px;  // 基础字号提升到 32px
-  line-height: 2.0;
+  font-size: 32px; // 基础字号提升到 32px
+  line-height: 2;
   letter-spacing: 0.1em;
-  font-weight: 600;  // 加粗字重
+  font-weight: 600; // 加粗字重
 }
 
 // 按钮文字
 .button-text {
-  font-size: 20px;  // 最小 20px
-  font-weight: 600;  // 中粗体
+  font-size: 20px; // 最小 20px
+  font-weight: 600; // 中粗体
   letter-spacing: 0.02em;
 }
 ```
@@ -260,23 +264,23 @@ $font-weight-bold: 600;     // 粗体 - 用于强调
 // 使用 8px 基础单位，确保一致性
 $spacing-unit: 8px;
 
-$spacing-xs: $spacing-unit * 1;    // 8px
-$spacing-sm: $spacing-unit * 2;    // 16px
-$spacing-md: $spacing-unit * 3;    // 24px
-$spacing-lg: $spacing-unit * 4;    // 32px
-$spacing-xl: $spacing-unit * 5;    // 40px
-$spacing-xxl: $spacing-unit * 6;   // 48px
+$spacing-xs: $spacing-unit * 1; // 8px
+$spacing-sm: $spacing-unit * 2; // 16px
+$spacing-md: $spacing-unit * 3; // 24px
+$spacing-lg: $spacing-unit * 4; // 32px
+$spacing-xl: $spacing-unit * 5; // 40px
+$spacing-xxl: $spacing-unit * 6; // 48px
 ```
 
 ### 适老化间距（增大版本）
 
 ```scss
 // 适老化间距系统（比常规大 50%）
-$elderly-spacing-xs: 12px;   // 原 8px
-$elderly-spacing-sm: 24px;   // 原 16px
-$elderly-spacing-md: 36px;   // 原 24px
-$elderly-spacing-lg: 48px;   // 原 32px
-$elderly-spacing-xl: 60px;   // 原 40px
+$elderly-spacing-xs: 12px; // 原 8px
+$elderly-spacing-sm: 24px; // 原 16px
+$elderly-spacing-md: 36px; // 原 24px
+$elderly-spacing-lg: 48px; // 原 32px
+$elderly-spacing-xl: 60px; // 原 40px
 ```
 
 ### 组件内边距
@@ -287,9 +291,9 @@ $card-padding-vertical: 24px;
 $card-padding-horizontal: 20px;
 
 // 按钮内边距（确保足够点击区域）
-$button-padding-large: 16px 32px;   // 高度 56px
+$button-padding-large: 16px 32px; // 高度 56px
 $button-padding-default: 14px 28px; // 高度 48px
-$button-padding-small: 12px 24px;   // 高度 40px
+$button-padding-small: 12px 24px; // 高度 40px
 
 // 表单控件内边距
 $input-padding-vertical: 14px;
@@ -329,7 +333,7 @@ $list-item-gap: 16px;
 ```scss
 // 主要操作按钮
 .btn-primary-large {
-  height: 56px;          // 最小点击高度
+  height: 56px; // 最小点击高度
   padding: 16px 32px;
   font-size: 20px;
   border-radius: 8px;
@@ -341,12 +345,12 @@ $list-item-gap: 16px;
   padding: 16px 32px;
   font-size: 20px;
   border-radius: 8px;
-  border-width: 2px;     // 加粗边框，提高可见性
+  border-width: 2px; // 加粗边框，提高可见性
 }
 
 // 小按钮
 .btn-small {
-  height: 48px;          // 仍保持足够点击区域
+  height: 48px; // 仍保持足够点击区域
   padding: 12px 24px;
   font-size: 18px;
   border-radius: 8px;
@@ -360,7 +364,7 @@ $list-item-gap: 16px;
 .el-button--primary {
   background-color: $primary;
   border-color: $primary;
-  color: #FFFFFF;
+  color: #ffffff;
   font-weight: 600;
   box-shadow: 0 2px 8px rgba(232, 93, 76, 0.3);
 
@@ -396,7 +400,7 @@ $list-item-gap: 16px;
 .el-button--danger {
   background-color: $danger;
   border-color: $danger;
-  color: #FFFFFF;
+  color: #ffffff;
   font-weight: 600;
 
   // 双重确认样式
@@ -487,10 +491,10 @@ $list-item-gap: 16px;
 
   // 输入框
   .form-input {
-    height: 56px;          // 足够大的点击区域
+    height: 56px; // 足够大的点击区域
     padding: $input-padding-vertical $input-padding-horizontal;
     font-size: $font-size-base;
-    border: 2px solid $border-base;  // 加粗边框
+    border: 2px solid $border-base; // 加粗边框
     border-radius: 8px;
 
     &:focus {
@@ -533,7 +537,7 @@ $list-item-gap: 16px;
     align-items: center;
     padding: $spacing-md;
     border-bottom: 1px solid $border-light;
-    min-height: 80px;  // 确保足够的点击区域
+    min-height: 80px; // 确保足够的点击区域
 
     &:active {
       background-color: $bg-secondary;
@@ -550,7 +554,7 @@ $list-item-gap: 16px;
     // 内容
     .item-content {
       flex: 1;
-      min-width: 0;  // 防止溢出
+      min-width: 0; // 防止溢出
 
       .item-title {
         font-size: $font-size-base;
@@ -583,7 +587,7 @@ $list-item-gap: 16px;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 72px;  // 足够大的点击区域
+  height: 72px; // 足够大的点击区域
   background: $bg-primary;
   border-top: 1px solid $border-base;
   display: flex;
@@ -825,18 +829,18 @@ $list-item-gap: 16px;
 ```javascript
 // 触觉反馈配置
 const hapticPatterns = {
-  light: [10],           // 轻触反馈
-  medium: [20],          // 中等反馈
-  heavy: [30],           // 强力反馈
+  light: [10], // 轻触反馈
+  medium: [20], // 中等反馈
+  heavy: [30], // 强力反馈
   success: [10, 50, 10], // 成功反馈
-  error: [50, 50, 50],   // 错误反馈
-  warning: [20, 20, 20]  // 警告反馈
-}
+  error: [50, 50, 50], // 错误反馈
+  warning: [20, 20, 20], // 警告反馈
+};
 
 // 使用示例
 function triggerHaptic(type) {
   if ('vibrate' in navigator) {
-    navigator.vibrate(hapticPatterns[type] || hapticPatterns.light)
+    navigator.vibrate(hapticPatterns[type] || hapticPatterns.light);
   }
 }
 ```
@@ -851,41 +855,41 @@ const gestureConfig = {
   // 点击
   tap: {
     duration: 300,
-    threshold: 10
+    threshold: 10,
   },
 
   // 长按
   longPress: {
     duration: 500,
-    feedback: true
+    feedback: true,
   },
 
   // 滑动
   swipe: {
-    threshold: 50,      // 最小滑动距离
-    velocity: 0.3       // 最小滑动速度
+    threshold: 50, // 最小滑动距离
+    velocity: 0.3, // 最小滑动速度
   },
 
   // 缩放
   pinch: {
-    minScale: 0.5,      // 最小缩放
-    maxScale: 3.0       // 最大缩放
-  }
-}
+    minScale: 0.5, // 最小缩放
+    maxScale: 3.0, // 最大缩放
+  },
+};
 ```
 
 #### 手势应用场景
 
-| 手势类型 | 应用场景 | 说明 |
-|---------|---------|------|
-| 点击 | 所有按钮、链接 | 基础交互 |
-| 长按 | 显示菜单、删除确认 | 500ms 触发 |
-| 左滑 | 删除、归档 | 列表项操作 |
-| 右滑 | 撤销、恢复 | 列表项操作 |
-| 下拉 | 刷新 | 页面刷新 |
-| 上滑 | 加载更多 | 列表分页 |
-| 双击 | 放大/缩小 | 图片查看 |
-| 捏合 | 缩放 | 地图、图片 |
+| 手势类型 | 应用场景           | 说明       |
+| -------- | ------------------ | ---------- |
+| 点击     | 所有按钮、链接     | 基础交互   |
+| 长按     | 显示菜单、删除确认 | 500ms 触发 |
+| 左滑     | 删除、归档         | 列表项操作 |
+| 右滑     | 撤销、恢复         | 列表项操作 |
+| 下拉     | 刷新               | 页面刷新   |
+| 上滑     | 加载更多           | 列表分页   |
+| 双击     | 放大/缩小          | 图片查看   |
+| 捏合     | 缩放               | 地图、图片 |
 
 ### 3. 反馈设计
 
@@ -920,7 +924,9 @@ const gestureConfig = {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 ```
 
@@ -933,16 +939,16 @@ const soundEffects = {
   success: '/sounds/success.mp3',
   error: '/sounds/error.mp3',
   warning: '/sounds/warning.mp3',
-  notification: '/sounds/notification.mp3'
-}
+  notification: '/sounds/notification.mp3',
+};
 
 // 播放音效
 function playSound(type) {
-  const audio = new Audio(soundEffects[type])
-  audio.volume = 0.5  // 降低音量，避免刺耳
+  const audio = new Audio(soundEffects[type]);
+  audio.volume = 0.5; // 降低音量，避免刺耳
   audio.play().catch(err => {
-    console.warn('音效播放失败:', err)
-  })
+    console.warn('音效播放失败:', err);
+  });
 }
 ```
 
@@ -952,10 +958,10 @@ function playSound(type) {
 
 ```scss
 // 适老化动画（减慢速度，更易理解）
-$duration-instant: 100ms;   // 即时反馈
-$duration-fast: 200ms;      // 快速动画
-$duration-normal: 300ms;    // 正常动画
-$duration-slow: 500ms;      // 慢速动画
+$duration-instant: 100ms; // 即时反馈
+$duration-fast: 200ms; // 快速动画
+$duration-normal: 300ms; // 正常动画
+$duration-slow: 500ms; // 慢速动画
 
 // 缓动函数
 $ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
@@ -1008,29 +1014,35 @@ $ease-in: cubic-bezier(0.4, 0, 1, 1);
 
 ```scss
 // 移动端优先的断点
-$breakpoint-xs: 375px;   // 小屏手机
-$breakpoint-sm: 480px;   // 大屏手机
-$breakpoint-md: 768px;   // 平板竖屏
-$breakpoint-lg: 1024px;  // 平板横屏
-$breakpoint-xl: 1280px;  // 桌面
+$breakpoint-xs: 375px; // 小屏手机
+$breakpoint-sm: 480px; // 大屏手机
+$breakpoint-md: 768px; // 平板竖屏
+$breakpoint-lg: 1024px; // 平板横屏
+$breakpoint-xl: 1280px; // 桌面
 $breakpoint-xxl: 1536px; // 大桌面
 
 // Mixin
 @mixin respond-to($breakpoint) {
   @if $breakpoint == xs {
-    @media (max-width: $breakpoint-xs) { @content; }
-  }
-  @else if $breakpoint == sm {
-    @media (max-width: $breakpoint-sm) { @content; }
-  }
-  @else if $breakpoint == md {
-    @media (max-width: $breakpoint-md) { @content; }
-  }
-  @else if $breakpoint == lg {
-    @media (max-width: $breakpoint-lg) { @content; }
-  }
-  @else if $breakpoint == xl {
-    @media (max-width: $breakpoint-xl) { @content; }
+    @media (max-width: $breakpoint-xs) {
+      @content;
+    }
+  } @else if $breakpoint == sm {
+    @media (max-width: $breakpoint-sm) {
+      @content;
+    }
+  } @else if $breakpoint == md {
+    @media (max-width: $breakpoint-md) {
+      @content;
+    }
+  } @else if $breakpoint == lg {
+    @media (max-width: $breakpoint-lg) {
+      @content;
+    }
+  } @else if $breakpoint == xl {
+    @media (max-width: $breakpoint-xl) {
+      @content;
+    }
   }
 }
 ```
@@ -1104,10 +1116,7 @@ $breakpoint-xxl: 1536px; // 大桌面
 
 ```html
 <!-- 按钮状态 -->
-<button
-  aria-pressed="false"
-  aria-label="收藏此公告"
->
+<button aria-pressed="false" aria-label="收藏此公告">
   <i class="icon-star" aria-hidden="true"></i>
   收藏
 </button>
@@ -1120,17 +1129,11 @@ $breakpoint-xxl: 1536px; // 大桌面
   aria-required="true"
   aria-invalid="false"
   aria-describedby="username-help"
->
-<span id="username-help" class="helper-text">
-  请输入您的用户名
-</span>
+/>
+<span id="username-help" class="helper-text"> 请输入您的用户名 </span>
 
 <!-- 加载状态 -->
-<div
-  role="status"
-  aria-live="polite"
-  aria-busy="true"
->
+<div role="status" aria-live="polite" aria-busy="true">
   <span class="loader"></span>
   正在加载...
 </div>
@@ -1156,71 +1159,51 @@ const keyboardShortcuts = {
   'Alt+S': '跳转到搜索',
   'Alt+N': '跳转到下一项',
   'Alt+P': '跳转到上一项',
-  'Escape': '关闭对话框',
-  'Enter': '确认操作',
-  'Space': '切换状态'
-}
+  Escape: '关闭对话框',
+  Enter: '确认操作',
+  Space: '切换状态',
+};
 
 // 键盘导航实现
-document.addEventListener('keydown', (e) => {
+document.addEventListener('keydown', e => {
   // Tab 键：焦点可见
   if (e.key === 'Tab') {
-    document.body.classList.add('keyboard-navigation')
+    document.body.classList.add('keyboard-navigation');
   }
 
   // 快捷键处理
   if (e.altKey) {
     switch (e.key) {
       case 'h':
-        e.preventDefault()
-        navigateTo('/home')
-        break
+        e.preventDefault();
+        navigateTo('/home');
+        break;
       case 's':
-        e.preventDefault()
-        focusSearch()
-        break
+        e.preventDefault();
+        focusSearch();
+        break;
     }
   }
-})
+});
 
 // 鼠标点击：移除键盘导航样式
 document.addEventListener('mousedown', () => {
-  document.body.classList.remove('keyboard-navigation')
-})
+  document.body.classList.remove('keyboard-navigation');
+});
 ```
 
 ### 4. 屏幕阅读器支持
 
 ```html
 <!-- 跳过导航链接（隐藏但可访问） -->
-<a
-  href="#main-content"
-  class="sr-only"
->
-  跳转到主内容
-</a>
+<a href="#main-content" class="sr-only"> 跳转到主内容 </a>
 
 <!-- 隐藏视觉元素但保留给屏幕阅读器 -->
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden;
+clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 
 <!-- 实时区域 -->
-<div
-  role="region"
-  aria-live="assertive"
-  aria-atomic="true"
->
-  操作成功！
-</div>
+<div role="region" aria-live="assertive" aria-atomic="true">操作成功！</div>
 ```
 
 ### 5. 焦点管理
@@ -1230,39 +1213,39 @@ document.addEventListener('mousedown', () => {
 function trapFocus(element) {
   const focusableElements = element.querySelectorAll(
     'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-  )
-  const firstFocusable = focusableElements[0]
-  const lastFocusable = focusableElements[focusableElements.length - 1]
+  );
+  const firstFocusable = focusableElements[0];
+  const lastFocusable = focusableElements[focusableElements.length - 1];
 
-  element.addEventListener('keydown', (e) => {
+  element.addEventListener('keydown', e => {
     if (e.key === 'Tab') {
       if (e.shiftKey) {
         if (document.activeElement === firstFocusable) {
-          e.preventDefault()
-          lastFocusable.focus()
+          e.preventDefault();
+          lastFocusable.focus();
         }
       } else {
         if (document.activeElement === lastFocusable) {
-          e.preventDefault()
-          firstFocusable.focus()
+          e.preventDefault();
+          firstFocusable.focus();
         }
       }
     }
-  })
+  });
 }
 
 // 焦点恢复（关闭对话框后）
-let previousFocusedElement = null
+let previousFocusedElement = null;
 
 function openDialog() {
-  previousFocusedElement = document.activeElement
+  previousFocusedElement = document.activeElement;
   // 打开对话框...
 }
 
 function closeDialog() {
   // 关闭对话框...
   if (previousFocusedElement) {
-    previousFocusedElement.focus()
+    previousFocusedElement.focus();
   }
 }
 ```
@@ -1292,8 +1275,8 @@ function closeDialog() {
 
 ## 版本历史
 
-| 版本 | 日期 | 更新内容 |
-|------|------|---------|
+| 版本  | 日期       | 更新内容                     |
+| ----- | ---------- | ---------------------------- |
 | 1.0.0 | 2025-12-28 | 初始版本，建立适老化设计系统 |
 
 ---

@@ -4,7 +4,11 @@
       <template #header>
         <div class="card-header">
           <span>✨ 微交互动画演示</span>
-          <el-switch v-model="animationsEnabled" active-text="启用动画" @change="toggleAnimations" />
+          <el-switch
+            v-model="animationsEnabled"
+            active-text="启用动画"
+            @change="toggleAnimations"
+          />
         </div>
       </template>
 
@@ -12,28 +16,13 @@
       <div class="demo-section">
         <h3>🔘 按钮交互动画</h3>
         <div class="demo-buttons">
-          <el-button
-            v-button-animate
-            type="primary"
-            icon="Plus"
-            class="demo-btn"
-          >
+          <el-button v-button-animate type="primary" icon="Plus" class="demo-btn">
             主要按钮
           </el-button>
-          <el-button
-            v-button-animate
-            type="success"
-            icon="Check"
-            class="demo-btn"
-          >
+          <el-button v-button-animate type="success" icon="Check" class="demo-btn">
             成功按钮
           </el-button>
-          <el-button
-            v-button-animate
-            type="warning"
-            icon="Warning"
-            class="demo-btn"
-          >
+          <el-button v-button-animate type="warning" icon="Warning" class="demo-btn">
             警告按钮
           </el-button>
           <el-button
@@ -53,12 +42,7 @@
         <h3>🎴 卡片悬停效果</h3>
         <el-row :gutter="20">
           <el-col :span="8" v-for="(card, index) in demoCards" :key="index">
-            <el-card
-              v-card-animate
-              shadow="hover"
-              class="demo-card"
-              @click="handleCardClick(card)"
-            >
+            <el-card v-card-animate shadow="hover" class="demo-card" @click="handleCardClick(card)">
               <div class="card-content">
                 <el-icon size="32" class="card-icon">
                   <component :is="card.icon" />
@@ -109,9 +93,7 @@
           <el-table-column prop="name" label="姓名" width="120" />
           <el-table-column prop="department" label="部门" width="120" />
           <el-table-column prop="amount" label="金额" width="120">
-            <template #default="scope">
-              ¥{{ scope.row.amount.toLocaleString() }}
-            </template>
+            <template #default="scope"> ¥{{ scope.row.amount.toLocaleString() }} </template>
           </el-table-column>
           <el-table-column prop="status" label="状态" width="100">
             <template #default="scope">
@@ -122,18 +104,10 @@
           </el-table-column>
           <el-table-column label="操作">
             <template #default="scope">
-              <el-button
-                v-button-animate
-                type="text"
-                @click="approveItem(scope.row)"
-              >
+              <el-button v-button-animate type="text" @click="approveItem(scope.row)">
                 审批
               </el-button>
-              <el-button
-                v-button-animate
-                type="text"
-                @click="rejectItem(scope.row)"
-              >
+              <el-button v-button-animate type="text" @click="rejectItem(scope.row)">
                 驳回
               </el-button>
             </template>
@@ -190,34 +164,16 @@
       <div class="demo-section">
         <h3>📢 反馈动画</h3>
         <div class="feedback-demo">
-          <el-button
-            ref="successBtn"
-            @click="showSuccessAnimation"
-            type="success"
-            icon="Check"
-          >
+          <el-button ref="successBtn" @click="showSuccessAnimation" type="success" icon="Check">
             成功反馈
           </el-button>
-          <el-button
-            ref="errorBtn"
-            @click="showErrorAnimation"
-            type="danger"
-            icon="Close"
-          >
+          <el-button ref="errorBtn" @click="showErrorAnimation" type="danger" icon="Close">
             错误反馈
           </el-button>
-          <el-button
-            @click="showProgressAnimation"
-            type="info"
-            icon="Loading"
-          >
+          <el-button @click="showProgressAnimation" type="info" icon="Loading">
             进度动画
           </el-button>
-          <el-button
-            @click="showNotificationAnimation"
-            type="warning"
-            icon="Bell"
-          >
+          <el-button @click="showNotificationAnimation" type="warning" icon="Bell">
             通知动画
           </el-button>
         </div>
@@ -266,15 +222,9 @@
                 <span>动画操作</span>
               </template>
               <div class="animation-controls">
-                <el-button @click="stopAllAnimations" type="warning">
-                  停止所有动画
-                </el-button>
-                <el-button @click="testAllAnimations" type="primary">
-                  测试所有动画
-                </el-button>
-                <el-button @click="resetDemoData">
-                  重置演示数据
-                </el-button>
+                <el-button @click="stopAllAnimations" type="warning"> 停止所有动画 </el-button>
+                <el-button @click="testAllAnimations" type="primary"> 测试所有动画 </el-button>
+                <el-button @click="resetDemoData"> 重置演示数据 </el-button>
               </div>
             </el-card>
           </el-col>
@@ -285,13 +235,24 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, nextTick, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ref, reactive, computed, nextTick, onMounted } from 'vue';
+import { ElMessage } from 'element-plus';
 import {
-  Plus, Check, Warning, Delete, User, CreditCard, TrendCharts,
-  DataBoard, Money, ShoppingCart, Loading, Bell, Close
-} from '@element-plus/icons-vue'
-import { useMicroAnimations } from '@/composables/useMicroAnimations'
+  Plus,
+  Check,
+  Warning,
+  Delete,
+  User,
+  CreditCard,
+  TrendCharts,
+  DataBoard,
+  Money,
+  ShoppingCart,
+  Loading,
+  Bell,
+  Close,
+} from '@element-plus/icons-vue';
+import { useMicroAnimations } from '@/composables/useMicroAnimations';
 
 // 使用微交互动画
 const {
@@ -303,19 +264,19 @@ const {
   animateNumber,
   animateProgress,
   stopAllAnimations: stopAnimations,
-  toggleGlobalAnimation
-} = useMicroAnimations()
+  toggleGlobalAnimation,
+} = useMicroAnimations();
 
 // 响应式数据
-const animationsEnabled = ref(true)
-const showProgress = ref(false)
-const progressValue = ref(0)
+const animationsEnabled = ref(true);
+const showProgress = ref(false);
+const progressValue = ref(0);
 
 // 表单数据
 const demoForm = reactive({
   username: '',
-  email: ''
-})
+  email: '',
+});
 
 // 卡片数据
 const demoCards = ref([
@@ -323,29 +284,29 @@ const demoCards = ref([
     title: '总收入',
     description: '本月村务收入统计',
     value: 156780,
-    icon: 'Money'
+    icon: 'Money',
   },
   {
     title: '支出统计',
     description: '本月各项支出总计',
     value: 89456,
-    icon: 'ShoppingCart'
+    icon: 'ShoppingCart',
   },
   {
     title: '净收益',
     description: '本月净收益情况',
     value: 67324,
-    icon: 'TrendCharts'
-  }
-])
+    icon: 'TrendCharts',
+  },
+]);
 
 // 表格数据
 const tableData = ref([
   { name: '张建设', department: '基建部', amount: 25000, status: '待审批' },
   { name: '李文化', department: '文化部', amount: 8000, status: '已通过' },
   { name: '王会计', department: '财务部', amount: 3500, status: '已支付' },
-  { name: '赵电工', department: '维修部', amount: 1200, status: '待审批' }
-])
+  { name: '赵电工', department: '维修部', amount: 1200, status: '待审批' },
+]);
 
 // 滚动动画项目
 const scrollItems = ref([
@@ -353,106 +314,106 @@ const scrollItems = ref([
     title: '数据统计',
     description: '实时监控村务数据变化',
     icon: 'DataBoard',
-    animation: 'fadeIn'
+    animation: 'fadeIn',
   },
   {
     title: '用户管理',
     description: '管理村民信息和权限',
     icon: 'User',
-    animation: 'slideInLeft'
+    animation: 'slideInLeft',
   },
   {
     title: '财务报表',
     description: '生成各类财务报表',
     icon: 'CreditCard',
-    animation: 'slideInRight'
-  }
-])
+    animation: 'slideInRight',
+  },
+]);
 
 // 统计数据
 const stats = ref([
   { label: '村民人数', value: 1250, unit: '人', icon: 'User' },
   { label: '月收入', value: 156780, unit: '元', icon: 'Money' },
   { label: '月支出', value: 89456, unit: '元', icon: 'ShoppingCart' },
-  { label: '审批数量', value: 28, unit: '项', icon: 'Check' }
-])
+  { label: '审批数量', value: 28, unit: '项', icon: 'Check' },
+]);
 
 // 元素引用
-const successBtn = ref()
-const errorBtn = ref()
-const progressBar = ref()
+const successBtn = ref();
+const errorBtn = ref();
+const progressBar = ref();
 
 // 方法
-const toggleAnimations = (enabled) => {
-  toggleGlobalAnimation(enabled)
-  ElMessage.info(`动画已${enabled ? '启用' : '禁用'}`)
-}
+const toggleAnimations = enabled => {
+  toggleGlobalAnimation(enabled);
+  ElMessage.info(`动画已${enabled ? '启用' : '禁用'}`);
+};
 
 const triggerErrorShake = () => {
-  shakeError(errorBtn.value?.$el)
-}
+  shakeError(errorBtn.value?.$el);
+};
 
-const handleCardClick = (card) => {
-  ElMessage.success(`点击了${card.title}卡片`)
+const handleCardClick = card => {
+  ElMessage.success(`点击了${card.title}卡片`);
   // 随机更新卡片数值
-  card.value = Math.floor(Math.random() * 200000) + 50000
-}
+  card.value = Math.floor(Math.random() * 200000) + 50000;
+};
 
-const getStatusType = (status) => {
+const getStatusType = status => {
   const typeMap = {
-    '待审批': 'warning',
-    '已通过': 'success',
-    '已支付': 'info',
-    '已拒绝': 'danger'
-  }
-  return typeMap[status] || 'default'
-}
+    待审批: 'warning',
+    已通过: 'success',
+    已支付: 'info',
+    已拒绝: 'danger',
+  };
+  return typeMap[status] || 'default';
+};
 
-const approveItem = (row) => {
-  row.status = '已通过'
-  ElMessage.success(`已通过${row.name}的申请`)
-}
+const approveItem = row => {
+  row.status = '已通过';
+  ElMessage.success(`已通过${row.name}的申请`);
+};
 
-const rejectItem = (row) => {
-  row.status = '已拒绝'
-  ElMessage.error(`已拒绝${row.name}的申请`)
-}
+const rejectItem = row => {
+  row.status = '已拒绝';
+  ElMessage.error(`已拒绝${row.name}的申请`);
+};
 
 const showSuccessAnimation = () => {
-  showSuccess(successBtn.value?.$el)
-  ElMessage.success('操作成功！')
-}
+  showSuccess(successBtn.value?.$el);
+  ElMessage.success('操作成功！');
+};
 
 const showErrorAnimation = () => {
-  shakeError(errorBtn.value?.$el)
-  ElMessage.error('操作失败！')
-}
+  shakeError(errorBtn.value?.$el);
+  ElMessage.error('操作失败！');
+};
 
 const showProgressAnimation = async () => {
-  showProgress.value = true
-  progressValue.value = 0
+  showProgress.value = true;
+  progressValue.value = 0;
 
-  await nextTick()
+  await nextTick();
 
   // 模拟进度更新
   const interval = setInterval(() => {
-    progressValue.value += 10
+    progressValue.value += 10;
     if (progressValue.value >= 100) {
-      clearInterval(interval)
+      clearInterval(interval);
       setTimeout(() => {
-        showProgress.value = false
-        progressValue.value = 0
-      }, 1000)
+        showProgress.value = false;
+        progressValue.value = 0;
+      }, 1000);
     }
-  }, 200)
-}
+  }, 200);
+};
 
 const showNotificationAnimation = () => {
   // 创建临时通知元素
-  const notification = document.createElement('div')
-  notification.className = 'demo-notification'
-  notification.innerHTML = '📢 这是一个动画通知'
-  document.body.appendChild(notification)
+  const notification = document.createElement('div');
+  notification.className = 'demo-notification';
+  notification.innerHTML = '📢 这是一个动画通知';
+  document.body.appendChild(notification);
 
   // 应用滑入动画
   notification.style.cssText = `
@@ -467,56 +428,56 @@ const showNotificationAnimation = () => {
     z-index: 3000;
     transform: translateX(100%);
     transition: transform 0.3s ease;
-  `
+  `;
 
   setTimeout(() => {
-    notification.style.transform = 'translateX(0)'
-  }, 100)
+    notification.style.transform = 'translateX(0)';
+  }, 100);
 
   // 3秒后移除
   setTimeout(() => {
-    notification.style.transform = 'translateX(100%)'
+    notification.style.transform = 'translateX(100%)';
     setTimeout(() => {
-      document.body.removeChild(notification)
-    }, 300)
-  }, 3000)
-}
+      document.body.removeChild(notification);
+    }, 300);
+  }, 3000);
+};
 
 const randomizeStats = () => {
   stats.value.forEach(stat => {
-    const randomValue = Math.floor(Math.random() * 200000) + 10000
-    stat.value = randomValue
-  })
-  ElMessage.info('统计数据已随机更新')
-}
+    const randomValue = Math.floor(Math.random() * 200000) + 10000;
+    stat.value = randomValue;
+  });
+  ElMessage.info('统计数据已随机更新');
+};
 
 const resetStats = () => {
   stats.value = [
     { label: '村民人数', value: 1250, unit: '人', icon: 'User' },
     { label: '月收入', value: 156780, unit: '元', icon: 'Money' },
     { label: '月支出', value: 89456, unit: '元', icon: 'ShoppingCart' },
-    { label: '审批数量', value: 28, unit: '项', icon: 'Check' }
-  ]
-  ElMessage.info('统计数据已重置')
-}
+    { label: '审批数量', value: 28, unit: '项', icon: 'Check' },
+  ];
+  ElMessage.info('统计数据已重置');
+};
 
 const testAllAnimations = () => {
-  ElMessage.info('正在测试所有动画效果...')
+  ElMessage.info('正在测试所有动画效果...');
   // 这里可以添加测试所有动画的逻辑
-}
+};
 
 const resetDemoData = () => {
-  demoForm.username = ''
-  demoForm.email = ''
-  showProgress.value = false
-  progressValue.value = 0
-  ElMessage.info('演示数据已重置')
-}
+  demoForm.username = '';
+  demoForm.email = '';
+  showProgress.value = false;
+  progressValue.value = 0;
+  ElMessage.info('演示数据已重置');
+};
 
 // 生命周期
 onMounted(() => {
-  ElMessage.success('微交互动画演示系统已加载')
-})
+  ElMessage.success('微交互动画演示系统已加载');
+});
 </script>
 
 <style lang="scss" scoped>

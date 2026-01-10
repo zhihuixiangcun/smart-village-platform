@@ -48,70 +48,71 @@ const props = defineProps({
   // 按钮文字
   label: {
     type: String,
-    default: ''
+    default: '',
   },
   // 图标（组件或名称）
   icon: {
     type: [String, Object],
-    default: null
+    default: null,
   },
   // 图标大小
   iconSize: {
     type: [String, Number],
-    default: 24
+    default: 24,
   },
   // 按钮类型
   type: {
     type: String,
     default: 'default',
-    validator: (value) => ['default', 'primary', 'success', 'warning', 'danger', 'emergency'].includes(value)
+    validator: value =>
+      ['default', 'primary', 'success', 'warning', 'danger', 'emergency'].includes(value),
   },
   // 按钮大小
   size: {
     type: String,
     default: 'medium',
-    validator: (value) => ['small', 'medium', 'large'].includes(value)
+    validator: value => ['small', 'medium', 'large'].includes(value),
   },
   // 是否禁用
   disabled: {
     type: Boolean,
-    default: false
+    default: false,
   },
   // 是否加载中
   loading: {
     type: Boolean,
-    default: false
+    default: false,
   },
   // 是否适老化模式
   elderlyMode: {
     type: Boolean,
-    default: false
+    default: false,
   },
   // 角标
   badge: {
     type: [String, Number],
-    default: null
+    default: null,
   },
   // 阅读标签
   ariaLabel: {
     type: String,
-    default: ''
+    default: '',
   },
   // 是否震动反馈
   vibrate: {
     type: Boolean,
-    default: true
+    default: true,
   },
   // 是否语音提示
   speak: {
     type: Boolean,
-    default: false
+    default: false,
   },
   // 自定义类名
   customClass: {
     type: String,
-    default: ''
-  }
+    default: '',
+  },
 });
 
 // Emits
@@ -133,7 +134,7 @@ const buttonClass = computed(() => {
 /**
  * 处理点击事件
  */
-const handleClick = (event) => {
+const handleClick = event => {
   if (props.disabled || props.loading) {
     return;
   }
@@ -307,7 +308,8 @@ const handleClick = (event) => {
 }
 
 @keyframes emergency-pulse {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 0 0 rgba(245, 108, 108, 0.7);
   }
   50% {

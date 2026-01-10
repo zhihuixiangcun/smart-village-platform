@@ -144,26 +144,26 @@ class HouseholdQRService {
     const updateType = this.determineUpdateType(updateData);
 
     switch (updateType) {
-      case 'add_member':
-        await this.handleAddMember(household, updateData, updaterInfo);
-        break;
-      case 'remove_member':
-        await this.handleRemoveMember(household, updateData, updaterInfo);
-        break;
-      case 'update_member':
-        await this.handleUpdateMember(household, updateData, updaterInfo);
-        break;
-      case 'update_address':
-        await this.handleUpdateAddress(household, updateData, updaterInfo);
-        break;
-      case 'update_tags':
-        await this.handleUpdateTags(household, updateData, updaterInfo);
-        break;
-      case 'update_contact':
-        await this.handleUpdateContact(household, updateData, updaterInfo);
-        break;
-      default:
-        throw new Error('不支持的更新类型');
+    case 'add_member':
+      await this.handleAddMember(household, updateData, updaterInfo);
+      break;
+    case 'remove_member':
+      await this.handleRemoveMember(household, updateData, updaterInfo);
+      break;
+    case 'update_member':
+      await this.handleUpdateMember(household, updateData, updaterInfo);
+      break;
+    case 'update_address':
+      await this.handleUpdateAddress(household, updateData, updaterInfo);
+      break;
+    case 'update_tags':
+      await this.handleUpdateTags(household, updateData, updaterInfo);
+      break;
+    case 'update_contact':
+      await this.handleUpdateContact(household, updateData, updaterInfo);
+      break;
+    default:
+      throw new Error('不支持的更新类型');
     }
 
     // 添加变更历史
@@ -215,7 +215,7 @@ class HouseholdQRService {
     const viewerIdCard = viewerInfo.idCard || null;
 
     // 脱敏敏感信息
-    let sanitizedMember = { ...member };
+    const sanitizedMember = { ...member };
 
     if (viewerRole !== 'super_admin' && viewerRole !== 'village_admin') {
       const isFamilyMember = viewerIdCard && (
@@ -389,29 +389,29 @@ class HouseholdQRService {
     );
 
     switch (role) {
-      case 'super_admin':
-      case 'village_admin':
+    case 'super_admin':
+    case 'village_admin':
+      permissions.canViewMembers = true;
+      permissions.canViewSensitive = true;
+      permissions.canEdit = true;
+      permissions.canAddMember = true;
+      permissions.canRemoveMember = true;
+      break;
+    case 'village_worker':
+      permissions.canViewMembers = true;
+      permissions.canViewSensitive = false;
+      permissions.canEdit = false;
+      break;
+    default:
+      if (isFamilyMember) {
         permissions.canViewMembers = true;
         permissions.canViewSensitive = true;
+        // 家庭成员可以编辑基本信息
         permissions.canEdit = true;
-        permissions.canAddMember = true;
-        permissions.canRemoveMember = true;
-        break;
-      case 'village_worker':
+      } else if (household.privacySettings.allowPublicView) {
         permissions.canViewMembers = true;
-        permissions.canViewSensitive = false;
-        permissions.canEdit = false;
-        break;
-      default:
-        if (isFamilyMember) {
-          permissions.canViewMembers = true;
-          permissions.canViewSensitive = true;
-          // 家庭成员可以编辑基本信息
-          permissions.canEdit = true;
-        } else if (household.privacySettings.allowPublicView) {
-          permissions.canViewMembers = true;
-        }
-        break;
+      }
+      break;
     }
 
     return permissions;
@@ -514,7 +514,7 @@ class HouseholdQRService {
    */
   async logScan(householdId, scannerInfo) {
     // 可以集成到日志系统
-    logger.debug(`[HouseholdQR] Scan logged:`, {
+    logger.debug('[HouseholdQR] Scan logged:', {
       householdId,
       scannerId: scannerInfo.userId,
       scannerName: scannerInfo.userName,

@@ -35,7 +35,7 @@ const committeeApplicationSchema = new Schema({
     idCard: {
       type: String,
       required: true,
-      set: function(value) {
+      set(value) {
         // 存储加密的身份证号
         const { encryptData } = require('../utils/encryption');
         if (value && !value.startsWith('encrypted:')) {
@@ -49,7 +49,7 @@ const committeeApplicationSchema = new Schema({
       required: true,
       trim: true,
       validate: {
-        validator: function(v) {
+        validator(v) {
           return /^1[3-9]\d{9}$/.test(v);
         },
         message: '手机号格式不正确'
@@ -62,7 +62,7 @@ const committeeApplicationSchema = new Schema({
     currentRole: {
       type: String,
       enum: [null, 'secretary', 'village_head', 'accountant',
-             'population_admin', 'security_director', 'resident'],
+        'population_admin', 'security_director', 'resident'],
       default: null
     }
   },
@@ -79,8 +79,8 @@ const committeeApplicationSchema = new Schema({
   targetRole: {
     type: String,
     enum: ['secretary', 'village_head', 'accountant',
-           'population_admin', 'security_director'],
-    required: function() {
+      'population_admin', 'security_director'],
+    required() {
       return ['new_account', 'role_change'].includes(this.applicationType);
     }
   },
@@ -95,7 +95,7 @@ const committeeApplicationSchema = new Schema({
     type: {
       type: String,
       enum: ['id_card_front', 'id_card_back', 'appointment_letter',
-             'resignation_letter', 'other'],
+        'resignation_letter', 'other'],
       required: true
     },
     url: {
@@ -272,41 +272,41 @@ committeeApplicationSchema.methods.initWorkflow = function() {
   const workflowSteps = [];
 
   switch (this.applicationType) {
-    case 'new_account':
-      // 新账号申请：村支书审批
-      workflowSteps.push({
-        step: 1,
-        role: 'secretary',
-        status: 'pending'
-      });
-      break;
+  case 'new_account':
+    // 新账号申请：村支书审批
+    workflowSteps.push({
+      step: 1,
+      role: 'secretary',
+      status: 'pending'
+    });
+    break;
 
-    case 'role_change':
-      // 角色变更：村支书审批
-      workflowSteps.push({
-        step: 1,
-        role: 'secretary',
-        status: 'pending'
-      });
-      break;
+  case 'role_change':
+    // 角色变更：村支书审批
+    workflowSteps.push({
+      step: 1,
+      role: 'secretary',
+      status: 'pending'
+    });
+    break;
 
-    case 'permission_grant':
-      // 权限授予：村支书审批
-      workflowSteps.push({
-        step: 1,
-        role: 'secretary',
-        status: 'pending'
-      });
-      break;
+  case 'permission_grant':
+    // 权限授予：村支书审批
+    workflowSteps.push({
+      step: 1,
+      role: 'secretary',
+      status: 'pending'
+    });
+    break;
 
-    case 'role_resign':
-      // 离职申请：村支书审批
-      workflowSteps.push({
-        step: 1,
-        role: 'secretary',
-        status: 'pending'
-      });
-      break;
+  case 'role_resign':
+    // 离职申请：村支书审批
+    workflowSteps.push({
+      step: 1,
+      role: 'secretary',
+      status: 'pending'
+    });
+    break;
   }
 
   this.approvalWorkflow = workflowSteps;

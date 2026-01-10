@@ -109,7 +109,9 @@
                 <div class="card-header">
                   <el-icon><Star /></el-icon>
                   <span>最新推荐</span>
-                  <el-button type="primary" text @click="switchTab('nearby-products')">查看更多</el-button>
+                  <el-button type="primary" text @click="switchTab('nearby-products')"
+                    >查看更多</el-button
+                  >
                 </div>
               </template>
               <div v-if="loading" class="loading-container">
@@ -121,9 +123,16 @@
                 </el-empty>
               </div>
               <div v-else class="recommendations-grid">
-                <div v-for="item in recommendations" :key="item.id" class="recommendation-item" @click="viewRecommendation(item)">
+                <div
+                  v-for="item in recommendations"
+                  :key="item.id"
+                  class="recommendation-item"
+                  @click="viewRecommendation(item)"
+                >
                   <div class="item-badge" :class="item.type">
-                    <el-icon><component :is="item.type === 'product' ? ShoppingCart : Bell" /></el-icon>
+                    <el-icon
+                      ><component :is="item.type === 'product' ? ShoppingCart : Bell"
+                    /></el-icon>
                   </div>
                   <h4>{{ item.name || item.title }}</h4>
                   <p class="item-description">{{ item.description || item.content }}</p>
@@ -177,7 +186,12 @@
                 <el-table-column label="操作" width="200" fixed="right">
                   <template #default="{ row }">
                     <el-button size="small" @click="handleViewRequirement(row)">查看</el-button>
-                    <el-button size="small" type="danger" @click="handleDeleteRequirement(row)" v-if="row.status === 'pending'">
+                    <el-button
+                      size="small"
+                      type="danger"
+                      @click="handleDeleteRequirement(row)"
+                      v-if="row.status === 'pending'"
+                    >
                       删除
                     </el-button>
                   </template>
@@ -277,118 +291,175 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, reactive, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
-  Monitor, Shop, Compass, Van, Promotion, ShoppingCart, User, EditPen, Refresh,
-  Operation, Star, Document, PriceTag, Location, Plus, ArrowRight, Bell
-} from '@element-plus/icons-vue'
-import api from '@/api'
-import NearbySuppliers from '@/components/purchaser/NearbySuppliers.vue'
-import LifestyleServices from '@/components/purchaser/LifestyleServices.vue'
-import TransportationServices from '@/components/purchaser/TransportationServices.vue'
-import CarpoolingService from '@/components/purchaser/CarpoolingService.vue'
-import NearbyProducts from '@/components/purchaser/NearbyProducts.vue'
+  Monitor,
+  Shop,
+  Compass,
+  Van,
+  Promotion,
+  ShoppingCart,
+  User,
+  EditPen,
+  Refresh,
+  Operation,
+  Star,
+  Document,
+  PriceTag,
+  Location,
+  Plus,
+  ArrowRight,
+  Bell,
+} from '@element-plus/icons-vue';
+import api from '@/api';
+import NearbySuppliers from '@/components/purchaser/NearbySuppliers.vue';
+import LifestyleServices from '@/components/purchaser/LifestyleServices.vue';
+import TransportationServices from '@/components/purchaser/TransportationServices.vue';
+import CarpoolingService from '@/components/purchaser/CarpoolingService.vue';
+import NearbyProducts from '@/components/purchaser/NearbyProducts.vue';
 
-const router = useRouter()
-const loading = ref(false)
-const purchaserInfo = ref(null)
-const recommendations = ref([])
-const requirements = ref([])
-const activeTab = ref('dashboard')
+const router = useRouter();
+const loading = ref(false);
+const purchaserInfo = ref(null);
+const recommendations = ref([]);
+const requirements = ref([]);
+const activeTab = ref('dashboard');
 
 const stats = reactive({
   suppliers: 0,
   lifestyle: 0,
   transportation: 0,
-  carpooling: 0
-})
+  carpooling: 0,
+});
 
 // 获取采购商信息
 const fetchPurchaserInfo = async () => {
   try {
-    const response = await api.get('/api/v1/purchaser/me')
+    const response = await api.get('/api/v1/purchaser/me');
     if (response.success) {
-      purchaserInfo.value = response.data
+      purchaserInfo.value = response.data;
     }
   } catch (error) {
-    console.error('获取采购商信息失败', error)
+    console.error('获取采购商信息失败', error);
   }
-}
+};
 
 // 获取工作台数据
 const fetchDashboardData = async () => {
-  loading.value = true
+  loading.value = true;
   try {
     await Promise.all([
       fetchPurchaserInfo(),
       fetchRecommendations(),
       fetchRequirements(),
-      fetchStats()
-    ])
-    ElMessage.success('数据刷新成功')
+      fetchStats(),
+    ]);
+    ElMessage.success('数据刷新成功');
   } catch (error) {
-    console.error('获取数据失败', error)
-    ElMessage.error('数据刷新失败')
+    console.error('获取数据失败', error);
+    ElMessage.error('数据刷新失败');
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 // 获取统计数据
 const fetchStats = async () => {
   try {
     // 模拟数据
-    stats.suppliers = 12
-    stats.lifestyle = 25
-    stats.transportation = 8
-    stats.carpooling = 6
+    stats.suppliers = 12;
+    stats.lifestyle = 25;
+    stats.transportation = 8;
+    stats.carpooling = 6;
   } catch (error) {
-    console.error('获取统计数据失败', error)
+    console.error('获取统计数据失败', error);
   }
-}
+};
 
 // 获取智能推荐
 const fetchRecommendations = async () => {
   try {
     const response = await api.get('/api/v1/purchaser/recommendations', {
-      params: { limit: 6 }
-    })
+      params: { limit: 6 },
+    });
     if (response.success) {
-      recommendations.value = response.data.recommendations || []
+      recommendations.value = response.data.recommendations || [];
     }
   } catch (error) {
     // 使用模拟数据
     recommendations.value = [
-      { id: '1', type: 'product', name: '有机白菜', description: '新鲜有机种植，口感鲜嫩', price: 3.5, unit: '斤', distance: 0.8 },
-      { id: '2', type: 'announcement', title: '春节优惠活动', content: '春节期间全场9折优惠', distance: 1.2 },
-      { id: '3', type: 'product', name: '新鲜草莓', description: '个大饱满，香甜可口', price: 25, unit: '斤', distance: 2.5 },
-      { id: '4', type: 'product', name: '土鸡蛋', description: '散养土鸡产蛋，营养丰富', price: 1.5, unit: '个', distance: 3.2 }
-    ]
+      {
+        id: '1',
+        type: 'product',
+        name: '有机白菜',
+        description: '新鲜有机种植，口感鲜嫩',
+        price: 3.5,
+        unit: '斤',
+        distance: 0.8,
+      },
+      {
+        id: '2',
+        type: 'announcement',
+        title: '春节优惠活动',
+        content: '春节期间全场9折优惠',
+        distance: 1.2,
+      },
+      {
+        id: '3',
+        type: 'product',
+        name: '新鲜草莓',
+        description: '个大饱满，香甜可口',
+        price: 25,
+        unit: '斤',
+        distance: 2.5,
+      },
+      {
+        id: '4',
+        type: 'product',
+        name: '土鸡蛋',
+        description: '散养土鸡产蛋，营养丰富',
+        price: 1.5,
+        unit: '个',
+        distance: 3.2,
+      },
+    ];
   }
-}
+};
 
 // 获取我的采购需求
 const fetchRequirements = async () => {
   try {
     // 模拟数据
     requirements.value = [
-      { productCategory: '蔬菜', quantity: '500kg', budget: '2000元', status: 'pending', createdAt: new Date() },
-      { productCategory: '水果', quantity: '300kg', budget: '3000元', status: 'active', createdAt: new Date() }
-    ]
+      {
+        productCategory: '蔬菜',
+        quantity: '500kg',
+        budget: '2000元',
+        status: 'pending',
+        createdAt: new Date(),
+      },
+      {
+        productCategory: '水果',
+        quantity: '300kg',
+        budget: '3000元',
+        status: 'active',
+        createdAt: new Date(),
+      },
+    ];
   } catch (error) {
-    console.error('获取采购需求失败', error)
+    console.error('获取采购需求失败', error);
   }
-}
+};
 
 // 切换标签页
-const switchTab = (tabName) => {
-  activeTab.value = tabName
-}
+const switchTab = tabName => {
+  activeTab.value = tabName;
+};
 
 // 查看推荐详情
-const viewRecommendation = (item) => {
+const viewRecommendation = item => {
   ElMessageBox.alert(
     `<div style="text-align: left;">
       <h3>${item.name || item.title}</h3>
@@ -399,15 +470,15 @@ const viewRecommendation = (item) => {
     </div>`,
     '详细信息',
     { dangerouslyUseHTMLString: true }
-  )
-}
+  );
+};
 
 // 快捷操作
 const handlePostRequirement = () => {
-  ElMessage.info('发布采购需求功能开发中，敬请期待！')
-}
+  ElMessage.info('发布采购需求功能开发中，敬请期待！');
+};
 
-const handleViewRequirement = (row) => {
+const handleViewRequirement = row => {
   ElMessageBox.alert(
     `<div style="text-align: left;">
       <h3>${row.productCategory}</h3>
@@ -418,41 +489,41 @@ const handleViewRequirement = (row) => {
     </div>`,
     '采购需求详情',
     { dangerouslyUseHTMLString: true }
-  )
-}
+  );
+};
 
-const handleDeleteRequirement = async (row) => {
+const handleDeleteRequirement = async row => {
   try {
     await ElMessageBox.confirm('确定要删除此采购需求吗？', '确认删除', {
-      type: 'warning'
-    })
-    ElMessage.success('删除成功')
+      type: 'warning',
+    });
+    ElMessage.success('删除成功');
     // 这里可以调用实际的删除API
   } catch (error) {
     // 用户取消删除
   }
-}
+};
 
 // 工具函数
-const getRequirementStatusType = (status) => {
-  const types = { pending: 'info', active: 'success', completed: 'info', cancelled: 'danger' }
-  return types[status] || 'info'
-}
+const getRequirementStatusType = status => {
+  const types = { pending: 'info', active: 'success', completed: 'info', cancelled: 'danger' };
+  return types[status] || 'info';
+};
 
-const getRequirementStatusLabel = (status) => {
-  const labels = { pending: '待响应', active: '进行中', completed: '已完成', cancelled: '已取消' }
-  return labels[status] || status
-}
+const getRequirementStatusLabel = status => {
+  const labels = { pending: '待响应', active: '进行中', completed: '已完成', cancelled: '已取消' };
+  return labels[status] || status;
+};
 
-const formatDate = (date) => {
-  if (!date) return ''
-  return new Date(date).toLocaleString('zh-CN')
-}
+const formatDate = date => {
+  if (!date) return '';
+  return new Date(date).toLocaleString('zh-CN');
+};
 
 // 初始化
 onMounted(async () => {
-  await fetchDashboardData()
-})
+  await fetchDashboardData();
+});
 </script>
 
 <style scoped>

@@ -24,7 +24,7 @@
             {{ getProjectTypeName(project.projectType) }}
           </el-tag>
         </div>
-        
+
         <div class="info-row">
           <el-icon><Flag /></el-icon>
           <span class="label">优先级：</span>
@@ -32,7 +32,7 @@
             {{ getPriorityName(project.priority) }}
           </el-tag>
         </div>
-        
+
         <div class="info-row">
           <el-icon><Money /></el-icon>
           <span class="label">预算：</span>
@@ -43,8 +43,8 @@
           <el-icon><Calendar /></el-icon>
           <span class="label">周期：</span>
           <span class="timeline">
-            {{ formatDate(project.timeline.plannedStartDate) }} 
-            至 
+            {{ formatDate(project.timeline.plannedStartDate) }}
+            至
             {{ formatDate(project.timeline.plannedEndDate) }}
           </span>
         </div>
@@ -61,8 +61,8 @@
           <span class="progress-label">项目进度</span>
           <span class="progress-value">{{ project.progress.overallProgress }}%</span>
         </div>
-        <el-progress 
-          :percentage="project.progress.overallProgress" 
+        <el-progress
+          :percentage="project.progress.overallProgress"
           :color="getProgressColor(project.progress.overallProgress)"
           :show-text="false"
         />
@@ -106,54 +106,34 @@
           <el-icon><View /></el-icon>
           查看详情
         </el-button>
-        
+
         <!-- 根据项目状态显示不同操作 -->
         <template v-if="project.status === 'draft'">
-          <el-button 
-            size="small" 
-            type="primary" 
-            @click="$emit('edit', project)"
-            v-if="canEdit"
-          >
+          <el-button size="small" type="primary" @click="$emit('edit', project)" v-if="canEdit">
             <el-icon><Edit /></el-icon>
             编辑
           </el-button>
-          <el-button 
-            size="small" 
-            type="success" 
-            @click="$emit('submit', project)"
-            v-if="canSubmit"
-          >
+          <el-button size="small" type="success" @click="$emit('submit', project)" v-if="canSubmit">
             <el-icon><Upload /></el-icon>
             提交审批
           </el-button>
-          <el-button 
-            size="small" 
-            type="danger" 
-            @click="$emit('delete', project)"
-            v-if="canDelete"
-          >
+          <el-button size="small" type="danger" @click="$emit('delete', project)" v-if="canDelete">
             <el-icon><Delete /></el-icon>
             删除
           </el-button>
         </template>
 
         <template v-else-if="project.status === 'approved'">
-          <el-button 
-            size="small" 
-            type="success" 
-            @click="$emit('start', project)"
-            v-if="canStart"
-          >
+          <el-button size="small" type="success" @click="$emit('start', project)" v-if="canStart">
             <el-icon><VideoPlay /></el-icon>
             启动项目
           </el-button>
         </template>
 
         <template v-else-if="project.status === 'in_progress'">
-          <el-button 
-            size="small" 
-            type="primary" 
+          <el-button
+            size="small"
+            type="primary"
             @click="$emit('updateProgress', project)"
             v-if="canUpdateProgress"
           >
@@ -181,9 +161,7 @@
               <el-dropdown-item command="acceptance" v-if="project.status === 'completed'">
                 项目验收
               </el-dropdown-item>
-              <el-dropdown-item command="archive" divided>
-                归档项目
-              </el-dropdown-item>
+              <el-dropdown-item command="archive" divided> 归档项目 </el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
@@ -193,75 +171,90 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { 
-  FolderOpened, Flag, Money, Calendar, User, View, Edit, Upload, Delete, 
-  VideoPlay, TrendCharts, ArrowDown 
-} from '@element-plus/icons-vue'
-import { useUserStore } from '@/store/user'
+import { computed } from 'vue';
+import {
+  FolderOpened,
+  Flag,
+  Money,
+  Calendar,
+  User,
+  View,
+  Edit,
+  Upload,
+  Delete,
+  VideoPlay,
+  TrendCharts,
+  ArrowDown,
+} from '@element-plus/icons-vue';
+import { useUserStore } from '@/store/user';
 
 const props = defineProps({
   project: {
     type: Object,
-    required: true
-  }
-})
+    required: true,
+  },
+});
 
-const emit = defineEmits([
-  'view', 'edit', 'delete', 'submit', 'start', 'updateProgress'
-])
+const emit = defineEmits(['view', 'edit', 'delete', 'submit', 'start', 'updateProgress']);
 
-const userStore = useUserStore()
+const userStore = useUserStore();
 
 // 计算属性
 const canEdit = computed(() => {
-  return ['draft', 'in_progress'].includes(props.project.status) &&
-         userStore.hasPermission('project_management', 'update')
-})
+  return (
+    ['draft', 'in_progress'].includes(props.project.status) &&
+    userStore.hasPermission('project_management', 'update')
+  );
+});
 
 const canSubmit = computed(() => {
-  return props.project.status === 'draft' &&
-         userStore.hasPermission('project_management', 'submit')
-})
+  return (
+    props.project.status === 'draft' && userStore.hasPermission('project_management', 'submit')
+  );
+});
 
 const canDelete = computed(() => {
-  return props.project.status === 'draft' &&
-         userStore.hasPermission('project_management', 'delete')
-})
+  return (
+    props.project.status === 'draft' && userStore.hasPermission('project_management', 'delete')
+  );
+});
 
 const canStart = computed(() => {
-  return props.project.status === 'approved' &&
-         userStore.hasPermission('project_management', 'execute')
-})
+  return (
+    props.project.status === 'approved' && userStore.hasPermission('project_management', 'execute')
+  );
+});
 
 const canUpdateProgress = computed(() => {
-  return props.project.status === 'in_progress' &&
-         userStore.hasPermission('project_management', 'update')
-})
+  return (
+    props.project.status === 'in_progress' &&
+    userStore.hasPermission('project_management', 'update')
+  );
+});
 
 const isDelayed = computed(() => {
-  if (props.project.status === 'completed') return false
-  const now = new Date()
-  const plannedEnd = new Date(props.project.timeline.plannedEndDate)
-  return plannedEnd < now
-})
+  if (props.project.status === 'completed') return false;
+  const now = new Date();
+  const plannedEnd = new Date(props.project.timeline.plannedEndDate);
+  return plannedEnd < now;
+});
 
 const hasHighRisk = computed(() => {
-  return ['high', 'critical'].includes(props.project.riskManagement?.riskLevel)
-})
+  return ['high', 'critical'].includes(props.project.riskManagement?.riskLevel);
+});
 
 // 方法
 const getCardClass = () => {
-  const classes = []
-  
-  if (isDelayed.value) classes.push('delayed')
-  if (hasHighRisk.value) classes.push('high-risk')
-  if (props.project.status === 'completed') classes.push('completed')
-  
-  return classes.join(' ')
-}
+  const classes = [];
 
-const getStatusName = (status) => {
+  if (isDelayed.value) classes.push('delayed');
+  if (hasHighRisk.value) classes.push('high-risk');
+  if (props.project.status === 'completed') classes.push('completed');
+
+  return classes.join(' ');
+};
+
+const getStatusName = status => {
   const statusMap = {
     draft: '草稿',
     submitted: '已提交',
@@ -273,12 +266,12 @@ const getStatusName = (status) => {
     paused: '暂停',
     completed: '已完成',
     cancelled: '已取消',
-    closed: '已关闭'
-  }
-  return statusMap[status] || status
-}
+    closed: '已关闭',
+  };
+  return statusMap[status] || status;
+};
 
-const getStatusColor = (status) => {
+const getStatusColor = status => {
   const colorMap = {
     draft: 'info',
     submitted: 'primary',
@@ -290,12 +283,12 @@ const getStatusColor = (status) => {
     paused: 'warning',
     completed: 'success',
     cancelled: 'info',
-    closed: 'info'
-  }
-  return colorMap[status] || ''
-}
+    closed: 'info',
+  };
+  return colorMap[status] || '';
+};
 
-const getProjectTypeName = (type) => {
+const getProjectTypeName = type => {
   const typeMap = {
     infrastructure: '基础设施',
     public_service: '公共服务',
@@ -310,12 +303,12 @@ const getProjectTypeName = (type) => {
     education: '教育培训',
     healthcare: '医疗卫生',
     tourism: '旅游发展',
-    other: '其他'
-  }
-  return typeMap[type] || type
-}
+    other: '其他',
+  };
+  return typeMap[type] || type;
+};
 
-const getProjectTypeColor = (type) => {
+const getProjectTypeColor = type => {
   const colorMap = {
     infrastructure: 'primary',
     public_service: 'success',
@@ -330,77 +323,77 @@ const getProjectTypeColor = (type) => {
     education: 'info',
     healthcare: 'success',
     tourism: '',
-    other: 'info'
-  }
-  return colorMap[type] || ''
-}
+    other: 'info',
+  };
+  return colorMap[type] || '';
+};
 
-const getPriorityName = (priority) => {
+const getPriorityName = priority => {
   const priorityMap = {
     low: '低',
     medium: '中',
     high: '高',
-    urgent: '紧急'
-  }
-  return priorityMap[priority] || priority
-}
+    urgent: '紧急',
+  };
+  return priorityMap[priority] || priority;
+};
 
-const getPriorityColor = (priority) => {
+const getPriorityColor = priority => {
   const colorMap = {
     low: 'info',
     medium: '',
     high: 'warning',
-    urgent: 'danger'
-  }
-  return colorMap[priority] || ''
-}
+    urgent: 'danger',
+  };
+  return colorMap[priority] || '';
+};
 
-const getRiskLevelName = (level) => {
+const getRiskLevelName = level => {
   const levelMap = {
     low: '低风险',
     medium: '中风险',
     high: '高风险',
-    critical: '严重风险'
-  }
-  return levelMap[level] || level
-}
+    critical: '严重风险',
+  };
+  return levelMap[level] || level;
+};
 
-const getProgressColor = (progress) => {
-  if (progress < 30) return '#f56c6c'
-  if (progress < 70) return '#e6a23c'
-  return '#67c23a'
-}
+const getProgressColor = progress => {
+  if (progress < 30) return '#f56c6c';
+  if (progress < 70) return '#e6a23c';
+  return '#67c23a';
+};
 
-const formatBudget = (budget) => {
-  return (budget / 10000).toFixed(1)
-}
+const formatBudget = budget => {
+  return (budget / 10000).toFixed(1);
+};
 
-const formatDate = (date) => {
-  if (!date) return '-'
+const formatDate = date => {
+  if (!date) return '-';
   return new Date(date).toLocaleDateString('zh-CN', {
     month: '2-digit',
-    day: '2-digit'
-  })
-}
+    day: '2-digit',
+  });
+};
 
-const truncateDescription = (description) => {
-  if (!description) return ''
-  return description.length > 100 ? description.substring(0, 100) + '...' : description
-}
+const truncateDescription = description => {
+  if (!description) return '';
+  return description.length > 100 ? description.substring(0, 100) + '...' : description;
+};
 
 const getDelayDays = () => {
-  if (!isDelayed.value) return 0
-  const now = new Date()
-  const plannedEnd = new Date(props.project.timeline.plannedEndDate)
-  const diffTime = Math.abs(now - plannedEnd)
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-}
+  if (!isDelayed.value) return 0;
+  const now = new Date();
+  const plannedEnd = new Date(props.project.timeline.plannedEndDate);
+  const diffTime = Math.abs(now - plannedEnd);
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+};
 
-const handleCommand = (command) => {
+const handleCommand = command => {
   // 处理下拉菜单命令
-  console.log('Command:', command, 'Project:', props.project)
+  console.log('Command:', command, 'Project:', props.project);
   // 这里可以添加更多的命令处理逻辑
-}
+};
 </script>
 
 <style scoped>
@@ -522,7 +515,8 @@ const handleCommand = (command) => {
   color: #303133;
 }
 
-.delay-warning, .risk-warning {
+.delay-warning,
+.risk-warning {
   margin-bottom: 16px;
 }
 
@@ -568,19 +562,19 @@ const handleCommand = (command) => {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .project-status {
     margin-top: 8px;
   }
-  
+
   .info-row {
     flex-wrap: wrap;
   }
-  
+
   .card-actions {
     justify-content: center;
   }
-  
+
   .card-actions .el-button {
     flex: 1 1 auto;
     min-width: 80px;

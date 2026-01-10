@@ -67,7 +67,7 @@ async function createSampleShifts(villageId) {
       priority: 1,
       weight: 1.0,
       description: '日常工作班次，负责接待、咨询和一般事务处理',
-      villageId: villageId
+      villageId
     },
     {
       name: '午班',
@@ -82,7 +82,7 @@ async function createSampleShifts(villageId) {
       priority: 2,
       weight: 0.8,
       description: '下午到晚上班次，负责晚间值班和应急响应',
-      villageId: villageId
+      villageId
     },
     {
       name: '晚班',
@@ -101,7 +101,7 @@ async function createSampleShifts(villageId) {
         skills: ['应急处理', '夜间巡逻'],
         physicalRequirements: ['good_health']
       },
-      villageId: villageId
+      villageId
     },
     {
       name: '应急班',
@@ -120,7 +120,7 @@ async function createSampleShifts(villageId) {
         skills: ['急救', '消防知识', '应急处理'],
         physicalRequirements: ['good_health', 'special_training']
       },
-      villageId: villageId
+      villageId
     }
   ];
 
@@ -150,7 +150,7 @@ async function createSamplePersonnel(villageId) {
           lastName: '三',
           phone: '13800138001'
         },
-        villageId: villageId
+        villageId
       },
       {
         username: 'lisi',
@@ -162,7 +162,7 @@ async function createSamplePersonnel(villageId) {
           lastName: '四',
           phone: '13800138002'
         },
-        villageId: villageId
+        villageId
       },
       {
         username: 'wangwu',
@@ -174,7 +174,7 @@ async function createSamplePersonnel(villageId) {
           lastName: '五',
           phone: '13800138003'
         },
-        villageId: villageId
+        villageId
       }
     ];
 
@@ -189,14 +189,14 @@ async function createSamplePersonnel(villageId) {
     position: index === 0 ? '村主任' : index === 1 ? '副主任' : '工作人员',
     department: index === 0 ? '村委会' : '综合办公室',
     employeeId: `V${String(index + 1).padStart(4, '0')}`,
-    villageId: villageId,
+    villageId,
     capabilities: {
       availableShiftTypes: index === 0 ? ['morning', 'afternoon', 'night', 'emergency'] :
-                              index === 1 ? ['morning', 'afternoon', 'emergency'] :
-                              ['morning', 'afternoon'],
+        index === 1 ? ['morning', 'afternoon', 'emergency'] :
+          ['morning', 'afternoon'],
       skills: index === 0 ? ['行政管理', '应急指挥', '群众工作'] :
-             index === 1 ? ['财务管理', '文书处理'] :
-             ['日常接待', '信息录入'],
+        index === 1 ? ['财务管理', '文书处理'] :
+          ['日常接待', '信息录入'],
       languages: ['zh-CN'],
       specialAbilities: index === 0 ? ['村级事务管理'] : []
     },

@@ -141,12 +141,7 @@
                 {{ carpool.driverName }}
                 <el-tag v-if="carpool.verified" type="success" size="small">实名</el-tag>
               </div>
-              <el-rate
-                v-model="carpool.driverRating"
-                disabled
-                size="small"
-                show-score
-              />
+              <el-rate v-model="carpool.driverRating" disabled size="small" show-score />
             </div>
           </div>
 
@@ -174,9 +169,7 @@
               <el-icon><Phone /></el-icon>
               联系
             </el-button>
-            <el-button size="small" @click.stop="bookCarpool(carpool)">
-              预订
-            </el-button>
+            <el-button size="small" @click.stop="bookCarpool(carpool)"> 预订 </el-button>
           </div>
         </div>
       </div>
@@ -217,19 +210,11 @@
         </el-form-item>
 
         <el-form-item label="座位数" required>
-          <el-input-number
-            v-model="publishForm.availableSeats"
-            :min="1"
-            :max="10"
-          />
+          <el-input-number v-model="publishForm.availableSeats" :min="1" :max="10" />
         </el-form-item>
 
         <el-form-item label="价格/座" required>
-          <el-input-number
-            v-model="publishForm.pricePerSeat"
-            :min="0"
-            :precision="0"
-          />
+          <el-input-number v-model="publishForm.pricePerSeat" :min="0" :precision="0" />
           <span style="margin-left: 8px">元</span>
         </el-form-item>
 
@@ -254,18 +239,12 @@
 
       <template #footer>
         <el-button @click="publishDialogVisible = false">取消</el-button>
-        <el-button type="primary" :loading="publishing" @click="publishCarpool">
-          发布
-        </el-button>
+        <el-button type="primary" :loading="publishing" @click="publishCarpool"> 发布 </el-button>
       </template>
     </el-dialog>
 
     <!-- 安全提示 -->
-    <el-alert
-      type="warning"
-      :closable="false"
-      show-icon
-    >
+    <el-alert type="warning" :closable="false" show-icon>
       <template #title>
         <span style="font-size: 13px">
           安全提示：拼车出行请注意安全，核实司机信息，建议选择实名认证司机
@@ -276,7 +255,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue';
 import {
   Odometer,
   Van,
@@ -290,24 +269,24 @@ import {
   Right,
   Clock,
   User,
-  Phone
-} from '@element-plus/icons-vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import type { Carpool, FlightInfo, TrainStation } from '@/types/marketplace'
+  Phone,
+} from '@element-plus/icons-vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import type { Carpool, FlightInfo, TrainStation } from '@/types/marketplace';
 
 // 状态
-const searching = ref(false)
-const publishing = ref(false)
-const publishDialogVisible = ref(false)
-const supportsSpeechRecognition = ref(false)
+const searching = ref(false);
+const publishing = ref(false);
+const publishDialogVisible = ref(false);
+const supportsSpeechRecognition = ref(false);
 
 // 拼车搜索表单
 const carpoolForm = ref({
   from: '',
   to: '',
   date: '',
-  seats: 1
-})
+  seats: 1,
+});
 
 // 发布拼车表单
 const publishForm = ref({
@@ -317,68 +296,68 @@ const publishForm = ref({
   availableSeats: 4,
   pricePerSeat: 20,
   vehicleType: 'sedan',
-  note: ''
-})
+  note: '',
+});
 
 // 拼车列表
-const carpools = ref<Carpool[]>([])
+const carpools = ref<Carpool[]>([]);
 
 // 方法
 const searchFlight = () => {
-  ElMessage.info('航班查询功能开发中...')
+  ElMessage.info('航班查询功能开发中...');
   // TODO: 集成航班查询API
-}
+};
 
 const searchTrain = () => {
-  ElMessage.info('高铁查询功能开发中...')
+  ElMessage.info('高铁查询功能开发中...');
   // TODO: 集成高铁查询API
-}
+};
 
 const useCurrentLocation = () => {
   if (!navigator.geolocation) {
-    ElMessage.warning('您的浏览器不支持定位')
-    return
+    ElMessage.warning('您的浏览器不支持定位');
+    return;
   }
 
-  ElMessage.info('正在获取位置...')
+  ElMessage.info('正在获取位置...');
   navigator.geolocation.getCurrentPosition(
-    (position) => {
+    position => {
       // TODO: 反向地理编码获取地址
-      carpoolForm.value.from = '当前位置'
-      ElMessage.success('定位成功')
+      carpoolForm.value.from = '当前位置';
+      ElMessage.success('定位成功');
     },
-    (error) => {
-      console.error('定位失败:', error)
-      ElMessage.error('定位失败，请手动输入')
+    error => {
+      console.error('定位失败:', error);
+      ElMessage.error('定位失败，请手动输入');
     }
-  )
-}
+  );
+};
 
 const startVoiceInput = () => {
   if (!supportsSpeechRecognition.value) {
-    ElMessage.warning('您的浏览器不支持语音输入')
-    return
+    ElMessage.warning('您的浏览器不支持语音输入');
+    return;
   }
 
-  ElMessage.info('语音输入功能开发中...')
+  ElMessage.info('语音输入功能开发中...');
   // TODO: 集成语音识别
-}
+};
 
 const disabledDate = (time: Date) => {
   // 不能选择过去的时间
-  return time.getTime() < Date.now() - 8.64e7
-}
+  return time.getTime() < Date.now() - 8.64e7;
+};
 
 const searchCarpool = async () => {
   if (!carpoolForm.value.to) {
-    ElMessage.warning('请输入目的地')
-    return
+    ElMessage.warning('请输入目的地');
+    return;
   }
 
-  searching.value = true
+  searching.value = true;
   try {
     // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     // 模拟数据
     carpools.value = [
@@ -399,7 +378,7 @@ const searchCarpool = async () => {
         licensePlate: '浙A****8',
         note: '可带小件行李',
         status: 'active',
-        publishTime: new Date().toISOString()
+        publishTime: new Date().toISOString(),
       },
       {
         id: 'c2',
@@ -417,32 +396,32 @@ const searchCarpool = async () => {
         vehicleType: 'SUV',
         licensePlate: '浙A****6',
         status: 'active',
-        publishTime: new Date().toISOString()
-      }
-    ]
+        publishTime: new Date().toISOString(),
+      },
+    ];
 
-    ElMessage.success(`找到 ${carpools.value.length} 条拼车信息`)
+    ElMessage.success(`找到 ${carpools.value.length} 条拼车信息`);
   } catch (error) {
-    console.error('搜索失败:', error)
-    ElMessage.error('搜索失败，请重试')
+    console.error('搜索失败:', error);
+    ElMessage.error('搜索失败，请重试');
   } finally {
-    searching.value = false
+    searching.value = false;
   }
-}
+};
 
 const formatTime = (time: string) => {
-  const date = new Date(time)
-  const now = new Date()
-  const diff = date.getTime() - now.getTime()
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+  const date = new Date(time);
+  const now = new Date();
+  const diff = date.getTime() - now.getTime();
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
   if (days === 0) {
-    return '今天 ' + time.split(' ')[1]
+    return '今天 ' + time.split(' ')[1];
   } else if (days === 1) {
-    return '明天 ' + time.split(' ')[1]
+    return '明天 ' + time.split(' ')[1];
   }
-  return time
-}
+  return time;
+};
 
 const viewCarpoolDetail = (carpool: Carpool) => {
   ElMessageBox.alert(
@@ -461,19 +440,19 @@ const viewCarpoolDetail = (carpool: Carpool) => {
     '拼车详情',
     {
       dangerouslyUseHTMLString: true,
-      confirmButtonText: '联系司机'
+      confirmButtonText: '联系司机',
     }
-  )
-}
+  );
+};
 
 /**
  * 脱敏显示电话号码
  */
 const maskPhone = (phone: string): string => {
   // 如果已经是脱敏的,直接返回
-  if (phone.includes('****')) return phone
-  return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')
-}
+  if (phone.includes('****')) return phone;
+  return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
+};
 
 const contactDriver = async (carpool: Carpool) => {
   try {
@@ -484,9 +463,9 @@ const contactDriver = async (carpool: Carpool) => {
         confirmButtonText: '查看联系方式',
         cancelButtonText: '取消',
         type: 'info',
-        distinguishCancelAndClose: true
+        distinguishCancelAndClose: true,
       }
-    )
+    );
 
     // 显示完整联系方式(实际应用中应该从后端获取)
     await ElMessageBox.alert(
@@ -502,15 +481,15 @@ const contactDriver = async (carpool: Carpool) => {
         dangerouslyUseHTMLString: true,
         confirmButtonText: '复制电话',
         callback: () => {
-          navigator.clipboard.writeText('13812345678')
-          ElMessage.success('电话号码已复制到剪贴板')
-        }
+          navigator.clipboard.writeText('13812345678');
+          ElMessage.success('电话号码已复制到剪贴板');
+        },
       }
-    )
+    );
   } catch {
     // 用户取消
   }
-}
+};
 
 const bookCarpool = (carpool: Carpool) => {
   ElMessageBox.confirm(
@@ -519,61 +498,63 @@ const bookCarpool = (carpool: Carpool) => {
     {
       confirmButtonText: '确认预订',
       cancelButtonText: '取消',
-      type: 'warning'
+      type: 'warning',
     }
-  ).then(() => {
-    ElMessage.success('预订成功！司机将尽快与您联系')
-  }).catch(() => {
-    // 用户取消
-  })
-}
+  )
+    .then(() => {
+      ElMessage.success('预订成功！司机将尽快与您联系');
+    })
+    .catch(() => {
+      // 用户取消
+    });
+};
 
 const showPublishDialog = () => {
-  publishDialogVisible.value = true
+  publishDialogVisible.value = true;
   // 设置默认时间
-  const now = new Date()
-  now.setHours(now.getHours() + 2)
-  publishForm.value.departureTime = now.toISOString().slice(0, 16).replace('T', ' ')
-}
+  const now = new Date();
+  now.setHours(now.getHours() + 2);
+  publishForm.value.departureTime = now.toISOString().slice(0, 16).replace('T', ' ');
+};
 
 const publishCarpool = async () => {
   // 表单验证
   if (!publishForm.value.fromLocation || !publishForm.value.toLocation) {
-    ElMessage.warning('请填写出发地和目的地')
-    return
+    ElMessage.warning('请填写出发地和目的地');
+    return;
   }
   if (!publishForm.value.departureTime) {
-    ElMessage.warning('请选择出发时间')
-    return
+    ElMessage.warning('请选择出发时间');
+    return;
   }
 
-  publishing.value = true
+  publishing.value = true;
   try {
     // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
-    ElMessage.success('发布成功！')
-    publishDialogVisible.value = false
+    ElMessage.success('发布成功！');
+    publishDialogVisible.value = false;
 
     // 刷新列表
-    await searchCarpool()
+    await searchCarpool();
   } catch (error) {
-    console.error('发布失败:', error)
-    ElMessage.error('发布失败，请重试')
+    console.error('发布失败:', error);
+    ElMessage.error('发布失败，请重试');
   } finally {
-    publishing.value = false
+    publishing.value = false;
   }
-}
+};
 
 // 生命周期
 onMounted(() => {
   // 检查语音识别支持
-  supportsSpeechRecognition.value = 'webkitSpeechRecognition' in window ||
-                                    'SpeechRecognition' in window
+  supportsSpeechRecognition.value =
+    'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
 
   // 加载初始拼车信息
-  carpoolForm.value.from = '李家村'
-})
+  carpoolForm.value.from = '李家村';
+});
 </script>
 
 <style lang="scss" scoped>

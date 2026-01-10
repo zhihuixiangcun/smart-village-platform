@@ -89,11 +89,10 @@
                     <el-dropdown-menu>
                       <el-dropdown-item :command="`edit-${template.id}`">编辑</el-dropdown-item>
                       <el-dropdown-item :command="`copy-${template.id}`">复制</el-dropdown-item>
-                      <el-dropdown-item :command="`apply-${template.id}`">应用模板</el-dropdown-item>
-                      <el-dropdown-item
-                        :command="`delete-${template.id}`"
-                        class="danger-item"
+                      <el-dropdown-item :command="`apply-${template.id}`"
+                        >应用模板</el-dropdown-item
                       >
+                      <el-dropdown-item :command="`delete-${template.id}`" class="danger-item">
                         删除
                       </el-dropdown-item>
                     </el-dropdown-menu>
@@ -118,9 +117,7 @@
                 <el-button type="primary" size="small" @click="handleApplyTemplate">
                   应用模板
                 </el-button>
-                <el-button size="small" @click="previewTemplate">
-                  预览效果
-                </el-button>
+                <el-button size="small" @click="previewTemplate"> 预览效果 </el-button>
               </div>
             </div>
           </template>
@@ -173,7 +170,9 @@
                           >
                             <div class="permission-item">
                               <span class="permission-name">{{ permission.name }}</span>
-                              <span class="permission-description">{{ permission.description }}</span>
+                              <span class="permission-description">{{
+                                permission.description
+                              }}</span>
                             </div>
                           </el-checkbox>
                         </div>
@@ -284,7 +283,7 @@
                     <el-checkbox
                       :indeterminate="getCategoryIndeterminate(category)"
                       :model-value="getCategoryChecked(category)"
-                      @update:model-value="(val) => handleCategoryCheck(category, val)"
+                      @update:model-value="val => handleCategoryCheck(category, val)"
                     >
                       全选
                     </el-checkbox>
@@ -335,11 +334,7 @@
           </el-form-item>
 
           <el-form-item v-if="applyForm.target === 'role'" label="选择角色">
-            <el-select
-              v-model="applyForm.roleId"
-              placeholder="选择角色"
-              style="width: 100%"
-            >
+            <el-select v-model="applyForm.roleId" placeholder="选择角色" style="width: 100%">
               <el-option
                 v-for="role in roleOptions"
                 :key="role.value"
@@ -393,25 +388,22 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, nextTick } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import {
-  Search, Plus, Upload, Download,
-  MoreFilled, Document
-} from '@element-plus/icons-vue'
-import * as echarts from 'echarts'
-import enhancedPermissionService from '@/services/enhancedPermissionService'
+import { ref, reactive, computed, onMounted, nextTick } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { Search, Plus, Upload, Download, MoreFilled, Document } from '@element-plus/icons-vue';
+import * as echarts from 'echarts';
+import enhancedPermissionService from '@/services/enhancedPermissionService';
 
 // 响应式数据
-const searchKeyword = ref('')
-const filterCategory = ref('')
-const selectedTemplate = ref(null)
-const activePermissionTab = ref('list')
-const configTab = ref('basic')
-const templateDialogVisible = ref(false)
-const applyDialogVisible = ref(false)
-const isEditing = ref(false)
-const applyTemplate = ref(null)
+const searchKeyword = ref('');
+const filterCategory = ref('');
+const selectedTemplate = ref(null);
+const activePermissionTab = ref('list');
+const configTab = ref('basic');
+const templateDialogVisible = ref(false);
+const applyDialogVisible = ref(false);
+const isEditing = ref(false);
+const applyTemplate = ref(null);
 
 // 模板数据
 const templates = ref([
@@ -429,18 +421,16 @@ const templates = ref([
         module: '用户管理',
         permissions: [
           { key: 'user:read', name: '查看用户', description: '查看用户基本信息' },
-          { key: 'user:write', name: '编辑用户', description: '修改用户信息' }
+          { key: 'user:write', name: '编辑用户', description: '修改用户信息' },
         ],
-        enabledPermissions: ['user:read', 'user:write']
+        enabledPermissions: ['user:read', 'user:write'],
       },
       {
         module: '角色管理',
-        permissions: [
-          { key: 'role:read', name: '查看角色', description: '查看角色信息' }
-        ],
-        enabledPermissions: ['role:read']
-      }
-    ]
+        permissions: [{ key: 'role:read', name: '查看角色', description: '查看角色信息' }],
+        enabledPermissions: ['role:read'],
+      },
+    ],
   },
   {
     id: '2',
@@ -456,11 +446,11 @@ const templates = ref([
         module: '财务管理',
         permissions: [
           { key: 'finance:read', name: '查看财务', description: '查看财务数据' },
-          { key: 'finance:approve', name: '财务审批', description: '审批财务申请' }
+          { key: 'finance:approve', name: '财务审批', description: '审批财务申请' },
         ],
-        enabledPermissions: ['finance:read', 'finance:approve']
-      }
-    ]
+        enabledPermissions: ['finance:read', 'finance:approve'],
+      },
+    ],
   },
   {
     id: '3',
@@ -471,9 +461,9 @@ const templates = ref([
     createdAt: new Date('2025-01-08'),
     updatedAt: new Date('2025-01-08'),
     usageCount: 89,
-    permissions: []
-  }
-])
+    permissions: [],
+  },
+]);
 
 // 权限分类
 const permissionCategories = ref([
@@ -484,8 +474,8 @@ const permissionCategories = ref([
       { key: 'user:read', name: '查看用户' },
       { key: 'user:write', name: '编辑用户' },
       { key: 'role:read', name: '查看角色' },
-      { key: 'role:write', name: '编辑角色' }
-    ]
+      { key: 'role:write', name: '编辑角色' },
+    ],
   },
   {
     key: 'business',
@@ -494,167 +484,162 @@ const permissionCategories = ref([
       { key: 'resident:read', name: '查看村民' },
       { key: 'resident:write', name: '编辑村民' },
       { key: 'finance:read', name: '查看财务' },
-      { key: 'finance:write', name: '编辑财务' }
-    ]
+      { key: 'finance:write', name: '编辑财务' },
+    ],
   },
   {
     key: 'system',
     name: '系统权限',
     permissions: [
       { key: 'system:config', name: '系统配置' },
-      { key: 'system:log', name: '查看日志' }
-    ]
-  }
-])
+      { key: 'system:log', name: '查看日志' },
+    ],
+  },
+]);
 
 // 表单数据
-const templateFormRef = ref(null)
+const templateFormRef = ref(null);
 const templateForm = reactive({
   name: '',
   description: '',
   category: 'custom',
   targetRoles: [],
-  permissions: []
-})
+  permissions: [],
+});
 
 const applyForm = reactive({
   target: 'role',
   roleId: '',
   userIds: [],
   mode: 'merge',
-  effectiveTime: new Date()
-})
+  effectiveTime: new Date(),
+});
 
 const templateRules = {
-  name: [
-    { required: true, message: '请输入模板名称', trigger: 'blur' }
-  ],
-  description: [
-    { required: true, message: '请输入模板描述', trigger: 'blur' }
-  ],
-  category: [
-    { required: true, message: '请选择模板分类', trigger: 'change' }
-  ]
-}
+  name: [{ required: true, message: '请输入模板名称', trigger: 'blur' }],
+  description: [{ required: true, message: '请输入模板描述', trigger: 'blur' }],
+  category: [{ required: true, message: '请选择模板分类', trigger: 'change' }],
+};
 
 const roleOptions = ref([
   { label: '村级管理员', value: 'village_admin' },
   { label: '部门主管', value: 'department_head' },
   { label: '工作人员', value: 'staff' },
-  { label: '村民', value: 'villager' }
-])
+  { label: '村民', value: 'villager' },
+]);
 
 const userOptions = ref([
   { id: '1', name: '张管理员' },
   { id: '2', name: '李主管' },
-  { id: '3', name: '王工作人员' }
-])
+  { id: '3', name: '王工作人员' },
+]);
 
 // 图表实例
-let permissionChart = null
+let permissionChart = null;
 
 // 计算属性
 const filteredTemplates = computed(() => {
-  let result = templates.value
+  let result = templates.value;
 
   if (searchKeyword.value) {
-    const keyword = searchKeyword.value.toLowerCase()
-    result = result.filter(template =>
-      template.name.toLowerCase().includes(keyword) ||
-      template.description.toLowerCase().includes(keyword)
-    )
+    const keyword = searchKeyword.value.toLowerCase();
+    result = result.filter(
+      template =>
+        template.name.toLowerCase().includes(keyword) ||
+        template.description.toLowerCase().includes(keyword)
+    );
   }
 
   if (filterCategory.value) {
-    result = result.filter(template => template.category === filterCategory.value)
+    result = result.filter(template => template.category === filterCategory.value);
   }
 
-  return result
-})
+  return result;
+});
 
 // 方法
 const handleSearch = () => {
   // 搜索逻辑已通过计算属性实现
-}
+};
 
 const handleFilter = () => {
   // 过滤逻辑已通过计算属性实现
-}
+};
 
-const selectTemplate = (template) => {
-  selectedTemplate.value = template
+const selectTemplate = template => {
+  selectedTemplate.value = template;
   nextTick(() => {
-    initPermissionChart()
-  })
-}
+    initPermissionChart();
+  });
+};
 
-const getCategoryTagType = (category) => {
+const getCategoryTagType = category => {
   const types = {
     system: 'primary',
     custom: 'success',
-    department: 'warning'
-  }
-  return types[category] || 'info'
-}
+    department: 'warning',
+  };
+  return types[category] || 'info';
+};
 
-const getCategoryLabel = (category) => {
+const getCategoryLabel = category => {
   const labels = {
     system: '系统模板',
     custom: '自定义模板',
-    department: '部门模板'
-  }
-  return labels[category] || '未知'
-}
+    department: '部门模板',
+  };
+  return labels[category] || '未知';
+};
 
-const getCategoryIndeterminate = (category) => {
+const getCategoryIndeterminate = category => {
   const checkedCount = category.permissions.filter(p =>
     templateForm.permissions.includes(p.key)
-  ).length
-  return checkedCount > 0 && checkedCount < category.permissions.length
-}
+  ).length;
+  return checkedCount > 0 && checkedCount < category.permissions.length;
+};
 
-const getCategoryChecked = (category) => {
-  return category.permissions.every(p => templateForm.permissions.includes(p.key))
-}
+const getCategoryChecked = category => {
+  return category.permissions.every(p => templateForm.permissions.includes(p.key));
+};
 
 const handleCategoryCheck = (category, checked) => {
   if (checked) {
     category.permissions.forEach(p => {
       if (!templateForm.permissions.includes(p.key)) {
-        templateForm.permissions.push(p.key)
+        templateForm.permissions.push(p.key);
       }
-    })
+    });
   } else {
     category.permissions.forEach(p => {
-      const index = templateForm.permissions.indexOf(p.key)
+      const index = templateForm.permissions.indexOf(p.key);
       if (index > -1) {
-        templateForm.permissions.splice(index, 1)
+        templateForm.permissions.splice(index, 1);
       }
-    })
+    });
   }
-}
+};
 
 const initPermissionChart = () => {
-  if (!selectedTemplate.value) return
+  if (!selectedTemplate.value) return;
 
-  const chartDom = document.querySelector('[ref="permissionChart"]')
-  if (!chartDom) return
+  const chartDom = document.querySelector('[ref="permissionChart"]');
+  if (!chartDom) return;
 
-  permissionChart = echarts.init(chartDom)
+  permissionChart = echarts.init(chartDom);
 
-  const data = []
+  const data = [];
   selectedTemplate.value.permissions.forEach(category => {
     category.permissions.forEach(permission => {
       data.push({
         name: permission.name,
-        value: 1
-      })
-    })
-  })
+        value: 1,
+      });
+    });
+  });
 
   const option = {
     tooltip: {
-      trigger: 'item'
+      trigger: 'item',
     },
     series: [
       {
@@ -665,115 +650,111 @@ const initPermissionChart = () => {
         itemStyle: {
           borderRadius: 10,
           borderColor: '#fff',
-          borderWidth: 2
+          borderWidth: 2,
         },
         label: {
           show: false,
-          position: 'center'
+          position: 'center',
         },
         emphasis: {
           label: {
             show: true,
             fontSize: 20,
-            fontWeight: 'bold'
-          }
+            fontWeight: 'bold',
+          },
         },
         labelLine: {
-          show: false
+          show: false,
         },
-        data: data
-      }
-    ]
-  }
+        data: data,
+      },
+    ],
+  };
 
-  permissionChart.setOption(option)
-}
+  permissionChart.setOption(option);
+};
 
-const handleTemplateAction = async (command) => {
-  const [action, templateId] = command.split('-')
-  const template = templates.value.find(t => t.id === templateId)
+const handleTemplateAction = async command => {
+  const [action, templateId] = command.split('-');
+  const template = templates.value.find(t => t.id === templateId);
 
   switch (action) {
     case 'edit':
-      isEditing.value = true
+      isEditing.value = true;
       Object.assign(templateForm, {
         name: template.name,
         description: template.description,
         category: template.category,
         targetRoles: [],
-        permissions: []
-      })
-      templateDialogVisible.value = true
-      break
+        permissions: [],
+      });
+      templateDialogVisible.value = true;
+      break;
 
     case 'copy':
-      isEditing.value = false
+      isEditing.value = false;
       Object.assign(templateForm, {
         name: template.name + '_副本',
         description: template.description,
         category: 'custom',
         targetRoles: [],
-        permissions: []
-      })
-      templateDialogVisible.value = true
-      break
+        permissions: [],
+      });
+      templateDialogVisible.value = true;
+      break;
 
     case 'apply':
-      showApplyTemplateDialog(template)
-      break
+      showApplyTemplateDialog(template);
+      break;
 
     case 'delete':
       try {
-        await ElMessageBox.confirm(
-          `确定要删除模板"${template.name}"吗？`,
-          '确认删除',
-          {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }
-        )
+        await ElMessageBox.confirm(`确定要删除模板"${template.name}"吗？`, '确认删除', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+        });
 
-        const index = templates.value.findIndex(t => t.id === templateId)
-        templates.value.splice(index, 1)
+        const index = templates.value.findIndex(t => t.id === templateId);
+        templates.value.splice(index, 1);
 
         if (selectedTemplate.value?.id === templateId) {
-          selectedTemplate.value = null
+          selectedTemplate.value = null;
         }
 
-        ElMessage.success('模板删除成功')
+        ElMessage.success('模板删除成功');
       } catch (error) {
         if (error !== 'cancel') {
-          ElMessage.error('删除模板失败')
+          ElMessage.error('删除模板失败');
         }
       }
-      break
+      break;
   }
-}
+};
 
 const showCreateTemplateDialog = () => {
-  isEditing.value = false
+  isEditing.value = false;
   Object.assign(templateForm, {
     name: '',
     description: '',
     category: 'custom',
     targetRoles: [],
-    permissions: []
-  })
-  templateDialogVisible.value = true
-}
+    permissions: [],
+  });
+  templateDialogVisible.value = true;
+};
 
 const showImportTemplateDialog = () => {
-  ElMessage.info('导入模板功能待实现')
-}
+  ElMessage.info('导入模板功能待实现');
+};
 
 const exportTemplates = () => {
-  ElMessage.info('导出模板功能待实现')
-}
+  ElMessage.info('导出模板功能待实现');
+};
 
 const submitTemplate = async () => {
   try {
-    await templateFormRef.value.validate()
+    await templateFormRef.value.validate();
 
     const templateData = {
       ...templateForm,
@@ -781,116 +762,119 @@ const submitTemplate = async () => {
       updatedAt: new Date(),
       permissionCount: templateForm.permissions.length,
       usageCount: isEditing.value ? templateForm.usageCount : 0,
-      permissions: []
-    }
+      permissions: [],
+    };
 
     // 构建权限结构
     permissionCategories.value.forEach(category => {
       const categoryPermissions = {
         module: category.name,
         permissions: [],
-        enabledPermissions: []
-      }
+        enabledPermissions: [],
+      };
 
       category.permissions.forEach(permission => {
         categoryPermissions.permissions.push({
           key: permission.key,
           name: permission.name,
-          description: `${permission.name}权限`
-        })
+          description: `${permission.name}权限`,
+        });
 
         if (templateForm.permissions.includes(permission.key)) {
-          categoryPermissions.enabledPermissions.push(permission.key)
+          categoryPermissions.enabledPermissions.push(permission.key);
         }
-      })
+      });
 
       if (categoryPermissions.enabledPermissions.length > 0) {
-        templateData.permissions.push(categoryPermissions)
+        templateData.permissions.push(categoryPermissions);
       }
-    })
+    });
 
     if (isEditing.value) {
-      const index = templates.value.findIndex(t => t.id === templateForm.id)
-      templates.value[index] = templateData
-      ElMessage.success('模板更新成功')
+      const index = templates.value.findIndex(t => t.id === templateForm.id);
+      templates.value[index] = templateData;
+      ElMessage.success('模板更新成功');
     } else {
-      templateData.id = Date.now().toString()
-      templates.value.push(templateData)
-      ElMessage.success('模板创建成功')
+      templateData.id = Date.now().toString();
+      templates.value.push(templateData);
+      ElMessage.success('模板创建成功');
     }
 
-    templateDialogVisible.value = false
+    templateDialogVisible.value = false;
   } catch (error) {
-    console.error('保存模板失败:', error)
+    console.error('保存模板失败:', error);
   }
-}
+};
 
 const handleApplyTemplate = () => {
-  showApplyTemplateDialog(selectedTemplate.value)
-}
+  showApplyTemplateDialog(selectedTemplate.value);
+};
 
 const previewTemplate = () => {
-  ElMessage.info('预览功能待实现')
-}
+  ElMessage.info('预览功能待实现');
+};
 
-const showApplyTemplateDialog = (template) => {
-  applyTemplate.value = template
+const showApplyTemplateDialog = template => {
+  applyTemplate.value = template;
   Object.assign(applyForm, {
     target: 'role',
     roleId: '',
     userIds: [],
     mode: 'merge',
-    effectiveTime: new Date()
-  })
-  applyDialogVisible.value = true
-}
+    effectiveTime: new Date(),
+  });
+  applyDialogVisible.value = true;
+};
 
 const executeApplyTemplate = async () => {
   try {
     if (applyForm.target === 'role' && !applyForm.roleId) {
-      ElMessage.warning('请选择角色')
-      return
+      ElMessage.warning('请选择角色');
+      return;
     }
 
     if (applyForm.target === 'user' && applyForm.userIds.length === 0) {
-      ElMessage.warning('请选择用户')
-      return
+      ElMessage.warning('请选择用户');
+      return;
     }
 
     // 更新使用次数
-    const template = templates.value.find(t => t.id === applyTemplate.value.id)
+    const template = templates.value.find(t => t.id === applyTemplate.value.id);
     if (template) {
-      template.usageCount = (template.usageCount || 0) + 1
+      template.usageCount = (template.usageCount || 0) + 1;
 
       // 添加使用历史
       if (!template.usageHistory) {
-        template.usageHistory = []
+        template.usageHistory = [];
       }
       template.usageHistory.push({
         id: Date.now().toString(),
         action: '应用模板',
-        target: applyForm.target === 'role' ? `角色: ${applyForm.roleId}` : `用户: ${applyForm.userIds.length}个`,
+        target:
+          applyForm.target === 'role'
+            ? `角色: ${applyForm.roleId}`
+            : `用户: ${applyForm.userIds.length}个`,
         operator: '当前用户',
-        timestamp: new Date()
-      })
+        timestamp: new Date(),
+      });
     }
 
-    ElMessage.success('模板应用成功')
-    applyDialogVisible.value = false
+    ElMessage.success('模板应用成功');
+    applyDialogVisible.value = false;
   } catch (error) {
-    ElMessage.error('应用模板失败')
+    ElMessage.error('应用模板失败');
   }
-}
+};
 
 // 工具方法
-const formatDateTime = (date) => {
-  return new Date(date).toLocaleString()
-}
+const formatDateTime = date => {
+  return new Date(date).toLocaleString();
+};
 
 // 生命周期
 onMounted(() => {
   // 初始化数据
-})
+});
 </script>
 
 <style lang="scss" scoped>

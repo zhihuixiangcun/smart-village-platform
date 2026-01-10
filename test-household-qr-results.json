@@ -1,0 +1,42 @@
+[
+  {
+    "username": "cengfangguo",
+    "name": "岑方国",
+    "result": {
+      "success": true,
+      "exists": true,
+      "codeId": "MBAC01H0001A",
+      "message": "户码已存在"
+    }
+  },
+  {
+    "username": "wangdingquan",
+    "name": "王定权",
+    "result": {
+      "success": true,
+      "exists": true,
+      "codeId": "NYBC02H0002B",
+      "message": "户码已存在"
+    }
+  },
+  {
+    "username": "cengxiaoduo",
+    "name": "岑小多",
+    "result": {
+      "success": true,
+      "exists": true,
+      "codeId": "ZYBC03H0003C",
+      "message": "户码已存在"
+    }
+  },
+  {
+    "username": "maoguangqing",
+    "name": "毛光情",
+    "result": {
+      "success": true,
+      "exists": true,
+      "codeId": "LTBC04H0004D",
+      "message": "户码已存在"
+    }
+  }
+]

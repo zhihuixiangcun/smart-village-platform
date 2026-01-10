@@ -202,7 +202,7 @@ export const residentApi = {
   getHistory: getResidentHistory,
   search: searchResidents,
   checkIdCardExists,
-  checkPhoneExists
+  checkPhoneExists,
 };
 
 export default residentApi;

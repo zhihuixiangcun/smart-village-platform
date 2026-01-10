@@ -3,11 +3,7 @@
     <!-- 帖子头部 -->
     <div class="post-header">
       <div class="author-info">
-        <el-avatar 
-          :src="post.author.avatar" 
-          :size="40"
-          class="author-avatar"
-        >
+        <el-avatar :src="post.author.avatar" :size="40" class="author-avatar">
           {{ post.author.realName?.[0] }}
         </el-avatar>
         <div class="author-details">
@@ -18,16 +14,16 @@
           </div>
         </div>
       </div>
-      
+
       <div class="post-badges">
         <!-- 置顶标识 -->
         <el-tag v-if="post.isPinned" type="danger" size="mini">置顶</el-tag>
         <!-- 精选标识 -->
         <el-tag v-if="post.isFeatured" type="warning" size="mini">精选</el-tag>
         <!-- 专家认证标识 -->
-        <el-tag 
-          v-if="post.knowledgeValue.verificationStatus === 'expert_verified'" 
-          type="success" 
+        <el-tag
+          v-if="post.knowledgeValue.verificationStatus === 'expert_verified'"
+          type="success"
           size="mini"
         >
           专家认证
@@ -42,25 +38,20 @@
     <!-- 帖子内容 -->
     <div class="post-content" @click="$emit('view-detail', post._id)">
       <h3 class="post-title">{{ post.title }}</h3>
-      
+
       <!-- 标签 -->
       <div class="post-tags" v-if="post.tags && post.tags.length > 0">
-        <el-tag 
-          v-for="tag in post.tags.slice(0, 5)" 
-          :key="tag" 
-          size="mini" 
-          effect="plain"
-        >
+        <el-tag v-for="tag in post.tags.slice(0, 5)" :key="tag" size="mini" effect="plain">
           {{ tag }}
         </el-tag>
         <span v-if="post.tags.length > 5" class="more-tags">+{{ post.tags.length - 5 }}</span>
       </div>
-      
+
       <!-- 内容摘要 -->
       <div class="post-summary" v-if="post.summary">
         {{ post.summary }}
       </div>
-      
+
       <!-- 媒体内容预览 -->
       <div class="media-preview" v-if="hasMedia">
         <div class="image-preview" v-if="post.media.images && post.media.images.length > 0">
@@ -76,21 +67,14 @@
               <i class="el-icon-picture-outline"></i>
             </div>
           </el-image>
-          <div 
-            v-if="post.media.images.length > 3" 
-            class="more-images"
-          >
+          <div v-if="post.media.images.length > 3" class="more-images">
             +{{ post.media.images.length - 3 }}
           </div>
         </div>
-        
+
         <div class="video-preview" v-if="post.media.videos && post.media.videos.length > 0">
           <div class="video-item" v-for="video in post.media.videos.slice(0, 1)" :key="video.url">
-            <el-image 
-              :src="video.thumbnail" 
-              class="video-thumbnail"
-              fit="cover"
-            >
+            <el-image :src="video.thumbnail" class="video-thumbnail" fit="cover">
               <div slot="error" class="image-slot">
                 <i class="el-icon-video-camera"></i>
               </div>
@@ -102,7 +86,7 @@
           </div>
         </div>
       </div>
-      
+
       <!-- 分类信息 -->
       <div class="post-categories">
         <span class="category-item" v-if="post.postType">
@@ -136,10 +120,10 @@
           {{ post.engagement.helpfulVotes }}
         </span>
       </div>
-      
+
       <div class="action-buttons">
         <!-- 点赞 -->
-        <el-button 
+        <el-button
           :type="userHasLiked ? 'primary' : 'text'"
           size="mini"
           @click.stop="$emit('like', post._id)"
@@ -148,9 +132,9 @@
           <i class="el-icon-thumb"></i>
           {{ post.engagement.likes || 0 }}
         </el-button>
-        
+
         <!-- 收藏 -->
-        <el-button 
+        <el-button
           :type="userHasBookmarked ? 'warning' : 'text'"
           size="mini"
           @click.stop="$emit('bookmark', post._id)"
@@ -159,9 +143,9 @@
           <i class="el-icon-star-off"></i>
           {{ post.engagement.bookmarks || 0 }}
         </el-button>
-        
+
         <!-- 有用投票 -->
-        <el-button 
+        <el-button
           :type="userVote === 'helpful' ? 'success' : 'text'"
           size="mini"
           @click.stop="$emit('vote', post._id, 'helpful')"
@@ -170,13 +154,9 @@
           <i class="el-icon-check"></i>
           有用
         </el-button>
-        
+
         <!-- 分享 -->
-        <el-button 
-          type="text" 
-          size="mini"
-          @click.stop="sharePost"
-        >
+        <el-button type="text" size="mini" @click.stop="sharePost">
           <i class="el-icon-share"></i>
           分享
         </el-button>
@@ -189,13 +169,14 @@
         <i class="el-icon-medal"></i>
         <span>最佳答案</span>
       </div>
-      <div class="best-answer-content">
-        {{ post.bestAnswer.content.substring(0, 100) }}...
-      </div>
+      <div class="best-answer-content">{{ post.bestAnswer.content.substring(0, 100) }}...</div>
     </div>
 
     <!-- 专家评论预览 -->
-    <div class="expert-comment-preview" v-if="post.expertComments && post.expertComments.length > 0">
+    <div
+      class="expert-comment-preview"
+      v-if="post.expertComments && post.expertComments.length > 0"
+    >
       <div class="expert-comment-header">
         <i class="el-icon-user"></i>
         <span>专家点评</span>
@@ -213,58 +194,58 @@ export default {
   props: {
     post: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
   computed: {
     isLoggedIn() {
-      return this.$store.getters['auth/isLoggedIn']
+      return this.$store.getters['auth/isLoggedIn'];
     },
-    
+
     userHasLiked() {
-      return this.post.userInteractions?.hasLiked || false
+      return this.post.userInteractions?.hasLiked || false;
     },
-    
+
     userHasBookmarked() {
-      return this.post.userInteractions?.hasBookmarked || false
+      return this.post.userInteractions?.hasBookmarked || false;
     },
-    
+
     userVote() {
-      return this.post.userInteractions?.userVote
+      return this.post.userInteractions?.userVote;
     },
-    
+
     hasMedia() {
-      return (this.post.media?.images?.length > 0) || (this.post.media?.videos?.length > 0)
-    }
+      return this.post.media?.images?.length > 0 || this.post.media?.videos?.length > 0;
+    },
   },
   methods: {
     formatTime(time) {
-      const now = new Date()
-      const postTime = new Date(time)
-      const diffTime = now - postTime
-      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
-      const diffHours = Math.floor(diffTime / (1000 * 60 * 60))
-      const diffMinutes = Math.floor(diffTime / (1000 * 60))
-      
+      const now = new Date();
+      const postTime = new Date(time);
+      const diffTime = now - postTime;
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+      const diffMinutes = Math.floor(diffTime / (1000 * 60));
+
       if (diffDays > 30) {
-        return postTime.toLocaleDateString()
+        return postTime.toLocaleDateString();
       } else if (diffDays > 0) {
-        return `${diffDays}天前`
+        return `${diffDays}天前`;
       } else if (diffHours > 0) {
-        return `${diffHours}小时前`
+        return `${diffHours}小时前`;
       } else if (diffMinutes > 0) {
-        return `${diffMinutes}分钟前`
+        return `${diffMinutes}分钟前`;
       } else {
-        return '刚刚'
+        return '刚刚';
       }
     },
-    
+
     formatDuration(seconds) {
-      const mins = Math.floor(seconds / 60)
-      const secs = seconds % 60
-      return `${mins}:${secs.toString().padStart(2, '0')}`
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${mins}:${secs.toString().padStart(2, '0')}`;
     },
-    
+
     getPostTypeLabel(type) {
       const labels = {
         agricultural_tutorial: '农技教程',
@@ -274,11 +255,11 @@ export default {
         rural_life: '农村生活',
         market_info: '市场信息',
         policy_interpretation: '政策解读',
-        experience_sharing: '经验分享'
-      }
-      return labels[type] || type
+        experience_sharing: '经验分享',
+      };
+      return labels[type] || type;
     },
-    
+
     getCropCategoryLabel(category) {
       const labels = {
         grain_crops: '粮食作物',
@@ -289,48 +270,51 @@ export default {
         forestry: '林业',
         livestock: '畜牧业',
         aquaculture: '水产养殖',
-        other: '其他'
-      }
-      return labels[category] || category
+        other: '其他',
+      };
+      return labels[category] || category;
     },
-    
+
     sharePost() {
       // 复制链接到剪贴板
-      const url = `${window.location.origin}/agricultural/posts/${this.post._id}`
-      
+      const url = `${window.location.origin}/agricultural/posts/${this.post._id}`;
+
       if (navigator.clipboard) {
-        navigator.clipboard.writeText(url).then(() => {
-          this.$message.success('链接已复制到剪贴板')
-        }).catch(() => {
-          this.fallbackCopyText(url)
-        })
+        navigator.clipboard
+          .writeText(url)
+          .then(() => {
+            this.$message.success('链接已复制到剪贴板');
+          })
+          .catch(() => {
+            this.fallbackCopyText(url);
+          });
       } else {
-        this.fallbackCopyText(url)
+        this.fallbackCopyText(url);
       }
     },
-    
+
     fallbackCopyText(text) {
-      const textArea = document.createElement('textarea')
-      textArea.value = text
-      textArea.style.position = 'fixed'
-      textArea.style.left = '-999999px'
-      textArea.style.top = '-999999px'
-      document.body.appendChild(textArea)
-      textArea.focus()
-      textArea.select()
-      
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
       try {
-        document.execCommand('copy')
-        this.$message.success('链接已复制到剪贴板')
+        document.execCommand('copy');
+        this.$message.success('链接已复制到剪贴板');
       } catch (err) {
-        this.$message.error('复制失败，请手动复制链接')
-        console.error('复制失败:', err)
+        this.$message.error('复制失败，请手动复制链接');
+        console.error('复制失败:', err);
       } finally {
-        document.body.removeChild(textArea)
+        document.body.removeChild(textArea);
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -342,7 +326,7 @@ export default {
 
 .post-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
 }
 
 .post-header {
@@ -485,7 +469,7 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -498,7 +482,7 @@ export default {
   bottom: 4px;
   right: 4px;
   font-size: 12px;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.6);
   padding: 2px 4px;
   border-radius: 2px;
 }
@@ -555,7 +539,7 @@ export default {
   padding: 12px;
   background: #f8f9fa;
   border-radius: 6px;
-  border-left: 4px solid #67C23A;
+  border-left: 4px solid #67c23a;
 }
 
 .best-answer-header,
@@ -564,7 +548,7 @@ export default {
   align-items: center;
   gap: 6px;
   font-weight: 600;
-  color: #67C23A;
+  color: #67c23a;
   margin-bottom: 6px;
   font-size: 13px;
 }
@@ -593,31 +577,31 @@ export default {
     flex-direction: column;
     gap: 12px;
   }
-  
+
   .post-badges {
     align-self: flex-start;
   }
-  
+
   .post-actions {
     flex-direction: column;
     gap: 12px;
   }
-  
+
   .engagement-stats,
   .action-buttons {
     width: 100%;
     justify-content: space-around;
   }
-  
+
   .post-categories {
     flex-direction: column;
     gap: 8px;
   }
-  
+
   .image-preview {
     flex-wrap: wrap;
   }
-  
+
   .preview-image,
   .more-images {
     width: 60px;

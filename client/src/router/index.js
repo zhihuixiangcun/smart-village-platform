@@ -1,1273 +1,1018 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import { useUserStore } from '@/stores/userStore';
-import { ElMessage } from 'element-plus';
-import villageCommitteeRoutes from './villageCommittee.js';
+/**
+ * 智慧乡村平台路由配置
+ * 模块化、权限控制、无障碍支持
+ */
 
+import { createRouter, createWebHistory } from 'vue-router';
+import { setupGuards } from './guards';
+
+// 布局组件
+const DefaultLayout = () => import('@/layouts/SmartVillageLayout.vue');
+const AuthLayout = () => import('@/layouts/AuthLayout.vue');
+const MobileLayout = () => import('@/layouts/MobileLayout.vue');
+const ErrorLayout = () => import('@/layouts/ErrorLayout.vue');
+const PcLayout = () => import('@/layouts/PcLayout.vue');
+
+// 懒加载页面组件
+const Home = () => import('@/views/Home.vue');
+const Login = () => import('@/views/auth/ModernLogin.vue');
+const UnifiedRegister = () => import('@/views/auth/UnifiedRegister.vue');
+const ResidentRegister = () => import('@/views/auth/ResidentRegister.vue');
+const OfficialApply = () => import('@/views/auth/OfficialApply.vue');
+const FaceRecognition = () => import('@/views/auth/FaceRecognition.vue');
+const Register = () => import('@/views/auth/Register.vue');
+const EnhancedRegister = () => import('@/views/auth/EnhancedRegister.vue');
+const OfficialRegister = () => import('@/views/auth/OfficialRegister.vue');
+const PurchaserRegister = () => import('@/views/auth/PurchaserRegister.vue');
+const MultiStepRegister = () => import('@/views/auth/MultiStepRegister.vue');
+const OfficialAudit = () => import('@/views/admin/OfficialAudit.vue');
+const PermissionAssign = () => import('@/views/admin/PermissionAssign.vue');
+
+// AI服务模块
+const AIAssistant = () => import('@/views/ai/AIAssistant.vue');
+
+// PC端页面
+const PcDashboard = () => import('@/views/pc/PcDashboard.vue');
+const PcResidentManagement = () => import('@/views/pc/PcResidentManagement.vue');
+const PcVillageAffairs = () => import('@/views/pc/PcVillageAffairs.vue');
+const PcFinance = () => import('@/views/pc/PcFinance.vue');
+const PcServices = () => import('@/views/pc/PcServices.vue');
+const PcStatistics = () => import('@/views/pc/PcStatistics.vue');
+const PcUsers = () => import('@/views/pc/PcUsers.vue');
+const PcSettings = () => import('@/views/pc/PcSettings.vue');
+
+// 村务管理
+const VillageDashboard = () => import('@/views/villageCommittee/Dashboard.vue');
+const VillageAffairs = () => import('@/views/village/VillageAffairs.vue');
+const VillageAffairsEnhanced = () => import('@/views/village/VillageAffairsEnhanced.vue');
+const CommitteeManagement = () => import('@/views/village/CommitteeManagement.vue');
+const PopulationManagement = () => import('@/views/village/PopulationManagement.vue');
+const EmergencyManagement = () => import('@/views/village/EmergencyManagement.vue');
+const VillageMap = () => import('@/views/villageCommittee/VillageMap.vue');
+
+// 村民管理
+const ResidentList = () => import('@/views/village/ResidentManagement.vue');
+const ResidentDetail = () => import('@/views/residents/ResidentDetailView.vue');
+const ResidentForm = () => import('@/views/residents/ResidentAddView.vue');
+const HouseholdQR = () => import('@/views/village/HouseholdQR.vue');
+
+// 财务管理
+const FinanceOverview = () => import('@/views/finance/FinanceOverviewView.vue');
+const BudgetManagement = () => import('@/views/finance/FinanceBudgetView.vue');
+const ExpenseManagement = () => import('@/views/finance/FinanceExpensesView.vue');
+const FinancialReports = () => import('@/views/finance/FinanceReportsView.vue');
+
+// 生活服务
+const ServiceHall = () => import('@/views/services/ServiceHall.vue');
+const Applications = () => import('@/views/services/ApplicationsView.vue');
+const VoiceInteraction = () => import('@/views/village/VoiceInteraction.vue');
+const MutualAid = () => import('@/views/villageCommittee/Transfer.vue');
+
+// 个人中心
+const ProfileView = () => import('@/views/profile/ProfileView.vue');
+const SettingsView = () => import('@/views/village/SmartVillageHome.vue');
+const AccessibilitySettings = () => import('@/views/village/HomePage.vue');
+
+// 错误页面
+const NotFound = () => import('@/views/error/404View.vue');
+const Forbidden = () => import('@/views/error/403View.vue');
+const ServerError = () => import('@/views/error/500View.vue');
+
+// 🔧 路由元信息定义
+export const routeMeta = {
+  // 权限级别
+  permissions: {
+    public: [], // 公开访问
+    user: ['user:read'], // 普通用户
+    resident: ['resident:read'], // 村民
+    village_admin: ['village:admin'], // 村干部
+    admin: ['admin:access'], // 系统管理员
+  },
+
+  // 布局类型
+  layouts: {
+    default: DefaultLayout,
+    auth: AuthLayout,
+    mobile: MobileLayout,
+    error: ErrorLayout,
+    pc: PcLayout,
+  },
+
+  // 无障碍级别
+  accessibility: {
+    basic: 'basic', // 基础无障碍
+    enhanced: 'enhanced', // 增强无障碍
+    full: 'full', // 完整无障碍支持
+  },
+
+  // 设备支持
+  deviceSupport: {
+    desktop: true,
+    mobile: true,
+    tablet: true,
+  },
+};
+
+// 🛣️ 路由配置
+const routes = [
+  // 首页路由
+  {
+    path: '/',
+    name: 'home',
+    component: Home,
+    meta: {
+      title: '智慧乡村综合服务平台',
+      requiresAuth: false,
+      permissions: routeMeta.permissions.public,
+      layout: 'default',
+      accessibility: routeMeta.accessibility.full,
+      keepAlive: false,
+      showInMenu: true,
+      menuIcon: 'House',
+      menuOrder: 1,
+      description: '智慧乡村平台首页，提供一站式乡村服务入口',
+    },
+  },
+
+  // 认证路由模块
+  {
+    path: '/auth',
+    component: routeMeta.layouts.auth,
+    meta: {
+      layout: 'auth',
+      requiresAuth: false,
+      permissions: routeMeta.permissions.public,
+    },
+    children: [
+      {
+        path: 'login',
+        name: 'login',
+        component: Login,
+        meta: {
+          title: '用户登录',
+          description: '左侧品牌宣传区，右侧角色登录区，现代化响应式布局',
+          accessibility: routeMeta.accessibility.full,
+          allowGuest: true,
+        },
+      },
+      {
+        path: 'register',
+        name: 'resident-register',
+        component: ResidentRegister,
+        meta: {
+          title: '村民注册',
+          description: '村民账号注册',
+          accessibility: routeMeta.accessibility.full,
+        },
+      },
+      {
+        path: 'unified-register',
+        name: 'unified-register',
+        component: UnifiedRegister,
+        meta: {
+          title: '用户注册',
+          description: '统一用户注册，支持多种角色',
+          accessibility: routeMeta.accessibility.full,
+          allowGuest: true,
+        },
+      },
+      {
+        path: 'official-apply',
+        name: 'official-apply',
+        component: OfficialApply,
+        meta: {
+          title: '村干部申请',
+          description: '申请村干部职务',
+          accessibility: routeMeta.accessibility.full,
+          requiresAuth: true,
+        },
+      },
+      {
+        path: 'enhanced-register',
+        name: 'enhanced-register',
+        component: EnhancedRegister,
+        meta: {
+          title: '用户注册（增强版）',
+          description: '角色选择注册，分步表单，更好的用户体验',
+          accessibility: routeMeta.accessibility.full,
+          allowGuest: true,
+        },
+      },
+      {
+        path: 'official-register',
+        name: 'official-register',
+        component: OfficialRegister,
+        meta: {
+          title: '乡镇干部注册',
+          description: '乡镇干部专用注册页面',
+          accessibility: routeMeta.accessibility.full,
+          allowGuest: true,
+        },
+      },
+      {
+        path: 'purchaser-register',
+        name: 'purchaser-register',
+        component: PurchaserRegister,
+        meta: {
+          title: '采购商注册',
+          description: '采购商入驻注册页面',
+          accessibility: routeMeta.accessibility.full,
+          allowGuest: true,
+        },
+      },
+      {
+        path: 'multi-step-register',
+        name: 'multi-step-register',
+        component: MultiStepRegister,
+        meta: {
+          title: '5步注册',
+          description: '5步流程注册，清晰指引',
+          accessibility: routeMeta.accessibility.full,
+          allowGuest: true,
+        },
+      },
+      {
+        path: 'face-login',
+        name: 'face-login',
+        component: FaceRecognition,
+        meta: {
+          title: '人脸识别登录',
+          description: '使用面部识别快速安全登录',
+          accessibility: routeMeta.accessibility.enhanced,
+          requiresCamera: true,
+        },
+      },
+      {
+        path: 'user-register',
+        name: 'register',
+        component: Register,
+        meta: {
+          title: '用户注册',
+          description: '新用户注册账号',
+          accessibility: routeMeta.accessibility.full,
+        },
+      },
+    ],
+  },
+
+  // 村务管理模块
+  {
+    path: '/village',
+    component: routeMeta.layouts.default,
+    meta: {
+      title: '村务管理',
+      requiresAuth: true,
+      permissions: ['village:read'],
+      accessibility: routeMeta.accessibility.full,
+      showInMenu: true,
+      menuIcon: 'OfficeBuilding',
+      menuOrder: 2,
+    },
+    children: [
+      {
+        path: 'dashboard',
+        name: 'village-dashboard',
+        component: VillageDashboard,
+        meta: {
+          title: '村务管理面板',
+          breadcrumb: [
+            { title: '首页', path: '/' },
+            { title: '村务管理', path: '/village' },
+            { title: '管理面板' },
+          ],
+          description: '村务数据统计和快速操作入口',
+        },
+      },
+      {
+        path: 'affairs',
+        name: 'village-affairs',
+        component: VillageAffairs,
+        meta: {
+          title: '村务公开',
+          permissions: ['village:read'],
+          breadcrumb: [
+            { title: '首页', path: '/' },
+            { title: '村务管理', path: '/village' },
+            { title: '村务公开' },
+          ],
+          showInMenu: true,
+          menuIcon: 'View',
+          description: '村务信息、政策公告公开透明',
+          accessibility: routeMeta.accessibility.full,
+        },
+      },
+      {
+        path: 'committee',
+        name: 'committee-management',
+        component: CommitteeManagement,
+        meta: {
+          title: '村委管理',
+          permissions: ['village:manage'],
+          breadcrumb: [
+            { title: '首页', path: '/' },
+            { title: '村务管理', path: '/village' },
+            { title: '村委管理' },
+          ],
+          description: '村委会成员信息和职责管理',
+        },
+      },
+      {
+        path: 'population',
+        name: 'population-management',
+        component: PopulationManagement,
+        meta: {
+          title: '人口管理',
+          permissions: ['resident:read'],
+          breadcrumb: [
+            { title: '首页', path: '/' },
+            { title: '村务管理', path: '/village' },
+            { title: '人口管理' },
+          ],
+          description: '村民信息统计和管理',
+        },
+      },
+      {
+        path: 'emergency',
+        name: 'emergency-management',
+        component: EmergencyManagement,
+        meta: {
+          title: '应急管理',
+          permissions: ['emergency:read'],
+          breadcrumb: [
+            { title: '首页', path: '/' },
+            { title: '村务管理', path: '/village' },
+            { title: '应急管理' },
+          ],
+          description: '突发事件应急响应和处理',
+          critical: true,
+        },
+      },
+      {
+        path: 'map',
+        name: 'village-map',
+        component: VillageMap,
+        meta: {
+          title: '村情地图',
+          permissions: ['village:read'],
+          breadcrumb: [
+            { title: '首页', path: '/' },
+            { title: '村务管理', path: '/village' },
+            { title: '村情地图' },
+          ],
+          description: '村庄地理位置和资源分布',
+          requiresGeolocation: true,
+        },
+      },
+    ],
+  },
+
+  // 村民管理模块
+  {
+    path: '/residents',
+    component: routeMeta.layouts.default,
+    meta: {
+      title: '村民管理',
+      requiresAuth: true,
+      permissions: ['resident:read'],
+      accessibility: routeMeta.accessibility.full,
+      showInMenu: true,
+      menuIcon: 'Users',
+      menuOrder: 3,
+    },
+    children: [
+      {
+        path: '',
+        name: 'resident-list',
+        component: ResidentList,
+        meta: {
+          title: '村民列表',
+          breadcrumb: [{ title: '首页', path: '/' }, { title: '村民管理' }],
+          description: '查看和管理村民基本信息',
+          searchable: true,
+          filterable: true,
+        },
+      },
+      {
+        path: ':id',
+        name: 'resident-detail',
+        component: ResidentDetail,
+        meta: {
+          title: '村民详情',
+          permissions: ['resident:read'],
+          breadcrumb: [
+            { title: '首页', path: '/' },
+            { title: '村民管理', path: '/residents' },
+            { title: '村民详情' },
+          ],
+          description: '查看村民详细信息和档案',
+          dynamic: true,
+        },
+      },
+      {
+        path: 'add',
+        name: 'resident-add',
+        component: ResidentForm,
+        meta: {
+          title: '添加村民',
+          permissions: ['resident:write'],
+          breadcrumb: [
+            { title: '首页', path: '/' },
+            { title: '村民管理', path: '/residents' },
+            { title: '添加村民' },
+          ],
+          description: '录入新村民信息',
+        },
+      },
+      {
+        path: ':id/edit',
+        name: 'resident-edit',
+        component: ResidentForm,
+        meta: {
+          title: '编辑村民',
+          permissions: ['resident:write'],
+          breadcrumb: [
+            { title: '首页', path: '/' },
+            { title: '村民管理', path: '/residents' },
+            { title: '编辑村民' },
+          ],
+          description: '修改村民信息',
+          dynamic: true,
+        },
+      },
+      {
+        path: 'household-qr',
+        name: 'household-qr',
+        component: HouseholdQR,
+        meta: {
+          title: '一户一码',
+          permissions: ['household:read'],
+          breadcrumb: [
+            { title: '首页', path: '/' },
+            { title: '村民管理', path: '/residents' },
+            { title: '一户一码' },
+          ],
+          description: '生成和管理户二维码',
+          accessibility: routeMeta.accessibility.full,
+        },
+      },
+    ],
+  },
+
+  // 财务管理模块
+  {
+    path: '/finance',
+    component: routeMeta.layouts.default,
+    meta: {
+      title: '财务管理',
+      requiresAuth: true,
+      permissions: ['finance:read'],
+      accessibility: routeMeta.accessibility.enhanced,
+      showInMenu: true,
+      menuIcon: 'Money',
+      menuOrder: 4,
+    },
+    children: [
+      {
+        path: 'overview',
+        name: 'finance-overview',
+        component: FinanceOverview,
+        meta: {
+          title: '财务概览',
+          breadcrumb: [
+            { title: '首页', path: '/' },
+            { title: '财务管理', path: '/finance' },
+            { title: '财务概览' },
+          ],
+          description: '村集体财务状况总览',
+        },
+      },
+      {
+        path: 'budget',
+        name: 'budget-management',
+        component: BudgetManagement,
+        meta: {
+          title: '预算管理',
+          permissions: ['finance:budget'],
+          breadcrumb: [
+            { title: '首页', path: '/' },
+            { title: '财务管理', path: '/finance' },
+            { title: '预算管理' },
+          ],
+          description: '年度预算编制和执行监控',
+        },
+      },
+      {
+        path: 'expenses',
+        name: 'expense-management',
+        component: ExpenseManagement,
+        meta: {
+          title: '支出管理',
+          permissions: ['finance:write'],
+          breadcrumb: [
+            { title: '首页', path: '/' },
+            { title: '财务管理', path: '/finance' },
+            { title: '支出管理' },
+          ],
+          description: '村集体支出记录和审批',
+        },
+      },
+      {
+        path: 'reports',
+        name: 'financial-reports',
+        component: FinancialReports,
+        meta: {
+          title: '财务报表',
+          permissions: ['finance:reports'],
+          breadcrumb: [
+            { title: '首页', path: '/' },
+            { title: '财务管理', path: '/finance' },
+            { title: '财务报表' },
+          ],
+          description: '财务统计报表和分析',
+          exportable: true,
+        },
+      },
+    ],
+  },
+
+  // 生活服务模块
+  {
+    path: '/services',
+    component: routeMeta.layouts.default,
+    meta: {
+      title: '生活服务',
+      requiresAuth: true,
+      permissions: ['service:read'],
+      accessibility: routeMeta.accessibility.full,
+      showInMenu: true,
+      menuIcon: 'Service',
+      menuOrder: 5,
+    },
+    children: [
+      {
+        path: 'hall',
+        name: 'service-hall',
+        component: ServiceHall,
+        meta: {
+          title: '办事大厅',
+          breadcrumb: [
+            { title: '首页', path: '/' },
+            { title: '生活服务', path: '/services' },
+            { title: '办事大厅' },
+          ],
+          description: '各类证件、证明在线办理',
+          accessibility: routeMeta.accessibility.full,
+          voiceSupported: true,
+        },
+      },
+      {
+        path: 'applications',
+        name: 'service-applications',
+        component: Applications,
+        meta: {
+          title: '我的申请',
+          breadcrumb: [
+            { title: '首页', path: '/' },
+            { title: '生活服务', path: '/services' },
+            { title: '我的申请' },
+          ],
+          description: '查看办事申请进度和结果',
+        },
+      },
+      {
+        path: 'voice',
+        name: 'voice-interaction',
+        component: VoiceInteraction,
+        meta: {
+          title: '语音助手',
+          permissions: ['speech:recognize'],
+          breadcrumb: [
+            { title: '首页', path: '/' },
+            { title: '生活服务', path: '/services' },
+            { title: '语音助手' },
+          ],
+          description: '方言语音智能交互服务',
+          accessibility: routeMeta.accessibility.full,
+          requiresMicrophone: true,
+        },
+      },
+      {
+        path: 'mutual-aid',
+        name: 'mutual-aid',
+        component: MutualAid,
+        meta: {
+          title: '邻里互助',
+          breadcrumb: [
+            { title: '首页', path: '/' },
+            { title: '生活服务', path: '/services' },
+            { title: '邻里互助' },
+          ],
+          description: '村民互助信息和资源共享',
+          accessibility: routeMeta.accessibility.full,
+        },
+      },
+    ],
+  },
+
+  // 个人中心模块
+  {
+    path: '/profile',
+    component: routeMeta.layouts.default,
+    meta: {
+      title: '个人中心',
+      requiresAuth: true,
+      permissions: routeMeta.permissions.user,
+      accessibility: routeMeta.accessibility.full,
+      showInMenu: false,
+    },
+    children: [
+      {
+        path: '',
+        name: 'profile',
+        component: ProfileView,
+        meta: {
+          title: '个人信息',
+          breadcrumb: [{ title: '首页', path: '/' }, { title: '个人中心' }],
+          description: '个人信息查看和编辑',
+        },
+      },
+      {
+        path: 'settings',
+        name: 'settings',
+        component: SettingsView,
+        meta: {
+          title: '系统设置',
+          breadcrumb: [
+            { title: '首页', path: '/' },
+            { title: '个人中心', path: '/profile' },
+            { title: '系统设置' },
+          ],
+          description: '应用偏好设置和配置',
+        },
+      },
+      {
+        path: 'accessibility',
+        name: 'accessibility-settings',
+        component: AccessibilitySettings,
+        meta: {
+          title: '无障碍设置',
+          breadcrumb: [
+            { title: '首页', path: '/' },
+            { title: '个人中心', path: '/profile' },
+            { title: '无障碍设置' },
+          ],
+          description: '无障碍功能配置和优化',
+          accessibility: routeMeta.accessibility.full,
+        },
+      },
+    ],
+  },
+
+  // 错误页面
+  {
+    path: '/error',
+    component: routeMeta.layouts.error,
+    children: [
+      {
+        path: '404',
+        name: 'not-found',
+        component: NotFound,
+        meta: {
+          title: '页面未找到',
+          requiresAuth: false,
+          layout: 'error',
+        },
+      },
+      {
+        path: '403',
+        name: 'forbidden',
+        component: Forbidden,
+        meta: {
+          title: '访问禁止',
+          requiresAuth: false,
+          layout: 'error',
+        },
+      },
+      {
+        path: '500',
+        name: 'server-error',
+        component: ServerError,
+        meta: {
+          title: '服务器错误',
+          requiresAuth: false,
+          layout: 'error',
+        },
+      },
+    ],
+  },
+
+  // PC端管理模块
+  {
+    path: '/pc',
+    component: routeMeta.layouts.pc,
+    meta: {
+      title: 'PC端管理',
+      requiresAuth: true,
+      permissions: ['village:read'],
+      accessibility: routeMeta.accessibility.enhanced,
+      deviceSupport: {
+        desktop: true,
+        mobile: false,
+        tablet: false,
+      },
+    },
+    children: [
+      {
+        path: 'dashboard',
+        name: 'pc-dashboard',
+        component: PcDashboard,
+        meta: {
+          title: '仪表板',
+          permissions: ['dashboard:view'],
+          breadcrumb: [
+            { title: '首页', path: '/pc/dashboard' },
+            { title: '仪表板' },
+          ],
+          description: 'PC端数据概览和快速操作',
+        },
+      },
+      {
+        path: 'residents',
+        name: 'pc-residents',
+        component: PcResidentManagement,
+        meta: {
+          title: '村民管理',
+          permissions: ['resident:read'],
+          breadcrumb: [
+            { title: '首页', path: '/pc/dashboard' },
+            { title: '村民管理' },
+          ],
+          description: '村民信息管理和档案维护',
+        },
+      },
+      {
+        path: 'affairs',
+        name: 'pc-affairs',
+        component: PcVillageAffairs,
+        meta: {
+          title: '村务管理',
+          permissions: ['village:read'],
+          breadcrumb: [
+            { title: '首页', path: '/pc/dashboard' },
+            { title: '村务管理' },
+          ],
+          description: '村务公开、公告发布、任务管理',
+        },
+      },
+      {
+        path: 'finance',
+        name: 'pc-finance',
+        component: PcFinance,
+        meta: {
+          title: '财务管理',
+          permissions: ['finance:read'],
+          breadcrumb: [
+            { title: '首页', path: '/pc/dashboard' },
+            { title: '财务管理' },
+          ],
+          description: '村集体资金管理、收支明细',
+        },
+      },
+      {
+        path: 'services',
+        name: 'pc-services',
+        component: PcServices,
+        meta: {
+          title: '生活服务',
+          permissions: ['service:read'],
+          breadcrumb: [
+            { title: '首页', path: '/pc/dashboard' },
+            { title: '生活服务' },
+          ],
+          description: '便民服务、办事指南、申请记录',
+        },
+      },
+      {
+        path: 'statistics',
+        name: 'pc-statistics',
+        component: PcStatistics,
+        meta: {
+          title: '数据统计',
+          permissions: ['statistics:read'],
+          breadcrumb: [
+            { title: '首页', path: '/pc/dashboard' },
+            { title: '数据统计' },
+          ],
+          description: '人口结构分析、家庭统计、数据报表',
+        },
+      },
+      {
+        path: 'users',
+        name: 'pc-users',
+        component: PcUsers,
+        meta: {
+          title: '用户管理',
+          permissions: ['user:read'],
+          breadcrumb: [
+            { title: '首页', path: '/pc/dashboard' },
+            { title: '用户管理' },
+          ],
+          description: '系统用户管理、角色分配、权限控制',
+        },
+      },
+      {
+        path: 'settings',
+        name: 'pc-settings',
+        component: PcSettings,
+        meta: {
+          title: '系统设置',
+          permissions: ['settings:manage'],
+          breadcrumb: [
+            { title: '首页', path: '/pc/dashboard' },
+            { title: '系统设置' },
+          ],
+          description: '基本设置、通知设置、安全设置、数据管理',
+        },
+      },
+    ],
+  },
+
+  // AI服务模块
+  {
+    path: '/ai',
+    component: routeMeta.layouts.default,
+    meta: {
+      title: 'AI智能助手',
+      requiresAuth: true,
+      permissions: ['ai:chat'],
+      accessibility: routeMeta.accessibility.full,
+      showInMenu: true,
+      menuIcon: 'ChatDotRound',
+      menuOrder: 6,
+    },
+    children: [
+      {
+        path: 'assistant',
+        name: 'ai-assistant',
+        component: AIAssistant,
+        meta: {
+          title: 'AI智能助手',
+          breadcrumb: [
+            { title: '首页', path: '/' },
+            { title: 'AI智能助手', path: '/ai' },
+            { title: '智能助手' },
+          ],
+          description: 'AI智能对话、专业咨询、生活助手',
+          accessibility: routeMeta.accessibility.full,
+          requiresMicrophone: true,
+        },
+      },
+    ],
+  },
+
+  // 管理员模块
+  {
+    path: '/admin',
+    component: routeMeta.layouts.default,
+    meta: {
+      title: '系统管理',
+      requiresAuth: true,
+      permissions: ['admin:access'],
+      accessibility: routeMeta.accessibility.enhanced,
+    },
+    children: [
+      {
+        path: 'official-audit',
+        name: 'official-audit',
+        component: OfficialAudit,
+        meta: {
+          title: '村干部审核',
+          permissions: ['admin:access'],
+          breadcrumb: [
+            { title: '首页', path: '/' },
+            { title: '系统管理', path: '/admin' },
+            { title: '村干部审核' },
+          ],
+        },
+      },
+      {
+        path: 'permission-assign',
+        name: 'permission-assign',
+        component: PermissionAssign,
+        meta: {
+          title: '权限分配',
+          permissions: ['admin:access'],
+          breadcrumb: [
+            { title: '首页', path: '/' },
+            { title: '系统管理', path: '/admin' },
+            { title: '权限分配' },
+          ],
+        },
+      },
+    ],
+  },
+
+  // 重定向路由
+  {
+    path: '/dashboard',
+    redirect: to => {
+      // 根据用户角色重定向到对应的首页
+      const userRole = localStorage.getItem('userRole');
+      const roleRedirects = {
+        resident: '/village/affairs',
+        village_admin: '/village/dashboard',
+        admin: '/village/dashboard',
+      };
+      return roleRedirects[userRole] || '/village/affairs';
+    },
+    meta: {
+      title: '工作台',
+    },
+  },
+
+  // 捕获所有未匹配的路由
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/error/404',
+  },
+];
+
+// 🏗️ 创建路由实例
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [
-    {
-      path: '/',
-      name: 'home',
-      component: () => import('@/views/Home.vue'),
-      meta: {
-        requiresAuth: false,
-        title: '智慧乡村首页'
-      }
-    },
-
-    // 认证相关路由
-    {
-      path: '/login',
-      name: 'login',
-      component: () => import('@/views/auth/UnifiedLogin.vue'),
-      meta: {
-        requiresAuth: false,
-        title: '用户登录',
-        layout: 'auth'
-      }
-    },
-    // 兼容旧的路由，直接使用 login 组件
-    {
-      path: '/unified-login',
-      name: 'unified-login',
-      component: () => import('@/views/auth/UnifiedLogin.vue'),
-      meta: {
-        requiresAuth: false,
-        title: '用户登录',
-        layout: 'auth'
-      }
-    },
-    {
-      path: '/register',
-      name: 'register',
-      component: () => import('@/views/auth/RegisterView.vue'),
-      meta: {
-        requiresAuth: false,
-        title: '用户注册',
-        layout: 'auth'
-      }
-    },
-    {
-      path: '/forgot-password',
-      name: 'forgot-password',
-      component: () => import('@/views/auth/ForgotPasswordView.vue'),
-      meta: {
-        requiresAuth: false,
-        title: '找回密码',
-        layout: 'auth'
-      }
-    },
-    {
-      path: '/auth/registration-wizard',
-      name: 'registration-wizard',
-      component: () => import('@/views/auth/RegistrationWizard.vue'),
-      meta: {
-        requiresAuth: false,
-        title: '采购商注册',
-        layout: 'auth'
-      }
-    },
-    {
-      path: '/auth/common-registration',
-      name: 'common-registration',
-      component: () => import('@/views/auth/CommonRegistrationWizard.vue'),
-      meta: {
-        requiresAuth: false,
-        title: '用户注册',
-        layout: 'auth'
-      }
-    },
-    {
-      path: '/auth/registration-review',
-      name: 'registration-review',
-      component: () => import('@/views/admin/RegistrationReview.vue'),
-      meta: {
-        requiresAuth: true,
-        title: '注册申请审批',
-        permissions: ['admin:manage'],
-        breadcrumb: [
-          { title: '首页', path: '/dashboard' },
-          { title: '注册申请审批', path: '/auth/registration-review' }
-        ]
-      }
-    },
-
-    // 采购商仪表盘
-    {
-      path: '/purchaser/dashboard',
-      name: 'purchaser-dashboard',
-      component: () => import('@/views/purchasers/PurchaserDashboard.vue'),
-      meta: {
-        requiresAuth: true,
-        title: '采购商工作台',
-        icon: 'ShoppingCart',
-        permissions: ['purchaser:access'],
-        breadcrumb: [
-          { title: '首页', path: '/dashboard' },
-          { title: '采购商工作台', path: '/purchaser/dashboard' }
-        ]
-      }
-    },
-    {
-      path: '/purchaser/profile',
-      name: 'purchaser-profile',
-      component: () => import('@/views/purchasers/PurchaserProfile.vue'),
-      meta: {
-        requiresAuth: true,
-        title: '采购商个人中心',
-        permissions: ['purchaser:access'],
-        breadcrumb: [
-          { title: '首页', path: '/dashboard' },
-          { title: '采购商个人中心', path: '/purchaser/profile' }
-        ]
-      }
-    },
-    {
-      path: '/purchaser/recommendations',
-      name: 'purchaser-recommendations',
-      component: () => import('@/views/purchasers/PurchaserRecommendations.vue'),
-      meta: {
-        requiresAuth: true,
-        title: '智能推荐',
-        permissions: ['purchaser:access'],
-        breadcrumb: [
-          { title: '首页', path: '/dashboard' },
-          { title: '智能推荐', path: '/purchaser/recommendations' }
-        ]
-      }
-    },
-
-    // 主要应用路由
-    {
-      path: '/dashboard',
-      name: 'dashboard',
-      component: () => import('@/views/DashboardView.vue'),
-      meta: {
-        requiresAuth: true,
-        title: '工作台',
-        icon: 'Monitor',
-        breadcrumb: [
-          { title: '首页', path: '/dashboard' }
-        ]
-      }
-    },
-
-    // 村民管理模块
-    {
-      path: '/residents',
-      name: 'residents',
-      component: () => import('@/views/ResidentsView.vue'),
-      meta: {
-        requiresAuth: true,
-        title: '村民管理',
-        icon: 'User',
-        permissions: ['resident:read'],
-        breadcrumb: [
-          { title: '首页', path: '/dashboard' },
-          { title: '村民管理', path: '/residents' }
-        ]
-      }
-    },
-    {
-      path: '/residents/:id',
-      name: 'resident-detail',
-      component: () => import('@/views/residents/ResidentDetailView.vue'),
-      meta: {
-        requiresAuth: true,
-        title: '村民详情',
-        permissions: ['resident:read'],
-        breadcrumb: [
-          { title: '首页', path: '/dashboard' },
-          { title: '村民管理', path: '/residents' },
-          { title: '村民详情', path: '' }
-        ]
-      }
-    },
-    {
-      path: '/residents/add',
-      name: 'resident-add',
-      component: () => import('@/views/residents/ResidentAddView.vue'),
-      meta: {
-        requiresAuth: true,
-        title: '添加村民',
-        permissions: ['resident:write'],
-        breadcrumb: [
-          { title: '首页', path: '/dashboard' },
-          { title: '村民管理', path: '/residents' },
-          { title: '添加村民', path: '' }
-        ]
-      }
-    },
-    {
-      path: '/residents/:id/edit',
-      name: 'resident-edit',
-      component: () => import('@/views/residents/ResidentEditView.vue'),
-      meta: {
-        requiresAuth: true,
-        title: '编辑村民',
-        permissions: ['resident:write'],
-        breadcrumb: [
-          { title: '首页', path: '/dashboard' },
-          { title: '村民管理', path: '/residents' },
-          { title: '编辑村民', path: '' }
-        ]
-      }
-    },
-
-    // 村委管理模块
-    {
-      path: '/village/committee-management',
-      name: 'committee-management',
-      component: () => import('@/views/village/CommitteeManagementEnhanced.vue'),
-      meta: {
-        requiresAuth: true,
-        title: '村委管理',
-        icon: 'UserFilled',
-        permissions: ['village:manage', 'committee:access'],
-        breadcrumb: [
-          { title: '首页', path: '/dashboard' },
-          { title: '村委管理', path: '/village/committee-management' }
-        ]
-      }
-    },
-    {
-      path: '/village/population-management',
-      name: 'population-management',
-      component: () => import('@/views/village/PopulationManagement.vue'),
-      meta: {
-        requiresAuth: true,
-        title: '人口管理',
-        icon: 'Users',
-        permissions: ['village:manage', 'residents:view'],
-        breadcrumb: [
-          { title: '首页', path: '/dashboard' },
-          { title: '人口管理', path: '/village/population-management' }
-        ]
-      }
-    },
-
-    // 村委管理模块（导入独立路由模块）
-    villageCommitteeRoutes,
-
-    // 财务管理模块
-    {
-      path: '/finance',
-      name: 'finance',
-      redirect: '/finance/overview',
-      meta: {
-        requiresAuth: true,
-        title: '财务管理',
-        icon: 'Money',
-        permissions: ['finance:read']
-      },
-      children: [
-        {
-          path: 'overview',
-          name: 'finance-overview',
-          component: () => import('@/views/finance/FinanceOverviewView.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '财务概览',
-            permissions: ['finance:read'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '财务管理', path: '/finance' },
-              { title: '财务概览', path: '/finance/overview' }
-            ]
-          }
-        },
-        {
-          path: 'budget',
-          name: 'finance-budget',
-          component: () => import('@/views/finance/FinanceBudgetView.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '预算管理',
-            permissions: ['finance:budget'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '财务管理', path: '/finance' },
-              { title: '预算管理', path: '/finance/budget' }
-            ]
-          }
-        },
-        {
-          path: 'expenses',
-          name: 'finance-expenses',
-          component: () => import('@/views/finance/FinanceExpensesView.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '支出管理',
-            permissions: ['finance:write'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '财务管理', path: '/finance' },
-              { title: '支出管理', path: '/finance/expenses' }
-            ]
-          }
-        },
-        {
-          path: 'approval',
-          name: 'finance-approval',
-          component: () => import('@/views/finance/FinanceApprovalView.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '审批管理',
-            permissions: ['finance:approve'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '财务管理', path: '/finance' },
-              { title: '审批管理', path: '/finance/approval' }
-            ]
-          }
-        },
-        {
-          path: 'reports',
-          name: 'finance-reports',
-          component: () => import('@/views/finance/FinanceReportsView.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '财务报表',
-            permissions: ['finance:reports'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '财务管理', path: '/finance' },
-              { title: '财务报表', path: '/finance/reports' }
-            ]
-          }
-        }
-      ]
-    },
-
-    // 村务治理模块
-    {
-      path: '/affairs',
-      name: 'affairs',
-      redirect: '/affairs/announcements',
-      meta: {
-        requiresAuth: true,
-        title: '村务治理',
-        icon: 'Bell',
-        permissions: ['village:read']
-      },
-      children: [
-        {
-          path: 'announcements',
-          name: 'affairs-announcements',
-          component: () => import('@/views/affairs/AnnouncementsView.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '公告管理',
-            permissions: ['village:announcement'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '村务治理', path: '/affairs' },
-              { title: '公告管理', path: '/affairs/announcements' }
-            ]
-          }
-        },
-        {
-          path: 'voting',
-          name: 'affairs-voting',
-          component: () => import('@/views/affairs/VotingView.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '投票管理',
-            permissions: ['village:voting'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '村务治理', path: '/affairs' },
-              { title: '投票管理', path: '/affairs/voting' }
-            ]
-          }
-        },
-        {
-          path: 'meetings',
-          name: 'affairs-meetings',
-          component: () => import('@/views/affairs/MeetingsView.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '会议管理',
-            permissions: ['village:meeting'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '村务治理', path: '/affairs' },
-              { title: '会议管理', path: '/affairs/meetings' }
-            ]
-          }
-        }
-      ]
-    },
-
-    // 村务公开（村民视角）
-    {
-      path: '/village-affairs',
-      name: 'village-affairs',
-      component: () => import('@/views/village/VillageAffairsView.vue'),
-      meta: {
-        requiresAuth: true,
-        title: '村务公开',
-        icon: 'View',
-        permissions: ['village:read'],
-        breadcrumb: [
-          { title: '首页', path: '/dashboard' },
-          { title: '村务公开', path: '/village-affairs' }
-        ]
-      }
-    },
-
-    // 我的二维码（一户一码）
-    {
-      path: '/qrcode',
-      name: 'household-qr',
-      component: () => import('@/views/village/HouseholdQR.vue'),
-      meta: {
-        requiresAuth: true,
-        title: '我的二维码',
-        icon: 'Wallet',
-        permissions: ['household:read'],
-        breadcrumb: [
-          { title: '首页', path: '/dashboard' },
-          { title: '村务公开', path: '/village-affairs' },
-          { title: '我的二维码', path: '/qrcode' }
-        ]
-      }
-    },
-
-    // 生活服务模块
-    {
-      path: '/services',
-      name: 'services',
-      redirect: '/services/hall',
-      meta: {
-        requiresAuth: true,
-        title: '生活服务',
-        icon: 'Service',
-        permissions: ['service:read']
-      },
-      children: [
-        {
-          path: 'hall',
-          name: 'services-hall',
-          component: () => import('@/views/services/ServiceHall.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '办事大厅',
-            permissions: ['service:application'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '生活服务', path: '/services' },
-              { title: '办事大厅', path: '/services/hall' }
-            ]
-          }
-        },
-        {
-          path: 'applications',
-          name: 'services-applications',
-          component: () => import('@/views/services/ApplicationsView.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '办事服务',
-            permissions: ['service:application'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '生活服务', path: '/services' },
-              { title: '办事服务', path: '/services/applications' }
-            ]
-          }
-        },
-        {
-          path: 'household-codes',
-          name: 'services-household-codes',
-          component: () => import('@/views/services/HouseholdCodesView.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '一户一码',
-            permissions: ['household:read'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '生活服务', path: '/services' },
-              { title: '一户一码', path: '/services/household-codes' }
-            ]
-          }
-        },
-        {
-          path: 'voice-interaction',
-          name: 'services-voice-interaction',
-          component: () => import('@/views/village/VoiceInteraction.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '方言语音交互',
-            permissions: ['speech:recognize'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '生活服务', path: '/services' },
-              { title: '方言语音交互', path: '/services/voice-interaction' }
-            ]
-          }
-        }
-      ]
-    },
-
-    // 采购商管理模块
-    {
-      path: '/purchasers',
-      name: 'purchasers',
-      component: () => import('@/views/purchasers/PurchasersView.vue'),
-      meta: {
-        requiresAuth: true,
-        title: '采购商管理',
-        icon: 'ShoppingCart',
-        permissions: ['purchaser:read'],
-        breadcrumb: [
-          { title: '首页', path: '/dashboard' },
-          { title: '采购商管理', path: '/purchasers' }
-        ]
-      }
-    },
-
-    // 新增组件模块 - 基于我们开发的API组件
-    {
-      path: '/components',
-      name: 'components',
-      redirect: '/components/users',
-      meta: {
-        requiresAuth: true,
-        title: '组件管理',
-        icon: 'Grid',
-        permissions: ['component:read']
-      },
-      children: [
-        {
-          path: 'users',
-          name: 'component-users',
-          component: () => import('@/components/user/UserManagement.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '用户管理',
-            permissions: ['user:read'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '组件管理', path: '/components' },
-              { title: '用户管理', path: '/components/users' }
-            ]
-          }
-        },
-        {
-          path: 'announcements',
-          name: 'component-announcements',
-          component: () => import('@/components/village/VillageAnnouncement.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '村务公告',
-            permissions: ['village:announcement'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '组件管理', path: '/components' },
-              { title: '村务公告', path: '/components/announcements' }
-            ]
-          }
-        },
-        {
-          path: 'transactions',
-          name: 'component-transactions',
-          component: () => import('@/components/finance/TransactionList.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '财务管理',
-            permissions: ['finance:read'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '组件管理', path: '/components' },
-              { title: '财务管理', path: '/components/transactions' }
-            ]
-          }
-        },
-        {
-          path: 'emergency',
-          name: 'component-emergency',
-          component: () => import('@/components/emergency/EmergencyManagement.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '应急管理',
-            permissions: ['emergency:read'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '组件管理', path: '/components' },
-              { title: '应急管理', path: '/components/emergency' }
-            ]
-          }
-        },
-        {
-          path: 'analytics',
-          name: 'component-analytics',
-          component: () => import('@/components/analytics/Dashboard.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '数据分析',
-            permissions: ['analytics:read'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '组件管理', path: '/components' },
-              { title: '数据分析', path: '/components/analytics' }
-            ]
-          }
-        },
-        {
-          path: 'products',
-          name: 'component-products',
-          component: () => import('@/components/ecommerce/ProductManagement.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '商品管理',
-            permissions: ['product:read'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '组件管理', path: '/components' },
-              { title: '商品管理', path: '/components/products' }
-            ]
-          }
-        }
-      ]
-    },
-
-    // 项目管理模块
-    {
-      path: '/projects',
-      name: 'projects',
-      redirect: '/projects/list',
-      meta: {
-        requiresAuth: true,
-        title: '项目管理',
-        icon: 'OfficeBuilding',
-        permissions: ['project:read']
-      },
-      children: [
-        {
-          path: 'list',
-          name: 'projects-list',
-          component: () => import('@/views/projects/ProjectsListView.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '项目列表',
-            permissions: ['project:read'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '项目管理', path: '/projects' },
-              { title: '项目列表', path: '/projects/list' }
-            ]
-          }
-        },
-        {
-          path: ':id',
-          name: 'project-detail',
-          component: () => import('@/views/projects/ProjectDetailView.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '项目详情',
-            permissions: ['project:read'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '项目管理', path: '/projects' },
-              { title: '项目列表', path: '/projects/list' },
-              { title: '项目详情', path: '' }
-            ]
-          }
-        },
-        {
-          path: 'add',
-          name: 'project-add',
-          component: () => import('@/views/projects/ProjectAddView.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '新建项目',
-            permissions: ['project:write'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '项目管理', path: '/projects' },
-              { title: '新建项目', path: '/projects/add' }
-            ]
-          }
-        }
-      ]
-    },
-
-    // 农产品管理模块
-    {
-      path: '/agriculture',
-      name: 'agriculture',
-      redirect: '/agriculture/products',
-      meta: {
-        requiresAuth: true,
-        title: '农产品管理',
-        icon: 'Apple',
-        permissions: ['agriculture:read']
-      },
-      children: [
-        {
-          path: 'products',
-          name: 'agriculture-products',
-          component: () => import('@/views/agriculture/ProductsListView.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '农产品列表',
-            permissions: ['agriculture:read'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '农产品管理', path: '/agriculture' },
-              { title: '农产品列表', path: '/agriculture/products' }
-            ]
-          }
-        },
-        {
-          path: 'orders',
-          name: 'agriculture-orders',
-          component: () => import('@/views/agriculture/OrdersListView.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '订单管理',
-            permissions: ['agriculture:order'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '农产品管理', path: '/agriculture' },
-              { title: '订单管理', path: '/agriculture/orders' }
-            ]
-          }
-        },
-        {
-          path: 'farmers',
-          name: 'agriculture-farmers',
-          component: () => import('@/views/agriculture/FarmersListView.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '农户管理',
-            permissions: ['agriculture:farmer'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '农产品管理', path: '/agriculture' },
-              { title: '农户管理', path: '/agriculture/farmers' }
-            ]
-          }
-        }
-      ]
-    },
-
-    // 应急管理模块
-    {
-      path: '/emergency',
-      name: 'emergency',
-      redirect: '/emergency/events',
-      meta: {
-        requiresAuth: true,
-        title: '应急管理',
-        icon: 'WarningFilled',
-        permissions: ['emergency:read']
-      },
-      children: [
-        {
-          path: 'events',
-          name: 'emergency-events',
-          component: () => import('@/views/emergency/EventsListView.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '应急事件',
-            permissions: ['emergency:read'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '应急管理', path: '/emergency' },
-              { title: '应急事件', path: '/emergency/events' }
-            ]
-          }
-        },
-        {
-          path: 'report',
-          name: 'emergency-report',
-          component: () => import('@/views/emergency/ReportView.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '事件上报',
-            permissions: ['emergency:report'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '应急管理', path: '/emergency' },
-              { title: '事件上报', path: '/emergency/report' }
-            ]
-          }
-        },
-        {
-          path: 'contacts',
-          name: 'emergency-contacts',
-          component: () => import('@/views/emergency/ContactsView.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '应急联系人',
-            permissions: ['emergency:contact'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '应急管理', path: '/emergency' },
-              { title: '应急联系人', path: '/emergency/contacts' }
-            ]
-          }
-        }
-      ]
-    },
-
-    // 系统管理模块
-    {
-      path: '/system',
-      name: 'system',
-      redirect: '/system/users',
-      meta: {
-        requiresAuth: true,
-        title: '系统管理',
-        icon: 'Setting',
-        permissions: ['system:read']
-      },
-      children: [
-        {
-          path: 'users',
-          name: 'system-users',
-          component: () => import('@/views/system/UsersView.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '用户管理',
-            permissions: ['system:user'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '系统管理', path: '/system' },
-              { title: '用户管理', path: '/system/users' }
-            ]
-          }
-        },
-        {
-          path: 'roles',
-          name: 'system-roles',
-          component: () => import('@/views/system/RolesView.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '角色管理',
-            permissions: ['system:role'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '系统管理', path: '/system' },
-              { title: '角色管理', path: '/system/roles' }
-            ]
-          }
-        },
-        {
-          path: 'permissions',
-          name: 'system-permissions',
-          component: () => import('@/views/system/EnhancedPermissionManagement.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '权限管理',
-            permissions: ['system:permission'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '系统管理', path: '/system' },
-              { title: '权限管理', path: '/system/permissions' }
-            ]
-          }
-        },
-        {
-          path: 'logs',
-          name: 'system-logs',
-          component: () => import('@/views/system/LogsView.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '操作日志',
-            permissions: ['system:log'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '系统管理', path: '/system' },
-              { title: '操作日志', path: '/system/logs' }
-            ]
-          }
-        },
-        {
-          path: 'notifications',
-          name: 'system-notifications',
-          component: () => import('@/views/system/NotificationsView.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '通知管理',
-            permissions: ['system:notification'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '系统管理', path: '/system' },
-              { title: '通知管理', path: '/system/notifications' }
-            ]
-          }
-        }
-      ]
-    },
-
-    // 值班管理模块
-    {
-      path: '/duty',
-      name: 'duty',
-      redirect: '/duty/overview',
-      meta: {
-        requiresAuth: true,
-        title: '值班管理',
-        icon: 'Timer',
-        permissions: ['duty:read']
-      },
-      children: [
-        {
-          path: 'overview',
-          name: 'duty-overview',
-          component: () => import('@/views/duty/DutyManagement.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '值班管理',
-            permissions: ['duty:read'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '值班管理', path: '/duty' }
-            ]
-          }
-        },
-        {
-          path: 'schedule',
-          name: 'duty-schedule',
-          component: () => import('@/views/villageCommittee/DutySchedule.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '值班安排',
-            permissions: ['duty:schedule'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '值班管理', path: '/duty' },
-              { title: '值班安排', path: '/duty/schedule' }
-            ]
-          }
-        },
-        {
-          path: 'emergency',
-          name: 'duty-emergency',
-          component: () => import('@/components/emergency/EmergencyCall.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '紧急呼叫',
-            permissions: ['duty:emergency'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '值班管理', path: '/duty' },
-              { title: '紧急呼叫', path: '/duty/emergency' }
-            ]
-          }
-        },
-        {
-          path: 'personnel',
-          name: 'duty-personnel',
-          component: () => import('@/views/villageCommittee/Members.vue'),
-          meta: {
-            requiresAuth: true,
-            title: '人员管理',
-            permissions: ['duty:personnel'],
-            breadcrumb: [
-              { title: '首页', path: '/dashboard' },
-              { title: '值班管理', path: '/duty' },
-              { title: '人员管理', path: '/duty/personnel' }
-            ]
-          }
-        }
-      ]
-    },
-
-    // 个人中心
-    {
-      path: '/profile',
-      name: 'profile',
-      component: () => import('@/views/profile/ProfileView.vue'),
-      meta: {
-        requiresAuth: true,
-        title: '个人中心',
-        breadcrumb: [
-          { title: '首页', path: '/dashboard' },
-          { title: '个人中心', path: '/profile' }
-        ]
-      }
-    },
-
-    // 证件包
-    {
-      path: '/documents',
-      name: 'documents',
-      component: () => import('@/views/DocumentWallet.vue'),
-      meta: {
-        requiresAuth: true,
-        title: '我的证件包',
-        icon: 'Document',
-        breadcrumb: [
-          { title: '首页', path: '/dashboard' },
-          { title: '我的证件包', path: '/documents' }
-        ]
-      }
-    },
-
-    // 聊天
-    {
-      path: '/chat',
-      name: 'chat',
-      component: () => import('@/views/chat/ChatView.vue'),
-      meta: {
-        requiresAuth: true,
-        title: '聊天',
-        icon: 'ChatDotRound',
-        breadcrumb: [
-          { title: '首页', path: '/dashboard' },
-          { title: '聊天', path: '/chat' }
-        ]
-      }
-    },
-
-    // 村干部任务管理（四象限任务管理）
-    {
-      path: '/cadre-tasks',
-      name: 'cadre-tasks',
-      component: () => import('@/views/tasks/CadreTaskManagement.vue'),
-      meta: {
-        requiresAuth: true,
-        title: '任务管理',
-        icon: 'List',
-        permissions: ['task:read'],
-        breadcrumb: [
-          { title: '首页', path: '/dashboard' },
-          { title: '任务管理', path: '/cadre-tasks' }
-        ]
-      }
-    },
-
-    // 发布管理（统一发布入口）
-    {
-      path: '/publish-management',
-      name: 'publish-management',
-      component: () => import('@/views/publish/PublishManagement.vue'),
-      meta: {
-        requiresAuth: true,
-        title: '发布管理',
-        icon: 'Promotion',
-        permissions: ['publish:manage'],
-        breadcrumb: [
-          { title: '首页', path: '/dashboard' },
-          { title: '发布管理', path: '/publish-management' }
-        ]
-      }
-    },
-
-    // 开发和测试相关路由
-    {
-      path: '/test',
-      name: 'test',
-      redirect: '/test/connection',
-      meta: {
-        requiresAuth: false,
-        title: '系统测试',
-        icon: 'Tools'
-      },
-      children: [
-        {
-          path: 'connection',
-          name: 'test-connection',
-          component: () => import('@/views/test/ConnectionTest.vue'),
-          meta: {
-            requiresAuth: false,
-            title: '前后端连接测试',
-            breadcrumb: [
-              { title: '系统测试', path: '/test' },
-              { title: '连接测试', path: '/test/connection' }
-            ]
-          }
-        },
-        {
-          path: 'mobile-adaptation',
-          name: 'test-mobile-adaptation',
-          component: () => import('@/views/demo/MobileAdaptationDemo.vue'),
-          meta: {
-            requiresAuth: false,
-            title: '移动端适配演示',
-            breadcrumb: [
-              { title: '系统测试', path: '/test' },
-              { title: '移动端适配演示', path: '/test/mobile-adaptation' }
-            ]
-          }
-        }
-      ]
-    },
-
-    // 错误页面
-    {
-      path: '/403',
-      name: 'forbidden',
-      component: () => import('@/views/error/403View.vue'),
-      meta: {
-        requiresAuth: false,
-        title: '访问禁止',
-        layout: 'error'
-      }
-    },
-    {
-      path: '/404',
-      name: 'not-found',
-      component: () => import('@/views/error/404View.vue'),
-      meta: {
-        requiresAuth: false,
-        title: '页面未找到',
-        layout: 'error'
-      }
-    },
-    {
-      path: '/500',
-      name: 'server-error',
-      component: () => import('@/views/error/500View.vue'),
-      meta: {
-        requiresAuth: false,
-        title: '服务器错误',
-        layout: 'error'
-      }
-    },
-
-    // 捕获所有未匹配的路由
-    {
-      path: '/:pathMatch(.*)*',
-      redirect: '/404'
-    }
-  ],
+  routes,
   scrollBehavior(to, from, savedPosition) {
+    // 保持滚动位置
     if (savedPosition) {
       return savedPosition;
-    } else {
-      return { top: 0 };
-    }
-  }
-});
-
-// 路由守卫
-router.beforeEach(async (to, from, next) => {
-  const userStore = useUserStore();
-
-  // 调试日志
-  console.log('=== 路由守卫 ===', {
-    to: to.path,
-    from: from.path,
-    query: to.query,
-    isLoggedIn: userStore.isLoggedIn,
-    hasToken: !!userStore.token,
-    hasUserInfo: !!userStore.userInfo,
-    localStorageToken: !!localStorage.getItem('token'),
-    localStorageUserInfo: !!localStorage.getItem('userInfo')
-  })
-
-  // 设置页面标题
-  document.title = to.meta.title ? `${to.meta.title} - 智慧村庄管理平台` : '智慧村庄管理平台';
-
-  // 检查是否需要认证
-  if (to.meta.requiresAuth) {
-    try {
-      // 【修复】直接从 localStorage 读取状态
-      const token = localStorage.getItem('token');
-      const userInfoStr = localStorage.getItem('userInfo');
-
-      // 如果 store 中没有状态，但从 localStorage 中有，恢复 store 状态
-      if (token && userInfoStr && !userStore.token) {
-        console.log('🔄 恢复 store 状态...');
-        userStore.initUserState();
-      }
-
-      // 检查用户是否已登录 - 同时检查 store 和 localStorage
-      const hasValidAuth = userStore.isLoggedIn || (token && userInfoStr);
-
-      if (!hasValidAuth) {
-        console.log('路由守卫: 用户未登录，重定向到登录页');
-        next({
-          name: 'unified-login',
-          query: { redirect: to.fullPath }
-        });
-        return;
-      }
-
-      // 检查是否有权限访问（如果需要）
-      if (to.meta.permissions && to.meta.permissions.length > 0) {
-        const hasPermission = userStore.hasAnyPermission(to.meta.permissions);
-        if (!hasPermission) {
-          console.log('路由守卫: 用户权限不足');
-          ElMessage.error('您没有权限访问此页面');
-          next({ name: 'dashboard' });
-          return;
-        }
-      }
-
-      // 【新增】如果村民访问 /dashboard，重定向到 /village-affairs
-      const userRole = userStore.userInfo?.role || userStore.userRole;
-      if (to.path === '/dashboard' && userRole === 'resident') {
-        console.log('路由守卫: 村民访问 /dashboard，重定向到 /village-affairs');
-        next('/village-affairs');
-        return;
-      }
-
-      console.log('路由守卫: 允许访问', to.path);
-      next();
-      return;
-    } catch (error) {
-      console.error('路由守卫错误:', error);
-      ElMessage.error('身份验证失败，请重新登录');
-      next({
-        name: 'unified-login',
-        query: { redirect: to.fullPath }
-      });
-    }
-  } else {
-    // 如果已登录用户访问登录页面，根据角色重定向到对应主页
-    // 【修复】同时检查 store 和 localStorage，避免状态更新延迟问题
-    const token = localStorage.getItem('token');
-    const userInfoStr = localStorage.getItem('userInfo');
-    const isUserLoggedIn = userStore.isLoggedIn || (token && userInfoStr);
-
-    if ((to.name === 'login' || to.name === 'unified-login') && isUserLoggedIn) {
-      console.log('路由守卫: 用户已登录，根据角色重定向到对应主页');
-
-      // 如果 store 状态未恢复，先恢复
-      if (token && userInfoStr && !userStore.token) {
-        userStore.initUserState();
-      }
-
-      // 根据用户角色跳转到不同的主页
-      let userRole = userStore.userInfo?.role || userStore.userRole;
-
-      // 如果 store 中没有角色信息，从 localStorage 读取
-      if (!userRole && userInfoStr) {
-        try {
-          const userInfo = JSON.parse(userInfoStr);
-          userRole = userInfo.role;
-        } catch (e) {
-          console.error('解析用户信息失败:', e);
-        }
-      }
-
-      const roleRedirectMap = {
-        'resident': '/village-affairs',
-        'village_admin': '/dashboard',  // 数据库中的村干部角色
-        'village_official': '/dashboard',  // 数据库中的乡镇官员角色
-        'admin': '/dashboard',
-        'purchaser': '/purchaser/dashboard'
-      };
-      const redirectPath = roleRedirectMap[userRole] || '/dashboard';
-      console.log('路由守卫: 已登录用户角色', userRole, '-> 重定向到', redirectPath);
-      next(redirectPath);
-      return;
     }
 
-    next();
-  }
+    // 锚点跳转
+    if (to.hash) {
+      return { el: to.hash };
+    }
+
+    // 默认滚动到顶部
+    return { top: 0 };
+  },
 });
 
-// 路由后置守卫
-router.afterEach((to, from) => {
-  // 可以在这里添加页面加载完成后的逻辑
-  // 比如页面埋点、性能监控等
-});
+// 🔧 设置路由守卫
+setupGuards(router);
 
+// 📊 路由信息统计
+const getRouteStats = () => {
+  const stats = {
+    totalRoutes: routes.length,
+    authRequired: routes.filter(r => r.meta?.requiresAuth).length,
+    publicRoutes: routes.filter(r => !r.meta?.requiresAuth).length,
+    accessibleRoutes: routes.filter(r => r.meta?.accessibility === routeMeta.accessibility.full)
+      .length,
+  };
+
+  return stats;
+};
+
+// 🔍 路由辅助函数
+export const routeHelpers = {
+  // 根据权限过滤菜单项
+  filterRoutesByPermission: (routes, userPermissions) => {
+    return routes.filter(route => {
+      if (!route.meta?.permissions || route.meta.permissions.length === 0) {
+        return true;
+      }
+      return route.meta.permissions.some(permission => userPermissions.includes(permission));
+    });
+  },
+
+  // 根据设备支持过滤路由
+  filterRoutesByDevice: (routes, deviceType) => {
+    return routes.filter(route => {
+      const deviceSupport = route.meta?.deviceSupport;
+      return !deviceSupport || deviceSupport[deviceType] !== false;
+    });
+  },
+
+  // 获取面包屑导航
+  getBreadcrumb: route => {
+    return route.meta?.breadcrumb || [];
+  },
+
+  // 检查路由是否需要特殊权限
+  requiresSpecialPermission: route => {
+    return (
+      route.meta?.requiresCamera ||
+      route.meta?.requiresMicrophone ||
+      route.meta?.requiresGeolocation
+    );
+  },
+
+  // 获取路由的描述信息
+  getRouteDescription: route => {
+    return route.meta?.description || '';
+  },
+};
+
+// 🌐 导出路由实例
 export default router;
+export { getRouteStats };

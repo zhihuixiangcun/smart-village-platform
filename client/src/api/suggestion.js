@@ -4,8 +4,8 @@ export const suggestionApi = {
   submit(formData) {
     return api.post('/suggestions/submit', formData, {
       headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+        'Content-Type': 'multipart/form-data',
+      },
     });
   },
 
@@ -47,5 +47,5 @@ export const suggestionApi = {
 
   deleteCategory(id) {
     return api.delete(`/suggestions/categories/${id}`);
-  }
+  },
 };

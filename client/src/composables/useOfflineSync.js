@@ -18,7 +18,7 @@ export function useOfflineSync(options = {}) {
     apiBaseUrl = '/api/sync',
     autoSync = true,
     syncInterval = 30000, // 30秒
-    deviceId = getDeviceId()
+    deviceId = getDeviceId(),
   } = options;
 
   // 状态
@@ -37,7 +37,7 @@ export function useOfflineSync(options = {}) {
   function getDeviceId() {
     let id = localStorage.getItem('device_id');
     if (!id) {
-      id = `device_${  Date.now()  }_${  Math.random().toString(36).substr(2, 9)}`;
+      id = `device_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       localStorage.setItem('device_id', id);
     }
     return id;
@@ -129,7 +129,7 @@ export function useOfflineSync(options = {}) {
   /**
    * 添加离线操作
    */
-  const addOfflineOperation = async (data) => {
+  const addOfflineOperation = async data => {
     try {
       const record = {
         entityType: data.entityType,
@@ -137,7 +137,7 @@ export function useOfflineSync(options = {}) {
         operation: data.operation || OPERATION_TYPES.CREATE,
         data: data.data,
         userId: data.userId,
-        deviceId
+        deviceId,
       };
 
       await offlineStorage.addToSyncQueue(record);
@@ -153,7 +153,7 @@ export function useOfflineSync(options = {}) {
       return record;
     } catch (error) {
       console.error('添加离线操作失败:', error);
-      ElMessage.error(`添加失败: ${  error.message}`);
+      ElMessage.error(`添加失败: ${error.message}`);
       throw error;
     }
   };
@@ -161,19 +161,23 @@ export function useOfflineSync(options = {}) {
   /**
    * 同步单条数据
    */
-  const syncData = async (record) => {
+  const syncData = async record => {
     try {
       // 更新状态为同步中
       await offlineStorage.updateSyncStatus(record.id, SYNC_STATUS.SYNCING);
 
-      const response = await axios.post(`${apiBaseUrl}/push`, {
-        deviceId,
-        records: [record]
-      }, {
-        headers: {
-          'X-Device-ID': deviceId
+      const response = await axios.post(
+        `${apiBaseUrl}/push`,
+        {
+          deviceId,
+          records: [record],
+        },
+        {
+          headers: {
+            'X-Device-ID': deviceId,
+          },
         }
-      });
+      );
 
       if (response.data.success) {
         // 同步成功，删除记录
@@ -182,7 +186,7 @@ export function useOfflineSync(options = {}) {
 
         return {
           success: true,
-          data: response.data.data
+          data: response.data.data,
         };
       } else {
         throw new Error(response.data.message || '同步失败');
@@ -199,7 +203,7 @@ export function useOfflineSync(options = {}) {
       syncErrors.value.push({
         recordId: record.id,
         error: error.message,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
       throw error;
@@ -232,14 +236,18 @@ export function useOfflineSync(options = {}) {
       let failed = 0;
 
       // 批量同步
-      const response = await axios.post(`${apiBaseUrl}/push`, {
-        deviceId,
-        records
-      }, {
-        headers: {
-          'X-Device-ID': deviceId
+      const response = await axios.post(
+        `${apiBaseUrl}/push`,
+        {
+          deviceId,
+          records,
+        },
+        {
+          headers: {
+            'X-Device-ID': deviceId,
+          },
         }
-      });
+      );
 
       if (response.data.success) {
         const { synced: syncedCount, failed: failedCount } = response.data.data;
@@ -267,7 +275,7 @@ export function useOfflineSync(options = {}) {
       }
     } catch (error) {
       console.error('批量同步失败:', error);
-      ElMessage.error(`同步失败: ${  error.message}`);
+      ElMessage.error(`同步失败: ${error.message}`);
     } finally {
       isSyncing.value = false;
       syncProgress.value = 0;
@@ -284,14 +292,18 @@ export function useOfflineSync(options = {}) {
     }
 
     try {
-      const response = await axios.post(`${apiBaseUrl}/pull`, {
-        lastSyncTime: lastSyncTime.value,
-        entityTypes
-      }, {
-        headers: {
-          'X-Device-ID': deviceId
+      const response = await axios.post(
+        `${apiBaseUrl}/pull`,
+        {
+          lastSyncTime: lastSyncTime.value,
+          entityTypes,
+        },
+        {
+          headers: {
+            'X-Device-ID': deviceId,
+          },
         }
-      });
+      );
 
       if (response.data.success) {
         const { timestamp, versions, ...data } = response.data.data;
@@ -300,7 +312,7 @@ export function useOfflineSync(options = {}) {
         for (const [entityType, items] of Object.entries(data)) {
           if (Array.isArray(items) && items.length > 0) {
             await offlineStorage.cacheData(entityType, items, {
-              expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24小时
+              expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24小时
             });
           }
         }
@@ -311,7 +323,7 @@ export function useOfflineSync(options = {}) {
       }
     } catch (error) {
       console.error('拉取数据失败:', error);
-      ElMessage.error(`拉取失败: ${  error.message}`);
+      ElMessage.error(`拉取失败: ${error.message}`);
       throw error;
     }
   };
@@ -319,7 +331,7 @@ export function useOfflineSync(options = {}) {
   /**
    * 获取缓存数据
    */
-  const getCachedData = async (entityType) => {
+  const getCachedData = async entityType => {
     try {
       const data = await offlineStorage.getCachedData(entityType);
       return data;
@@ -336,7 +348,7 @@ export function useOfflineSync(options = {}) {
     try {
       const response = await axios.post(`${apiBaseUrl}/resolve-conflict`, {
         syncLogId,
-        resolution
+        resolution,
       });
 
       if (response.data.success) {
@@ -348,7 +360,7 @@ export function useOfflineSync(options = {}) {
       }
     } catch (error) {
       console.error('解决冲突失败:', error);
-      ElMessage.error(`解决失败: ${  error.message}`);
+      ElMessage.error(`解决失败: ${error.message}`);
       throw error;
     }
   };
@@ -401,6 +413,6 @@ export function useOfflineSync(options = {}) {
 
     // 常量
     SYNC_STATUS,
-    OPERATION_TYPES
+    OPERATION_TYPES,
   };
 }

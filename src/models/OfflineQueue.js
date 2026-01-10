@@ -188,7 +188,7 @@ const offlineQueueSchema = new mongoose.Schema({
   // TTL - 自动清理已同步的记录
   ttl: {
     type: Date,
-    default: function() {
+    default() {
       // 默认30天后自动清理
       const date = new Date();
       date.setDate(date.getDate() + 30);

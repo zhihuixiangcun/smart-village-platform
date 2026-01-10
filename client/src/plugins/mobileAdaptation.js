@@ -84,10 +84,14 @@ const MobileAdaptationPlugin = {
           // 点击事件添加触觉反馈
           const clickElements = element.querySelectorAll('button, a, .clickable, .touchable');
           clickElements.forEach(el => {
-            el.addEventListener('click', (e) => {
-              mobileAdaptationService.hapticFeedback('light');
-              mobileAdaptationService.addHapticClass(el, 'light');
-            }, { passive: true });
+            el.addEventListener(
+              'click',
+              e => {
+                mobileAdaptationService.hapticFeedback('light');
+                mobileAdaptationService.addHapticClass(el, 'light');
+              },
+              { passive: true }
+            );
           });
 
           // 长按事件
@@ -95,25 +99,37 @@ const MobileAdaptationPlugin = {
           longPressElements.forEach(el => {
             let pressTimer = null;
 
-            el.addEventListener('touchstart', (e) => {
-              pressTimer = setTimeout(() => {
-                mobileAdaptationService.hapticFeedback('medium');
-                mobileAdaptationService.addHapticClass(el, 'medium');
-                this.$emit('long-press', { target: el, event: e });
-              }, 500);
-            }, { passive: true });
+            el.addEventListener(
+              'touchstart',
+              e => {
+                pressTimer = setTimeout(() => {
+                  mobileAdaptationService.hapticFeedback('medium');
+                  mobileAdaptationService.addHapticClass(el, 'medium');
+                  this.$emit('long-press', { target: el, event: e });
+                }, 500);
+              },
+              { passive: true }
+            );
 
-            el.addEventListener('touchend', () => {
-              if (pressTimer) {
-                clearTimeout(pressTimer);
-              }
-            }, { passive: true });
+            el.addEventListener(
+              'touchend',
+              () => {
+                if (pressTimer) {
+                  clearTimeout(pressTimer);
+                }
+              },
+              { passive: true }
+            );
 
-            el.addEventListener('touchcancel', () => {
-              if (pressTimer) {
-                clearTimeout(pressTimer);
-              }
-            }, { passive: true });
+            el.addEventListener(
+              'touchcancel',
+              () => {
+                if (pressTimer) {
+                  clearTimeout(pressTimer);
+                }
+              },
+              { passive: true }
+            );
           });
 
           // 滑动手势
@@ -122,33 +138,45 @@ const MobileAdaptationPlugin = {
             let startX = 0;
             let startY = 0;
 
-            el.addEventListener('touchstart', (e) => {
-              const touch = e.touches[0];
-              startX = touch.clientX;
-              startY = touch.clientY;
-            }, { passive: true });
+            el.addEventListener(
+              'touchstart',
+              e => {
+                const touch = e.touches[0];
+                startX = touch.clientX;
+                startY = touch.clientY;
+              },
+              { passive: true }
+            );
 
-            el.addEventListener('touchmove', (e) => {
-              e.preventDefault();
-            }, { passive: false });
+            el.addEventListener(
+              'touchmove',
+              e => {
+                e.preventDefault();
+              },
+              { passive: false }
+            );
 
-            el.addEventListener('touchend', (e) => {
-              const touch = e.changedTouches[0];
-              const endX = touch.clientX;
-              const endY = touch.clientY;
-              const deltaX = endX - startX;
-              const deltaY = endY - startY;
+            el.addEventListener(
+              'touchend',
+              e => {
+                const touch = e.changedTouches[0];
+                const endX = touch.clientX;
+                const endY = touch.clientY;
+                const deltaX = endX - startX;
+                const deltaY = endY - startY;
 
-              if (Math.abs(deltaX) > 50) {
-                const direction = deltaX > 0 ? 'right' : 'left';
-                this.$emit('swipe', { target: el, direction, deltaX });
-              }
+                if (Math.abs(deltaX) > 50) {
+                  const direction = deltaX > 0 ? 'right' : 'left';
+                  this.$emit('swipe', { target: el, direction, deltaX });
+                }
 
-              if (Math.abs(deltaY) > 50) {
-                const direction = deltaY > 0 ? 'down' : 'up';
-                this.$emit('swipe', { target: el, direction, deltaY });
-              }
-            }, { passive: true });
+                if (Math.abs(deltaY) > 50) {
+                  const direction = deltaY > 0 ? 'down' : 'up';
+                  this.$emit('swipe', { target: el, direction, deltaY });
+                }
+              },
+              { passive: true }
+            );
           });
         },
 
@@ -305,8 +333,8 @@ const MobileAdaptationPlugin = {
          */
         $updateTheme(theme) {
           return mobileAdaptationService.updateThemeConfig(theme);
-        }
-      }
+        },
+      },
     });
 
     // 响应式指令
@@ -318,7 +346,7 @@ const MobileAdaptationPlugin = {
       updated(el, binding) {
         const config = binding.value || {};
         mobileAdaptationService.adaptiveLayout(el, config);
-      }
+      },
     });
 
     // 触摸指令
@@ -330,14 +358,18 @@ const MobileAdaptationPlugin = {
         const eventType = config.event || 'click';
         const feedback = config.feedback || true;
 
-        el.addEventListener(eventType, (e) => {
-          if (feedback) {
-            mobileAdaptationService.hapticFeedback('light');
-            mobileAdaptationService.addHapticClass(el, 'light');
-          }
-          binding.value && binding.value(e);
-        }, { passive: true });
-      }
+        el.addEventListener(
+          eventType,
+          e => {
+            if (feedback) {
+              mobileAdaptationService.hapticFeedback('light');
+              mobileAdaptationService.addHapticClass(el, 'light');
+            }
+            binding.value && binding.value(e);
+          },
+          { passive: true }
+        );
+      },
     });
 
     // 滑动指令
@@ -352,49 +384,61 @@ const MobileAdaptationPlugin = {
         let startX = 0;
         let startY = 0;
 
-        el.addEventListener('touchstart', (e) => {
-          const touch = e.touches[0];
-          startX = touch.clientX;
-          startY = touch.clientY;
-        }, { passive: true });
+        el.addEventListener(
+          'touchstart',
+          e => {
+            const touch = e.touches[0];
+            startX = touch.clientX;
+            startY = touch.clientY;
+          },
+          { passive: true }
+        );
 
-        el.addEventListener('touchmove', (e) => {
-          e.preventDefault();
-        }, { passive: false });
+        el.addEventListener(
+          'touchmove',
+          e => {
+            e.preventDefault();
+          },
+          { passive: false }
+        );
 
-        el.addEventListener('touchend', (e) => {
-          const touch = e.changedTouches[0];
-          const endX = touch.clientX;
-          const endY = touch.clientY;
-          const deltaX = endX - startX;
-          const deltaY = endY - startY;
+        el.addEventListener(
+          'touchend',
+          e => {
+            const touch = e.changedTouches[0];
+            const endX = touch.clientX;
+            const endY = touch.clientY;
+            const deltaX = endX - startX;
+            const deltaY = endY - startY;
 
-          let swipeResult = false;
+            let swipeResult = false;
 
-          if (direction === 'horizontal' || direction === 'both') {
-            if (Math.abs(deltaX) > threshold) {
-              swipeResult = {
-                direction: deltaX > 0 ? 'right' : 'left',
-                distance: Math.abs(deltaX)
-              };
+            if (direction === 'horizontal' || direction === 'both') {
+              if (Math.abs(deltaX) > threshold) {
+                swipeResult = {
+                  direction: deltaX > 0 ? 'right' : 'left',
+                  distance: Math.abs(deltaX),
+                };
+              }
             }
-          }
 
-          if (direction === 'vertical' || direction === 'both') {
-            if (Math.abs(deltaY) > threshold) {
-              const verticalResult = {
-                direction: deltaY > 0 ? 'down' : 'up',
-                distance: Math.abs(deltaY)
-              };
-              swipeResult = swipeResult ? swipeResult : verticalResult;
+            if (direction === 'vertical' || direction === 'both') {
+              if (Math.abs(deltaY) > threshold) {
+                const verticalResult = {
+                  direction: deltaY > 0 ? 'down' : 'up',
+                  distance: Math.abs(deltaY),
+                };
+                swipeResult = swipeResult ? swipeResult : verticalResult;
+              }
             }
-          }
 
-          if (swipeResult && binding.value) {
-            binding.value(swipeResult);
-          }
-        }, { passive: true });
-      }
+            if (swipeResult && binding.value) {
+              binding.value(swipeResult);
+            }
+          },
+          { passive: true }
+        );
+      },
     });
 
     // 长按指令
@@ -408,34 +452,46 @@ const MobileAdaptationPlugin = {
 
         let pressTimer = null;
 
-        el.addEventListener('touchstart', (e) => {
-          pressTimer = setTimeout(() => {
-            if (feedback) {
-              mobileAdaptationService.hapticFeedback('medium');
-              mobileAdaptationService.addHapticClass(el, 'medium');
+        el.addEventListener(
+          'touchstart',
+          e => {
+            pressTimer = setTimeout(() => {
+              if (feedback) {
+                mobileAdaptationService.hapticFeedback('medium');
+                mobileAdaptationService.addHapticClass(el, 'medium');
+              }
+              binding.value && binding.value('longpress', e);
+            }, duration);
+          },
+          { passive: true }
+        );
+
+        el.addEventListener(
+          'touchend',
+          () => {
+            if (pressTimer) {
+              clearTimeout(pressTimer);
             }
-            binding.value && binding.value('longpress', e);
-          }, duration);
-        }, { passive: true });
+          },
+          { passive: true }
+        );
 
-        el.addEventListener('touchend', () => {
-          if (pressTimer) {
-            clearTimeout(pressTimer);
-          }
-        }, { passive: true });
-
-        el.addEventListener('touchcancel', () => {
-          if (pressTimer) {
-            clearTimeout(pressTimer);
-          }
-        }, { passive: true });
-      }
+        el.addEventListener(
+          'touchcancel',
+          () => {
+            if (pressTimer) {
+              clearTimeout(pressTimer);
+            }
+          },
+          { passive: true }
+        );
+      },
     });
 
     // 全局属性
     app.config.globalProperties.$deviceInfo = mobileAdaptationService.getDeviceInfo();
     app.config.globalProperties.$isMobile = mobileAdaptationService.isMobileDevice();
-  }
+  },
 };
 
 export default MobileAdaptationPlugin;

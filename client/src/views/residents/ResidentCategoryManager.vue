@@ -103,12 +103,8 @@
               <div class="card-header">
                 <span>标签分类</span>
                 <el-button-group size="small">
-                  <el-button @click="createCustomTag" icon="Plus">
-                    自定义标签
-                  </el-button>
-                  <el-button @click="manageTags" icon="Setting">
-                    管理标签
-                  </el-button>
+                  <el-button @click="createCustomTag" icon="Plus"> 自定义标签 </el-button>
+                  <el-button @click="manageTags" icon="Setting"> 管理标签 </el-button>
                 </el-button-group>
               </div>
             </template>
@@ -216,8 +212,18 @@
                           <div class="tag-description">{{ tag.description }}</div>
                         </div>
                         <div class="tag-actions">
-                          <el-button size="small" type="primary" @click="editCustomTag(tag)" icon="Edit" />
-                          <el-button size="small" type="danger" @click="deleteCustomTag(tag)" icon="Delete" />
+                          <el-button
+                            size="small"
+                            type="primary"
+                            @click="editCustomTag(tag)"
+                            icon="Edit"
+                          />
+                          <el-button
+                            size="small"
+                            type="danger"
+                            @click="deleteCustomTag(tag)"
+                            icon="Delete"
+                          />
                         </div>
                       </div>
                     </div>
@@ -244,7 +250,11 @@
               <span>选择操作类型并应用到符合条件的村民：</span>
             </div>
             <div class="operation-controls">
-              <el-select v-model="batchOperation.type" placeholder="选择操作类型" style="width: 200px;">
+              <el-select
+                v-model="batchOperation.type"
+                placeholder="选择操作类型"
+                style="width: 200px"
+              >
                 <el-option label="添加标签" value="add" />
                 <el-option label="移除标签" value="remove" />
                 <el-option label="替换标签" value="replace" />
@@ -252,7 +262,7 @@
               <el-select
                 v-model="batchOperation.targetTag"
                 placeholder="选择标签"
-                style="width: 200px;"
+                style="width: 200px"
               >
                 <el-option
                   v-for="tag in allAvailableTags"
@@ -264,7 +274,7 @@
               <el-input
                 v-model="batchOperation.condition"
                 placeholder="筛选条件 (如：年龄>65)"
-                style="width: 200px;"
+                style="width: 200px"
               />
               <el-button type="primary" @click="executeBatchOperation" :loading="batchLoading">
                 执行批量操作
@@ -322,9 +332,7 @@
               v-model="customTagForm.autoRule"
               placeholder="如：age > 60 AND health.status == 'chronic'"
             />
-            <div class="form-tip">
-              可选：设置自动添加此标签的条件规则
-            </div>
+            <div class="form-tip">可选：设置自动添加此标签的条件规则</div>
           </el-form-item>
         </el-form>
 
@@ -342,59 +350,63 @@
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="handleClose">关闭</el-button>
-        <el-button type="primary" @click="saveChanges" :loading="saving">
-          保存更改
-        </el-button>
+        <el-button type="primary" @click="saveChanges" :loading="saving"> 保存更改 </el-button>
       </span>
     </template>
   </el-dialog>
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, reactive, computed, watch, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
-  UserFilled, MagicStick, Plus, Setting, Edit, Delete, Refresh
-} from '@element-plus/icons-vue'
+  UserFilled,
+  MagicStick,
+  Plus,
+  Setting,
+  Edit,
+  Delete,
+  Refresh,
+} from '@element-plus/icons-vue';
 
 // Props
 const props = defineProps({
   modelValue: {
     type: Boolean,
-    default: false
+    default: false,
   },
   resident: {
     type: Object,
-    default: () => ({})
-  }
-})
+    default: () => ({}),
+  },
+});
 
 // Emits
-const emit = defineEmits(['update:modelValue', 'refresh'])
+const emit = defineEmits(['update:modelValue', 'refresh']);
 
 // 响应式数据
 const dialogVisible = computed({
   get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
-})
+  set: value => emit('update:modelValue', value),
+});
 
-const customTagFormRef = ref()
-const customTagDialogVisible = ref(false)
-const customTagDialogMode = ref('create') // 'create' | 'edit'
-const activeCategory = ref('social_security')
-const saving = ref(false)
-const batchLoading = ref(false)
+const customTagFormRef = ref();
+const customTagDialogVisible = ref(false);
+const customTagDialogMode = ref('create'); // 'create' | 'edit'
+const activeCategory = ref('social_security');
+const saving = ref(false);
+const batchLoading = ref(false);
 
 // 当前标签
-const currentTags = ref([])
-const suggestedTags = ref([])
+const currentTags = ref([]);
+const suggestedTags = ref([]);
 
 // 批量操作
 const batchOperation = reactive({
   type: '',
   targetTag: '',
-  condition: ''
-})
+  condition: '',
+});
 
 // 自定义标签表单
 const customTagForm = reactive({
@@ -402,21 +414,17 @@ const customTagForm = reactive({
   type: 'info',
   effect: 'dark',
   description: '',
-  autoRule: ''
-})
+  autoRule: '',
+});
 
 const customTagRules = {
   label: [
     { required: true, message: '请输入标签名称', trigger: 'blur' },
-    { min: 2, max: 10, message: '标签名称长度应为 2-10 个字符', trigger: 'blur' }
+    { min: 2, max: 10, message: '标签名称长度应为 2-10 个字符', trigger: 'blur' },
   ],
-  type: [
-    { required: true, message: '请选择标签类型', trigger: 'change' }
-  ],
-  description: [
-    { required: true, message: '请输入标签描述', trigger: 'blur' }
-  ]
-}
+  type: [{ required: true, message: '请选择标签类型', trigger: 'change' }],
+  description: [{ required: true, message: '请输入标签描述', trigger: 'blur' }],
+};
 
 // 预定义标签分类
 const socialSecurityTags = ref([
@@ -426,7 +434,7 @@ const socialSecurityTags = ref([
     type: 'warning',
     effect: 'dark',
     description: '享受最低生活保障的家庭',
-    category: 'social_security'
+    category: 'social_security',
   },
   {
     id: 'poverty_relief',
@@ -434,7 +442,7 @@ const socialSecurityTags = ref([
     type: 'warning',
     effect: 'dark',
     description: '建档立卡贫困户',
-    category: 'social_security'
+    category: 'social_security',
   },
   {
     id: 'five_guarantee',
@@ -442,7 +450,7 @@ const socialSecurityTags = ref([
     type: 'danger',
     effect: 'dark',
     description: '农村五保供养对象',
-    category: 'social_security'
+    category: 'social_security',
   },
   {
     id: 'orphan',
@@ -450,9 +458,9 @@ const socialSecurityTags = ref([
     type: 'danger',
     effect: 'dark',
     description: '失去父母的未成年人',
-    category: 'social_security'
-  }
-])
+    category: 'social_security',
+  },
+]);
 
 const healthTags = ref([
   {
@@ -461,7 +469,7 @@ const healthTags = ref([
     type: 'danger',
     effect: 'dark',
     description: '持有残疾证的村民',
-    category: 'health'
+    category: 'health',
   },
   {
     id: 'chronic_disease',
@@ -469,7 +477,7 @@ const healthTags = ref([
     type: 'warning',
     effect: 'dark',
     description: '患有慢性疾病需要长期治疗',
-    category: 'health'
+    category: 'health',
   },
   {
     id: 'mental_illness',
@@ -477,7 +485,7 @@ const healthTags = ref([
     type: 'danger',
     effect: 'dark',
     description: '患有精神类疾病',
-    category: 'health'
+    category: 'health',
   },
   {
     id: 'bedridden',
@@ -485,9 +493,9 @@ const healthTags = ref([
     type: 'danger',
     effect: 'dark',
     description: '长期卧床需要护理',
-    category: 'health'
-  }
-])
+    category: 'health',
+  },
+]);
 
 const familyTags = ref([
   {
@@ -496,7 +504,7 @@ const familyTags = ref([
     type: 'warning',
     effect: 'dark',
     description: '60岁以上独自居住的老人',
-    category: 'family'
+    category: 'family',
   },
   {
     id: 'single_parent',
@@ -504,7 +512,7 @@ const familyTags = ref([
     type: 'info',
     effect: 'dark',
     description: '单亲带孩子的家庭',
-    category: 'family'
+    category: 'family',
   },
   {
     id: 'empty_nest',
@@ -512,7 +520,7 @@ const familyTags = ref([
     type: 'warning',
     effect: 'dark',
     description: '子女不在身边的老年夫妇',
-    category: 'family'
+    category: 'family',
   },
   {
     id: 'left_behind_children',
@@ -520,9 +528,9 @@ const familyTags = ref([
     type: 'danger',
     effect: 'dark',
     description: '父母外出打工的儿童',
-    category: 'family'
-  }
-])
+    category: 'family',
+  },
+]);
 
 const occupationTags = ref([
   {
@@ -531,7 +539,7 @@ const occupationTags = ref([
     type: 'success',
     effect: 'dark',
     description: '退役军人',
-    category: 'occupation'
+    category: 'occupation',
   },
   {
     id: 'party_member',
@@ -539,7 +547,7 @@ const occupationTags = ref([
     type: 'danger',
     effect: 'dark',
     description: '中国共产党党员',
-    category: 'occupation'
+    category: 'occupation',
   },
   {
     id: 'village_cadre',
@@ -547,7 +555,7 @@ const occupationTags = ref([
     type: 'primary',
     effect: 'dark',
     description: '村委会干部',
-    category: 'occupation'
+    category: 'occupation',
   },
   {
     id: 'migrant_worker',
@@ -555,11 +563,11 @@ const occupationTags = ref([
     type: 'info',
     effect: 'dark',
     description: '外出打工人员',
-    category: 'occupation'
-  }
-])
+    category: 'occupation',
+  },
+]);
 
-const customTags = ref([])
+const customTags = ref([]);
 
 // 计算属性
 const allAvailableTags = computed(() => {
@@ -568,169 +576,165 @@ const allAvailableTags = computed(() => {
     ...healthTags.value,
     ...familyTags.value,
     ...occupationTags.value,
-    ...customTags.value
-  ]
-})
+    ...customTags.value,
+  ];
+});
 
 // 方法
-const isTagSelected = (tag) => {
-  return currentTags.value.some(t => t.id === tag.id)
-}
+const isTagSelected = tag => {
+  return currentTags.value.some(t => t.id === tag.id);
+};
 
-const toggleTag = (tag) => {
-  const index = currentTags.value.findIndex(t => t.id === tag.id)
+const toggleTag = tag => {
+  const index = currentTags.value.findIndex(t => t.id === tag.id);
   if (index > -1) {
-    currentTags.value.splice(index, 1)
-    ElMessage.success(`已移除标签：${tag.label}`)
+    currentTags.value.splice(index, 1);
+    ElMessage.success(`已移除标签：${tag.label}`);
   } else {
-    currentTags.value.push({ ...tag })
-    ElMessage.success(`已添加标签：${tag.label}`)
+    currentTags.value.push({ ...tag });
+    ElMessage.success(`已添加标签：${tag.label}`);
   }
-}
+};
 
-const removeTag = (tag) => {
-  const index = currentTags.value.findIndex(t => t.id === tag.id)
+const removeTag = tag => {
+  const index = currentTags.value.findIndex(t => t.id === tag.id);
   if (index > -1) {
-    currentTags.value.splice(index, 1)
-    ElMessage.success(`已移除标签：${tag.label}`)
+    currentTags.value.splice(index, 1);
+    ElMessage.success(`已移除标签：${tag.label}`);
   }
-}
+};
 
-const acceptSuggestion = (suggestion) => {
-  const tag = allAvailableTags.value.find(t => t.id === suggestion.id)
+const acceptSuggestion = suggestion => {
+  const tag = allAvailableTags.value.find(t => t.id === suggestion.id);
   if (tag && !isTagSelected(tag)) {
-    currentTags.value.push({ ...tag })
-    ElMessage.success(`已接受建议：${tag.label}`)
+    currentTags.value.push({ ...tag });
+    ElMessage.success(`已接受建议：${tag.label}`);
   }
 
   // 从建议列表中移除
-  const index = suggestedTags.value.findIndex(s => s.id === suggestion.id)
+  const index = suggestedTags.value.findIndex(s => s.id === suggestion.id);
   if (index > -1) {
-    suggestedTags.value.splice(index, 1)
+    suggestedTags.value.splice(index, 1);
   }
-}
+};
 
-const rejectSuggestion = (suggestion) => {
-  const index = suggestedTags.value.findIndex(s => s.id === suggestion.id)
+const rejectSuggestion = suggestion => {
+  const index = suggestedTags.value.findIndex(s => s.id === suggestion.id);
   if (index > -1) {
-    suggestedTags.value.splice(index, 1)
+    suggestedTags.value.splice(index, 1);
   }
-  ElMessage.info('已忽略该建议')
-}
+  ElMessage.info('已忽略该建议');
+};
 
 const createCustomTag = () => {
-  customTagDialogMode.value = 'create'
+  customTagDialogMode.value = 'create';
   Object.assign(customTagForm, {
     label: '',
     type: 'info',
     effect: 'dark',
     description: '',
-    autoRule: ''
-  })
-  customTagDialogVisible.value = true
-}
+    autoRule: '',
+  });
+  customTagDialogVisible.value = true;
+};
 
-const editCustomTag = (tag) => {
-  customTagDialogMode.value = 'edit'
+const editCustomTag = tag => {
+  customTagDialogMode.value = 'edit';
   Object.assign(customTagForm, {
     id: tag.id,
     label: tag.label,
     type: tag.type,
     effect: tag.effect,
     description: tag.description,
-    autoRule: tag.autoRule || ''
-  })
-  customTagDialogVisible.value = true
-}
+    autoRule: tag.autoRule || '',
+  });
+  customTagDialogVisible.value = true;
+};
 
-const deleteCustomTag = async (tag) => {
+const deleteCustomTag = async tag => {
   try {
-    await ElMessageBox.confirm(
-      `确定要删除自定义标签 "${tag.label}" 吗？`,
-      '删除确认',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
+    await ElMessageBox.confirm(`确定要删除自定义标签 "${tag.label}" 吗？`, '删除确认', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
 
-    const index = customTags.value.findIndex(t => t.id === tag.id)
+    const index = customTags.value.findIndex(t => t.id === tag.id);
     if (index > -1) {
-      customTags.value.splice(index, 1)
+      customTags.value.splice(index, 1);
     }
 
     // 如果当前村民有这个标签，也要移除
-    const currentIndex = currentTags.value.findIndex(t => t.id === tag.id)
+    const currentIndex = currentTags.value.findIndex(t => t.id === tag.id);
     if (currentIndex > -1) {
-      currentTags.value.splice(currentIndex, 1)
+      currentTags.value.splice(currentIndex, 1);
     }
 
-    ElMessage.success('自定义标签删除成功')
+    ElMessage.success('自定义标签删除成功');
   } catch {
     // 用户取消操作
   }
-}
+};
 
 const saveCustomTag = async () => {
   try {
-    await customTagFormRef.value.validate()
+    await customTagFormRef.value.validate();
 
-    saving.value = true
+    saving.value = true;
 
     const tagData = {
       ...customTagForm,
       id: customTagForm.id || Date.now().toString(),
-      category: 'custom'
-    }
+      category: 'custom',
+    };
 
     if (customTagDialogMode.value === 'create') {
-      customTags.value.push(tagData)
-      ElMessage.success('自定义标签创建成功')
+      customTags.value.push(tagData);
+      ElMessage.success('自定义标签创建成功');
     } else {
-      const index = customTags.value.findIndex(t => t.id === tagData.id)
+      const index = customTags.value.findIndex(t => t.id === tagData.id);
       if (index > -1) {
-        customTags.value.splice(index, 1, tagData)
+        customTags.value.splice(index, 1, tagData);
       }
-      ElMessage.success('自定义标签更新成功')
+      ElMessage.success('自定义标签更新成功');
     }
 
-    customTagDialogVisible.value = false
+    customTagDialogVisible.value = false;
   } catch (error) {
-    ElMessage.error('保存失败')
+    ElMessage.error('保存失败');
   } finally {
-    saving.value = false
+    saving.value = false;
   }
-}
+};
 
 const executeBatchOperation = async () => {
   if (!batchOperation.type || !batchOperation.targetTag) {
-    ElMessage.warning('请选择操作类型和目标标签')
-    return
+    ElMessage.warning('请选择操作类型和目标标签');
+    return;
   }
 
   try {
-    batchLoading.value = true
+    batchLoading.value = true;
 
     // 模拟批量操作
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
-    ElMessage.success(`批量${batchOperation.type === 'add' ? '添加' : '移除'}标签操作完成`)
+    ElMessage.success(`批量${batchOperation.type === 'add' ? '添加' : '移除'}标签操作完成`);
   } catch (error) {
-    ElMessage.error('批量操作失败')
+    ElMessage.error('批量操作失败');
   } finally {
-    batchLoading.value = false
+    batchLoading.value = false;
   }
-}
+};
 
 const refreshResidentInfo = () => {
-  loadResidentTags()
-  ElMessage.success('村民信息已刷新')
-}
+  loadResidentTags();
+  ElMessage.success('村民信息已刷新');
+};
 
 const manageTags = () => {
-  ElMessage.info('标签管理功能开发中...')
-}
+  ElMessage.info('标签管理功能开发中...');
+};
 
 const loadResidentTags = () => {
   // 模拟加载当前村民的标签
@@ -739,23 +743,23 @@ const loadResidentTags = () => {
       id: 'elderly_alone',
       label: '独居老人',
       type: 'warning',
-      effect: 'dark'
+      effect: 'dark',
     },
     {
       id: 'chronic_disease',
       label: '慢性病',
       type: 'warning',
-      effect: 'dark'
-    }
-  ]
+      effect: 'dark',
+    },
+  ];
 
   // 模拟智能建议
-  generateSuggestions()
-}
+  generateSuggestions();
+};
 
 const generateSuggestions = () => {
   // 基于村民信息生成智能建议
-  const suggestions = []
+  const suggestions = [];
 
   if (props.resident?.age >= 60) {
     suggestions.push({
@@ -763,8 +767,8 @@ const generateSuggestions = () => {
       label: '老年关爱',
       type: 'info',
       reason: '年龄超过60岁，建议加入老年关爱对象',
-      confidence: 0.9
-    })
+      confidence: 0.9,
+    });
   }
 
   if (props.resident?.gender === 'female' && props.resident?.age >= 65) {
@@ -773,49 +777,49 @@ const generateSuggestions = () => {
       label: '高龄女性',
       type: 'warning',
       reason: '65岁以上女性，需要特别关注',
-      confidence: 0.8
-    })
+      confidence: 0.8,
+    });
   }
 
-  suggestedTags.value = suggestions
-}
+  suggestedTags.value = suggestions;
+};
 
 const saveChanges = async () => {
   try {
-    saving.value = true
+    saving.value = true;
 
     // 模拟保存标签更改
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
-    ElMessage.success('标签更改已保存')
-    emit('refresh')
+    ElMessage.success('标签更改已保存');
+    emit('refresh');
   } catch (error) {
-    ElMessage.error('保存失败')
+    ElMessage.error('保存失败');
   } finally {
-    saving.value = false
+    saving.value = false;
   }
-}
+};
 
 const handleClose = () => {
-  dialogVisible.value = false
-}
+  dialogVisible.value = false;
+};
 
 // 监听器
 watch(
   () => props.resident,
-  (newResident) => {
+  newResident => {
     if (newResident && Object.keys(newResident).length > 0) {
-      loadResidentTags()
+      loadResidentTags();
     }
   },
   { immediate: true }
-)
+);
 
 onMounted(() => {
   if (props.resident && Object.keys(props.resident).length > 0) {
-    loadResidentTags()
+    loadResidentTags();
   }
-})
+});
 </script>
 
 <style lang="scss" scoped>

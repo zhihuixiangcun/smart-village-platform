@@ -1,11 +1,7 @@
 <template>
   <div class="duty-management">
     <!-- 顶部导航 -->
-    <van-nav-bar
-      title="智能值班表"
-      left-arrow
-      @click-left="$router.go(-1)"
-    >
+    <van-nav-bar title="智能值班表" left-arrow @click-left="$router.go(-1)">
       <template #right>
         <van-icon name="calendar-o" size="20" @click="showCalendarView = true" />
       </template>
@@ -15,7 +11,10 @@
     <div class="today-duty">
       <van-cell-group inset title="今日值班">
         <van-loading v-if="loadingTodayDuty" size="24px" vertical>加载中...</van-loading>
-        <van-empty v-else-if="!todayDutyData || todayDutyData.length === 0" description="今日无值班人员" />
+        <van-empty
+          v-else-if="!todayDutyData || todayDutyData.length === 0"
+          description="今日无值班人员"
+        />
         <template v-else>
           <van-cell
             v-for="schedule in todayDutyData"
@@ -33,7 +32,9 @@
                   {{ assignment.isPrimary ? '主值班' : '副值班' }}
                 </van-tag>
                 <span class="shift-info">
-                  {{ assignment.shift?.shiftName || '' }} {{ assignment.shift?.startTime || '' }}-{{ assignment.shift?.endTime || '' }}
+                  {{ assignment.shift?.shiftName || '' }} {{ assignment.shift?.startTime || '' }}-{{
+                    assignment.shift?.endTime || ''
+                  }}
                 </span>
               </div>
             </template>
@@ -84,10 +85,7 @@
                 <van-icon :name="person.icon" />
               </template>
               <template #right-icon>
-                <van-tag
-                  :type="getTodayStatus(day.date)"
-                  size="small"
-                >
+                <van-tag :type="getTodayStatus(day.date)" size="small">
                   {{ getTodayStatus(day.date) === 'primary' ? '今天' : '' }}
                 </van-tag>
               </template>
@@ -128,11 +126,7 @@
     </div>
 
     <!-- 悬浮操作按钮 -->
-    <van-floating-bubble
-      axis="xy"
-      icon="add"
-      @click="showAddOptions = true"
-    />
+    <van-floating-bubble axis="xy" icon="add" @click="showAddOptions = true" />
 
     <!-- 添加选项弹窗 -->
     <van-popup v-model:show="showAddOptions" position="bottom">
@@ -190,14 +184,16 @@
                 @click="showDayDetail(day)"
               >
                 <span class="day-number">{{ day.dayNumber }}</span>
-                <div v-if="day.hasDuty" class=" duty-indicators">
+                <div v-if="day.hasDuty" class="duty-indicators">
                   <div
                     v-for="(event, i) in day.events.slice(0, 2)"
                     :key="i"
                     class="duty-dot"
                     :title="event.title"
                   />
-                  <span v-if="day.events.length > 2" class="more-events">+{{ day.events.length - 2 }}</span>
+                  <span v-if="day.events.length > 2" class="more-events"
+                    >+{{ day.events.length - 2 }}</span
+                  >
                 </div>
               </div>
             </div>
@@ -231,9 +227,7 @@
           </van-field>
         </van-cell-group>
         <div class="dialog-actions">
-          <van-button round block type="primary" native-type="submit">
-            发起呼叫
-          </van-button>
+          <van-button round block type="primary" native-type="submit"> 发起呼叫 </van-button>
         </div>
       </van-form>
     </van-dialog>
@@ -246,8 +240,16 @@
           <van-icon name="cross" @click="showDayDetailPopup = false" />
         </div>
         <div class="day-detail-content">
-          <van-empty v-if="!selectedDayEvents || selectedDayEvents.length === 0" description="当日无值班安排" />
-          <van-cell v-else v-for="event in selectedDayEvents" :key="event.date" :title="event.userName">
+          <van-empty
+            v-if="!selectedDayEvents || selectedDayEvents.length === 0"
+            description="当日无值班安排"
+          />
+          <van-cell
+            v-else
+            v-for="event in selectedDayEvents"
+            :key="event.date"
+            :title="event.userName"
+          >
             <template #label>
               <div>{{ event.shiftName }} ({{ event.startTime }}-{{ event.endTime }})</div>
               <div>{{ event.userPhone }}</div>
@@ -301,7 +303,13 @@
             </van-cell>
           </van-cell-group>
           <div class="smart-schedule-actions">
-            <van-button round block type="primary" native-type="submit" :loading="generatingSchedule">
+            <van-button
+              round
+              block
+              type="primary"
+              native-type="submit"
+              :loading="generatingSchedule"
+            >
               开始智能排班
             </van-button>
           </div>
@@ -326,55 +334,55 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed, watch } from 'vue'
-import { useRouter } from 'vue-router'
-import { showToast, showConfirmDialog } from 'vant'
-import dutyScheduleApi from '@/api/dutySchedule'
-import { useUserStore } from '@/stores/user'
+import { ref, reactive, onMounted, computed, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import { showToast, showConfirmDialog } from 'vant';
+import dutyScheduleApi from '@/api/dutySchedule';
+import { useUserStore } from '@/stores/user';
 
-const router = useRouter()
-const userStore = useUserStore()
+const router = useRouter();
+const userStore = useUserStore();
 
 // ============ 响应式数据 ============
-const loading = ref(false)
-const loadingTodayDuty = ref(false)
-const loadingCalendar = ref(false)
-const finished = ref(false)
-const activeNames = ref([0])
-const showSchedule = ref(false)
-const showCalendarView = ref(false)
-const showCallDialog = ref(false)
-const showQRScanner = ref(false)
-const showDayDetailPopup = ref(false)
-const showSmartSchedule = ref(false)
-const showStartDatePicker = ref(false)
-const showEndDatePicker = ref(false)
-const generatingSchedule = ref(false)
+const loading = ref(false);
+const loadingTodayDuty = ref(false);
+const loadingCalendar = ref(false);
+const finished = ref(false);
+const activeNames = ref([0]);
+const showSchedule = ref(false);
+const showCalendarView = ref(false);
+const showCallDialog = ref(false);
+const showQRScanner = ref(false);
+const showDayDetailPopup = ref(false);
+const showSmartSchedule = ref(false);
+const showStartDatePicker = ref(false);
+const showEndDatePicker = ref(false);
+const generatingSchedule = ref(false);
 
-const dutyRecords = ref([])
-const todayDutyData = ref([])
-const calendarEvents = ref([])
-const selectedDayEvents = ref([])
-const selectedDayDate = ref('')
+const dutyRecords = ref([]);
+const todayDutyData = ref([]);
+const calendarEvents = ref([]);
+const selectedDayEvents = ref([]);
+const selectedDayDate = ref('');
 
 // 当前选择的日期
-const currentDate = ref(new Date())
-const currentYear = ref(new Date().getFullYear())
-const currentMonth = ref(new Date().getMonth() + 1)
+const currentDate = ref(new Date());
+const currentYear = ref(new Date().getFullYear());
+const currentMonth = ref(new Date().getMonth() + 1);
 
 // 日期选择器值
-const startDate = ref([])
-const endDate = ref([])
+const startDate = ref([]);
+const endDate = ref([]);
 
 // 周显示
-const weekdays = ['日', '一', '二', '三', '四', '五', '六']
+const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
 
 // 呼叫表单
 const callForm = reactive({
   content: '',
   urgency: 'LOW',
-  location: {}
-})
+  location: {},
+});
 
 // 智能排班表单
 const scheduleForm = reactive({
@@ -382,183 +390,184 @@ const scheduleForm = reactive({
   endDate: '',
   balanceWorkload: true,
   enforceRestTime: true,
-  considerPreferences: true
-})
+  considerPreferences: true,
+});
 
 // 分页参数
 const pagination = reactive({
   page: 1,
   limit: 20,
-  total: 0
-})
+  total: 0,
+});
 
 // 村庄ID (从用户信息获取)
-const villageId = computed(() => userStore.userInfo?.villageId || 'default-village-id')
+const villageId = computed(() => userStore.userInfo?.villageId || 'default-village-id');
 
 // ============ 计算属性 ============
 const minDate = computed(() => {
-  const date = new Date()
-  date.setDate(date.getDate() - 7)
-  return date
-})
+  const date = new Date();
+  date.setDate(date.getDate() - 7);
+  return date;
+});
 
 const maxDate = computed(() => {
-  const date = new Date()
-  date.setDate(date.getDate() + 30)
-  return date
-})
+  const date = new Date();
+  date.setDate(date.getDate() + 30);
+  return date;
+});
 
 // 生成日历网格数据
 const calendarDays = computed(() => {
-  const year = currentYear.value
-  const month = currentMonth.value
-  const firstDay = new Date(year, month - 1, 1)
-  const lastDay = new Date(year, month, 0)
-  const startWeekday = firstDay.getDay()
-  const daysInMonth = lastDay.getDate()
-  const today = new Date()
+  const year = currentYear.value;
+  const month = currentMonth.value;
+  const firstDay = new Date(year, month - 1, 1);
+  const lastDay = new Date(year, month, 0);
+  const startWeekday = firstDay.getDay();
+  const daysInMonth = lastDay.getDate();
+  const today = new Date();
 
-  const days = []
+  const days = [];
 
   // 填充月初空白
   for (let i = 0; i < startWeekday; i++) {
-    days.push({ dayNumber: '', isToday: false, hasDuty: false, events: [] })
+    days.push({ dayNumber: '', isToday: false, hasDuty: false, events: [] });
   }
 
   // 填充日期
   for (let day = 1; day <= daysInMonth; day++) {
-    const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+    const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     const dayEvents = calendarEvents.value.filter(e => {
-      const eventDate = new Date(e.date)
-      return eventDate.getDate() === day &&
-             eventDate.getMonth() === month - 1 &&
-             eventDate.getFullYear() === year
-    })
-    const isToday = today.getDate() === day &&
-                   today.getMonth() === month - 1 &&
-                   today.getFullYear() === year
+      const eventDate = new Date(e.date);
+      return (
+        eventDate.getDate() === day &&
+        eventDate.getMonth() === month - 1 &&
+        eventDate.getFullYear() === year
+      );
+    });
+    const isToday =
+      today.getDate() === day && today.getMonth() === month - 1 && today.getFullYear() === year;
 
     days.push({
       dayNumber: day,
       date: dateStr,
       isToday,
       hasDuty: dayEvents.length > 0,
-      events: dayEvents
-    })
+      events: dayEvents,
+    });
   }
 
-  return days
-})
+  return days;
+});
 
 // ============ API 调用方法 ============
 /**
  * 加载今日值班数据
  */
 const loadTodayDuty = async () => {
-  loadingTodayDuty.value = true
+  loadingTodayDuty.value = true;
   try {
-    const response = await dutyScheduleApi.getTodayDuty(villageId.value)
+    const response = await dutyScheduleApi.getTodayDuty(villageId.value);
     if (response.success) {
-      todayDutyData.value = response.data.duties || []
+      todayDutyData.value = response.data.duties || [];
     } else {
-      showToast(response.message || '加载失败')
+      showToast(response.message || '加载失败');
     }
   } catch (error) {
-    console.error('加载今日值班失败:', error)
-    showToast('加载今日值班失败')
+    console.error('加载今日值班失败:', error);
+    showToast('加载今日值班失败');
   } finally {
-    loadingTodayDuty.value = false
+    loadingTodayDuty.value = false;
   }
-}
+};
 
 /**
  * 加载日历数据
  */
 const loadCalendarData = async () => {
-  loadingCalendar.value = true
+  loadingCalendar.value = true;
   try {
     const response = await dutyScheduleApi.getCalendarData({
       year: currentYear.value,
-      month: currentMonth.value
-    })
+      month: currentMonth.value,
+    });
     if (response.success) {
-      calendarEvents.value = response.data.events || []
+      calendarEvents.value = response.data.events || [];
     } else {
-      showToast(response.message || '加载日历数据失败')
+      showToast(response.message || '加载日历数据失败');
     }
   } catch (error) {
-    console.error('加载日历数据失败:', error)
-    showToast('加载日历数据失败')
+    console.error('加载日历数据失败:', error);
+    showToast('加载日历数据失败');
   } finally {
-    loadingCalendar.value = false
+    loadingCalendar.value = false;
   }
-}
+};
 
 /**
  * 提交呼叫请求
  */
 const submitCall = async () => {
   if (!callForm.content) {
-    showToast('请输入呼叫内容')
-    return
+    showToast('请输入呼叫内容');
+    return;
   }
 
-  loading.value = true
+  loading.value = true;
   try {
     const response = await dutyScheduleApi.scanAndCall({
       qrCodeData: `smartvillage://duty/${villageId.value}/default`,
       urgency: callForm.urgency,
       content: callForm.content,
-      location: callForm.location
-    })
+      location: callForm.location,
+    });
 
     if (response.success) {
-      showToast('呼叫已发送，值班人员将尽快联系您')
-      showCallDialog.value = false
+      showToast('呼叫已发送，值班人员将尽快联系您');
+      showCallDialog.value = false;
       // 重置表单
-      callForm.content = ''
-      callForm.urgency = 'LOW'
+      callForm.content = '';
+      callForm.urgency = 'LOW';
     } else {
-      showToast(response.message || '呼叫失败')
+      showToast(response.message || '呼叫失败');
     }
   } catch (error) {
-    console.error('呼叫失败:', error)
-    showToast(error.message || '呼叫失败')
+    console.error('呼叫失败:', error);
+    showToast(error.message || '呼叫失败');
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 /**
  * 智能排班
  */
 const generateSmartSchedule = async () => {
   if (!scheduleForm.startDate || !scheduleForm.endDate) {
-    showToast('请选择排班日期范围')
-    return
+    showToast('请选择排班日期范围');
+    return;
   }
 
-  generatingSchedule.value = true
+  generatingSchedule.value = true;
   try {
     // 这里需要一个有效的scheduleId，实际应用中应该从值班表列表选择
-    const scheduleId = 'default-schedule-id'
-    const response = await dutyScheduleApi.generateSmartSchedule(scheduleId, scheduleForm)
+    const scheduleId = 'default-schedule-id';
+    const response = await dutyScheduleApi.generateSmartSchedule(scheduleId, scheduleForm);
 
     if (response.success) {
-      showToast(`智能排班成功！已生成 ${response.data.totalAssignments} 条排班记录`)
-      showSmartSchedule.value = false
+      showToast(`智能排班成功！已生成 ${response.data.totalAssignments} 条排班记录`);
+      showSmartSchedule.value = false;
       // 重新加载日历数据
-      await loadCalendarData()
+      await loadCalendarData();
     } else {
-      showToast(response.message || '智能排班失败')
+      showToast(response.message || '智能排班失败');
     }
   } catch (error) {
-    console.error('智能排班失败:', error)
-    showToast(error.message || '智能排班失败')
+    console.error('智能排班失败:', error);
+    showToast(error.message || '智能排班失败');
   } finally {
-    generatingSchedule.value = false
+    generatingSchedule.value = false;
   }
-}
+};
 
 // ============ 日历相关方法 ============
 /**
@@ -566,149 +575,149 @@ const generateSmartSchedule = async () => {
  */
 const prevMonth = () => {
   if (currentMonth.value === 1) {
-    currentYear.value -= 1
-    currentMonth.value = 12
+    currentYear.value -= 1;
+    currentMonth.value = 12;
   } else {
-    currentMonth.value -= 1
+    currentMonth.value -= 1;
   }
-  loadCalendarData()
-}
+  loadCalendarData();
+};
 
 /**
  * 下一月
  */
 const nextMonth = () => {
   if (currentMonth.value === 12) {
-    currentYear.value += 1
-    currentMonth.value = 1
+    currentYear.value += 1;
+    currentMonth.value = 1;
   } else {
-    currentMonth.value += 1
+    currentMonth.value += 1;
   }
-  loadCalendarData()
-}
+  loadCalendarData();
+};
 
 /**
  * 显示日详情
  */
-const showDayDetail = (day) => {
-  if (!day.hasDuty) return
-  selectedDayDate.value = day.date
-  selectedDayEvents.value = day.events
-  showDayDetailPopup.value = true
-}
+const showDayDetail = day => {
+  if (!day.hasDuty) return;
+  selectedDayDate.value = day.date;
+  selectedDayEvents.value = day.events;
+  showDayDetailPopup.value = true;
+};
 
 // ============ 日期选择器方法 ============
 /**
  * 开始日期确认
  */
 const onStartDateConfirm = ({ selectedValues }) => {
-  scheduleForm.startDate = selectedValues.join('-')
-  showStartDatePicker.value = false
-}
+  scheduleForm.startDate = selectedValues.join('-');
+  showStartDatePicker.value = false;
+};
 
 /**
  * 结束日期确认
  */
 const onEndDateConfirm = ({ selectedValues }) => {
-  scheduleForm.endDate = selectedValues.join('-')
-  showEndDatePicker.value = false
-}
+  scheduleForm.endDate = selectedValues.join('-');
+  showEndDatePicker.value = false;
+};
 
 // ============ 其他方法 ============
-const getRecordType = (status) => {
+const getRecordType = status => {
   const typeMap = {
-    'completed': 'success',
-    'absent': 'danger',
-    'late': 'warning',
-    'early_leave': 'warning'
-  }
-  return typeMap[status] || 'default'
-}
+    completed: 'success',
+    absent: 'danger',
+    late: 'warning',
+    early_leave: 'warning',
+  };
+  return typeMap[status] || 'default';
+};
 
-const getRecordText = (status) => {
+const getRecordText = status => {
   const textMap = {
-    'completed': '正常',
-    'absent': '缺勤',
-    'late': '迟到',
-    'early_leave': '早退'
-  }
-  return textMap[status] || status
-}
+    completed: '正常',
+    absent: '缺勤',
+    late: '迟到',
+    early_leave: '早退',
+  };
+  return textMap[status] || status;
+};
 
-const formatRecordLabel = (record) => {
-  const labels = []
+const formatRecordLabel = record => {
+  const labels = [];
   if (record.date) {
-    labels.push(`日期: ${formatDate(record.date)}`)
+    labels.push(`日期: ${formatDate(record.date)}`);
   }
   if (record.timeRange) {
-    labels.push(`时间: ${record.timeRange}`)
+    labels.push(`时间: ${record.timeRange}`);
   }
   if (record.duration) {
-    labels.push(`时长: ${record.duration}`)
+    labels.push(`时长: ${record.duration}`);
   }
-  return labels.join(' • ')
-}
+  return labels.join(' • ');
+};
 
-const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString()
-}
+const formatDate = dateString => {
+  return new Date(dateString).toLocaleDateString();
+};
 
-const viewRecord = (record) => {
-  router.push(`/village/duty/${record.id}`)
-}
+const viewRecord = record => {
+  router.push(`/village/duty/${record.id}`);
+};
 
 const onLoad = () => {
-  loadDutyRecords()
-}
+  loadDutyRecords();
+};
 
 const loadDutyRecords = async (reset = false) => {
   if (reset) {
-    pagination.page = 1
-    dutyRecords.value = []
-    finished.value = false
+    pagination.page = 1;
+    dutyRecords.value = [];
+    finished.value = false;
   }
 
-  loading.value = true
+  loading.value = true;
   try {
     // 使用真实API获取呼叫记录
     const response = await dutyScheduleApi.getCallerLogs({
       limit: pagination.limit,
-      skip: (pagination.page - 1) * pagination.limit
-    })
+      skip: (pagination.page - 1) * pagination.limit,
+    });
 
     if (response.success) {
-      const newRecords = response.data.logs || []
+      const newRecords = response.data.logs || [];
       if (reset) {
-        dutyRecords.value = newRecords
+        dutyRecords.value = newRecords;
       } else {
-        dutyRecords.value.push(...newRecords)
+        dutyRecords.value.push(...newRecords);
       }
-      pagination.total = response.data.total || 0
-      pagination.page += 1
-      finished.value = dutyRecords.value.length >= pagination.total
+      pagination.total = response.data.total || 0;
+      pagination.page += 1;
+      finished.value = dutyRecords.value.length >= pagination.total;
     } else {
-      showToast(response.message || '加载失败')
+      showToast(response.message || '加载失败');
     }
   } catch (error) {
-    console.error('加载值班记录失败:', error)
-    showToast('加载失败')
+    console.error('加载值班记录失败:', error);
+    showToast('加载失败');
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 // ============ 监听日历显示 ============
-watch(showCalendarView, (newVal) => {
+watch(showCalendarView, newVal => {
   if (newVal) {
-    loadCalendarData()
+    loadCalendarData();
   }
-})
+});
 
 // ============ 生命周期 ============
 onMounted(() => {
-  loadTodayDuty()
-  loadDutyRecords(true)
-})
+  loadTodayDuty();
+  loadDutyRecords(true);
+});
 </script>
 
 <style scoped>

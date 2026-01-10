@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>登录修复测试</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .test-container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+      border-bottom: 2px solid #667eea;
+      padding-bottom: 10px;
+    }
+    .test-section {
+      margin: 20px 0;
+      padding: 15px;
+      background: #f9f9f9;
+      border-left: 4px solid #667eea;
+    }
+    .test-button {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      margin: 5px;
+    }
+    .test-button:hover {
+      background: #5568d3;
+    }
+    .test-result {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 5px;
+      font-family: monospace;
+      font-size: 12px;
+    }
+    .success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    .info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+    code {
+      background: #f4f4f4;
+      padding: 2px 5px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+    }
+    .step {
+      margin: 10px 0;
+      padding-left: 20px;
+    }
+    .step::before {
+      content: "✓ ";
+      color: #667eea;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <h1>🔧 登录闪退问题修复测试</h1>
+
+    <div class="test-section">
+      <h2>📋 问题说明</h2>
+      <p>用户登录成功后会显示"欢迎回来"，但立即跳转回登录页（闪退现象）。</p>
+    </div>
+
+    <div class="test-section">
+      <h2>🔍 修复内容</h2>
+      <div class="step">移除了 <code>/unified-login</code> 到 <code>/login</code> 的重定向</div>
+      <div class="step">增加了 500ms 等待时间确保 Vue 响应式更新</div>
+      <div class="step">添加了详细的调试日志</div>
+      <div class="step">禁用了 <code>guards.js</code> 中的路由守卫避免冲突</div>
+    </div>
+
+    <div class="test-section">
+      <h2>🧪 测试步骤</h2>
+
+      <h3>步骤 1: 清空 localStorage</h3>
+      <button class="test-button" onclick="clearStorage()">清空 Storage</button>
+      <div id="clearResult" class="test-result"></div>
+
+      <h3>步骤 2: 检查路由配置</h3>
+      <button class="test-button" onclick="checkRoutes()">检查路由</button>
+      <div id="routeResult" class="test-result"></div>
+
+      <h3>步骤 3: 测试登录流程</h3>
+      <button class="test-button" onclick="testLogin()">测试登录</button>
+      <div id="loginResult" class="test-result"></div>
+
+      <h3>步骤 4: 验证状态保存</h3>
+      <button class="test-button" onclick="verifyState()">验证状态</button>
+      <div id="stateResult" class="test-result"></div>
+    </div>
+
+    <div class="test-section">
+      <h2>📊 测试账户</h2>
+      <table style="width: 100%; border-collapse: collapse;">
+        <tr style="background: #667eea; color: white;">
+          <th style="padding: 10px; text-align: left;">角色</th>
+          <th style="padding: 10px; text-align: left;">用户名</th>
+          <th style="padding: 10px; text-align: left;">密码</th>
+          <th style="padding: 10px; text-align: left;">跳转目标</th>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border-bottom: 1px solid #ddd;">管理员</td>
+          <td style="padding: 8px; border-bottom: 1px solid #ddd;">testadmin</td>
+          <td style="padding: 8px; border-bottom: 1px solid #ddd;">Admin123456!</td>
+          <td style="padding: 8px; border-bottom: 1px solid #ddd;">/dashboard</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border-bottom: 1px solid #ddd;">村委</td>
+          <td style="padding: 8px; border-bottom: 1px solid #ddd;">testcadre</td>
+          <td style="padding: 8px; border-bottom: 1px solid #ddd;">Cadre123456!</td>
+          <td style="padding: 8px; border-bottom: 1px solid #ddd;">/dashboard</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border-bottom: 1px solid #ddd;">乡镇官员</td>
+          <td style="padding: 8px; border-bottom: 1px solid #ddd;">testofficial</td>
+          <td style="padding: 8px; border-bottom: 1px solid #ddd;">Official123456!</td>
+          <td style="padding: 8px; border-bottom: 1px solid #ddd;">/dashboard</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border-bottom: 1px solid #ddd;">村民</td>
+          <td style="padding: 8px; border-bottom: 1px solid #ddd;">testresident</td>
+          <td style="padding: 8px; border-bottom: 1px solid #ddd;">Resident123456!</td>
+          <td style="padding: 8px; border-bottom: 1px solid #ddd;">/village-affairs</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="test-section">
+      <h2>✅ 预期结果</h2>
+      <ul>
+        <li>登录成功后显示"欢迎回来"消息</li>
+        <li>控制台显示完整的登录日志</li>
+        <li>自动跳转到对应角色的主页（不会闪退）</li>
+        <li>localStorage 中保存了完整的用户信息</li>
+        <li>页面正常加载，可以正常使用</li>
+      </ul>
+    </div>
+
+    <div class="test-section">
+      <h2>🚀 快速访问</h2>
+      <button class="test-button" onclick="window.open('http://localhost:3007/login', '_blank')">
+        打开登录页面
+      </button>
+      <button class="test-button" onclick="window.open('http://localhost:3007/dashboard', '_blank')">
+        打开 Dashboard
+      </button>
+    </div>
+  </div>
+
+  <script>
+    function clearStorage() {
+      const result = document.getElementById('clearResult');
+      try {
+        localStorage.clear();
+        result.className = 'test-result success';
+        result.textContent = '✅ localStorage 已清空';
+      } catch (error) {
+        result.className = 'test-result error';
+        result.textContent = '❌ 清空失败: ' + error.message;
+      }
+    }
+
+    function checkRoutes() {
+      const result = document.getElementById('routeResult');
+      try {
+        // 检查当前路由
+        const currentPath = window.location.pathname;
+        const hasLoginRoute = currentPath.includes('/login') || currentPath.includes('/unified-login');
+
+        result.className = 'test-result info';
+        result.innerHTML = `
+          当前路径: ${currentPath}<br>
+          登录路由: ${hasLoginRoute ? '✅ 正常' : '⚠️ 未检测到'}<br>
+          <strong>请在实际应用中测试路由跳转</strong>
+        `;
+      } catch (error) {
+        result.className = 'test-result error';
+        result.textContent = '❌ 检查失败: ' + error.message;
+      }
+    }
+
+    function testLogin() {
+      const result = document.getElementById('loginResult');
+      result.className = 'test-result info';
+      result.innerHTML = `
+        <strong>请在实际应用中测试登录流程：</strong><br><br>
+        1. 打开 <a href="http://localhost:3007/login" target="_blank">http://localhost:3007/login</a><br>
+        2. 选择角色"管理员"<br>
+        3. 点击快速测试登录按钮<br>
+        4. 观察控制台日志<br>
+        5. 验证是否跳转到 /dashboard<br>
+        6. 检查是否闪退回登录页<br><br>
+        <em>预期结果：登录成功后跳转到 Dashboard，不会闪退</em>
+      `;
+    }
+
+    function verifyState() {
+      const result = document.getElementById('stateResult');
+      try {
+        const token = localStorage.getItem('token');
+        const userInfoStr = localStorage.getItem('userInfo');
+        const userInfo = userInfoStr ? JSON.parse(userInfoStr) : null;
+
+        if (token && userInfo) {
+          result.className = 'test-result success';
+          result.innerHTML = `
+            ✅ 登录状态已保存<br><br>
+            <strong>Token:</strong> ${token.substring(0, 50)}...<br>
+            <strong>用户名:</strong> ${userInfo.username || 'N/A'}<br>
+            <strong>角色:</strong> ${userInfo.role || 'N/A'}<br>
+            <strong>用户ID:</strong> ${userInfo.id || 'N/A'}
+          `;
+        } else {
+          result.className = 'test-result info';
+          result.textContent = 'ℹ️ 未检测到登录状态，请先登录';
+        }
+      } catch (error) {
+        result.className = 'test-result error';
+        result.textContent = '❌ 验证失败: ' + error.message;
+      }
+    }
+
+    // 页面加载时自动检查状态
+    window.onload = function() {
+      verifyState();
+      checkRoutes();
+    };
+  </script>
+</body>
+</html>

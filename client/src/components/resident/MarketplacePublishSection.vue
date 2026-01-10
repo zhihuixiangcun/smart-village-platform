@@ -47,11 +47,7 @@
           <p class="step-tip">最多上传9张照片，第一张为封面</p>
 
           <div class="image-upload-grid">
-            <div
-              v-for="(image, index) in productForm.images"
-              :key="index"
-              class="image-item"
-            >
+            <div v-for="(image, index) in productForm.images" :key="index" class="image-item">
               <img :src="getImageUrl(image)" :alt="`商品图片${index + 1}`" />
               <div class="image-actions">
                 <span v-if="index === 0" class="cover-badge">封面</span>
@@ -65,11 +61,7 @@
               </div>
             </div>
 
-            <div
-              v-if="productForm.images.length < 9"
-              class="upload-trigger"
-              @click="selectImage"
-            >
+            <div v-if="productForm.images.length < 9" class="upload-trigger" @click="selectImage">
               <el-icon :size="32"><Plus /></el-icon>
               <span>添加照片</span>
             </div>
@@ -211,12 +203,7 @@
                 <span class="unit">/{{ productForm.unit }}</span>
               </div>
               <div class="tags" v-if="productForm.tags.length">
-                <el-tag
-                  v-for="tag in productForm.tags"
-                  :key="tag"
-                  size="small"
-                  effect="plain"
-                >
+                <el-tag v-for="tag in productForm.tags" :key="tag" size="small" effect="plain">
                   {{ tag }}
                 </el-tag>
               </div>
@@ -229,11 +216,7 @@
           </div>
 
           <!-- 发布须知 -->
-          <el-alert
-            type="info"
-            :closable="false"
-            show-icon
-          >
+          <el-alert type="info" :closable="false" show-icon>
             <template #title>
               <div class="notice-content">
                 <p>• 发布后商品将在集市展示，其他村民可以查看和购买</p>
@@ -248,25 +231,12 @@
       <!-- 对话框底部 -->
       <template #footer>
         <div class="dialog-footer">
-          <el-button v-if="currentStep > 0" @click="previousStep">
-            上一步
-          </el-button>
-          <el-button @click="publishDialogVisible = false">
-            取消
-          </el-button>
-          <el-button
-            v-if="currentStep < steps.length - 1"
-            type="primary"
-            @click="nextStep"
-          >
+          <el-button v-if="currentStep > 0" @click="previousStep"> 上一步 </el-button>
+          <el-button @click="publishDialogVisible = false"> 取消 </el-button>
+          <el-button v-if="currentStep < steps.length - 1" type="primary" @click="nextStep">
             下一步
           </el-button>
-          <el-button
-            v-else
-            type="primary"
-            :loading="publishing"
-            @click="publishProduct"
-          >
+          <el-button v-else type="primary" :loading="publishing" @click="publishProduct">
             确认发布
           </el-button>
         </div>
@@ -286,28 +256,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import {
-  Plus,
-  Delete,
-  Camera,
-  Microphone
-} from '@element-plus/icons-vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import type { FormInstance, FormRules, UploadUserFile } from 'element-plus'
-import type { PublishProductForm, ProductCategory } from '@/types/marketplace'
+import { ref, computed, onMounted } from 'vue';
+import { Plus, Delete, Camera, Microphone } from '@element-plus/icons-vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import type { FormInstance, FormRules, UploadUserFile } from 'element-plus';
+import type { PublishProductForm, ProductCategory } from '@/types/marketplace';
 
 // 状态
-const publishDialogVisible = ref(false)
-const currentStep = ref(0)
-const publishing = ref(false)
-const isRecording = ref(false)
-const supportsSpeechRecognition = ref(false)
-const fileInputRef = ref<HTMLInputElement>()
-const formRef = ref<FormInstance>()
+const publishDialogVisible = ref(false);
+const currentStep = ref(0);
+const publishing = ref(false);
+const isRecording = ref(false);
+const supportsSpeechRecognition = ref(false);
+const fileInputRef = ref<HTMLInputElement>();
+const formRef = ref<FormInstance>();
 
 // 步骤
-const steps = ref(['上传照片', '商品信息', '确认发布'])
+const steps = ref(['上传照片', '商品信息', '确认发布']);
 
 // 商品表单
 const productForm = ref<PublishProductForm>({
@@ -318,29 +283,27 @@ const productForm = ref<PublishProductForm>({
   category: 'agricultural',
   images: [],
   stock: 1,
-  tags: []
-})
+  tags: [],
+});
 
 // 表单验证规则
 const formRules = ref<FormRules>({
   name: [
     { required: true, message: '请输入商品名称', trigger: 'blur' },
-    { min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur' }
+    { min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur' },
   ],
-  category: [
-    { required: true, message: '请选择商品分类', trigger: 'change' }
-  ],
+  category: [{ required: true, message: '请选择商品分类', trigger: 'change' }],
   description: [
     { required: true, message: '请输入商品描述', trigger: 'blur' },
-    { min: 10, max: 500, message: '长度在 10 到 500 个字符', trigger: 'blur' }
-  ]
-})
+    { min: 10, max: 500, message: '长度在 10 到 500 个字符', trigger: 'blur' },
+  ],
+});
 
 // 方法
 const showPublishDialog = () => {
-  publishDialogVisible.value = true
-  currentStep.value = 0
-}
+  publishDialogVisible.value = true;
+  currentStep.value = 0;
+};
 
 const resetForm = () => {
   productForm.value = {
@@ -351,205 +314,205 @@ const resetForm = () => {
     category: 'agricultural',
     images: [],
     stock: 1,
-    tags: []
-  }
-  currentStep.value = 0
-  formRef.value?.resetFields()
-}
+    tags: [],
+  };
+  currentStep.value = 0;
+  formRef.value?.resetFields();
+};
 
 const nextStep = async () => {
   // 步骤0: 验证至少有一张图片
   if (currentStep.value === 0) {
     if (productForm.value.images.length === 0) {
-      ElMessage.warning('请至少上传一张商品照片')
-      return
+      ElMessage.warning('请至少上传一张商品照片');
+      return;
     }
   }
 
   // 步骤1: 验证表单
   if (currentStep.value === 1) {
-    const valid = await formRef.value?.validate()
-    if (!valid) return
+    const valid = await formRef.value?.validate();
+    if (!valid) return;
   }
 
   if (currentStep.value < steps.value.length - 1) {
-    currentStep.value++
+    currentStep.value++;
   }
-}
+};
 
 const previousStep = () => {
   if (currentStep.value > 0) {
-    currentStep.value--
+    currentStep.value--;
   }
-}
+};
 
 const getImageUrl = (image: File | string): string => {
   if (typeof image === 'string') {
-    return image
+    return image;
   }
-  return URL.createObjectURL(image)
-}
+  return URL.createObjectURL(image);
+};
 
 const selectImage = () => {
-  fileInputRef.value?.click()
-}
+  fileInputRef.value?.click();
+};
 
 const takePhoto = () => {
   // 移动端调用相机
-  const input = document.createElement('input')
-  input.type = 'file'
-  input.accept = 'image/*'
-  input.capture = 'environment' // 调用后置摄像头
-  input.onchange = (e: any) => handleFileSelect(e)
-  input.click()
-}
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.capture = 'environment'; // 调用后置摄像头
+  input.onchange = (e: any) => handleFileSelect(e);
+  input.click();
+};
 
 // 允许的文件扩展名白名单
-const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp']
-const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
-const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 /**
  * 严格验证上传的文件
  */
 const validateFile = (file: File): { valid: boolean; error?: string } => {
   // 检查文件扩展名
-  const ext = file.name.substring(file.name.lastIndexOf('.')).toLowerCase()
+  const ext = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
   if (!ALLOWED_EXTENSIONS.includes(ext)) {
     return {
       valid: false,
-      error: `不支持的文件格式: ${ext}，仅支持 ${ALLOWED_EXTENSIONS.join(', ')}`
-    }
+      error: `不支持的文件格式: ${ext}，仅支持 ${ALLOWED_EXTENSIONS.join(', ')}`,
+    };
   }
 
   // 检查MIME类型
   if (!ALLOWED_MIME_TYPES.includes(file.type)) {
     return {
       valid: false,
-      error: '文件类型不合法，请上传图片文件'
-    }
+      error: '文件类型不合法，请上传图片文件',
+    };
   }
 
   // 检查文件大小
   if (file.size > MAX_FILE_SIZE) {
     return {
       valid: false,
-      error: `文件过大，请选择${MAX_FILE_SIZE / 1024 / 1024}MB以内的图片`
-    }
+      error: `文件过大，请选择${MAX_FILE_SIZE / 1024 / 1024}MB以内的图片`,
+    };
   }
 
   // 检查文件名是否包含特殊字符
-  const invalidChars = /[<>:"/\\|?*\x00-\x1f]/
+  const invalidChars = /[<>:"/\\|?*\x00-\x1f]/;
   if (invalidChars.test(file.name)) {
     return {
       valid: false,
-      error: '文件名包含非法字符'
-    }
+      error: '文件名包含非法字符',
+    };
   }
 
-  return { valid: true }
-}
+  return { valid: true };
+};
 
 const handleFileSelect = (event: Event) => {
-  const target = event.target as HTMLInputElement
-  const files = Array.from(target.files || [])
+  const target = event.target as HTMLInputElement;
+  const files = Array.from(target.files || []);
 
-  if (files.length === 0) return
+  if (files.length === 0) return;
 
   // 限制最多9张
-  const availableSlots = 9 - productForm.value.images.length
-  const filesToAdd = files.slice(0, availableSlots)
+  const availableSlots = 9 - productForm.value.images.length;
+  const filesToAdd = files.slice(0, availableSlots);
 
   // 严格验证每个文件
-  const validFiles: File[] = []
+  const validFiles: File[] = [];
   for (const file of filesToAdd) {
-    const validation = validateFile(file)
+    const validation = validateFile(file);
     if (!validation.valid) {
-      ElMessage.warning(`${file.name}: ${validation.error}`)
-      continue
+      ElMessage.warning(`${file.name}: ${validation.error}`);
+      continue;
     }
-    validFiles.push(file)
+    validFiles.push(file);
   }
 
   // 添加验证通过的文件
-  productForm.value.images.push(...validFiles)
+  productForm.value.images.push(...validFiles);
 
   if (files.length > availableSlots) {
-    ElMessage.warning('最多只能上传9张照片')
+    ElMessage.warning('最多只能上传9张照片');
   }
 
   // 清空input以允许重复选择同一文件
   if (target) {
-    target.value = ''
+    target.value = '';
   }
-}
+};
 
 const removeImage = (index: number) => {
-  productForm.value.images.splice(index, 1)
-}
+  productForm.value.images.splice(index, 1);
+};
 
 const startVoiceDescription = () => {
   if (!supportsSpeechRecognition.value) {
-    ElMessage.warning('您的浏览器不支持语音识别')
-    return
+    ElMessage.warning('您的浏览器不支持语音识别');
+    return;
   }
 
-  isRecording.value = true
+  isRecording.value = true;
 
   // TODO: 集成语音识别
   setTimeout(() => {
-    isRecording.value = false
+    isRecording.value = false;
     // 模拟语音转文字
     const mockDescriptions = [
       '自家果园种植的新鲜苹果，不打农药不催熟，口感脆甜多汁',
       '绿色有机蔬菜，今日采摘，新鲜直达',
-      '农家散养土鸡蛋，营养丰富，品质保证'
-    ]
-    const randomDesc = mockDescriptions[Math.floor(Math.random() * mockDescriptions.length)]
-    productForm.value.description = randomDesc
-    ElMessage.success('语音识别成功！已自动填充商品描述')
-  }, 3000)
-}
+      '农家散养土鸡蛋，营养丰富，品质保证',
+    ];
+    const randomDesc = mockDescriptions[Math.floor(Math.random() * mockDescriptions.length)];
+    productForm.value.description = randomDesc;
+    ElMessage.success('语音识别成功！已自动填充商品描述');
+  }, 3000);
+};
 
 const getCategoryLabel = (category: ProductCategory): string => {
   const labels: Record<ProductCategory, string> = {
     agricultural: '农产品',
     supplies: '农资',
     daily: '日用品',
-    food: '食品'
-  }
-  return labels[category]
-}
+    food: '食品',
+  };
+  return labels[category];
+};
 
 const publishProduct = async () => {
-  publishing.value = true
+  publishing.value = true;
 
   try {
     // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 1500))
+    await new Promise(resolve => setTimeout(resolve, 1500));
 
     // TODO: 上传图片到服务器
     // TODO: 提交商品数据到后端
 
-    ElMessage.success('商品发布成功！')
-    publishDialogVisible.value = false
+    ElMessage.success('商品发布成功！');
+    publishDialogVisible.value = false;
 
     // 触发刷新事件
     // emit('published')
   } catch (error) {
-    console.error('发布失败:', error)
-    ElMessage.error('发布失败，请重试')
+    console.error('发布失败:', error);
+    ElMessage.error('发布失败，请重试');
   } finally {
-    publishing.value = false
+    publishing.value = false;
   }
-}
+};
 
 // 生命周期
 onMounted(() => {
   // 检查语音识别支持
-  supportsSpeechRecognition.value = 'webkitSpeechRecognition' in window ||
-                                    'SpeechRecognition' in window
-})
+  supportsSpeechRecognition.value =
+    'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
+});
 </script>
 
 <style lang="scss" scoped>

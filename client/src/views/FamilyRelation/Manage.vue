@@ -95,9 +95,7 @@
     <div class="relations-table">
       <div class="table-header">
         <h3>代理关系列表</h3>
-        <div class="table-info">
-          共 {{ filteredRelations.length }} 条记录
-        </div>
+        <div class="table-info">共 {{ filteredRelations.length }} 条记录</div>
       </div>
 
       <div class="table-container">
@@ -158,7 +156,10 @@
                   >
                     {{ getPermissionText(permission) }}
                   </span>
-                  <span v-if="relation.permissions.queryPermissions.length > 2" class="permission-more">
+                  <span
+                    v-if="relation.permissions.queryPermissions.length > 2"
+                    class="permission-more"
+                  >
                     +{{ relation.permissions.queryPermissions.length - 2 }}
                   </span>
                 </div>
@@ -172,10 +173,7 @@
                 <div class="date-info">
                   <div v-if="relation.expiresAt">
                     {{ formatDate(relation.expiresAt) }}
-                    <span
-                      v-if="isExpiringSoon(relation.expiresAt)"
-                      class="expiring-warning"
-                    >
+                    <span v-if="isExpiringSoon(relation.expiresAt)" class="expiring-warning">
                       <i class="fas fa-exclamation-triangle"></i>
                       即将过期
                     </span>
@@ -192,11 +190,7 @@
                   <button @click="editRelation(relation)" class="btn-icon" title="编辑">
                     <i class="fas fa-edit"></i>
                   </button>
-                  <button
-                    @click="deleteRelation(relation)"
-                    class="btn-icon danger"
-                    title="删除"
-                  >
+                  <button @click="deleteRelation(relation)" class="btn-icon danger" title="删除">
                     <i class="fas fa-trash"></i>
                   </button>
                 </div>
@@ -208,19 +202,11 @@
 
       <!-- 分页 -->
       <div class="pagination" v-if="totalPages > 1">
-        <button
-          @click="currentPage--"
-          :disabled="currentPage === 1"
-          class="page-btn"
-        >
+        <button @click="currentPage--" :disabled="currentPage === 1" class="page-btn">
           <i class="fas fa-chevron-left"></i>
         </button>
         <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
-        <button
-          @click="currentPage++"
-          :disabled="currentPage === totalPages"
-          class="page-btn"
-        >
+        <button @click="currentPage++" :disabled="currentPage === totalPages" class="page-btn">
           <i class="fas fa-chevron-right"></i>
         </button>
       </div>
@@ -252,7 +238,7 @@ export default {
   name: 'FamilyRelationManage',
   components: {
     CreateRelationModal,
-    RelationDetailModal
+    RelationDetailModal,
   },
   data() {
     return {
@@ -275,8 +261,8 @@ export default {
         totalRelations: 0,
         activeRelations: 0,
         expiringSoon: 0,
-        myPermissions: 0
-      }
+        myPermissions: 0,
+      },
     };
   },
   computed: {
@@ -286,10 +272,11 @@ export default {
       // 搜索过滤
       if (this.searchKeyword) {
         const keyword = this.searchKeyword.toLowerCase();
-        filtered = filtered.filter(relation =>
-          relation.principalUserName.toLowerCase().includes(keyword) ||
-          relation.agentUserName.toLowerCase().includes(keyword) ||
-          relation.relationType.toLowerCase().includes(keyword)
+        filtered = filtered.filter(
+          relation =>
+            relation.principalUserName.toLowerCase().includes(keyword) ||
+            relation.agentUserName.toLowerCase().includes(keyword) ||
+            relation.relationType.toLowerCase().includes(keyword)
         );
       }
 
@@ -322,7 +309,7 @@ export default {
       const start = (this.currentPage - 1) * this.pageSize;
       const end = start + this.pageSize;
       return this.filteredRelations.slice(start, end);
-    }
+    },
   },
   async mounted() {
     await this.loadRelations();
@@ -334,12 +321,12 @@ export default {
       try {
         this.isLoading = true;
         const response = await familyRelationAPI.getRelations({
-          villageId: this.$store.state.user.villageId
+          villageId: this.$store.state.user.villageId,
         });
         this.relations = response.data.map(relation => ({
           ...relation,
           principalUserName: relation.principalUserId?.name || '未知用户',
-          agentUserName: relation.agentUserId?.name || '未知用户'
+          agentUserName: relation.agentUserId?.name || '未知用户',
         }));
       } catch (error) {
         console.error('加载代理关系失败:', error);
@@ -369,9 +356,9 @@ export default {
           const daysUntilExpiry = (expiryDate - now) / (1000 * 60 * 60 * 24);
           return daysUntilExpiry > 0 && daysUntilExpiry <= 7;
         }).length,
-        myPermissions: this.relations.filter(r =>
-          r.agentUserId === currentUserId && r.status === 'active'
-        ).length
+        myPermissions: this.relations.filter(
+          r => r.agentUserId === currentUserId && r.status === 'active'
+        ).length,
       };
     },
 
@@ -399,15 +386,11 @@ export default {
 
     // 删除关系
     async deleteRelation(relation) {
-      const confirmed = await this.$confirm(
-        '确定要删除此代理关系吗？',
-        '删除代理关系',
-        {
-          confirmButtonText: '确定删除',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }
-      );
+      const confirmed = await this.$confirm('确定要删除此代理关系吗？', '删除代理关系', {
+        confirmButtonText: '确定删除',
+        cancelButtonText: '取消',
+        type: 'warning',
+      });
 
       if (!confirmed) return;
 
@@ -436,11 +419,15 @@ export default {
         被代理者: relation.principalUserName,
         代理者: relation.agentUserName,
         关系类型: this.getRelationTypeText(relation.relationType),
-        查询权限: relation.permissions.queryPermissions.map(p => this.getPermissionText(p)).join(', '),
-        操作权限: relation.permissions.actionPermissions.map(p => this.getPermissionText(p)).join(', '),
+        查询权限: relation.permissions.queryPermissions
+          .map(p => this.getPermissionText(p))
+          .join(', '),
+        操作权限: relation.permissions.actionPermissions
+          .map(p => this.getPermissionText(p))
+          .join(', '),
         状态: this.getStatusText(relation.status),
         过期时间: relation.expiresAt ? this.formatDate(relation.expiresAt) : '永久',
-        创建时间: this.formatDate(relation.createdAt)
+        创建时间: this.formatDate(relation.createdAt),
       }));
 
       this.exportToCSV(data, '代理关系列表');
@@ -451,7 +438,7 @@ export default {
       const headers = Object.keys(data[0]);
       const csvContent = [
         headers.join(','),
-        ...data.map(row => headers.map(header => `"${row[header]}"`).join(','))
+        ...data.map(row => headers.map(header => `"${row[header]}"`).join(',')),
       ].join('\n');
 
       const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -471,7 +458,7 @@ export default {
         grandparent: '祖父母',
         grandchild: '孙子女',
         guardian: '监护人',
-        other: '其他'
+        other: '其他',
       };
       return types[type] || type;
     },
@@ -484,7 +471,7 @@ export default {
         child: 'child',
         sibling: 'sibling',
         guardian: 'guardian',
-        other: 'other'
+        other: 'other',
       };
       return classes[type] || 'other';
     },
@@ -503,7 +490,7 @@ export default {
         submit_application: '提交申请',
         approve_application: '审批申请',
         view_documents: '查看文档',
-        sign_documents: '签署文档'
+        sign_documents: '签署文档',
       };
       return permissions[permission] || permission;
     },
@@ -514,7 +501,7 @@ export default {
         active: '活跃',
         inactive: '非活跃',
         suspended: '暂停',
-        expired: '已过期'
+        expired: '已过期',
       };
       return statuses[status] || status;
     },
@@ -532,8 +519,8 @@ export default {
     formatDate(date) {
       if (!date) return '';
       return new Date(date).toLocaleString('zh-CN');
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -570,7 +557,9 @@ export default {
   gap: 12px;
 }
 
-.btn-primary, .btn-secondary, .btn-outline {
+.btn-primary,
+.btn-secondary,
+.btn-outline {
   padding: 10px 20px;
   border: none;
   border-radius: 6px;
@@ -811,12 +800,30 @@ export default {
   font-weight: 500;
 }
 
-.permission-badge.spouse { background: #fce4ec; color: #c2185b; }
-.permission-badge.parent { background: #e8f5e8; color: #2e7d32; }
-.permission-badge.child { background: #e3f2fd; color: #1565c0; }
-.permission-badge.sibling { background: #fff3e0; color: #ef6c00; }
-.permission-badge.guardian { background: #f3e5f5; color: #7b1fa2; }
-.permission-badge.other { background: #f5f5f5; color: #616161; }
+.permission-badge.spouse {
+  background: #fce4ec;
+  color: #c2185b;
+}
+.permission-badge.parent {
+  background: #e8f5e8;
+  color: #2e7d32;
+}
+.permission-badge.child {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+.permission-badge.sibling {
+  background: #fff3e0;
+  color: #ef6c00;
+}
+.permission-badge.guardian {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+.permission-badge.other {
+  background: #f5f5f5;
+  color: #616161;
+}
 
 .permission-list {
   display: flex;
@@ -847,10 +854,22 @@ export default {
   font-weight: 500;
 }
 
-.status-badge.active { background: #e8f5e8; color: #2e7d32; }
-.status-badge.inactive { background: #f5f5f5; color: #616161; }
-.status-badge.suspended { background: #fff3e0; color: #ef6c00; }
-.status-badge.expired { background: #ffebee; color: #c62828; }
+.status-badge.active {
+  background: #e8f5e8;
+  color: #2e7d32;
+}
+.status-badge.inactive {
+  background: #f5f5f5;
+  color: #616161;
+}
+.status-badge.suspended {
+  background: #fff3e0;
+  color: #ef6c00;
+}
+.status-badge.expired {
+  background: #ffebee;
+  color: #c62828;
+}
 
 .date-info {
   display: flex;

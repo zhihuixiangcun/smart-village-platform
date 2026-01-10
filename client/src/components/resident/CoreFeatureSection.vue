@@ -124,8 +124,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onBeforeUnmount } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ref, computed, onBeforeUnmount } from 'vue';
+import { ElMessage } from 'element-plus';
 import {
   Iphone,
   ArrowRight,
@@ -133,41 +133,41 @@ import {
   Picture,
   Download,
   Share,
-  Printer
-} from '@element-plus/icons-vue'
-import { useEmergency } from '@/composables/useEmergency'
-import { profileApi } from '@/api/residentProfile'
+  Printer,
+} from '@element-plus/icons-vue';
+import { useEmergency } from '@/composables/useEmergency';
+import { profileApi } from '@/api/residentProfile';
 
 interface Props {
-  profile?: any
+  profile?: any;
 }
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
 // Composables
-const { countdown, triggerEmergencyCall, startCountdown, cancelCountdown } = useEmergency()
+const { countdown, triggerEmergencyCall, startCountdown, cancelCountdown } = useEmergency();
 
 // 响应式数据
-const showQRCodeDialog = ref(false)
-const longPressTimer = ref<NodeJS.Timeout | null>(null)
-const householdCode = ref('HK20250105001')
-const qrcodeUrl = ref('')
+const showQRCodeDialog = ref(false);
+const longPressTimer = ref<NodeJS.Timeout | null>(null);
+const householdCode = ref('HK20250105001');
+const qrcodeUrl = ref('');
 
 // 倒计时圆环计算
-const circumference = 2 * Math.PI * 45
+const circumference = 2 * Math.PI * 45;
 const dashOffset = computed(() => {
-  const progress = countdown.value / 3
-  return circumference * (1 - progress)
-})
+  const progress = countdown.value / 3;
+  return circumference * (1 - progress);
+});
 
 /**
  * 点击一户一码卡片
  */
 const handleQRCodeClick = () => {
   // 生成或获取家庭二维码
-  generateQRCode()
-  showQRCodeDialog.value = true
-}
+  generateQRCode();
+  showQRCodeDialog.value = true;
+};
 
 /**
  * 生成家庭二维码
@@ -180,12 +180,13 @@ const generateQRCode = async () => {
     // householdCode.value = response.data.code
 
     // 临时使用示例二维码
-    qrcodeUrl.value = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=SmartVillage-HK20250105001'
+    qrcodeUrl.value =
+      'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=SmartVillage-HK20250105001';
   } catch (error) {
-    ElMessage.error('获取二维码失败')
-    console.error(error)
+    ElMessage.error('获取二维码失败');
+    console.error(error);
   }
-}
+};
 
 /**
  * 保存二维码到相册
@@ -193,16 +194,16 @@ const generateQRCode = async () => {
 const saveQRCode = async () => {
   try {
     // 下载图片
-    const link = document.createElement('a')
-    link.href = qrcodeUrl.value
-    link.download = `家庭二维码_${householdCode.value}.png`
-    link.click()
-    ElMessage.success('二维码已保存到相册')
+    const link = document.createElement('a');
+    link.href = qrcodeUrl.value;
+    link.download = `家庭二维码_${householdCode.value}.png`;
+    link.click();
+    ElMessage.success('二维码已保存到相册');
   } catch (error) {
-    ElMessage.error('保存失败')
-    console.error(error)
+    ElMessage.error('保存失败');
+    console.error(error);
   }
-}
+};
 
 /**
  * 分享二维码
@@ -213,45 +214,42 @@ const shareQRCode = async () => {
       await navigator.share({
         title: '我的家庭二维码',
         text: `扫码查看${props.profile?.personalInfo?.name}的家庭信息`,
-        url: qrcodeUrl.value
-      })
-      ElMessage.success('分享成功')
+        url: qrcodeUrl.value,
+      });
+      ElMessage.success('分享成功');
     } catch (error) {
-      console.error('Share failed:', error)
+      console.error('Share failed:', error);
     }
   } else {
     // 降级方案：复制链接
-    const input = document.createElement('input')
-    input.value = qrcodeUrl.value
-    document.body.appendChild(input)
-    input.select()
-    document.execCommand('copy')
-    document.body.removeChild(input)
-    ElMessage.success('二维码链接已复制，可以发送给亲友')
+    const input = document.createElement('input');
+    input.value = qrcodeUrl.value;
+    document.body.appendChild(input);
+    input.select();
+    document.execCommand('copy');
+    document.body.removeChild(input);
+    ElMessage.success('二维码链接已复制，可以发送给亲友');
   }
-}
+};
 
 /**
  * HTML转义函数（防止XSS攻击）
  */
 const escapeHtml = (text: string): string => {
-  const div = document.createElement('div')
-  div.textContent = text
-  return div.innerHTML
-}
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+};
 
 /**
  * 验证二维码URL安全性
  */
 const validateQRCodeUrl = (url: string): boolean => {
   // 允许的域名列表
-  const allowedDomains = [
-    'https://api.qrserver.com/',
-    window.location.origin
-  ]
+  const allowedDomains = ['https://api.qrserver.com/', window.location.origin];
 
-  return allowedDomains.some(domain => url.startsWith(domain))
-}
+  return allowedDomains.some(domain => url.startsWith(domain));
+};
 
 /**
  * 打印二维码（安全版本）
@@ -259,17 +257,17 @@ const validateQRCodeUrl = (url: string): boolean => {
 const printQRCode = () => {
   // 验证URL安全性
   if (!validateQRCodeUrl(qrcodeUrl.value)) {
-    ElMessage.error('二维码来源不安全，无法打印')
-    console.error('Invalid QR code URL:', qrcodeUrl.value)
-    return
+    ElMessage.error('二维码来源不安全，无法打印');
+    console.error('Invalid QR code URL:', qrcodeUrl.value);
+    return;
   }
 
   // 转义用户输入
-  const familyName = escapeHtml(props.profile?.personalInfo?.name || '未知家庭')
-  const safeQRCodeUrl = escapeHtml(qrcodeUrl.value)
-  const safeHouseholdCode = escapeHtml(householdCode.value)
+  const familyName = escapeHtml(props.profile?.personalInfo?.name || '未知家庭');
+  const safeQRCodeUrl = escapeHtml(qrcodeUrl.value);
+  const safeHouseholdCode = escapeHtml(householdCode.value);
 
-  const printWindow = window.open('', '_blank')
+  const printWindow = window.open('', '_blank');
   if (printWindow) {
     printWindow.document.write(`
       <html>
@@ -301,42 +299,42 @@ const printQRCode = () => {
           <\/script>
         </body>
       </html>
-    `)
+    `);
   }
-}
+};
 
 /**
  * 鼠标按下（长按开始）
  */
 const handleMouseDown = () => {
-  startLongPress()
-}
+  startLongPress();
+};
 
 /**
  * 鼠标抬起或离开（取消长按）
  */
 const handleMouseUp = () => {
-  cancelLongPress()
-}
+  cancelLongPress();
+};
 
 const handleMouseLeave = () => {
-  cancelLongPress()
-}
+  cancelLongPress();
+};
 
 /**
  * 触摸开始（移动端长按）
  */
 const handleTouchStart = (e: TouchEvent) => {
-  e.preventDefault()
-  startLongPress()
-}
+  e.preventDefault();
+  startLongPress();
+};
 
 /**
  * 触摸结束
  */
 const handleTouchEnd = () => {
-  cancelLongPress()
-}
+  cancelLongPress();
+};
 
 /**
  * 键盘按下（支持空格键和回车键长按）
@@ -344,26 +342,26 @@ const handleTouchEnd = () => {
 const handleKeyDown = (e: KeyboardEvent) => {
   // 空格键或回车键
   if (e.key === 'Enter' || e.key === ' ') {
-    e.preventDefault()
+    e.preventDefault();
     if (!longPressTimer.value) {
-      startLongPress()
+      startLongPress();
     }
   }
   // Escape键取消
   else if (e.key === 'Escape') {
-    cancelLongPress()
+    cancelLongPress();
   }
-}
+};
 
 /**
  * 键盘抬起
  */
 const handleKeyUp = (e: KeyboardEvent) => {
   if (e.key === 'Enter' || e.key === ' ') {
-    e.preventDefault()
-    cancelLongPress()
+    e.preventDefault();
+    cancelLongPress();
   }
-}
+};
 
 /**
  * 开始长按
@@ -371,7 +369,7 @@ const handleKeyUp = (e: KeyboardEvent) => {
 const startLongPress = () => {
   // 震动反馈
   if (navigator.vibrate) {
-    navigator.vibrate(50)
+    navigator.vibrate(50);
   }
 
   // 开始倒计时
@@ -379,31 +377,31 @@ const startLongPress = () => {
     // 长按完成，触发紧急呼叫
     const emergencyContacts = [
       { id: '1', name: '王村长', phone: '13800138000', role: '村主任', priority: 1 },
-      { id: '2', name: '李支书', phone: '13800138001', role: '村支书', priority: 2 }
-    ]
-    await triggerEmergencyCall(emergencyContacts)
-  }, 3)
-}
+      { id: '2', name: '李支书', phone: '13800138001', role: '村支书', priority: 2 },
+    ];
+    await triggerEmergencyCall(emergencyContacts);
+  }, 3);
+};
 
 /**
  * 取消长按
  */
 const cancelLongPress = () => {
   if (longPressTimer.value) {
-    cancelCountdown(longPressTimer.value)
-    longPressTimer.value = null
+    cancelCountdown(longPressTimer.value);
+    longPressTimer.value = null;
   }
-}
+};
 
 /**
  * 组件卸载前清理定时器
  */
 onBeforeUnmount(() => {
   if (longPressTimer.value) {
-    cancelCountdown(longPressTimer.value)
-    longPressTimer.value = null
+    cancelCountdown(longPressTimer.value);
+    longPressTimer.value = null;
   }
-})
+});
 </script>
 
 <style lang="scss" scoped>

@@ -8,28 +8,36 @@
     <!-- 统计卡片 -->
     <div class="stats-cards">
       <div class="stat-card">
-        <div class="stat-icon pending"><el-icon><Clock /></el-icon></div>
+        <div class="stat-icon pending">
+          <el-icon><Clock /></el-icon>
+        </div>
         <div class="stat-content">
           <div class="stat-value">{{ stats.pending }}</div>
           <div class="stat-label">待审批</div>
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon approved"><el-icon><CircleCheck /></el-icon></div>
+        <div class="stat-icon approved">
+          <el-icon><CircleCheck /></el-icon>
+        </div>
         <div class="stat-content">
           <div class="stat-value">{{ stats.approved }}</div>
           <div class="stat-label">已批准</div>
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon rejected"><el-icon><CircleClose /></el-icon></div>
+        <div class="stat-icon rejected">
+          <el-icon><CircleClose /></el-icon>
+        </div>
         <div class="stat-content">
           <div class="stat-value">{{ stats.rejected }}</div>
           <div class="stat-label">已拒绝</div>
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon total"><el-icon><Document /></el-icon></div>
+        <div class="stat-icon total">
+          <el-icon><Document /></el-icon>
+        </div>
         <div class="stat-content">
           <div class="stat-value">{{ stats.total }}</div>
           <div class="stat-label">总申请</div>
@@ -39,12 +47,22 @@
 
     <!-- 筛选工具栏 -->
     <div class="filter-bar">
-      <el-select v-model="filters.status" placeholder="全部状态" clearable @change="fetchApplications">
+      <el-select
+        v-model="filters.status"
+        placeholder="全部状态"
+        clearable
+        @change="fetchApplications"
+      >
         <el-option label="待审批" value="pending" />
         <el-option label="已批准" value="approved" />
         <el-option label="已拒绝" value="rejected" />
       </el-select>
-      <el-select v-model="filters.type" placeholder="全部类型" clearable @change="fetchApplications">
+      <el-select
+        v-model="filters.type"
+        placeholder="全部类型"
+        clearable
+        @change="fetchApplications"
+      >
         <el-option label="个人采购商" value="individual" />
         <el-option label="商家采购商" value="business" />
       </el-select>
@@ -95,7 +113,12 @@
         </el-table-column>
         <el-table-column prop="purchaseCategories" label="采购类目" width="200">
           <template #default="{ row }">
-            <el-tag v-for="cat in row.purchaseCategories?.slice(0, 3)" :key="cat" size="small" class="mr-1">
+            <el-tag
+              v-for="cat in row.purchaseCategories?.slice(0, 3)"
+              :key="cat"
+              size="small"
+              class="mr-1"
+            >
               {{ cat }}
             </el-tag>
             <el-tag v-if="row.purchaseCategories?.length > 3" size="small" type="info">
@@ -164,23 +187,43 @@
       <div v-if="currentApplication" class="application-detail">
         <!-- 基本信息区 -->
         <div class="detail-section">
-          <h3><el-icon><User /></el-icon> 基本信息</h3>
+          <h3>
+            <el-icon><User /></el-icon> 基本信息
+          </h3>
           <el-descriptions :column="2" border>
-            <el-descriptions-item label="申请人姓名">{{ currentApplication.applicant?.name }}</el-descriptions-item>
-            <el-descriptions-item label="手机号">{{ currentApplication.applicant?.phone }}</el-descriptions-item>
-            <el-descriptions-item label="身份证号">{{ maskIdCard(currentApplication.applicant?.idCard) }}</el-descriptions-item>
+            <el-descriptions-item label="申请人姓名">{{
+              currentApplication.applicant?.name
+            }}</el-descriptions-item>
+            <el-descriptions-item label="手机号">{{
+              currentApplication.applicant?.phone
+            }}</el-descriptions-item>
+            <el-descriptions-item label="身份证号">{{
+              maskIdCard(currentApplication.applicant?.idCard)
+            }}</el-descriptions-item>
             <el-descriptions-item label="申请类型">
-              <el-tag :type="currentApplication.applicationType === 'individual' ? 'primary' : 'success'">
-                {{ currentApplication.applicationType === 'individual' ? '个人采购商' : '商家采购商' }}
+              <el-tag
+                :type="currentApplication.applicationType === 'individual' ? 'primary' : 'success'"
+              >
+                {{
+                  currentApplication.applicationType === 'individual' ? '个人采购商' : '商家采购商'
+                }}
               </el-tag>
             </el-descriptions-item>
-            <el-descriptions-item v-if="currentApplication.applicationType === 'business'" label="企业名称">
+            <el-descriptions-item
+              v-if="currentApplication.applicationType === 'business'"
+              label="企业名称"
+            >
               {{ currentApplication.businessInfo?.companyName }}
             </el-descriptions-item>
-            <el-descriptions-item v-if="currentApplication.applicationType === 'business'" label="职务">
+            <el-descriptions-item
+              v-if="currentApplication.applicationType === 'business'"
+              label="职务"
+            >
               {{ currentApplication.businessInfo?.position }}
             </el-descriptions-item>
-            <el-descriptions-item label="申请时间">{{ formatDate(currentApplication.createdAt) }}</el-descriptions-item>
+            <el-descriptions-item label="申请时间">{{
+              formatDate(currentApplication.createdAt)
+            }}</el-descriptions-item>
             <el-descriptions-item label="当前状态">
               <el-tag :type="getStatusType(currentApplication.approval?.status)">
                 {{ getStatusLabel(currentApplication.approval?.status) }}
@@ -191,9 +234,15 @@
 
         <!-- 采购类目 -->
         <div class="detail-section">
-          <h3><el-icon><ShoppingCart /></el-icon> 采购类目</h3>
+          <h3>
+            <el-icon><ShoppingCart /></el-icon> 采购类目
+          </h3>
           <div class="categories-tags">
-            <el-tag v-for="cat in currentApplication.purchaseCategories" :key="cat" class="category-tag">
+            <el-tag
+              v-for="cat in currentApplication.purchaseCategories"
+              :key="cat"
+              class="category-tag"
+            >
               {{ cat }}
             </el-tag>
           </div>
@@ -201,7 +250,9 @@
 
         <!-- 证件图片 -->
         <div class="detail-section">
-          <h3><el-icon><Picture /></el-icon> 证件材料</h3>
+          <h3>
+            <el-icon><Picture /></el-icon> 证件材料
+          </h3>
           <div class="documents-grid">
             <div class="document-item">
               <div class="document-label">身份证正面</div>
@@ -235,22 +286,36 @@
 
         <!-- OCR验证结果 -->
         <div v-if="currentApplication.ocrVerification" class="detail-section">
-          <h3><el-icon><DocumentChecked /></el-icon> OCR验证结果</h3>
-          <el-alert :type="currentApplication.ocrVerification.idCardVerified ? 'success' : 'warning'" :closable="false">
+          <h3>
+            <el-icon><DocumentChecked /></el-icon> OCR验证结果
+          </h3>
+          <el-alert
+            :type="currentApplication.ocrVerification.idCardVerified ? 'success' : 'warning'"
+            :closable="false"
+          >
             <template #title>
-              {{ currentApplication.ocrVerification.idCardVerified ? 'OCR验证通过' : 'OCR验证未通过' }}
+              {{
+                currentApplication.ocrVerification.idCardVerified ? 'OCR验证通过' : 'OCR验证未通过'
+              }}
             </template>
             <div v-if="currentApplication.ocrVerification.extractedInfo">
               <p>识别姓名: {{ currentApplication.ocrVerification.extractedInfo.name }}</p>
-              <p>识别身份证: {{ maskIdCard(currentApplication.ocrVerification.extractedInfo.idCard) }}</p>
-              <p>置信度: {{ (currentApplication.ocrVerification.confidenceScore * 100).toFixed(1) }}%</p>
+              <p>
+                识别身份证:
+                {{ maskIdCard(currentApplication.ocrVerification.extractedInfo.idCard) }}
+              </p>
+              <p>
+                置信度: {{ (currentApplication.ocrVerification.confidenceScore * 100).toFixed(1) }}%
+              </p>
             </div>
           </el-alert>
         </div>
 
         <!-- 审批记录 -->
         <div v-if="currentApplication.approval?.reviewedBy?.length" class="detail-section">
-          <h3><el-icon><List /></el-icon> 审批记录</h3>
+          <h3>
+            <el-icon><List /></el-icon> 审批记录
+          </h3>
           <el-timeline>
             <el-timeline-item
               v-for="record in currentApplication.approval.reviewedBy"
@@ -258,8 +323,22 @@
               :timestamp="formatDate(record.reviewedAt)"
               placement="top"
             >
-              <el-tag :type="record.decision === 'approved' ? 'success' : record.decision === 'rejected' ? 'danger' : 'info'">
-                {{ record.decision === 'approved' ? '批准' : record.decision === 'rejected' ? '拒绝' : '审核中' }}
+              <el-tag
+                :type="
+                  record.decision === 'approved'
+                    ? 'success'
+                    : record.decision === 'rejected'
+                      ? 'danger'
+                      : 'info'
+                "
+              >
+                {{
+                  record.decision === 'approved'
+                    ? '批准'
+                    : record.decision === 'rejected'
+                      ? '拒绝'
+                      : '审核中'
+                }}
               </el-tag>
               <p>审核人: {{ record.reviewerName || '管理员' }}</p>
               <p v-if="record.comments">意见: {{ record.comments }}</p>
@@ -314,195 +393,311 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, reactive, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
-  Clock, CircleCheck, CircleClose, Document, Search, Refresh,
-  View, Check, Close, User, ShoppingCart, Picture, DocumentChecked, List
-} from '@element-plus/icons-vue'
-import api from '@/api'
+  Clock,
+  CircleCheck,
+  CircleClose,
+  Document,
+  Search,
+  Refresh,
+  View,
+  Check,
+  Close,
+  User,
+  ShoppingCart,
+  Picture,
+  DocumentChecked,
+  List,
+} from '@element-plus/icons-vue';
+import api from '@/api';
 
 // 数据状态
-const loading = ref(false)
-const applications = ref([])
-const stats = ref({ pending: 0, approved: 0, rejected: 0, total: 0 })
-const detailVisible = ref(false)
-const reviewDialogVisible = ref(false)
-const currentApplication = ref(null)
-const reviewAction = ref('')
+const loading = ref(false);
+const applications = ref([]);
+const stats = ref({ pending: 0, approved: 0, rejected: 0, total: 0 });
+const detailVisible = ref(false);
+const reviewDialogVisible = ref(false);
+const currentApplication = ref(null);
+const reviewAction = ref('');
 
 // 筛选条件
 const filters = reactive({
   status: '',
   type: '',
   keyword: '',
-  dateRange: null
-})
+  dateRange: null,
+});
 
 // 分页
 const pagination = reactive({
   page: 1,
   pageSize: 20,
-  total: 0
-})
+  total: 0,
+});
 
 // 审批表单
 const reviewForm = reactive({
-  comments: ''
-})
+  comments: '',
+});
 
 // 获取申请列表
 const fetchApplications = async () => {
-  loading.value = true
+  loading.value = true;
   try {
     const params = {
       page: pagination.page,
       limit: pagination.pageSize,
       status: filters.status || undefined,
       applicationType: filters.type || undefined,
-      keyword: filters.keyword || undefined
-    }
-    const response = await api.get('/api/v1/registration/pending', { params })
+      keyword: filters.keyword || undefined,
+    };
+    const response = await api.get('/api/v1/registration/pending', { params });
     if (response.success) {
-      applications.value = response.data.applications || []
-      pagination.total = response.data.total || 0
+      applications.value = response.data.applications || [];
+      pagination.total = response.data.total || 0;
     }
   } catch (error) {
-    ElMessage.error('获取申请列表失败')
+    ElMessage.error('获取申请列表失败');
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 // 获取统计数据
 const fetchStats = async () => {
   try {
-    const response = await api.get('/api/v1/registration/stats')
+    const response = await api.get('/api/v1/registration/stats');
     if (response.success) {
-      stats.value = response.data
+      stats.value = response.data;
     }
   } catch (error) {
-    console.error('获取统计数据失败', error)
+    console.error('获取统计数据失败', error);
   }
-}
+};
 
 // 查看详情
-const viewApplication = (row) => {
-  currentApplication.value = row
-  detailVisible.value = true
-}
+const viewApplication = row => {
+  currentApplication.value = row;
+  detailVisible.value = true;
+};
 
 // 批准申请
-const approveApplication = (application) => {
-  currentApplication.value = application
-  reviewAction.value = 'approve'
-  reviewForm.comments = ''
-  reviewDialogVisible.value = true
-}
+const approveApplication = application => {
+  currentApplication.value = application;
+  reviewAction.value = 'approve';
+  reviewForm.comments = '';
+  reviewDialogVisible.value = true;
+};
 
 // 拒绝申请
-const rejectApplication = (application) => {
-  currentApplication.value = application
-  reviewAction.value = 'reject'
-  reviewForm.comments = ''
-  reviewDialogVisible.value = true
-}
+const rejectApplication = application => {
+  currentApplication.value = application;
+  reviewAction.value = 'reject';
+  reviewForm.comments = '';
+  reviewDialogVisible.value = true;
+};
 
 // 提交审批
 const submitReview = async () => {
   try {
-    const endpoint = reviewAction.value === 'approve'
-      ? `/api/v1/registration/${currentApplication.value._id}/approve`
-      : `/api/v1/registration/${currentApplication.value._id}/reject`
+    const endpoint =
+      reviewAction.value === 'approve'
+        ? `/api/v1/registration/${currentApplication.value._id}/approve`
+        : `/api/v1/registration/${currentApplication.value._id}/reject`;
 
     const response = await api.post(endpoint, {
       comments: reviewForm.comments,
-      reviewerId: localStorage.getItem('userId')
-    })
+      reviewerId: localStorage.getItem('userId'),
+    });
 
     if (response.success) {
-      ElMessage.success(reviewAction.value === 'approve' ? '已批准' : '已拒绝')
-      reviewDialogVisible.value = false
-      detailVisible.value = false
-      fetchApplications()
-      fetchStats()
+      ElMessage.success(reviewAction.value === 'approve' ? '已批准' : '已拒绝');
+      reviewDialogVisible.value = false;
+      detailVisible.value = false;
+      fetchApplications();
+      fetchStats();
     } else {
-      ElMessage.error(response.message || '操作失败')
+      ElMessage.error(response.message || '操作失败');
     }
   } catch (error) {
-    ElMessage.error(error.message || '操作失败')
+    ElMessage.error(error.message || '操作失败');
   }
-}
+};
 
 // 重置筛选
 const resetFilters = () => {
-  filters.status = ''
-  filters.type = ''
-  filters.keyword = ''
-  filters.dateRange = null
-  pagination.page = 1
-  fetchApplications()
-}
+  filters.status = '';
+  filters.type = '';
+  filters.keyword = '';
+  filters.dateRange = null;
+  pagination.page = 1;
+  fetchApplications();
+};
 
 // 工具函数
-const getStatusType = (status) => {
-  const types = { pending: 'warning', approved: 'success', rejected: 'danger' }
-  return types[status] || 'info'
-}
+const getStatusType = status => {
+  const types = { pending: 'warning', approved: 'success', rejected: 'danger' };
+  return types[status] || 'info';
+};
 
-const getStatusLabel = (status) => {
-  const labels = { pending: '待审批', approved: '已批准', rejected: '已拒绝' }
-  return labels[status] || status
-}
+const getStatusLabel = status => {
+  const labels = { pending: '待审批', approved: '已批准', rejected: '已拒绝' };
+  return labels[status] || status;
+};
 
-const maskIdCard = (idCard) => {
-  if (!idCard) return ''
-  return idCard.replace(/^(.{6})(.*)(.{4})$/, '$1********$3')
-}
+const maskIdCard = idCard => {
+  if (!idCard) return '';
+  return idCard.replace(/^(.{6})(.*)(.{4})$/, '$1********$3');
+};
 
-const formatDate = (date) => {
-  if (!date) return ''
-  return new Date(date).toLocaleString('zh-CN')
-}
+const formatDate = date => {
+  if (!date) return '';
+  return new Date(date).toLocaleString('zh-CN');
+};
 
 // 初始化
 onMounted(() => {
-  fetchApplications()
-  fetchStats()
-})
+  fetchApplications();
+  fetchStats();
+});
 </script>
 
 <style scoped>
-.registration-review { padding: 20px; background: #f5f7fa; min-height: 100vh; }
-.page-header { margin-bottom: 24px; }
-.page-header h1 { font-size: 28px; color: #333; margin-bottom: 8px; }
-.page-header p { color: #666; font-size: 14px; }
+.registration-review {
+  padding: 20px;
+  background: #f5f7fa;
+  min-height: 100vh;
+}
+.page-header {
+  margin-bottom: 24px;
+}
+.page-header h1 {
+  font-size: 28px;
+  color: #333;
+  margin-bottom: 8px;
+}
+.page-header p {
+  color: #666;
+  font-size: 14px;
+}
 
-.stats-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 24px; }
-.stat-card { background: white; border-radius: 12px; padding: 20px; display: flex; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-.stat-icon { width: 56px; height: 56px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 16px; font-size: 24px; color: white; }
-.stat-icon.pending { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); }
-.stat-icon.approved { background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); }
-.stat-icon.rejected { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); }
-.stat-icon.total { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-.stat-content { flex: 1; }
-.stat-value { font-size: 32px; font-weight: bold; color: #333; line-height: 1; }
-.stat-label { color: #666; font-size: 14px; margin-top: 8px; }
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+.stat-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
+  font-size: 24px;
+  color: white;
+}
+.stat-icon.pending {
+  background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+}
+.stat-icon.approved {
+  background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+}
+.stat-icon.rejected {
+  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+}
+.stat-icon.total {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.stat-content {
+  flex: 1;
+}
+.stat-value {
+  font-size: 32px;
+  font-weight: bold;
+  color: #333;
+  line-height: 1;
+}
+.stat-label {
+  color: #666;
+  font-size: 14px;
+  margin-top: 8px;
+}
 
-.filter-bar { background: white; border-radius: 12px; padding: 20px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.filter-bar {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
 
-.applications-list { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-.pagination-container { margin-top: 20px; display: flex; justify-content: flex-end; }
-.mr-1 { margin-right: 4px; }
+.applications-list {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+.pagination-container {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+.mr-1 {
+  margin-right: 4px;
+}
 
-.application-detail { max-height: 600px; overflow-y: auto; }
-.detail-section { margin-bottom: 24px; }
-.detail-section h3 { font-size: 16px; color: #333; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.application-detail {
+  max-height: 600px;
+  overflow-y: auto;
+}
+.detail-section {
+  margin-bottom: 24px;
+}
+.detail-section h3 {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-.categories-tags { display: flex; gap: 8px; flex-wrap: wrap; }
-.category-tag { padding: 8px 16px; }
+.categories-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.category-tag {
+  padding: 8px 16px;
+}
 
-.documents-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
-.document-item { text-align: center; }
-.document-label { margin-bottom: 8px; font-weight: 500; color: #333; }
+.documents-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.document-item {
+  text-align: center;
+}
+.document-label {
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+}
 </style>

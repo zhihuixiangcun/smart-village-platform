@@ -136,12 +136,7 @@
 
               <el-table-column prop="image" label="图片" width="80">
                 <template #default="{ row }">
-                  <el-avatar
-                    :size="50"
-                    :src="row.image"
-                    shape="square"
-                    :alt="row.name"
-                  >
+                  <el-avatar :size="50" :src="row.image" shape="square" :alt="row.name">
                     <el-icon><Picture /></el-icon>
                   </el-avatar>
                 </template>
@@ -224,7 +219,7 @@
                     <el-icon><Edit /></el-icon>
                     编辑
                   </el-button>
-                  <el-dropdown @command="(command) => handleAction(command, row)">
+                  <el-dropdown @command="command => handleAction(command, row)">
                     <el-button type="text" size="small">
                       更多<el-icon><ArrowDown /></el-icon>
                     </el-button>
@@ -236,7 +231,11 @@
                         <el-dropdown-item command="status" divided>
                           {{ row.status === 'available' ? '下架' : '上架' }}
                         </el-dropdown-item>
-                        <el-dropdown-item command="delete" divided v-if="hasPermission('product:delete')">
+                        <el-dropdown-item
+                          command="delete"
+                          divided
+                          v-if="hasPermission('product:delete')"
+                        >
                           删除产品
                         </el-dropdown-item>
                       </el-dropdown-menu>
@@ -266,8 +265,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, computed, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
   Apple,
   Plus,
@@ -279,19 +278,19 @@ import {
   View,
   Edit,
   ArrowDown,
-  Picture
-} from '@element-plus/icons-vue'
+  Picture,
+} from '@element-plus/icons-vue';
 
 // 响应式数据
-const loading = ref(false)
-const products = ref([])
-const searchQuery = ref('')
-const filterCategory = ref('')
-const filterQuality = ref('')
-const currentPage = ref(1)
-const pageSize = ref(10)
-const sortField = ref('')
-const sortOrder = ref('')
+const loading = ref(false);
+const products = ref([]);
+const searchQuery = ref('');
+const filterCategory = ref('');
+const filterQuality = ref('');
+const currentPage = ref(1);
+const pageSize = ref(10);
+const sortField = ref('');
+const sortOrder = ref('');
 
 // 模拟数据
 const mockProducts = [
@@ -312,7 +311,7 @@ const mockProducts = [
     sold: 320,
     harvestDate: '2024-04-15',
     status: 'available',
-    description: '产地有机龙井茶，口感清香甘醇'
+    description: '产地有机龙井茶，口感清香甘醇',
   },
   {
     id: 2,
@@ -331,7 +330,7 @@ const mockProducts = [
     sold: 450,
     harvestDate: '2024-09-20',
     status: 'available',
-    description: '天然野生山核桃，营养丰富'
+    description: '天然野生山核桃，营养丰富',
   },
   {
     id: 3,
@@ -350,7 +349,7 @@ const mockProducts = [
     sold: 1500,
     harvestDate: '2024-11-01',
     status: 'available',
-    description: '散养土鸡蛋，营养丰富'
+    description: '散养土鸡蛋，营养丰富',
   },
   {
     id: 4,
@@ -369,7 +368,7 @@ const mockProducts = [
     sold: 1800,
     harvestDate: '2024-10-15',
     status: 'available',
-    description: '有机种植东北大米，口感香甜'
+    description: '有机种植东北大米，口感香甜',
   },
   {
     id: 5,
@@ -388,7 +387,7 @@ const mockProducts = [
     sold: 120,
     harvestDate: '2024-06-01',
     status: 'available',
-    description: '天然百花蜜，纯正香甜'
+    description: '天然百花蜜，纯正香甜',
   },
   {
     id: 6,
@@ -407,9 +406,9 @@ const mockProducts = [
     sold: 380,
     harvestDate: '2024-03-20',
     status: 'available',
-    description: '春季竹笋，鲜嫩可口'
-  }
-]
+    description: '春季竹笋，鲜嫩可口',
+  },
+];
 
 // 计算属性
 const productStats = computed(() => {
@@ -417,128 +416,125 @@ const productStats = computed(() => {
     totalProducts: products.value.length,
     totalStock: products.value.reduce((sum, product) => sum + product.stock, 0),
     totalSold: products.value.reduce((sum, product) => sum + product.sold, 0),
-    totalValue: products.value.reduce((sum, product) => sum + (product.sold * product.price), 0),
+    totalValue: products.value.reduce((sum, product) => sum + product.sold * product.price, 0),
     byCategory: {},
-    byQuality: {}
-  }
+    byQuality: {},
+  };
 
   // 按类别统计
   products.value.forEach(product => {
-    stats.byCategory[product.category] = (stats.byCategory[product.category] || 0) + 1
-    stats.byQuality[product.quality] = (stats.byQuality[product.quality] || 0) + 1
-  })
+    stats.byCategory[product.category] = (stats.byCategory[product.category] || 0) + 1;
+    stats.byQuality[product.quality] = (stats.byQuality[product.quality] || 0) + 1;
+  });
 
-  return stats
-})
+  return stats;
+});
 
 const filteredProducts = computed(() => {
-  let filtered = [...products.value]
+  let filtered = [...products.value];
 
   // 搜索过滤
   if (searchQuery.value) {
-    filtered = filtered.filter(product =>
-      product.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      product.farmerName.toLowerCase().includes(searchQuery.value.toLowerCase())
-    )
+    filtered = filtered.filter(
+      product =>
+        product.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+        product.description.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+        product.farmerName.toLowerCase().includes(searchQuery.value.toLowerCase())
+    );
   }
 
   // 类别过滤
   if (filterCategory.value) {
-    filtered = filtered.filter(product => product.category === filterCategory.value)
+    filtered = filtered.filter(product => product.category === filterCategory.value);
   }
 
   // 品质过滤
   if (filterQuality.value) {
-    filtered = filtered.filter(product => product.quality === filterQuality.value)
+    filtered = filtered.filter(product => product.quality === filterQuality.value);
   }
 
-  return filtered
-})
+  return filtered;
+});
 
 // 生命周期
 onMounted(() => {
-  loadProducts()
-})
+  loadProducts();
+});
 
 // 方法
 const loadProducts = async () => {
-  loading.value = true
+  loading.value = true;
   try {
     // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 500))
-    products.value = mockProducts
+    await new Promise(resolve => setTimeout(resolve, 500));
+    products.value = mockProducts;
   } catch (error) {
-    ElMessage.error('加载产品列表失败')
-    console.error('Load products error:', error)
+    ElMessage.error('加载产品列表失败');
+    console.error('Load products error:', error);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const handleSearch = () => {
-  currentPage.value = 1
-}
+  currentPage.value = 1;
+};
 
 const handleFilter = () => {
-  currentPage.value = 1
-}
+  currentPage.value = 1;
+};
 
 const handleSortChange = ({ prop, order }) => {
-  sortField.value = prop
-  sortOrder.value = order
-}
+  sortField.value = prop;
+  sortOrder.value = order;
+};
 
-const handleSizeChange = (size) => {
-  pageSize.value = size
-  currentPage.value = 1
-}
+const handleSizeChange = size => {
+  pageSize.value = size;
+  currentPage.value = 1;
+};
 
-const handleCurrentChange = (page) => {
-  currentPage.value = page
-}
+const handleCurrentChange = page => {
+  currentPage.value = page;
+};
 
-const viewProduct = (id) => {
-  ElMessage.info(`查看产品详情: ${id}`)
-}
+const viewProduct = id => {
+  ElMessage.info(`查看产品详情: ${id}`);
+};
 
-const editProduct = (id) => {
-  ElMessage.info(`编辑产品: ${id}`)
-}
+const editProduct = id => {
+  ElMessage.info(`编辑产品: ${id}`);
+};
 
 const addProduct = () => {
-  ElMessage.info('添加新产品')
-}
+  ElMessage.info('添加新产品');
+};
 
 const handleAction = async (command, product) => {
   switch (command) {
     case 'stock':
-      ElMessage.info(`管理库存: ${product.name}`)
-      break
+      ElMessage.info(`管理库存: ${product.name}`);
+      break;
     case 'orders':
-      ElMessage.info(`查看订单: ${product.name}`)
-      break
+      ElMessage.info(`查看订单: ${product.name}`);
+      break;
     case 'certification':
-      ElMessage.info(`认证信息: ${product.name}`)
-      break
+      ElMessage.info(`认证信息: ${product.name}`);
+      break;
     case 'status':
       try {
-        const newStatus = product.status === 'available' ? '下架' : '上架'
-        await ElMessageBox.confirm(
-          `确定要${newStatus}产品"${product.name}"吗？`,
-          '确认操作',
-          {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }
-        )
-        product.status = product.status === 'available' ? 'unavailable' : 'available'
-        ElMessage.success(`${newStatus}成功`)
+        const newStatus = product.status === 'available' ? '下架' : '上架';
+        await ElMessageBox.confirm(`确定要${newStatus}产品"${product.name}"吗？`, '确认操作', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+        });
+        product.status = product.status === 'available' ? 'unavailable' : 'available';
+        ElMessage.success(`${newStatus}成功`);
       } catch (error) {
         // 用户取消操作
       }
-      break
+      break;
     case 'delete':
       try {
         await ElMessageBox.confirm(
@@ -547,70 +543,70 @@ const handleAction = async (command, product) => {
           {
             confirmButtonText: '确定',
             cancelButtonText: '取消',
-            type: 'warning'
+            type: 'warning',
           }
-        )
+        );
 
-        const index = products.value.findIndex(p => p.id === product.id)
+        const index = products.value.findIndex(p => p.id === product.id);
         if (index > -1) {
-          products.value.splice(index, 1)
+          products.value.splice(index, 1);
         }
 
-        ElMessage.success('产品删除成功')
+        ElMessage.success('产品删除成功');
       } catch (error) {
         // 用户取消删除
       }
-      break
+      break;
   }
-}
+};
 
 // 辅助方法
-const getCategoryLabel = (category) => {
+const getCategoryLabel = category => {
   const categoryMap = {
     tea: '茶叶',
     nuts: '坚果',
     eggs: '蛋类',
     grains: '粮食',
     honey: '蜂产品',
-    vegetables: '蔬菜'
-  }
-  return categoryMap[category] || category
-}
+    vegetables: '蔬菜',
+  };
+  return categoryMap[category] || category;
+};
 
-const getQualityTagType = (quality) => {
+const getQualityTagType = quality => {
   const qualityMap = {
     premium: 'success',
     fresh: 'warning',
-    standard: 'info'
-  }
-  return qualityMap[quality] || 'info'
-}
+    standard: 'info',
+  };
+  return qualityMap[quality] || 'info';
+};
 
-const getQualityLabel = (quality) => {
+const getQualityLabel = quality => {
   const qualityMap = {
     premium: '优质',
     fresh: '新鲜',
-    standard: '标准'
-  }
-  return qualityMap[quality] || quality
-}
+    standard: '标准',
+  };
+  return qualityMap[quality] || quality;
+};
 
-const getSalesRate = (product) => {
-  const total = product.stock + product.sold
-  return total > 0 ? Math.round((product.sold / total) * 100) : 0
-}
+const getSalesRate = product => {
+  const total = product.stock + product.sold;
+  return total > 0 ? Math.round((product.sold / total) * 100) : 0;
+};
 
-const getSalesColor = (rate) => {
-  if (rate < 30) return '#f56c6c'
-  if (rate < 70) return '#e6a23c'
-  return '#67c23a'
-}
+const getSalesColor = rate => {
+  if (rate < 30) return '#f56c6c';
+  if (rate < 70) return '#e6a23c';
+  return '#67c23a';
+};
 
 // 权限检查
-const hasPermission = (permission) => {
+const hasPermission = permission => {
   // 模拟权限检查
-  return true
-}
+  return true;
+};
 </script>
 
 <style lang="scss" scoped>

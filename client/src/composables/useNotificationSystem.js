@@ -20,38 +20,38 @@ export function useNotificationSystem() {
       icon: '📋',
       color: '#409eff',
       sound: 'notification',
-      title: '审批通知'
+      title: '审批通知',
     },
     budget: {
       icon: '💰',
       color: '#e6a23c',
       sound: 'warning',
-      title: '预算提醒'
+      title: '预算提醒',
     },
     expense: {
       icon: '💸',
       color: '#f56c6c',
       sound: 'alert',
-      title: '支出提醒'
+      title: '支出提醒',
     },
     system: {
       icon: '⚙️',
       color: '#909399',
       sound: 'info',
-      title: '系统通知'
+      title: '系统通知',
     },
     emergency: {
       icon: '🚨',
       color: '#f56c6c',
       sound: 'emergency',
-      title: '紧急通知'
+      title: '紧急通知',
     },
     success: {
       icon: '✅',
       color: '#67c23a',
       sound: 'success',
-      title: '操作成功'
-    }
+      title: '操作成功',
+    },
   };
 
   // 通知优先级
@@ -60,14 +60,14 @@ export function useNotificationSystem() {
     normal: 2,
     high: 3,
     urgent: 4,
-    emergency: 5
+    emergency: 5,
   };
 
   /**
    * 显示通知
    * @param {Object} options - 通知选项
    */
-  const showNotification = async (options) => {
+  const showNotification = async options => {
     const {
       type = 'system',
       title,
@@ -78,7 +78,7 @@ export function useNotificationSystem() {
       persistent = false,
       customIcon,
       customColor,
-      data = {}
+      data = {},
     } = options;
 
     const config = notificationTypes[type] || notificationTypes.system;
@@ -97,7 +97,7 @@ export function useNotificationSystem() {
       actions,
       data,
       read: false,
-      dismissed: false
+      dismissed: false,
     };
 
     // 添加到通知队列
@@ -127,16 +127,14 @@ export function useNotificationSystem() {
   /**
    * 添加通知到队列
    */
-  const addToQueue = (notification) => {
+  const addToQueue = notification => {
     // 移除超出限制的通知
     if (notifications.value.length >= maxNotifications) {
       notifications.value.splice(0, notifications.value.length - maxNotifications + 1);
     }
 
     // 按优先级插入
-    const insertIndex = notifications.value.findIndex(
-      n => n.priority < notification.priority
-    );
+    const insertIndex = notifications.value.findIndex(n => n.priority < notification.priority);
 
     if (insertIndex === -1) {
       notifications.value.push(notification);
@@ -157,7 +155,7 @@ export function useNotificationSystem() {
         alert: '/sounds/alert.mp3',
         notification: '/sounds/notification.mp3',
         success: '/sounds/success.mp3',
-        info: '/sounds/info.mp3'
+        info: '/sounds/info.mp3',
       };
 
       const soundFile = soundMap[soundType] || soundMap.notification;
@@ -176,14 +174,14 @@ export function useNotificationSystem() {
   /**
    * 触觉反馈
    */
-  const triggerVibration = (priority) => {
+  const triggerVibration = priority => {
     if ('vibrate' in navigator) {
       const patterns = {
         low: [50],
         normal: [100],
         high: [150],
         urgent: [100, 50, 100],
-        emergency: [200, 100, 200, 100, 200]
+        emergency: [200, 100, 200, 100, 200],
       };
       navigator.vibrate(patterns[priority] || patterns.normal);
     }
@@ -192,7 +190,7 @@ export function useNotificationSystem() {
   /**
    * 显示桌面通知
    */
-  const showDesktopNotification = async (notification) => {
+  const showDesktopNotification = async notification => {
     if ('Notification' in window) {
       // 请求权限
       if (Notification.permission === 'default') {
@@ -207,7 +205,7 @@ export function useNotificationSystem() {
           tag: notification.id,
           requireInteraction: notification.priority >= 4,
           silent: false,
-          timestamp: notification.timestamp.getTime()
+          timestamp: notification.timestamp.getTime(),
         });
 
         // 处理点击事件
@@ -229,7 +227,7 @@ export function useNotificationSystem() {
   /**
    * 显示ElementPlus通知
    */
-  const showElementNotification = (notification) => {
+  const showElementNotification = notification => {
     const elementType = getElementNotificationType(notification.type);
 
     ElNotification({
@@ -241,21 +239,21 @@ export function useNotificationSystem() {
       showClose: true,
       dangerouslyUseHTMLString: false,
       onClick: () => handleNotificationClick(notification),
-      onClose: () => markNotificationRead(notification.id)
+      onClose: () => markNotificationRead(notification.id),
     });
   };
 
   /**
    * 获取ElementPlus通知类型
    */
-  const getElementNotificationType = (type) => {
+  const getElementNotificationType = type => {
     const typeMap = {
       success: 'success',
       approval: 'info',
       budget: 'warning',
       expense: 'warning',
       emergency: 'error',
-      system: 'info'
+      system: 'info',
     };
     return typeMap[type] || 'info';
   };
@@ -263,7 +261,7 @@ export function useNotificationSystem() {
   /**
    * 处理通知点击
    */
-  const handleNotificationClick = (notification) => {
+  const handleNotificationClick = notification => {
     markNotificationRead(notification.id);
 
     // 根据通知类型执行相应操作
@@ -293,7 +291,7 @@ export function useNotificationSystem() {
   /**
    * 标记通知为已读
    */
-  const markNotificationRead = (notificationId) => {
+  const markNotificationRead = notificationId => {
     const notification = notifications.value.find(n => n.id === notificationId);
     if (notification) {
       notification.read = true;
@@ -312,7 +310,7 @@ export function useNotificationSystem() {
   /**
    * 清除通知
    */
-  const dismissNotification = (notificationId) => {
+  const dismissNotification = notificationId => {
     const index = notifications.value.findIndex(n => n.id === notificationId);
     if (index > -1) {
       notifications.value.splice(index, 1);
@@ -329,7 +327,7 @@ export function useNotificationSystem() {
   /**
    * 判断是否应该显示桌面通知
    */
-  const shouldShowDesktopNotification = (priority) => {
+  const shouldShowDesktopNotification = priority => {
     return priority === 'urgent' || priority === 'emergency';
   };
 
@@ -343,45 +341,45 @@ export function useNotificationSystem() {
   /**
    * 预定义的通知类型方法
    */
-  const showApprovalNotification = (options) => {
+  const showApprovalNotification = options => {
     return showNotification({
       type: 'approval',
       priority: 'high',
-      ...options
+      ...options,
     });
   };
 
-  const showBudgetWarning = (options) => {
+  const showBudgetWarning = options => {
     return showNotification({
       type: 'budget',
       priority: 'high',
-      ...options
+      ...options,
     });
   };
 
-  const showExpenseAlert = (options) => {
+  const showExpenseAlert = options => {
     return showNotification({
       type: 'expense',
       priority: 'normal',
-      ...options
+      ...options,
     });
   };
 
-  const showEmergencyAlert = (options) => {
+  const showEmergencyAlert = options => {
     return showNotification({
       type: 'emergency',
       priority: 'emergency',
       persistent: true,
-      ...options
+      ...options,
     });
   };
 
-  const showSuccessNotification = (options) => {
+  const showSuccessNotification = options => {
     return showNotification({
       type: 'success',
       priority: 'normal',
       duration: 3000,
-      ...options
+      ...options,
     });
   };
 
@@ -404,7 +402,7 @@ export function useNotificationSystem() {
   });
 
   // 通知设置
-  const updateNotificationSettings = (settings) => {
+  const updateNotificationSettings = settings => {
     if (settings.hasOwnProperty('sound')) {
       soundEnabled.value = settings.sound;
     }
@@ -433,7 +431,7 @@ export function useNotificationSystem() {
     markAllRead,
     dismissNotification,
     clearAllNotifications,
-    updateNotificationSettings
+    updateNotificationSettings,
   };
 }
 
@@ -449,7 +447,7 @@ export function useNotificationCenter() {
     markNotificationRead,
     markAllRead,
     dismissNotification,
-    clearAllNotifications
+    clearAllNotifications,
   } = useNotificationSystem();
 
   const centerVisible = ref(false);
@@ -478,6 +476,6 @@ export function useNotificationCenter() {
     markNotificationRead,
     markAllRead,
     dismissNotification,
-    clearAllNotifications
+    clearAllNotifications,
   };
 }

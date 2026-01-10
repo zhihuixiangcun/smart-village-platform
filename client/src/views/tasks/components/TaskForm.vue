@@ -49,7 +49,11 @@
 
         <el-col :span="12">
           <el-form-item label="优先级" prop="priority">
-            <el-rate v-model="formData.priority" :texts="['很低', '低', '中', '高', '很高']" show-text />
+            <el-rate
+              v-model="formData.priority"
+              :texts="['很低', '低', '中', '高', '很高']"
+              show-text
+            />
           </el-form-item>
         </el-col>
       </el-row>
@@ -175,12 +179,7 @@
           placeholder="请输入标签"
           style="width: 100%"
         >
-          <el-option
-            v-for="tag in commonTags"
-            :key="tag"
-            :label="tag"
-            :value="tag"
-          />
+          <el-option v-for="tag in commonTags" :key="tag" :label="tag" :value="tag" />
         </el-select>
       </el-form-item>
 
@@ -188,16 +187,8 @@
 
       <el-form-item label="子任务">
         <div class="subtasks-list">
-          <div
-            v-for="(subtask, index) in formData.subtasks"
-            :key="index"
-            class="subtask-item"
-          >
-            <el-input
-              v-model="subtask.title"
-              placeholder="子任务内容"
-              style="flex: 1"
-            />
+          <div v-for="(subtask, index) in formData.subtasks" :key="index" class="subtask-item">
+            <el-input v-model="subtask.title" placeholder="子任务内容" style="flex: 1" />
             <el-date-picker
               v-model="subtask.dueDate"
               type="date"
@@ -232,34 +223,41 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick } from 'vue'
-import { ElMessage } from 'element-plus'
-import { Delete, Plus, WarningFilled, TrendCharts, Odometer, DeleteFilled } from '@element-plus/icons-vue'
-import { cadreTaskApi } from '@/api'
-import { useUserStore } from '@/stores/user'
+import { ref, computed, watch, nextTick } from 'vue';
+import { ElMessage } from 'element-plus';
+import {
+  Delete,
+  Plus,
+  WarningFilled,
+  TrendCharts,
+  Odometer,
+  DeleteFilled,
+} from '@element-plus/icons-vue';
+import { cadreTaskApi } from '@/api';
+import { useUserStore } from '@/stores/user';
 
 const props = defineProps({
   modelValue: {
     type: Boolean,
-    default: false
+    default: false,
   },
   task: {
     type: Object,
-    default: null
-  }
-})
+    default: null,
+  },
+});
 
-const emit = defineEmits(['update:modelValue', 'saved'])
+const emit = defineEmits(['update:modelValue', 'saved']);
 
-const userStore = useUserStore()
-const formRef = ref(null)
-const submitting = ref(false)
-const availableUsers = ref([])
+const userStore = useUserStore();
+const formRef = ref(null);
+const submitting = ref(false);
+const availableUsers = ref([]);
 
 const visible = computed({
   get: () => props.modelValue,
-  set: (val) => emit('update:modelValue', val)
-})
+  set: val => emit('update:modelValue', val),
+});
 
 const quadrants = [
   {
@@ -267,32 +265,32 @@ const quadrants = [
     label: '重要且紧急',
     description: '立即处理',
     color: '#ff6b6b',
-    icon: WarningFilled
+    icon: WarningFilled,
   },
   {
     value: 'important-not-urgent',
     label: '重要不紧急',
     description: '计划安排',
     color: '#ffd93d',
-    icon: TrendCharts
+    icon: TrendCharts,
   },
   {
     value: 'urgent-not-important',
     label: '紧急不重要',
     description: '授权他人',
     color: '#a8e6cf',
-    icon: Odometer
+    icon: Odometer,
   },
   {
     value: 'not-urgent-not-important',
     label: '不重要不紧急',
     description: '最后处理',
     color: '#b2bec3',
-    icon: DeleteFilled
-  }
-]
+    icon: DeleteFilled,
+  },
+];
 
-const commonTags = ['重要', '紧急', '会议', '调研', '财务', '项目', '日常']
+const commonTags = ['重要', '紧急', '会议', '调研', '财务', '项目', '日常'];
 
 const formData = ref({
   title: '',
@@ -308,46 +306,52 @@ const formData = ref({
   assignee: null,
   completionCriteria: '',
   tags: [],
-  subtasks: []
-})
+  subtasks: [],
+});
 
 const formRules = {
   title: [{ required: true, message: '请输入任务标题', trigger: 'blur' }],
   category: [{ required: true, message: '请选择任务类别', trigger: 'change' }],
   quadrant: [{ required: true, message: '请选择象限', trigger: 'change' }],
-  assignee: [{ required: true, message: '请选择负责人', trigger: 'change' }]
-}
+  assignee: [{ required: true, message: '请选择负责人', trigger: 'change' }],
+};
 
 // 监听task变化，填充表单
-watch(() => props.task, (newTask) => {
-  if (newTask) {
-    formData.value = {
-      title: newTask.title || '',
-      description: newTask.description || '',
-      category: newTask.category || 'governance',
-      quadrant: newTask.quadrant || 'important-not-urgent',
-      priority: newTask.priority || 3,
-      status: newTask.status || 'pending',
-      progress: newTask.progress || 0,
-      dueDate: newTask.dueDate ? new Date(newTask.dueDate).toISOString().split('T')[0] : null,
-      startDate: newTask.startDate ? new Date(newTask.startDate).toISOString().split('T')[0] : null,
-      estimatedHours: newTask.estimatedHours || null,
-      assignee: newTask.assignee?._id || newTask.assignee || null,
-      completionCriteria: newTask.completionCriteria || '',
-      tags: newTask.tags || [],
-      subtasks: newTask.subtasks || []
+watch(
+  () => props.task,
+  newTask => {
+    if (newTask) {
+      formData.value = {
+        title: newTask.title || '',
+        description: newTask.description || '',
+        category: newTask.category || 'governance',
+        quadrant: newTask.quadrant || 'important-not-urgent',
+        priority: newTask.priority || 3,
+        status: newTask.status || 'pending',
+        progress: newTask.progress || 0,
+        dueDate: newTask.dueDate ? new Date(newTask.dueDate).toISOString().split('T')[0] : null,
+        startDate: newTask.startDate
+          ? new Date(newTask.startDate).toISOString().split('T')[0]
+          : null,
+        estimatedHours: newTask.estimatedHours || null,
+        assignee: newTask.assignee?._id || newTask.assignee || null,
+        completionCriteria: newTask.completionCriteria || '',
+        tags: newTask.tags || [],
+        subtasks: newTask.subtasks || [],
+      };
+    } else {
+      resetForm();
     }
-  } else {
-    resetForm()
-  }
-}, { immediate: true })
+  },
+  { immediate: true }
+);
 
 // 监听对话框打开
-watch(visible, async (isOpen) => {
+watch(visible, async isOpen => {
   if (isOpen) {
-    await loadAvailableUsers()
+    await loadAvailableUsers();
   }
-})
+});
 
 const loadAvailableUsers = async () => {
   // 这里应该调用API获取可分配的用户列表
@@ -355,9 +359,9 @@ const loadAvailableUsers = async () => {
   availableUsers.value = [
     { _id: '1', username: 'admin', profile: { nickName: '管理员' } },
     { _id: '2', username: 'cadre1', profile: { nickName: '村干部1' } },
-    { _id: '3', username: 'cadre2', profile: { nickName: '村干部2' } }
-  ]
-}
+    { _id: '3', username: 'cadre2', profile: { nickName: '村干部2' } },
+  ];
+};
 
 const resetForm = () => {
   formData.value = {
@@ -374,68 +378,69 @@ const resetForm = () => {
     assignee: null,
     completionCriteria: '',
     tags: [],
-    subtasks: []
-  }
-  formRef.value?.clearValidate()
-}
+    subtasks: [],
+  };
+  formRef.value?.clearValidate();
+};
 
 const addSubtask = () => {
   formData.value.subtasks.push({
     title: '',
     completed: false,
-    dueDate: null
-  })
-}
+    dueDate: null,
+  });
+};
 
-const removeSubtask = (index) => {
-  formData.value.subtasks.splice(index, 1)
-}
+const removeSubtask = index => {
+  formData.value.subtasks.splice(index, 1);
+};
 
 const handleClose = () => {
-  resetForm()
-  visible.value = false
-}
+  resetForm();
+  visible.value = false;
+};
 
 const handleSubmit = async () => {
   try {
-    await formRef.value.validate()
+    await formRef.value.validate();
 
-    submitting.value = true
+    submitting.value = true;
 
-    const villageId = userStore.user?.villageId
+    const villageId = userStore.user?.villageId;
     if (!villageId) {
-      ElMessage.warning('请先选择村庄')
-      return
+      ElMessage.warning('请先选择村庄');
+      return;
     }
 
     const payload = {
       ...formData.value,
       villageId,
-      createdBy: userStore.user?.id
-    }
+      createdBy: userStore.user?.id,
+    };
 
-    let response
+    let response;
     if (props.task) {
-      response = await cadreTaskApi.updateTask(props.task._id, payload)
+      response = await cadreTaskApi.updateTask(props.task._id, payload);
     } else {
-      response = await cadreTaskApi.createTask(payload)
+      response = await cadreTaskApi.createTask(payload);
     }
 
     if (response.data.success) {
-      ElMessage.success(props.task ? '任务更新成功' : '任务创建成功')
-      emit('saved')
+      ElMessage.success(props.task ? '任务更新成功' : '任务创建成功');
+      emit('saved');
     } else {
-      ElMessage.error(response.data.message || '操作失败')
+      ElMessage.error(response.data.message || '操作失败');
     }
   } catch (error) {
-    console.error('Submit task error:', error)
-    if (error !== false) { // 不是验证错误
-      ElMessage.error('操作失败，请稍后重试')
+    console.error('Submit task error:', error);
+    if (error !== false) {
+      // 不是验证错误
+      ElMessage.error('操作失败，请稍后重试');
     }
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
-}
+};
 </script>
 
 <style scoped>

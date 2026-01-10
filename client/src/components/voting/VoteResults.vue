@@ -105,7 +105,7 @@
               v-for="(result, index) in sortedResults"
               :key="result.optionId"
               class="result-item"
-              :class="{ 'winner': index === 0 }"
+              :class="{ winner: index === 0 }"
             >
               <div class="result-header">
                 <div class="rank-info">
@@ -135,12 +135,10 @@
                   class="bar-fill"
                   :style="{
                     width: result.percentage + '%',
-                    backgroundColor: getBarColor(index)
+                    backgroundColor: getBarColor(index),
                   }"
                 ></div>
-                <div class="bar-text">
-                  {{ result.voteCount }} 票 ({{ result.percentage }}%)
-                </div>
+                <div class="bar-text">{{ result.voteCount }} 票 ({{ result.percentage }}%)</div>
               </div>
             </div>
           </div>
@@ -169,7 +167,7 @@
                 </div>
                 <div class="analysis-item">
                   <span class="label">结果性质:</span>
-                  <span class="value" :class="{ 'decisive': isDecisiveWin() }">
+                  <span class="value" :class="{ decisive: isDecisiveWin() }">
                     {{ isDecisiveWin() ? '过半数胜出' : '相对多数胜出' }}
                   </span>
                 </div>
@@ -221,15 +219,18 @@
                 </div>
                 <div class="quality-indicators">
                   <div class="indicator">
-                    <i class="el-icon-shield" :class="{ 'active': getTrustScore() >= 80 }"></i>
+                    <i class="el-icon-shield" :class="{ active: getTrustScore() >= 80 }"></i>
                     <span>投票安全</span>
                   </div>
                   <div class="indicator">
-                    <i class="el-icon-pie-chart" :class="{ 'active': vote.participationRate >= 60 }"></i>
+                    <i
+                      class="el-icon-pie-chart"
+                      :class="{ active: vote.participationRate >= 60 }"
+                    ></i>
                     <span>参与充分</span>
                   </div>
                   <div class="indicator">
-                    <i class="el-icon-medal" :class="{ 'active': isDecisiveWin() }"></i>
+                    <i class="el-icon-medal" :class="{ active: isDecisiveWin() }"></i>
                     <span>结果明确</span>
                   </div>
                 </div>
@@ -251,15 +252,9 @@
       <div class="export-section">
         <h2>数据导出</h2>
         <div class="export-actions">
-          <el-button icon="el-icon-download" @click="exportResults('excel')">
-            导出Excel
-          </el-button>
-          <el-button icon="el-icon-document" @click="exportResults('pdf')">
-            导出PDF报告
-          </el-button>
-          <el-button icon="el-icon-picture" @click="exportChart">
-            导出图表
-          </el-button>
+          <el-button icon="el-icon-download" @click="exportResults('excel')"> 导出Excel </el-button>
+          <el-button icon="el-icon-document" @click="exportResults('pdf')"> 导出PDF报告 </el-button>
+          <el-button icon="el-icon-picture" @click="exportChart"> 导出图表 </el-button>
         </div>
       </div>
     </div>
@@ -267,9 +262,9 @@
 </template>
 
 <script>
-import { votingAPI } from '@/api/voting'
-import { formatDate } from '@/utils/dateUtils'
-import * as echarts from 'echarts'
+import { votingAPI } from '@/api/voting';
+import { formatDate } from '@/utils/dateUtils';
+import * as echarts from 'echarts';
 
 export default {
   name: 'VoteResults',
@@ -280,94 +275,94 @@ export default {
       viewMode: 'chart',
       pieChart: null,
       barChart: null,
-      timelineChart: null
-    }
+      timelineChart: null,
+    };
   },
   computed: {
     voteId() {
-      return this.$route.params.id
+      return this.$route.params.id;
     },
     sortedResults() {
-      if (!this.vote || !this.vote.results) return []
-      return [...this.vote.results.options].sort((a, b) => b.voteCount - a.voteCount)
-    }
+      if (!this.vote || !this.vote.results) return [];
+      return [...this.vote.results.options].sort((a, b) => b.voteCount - a.voteCount);
+    },
   },
   created() {
-    this.loadVoteResults()
+    this.loadVoteResults();
   },
   mounted() {
     this.$nextTick(() => {
-      this.initCharts()
-    })
+      this.initCharts();
+    });
   },
   beforeDestroy() {
-    this.destroyCharts()
+    this.destroyCharts();
   },
   methods: {
     async loadVoteResults() {
-      this.loading = true
+      this.loading = true;
       try {
-        const response = await votingAPI.getVoteResults(this.voteId)
+        const response = await votingAPI.getVoteResults(this.voteId);
 
         if (response.data.success) {
-          this.vote = response.data.data
+          this.vote = response.data.data;
           this.$nextTick(() => {
-            this.updateCharts()
-          })
+            this.updateCharts();
+          });
         }
       } catch (error) {
-        this.$message.error('加载投票结果失败')
-        console.error(error)
+        this.$message.error('加载投票结果失败');
+        console.error(error);
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
 
     async refreshResults() {
-      await this.loadVoteResults()
-      this.$message.success('结果已刷新')
+      await this.loadVoteResults();
+      this.$message.success('结果已刷新');
     },
 
     initCharts() {
       if (this.$refs.pieChart) {
-        this.pieChart = echarts.init(this.$refs.pieChart)
+        this.pieChart = echarts.init(this.$refs.pieChart);
       }
       if (this.$refs.barChart) {
-        this.barChart = echarts.init(this.$refs.barChart)
+        this.barChart = echarts.init(this.$refs.barChart);
       }
       if (this.$refs.timelineChart) {
-        this.timelineChart = echarts.init(this.$refs.timelineChart)
+        this.timelineChart = echarts.init(this.$refs.timelineChart);
       }
-      this.updateCharts()
+      this.updateCharts();
     },
 
     updateCharts() {
-      if (!this.vote || !this.vote.results) return
+      if (!this.vote || !this.vote.results) return;
 
-      this.updatePieChart()
-      this.updateBarChart()
-      this.updateTimelineChart()
+      this.updatePieChart();
+      this.updateBarChart();
+      this.updateTimelineChart();
     },
 
     updatePieChart() {
-      if (!this.pieChart) return
+      if (!this.pieChart) return;
 
       const data = this.vote.results.options.map((option, index) => ({
         name: option.title,
         value: option.voteCount,
         itemStyle: {
-          color: this.getChartColor(index)
-        }
-      }))
+          color: this.getChartColor(index),
+        },
+      }));
 
       const option = {
         tooltip: {
           trigger: 'item',
-          formatter: '{a} <br/>{b}: {c} ({d}%)'
+          formatter: '{a} <br/>{b}: {c} ({d}%)',
         },
         legend: {
           orient: 'vertical',
-          left: 'left'
+          left: 'left',
         },
         series: [
           {
@@ -377,53 +372,55 @@ export default {
             avoidLabelOverlap: false,
             label: {
               show: true,
-              formatter: '{b}: {c}票\n({d}%)'
+              formatter: '{b}: {c}票\n({d}%)',
             },
             emphasis: {
               label: {
                 show: true,
                 fontSize: '14',
-                fontWeight: 'bold'
-              }
+                fontWeight: 'bold',
+              },
             },
-            data: data
-          }
-        ]
-      }
+            data: data,
+          },
+        ],
+      };
 
-      this.pieChart.setOption(option)
+      this.pieChart.setOption(option);
     },
 
     updateBarChart() {
-      if (!this.barChart) return
+      if (!this.barChart) return;
 
-      const sortedOptions = [...this.vote.results.options].sort((a, b) => b.voteCount - a.voteCount)
-      const xData = sortedOptions.map(option => option.title)
-      const yData = sortedOptions.map(option => option.voteCount)
+      const sortedOptions = [...this.vote.results.options].sort(
+        (a, b) => b.voteCount - a.voteCount
+      );
+      const xData = sortedOptions.map(option => option.title);
+      const yData = sortedOptions.map(option => option.voteCount);
 
       const option = {
         tooltip: {
           trigger: 'axis',
           axisPointer: {
-            type: 'shadow'
-          }
+            type: 'shadow',
+          },
         },
         grid: {
           left: '3%',
           right: '4%',
           bottom: '3%',
-          containLabel: true
+          containLabel: true,
         },
         xAxis: {
           type: 'category',
           data: xData,
           axisLabel: {
             interval: 0,
-            rotate: 30
-          }
+            rotate: 30,
+          },
         },
         yAxis: {
-          type: 'value'
+          type: 'value',
         },
         series: [
           {
@@ -432,22 +429,22 @@ export default {
             data: yData.map((value, index) => ({
               value,
               itemStyle: {
-                color: this.getChartColor(index)
-              }
+                color: this.getChartColor(index),
+              },
             })),
             label: {
               show: true,
-              position: 'top'
-            }
-          }
-        ]
-      }
+              position: 'top',
+            },
+          },
+        ],
+      };
 
-      this.barChart.setOption(option)
+      this.barChart.setOption(option);
     },
 
     updateTimelineChart() {
-      if (!this.timelineChart || !this.vote.results.timeline) return
+      if (!this.timelineChart || !this.vote.results.timeline) return;
 
       // 这里可以添加时间线图表的实现
       // 需要后端提供时间分布数据
@@ -455,99 +452,99 @@ export default {
 
     destroyCharts() {
       if (this.pieChart) {
-        this.pieChart.dispose()
-        this.pieChart = null
+        this.pieChart.dispose();
+        this.pieChart = null;
       }
       if (this.barChart) {
-        this.barChart.dispose()
-        this.barChart = null
+        this.barChart.dispose();
+        this.barChart = null;
       }
       if (this.timelineChart) {
-        this.timelineChart.dispose()
-        this.timelineChart = null
+        this.timelineChart.dispose();
+        this.timelineChart = null;
       }
     },
 
     getWinningOption() {
-      if (!this.vote || !this.vote.results) return { title: '', voteCount: 0, percentage: 0 }
-      return this.sortedResults[0] || { title: '', voteCount: 0, percentage: 0 }
+      if (!this.vote || !this.vote.results) return { title: '', voteCount: 0, percentage: 0 };
+      return this.sortedResults[0] || { title: '', voteCount: 0, percentage: 0 };
     },
 
     getLeadMargin() {
-      const sorted = this.sortedResults
-      if (sorted.length < 2) return 0
-      return sorted[0].voteCount - sorted[1].voteCount
+      const sorted = this.sortedResults;
+      if (sorted.length < 2) return 0;
+      return sorted[0].voteCount - sorted[1].voteCount;
     },
 
     isDecisiveWin() {
-      const winner = this.getWinningOption()
-      return winner.percentage > 50
+      const winner = this.getWinningOption();
+      return winner.percentage > 50;
     },
 
     getTrustScore() {
       // 简化的信任度计算
-      const baseScore = 80
-      const participationBonus = Math.min(20, this.vote.participationRate * 0.3)
-      return Math.round(baseScore + participationBonus)
+      const baseScore = 80;
+      const participationBonus = Math.min(20, this.vote.participationRate * 0.3);
+      return Math.round(baseScore + participationBonus);
     },
 
     getCompetitiveness() {
       // 计算竞争激烈度
-      const sorted = this.sortedResults
-      if (sorted.length < 2) return '低'
+      const sorted = this.sortedResults;
+      if (sorted.length < 2) return '低';
 
-      const margin = (sorted[0].voteCount - sorted[1].voteCount) / this.vote.totalVoted * 100
-      if (margin < 5) return '激烈'
-      if (margin < 15) return '中等'
-      return '明显'
+      const margin = ((sorted[0].voteCount - sorted[1].voteCount) / this.vote.totalVoted) * 100;
+      if (margin < 5) return '激烈';
+      if (margin < 15) return '中等';
+      return '明显';
     },
 
     getOptionDescription(optionId) {
       // 这里需要从投票详情中获取选项描述
-      return ''
+      return '';
     },
 
     getStatusType(vote) {
-      return 'info' // 结果页面都是已结束状态
+      return 'info'; // 结果页面都是已结束状态
     },
 
     getStatusText(vote) {
-      return '已结束'
+      return '已结束';
     },
 
     getVoteTypeText(voteType) {
       const types = {
-        'single_choice': '单选投票',
-        'multiple_choice': '多选投票',
-        'ranking': '排序投票',
-        'rating': '评分投票',
-        'yes_no': '是否投票'
-      }
-      return types[voteType] || '未知类型'
+        single_choice: '单选投票',
+        multiple_choice: '多选投票',
+        ranking: '排序投票',
+        rating: '评分投票',
+        yes_no: '是否投票',
+      };
+      return types[voteType] || '未知类型';
     },
 
     getBarColor(index) {
-      const colors = ['#67c23a', '#409eff', '#e6a23c', '#f56c6c', '#909399']
-      return colors[index % colors.length]
+      const colors = ['#67c23a', '#409eff', '#e6a23c', '#f56c6c', '#909399'];
+      return colors[index % colors.length];
     },
 
     getChartColor(index) {
-      const colors = ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272', '#fc8452']
-      return colors[index % colors.length]
+      const colors = ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272', '#fc8452'];
+      return colors[index % colors.length];
     },
 
     getParticipationColor(rate) {
-      if (rate >= 80) return '#67c23a'
-      if (rate >= 60) return '#e6a23c'
-      return '#f56c6c'
+      if (rate >= 80) return '#67c23a';
+      if (rate >= 60) return '#e6a23c';
+      return '#f56c6c';
     },
 
     async exportResults(format) {
       try {
         // 这里可以调用后端API导出数据
-        this.$message.success(`正在导出${format.toUpperCase()}格式...`)
+        this.$message.success(`正在导出${format.toUpperCase()}格式...`);
       } catch (error) {
-        this.$message.error('导出失败')
+        this.$message.error('导出失败');
       }
     },
 
@@ -555,18 +552,18 @@ export default {
       if (this.pieChart) {
         const url = this.pieChart.getDataURL({
           pixelRatio: 2,
-          backgroundColor: '#fff'
-        })
-        const link = document.createElement('a')
-        link.download = `投票结果_${this.vote.title}.png`
-        link.href = url
-        link.click()
+          backgroundColor: '#fff',
+        });
+        const link = document.createElement('a');
+        link.download = `投票结果_${this.vote.title}.png`;
+        link.href = url;
+        link.click();
       }
     },
 
-    formatDate
-  }
-}
+    formatDate,
+  },
+};
 </script>
 
 <style scoped>

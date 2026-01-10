@@ -21,10 +21,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref } from 'vue';
 
-const title = ref('角色管理')
-const name = ref('RolesView')
+const title = ref('角色管理');
+const name = ref('RolesView');
 </script>
 
 <style lang="scss" scoped>

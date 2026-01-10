@@ -24,7 +24,7 @@
         <el-col :span="6">
           <el-card shadow="hover" class="stat-card">
             <div class="stat-content">
-              <div class="stat-icon" style="background: #409EFF">
+              <div class="stat-icon" style="background: #409eff">
                 <el-icon size="24"><House /></el-icon>
               </div>
               <div class="stat-info">
@@ -37,7 +37,7 @@
         <el-col :span="6">
           <el-card shadow="hover" class="stat-card">
             <div class="stat-content">
-              <div class="stat-icon" style="background: #67C23A">
+              <div class="stat-icon" style="background: #67c23a">
                 <el-icon size="24"><User /></el-icon>
               </div>
               <div class="stat-info">
@@ -50,7 +50,7 @@
         <el-col :span="6">
           <el-card shadow="hover" class="stat-card">
             <div class="stat-content">
-              <div class="stat-icon" style="background: #E6A23C">
+              <div class="stat-icon" style="background: #e6a23c">
                 <el-icon size="24"><Star /></el-icon>
               </div>
               <div class="stat-info">
@@ -63,7 +63,7 @@
         <el-col :span="6">
           <el-card shadow="hover" class="stat-card">
             <div class="stat-content">
-              <div class="stat-icon" style="background: #F56C6C">
+              <div class="stat-icon" style="background: #f56c6c">
                 <el-icon size="24"><Warning /></el-icon>
               </div>
               <div class="stat-info">
@@ -195,38 +195,20 @@
         </el-table-column>
         <el-table-column label="优先级" width="100" align="center">
           <template #default="{ row }">
-            <el-tag
-              :type="getPriorityType(row.specialFlags?.helpPriority)"
-              size="small"
-            >
+            <el-tag :type="getPriorityType(row.specialFlags?.helpPriority)" size="small">
               {{ row.specialFlags?.helpPriority || 1 }}
             </el-tag>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="180" fixed="right">
           <template #default="{ row }">
-            <el-button
-              link
-              type="primary"
-              size="small"
-              @click.stop="handleViewFamily(row)"
-            >
+            <el-button link type="primary" size="small" @click.stop="handleViewFamily(row)">
               查看
             </el-button>
-            <el-button
-              link
-              type="primary"
-              size="small"
-              @click.stop="handleEditFamily(row)"
-            >
+            <el-button link type="primary" size="small" @click.stop="handleEditFamily(row)">
               编辑
             </el-button>
-            <el-button
-              link
-              type="danger"
-              size="small"
-              @click.stop="handleDeleteFamily(row)"
-            >
+            <el-button link type="danger" size="small" @click.stop="handleDeleteFamily(row)">
               删除
             </el-button>
           </template>
@@ -248,116 +230,106 @@
     </el-card>
 
     <!-- 创建/编辑家庭对话框 -->
-    <FamilyForm
-      v-model="showFormDialog"
-      :family="currentFamily"
-      @submit="handleFormSubmit"
-    />
+    <FamilyForm v-model="showFormDialog" :family="currentFamily" @submit="handleFormSubmit" />
 
     <!-- 家庭详情对话框 -->
-    <FamilyDetailDialog
-      v-model="showDetailDialog"
-      :family-id="currentFamilyId"
-    />
+    <FamilyDetailDialog v-model="showDetailDialog" :family-id="currentFamilyId" />
 
     <!-- 二维码显示对话框 -->
-    <QRCodeDisplay
-      v-model="showQRDialog"
-      :family="currentFamily"
-    />
+    <QRCodeDisplay v-model="showQRDialog" :family="currentFamily" />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus, Download, Search, House, User, Star, Warning } from '@element-plus/icons-vue'
-import { useFamilyStore } from '@/stores/familyStore'
-import FamilyForm from '@/components/family/FamilyForm.vue'
-import FamilyDetailDialog from '@/components/family/FamilyDetailDialog.vue'
-import QRCodeDisplay from '@/components/family/QRCodeDisplay.vue'
+import { ref, onMounted, computed } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { Plus, Download, Search, House, User, Star, Warning } from '@element-plus/icons-vue';
+import { useFamilyStore } from '@/stores/familyStore';
+import FamilyForm from '@/components/family/FamilyForm.vue';
+import FamilyDetailDialog from '@/components/family/FamilyDetailDialog.vue';
+import QRCodeDisplay from '@/components/family/QRCodeDisplay.vue';
 
-const familyStore = useFamilyStore()
+const familyStore = useFamilyStore();
 const villageId = computed(() => {
   // 从路由或用户信息获取当前村庄ID
-  return localStorage.getItem('currentVillageId') || ''
-})
+  return localStorage.getItem('currentVillageId') || '';
+});
 
 // 对话框状态
-const showFormDialog = ref(false)
-const showDetailDialog = ref(false)
-const showQRDialog = ref(false)
+const showFormDialog = ref(false);
+const showDetailDialog = ref(false);
+const showQRDialog = ref(false);
 
 // 当前操作的家庭
-const currentFamily = ref(null)
-const currentFamilyId = ref(null)
+const currentFamily = ref(null);
+const currentFamilyId = ref(null);
 
 // 筛选条件
-const filters = computed(() => familyStore.filters)
+const filters = computed(() => familyStore.filters);
 
 // 统计数据
-const statistics = computed(() => familyStore.statistics)
+const statistics = computed(() => familyStore.statistics);
 
 // 初始化
 onMounted(async () => {
-  await loadFamilies()
-  await loadStatistics()
-})
+  await loadFamilies();
+  await loadStatistics();
+});
 
 // 加载家庭列表
 async function loadFamilies() {
   try {
-    await familyStore.fetchFamilies(villageId.value)
+    await familyStore.fetchFamilies(villageId.value);
   } catch (error) {
-    ElMessage.error('加载家庭列表失败')
+    ElMessage.error('加载家庭列表失败');
   }
 }
 
 // 加载统计数据
 async function loadStatistics() {
   try {
-    await familyStore.fetchStatistics(villageId.value)
+    await familyStore.fetchStatistics(villageId.value);
   } catch (error) {
-    console.error('加载统计数据失败:', error)
+    console.error('加载统计数据失败:', error);
   }
 }
 
 // 搜索
 function handleSearch() {
-  familyStore.setFilter('keyword', filters.value.keyword)
-  loadFamilies()
+  familyStore.setFilter('keyword', filters.value.keyword);
+  loadFamilies();
 }
 
 // 筛选
 function handleFilter() {
-  familyStore.setFilter('familyType', filters.value.familyType)
-  familyStore.setFilter('riskLevel', filters.value.riskLevel)
-  familyStore.setFilter('needsVisit', filters.value.needsVisit)
-  loadFamilies()
+  familyStore.setFilter('familyType', filters.value.familyType);
+  familyStore.setFilter('riskLevel', filters.value.riskLevel);
+  familyStore.setFilter('needsVisit', filters.value.needsVisit);
+  loadFamilies();
 }
 
 // 重置
 function handleReset() {
-  familyStore.clearFilters()
-  loadFamilies()
+  familyStore.clearFilters();
+  loadFamilies();
 }
 
 // 显示创建对话框
 function showCreateDialog() {
-  currentFamily.value = null
-  showFormDialog.value = true
+  currentFamily.value = null;
+  showFormDialog.value = true;
 }
 
 // 编辑家庭
 function handleEditFamily(family) {
-  currentFamily.value = family
-  showFormDialog.value = true
+  currentFamily.value = family;
+  showFormDialog.value = true;
 }
 
 // 查看家庭详情
 function handleViewFamily(family) {
-  currentFamilyId.value = family._id
-  showDetailDialog.value = true
+  currentFamilyId.value = family._id;
+  showDetailDialog.value = true;
 }
 
 // 删除家庭
@@ -369,16 +341,16 @@ async function handleDeleteFamily(family) {
       {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
       }
-    )
+    );
 
-    await familyStore.deleteFamily(family._id)
-    ElMessage.success('删除成功')
-    await loadStatistics()
+    await familyStore.deleteFamily(family._id);
+    ElMessage.success('删除成功');
+    await loadStatistics();
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('删除失败')
+      ElMessage.error('删除失败');
     }
   }
 }
@@ -387,51 +359,51 @@ async function handleDeleteFamily(family) {
 async function handleFormSubmit(formData) {
   try {
     if (formData._id) {
-      await familyStore.updateFamily(formData._id, formData)
-      ElMessage.success('更新成功')
+      await familyStore.updateFamily(formData._id, formData);
+      ElMessage.success('更新成功');
     } else {
       await familyStore.createFamily({
         ...formData,
-        villageId: villageId.value
-      })
-      ElMessage.success('创建成功')
+        villageId: villageId.value,
+      });
+      ElMessage.success('创建成功');
     }
 
-    showFormDialog.value = false
-    await loadFamilies()
-    await loadStatistics()
+    showFormDialog.value = false;
+    await loadFamilies();
+    await loadStatistics();
   } catch (error) {
-    ElMessage.error(error.message || '操作失败')
+    ElMessage.error(error.message || '操作失败');
   }
 }
 
 // 导出数据
 async function handleExport() {
   try {
-    const data = await familyStore.filteredFamilies
+    const data = await familyStore.filteredFamilies;
     // 实际应该调用API导出
-    ElMessage.success('导出成功')
+    ElMessage.success('导出成功');
   } catch (error) {
-    ElMessage.error('导出失败')
+    ElMessage.error('导出失败');
   }
 }
 
 // 分页
 function handlePageChange(page) {
-  familyStore.setPagination(page, familyStore.pagination.pageSize)
-  loadFamilies()
+  familyStore.setPagination(page, familyStore.pagination.pageSize);
+  loadFamilies();
 }
 
 function handleSizeChange(size) {
-  familyStore.setPagination(1, size)
-  loadFamilies()
+  familyStore.setPagination(1, size);
+  loadFamilies();
 }
 
 // 获取优先级类型
 function getPriorityType(priority) {
-  if (priority >= 7) return 'danger'
-  if (priority >= 5) return 'warning'
-  return 'info'
+  if (priority >= 7) return 'danger';
+  if (priority >= 5) return 'warning';
+  return 'info';
 }
 </script>
 

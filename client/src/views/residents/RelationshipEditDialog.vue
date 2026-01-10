@@ -12,12 +12,7 @@
           <span>添加家庭关系</span>
         </template>
 
-        <el-form
-          ref="formRef"
-          :model="form"
-          :rules="rules"
-          label-width="100px"
-        >
+        <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
           <el-row :gutter="20">
             <el-col :span="12">
               <el-form-item label="成员A" prop="memberA">
@@ -38,11 +33,7 @@
             </el-col>
             <el-col :span="12">
               <el-form-item label="关系类型" prop="relationship">
-                <el-select
-                  v-model="form.relationship"
-                  placeholder="请选择关系"
-                  style="width: 100%"
-                >
+                <el-select v-model="form.relationship" placeholder="请选择关系" style="width: 100%">
                   <el-option-group label="夫妻关系">
                     <el-option label="夫妻" value="spouse" />
                   </el-option-group>
@@ -92,11 +83,7 @@
             </el-col>
             <el-col :span="12">
               <el-form-item label="所属家族" prop="family">
-                <el-select
-                  v-model="form.family"
-                  placeholder="请选择家族"
-                  style="width: 100%"
-                >
+                <el-select v-model="form.family" placeholder="请选择家族" style="width: 100%">
                   <el-option
                     v-for="family in families"
                     :key="family.id"
@@ -121,12 +108,8 @@
             <el-button type="primary" @click="addRelationship" :loading="submitting">
               添加关系
             </el-button>
-            <el-button @click="resetForm">
-              重置
-            </el-button>
-            <el-button type="success" @click="autoDetectRelationships">
-              智能识别
-            </el-button>
+            <el-button @click="resetForm"> 重置 </el-button>
+            <el-button type="success" @click="autoDetectRelationships"> 智能识别 </el-button>
           </el-form-item>
         </el-form>
       </el-card>
@@ -136,18 +119,11 @@
         <template #header>
           <div class="card-header">
             <span>已建立的关系 ({{ relationships.length }})</span>
-            <el-button size="small" @click="refreshRelationships" icon="Refresh">
-              刷新
-            </el-button>
+            <el-button size="small" @click="refreshRelationships" icon="Refresh"> 刷新 </el-button>
           </div>
         </template>
 
-        <el-table
-          :data="relationships"
-          border
-          style="width: 100%"
-          v-loading="loading"
-        >
+        <el-table :data="relationships" border style="width: 100%" v-loading="loading">
           <el-table-column prop="memberA.name" label="成员A" width="120" />
 
           <el-table-column prop="relationship" label="关系" width="120">
@@ -178,12 +154,7 @@
 
           <el-table-column label="操作" width="120" fixed="right">
             <template #default="scope">
-              <el-button
-                type="text"
-                size="small"
-                @click="editRelationship(scope.row)"
-                icon="Edit"
-              >
+              <el-button type="text" size="small" @click="editRelationship(scope.row)" icon="Edit">
                 编辑
               </el-button>
               <el-button
@@ -199,9 +170,7 @@
           </el-table-column>
         </el-table>
 
-        <div v-if="!relationships.length" class="no-data">
-          暂无家庭关系数据
-        </div>
+        <div v-if="!relationships.length" class="no-data">暂无家庭关系数据</div>
       </el-card>
 
       <!-- 智能识别结果 -->
@@ -232,19 +201,10 @@
             </div>
 
             <div class="suggestion-actions">
-              <el-button
-                size="small"
-                type="primary"
-                @click="acceptSuggestion(suggestion)"
-              >
+              <el-button size="small" type="primary" @click="acceptSuggestion(suggestion)">
                 采用
               </el-button>
-              <el-button
-                size="small"
-                @click="rejectSuggestion(suggestion)"
-              >
-                忽略
-              </el-button>
+              <el-button size="small" @click="rejectSuggestion(suggestion)"> 忽略 </el-button>
             </div>
           </div>
         </div>
@@ -263,35 +223,35 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Right, Refresh, Edit, Delete } from '@element-plus/icons-vue'
-import { residentAPI } from '@/api/resident'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { Right, Refresh, Edit, Delete } from '@element-plus/icons-vue';
+import { residentAPI } from '@/api/resident';
 
 const props = defineProps({
   modelValue: {
     type: Boolean,
-    default: false
+    default: false,
   },
   families: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   members: {
     type: Array,
-    default: () => []
-  }
-})
+    default: () => [],
+  },
+});
 
-const emit = defineEmits(['update:modelValue', 'confirm'])
+const emit = defineEmits(['update:modelValue', 'confirm']);
 
 // 响应式数据
-const loading = ref(false)
-const submitting = ref(false)
-const saving = ref(false)
-const formRef = ref()
-const relationships = ref([])
-const suggestedRelationships = ref([])
+const loading = ref(false);
+const submitting = ref(false);
+const saving = ref(false);
+const formRef = ref();
+const relationships = ref([]);
+const suggestedRelationships = ref([]);
 
 // 表单数据
 const form = reactive({
@@ -299,57 +259,49 @@ const form = reactive({
   relationship: '',
   memberB: '',
   family: '',
-  description: ''
-})
+  description: '',
+});
 
 // 表单验证规则
 const rules = {
-  memberA: [
-    { required: true, message: '请选择成员A', trigger: 'change' }
-  ],
-  relationship: [
-    { required: true, message: '请选择关系类型', trigger: 'change' }
-  ],
-  memberB: [
-    { required: true, message: '请选择成员B', trigger: 'change' }
-  ],
-  family: [
-    { required: true, message: '请选择所属家族', trigger: 'change' }
-  ]
-}
+  memberA: [{ required: true, message: '请选择成员A', trigger: 'change' }],
+  relationship: [{ required: true, message: '请选择关系类型', trigger: 'change' }],
+  memberB: [{ required: true, message: '请选择成员B', trigger: 'change' }],
+  family: [{ required: true, message: '请选择所属家族', trigger: 'change' }],
+};
 
 // 对话框显示状态
 const dialogVisible = computed({
   get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
-})
+  set: value => emit('update:modelValue', value),
+});
 
 // 方法
 const addRelationship = async () => {
   try {
-    await formRef.value.validate()
+    await formRef.value.validate();
 
     if (form.memberA === form.memberB) {
-      ElMessage.warning('不能选择相同的成员')
-      return
+      ElMessage.warning('不能选择相同的成员');
+      return;
     }
 
-    submitting.value = true
+    submitting.value = true;
 
-    const response = await residentAPI.addFamilyRelationship(form)
+    const response = await residentAPI.addFamilyRelationship(form);
     if (response.success) {
-      ElMessage.success('关系添加成功')
-      resetForm()
-      refreshRelationships()
+      ElMessage.success('关系添加成功');
+      resetForm();
+      refreshRelationships();
     }
   } catch (error) {
     if (error !== false) {
-      ElMessage.error('添加关系失败')
+      ElMessage.error('添加关系失败');
     }
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
-}
+};
 
 const resetForm = () => {
   Object.assign(form, {
@@ -357,51 +309,51 @@ const resetForm = () => {
     relationship: '',
     memberB: '',
     family: '',
-    description: ''
-  })
+    description: '',
+  });
 
   if (formRef.value) {
-    formRef.value.clearValidate()
+    formRef.value.clearValidate();
   }
-}
+};
 
 const refreshRelationships = async () => {
-  loading.value = true
+  loading.value = true;
   try {
-    const response = await residentAPI.getFamilyRelationships()
+    const response = await residentAPI.getFamilyRelationships();
     if (response.success) {
-      relationships.value = response.data
+      relationships.value = response.data;
     }
   } catch (error) {
-    ElMessage.error('获取关系数据失败')
+    ElMessage.error('获取关系数据失败');
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const autoDetectRelationships = async () => {
   try {
-    const response = await residentAPI.detectFamilyRelationships()
+    const response = await residentAPI.detectFamilyRelationships();
     if (response.success) {
-      suggestedRelationships.value = response.data
-      ElMessage.success(`智能识别完成，发现 ${response.data.length} 个潜在关系`)
+      suggestedRelationships.value = response.data;
+      ElMessage.success(`智能识别完成，发现 ${response.data.length} 个潜在关系`);
     }
   } catch (error) {
-    ElMessage.error('智能识别失败')
+    ElMessage.error('智能识别失败');
   }
-}
+};
 
-const editRelationship = (relationship) => {
+const editRelationship = relationship => {
   Object.assign(form, {
     memberA: relationship.memberA.id,
     relationship: relationship.relationship,
     memberB: relationship.memberB.id,
     family: relationship.family?.id || '',
-    description: relationship.description || ''
-  })
-}
+    description: relationship.description || '',
+  });
+};
 
-const deleteRelationship = async (relationship) => {
+const deleteRelationship = async relationship => {
   try {
     await ElMessageBox.confirm(
       `确定要删除 ${relationship.memberA.name} 与 ${relationship.memberB.name} 的关系吗？`,
@@ -409,66 +361,66 @@ const deleteRelationship = async (relationship) => {
       {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
       }
-    )
+    );
 
-    const response = await residentAPI.deleteFamilyRelationship(relationship.id)
+    const response = await residentAPI.deleteFamilyRelationship(relationship.id);
     if (response.success) {
-      ElMessage.success('关系删除成功')
-      refreshRelationships()
+      ElMessage.success('关系删除成功');
+      refreshRelationships();
     }
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('删除失败')
+      ElMessage.error('删除失败');
     }
   }
-}
+};
 
-const acceptSuggestion = async (suggestion) => {
+const acceptSuggestion = async suggestion => {
   try {
     const response = await residentAPI.addFamilyRelationship({
       memberA: suggestion.memberA.id,
       relationship: suggestion.relationship,
       memberB: suggestion.memberB.id,
       family: suggestion.family?.id,
-      description: `智能识别：${suggestion.reason}`
-    })
+      description: `智能识别：${suggestion.reason}`,
+    });
 
     if (response.success) {
-      ElMessage.success('关系添加成功')
-      rejectSuggestion(suggestion)
-      refreshRelationships()
+      ElMessage.success('关系添加成功');
+      rejectSuggestion(suggestion);
+      refreshRelationships();
     }
   } catch (error) {
-    ElMessage.error('添加关系失败')
+    ElMessage.error('添加关系失败');
   }
-}
+};
 
-const rejectSuggestion = (suggestion) => {
+const rejectSuggestion = suggestion => {
   const index = suggestedRelationships.value.findIndex(
     s => s.memberA.id === suggestion.memberA.id && s.memberB.id === suggestion.memberB.id
-  )
+  );
   if (index > -1) {
-    suggestedRelationships.value.splice(index, 1)
+    suggestedRelationships.value.splice(index, 1);
   }
-}
+};
 
 const saveAllChanges = async () => {
-  saving.value = true
+  saving.value = true;
   try {
     // 这里可以批量保存所有更改
-    ElMessage.success('所有更改已保存')
-    emit('confirm')
+    ElMessage.success('所有更改已保存');
+    emit('confirm');
   } catch (error) {
-    ElMessage.error('保存失败')
+    ElMessage.error('保存失败');
   } finally {
-    saving.value = false
+    saving.value = false;
   }
-}
+};
 
 // 工具函数
-const getRelationshipText = (relationship) => {
+const getRelationshipText = relationship => {
   const map = {
     spouse: '夫妻',
     father_son: '父子',
@@ -482,28 +434,37 @@ const getRelationshipText = (relationship) => {
     grandfather_granddaughter: '祖父孙女',
     grandmother_grandson: '祖母孙子',
     grandmother_granddaughter: '祖母孙女',
-    other_relative: '其他亲属'
-  }
-  return map[relationship] || relationship
-}
+    other_relative: '其他亲属',
+  };
+  return map[relationship] || relationship;
+};
 
-const getRelationshipType = (relationship) => {
-  if (['spouse'].includes(relationship)) return 'danger'
-  if (['father_son', 'father_daughter', 'mother_son', 'mother_daughter'].includes(relationship)) return 'primary'
-  if (['brother', 'sister', 'brother_sister'].includes(relationship)) return 'success'
-  if (['grandfather_grandson', 'grandfather_granddaughter', 'grandmother_grandson', 'grandmother_granddaughter'].includes(relationship)) return 'warning'
-  return 'info'
-}
+const getRelationshipType = relationship => {
+  if (['spouse'].includes(relationship)) return 'danger';
+  if (['father_son', 'father_daughter', 'mother_son', 'mother_daughter'].includes(relationship))
+    return 'primary';
+  if (['brother', 'sister', 'brother_sister'].includes(relationship)) return 'success';
+  if (
+    [
+      'grandfather_grandson',
+      'grandfather_granddaughter',
+      'grandmother_grandson',
+      'grandmother_granddaughter',
+    ].includes(relationship)
+  )
+    return 'warning';
+  return 'info';
+};
 
-const formatDate = (date) => {
-  if (!date) return ''
-  return new Date(date).toLocaleDateString()
-}
+const formatDate = date => {
+  if (!date) return '';
+  return new Date(date).toLocaleDateString();
+};
 
 // 生命周期
 onMounted(() => {
-  refreshRelationships()
-})
+  refreshRelationships();
+});
 </script>
 
 <style lang="scss" scoped>

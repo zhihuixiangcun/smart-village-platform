@@ -59,7 +59,7 @@
           </el-card>
 
           <!-- 使用指南 -->
-          <el-card class="guide-card" style="margin-top: 20px;">
+          <el-card class="guide-card" style="margin-top: 20px">
             <template #header>
               <div class="card-header">
                 <span>使用指南</span>
@@ -87,7 +87,7 @@
           </el-card>
 
           <!-- 支持的方言 -->
-          <el-card class="dialect-card" style="margin-top: 20px;">
+          <el-card class="dialect-card" style="margin-top: 20px">
             <template #header>
               <div class="card-header">
                 <span>支持的方言</span>
@@ -117,11 +117,7 @@
     <!-- 方言展示弹窗 -->
     <el-dialog v-model="showAllDialects" title="所有支持的方言" width="600px">
       <div class="all-dialects">
-        <div
-          v-for="dialect in allDialects"
-          :key="dialect.code"
-          class="dialect-item-full"
-        >
+        <div v-for="dialect in allDialects" :key="dialect.code" class="dialect-item-full">
           <div class="dialect-info">
             <span class="dialect-name">{{ dialect.name }}</span>
             <span class="dialect-code">({{ dialect.code }})</span>
@@ -134,19 +130,14 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
-import {
-  Microphone,
-  ChatLineRound,
-  Service,
-  Bell
-} from '@element-plus/icons-vue'
-import VoiceAssistant from '@/components/voice/VoiceAssistant.vue'
+import { ref, reactive, onMounted } from 'vue';
+import { ElMessage } from 'element-plus';
+import { Microphone, ChatLineRound, Service, Bell } from '@element-plus/icons-vue';
+import VoiceAssistant from '@/components/voice/VoiceAssistant.vue';
 
 // 页面状态
-const showAllDialects = ref(false)
-const currentDialect = ref('zh')
+const showAllDialects = ref(false);
+const currentDialect = ref('zh');
 
 // 方言数据
 const allDialects = ref([
@@ -171,31 +162,31 @@ const allDialects = ref([
   { code: 'zh-gansu', name: '甘肃话', region: '甘肃' },
   { code: 'zh-ningxia', name: '宁夏话', region: '宁夏' },
   { code: 'zh-xinjiang', name: '新疆话', region: '新疆' },
-  { code: 'zh-xizang', name: '西藏话', region: '西藏' }
-])
+  { code: 'zh-xizang', name: '西藏话', region: '西藏' },
+]);
 
 // 显示的方言（限制数量）
-const displayDialects = ref([])
+const displayDialects = ref([]);
 
 // 页面挂载时加载数据
 onMounted(() => {
-  loadDialects()
-})
+  loadDialects();
+});
 
 // 加载方言列表
 const loadDialects = () => {
   // 默认显示前8个方言
-  displayDialects.value = allDialects.value.slice(0, 8)
-}
+  displayDialects.value = allDialects.value.slice(0, 8);
+};
 
 // 选择方言
-const selectDialect = (dialect) => {
-  currentDialect.value = dialect.code
-  ElMessage.success(`已切换到 ${dialect.name}`)
+const selectDialect = dialect => {
+  currentDialect.value = dialect.code;
+  ElMessage.success(`已切换到 ${dialect.name}`);
 
   // 这里可以调用语音服务设置方言
   // voiceService.setDialect(dialect.code)
-}
+};
 </script>
 
 <style scoped>

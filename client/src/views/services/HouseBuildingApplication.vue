@@ -15,47 +15,47 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
-import StepForm from '@/components/common/StepForm.vue'
-import { useLargeText } from '@/composables/useLargeText'
-import { profileApi } from '@/api/residentProfile'
-import { serviceApi } from '@/api/service'
-import { encryptionService } from '@/utils/encryption'
-import { auditLogService } from '@/utils/security'
+import { ref, reactive, onMounted } from 'vue';
+import { ElMessage } from 'element-plus';
+import StepForm from '@/components/common/StepForm.vue';
+import { useLargeText } from '@/composables/useLargeText';
+import { profileApi } from '@/api/residentProfile';
+import { serviceApi } from '@/api/service';
+import { encryptionService } from '@/utils/encryption';
+import { auditLogService } from '@/utils/security';
 
 const props = defineProps({
   service: {
     type: Object,
-    required: true
-  }
-})
+    required: true,
+  },
+});
 
-const emit = defineEmits(['close', 'submitted'])
+const emit = defineEmits(['close', 'submitted']);
 
-const { isLargeText } = useLargeText()
+const { isLargeText } = useLargeText();
 
-const stepFormRef = ref(null)
+const stepFormRef = ref(null);
 
 // 步骤配置
 const steps = [
   {
     title: '申请人信息',
-    description: '填写申请人基本资料'
+    description: '填写申请人基本资料',
   },
   {
     title: '建房信息',
-    description: '填写建房相关情况'
+    description: '填写建房相关情况',
   },
   {
     title: '材料上传',
-    description: '上传证明材料'
+    description: '上传证明材料',
   },
   {
     title: '确认提交',
-    description: '核对信息并提交'
-  }
-]
+    description: '核对信息并提交',
+  },
+];
 
 // 表单数据
 const formData = reactive({
@@ -98,11 +98,11 @@ const formData = reactive({
   otherMaterials: [],
 
   // 备注
-  remark: ''
-})
+  remark: '',
+});
 
 // 建房类型选项
-const buildTypes = ['新建', '改建', '扩建']
+const buildTypes = ['新建', '改建', '扩建'];
 
 // 建房原因选项
 const buildReasons = [
@@ -111,11 +111,11 @@ const buildReasons = [
   '人口增加需扩建',
   '新农村建设统一规划',
   '灾害损毁重建',
-  '其他'
-]
+  '其他',
+];
 
 // 房屋结构选项
-const houseStructures = ['砖混', '框架', '砖木', '土木', '其他']
+const houseStructures = ['砖混', '框架', '砖木', '土木', '其他'];
 
 // 组件
 const BasicInfoStep = {
@@ -199,46 +199,50 @@ const BasicInfoStep = {
   props: ['formData'],
   emits: ['update', 'validate', 'voice-input'],
   setup(props, { emit }) {
-    const { Phone } = useElementPlusIcons()
+    const { Phone } = useElementPlusIcons();
 
     const rules = {
       applicantName: [{ required: true, message: '请输入申请人姓名', trigger: 'blur' }],
       applicantIdCard: [
         { required: true, message: '请输入身份证号', trigger: 'blur' },
-        { pattern: /^(\d{15}$|^\d{18}$|^\d{17}(\d|X|x)$)/, message: '请输入正确的身份证号', trigger: 'blur' }
+        {
+          pattern: /^(\d{15}$|^\d{18}$|^\d{17}(\d|X|x)$)/,
+          message: '请输入正确的身份证号',
+          trigger: 'blur',
+        },
       ],
       applicantPhone: [
         { required: true, message: '请输入联系电话', trigger: 'blur' },
-        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
+        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' },
       ],
       address: [{ required: true, message: '请输入现住址', trigger: 'blur' }],
-      householdCount: [{ required: true, message: '请输入家庭人口数', trigger: 'blur' }]
-    }
+      householdCount: [{ required: true, message: '请输入家庭人口数', trigger: 'blur' }],
+    };
 
     // 加载用户信息
     const loadUserInfo = async () => {
       try {
-        const response = await profileApi.getMyProfile()
-        const profile = response.data
+        const response = await profileApi.getMyProfile();
+        const profile = response.data;
 
         if (profile) {
-          props.formData.applicantName = profile.personalInfo?.name || ''
-          props.formData.applicantIdCard = profile.personalInfo?.idCard || ''
-          props.formData.applicantPhone = profile.contact?.phone || ''
-          props.formData.address = profile.contact?.address || ''
+          props.formData.applicantName = profile.personalInfo?.name || '';
+          props.formData.applicantIdCard = profile.personalInfo?.idCard || '';
+          props.formData.applicantPhone = profile.contact?.phone || '';
+          props.formData.address = profile.contact?.address || '';
         }
       } catch (error) {
-        console.error('Load user info error:', error)
+        console.error('Load user info error:', error);
       }
-    }
+    };
 
     onMounted(() => {
-      loadUserInfo()
-    })
+      loadUserInfo();
+    });
 
-    return { rules, Phone }
-  }
-}
+    return { rules, Phone };
+  },
+};
 
 const HouseInfoStep = {
   template: `
@@ -433,16 +437,16 @@ const HouseInfoStep = {
   props: ['formData'],
   emits: ['update', 'validate'],
   setup(props, { emit }) {
-    const buildTypes = ['新建', '改建', '扩建']
+    const buildTypes = ['新建', '改建', '扩建'];
     const buildReasons = [
       '原房屋损坏',
       '分户建房',
       '人口增加需扩建',
       '新农村建设统一规划',
       '灾害损毁重建',
-      '其他'
-    ]
-    const houseStructures = ['砖混', '框架', '砖木', '土木', '其他']
+      '其他',
+    ];
+    const houseStructures = ['砖混', '框架', '砖木', '土木', '其他'];
 
     const rules = {
       buildType: [{ required: true, message: '请选择建房类型', trigger: 'change' }],
@@ -455,12 +459,12 @@ const HouseInfoStep = {
       landArea: [{ required: true, message: '请输入土地面积', trigger: 'blur' }],
       landNature: [{ required: true, message: '请选择土地性质', trigger: 'change' }],
       startDate: [{ required: true, message: '请选择开工日期', trigger: 'change' }],
-      endDate: [{ required: true, message: '请选择竣工日期', trigger: 'change' }]
-    }
+      endDate: [{ required: true, message: '请选择竣工日期', trigger: 'change' }],
+    };
 
-    return { buildTypes, buildReasons, houseStructures, rules }
-  }
-}
+    return { buildTypes, buildReasons, houseStructures, rules };
+  },
+};
 
 const UploadStep = {
   template: `
@@ -550,16 +554,16 @@ const UploadStep = {
   emits: ['update', 'validate'],
   setup(props, { emit }) {
     const handleUpdate = () => {
-      emit('update', { ...props.formData })
-    }
+      emit('update', { ...props.formData });
+    };
 
-    const handleValidate = (isValid) => {
-      emit('validate', isValid)
-    }
+    const handleValidate = isValid => {
+      emit('validate', isValid);
+    };
 
-    return { handleUpdate, handleValidate }
-  }
-}
+    return { handleUpdate, handleValidate };
+  },
+};
 
 const ConfirmStep = {
   template: `
@@ -670,96 +674,96 @@ const ConfirmStep = {
   props: ['formData'],
   emits: ['validate'],
   setup(props, { emit }) {
-    const confirmed = ref(false)
+    const confirmed = ref(false);
 
-    const maskIdCard = (idCard) => {
-      if (!idCard) return ''
-      return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2')
-    }
+    const maskIdCard = idCard => {
+      if (!idCard) return '';
+      return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2');
+    };
 
-    const maskPhone = (phone) => {
-      if (!phone) return ''
-      return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')
-    }
+    const maskPhone = phone => {
+      if (!phone) return '';
+      return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
+    };
 
     const getUploadedFiles = () => {
-      const files = []
+      const files = [];
       if (props.formData.idCardPhotos?.length) {
-        files.push({ name: '身份证照片' })
+        files.push({ name: '身份证照片' });
       }
       if (props.formData.householdPhotos?.length) {
-        files.push({ name: '户口本照片' })
+        files.push({ name: '户口本照片' });
       }
       if (props.formData.landCertificatePhotos?.length) {
-        files.push({ name: '土地证照片' })
+        files.push({ name: '土地证照片' });
       }
       if (props.formData.buildPlan?.length) {
-        files.push({ name: '建房图纸' })
+        files.push({ name: '建房图纸' });
       }
       if (props.formData.otherMaterials?.length) {
-        files.push({ name: '其他材料' })
+        files.push({ name: '其他材料' });
       }
-      return files
-    }
+      return files;
+    };
 
-    const handleConfirmChange = (val) => {
-      emit('validate', val)
-    }
+    const handleConfirmChange = val => {
+      emit('validate', val);
+    };
 
     return {
       confirmed,
       maskIdCard,
       maskPhone,
       getUploadedFiles,
-      handleConfirmChange
-    }
-  }
-}
+      handleConfirmChange,
+    };
+  },
+};
 
 // 处理数据更新
-const handleUpdate = (data) => {
-  Object.assign(formData, data)
-}
+const handleUpdate = data => {
+  Object.assign(formData, data);
+};
 
 // 处理语音输入
 const handleVoiceInput = (field, text) => {
   if (field === 'applicantName') {
-    const nameMatch = text.match(/(?:我叫|我是|姓名是)([\u4e00-\u9fa5]{2,4})/)
+    const nameMatch = text.match(/(?:我叫|我是|姓名是)([\u4e00-\u9fa5]{2,4})/);
     if (nameMatch) {
-      formData.applicantName = nameMatch[1]
-      ElMessage.success(`已识别姓名: ${formData.applicantName}`)
+      formData.applicantName = nameMatch[1];
+      ElMessage.success(`已识别姓名: ${formData.applicantName}`);
     }
   }
-}
+};
 
 // 提交申请
-const handleSubmit = async (data) => {
+const handleSubmit = async data => {
   try {
     // 加密敏感信息
     const encryptedData = {
       ...data,
       applicantIdCard: encryptionService.encrypt(data.applicantIdCard),
       applicantPhone: encryptionService.encrypt(data.applicantPhone),
-      constructionPhone: encryptionService.encrypt(data.constructionPhone)
-    }
+      constructionPhone: encryptionService.encrypt(data.constructionPhone),
+    };
 
     await serviceApi.submitHouseBuildingApplication({
       ...encryptedData,
       serviceType: 'houseBuilding',
-      serviceName: '建房申请'
-    })
+      serviceName: '建房申请',
+    });
 
     // 记录操作日志
-    await auditLogService.logApplicationSubmit('houseBuilding', '建房申请')
+    await auditLogService.logApplicationSubmit('houseBuilding', '建房申请');
 
-    ElMessage.success('申请已提交,请耐心等待审核')
-    emit('submitted', data)
-    emit('close')
+    ElMessage.success('申请已提交,请耐心等待审核');
+    emit('submitted', data);
+    emit('close');
   } catch (error) {
-    ElMessage.error('提交失败: ' + error.message)
-    throw error
+    ElMessage.error('提交失败: ' + error.message);
+    throw error;
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>

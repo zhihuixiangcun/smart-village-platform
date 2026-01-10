@@ -6,7 +6,7 @@ export const dutyApi = {
   getPersonnel() {
     return request({
       url: '/api/duty/personnel',
-      method: 'get'
+      method: 'get',
     });
   },
 
@@ -15,7 +15,7 @@ export const dutyApi = {
     return request({
       url: '/api/duty/personnel',
       method: 'post',
-      data
+      data,
     });
   },
 
@@ -24,7 +24,7 @@ export const dutyApi = {
     return request({
       url: `/api/duty/personnel/${id}`,
       method: 'put',
-      data
+      data,
     });
   },
 
@@ -32,7 +32,7 @@ export const dutyApi = {
   deletePersonnel(id) {
     return request({
       url: `/api/duty/personnel/${id}`,
-      method: 'delete'
+      method: 'delete',
     });
   },
 
@@ -41,7 +41,7 @@ export const dutyApi = {
     return request({
       url: '/api/duty/schedules',
       method: 'get',
-      params: { startDate, endDate }
+      params: { startDate, endDate },
     });
   },
 
@@ -50,7 +50,7 @@ export const dutyApi = {
     return request({
       url: '/api/duty/schedules',
       method: 'post',
-      data
+      data,
     });
   },
 
@@ -59,7 +59,7 @@ export const dutyApi = {
     return request({
       url: `/api/duty/schedules/${id}`,
       method: 'put',
-      data
+      data,
     });
   },
 
@@ -67,7 +67,7 @@ export const dutyApi = {
   deleteSchedule(id) {
     return request({
       url: `/api/duty/schedules/${id}`,
-      method: 'delete'
+      method: 'delete',
     });
   },
 
@@ -76,7 +76,7 @@ export const dutyApi = {
     return request({
       url: '/api/duty/schedules/batch',
       method: 'post',
-      data
+      data,
     });
   },
 
@@ -85,7 +85,7 @@ export const dutyApi = {
     return request({
       url: '/api/duty/recommendations',
       method: 'get',
-      params: { date, shiftType }
+      params: { date, shiftType },
     });
   },
 
@@ -94,7 +94,7 @@ export const dutyApi = {
     return request({
       url: '/api/duty/schedules/swap',
       method: 'post',
-      data: { scheduleId1, scheduleId2 }
+      data: { scheduleId1, scheduleId2 },
     });
   },
 
@@ -102,7 +102,7 @@ export const dutyApi = {
   getStatistics() {
     return request({
       url: '/api/duty/statistics',
-      method: 'get'
+      method: 'get',
     });
   },
 
@@ -110,7 +110,7 @@ export const dutyApi = {
   generateQRCode(personnelId) {
     return request({
       url: `/api/duty/personnel/${personnelId}/qrcode`,
-      method: 'post'
+      method: 'post',
     });
   },
 
@@ -120,7 +120,7 @@ export const dutyApi = {
       url: '/api/duty/export',
       method: 'get',
       params: { startDate, endDate },
-      responseType: 'blob'
+      responseType: 'blob',
     });
   },
 
@@ -128,7 +128,7 @@ export const dutyApi = {
   getPersonnelDetail(id) {
     return request({
       url: `/api/duty/personnel/${id}`,
-      method: 'get'
+      method: 'get',
     });
   },
 
@@ -136,7 +136,7 @@ export const dutyApi = {
   getScheduleDetail(id) {
     return request({
       url: `/api/duty/schedules/${id}`,
-      method: 'get'
+      method: 'get',
     });
   },
 
@@ -145,7 +145,7 @@ export const dutyApi = {
     return request({
       url: `/api/duty/personnel/${id}/status`,
       method: 'patch',
-      data: { status }
+      data: { status },
     });
   },
 
@@ -154,7 +154,7 @@ export const dutyApi = {
     return request({
       url: `/api/duty/personnel/${id}/leave`,
       method: 'post',
-      data: leaveData
+      data: leaveData,
     });
   },
 
@@ -163,9 +163,9 @@ export const dutyApi = {
     return request({
       url: `/api/duty/personnel/${personnelId}/history`,
       method: 'get',
-      params
+      params,
     });
-  }
+  },
 };
 
 // 紧急呼叫API接口
@@ -175,7 +175,7 @@ export const getEmergencyAPI = () => {
     getCurrentDutyPersonnel() {
       return request({
         url: '/api/emergency/current-duty',
-        method: 'get'
+        method: 'get',
       });
     },
 
@@ -184,7 +184,7 @@ export const getEmergencyAPI = () => {
       return request({
         url: '/api/emergency/call',
         method: 'post',
-        data
+        data,
       });
     },
 
@@ -193,7 +193,7 @@ export const getEmergencyAPI = () => {
       return request({
         url: `/api/emergency/call/${callId}/respond`,
         method: 'post',
-        data: responseData
+        data: responseData,
       });
     },
 
@@ -202,7 +202,7 @@ export const getEmergencyAPI = () => {
       return request({
         url: `/api/emergency/call/${callId}/cancel`,
         method: 'post',
-        data: { reason }
+        data: { reason },
       });
     },
 
@@ -210,7 +210,7 @@ export const getEmergencyAPI = () => {
     redialCall(callId) {
       return request({
         url: `/api/emergency/call/${callId}/redial`,
-        method: 'post'
+        method: 'post',
       });
     },
 
@@ -218,7 +218,7 @@ export const getEmergencyAPI = () => {
     escalateCall(callId) {
       return request({
         url: `/api/emergency/call/${callId}/escalate`,
-        method: 'post'
+        method: 'post',
       });
     },
 
@@ -226,7 +226,7 @@ export const getEmergencyAPI = () => {
     getCallStatus(callId) {
       return request({
         url: `/api/emergency/call/${callId}/status`,
-        method: 'get'
+        method: 'get',
       });
     },
 
@@ -235,7 +235,7 @@ export const getEmergencyAPI = () => {
       return request({
         url: '/api/emergency/calls/recent',
         method: 'get',
-        params
+        params,
       });
     },
 
@@ -244,7 +244,7 @@ export const getEmergencyAPI = () => {
       return request({
         url: '/api/emergency/calls/history',
         method: 'get',
-        params
+        params,
       });
     },
 
@@ -253,7 +253,7 @@ export const getEmergencyAPI = () => {
       return request({
         url: `/api/emergency/call/${callId}/location`,
         method: 'post',
-        data: { location }
+        data: { location },
       });
     },
 
@@ -262,7 +262,7 @@ export const getEmergencyAPI = () => {
       return request({
         url: `/api/emergency/call/${callId}/chat`,
         method: 'post',
-        data: { message }
+        data: { message },
       });
     },
 
@@ -271,7 +271,7 @@ export const getEmergencyAPI = () => {
       return request({
         url: `/api/emergency/call/${callId}/complete`,
         method: 'post',
-        data: { result }
+        data: { result },
       });
     },
 
@@ -280,7 +280,7 @@ export const getEmergencyAPI = () => {
       return request({
         url: '/api/emergency/statistics',
         method: 'get',
-        params
+        params,
       });
     },
 
@@ -289,7 +289,7 @@ export const getEmergencyAPI = () => {
       return request({
         url: '/api/emergency/verify-qr',
         method: 'post',
-        data: qrData
+        data: qrData,
       });
     },
 
@@ -298,7 +298,7 @@ export const getEmergencyAPI = () => {
       return request({
         url: '/api/emergency/generate-qr',
         method: 'post',
-        data: { locationId }
+        data: { locationId },
       });
     },
 
@@ -310,8 +310,8 @@ export const getEmergencyAPI = () => {
         params: {
           latitude: location.latitude,
           longitude: location.longitude,
-          radius
-        }
+          radius,
+        },
       });
     },
 
@@ -322,8 +322,8 @@ export const getEmergencyAPI = () => {
         method: 'post',
         data: {
           personnelIds,
-          ...data
-        }
+          ...data,
+        },
       });
     },
 
@@ -331,7 +331,7 @@ export const getEmergencyAPI = () => {
     getCallDetail(callId) {
       return request({
         url: `/api/emergency/call/${callId}`,
-        method: 'get'
+        method: 'get',
       });
     },
 
@@ -340,7 +340,7 @@ export const getEmergencyAPI = () => {
       return request({
         url: `/api/emergency/call/${callId}/note`,
         method: 'post',
-        data: { note }
+        data: { note },
       });
     },
 
@@ -354,9 +354,9 @@ export const getEmergencyAPI = () => {
         method: 'post',
         data: formData,
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          'Content-Type': 'multipart/form-data',
+        },
       });
-    }
+    },
   };
 };

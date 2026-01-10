@@ -10,7 +10,7 @@ export default {
     requiresAuth: true,
     title: '反馈管理',
     icon: 'ChatDotRound',
-    permissions: ['feedback:read']
+    permissions: ['feedback:read'],
   },
   children: [
     {
@@ -24,9 +24,9 @@ export default {
         breadcrumb: [
           { title: '首页', path: '/dashboard' },
           { title: '反馈管理', path: '/feedback' },
-          { title: '反馈列表', path: '/feedback/management' }
-        ]
-      }
+          { title: '反馈列表', path: '/feedback/management' },
+        ],
+      },
     },
     {
       path: 'submit',
@@ -38,9 +38,9 @@ export default {
         breadcrumb: [
           { title: '首页', path: '/dashboard' },
           { title: '反馈管理', path: '/feedback' },
-          { title: '提交反馈', path: '/feedback/submit' }
-        ]
-      }
+          { title: '提交反馈', path: '/feedback/submit' },
+        ],
+      },
     },
     {
       path: 'history',
@@ -52,9 +52,9 @@ export default {
         breadcrumb: [
           { title: '首页', path: '/dashboard' },
           { title: '反馈管理', path: '/feedback' },
-          { title: '我的反馈', path: '/feedback/history' }
-        ]
-      }
+          { title: '我的反馈', path: '/feedback/history' },
+        ],
+      },
     },
     {
       path: 'statistics',
@@ -67,9 +67,9 @@ export default {
         breadcrumb: [
           { title: '首页', path: '/dashboard' },
           { title: '反馈管理', path: '/feedback' },
-          { title: '数据统计', path: '/feedback/statistics' }
-        ]
-      }
-    }
-  ]
+          { title: '数据统计', path: '/feedback/statistics' },
+        ],
+      },
+    },
+  ],
 };

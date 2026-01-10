@@ -38,20 +38,16 @@
             </el-tag>
           </p>
         </div>
-        <el-badge
-          v-if="service.pending"
-          :value="service.pending"
-          class="service-badge"
-        />
+        <el-badge v-if="service.pending" :value="service.pending" class="service-badge" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { ElMessage } from 'element-plus';
 import {
   Service,
   ArrowRight,
@@ -61,23 +57,23 @@ import {
   House,
   Avatar,
   Wallet,
-  Grid
-} from '@element-plus/icons-vue'
-import { useFontSize } from '@/composables/useFontSize'
+  Grid,
+} from '@element-plus/icons-vue';
+import { useFontSize } from '@/composables/useFontSize';
 
 interface ServiceItem {
-  id: string
-  name: string
-  type: string
-  icon: any
-  route?: string
-  status?: string
-  statusType?: 'success' | 'warning' | 'danger' | 'info'
-  pending?: number
+  id: string;
+  name: string;
+  type: string;
+  icon: any;
+  route?: string;
+  status?: string;
+  statusType?: 'success' | 'warning' | 'danger' | 'info';
+  pending?: number;
 }
 
-const router = useRouter()
-const { isLargeText } = useFontSize()
+const router = useRouter();
+const { isLargeText } = useFontSize();
 
 // 服务列表数据
 const services = ref<ServiceItem[]>([
@@ -88,7 +84,7 @@ const services = ref<ServiceItem[]>([
     icon: Document,
     route: '/services/id-card',
     status: '办理中',
-    statusType: 'warning'
+    statusType: 'warning',
   },
   {
     id: 'household',
@@ -96,14 +92,14 @@ const services = ref<ServiceItem[]>([
     type: 'household',
     icon: User,
     route: '/services/household',
-    pending: 1
+    pending: 1,
   },
   {
     id: 'marriage',
     name: '结婚证',
     type: 'marriage',
     icon: Service,
-    route: '/services/marriage'
+    route: '/services/marriage',
   },
   {
     id: 'birth',
@@ -111,14 +107,14 @@ const services = ref<ServiceItem[]>([
     type: 'birth',
     icon: Avatar,
     route: '/services/birth',
-    pending: 2
+    pending: 2,
   },
   {
     id: 'housing',
     name: '建房申请',
     type: 'housing',
     icon: House,
-    route: '/services/housing'
+    route: '/services/housing',
   },
   {
     id: 'subsidy',
@@ -127,41 +123,41 @@ const services = ref<ServiceItem[]>([
     icon: Coin,
     route: '/services/subsidy',
     status: '可申请',
-    statusType: 'success'
+    statusType: 'success',
   },
   {
     id: 'more',
     name: '更多服务',
     type: 'more',
     icon: Grid,
-    route: '/services/hall'
-  }
-])
+    route: '/services/hall',
+  },
+]);
 
 // 待办事项总数
 const pendingCount = computed(() => {
   return services.value.reduce((total, service) => {
-    return total + (service.pending || 0)
-  }, 0)
-})
+    return total + (service.pending || 0);
+  }, 0);
+});
 
 /**
  * 处理服务卡片点击
  */
 const handleServiceClick = (service: ServiceItem) => {
   if (service.route) {
-    router.push(service.route)
+    router.push(service.route);
   } else {
-    ElMessage.info(`${service.name}功能开发中`)
+    ElMessage.info(`${service.name}功能开发中`);
   }
-}
+};
 
 /**
  * 跳转到待办事项页面
  */
 const goToPendingTasks = () => {
-  router.push('/services/pending')
-}
+  router.push('/services/pending');
+};
 </script>
 
 <style lang="scss" scoped>

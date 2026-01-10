@@ -360,8 +360,8 @@ syncOperationSchema.statics.getConflictOperations = function(villageId) {
       { 'conflictInfo.hasConflict': true }
     ]
   })
-  .sort({ createdAt: -1 })
-  .populate('userId', 'username name');
+    .sort({ createdAt: -1 })
+    .populate('userId', 'username name');
 };
 
 /**

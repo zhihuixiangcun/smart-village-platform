@@ -5,12 +5,7 @@
     width="800px"
     @close="handleClose"
   >
-    <el-form
-      ref="formRef"
-      :model="formData"
-      :rules="formRules"
-      label-width="120px"
-    >
+    <el-form ref="formRef" :model="formData" :rules="formRules" label-width="120px">
       <!-- 基本信息 -->
       <div class="form-section">
         <h4>基本信息</h4>
@@ -24,10 +19,7 @@
         </el-form-item>
 
         <el-form-item label="户主姓名" prop="headOfHousehold.name">
-          <el-input
-            v-model="formData.headOfHousehold.name"
-            placeholder="请输入户主姓名"
-          />
+          <el-input v-model="formData.headOfHousehold.name" placeholder="请输入户主姓名" />
         </el-form-item>
 
         <el-form-item label="身份证号" prop="headOfHousehold.idCard">
@@ -47,10 +39,7 @@
         </el-form-item>
 
         <el-form-item label="详细地址" prop="address.detail">
-          <el-input
-            v-model="formData.address.detail"
-            placeholder="请输入详细地址"
-          />
+          <el-input v-model="formData.address.detail" placeholder="请输入详细地址" />
         </el-form-item>
       </div>
 
@@ -73,11 +62,7 @@
 
           <el-col :span="12">
             <el-form-item label="建筑面积(㎡)">
-              <el-input-number
-                v-model="formData.housing.area"
-                :min="0"
-                :precision="2"
-              />
+              <el-input-number v-model="formData.housing.area" :min="0" :precision="2" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -95,11 +80,7 @@
 
           <el-col :span="12">
             <el-form-item label="楼层数">
-              <el-input-number
-                v-model="formData.housing.floors"
-                :min="1"
-                :max="10"
-              />
+              <el-input-number v-model="formData.housing.floors" :min="1" :max="10" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -127,31 +108,19 @@
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="耕地面积(亩)">
-              <el-input-number
-                v-model="formData.land.cultivatedArea"
-                :min="0"
-                :precision="2"
-              />
+              <el-input-number v-model="formData.land.cultivatedArea" :min="0" :precision="2" />
             </el-form-item>
           </el-col>
 
           <el-col :span="12">
             <el-form-item label="林地面积(亩)">
-              <el-input-number
-                v-model="formData.land.forestArea"
-                :min="0"
-                :precision="2"
-              />
+              <el-input-number v-model="formData.land.forestArea" :min="0" :precision="2" />
             </el-form-item>
           </el-col>
         </el-row>
 
         <el-form-item label="宅基地面积(㎡)">
-          <el-input-number
-            v-model="formData.land.homesteadArea"
-            :min="0"
-            :precision="2"
-          />
+          <el-input-number v-model="formData.land.homesteadArea" :min="0" :precision="2" />
         </el-form-item>
       </div>
 
@@ -203,40 +172,38 @@
 
     <template #footer>
       <el-button @click="handleClose">取消</el-button>
-      <el-button type="primary" @click="handleSubmit" :loading="submitting">
-        提交
-      </el-button>
+      <el-button type="primary" @click="handleSubmit" :loading="submitting"> 提交 </el-button>
     </template>
   </el-dialog>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch } from 'vue';
 
 const props = defineProps({
   modelValue: {
     type: Boolean,
-    required: true
+    required: true,
   },
   family: {
     type: Object,
-    default: null
-  }
-})
+    default: null,
+  },
+});
 
-const emit = defineEmits(['update:modelValue', 'submit'])
+const emit = defineEmits(['update:modelValue', 'submit']);
 
-const formRef = ref(null)
-const submitting = ref(false)
+const formRef = ref(null);
+const submitting = ref(false);
 
-const isEdit = computed(() => !!props.family?._id)
+const isEdit = computed(() => !!props.family?._id);
 
 const formData = ref({
   houseNumber: '',
   headOfHousehold: {
     name: '',
     idCard: '',
-    phone: ''
+    phone: '',
   },
   address: {
     province: '浙江省',
@@ -245,7 +212,7 @@ const formData = ref({
     town: '',
     village: '',
     street: '',
-    detail: ''
+    detail: '',
   },
   housing: {
     type: '自建房',
@@ -255,13 +222,13 @@ const formData = ref({
     structure: '',
     floors: 1,
     isDangerous: false,
-    dangerLevel: null
+    dangerLevel: null,
   },
   land: {
     cultivatedArea: 0,
     forestArea: 0,
     homesteadArea: 0,
-    otherArea: 0
+    otherArea: 0,
   },
   economicStatus: {
     annualIncome: 0,
@@ -269,64 +236,68 @@ const formData = ref({
     hasLowIncomeSupport: false,
     lowIncomeCertificate: '',
     hasDebt: false,
-    debtAmount: 0
+    debtAmount: 0,
   },
-  remarks: ''
-})
+  remarks: '',
+});
 
 const formRules = {
-  houseNumber: [
-    { required: true, message: '请输入房屋编号', trigger: 'blur' }
-  ],
-  'headOfHousehold.name': [
-    { required: true, message: '请输入户主姓名', trigger: 'blur' }
-  ],
+  houseNumber: [{ required: true, message: '请输入房屋编号', trigger: 'blur' }],
+  'headOfHousehold.name': [{ required: true, message: '请输入户主姓名', trigger: 'blur' }],
   'headOfHousehold.idCard': [
     { required: true, message: '请输入身份证号', trigger: 'blur' },
-    { pattern: /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/, message: '请输入正确的身份证号', trigger: 'blur' }
+    {
+      pattern: /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/,
+      message: '请输入正确的身份证号',
+      trigger: 'blur',
+    },
   ],
   'headOfHousehold.phone': [
     { required: true, message: '请输入联系电话', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
+    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' },
   ],
-  'address.detail': [
-    { required: true, message: '请输入详细地址', trigger: 'blur' }
-  ]
-}
+  'address.detail': [{ required: true, message: '请输入详细地址', trigger: 'blur' }],
+};
 
 // 监听family变化，填充表单
-watch(() => props.family, (newFamily) => {
-  if (newFamily) {
-    // 深拷贝数据到表单
-    formData.value = JSON.parse(JSON.stringify({
-      houseNumber: newFamily.houseNumber || '',
-      headOfHousehold: {
-        name: newFamily.headOfHousehold?.name || '',
-        idCard: newFamily.headOfHousehold?.idCard || '',
-        phone: newFamily.headOfHousehold?.phone || ''
-      },
-      address: newFamily.address || {},
-      housing: newFamily.housing || {},
-      land: newFamily.land || {},
-      economicStatus: newFamily.economicStatus || {},
-      remarks: newFamily.remarks || ''
-    }))
-  }
-}, { immediate: true })
+watch(
+  () => props.family,
+  newFamily => {
+    if (newFamily) {
+      // 深拷贝数据到表单
+      formData.value = JSON.parse(
+        JSON.stringify({
+          houseNumber: newFamily.houseNumber || '',
+          headOfHousehold: {
+            name: newFamily.headOfHousehold?.name || '',
+            idCard: newFamily.headOfHousehold?.idCard || '',
+            phone: newFamily.headOfHousehold?.phone || '',
+          },
+          address: newFamily.address || {},
+          housing: newFamily.housing || {},
+          land: newFamily.land || {},
+          economicStatus: newFamily.economicStatus || {},
+          remarks: newFamily.remarks || '',
+        })
+      );
+    }
+  },
+  { immediate: true }
+);
 
 function handleClose() {
-  emit('update:modelValue', false)
-  resetForm()
+  emit('update:modelValue', false);
+  resetForm();
 }
 
 function resetForm() {
-  formRef.value?.resetFields()
+  formRef.value?.resetFields();
   formData.value = {
     houseNumber: '',
     headOfHousehold: {
       name: '',
       idCard: '',
-      phone: ''
+      phone: '',
     },
     address: {
       province: '浙江省',
@@ -335,7 +306,7 @@ function resetForm() {
       town: '',
       village: '',
       street: '',
-      detail: ''
+      detail: '',
     },
     housing: {
       type: '自建房',
@@ -345,13 +316,13 @@ function resetForm() {
       structure: '',
       floors: 1,
       isDangerous: false,
-      dangerLevel: null
+      dangerLevel: null,
     },
     land: {
       cultivatedArea: 0,
       forestArea: 0,
       homesteadArea: 0,
-      otherArea: 0
+      otherArea: 0,
     },
     economicStatus: {
       annualIncome: 0,
@@ -359,28 +330,28 @@ function resetForm() {
       hasLowIncomeSupport: false,
       lowIncomeCertificate: '',
       hasDebt: false,
-      debtAmount: 0
+      debtAmount: 0,
     },
-    remarks: ''
-  }
+    remarks: '',
+  };
 }
 
 async function handleSubmit() {
   try {
-    await formRef.value.validate()
+    await formRef.value.validate();
 
-    submitting.value = true
+    submitting.value = true;
 
     // 如果是编辑模式，保留ID
     if (isEdit.value) {
-      formData.value._id = props.family._id
+      formData.value._id = props.family._id;
     }
 
-    emit('submit', formData.value)
+    emit('submit', formData.value);
   } catch (error) {
-    console.error('表单验证失败:', error)
+    console.error('表单验证失败:', error);
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
 }
 </script>
@@ -392,7 +363,7 @@ async function handleSubmit() {
   h4 {
     margin: 0 0 20px 0;
     padding-bottom: 10px;
-    border-bottom: 1px solid #EBEEF5;
+    border-bottom: 1px solid #ebeef5;
     color: #303133;
     font-size: 16px;
   }

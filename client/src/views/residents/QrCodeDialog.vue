@@ -9,12 +9,7 @@
     <div v-if="resident" class="qr-code-content">
       <!-- 村民基本信息 -->
       <div class="resident-info">
-        <el-avatar
-          :size="60"
-          :src="resident.avatar"
-          :icon="UserFilled"
-          class="resident-avatar"
-        />
+        <el-avatar :size="60" :src="resident.avatar" :icon="UserFilled" class="resident-avatar" />
         <div class="info">
           <h3>{{ resident.name }}</h3>
           <p>户码：{{ resident.householdCode }}</p>
@@ -35,36 +30,14 @@
 
       <!-- 功能按钮 -->
       <div class="action-buttons">
-        <el-button
-          type="primary"
-          @click="downloadQRCode"
-          icon="Download"
-        >
-          下载二维码
-        </el-button>
-        <el-button
-          type="success"
-          @click="printQRCode"
-          icon="Printer"
-        >
-          打印二维码
-        </el-button>
-        <el-button
-          @click="regenerateQRCode"
-          icon="Refresh"
-        >
-          重新生成
-        </el-button>
+        <el-button type="primary" @click="downloadQRCode" icon="Download"> 下载二维码 </el-button>
+        <el-button type="success" @click="printQRCode" icon="Printer"> 打印二维码 </el-button>
+        <el-button @click="regenerateQRCode" icon="Refresh"> 重新生成 </el-button>
       </div>
 
       <!-- 二维码用途说明 -->
       <div class="usage-info">
-        <el-alert
-          title="二维码用途说明"
-          type="info"
-          :closable="false"
-          show-icon
-        >
+        <el-alert title="二维码用途说明" type="info" :closable="false" show-icon>
           <template #default>
             <ul>
               <li>快速查看村民基本信息</li>
@@ -86,53 +59,53 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick } from 'vue'
-import { ElMessage } from 'element-plus'
-import { UserFilled, Download, Printer, Refresh } from '@element-plus/icons-vue'
-import QRCode from 'qrcode'
+import { ref, computed, watch, nextTick } from 'vue';
+import { ElMessage } from 'element-plus';
+import { UserFilled, Download, Printer, Refresh } from '@element-plus/icons-vue';
+import QRCode from 'qrcode';
 
 const props = defineProps({
   modelValue: {
     type: Boolean,
-    default: false
+    default: false,
   },
   resident: {
     type: Object,
-    default: null
-  }
-})
+    default: null,
+  },
+});
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue']);
 
-const qrCodeCanvas = ref()
+const qrCodeCanvas = ref();
 
 // 对话框显示状态
 const dialogVisible = computed({
   get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
-})
+  set: value => emit('update:modelValue', value),
+});
 
 // 生成二维码数据
 const generateQRCodeData = () => {
-  if (!props.resident) return ''
+  if (!props.resident) return '';
 
   const qrData = {
     type: 'resident_info',
     householdCode: props.resident.householdCode,
     name: props.resident.name,
     id: props.resident.id,
-    timestamp: Date.now()
-  }
+    timestamp: Date.now(),
+  };
 
-  return JSON.stringify(qrData)
-}
+  return JSON.stringify(qrData);
+};
 
 // 生成二维码
 const generateQRCode = async () => {
-  if (!qrCodeCanvas.value || !props.resident) return
+  if (!qrCodeCanvas.value || !props.resident) return;
 
   try {
-    const qrData = generateQRCodeData()
+    const qrData = generateQRCodeData();
 
     await QRCode.toCanvas(qrCodeCanvas.value, qrData, {
       width: 200,
@@ -140,42 +113,42 @@ const generateQRCode = async () => {
       margin: 2,
       color: {
         dark: '#000000',
-        light: '#ffffff'
+        light: '#ffffff',
       },
-      errorCorrectionLevel: 'M'
-    })
+      errorCorrectionLevel: 'M',
+    });
   } catch (error) {
-    console.error('生成二维码失败:', error)
-    ElMessage.error('生成二维码失败')
+    console.error('生成二维码失败:', error);
+    ElMessage.error('生成二维码失败');
   }
-}
+};
 
 // 下载二维码
 const downloadQRCode = () => {
-  if (!qrCodeCanvas.value) return
+  if (!qrCodeCanvas.value) return;
 
   try {
-    const link = document.createElement('a')
-    link.download = `${props.resident.name}_${props.resident.householdCode}_qrcode.png`
-    link.href = qrCodeCanvas.value.toDataURL()
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
+    const link = document.createElement('a');
+    link.download = `${props.resident.name}_${props.resident.householdCode}_qrcode.png`;
+    link.href = qrCodeCanvas.value.toDataURL();
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 
-    ElMessage.success('二维码下载成功')
+    ElMessage.success('二维码下载成功');
   } catch (error) {
-    console.error('下载二维码失败:', error)
-    ElMessage.error('下载二维码失败')
+    console.error('下载二维码失败:', error);
+    ElMessage.error('下载二维码失败');
   }
-}
+};
 
 // 打印二维码
 const printQRCode = () => {
-  if (!qrCodeCanvas.value) return
+  if (!qrCodeCanvas.value) return;
 
   try {
-    const printWindow = window.open('', '_blank')
-    const imageData = qrCodeCanvas.value.toDataURL()
+    const printWindow = window.open('', '_blank');
+    const imageData = qrCodeCanvas.value.toDataURL();
 
     printWindow.document.write(`
       <html>
@@ -228,36 +201,39 @@ const printQRCode = () => {
           </div>
         </body>
       </html>
-    `)
+    `);
 
-    printWindow.document.close()
-    printWindow.print()
+    printWindow.document.close();
+    printWindow.print();
 
-    ElMessage.success('正在打印二维码')
+    ElMessage.success('正在打印二维码');
   } catch (error) {
-    console.error('打印二维码失败:', error)
-    ElMessage.error('打印二维码失败')
+    console.error('打印二维码失败:', error);
+    ElMessage.error('打印二维码失败');
   }
-}
+};
 
 // 重新生成二维码
 const regenerateQRCode = async () => {
   try {
-    await generateQRCode()
-    ElMessage.success('二维码已重新生成')
+    await generateQRCode();
+    ElMessage.success('二维码已重新生成');
   } catch (error) {
-    ElMessage.error('重新生成二维码失败')
+    ElMessage.error('重新生成二维码失败');
   }
-}
+};
 
 // 监听对话框显示状态
-watch(() => props.modelValue, (newVal) => {
-  if (newVal && props.resident) {
-    nextTick(() => {
-      generateQRCode()
-    })
+watch(
+  () => props.modelValue,
+  newVal => {
+    if (newVal && props.resident) {
+      nextTick(() => {
+        generateQRCode();
+      });
+    }
   }
-})
+);
 </script>
 
 <style lang="scss" scoped>

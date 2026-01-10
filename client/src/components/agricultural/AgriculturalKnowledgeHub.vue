@@ -8,19 +8,15 @@
           农业知识分享平台
         </h1>
         <div class="header-actions">
-          <el-button 
-            type="primary" 
+          <el-button
+            type="primary"
             @click="showCreateDialog = true"
             icon="el-icon-edit"
             v-if="isLoggedIn"
           >
             发布分享
           </el-button>
-          <el-button 
-            type="success" 
-            @click="showExpertConsult = true"
-            icon="el-icon-user"
-          >
+          <el-button type="success" @click="showExpertConsult = true" icon="el-icon-user">
             专家咨询
           </el-button>
         </div>
@@ -37,15 +33,9 @@
           @keyup.enter="handleSearch"
           class="search-input"
         />
-        <el-button 
-          type="primary" 
-          @click="handleSearch"
-          icon="el-icon-search"
-        >
-          搜索
-        </el-button>
+        <el-button type="primary" @click="handleSearch" icon="el-icon-search"> 搜索 </el-button>
       </div>
-      
+
       <div class="filter-section">
         <el-select v-model="filters.sortBy" @change="loadPosts" placeholder="排序方式">
           <el-option label="最新发布" value="latest"></el-option>
@@ -54,7 +44,7 @@
           <el-option label="最有用" value="helpful"></el-option>
           <el-option label="专家认证" value="expert_verified"></el-option>
         </el-select>
-        
+
         <el-select v-model="filters.postType" @change="loadPosts" placeholder="内容类型">
           <el-option label="全部类型" value=""></el-option>
           <el-option label="农技教程" value="agricultural_tutorial"></el-option>
@@ -66,7 +56,7 @@
           <el-option label="政策解读" value="policy_interpretation"></el-option>
           <el-option label="经验分享" value="experience_sharing"></el-option>
         </el-select>
-        
+
         <el-select v-model="filters.cropCategory" @change="loadPosts" placeholder="作物分类">
           <el-option label="全部作物" value=""></el-option>
           <el-option label="粮食作物" value="grain_crops"></el-option>
@@ -78,7 +68,7 @@
           <el-option label="畜牧业" value="livestock"></el-option>
           <el-option label="水产养殖" value="aquaculture"></el-option>
         </el-select>
-        
+
         <el-checkbox v-model="filters.onlyQuestions" @change="loadPosts">
           只看求助问题
         </el-checkbox>
@@ -145,7 +135,7 @@
             </el-button>
           </el-empty>
         </div>
-        
+
         <div v-else>
           <agricultural-post-card
             v-for="post in posts"
@@ -158,7 +148,7 @@
             class="post-item"
           />
         </div>
-        
+
         <!-- 分页 -->
         <div class="pagination-wrapper" v-if="pagination.total > 0">
           <el-pagination
@@ -173,15 +163,10 @@
     </div>
 
     <!-- 创建帖子对话框 -->
-    <agricultural-create-dialog
-      :visible.sync="showCreateDialog"
-      @success="handleCreateSuccess"
-    />
+    <agricultural-create-dialog :visible.sync="showCreateDialog" @success="handleCreateSuccess" />
 
     <!-- 专家咨询对话框 -->
-    <expert-consultation-dialog
-      :visible.sync="showExpertConsult"
-    />
+    <expert-consultation-dialog :visible.sync="showExpertConsult" />
 
     <!-- 帖子详情对话框 -->
     <agricultural-post-detail
@@ -193,10 +178,10 @@
 </template>
 
 <script>
-import AgriculturalPostCard from './AgriculturalPostCard.vue'
-import AgriculturalCreateDialog from './AgriculturalCreateDialog.vue'
-import AgriculturalPostDetail from './AgriculturalPostDetail.vue'
-import ExpertConsultationDialog from './ExpertConsultationDialog.vue'
+import AgriculturalPostCard from './AgriculturalPostCard.vue';
+import AgriculturalCreateDialog from './AgriculturalCreateDialog.vue';
+import AgriculturalPostDetail from './AgriculturalPostDetail.vue';
+import ExpertConsultationDialog from './ExpertConsultationDialog.vue';
 
 export default {
   name: 'AgriculturalKnowledgeHub',
@@ -204,7 +189,7 @@ export default {
     AgriculturalPostCard,
     AgriculturalCreateDialog,
     AgriculturalPostDetail,
-    ExpertConsultationDialog
+    ExpertConsultationDialog,
   },
   data() {
     return {
@@ -220,28 +205,28 @@ export default {
         sortBy: 'latest',
         postType: '',
         cropCategory: '',
-        onlyQuestions: false
+        onlyQuestions: false,
       },
       pagination: {
         page: 1,
         limit: 20,
         total: 0,
-        pages: 0
-      }
-    }
+        pages: 0,
+      },
+    };
   },
   computed: {
     isLoggedIn() {
-      return this.$store.getters['auth/isLoggedIn']
-    }
+      return this.$store.getters['auth/isLoggedIn'];
+    },
   },
   created() {
-    this.loadPosts()
-    this.loadStatistics()
+    this.loadPosts();
+    this.loadStatistics();
   },
   methods: {
     async loadPosts() {
-      this.loading = true
+      this.loading = true;
       try {
         const params = {
           page: this.pagination.page,
@@ -249,160 +234,160 @@ export default {
           sortBy: this.filters.sortBy,
           postType: this.filters.postType,
           cropCategory: this.filters.cropCategory,
-          isQuestion: this.filters.onlyQuestions || undefined
-        }
-        
+          isQuestion: this.filters.onlyQuestions || undefined,
+        };
+
         // 过滤空参数
         Object.keys(params).forEach(key => {
           if (params[key] === '' || params[key] === undefined) {
-            delete params[key]
+            delete params[key];
           }
-        })
-        
-        const response = await this.$api.agricultural.getPosts(params)
-        
+        });
+
+        const response = await this.$api.agricultural.getPosts(params);
+
         if (response.data.success) {
-          this.posts = response.data.data.posts
-          this.pagination = response.data.data.pagination
+          this.posts = response.data.data.posts;
+          this.pagination = response.data.data.pagination;
         }
       } catch (error) {
-        this.$message.error('加载帖子列表失败：' + error.message)
+        this.$message.error('加载帖子列表失败：' + error.message);
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
-    
+
     async loadStatistics() {
       try {
-        const response = await this.$api.agricultural.getStatistics()
+        const response = await this.$api.agricultural.getStatistics();
         if (response.data.success) {
-          this.statistics = response.data.data
+          this.statistics = response.data.data;
         }
       } catch (error) {
-        console.error('加载统计数据失败:', error)
+        console.error('加载统计数据失败:', error);
       }
     },
-    
+
     async handleSearch() {
       if (!this.searchQuery.trim()) {
-        this.loadPosts()
-        return
+        this.loadPosts();
+        return;
       }
-      
-      this.loading = true
+
+      this.loading = true;
       try {
         const params = {
           q: this.searchQuery,
           page: 1,
           limit: this.pagination.limit,
           postType: this.filters.postType,
-          cropCategory: this.filters.cropCategory
-        }
-        
-        const response = await this.$api.agricultural.searchPosts(params)
-        
+          cropCategory: this.filters.cropCategory,
+        };
+
+        const response = await this.$api.agricultural.searchPosts(params);
+
         if (response.data.success) {
-          this.posts = response.data.data.posts
-          this.pagination = response.data.data.pagination
-          this.pagination.page = 1
+          this.posts = response.data.data.posts;
+          this.pagination = response.data.data.pagination;
+          this.pagination.page = 1;
         }
       } catch (error) {
-        this.$message.error('搜索失败：' + error.message)
+        this.$message.error('搜索失败：' + error.message);
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
-    
+
     handlePageChange(page) {
-      this.pagination.page = page
-      this.loadPosts()
+      this.pagination.page = page;
+      this.loadPosts();
     },
-    
+
     async handleLike(postId) {
       if (!this.isLoggedIn) {
-        this.$message.warning('请先登录')
-        return
+        this.$message.warning('请先登录');
+        return;
       }
-      
+
       try {
-        const response = await this.$api.agricultural.toggleLike(postId)
+        const response = await this.$api.agricultural.toggleLike(postId);
         if (response.data.success) {
-          const post = this.posts.find(p => p._id === postId)
+          const post = this.posts.find(p => p._id === postId);
           if (post) {
-            post.engagement.likes = response.data.data.likesCount
-            post.userInteractions = post.userInteractions || {}
-            post.userInteractions.hasLiked = response.data.data.isLiked
+            post.engagement.likes = response.data.data.likesCount;
+            post.userInteractions = post.userInteractions || {};
+            post.userInteractions.hasLiked = response.data.data.isLiked;
           }
-          this.$message.success(response.data.message)
+          this.$message.success(response.data.message);
         }
       } catch (error) {
-        this.$message.error('操作失败：' + error.message)
+        this.$message.error('操作失败：' + error.message);
       }
     },
-    
+
     async handleBookmark(postId) {
       if (!this.isLoggedIn) {
-        this.$message.warning('请先登录')
-        return
+        this.$message.warning('请先登录');
+        return;
       }
-      
+
       try {
-        const response = await this.$api.agricultural.toggleBookmark(postId)
+        const response = await this.$api.agricultural.toggleBookmark(postId);
         if (response.data.success) {
-          const post = this.posts.find(p => p._id === postId)
+          const post = this.posts.find(p => p._id === postId);
           if (post) {
-            post.engagement.bookmarks = response.data.data.bookmarksCount
-            post.userInteractions = post.userInteractions || {}
-            post.userInteractions.hasBookmarked = response.data.data.isBookmarked
+            post.engagement.bookmarks = response.data.data.bookmarksCount;
+            post.userInteractions = post.userInteractions || {};
+            post.userInteractions.hasBookmarked = response.data.data.isBookmarked;
           }
-          this.$message.success(response.data.message)
+          this.$message.success(response.data.message);
         }
       } catch (error) {
-        this.$message.error('操作失败：' + error.message)
+        this.$message.error('操作失败：' + error.message);
       }
     },
-    
+
     async handleVote(postId, voteType) {
       if (!this.isLoggedIn) {
-        this.$message.warning('请先登录')
-        return
+        this.$message.warning('请先登录');
+        return;
       }
-      
+
       try {
-        const response = await this.$api.agricultural.vote(postId, voteType)
+        const response = await this.$api.agricultural.vote(postId, voteType);
         if (response.data.success) {
-          const post = this.posts.find(p => p._id === postId)
+          const post = this.posts.find(p => p._id === postId);
           if (post) {
-            post.engagement.helpfulVotes = response.data.data.helpfulVotes
-            post.engagement.unhelpfulVotes = response.data.data.unhelpfulVotes
-            post.userInteractions = post.userInteractions || {}
-            post.userInteractions.userVote = response.data.data.userVote
+            post.engagement.helpfulVotes = response.data.data.helpfulVotes;
+            post.engagement.unhelpfulVotes = response.data.data.unhelpfulVotes;
+            post.userInteractions = post.userInteractions || {};
+            post.userInteractions.userVote = response.data.data.userVote;
           }
-          this.$message.success('投票成功')
+          this.$message.success('投票成功');
         }
       } catch (error) {
-        this.$message.error('投票失败：' + error.message)
+        this.$message.error('投票失败：' + error.message);
       }
     },
-    
+
     viewPostDetail(postId) {
-      this.selectedPostId = postId
-      this.showPostDetail = true
+      this.selectedPostId = postId;
+      this.showPostDetail = true;
     },
-    
+
     handleCreateSuccess() {
-      this.$message.success('发布成功')
-      this.showCreateDialog = false
-      this.loadPosts()
-      this.loadStatistics()
+      this.$message.success('发布成功');
+      this.showCreateDialog = false;
+      this.loadPosts();
+      this.loadStatistics();
     },
-    
+
     handleCommentAdded() {
       // 刷新当前帖子列表中的评论数
-      this.loadPosts()
-    }
-  }
-}
+      this.loadPosts();
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -413,7 +398,7 @@ export default {
 }
 
 .hub-header {
-  background: linear-gradient(135deg, #67C23A 0%, #85CE61 100%);
+  background: linear-gradient(135deg, #67c23a 0%, #85ce61 100%);
   border-radius: 12px;
   padding: 30px;
   margin-bottom: 20px;
@@ -445,7 +430,7 @@ export default {
   padding: 20px;
   border-radius: 8px;
   margin-bottom: 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .search-section {
@@ -481,7 +466,7 @@ export default {
 
 .stat-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .stat-item {
@@ -492,7 +477,7 @@ export default {
 
 .stat-icon {
   font-size: 32px;
-  color: #67C23A;
+  color: #67c23a;
 }
 
 .stat-content {
@@ -534,7 +519,7 @@ export default {
   text-align: center;
   margin-top: 30px;
   padding-top: 20px;
-  border-top: 1px solid #EBEEF5;
+  border-top: 1px solid #ebeef5;
 }
 
 /* 响应式设计 */
@@ -542,27 +527,27 @@ export default {
   .agricultural-knowledge-hub {
     padding: 10px;
   }
-  
+
   .header-content {
     flex-direction: column;
     gap: 16px;
     text-align: center;
   }
-  
+
   .search-section {
     flex-direction: column;
   }
-  
+
   .filter-section {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .filter-section .el-select {
     width: 100%;
     margin-bottom: 8px;
   }
-  
+
   .hub-title {
     font-size: 22px;
   }

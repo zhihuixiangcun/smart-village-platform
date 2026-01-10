@@ -48,7 +48,7 @@ async function getConversations(req, res) {
     logger.error('获取会话列表失败:', error);
     res.status(500).json({
       success: false,
-      message: '获取会话列表失败: ' + error.message
+      message: `获取会话列表失败: ${  error.message}`
     });
   }
 }
@@ -90,7 +90,7 @@ async function getConversationById(req, res) {
     logger.error('获取会话详情失败:', error);
     res.status(500).json({
       success: false,
-      message: '获取会话详情失败: ' + error.message
+      message: `获取会话详情失败: ${  error.message}`
     });
   }
 }
@@ -230,7 +230,7 @@ async function createConversation(req, res) {
     logger.error('创建会话失败:', error);
     res.status(500).json({
       success: false,
-      message: '创建会话失败: ' + error.message
+      message: `创建会话失败: ${  error.message}`
     });
   }
 }
@@ -275,7 +275,7 @@ async function getMessages(req, res) {
     logger.error('获取消息列表失败:', error);
     res.status(500).json({
       success: false,
-      message: '获取消息列表失败: ' + error.message
+      message: `获取消息列表失败: ${  error.message}`
     });
   }
 }
@@ -374,7 +374,7 @@ async function sendMessage(req, res) {
     logger.error('发送消息失败:', error);
     res.status(500).json({
       success: false,
-      message: '发送消息失败: ' + error.message
+      message: `发送消息失败: ${  error.message}`
     });
   }
 }
@@ -451,7 +451,7 @@ async function recallMessage(req, res) {
     logger.error('撤回消息失败:', error);
     res.status(500).json({
       success: false,
-      message: '撤回消息失败: ' + error.message
+      message: `撤回消息失败: ${  error.message}`
     });
   }
 }
@@ -515,7 +515,7 @@ async function markAsRead(req, res) {
     logger.error('标记已读失败:', error);
     res.status(500).json({
       success: false,
-      message: '标记已读失败: ' + error.message
+      message: `标记已读失败: ${  error.message}`
     });
   }
 }
@@ -537,7 +537,7 @@ async function uploadImage(req, res) {
     logger.error('上传图片失败:', error);
     res.status(500).json({
       success: false,
-      message: '上传图片失败: ' + error.message
+      message: `上传图片失败: ${  error.message}`
     });
   }
 }
@@ -572,7 +572,7 @@ async function getUnreadCount(req, res) {
     logger.error('获取未读数失败:', error);
     res.status(500).json({
       success: false,
-      message: '获取未读数失败: ' + error.message
+      message: `获取未读数失败: ${  error.message}`
     });
   }
 }
@@ -624,7 +624,7 @@ async function togglePin(req, res) {
     logger.error('切换置顶状态失败:', error);
     res.status(500).json({
       success: false,
-      message: '切换置顶状态失败: ' + error.message
+      message: `切换置顶状态失败: ${  error.message}`
     });
   }
 }
@@ -676,7 +676,7 @@ async function toggleMute(req, res) {
     logger.error('切换静音状态失败:', error);
     res.status(500).json({
       success: false,
-      message: '切换静音状态失败: ' + error.message
+      message: `切换静音状态失败: ${  error.message}`
     });
   }
 }

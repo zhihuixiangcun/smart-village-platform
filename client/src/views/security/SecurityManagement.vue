@@ -64,13 +64,7 @@
             <template #default>
               <p>模块: {{ alert.module }}</p>
               <p>建议操作: {{ getActionText(alert.action) }}</p>
-              <el-button
-                type="text"
-                size="small"
-                @click="handleAlert(alert)"
-              >
-                立即处理
-              </el-button>
+              <el-button type="text" size="small" @click="handleAlert(alert)"> 立即处理 </el-button>
             </template>
           </el-alert>
         </el-col>
@@ -146,31 +140,15 @@
             </el-button>
           </el-col>
           <el-col :span="6">
-            <el-button
-              type="success"
-              :icon="Document"
-              @click="generateReport"
-            >
+            <el-button type="success" :icon="Document" @click="generateReport">
               生成报告
             </el-button>
           </el-col>
           <el-col :span="6">
-            <el-button
-              type="warning"
-              :icon="Setting"
-              @click="openSettings"
-            >
-              安全配置
-            </el-button>
+            <el-button type="warning" :icon="Setting" @click="openSettings"> 安全配置 </el-button>
           </el-col>
           <el-col :span="6">
-            <el-button
-              type="danger"
-              :icon="Bell"
-              @click="testAlerts"
-            >
-              测试告警
-            </el-button>
+            <el-button type="danger" :icon="Bell" @click="testAlerts"> 测试告警 </el-button>
           </el-col>
         </el-row>
       </el-card>
@@ -192,11 +170,7 @@
     </el-dialog>
 
     <!-- 生成报告对话框 -->
-    <el-dialog
-      v-model="reportDialogVisible"
-      title="生成安全报告"
-      width="50%"
-    >
+    <el-dialog v-model="reportDialogVisible" title="生成安全报告" width="50%">
       <el-form :model="reportForm" label-width="120px">
         <el-form-item label="报告类型">
           <el-select v-model="reportForm.reportType" placeholder="选择报告类型">
@@ -240,62 +214,73 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed, nextTick } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import * as echarts from 'echarts'
-import axios from 'axios'
+import { ref, reactive, onMounted, computed, nextTick } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import * as echarts from 'echarts';
+import axios from 'axios';
 
 // 导入图标
 import {
-  Lock, Warning, UserFilled, TrendCharts, Clock,  // Lock 替代 Shield
-  Refresh, Document, Setting, Bell, DataAnalysis, Key,
-  Monitor, View, Eye
-} from '@element-plus/icons-vue'
+  Lock,
+  Warning,
+  UserFilled,
+  TrendCharts,
+  Clock, // Lock 替代 Shield
+  Refresh,
+  Document,
+  Setting,
+  Bell,
+  DataAnalysis,
+  Key,
+  Monitor,
+  View,
+  Eye,
+} from '@element-plus/icons-vue';
 
 // 导入子组件
-import ComplianceModule from './components/ComplianceModule.vue'
-import EncryptionModule from './components/EncryptionModule.vue'
-import AntiFraudModule from './components/AntiFraudModule.vue'
-import PrivacyModule from './components/PrivacyModule.vue'
+import ComplianceModule from './components/ComplianceModule.vue';
+import EncryptionModule from './components/EncryptionModule.vue';
+import AntiFraudModule from './components/AntiFraudModule.vue';
+import PrivacyModule from './components/PrivacyModule.vue';
 
 // 响应式数据
-const refreshing = ref(false)
-const generatingReport = ref(false)
-const moduleDetailVisible = ref(false)
-const reportDialogVisible = ref(false)
-const currentModuleComponent = ref(null)
-const currentModuleData = ref(null)
+const refreshing = ref(false);
+const generatingReport = ref(false);
+const moduleDetailVisible = ref(false);
+const reportDialogVisible = ref(false);
+const currentModuleComponent = ref(null);
+const currentModuleData = ref(null);
 
 // 图表引用
-const securityTrendChart = ref(null)
-const threatStatsChart = ref(null)
+const securityTrendChart = ref(null);
+const threatStatsChart = ref(null);
 
 // 安全数据
 const securityData = reactive({
   overallSecurityScore: 0,
   modules: {},
   alerts: [],
-  recentActivities: []
-})
+  recentActivities: [],
+});
 
 // 计算属性
-const overallScore = computed(() => securityData.overallSecurityScore)
-const alerts = computed(() => securityData.alerts)
-const recentActivities = computed(() => securityData.recentActivities)
+const overallScore = computed(() => securityData.overallSecurityScore);
+const alerts = computed(() => securityData.alerts);
+const recentActivities = computed(() => securityData.recentActivities);
 
 // 安全模块配置
 const securityModules = computed(() => [
   {
     key: 'compliance',
     title: '等保合规',
-    icon: 'Lock',  // 替代 Shield
+    icon: 'Lock', // 替代 Shield
     status: securityData.modules.compliance?.status || 'inactive',
     score: securityData.modules.compliance?.score || 0,
     metrics: [
       { label: '合规分数', value: securityData.modules.compliance?.score || 0 },
       { label: '风险项', value: securityData.modules.compliance?.issues || 0 },
-      { label: '保护级别', value: securityData.modules.compliance?.level || 'L2' }
-    ]
+      { label: '保护级别', value: securityData.modules.compliance?.level || 'L2' },
+    ],
   },
   {
     key: 'encryption',
@@ -306,8 +291,8 @@ const securityModules = computed(() => [
     metrics: [
       { label: '密钥数量', value: securityData.modules.encryption?.keyCount || 0 },
       { label: '加密文件', value: securityData.modules.encryption?.encryptedFiles || 0 },
-      { label: '算法', value: securityData.modules.encryption?.algorithms?.length || 0 }
-    ]
+      { label: '算法', value: securityData.modules.encryption?.algorithms?.length || 0 },
+    ],
   },
   {
     key: 'antiFraud',
@@ -318,8 +303,8 @@ const securityModules = computed(() => [
     metrics: [
       { label: '检测次数', value: securityData.modules.antiFraud?.detectedFrauds || 0 },
       { label: '阻止尝试', value: securityData.modules.antiFraud?.blockedAttempts || 0 },
-      { label: '举报数', value: securityData.modules.antiFraud?.totalReports || 0 }
-    ]
+      { label: '举报数', value: securityData.modules.antiFraud?.totalReports || 0 },
+    ],
   },
   {
     key: 'privacy',
@@ -330,226 +315,222 @@ const securityModules = computed(() => [
     metrics: [
       { label: '用户同意', value: securityData.modules.privacy?.totalConsents || 0 },
       { label: '审计记录', value: securityData.modules.privacy?.activeAudits || 0 },
-      { label: '匿名记录', value: securityData.modules.privacy?.anonymizedRecords || 0 }
-    ]
-  }
-])
+      { label: '匿名记录', value: securityData.modules.privacy?.anonymizedRecords || 0 },
+    ],
+  },
+]);
 
 // 报告表单
 const reportForm = reactive({
   reportType: 'comprehensive',
   format: 'json',
-  dateRange: []
-})
+  dateRange: [],
+});
 
 // 方法
-const getScoreClass = (score) => {
-  if (score >= 80) return 'excellent'
-  if (score >= 60) return 'good'
-  if (score >= 40) return 'warning'
-  return 'danger'
-}
+const getScoreClass = score => {
+  if (score >= 80) return 'excellent';
+  if (score >= 60) return 'good';
+  if (score >= 40) return 'warning';
+  return 'danger';
+};
 
-const getActionText = (action) => {
+const getActionText = action => {
   const actionMap = {
-    'immediate': '立即处理',
-    'investigate': '调查处理',
-    'monitor': '持续监控'
-  }
-  return actionMap[action] || action
-}
+    immediate: '立即处理',
+    investigate: '调查处理',
+    monitor: '持续监控',
+  };
+  return actionMap[action] || action;
+};
 
-const getActivityType = (type) => {
+const getActivityType = type => {
   const typeMap = {
-    'encryption': 'primary',
-    'compliance': 'success',
-    'fraud_detection': 'warning',
-    'privacy': 'info'
-  }
-  return typeMap[type] || 'primary'
-}
+    encryption: 'primary',
+    compliance: 'success',
+    fraud_detection: 'warning',
+    privacy: 'info',
+  };
+  return typeMap[type] || 'primary';
+};
 
-const formatDate = (timestamp) => {
-  return new Date(timestamp).toLocaleString('zh-CN')
-}
+const formatDate = timestamp => {
+  return new Date(timestamp).toLocaleString('zh-CN');
+};
 
 const getModuleDetailTitle = () => {
-  const module = securityModules.value.find(m => m.key === currentModuleData.value?.key)
-  return module ? `${module.title}详情` : '模块详情'
-}
+  const module = securityModules.value.find(m => m.key === currentModuleData.value?.key);
+  return module ? `${module.title}详情` : '模块详情';
+};
 
 // 获取安全仪表板数据
 const fetchSecurityData = async () => {
   try {
-    const response = await axios.get('/api/v1/security/dashboard')
+    const response = await axios.get('/api/v1/security/dashboard');
 
     if (response.data.success) {
-      Object.assign(securityData, response.data.data)
+      Object.assign(securityData, response.data.data);
 
       // 更新图表
       nextTick(() => {
-        updateSecurityTrendChart()
-        updateThreatStatsChart()
-      })
+        updateSecurityTrendChart();
+        updateThreatStatsChart();
+      });
     }
   } catch (error) {
-    console.error('获取安全数据失败:', error)
-    ElMessage.error('获取安全数据失败')
+    console.error('获取安全数据失败:', error);
+    ElMessage.error('获取安全数据失败');
   }
-}
+};
 
 // 刷新安全数据
 const refreshSecurityData = async () => {
-  refreshing.value = true
+  refreshing.value = true;
   try {
-    await fetchSecurityData()
-    ElMessage.success('数据刷新成功')
+    await fetchSecurityData();
+    ElMessage.success('数据刷新成功');
   } catch (error) {
-    ElMessage.error('数据刷新失败')
+    ElMessage.error('数据刷新失败');
   } finally {
-    refreshing.value = false
+    refreshing.value = false;
   }
-}
+};
 
 // 打开模块详情
-const openModuleDetail = (moduleKey) => {
-  const module = securityModules.value.find(m => m.key === moduleKey)
-  if (!module) return
+const openModuleDetail = moduleKey => {
+  const module = securityModules.value.find(m => m.key === moduleKey);
+  if (!module) return;
 
   currentModuleData.value = {
     key: moduleKey,
-    ...securityData.modules[moduleKey]
-  }
+    ...securityData.modules[moduleKey],
+  };
 
   // 选择对应的组件
   const componentMap = {
     compliance: ComplianceModule,
     encryption: EncryptionModule,
     antiFraud: AntiFraudModule,
-    privacy: PrivacyModule
-  }
+    privacy: PrivacyModule,
+  };
 
-  currentModuleComponent.value = componentMap[moduleKey]
-  moduleDetailVisible.value = true
-}
+  currentModuleComponent.value = componentMap[moduleKey];
+  moduleDetailVisible.value = true;
+};
 
 // 刷新模块数据
-const refreshModuleData = async (moduleKey) => {
-  await fetchSecurityData()
+const refreshModuleData = async moduleKey => {
+  await fetchSecurityData();
   if (moduleKey) {
-    openModuleDetail(moduleKey)
+    openModuleDetail(moduleKey);
   }
-}
+};
 
 // 处理告警
-const handleAlert = async (alert) => {
+const handleAlert = async alert => {
   try {
-    await ElMessageBox.confirm(
-      `是否处理 ${alert.module} 模块的告警？`,
-      '确认处理',
-      {
-        confirmButtonText: '立即处理',
-        cancelButtonText: '稍后处理',
-        type: 'warning'
-      }
-    )
+    await ElMessageBox.confirm(`是否处理 ${alert.module} 模块的告警？`, '确认处理', {
+      confirmButtonText: '立即处理',
+      cancelButtonText: '稍后处理',
+      type: 'warning',
+    });
 
     // 调用告警处理API
     await axios.post('/api/v1/security/incident-response', {
       incidentType: alert.module,
       severity: alert.level,
       description: alert.message,
-      action: alert.action
-    })
+      action: alert.action,
+    });
 
-    ElMessage.success('告警已处理')
-    await fetchSecurityData()
+    ElMessage.success('告警已处理');
+    await fetchSecurityData();
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('处理告警失败:', error)
-      ElMessage.error('处理告警失败')
+      console.error('处理告警失败:', error);
+      ElMessage.error('处理告警失败');
     }
   }
-}
+};
 
 // 生成报告
 const generateReport = () => {
-  reportDialogVisible.value = true
-}
+  reportDialogVisible.value = true;
+};
 
 // 下载报告
 const downloadReport = async () => {
-  generatingReport.value = true
+  generatingReport.value = true;
   try {
     const response = await axios.post('/api/v1/security/generate-report', reportForm, {
-      responseType: reportForm.format === 'json' ? 'json' : 'blob'
-    })
+      responseType: reportForm.format === 'json' ? 'json' : 'blob',
+    });
 
     if (reportForm.format === 'json') {
       // JSON格式直接下载
       const blob = new Blob([JSON.stringify(response.data, null, 2)], {
-        type: 'application/json'
-      })
-      const url = window.URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `security_report_${Date.now()}.json`
-      link.click()
-      window.URL.revokeObjectURL(url)
+        type: 'application/json',
+      });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `security_report_${Date.now()}.json`;
+      link.click();
+      window.URL.revokeObjectURL(url);
     } else {
       // PDF/Excel格式
-      const url = window.URL.createObjectURL(new Blob([response.data]))
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `security_report_${Date.now()}.${reportForm.format}`
-      link.click()
-      window.URL.revokeObjectURL(url)
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `security_report_${Date.now()}.${reportForm.format}`;
+      link.click();
+      window.URL.revokeObjectURL(url);
     }
 
-    ElMessage.success('报告生成成功')
-    reportDialogVisible.value = false
+    ElMessage.success('报告生成成功');
+    reportDialogVisible.value = false;
   } catch (error) {
-    console.error('生成报告失败:', error)
-    ElMessage.error('生成报告失败')
+    console.error('生成报告失败:', error);
+    ElMessage.error('生成报告失败');
   } finally {
-    generatingReport.value = false
+    generatingReport.value = false;
   }
-}
+};
 
 // 打开设置
 const openSettings = () => {
   // 打开安全配置对话框
-  ElMessage.info('安全配置功能开发中')
-}
+  ElMessage.info('安全配置功能开发中');
+};
 
 // 测试告警
 const testAlerts = () => {
   // 模拟告警测试
-  ElMessage.success('告警测试功能已触发')
-}
+  ElMessage.success('告警测试功能已触发');
+};
 
 // 更新安全趋势图表
 const updateSecurityTrendChart = () => {
-  if (!securityTrendChart.value) return
+  if (!securityTrendChart.value) return;
 
-  const chart = echarts.init(securityTrendChart.value)
+  const chart = echarts.init(securityTrendChart.value);
 
   const option = {
     title: {
       text: '安全评分趋势',
-      left: 'center'
+      left: 'center',
     },
     tooltip: {
-      trigger: 'axis'
+      trigger: 'axis',
     },
     xAxis: {
       type: 'category',
-      data: ['1月', '2月', '3月', '4月', '5月', '6月']
+      data: ['1月', '2月', '3月', '4月', '5月', '6月'],
     },
     yAxis: {
       type: 'value',
       min: 0,
-      max: 100
+      max: 100,
     },
     series: [
       {
@@ -558,7 +539,7 @@ const updateSecurityTrendChart = () => {
         data: [65, 68, 72, 78, 82, overallScore.value],
         smooth: true,
         lineStyle: {
-          color: '#409EFF'
+          color: '#409EFF',
         },
         areaStyle: {
           color: {
@@ -569,39 +550,39 @@ const updateSecurityTrendChart = () => {
             y2: 1,
             colorStops: [
               { offset: 0, color: 'rgba(64, 158, 255, 0.4)' },
-              { offset: 1, color: 'rgba(64, 158, 255, 0.05)' }
-            ]
-          }
-        }
-      }
-    ]
-  }
+              { offset: 1, color: 'rgba(64, 158, 255, 0.05)' },
+            ],
+          },
+        },
+      },
+    ],
+  };
 
-  chart.setOption(option)
-}
+  chart.setOption(option);
+};
 
 // 更新威胁统计图表
 const updateThreatStatsChart = () => {
-  if (!threatStatsChart.value) return
+  if (!threatStatsChart.value) return;
 
-  const chart = echarts.init(threatStatsChart.value)
+  const chart = echarts.init(threatStatsChart.value);
 
   const threatData = [
     { name: '钓鱼攻击', value: 23 },
     { name: '恶意软件', value: 18 },
     { name: '数据泄露', value: 12 },
     { name: '内部威胁', value: 8 },
-    { name: '其他威胁', value: 15 }
-  ]
+    { name: '其他威胁', value: 15 },
+  ];
 
   const option = {
     title: {
       text: '威胁类型分布',
-      left: 'center'
+      left: 'center',
     },
     tooltip: {
       trigger: 'item',
-      formatter: '{a} <br/>{b}: {c} ({d}%)'
+      formatter: '{a} <br/>{b}: {c} ({d}%)',
     },
     series: [
       {
@@ -613,23 +594,23 @@ const updateThreatStatsChart = () => {
           itemStyle: {
             shadowBlur: 10,
             shadowOffsetX: 0,
-            shadowColor: 'rgba(0, 0, 0, 0.5)'
-          }
-        }
-      }
-    ]
-  }
+            shadowColor: 'rgba(0, 0, 0, 0.5)',
+          },
+        },
+      },
+    ],
+  };
 
-  chart.setOption(option)
-}
+  chart.setOption(option);
+};
 
 // 生命周期
 onMounted(async () => {
-  await fetchSecurityData()
+  await fetchSecurityData();
 
   // 设置定时刷新
-  setInterval(fetchSecurityData, 60000) // 每分钟刷新一次
-})
+  setInterval(fetchSecurityData, 60000); // 每分钟刷新一次
+});
 </script>
 
 <style scoped>
@@ -685,7 +666,11 @@ onMounted(async () => {
   right: 0;
   bottom: 0;
   border-radius: 50%;
-  background: conic-gradient(#409EFF 0deg, #409EFF calc(var(--score) * 3.6deg), #e4e7ed calc(var(--score) * 3.6deg));
+  background: conic-gradient(
+    #409eff 0deg,
+    #409eff calc(var(--score) * 3.6deg),
+    #e4e7ed calc(var(--score) * 3.6deg)
+  );
   -webkit-mask: radial-gradient(circle at center, transparent 65%, white 65%);
   mask: radial-gradient(circle at center, transparent 65%, white 65%);
 }
@@ -704,19 +689,35 @@ onMounted(async () => {
 }
 
 .overall-score.excellent .score-circle::before {
-  background: conic-gradient(#67C23A 0deg, #67C23A calc(var(--score) * 3.6deg), #e4e7ed calc(var(--score) * 3.6deg));
+  background: conic-gradient(
+    #67c23a 0deg,
+    #67c23a calc(var(--score) * 3.6deg),
+    #e4e7ed calc(var(--score) * 3.6deg)
+  );
 }
 
 .overall-score.good .score-circle::before {
-  background: conic-gradient(#409EFF 0deg, #409EFF calc(var(--score) * 3.6deg), #e4e7ed calc(var(--score) * 3.6deg));
+  background: conic-gradient(
+    #409eff 0deg,
+    #409eff calc(var(--score) * 3.6deg),
+    #e4e7ed calc(var(--score) * 3.6deg)
+  );
 }
 
 .overall-score.warning .score-circle::before {
-  background: conic-gradient(#E6A23C 0deg, #E6A23C calc(var(--score) * 3.6deg), #e4e7ed calc(var(--score) * 3.6deg));
+  background: conic-gradient(
+    #e6a23c 0deg,
+    #e6a23c calc(var(--score) * 3.6deg),
+    #e4e7ed calc(var(--score) * 3.6deg)
+  );
 }
 
 .overall-score.danger .score-circle::before {
-  background: conic-gradient(#F56C6C 0deg, #F56C6C calc(var(--score) * 3.6deg), #e4e7ed calc(var(--score) * 3.6deg));
+  background: conic-gradient(
+    #f56c6c 0deg,
+    #f56c6c calc(var(--score) * 3.6deg),
+    #e4e7ed calc(var(--score) * 3.6deg)
+  );
 }
 
 .security-modules {
@@ -725,7 +726,9 @@ onMounted(async () => {
 
 .module-card {
   height: 200px;
-  transition: transform 0.3s, box-shadow 0.3s;
+  transition:
+    transform 0.3s,
+    box-shadow 0.3s;
 }
 
 .module-card:hover {
@@ -734,11 +737,11 @@ onMounted(async () => {
 }
 
 .module-card.active {
-  border-left: 4px solid #67C23A;
+  border-left: 4px solid #67c23a;
 }
 
 .module-card.error {
-  border-left: 4px solid #F56C6C;
+  border-left: 4px solid #f56c6c;
 }
 
 .module-header {
@@ -750,7 +753,7 @@ onMounted(async () => {
 .module-header .el-icon {
   font-size: 24px;
   margin-right: 8px;
-  color: #409EFF;
+  color: #409eff;
 }
 
 .module-header h3 {
@@ -818,7 +821,7 @@ onMounted(async () => {
 
 .card-title .el-icon {
   margin-right: 8px;
-  color: #409EFF;
+  color: #409eff;
 }
 
 .activity-content {

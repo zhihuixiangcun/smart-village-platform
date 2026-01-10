@@ -7,20 +7,12 @@
         <el-row :gutter="20">
           <el-col :span="8">
             <el-form-item label="姓名" prop="name">
-              <el-input
-                v-model="formData.name"
-                placeholder="输入姓名进行搜索"
-                clearable
-              />
+              <el-input v-model="formData.name" placeholder="输入姓名进行搜索" clearable />
             </el-form-item>
           </el-col>
           <el-col :span="8">
             <el-form-item label="性别" prop="gender">
-              <el-select
-                v-model="formData.gender"
-                placeholder="选择性别"
-                clearable
-              >
+              <el-select v-model="formData.gender" placeholder="选择性别" clearable>
                 <el-option label="男" value="男" />
                 <el-option label="女" value="女" />
               </el-select>
@@ -58,12 +50,7 @@
           </el-col>
           <el-col :span="8">
             <el-form-item label="民族" prop="ethnicity">
-              <el-select
-                v-model="formData.ethnicity"
-                placeholder="选择民族"
-                clearable
-                filterable
-              >
+              <el-select v-model="formData.ethnicity" placeholder="选择民族" clearable filterable>
                 <el-option label="汉族" value="汉族" />
                 <el-option label="壮族" value="壮族" />
                 <el-option label="回族" value="回族" />
@@ -79,11 +66,7 @@
           </el-col>
           <el-col :span="8">
             <el-form-item label="政治面貌" prop="politicalStatus">
-              <el-select
-                v-model="formData.politicalStatus"
-                placeholder="选择政治面貌"
-                clearable
-              >
+              <el-select v-model="formData.politicalStatus" placeholder="选择政治面貌" clearable>
                 <el-option label="群众" value="群众" />
                 <el-option label="中共党员" value="中共党员" />
                 <el-option label="共青团员" value="共青团员" />
@@ -101,29 +84,17 @@
         <el-row :gutter="20">
           <el-col :span="8">
             <el-form-item label="手机号" prop="phone">
-              <el-input
-                v-model="formData.phone"
-                placeholder="输入手机号（支持模糊）"
-                clearable
-              />
+              <el-input v-model="formData.phone" placeholder="输入手机号（支持模糊）" clearable />
             </el-form-item>
           </el-col>
           <el-col :span="8">
             <el-form-item label="住址" prop="address">
-              <el-input
-                v-model="formData.address"
-                placeholder="输入地址关键词"
-                clearable
-              />
+              <el-input v-model="formData.address" placeholder="输入地址关键词" clearable />
             </el-form-item>
           </el-col>
           <el-col :span="8">
             <el-form-item label="微信号" prop="wechat">
-              <el-input
-                v-model="formData.wechat"
-                placeholder="输入微信号"
-                clearable
-              />
+              <el-input v-model="formData.wechat" placeholder="输入微信号" clearable />
             </el-form-item>
           </el-col>
         </el-row>
@@ -135,11 +106,7 @@
         <el-row :gutter="20">
           <el-col :span="8">
             <el-form-item label="学历" prop="education">
-              <el-select
-                v-model="formData.education"
-                placeholder="选择学历"
-                clearable
-              >
+              <el-select v-model="formData.education" placeholder="选择学历" clearable>
                 <el-option label="文盲" value="文盲" />
                 <el-option label="小学" value="小学" />
                 <el-option label="初中" value="初中" />
@@ -154,11 +121,7 @@
           </el-col>
           <el-col :span="8">
             <el-form-item label="就业状态" prop="employment">
-              <el-select
-                v-model="formData.employment"
-                placeholder="选择就业状态"
-                clearable
-              >
+              <el-select v-model="formData.employment" placeholder="选择就业状态" clearable>
                 <el-option label="在职" value="在职" />
                 <el-option label="自由职业" value="自由职业" />
                 <el-option label="待业" value="待业" />
@@ -171,11 +134,7 @@
           </el-col>
           <el-col :span="8">
             <el-form-item label="工作单位" prop="employer">
-              <el-input
-                v-model="formData.employer"
-                placeholder="输入工作单位关键词"
-                clearable
-              />
+              <el-input v-model="formData.employer" placeholder="输入工作单位关键词" clearable />
             </el-form-item>
           </el-col>
         </el-row>
@@ -187,11 +146,7 @@
         <el-row :gutter="20">
           <el-col :span="8">
             <el-form-item label="健康状况" prop="healthStatus">
-              <el-select
-                v-model="formData.healthStatus"
-                placeholder="选择健康状况"
-                clearable
-              >
+              <el-select v-model="formData.healthStatus" placeholder="选择健康状况" clearable>
                 <el-option label="健康" value="健康" />
                 <el-option label="良好" value="良好" />
                 <el-option label="一般" value="一般" />
@@ -203,11 +158,7 @@
           </el-col>
           <el-col :span="8">
             <el-form-item label="血型" prop="bloodType">
-              <el-select
-                v-model="formData.bloodType"
-                placeholder="选择血型"
-                clearable
-              >
+              <el-select v-model="formData.bloodType" placeholder="选择血型" clearable>
                 <el-option label="A型" value="A型" />
                 <el-option label="B型" value="B型" />
                 <el-option label="O型" value="O型" />
@@ -219,11 +170,7 @@
           </el-col>
           <el-col :span="8">
             <el-form-item label="婚姻状况" prop="maritalStatus">
-              <el-select
-                v-model="formData.maritalStatus"
-                placeholder="选择婚姻状况"
-                clearable
-              >
+              <el-select v-model="formData.maritalStatus" placeholder="选择婚姻状况" clearable>
                 <el-option label="未婚" value="未婚" />
                 <el-option label="已婚" value="已婚" />
                 <el-option label="离异" value="离异" />
@@ -269,20 +216,12 @@
         <el-row :gutter="20">
           <el-col :span="8">
             <el-form-item label="家庭编码" prop="familyCode">
-              <el-input
-                v-model="formData.familyCode"
-                placeholder="输入家庭编码"
-                clearable
-              />
+              <el-input v-model="formData.familyCode" placeholder="输入家庭编码" clearable />
             </el-form-item>
           </el-col>
           <el-col :span="8">
             <el-form-item label="家庭类型" prop="familyType">
-              <el-select
-                v-model="formData.familyType"
-                placeholder="选择家庭类型"
-                clearable
-              >
+              <el-select v-model="formData.familyType" placeholder="选择家庭类型" clearable>
                 <el-option label="普通户" value="普通户" />
                 <el-option label="低保户" value="低保户" />
                 <el-option label="特困户" value="特困户" />
@@ -318,11 +257,7 @@
         <el-row :gutter="20">
           <el-col :span="8">
             <el-form-item label="医保情况" prop="medicalInsurance">
-              <el-select
-                v-model="formData.medicalInsurance"
-                placeholder="选择医保情况"
-                clearable
-              >
+              <el-select v-model="formData.medicalInsurance" placeholder="选择医保情况" clearable>
                 <el-option label="有医保" value="true" />
                 <el-option label="无医保" value="false" />
               </el-select>
@@ -330,11 +265,7 @@
           </el-col>
           <el-col :span="8">
             <el-form-item label="医保类型" prop="insuranceType">
-              <el-select
-                v-model="formData.insuranceType"
-                placeholder="选择医保类型"
-                clearable
-              >
+              <el-select v-model="formData.insuranceType" placeholder="选择医保类型" clearable>
                 <el-option label="城镇职工医保" value="城镇职工医保" />
                 <el-option label="城乡居民医保" value="城乡居民医保" />
                 <el-option label="新农合" value="新农合" />
@@ -343,11 +274,7 @@
           </el-col>
           <el-col :span="8">
             <el-form-item label="养老保险" prop="pensionInsurance">
-              <el-select
-                v-model="formData.pensionInsurance"
-                placeholder="选择养老保险"
-                clearable
-              >
+              <el-select v-model="formData.pensionInsurance" placeholder="选择养老保险" clearable>
                 <el-option label="有养老" value="true" />
                 <el-option label="无养老" value="false" />
               </el-select>
@@ -388,11 +315,7 @@
             </el-col>
             <el-col :span="8">
               <el-form-item label="档案状态" prop="status">
-                <el-select
-                  v-model="formData.status"
-                  placeholder="选择档案状态"
-                  clearable
-                >
+                <el-select v-model="formData.status" placeholder="选择档案状态" clearable>
                   <el-option label="正常" value="正常" />
                   <el-option label="已注销" value="已注销" />
                   <el-option label="已迁出" value="已迁出" />
@@ -406,44 +329,36 @@
 
       <!-- 操作按钮 -->
       <div class="search-actions">
-        <el-button @click="handleReset" icon="Refresh">
-          重置
-        </el-button>
-        <el-button type="primary" @click="handleSearch" icon="Search">
-          搜索
-        </el-button>
-        <el-button type="success" @click="handleExport" icon="Download">
-          导出结果
-        </el-button>
-        <el-button @click="handleSaveTemplate" icon="Star">
-          保存为模板
-        </el-button>
+        <el-button @click="handleReset" icon="Refresh"> 重置 </el-button>
+        <el-button type="primary" @click="handleSearch" icon="Search"> 搜索 </el-button>
+        <el-button type="success" @click="handleExport" icon="Download"> 导出结果 </el-button>
+        <el-button @click="handleSaveTemplate" icon="Star"> 保存为模板 </el-button>
       </div>
     </el-form>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Refresh, Download, Star } from '@element-plus/icons-vue'
+import { ref, reactive } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { Search, Refresh, Download, Star } from '@element-plus/icons-vue';
 
 // Props
 const props = defineProps({
   filters: {
     type: Object,
-    default: () => ({})
-  }
-})
+    default: () => ({}),
+  },
+});
 
 // Emits
-const emit = defineEmits(['search', 'reset'])
+const emit = defineEmits(['search', 'reset']);
 
 // 表单引用
-const formRef = ref(null)
+const formRef = ref(null);
 
 // 折叠面板
-const activeCollapse = ref([''])
+const activeCollapse = ref(['']);
 
 // 表单数据
 const formData = reactive({
@@ -488,91 +403,93 @@ const formData = reactive({
   // 更多选项
   createdAtRange: [],
   updatedAtRange: [],
-  status: ''
-})
+  status: '',
+});
 
 // 初始化表单数据
 const initFormData = () => {
   if (props.filters) {
-    Object.assign(formData, props.filters)
+    Object.assign(formData, props.filters);
   }
-}
+};
 
 // 搜索处理
 const handleSearch = async () => {
   // 构建搜索条件
-  const searchParams = {}
+  const searchParams = {};
 
   // 处理基本信息
-  if (formData.name) searchParams.name = formData.name
-  if (formData.gender) searchParams.gender = formData.gender
-  if (formData.ageMin !== null) searchParams.ageMin = formData.ageMin
-  if (formData.ageMax !== null) searchParams.ageMax = formData.ageMax
-  if (formData.idCard) searchParams.idCard = formData.idCard
-  if (formData.ethnicity) searchParams.ethnicity = formData.ethnicity
-  if (formData.politicalStatus) searchParams.politicalStatus = formData.politicalStatus
+  if (formData.name) searchParams.name = formData.name;
+  if (formData.gender) searchParams.gender = formData.gender;
+  if (formData.ageMin !== null) searchParams.ageMin = formData.ageMin;
+  if (formData.ageMax !== null) searchParams.ageMax = formData.ageMax;
+  if (formData.idCard) searchParams.idCard = formData.idCard;
+  if (formData.ethnicity) searchParams.ethnicity = formData.ethnicity;
+  if (formData.politicalStatus) searchParams.politicalStatus = formData.politicalStatus;
 
   // 处理联系方式
-  if (formData.phone) searchParams.phone = formData.phone
-  if (formData.address) searchParams.address = formData.address
-  if (formData.wechat) searchParams.wechat = formData.wechat
+  if (formData.phone) searchParams.phone = formData.phone;
+  if (formData.address) searchParams.address = formData.address;
+  if (formData.wechat) searchParams.wechat = formData.wechat;
 
   // 处理教育就业
-  if (formData.education) searchParams.education = formData.education
-  if (formData.employment) searchParams.employment = formData.employment
-  if (formData.employer) searchParams.employer = formData.employer
+  if (formData.education) searchParams.education = formData.education;
+  if (formData.employment) searchParams.employment = formData.employment;
+  if (formData.employer) searchParams.employer = formData.employer;
 
   // 处理健康状况
-  if (formData.healthStatus) searchParams.healthStatus = formData.healthStatus
-  if (formData.bloodType) searchParams.bloodType = formData.bloodType
-  if (formData.maritalStatus) searchParams.maritalStatus = formData.maritalStatus
+  if (formData.healthStatus) searchParams.healthStatus = formData.healthStatus;
+  if (formData.bloodType) searchParams.bloodType = formData.bloodType;
+  if (formData.maritalStatus) searchParams.maritalStatus = formData.maritalStatus;
 
   // 处理特殊标签
-  if (formData.tags.length > 0) searchParams.tags = formData.tags
+  if (formData.tags.length > 0) searchParams.tags = formData.tags;
 
   // 处理家庭信息
-  if (formData.familyCode) searchParams.familyCode = formData.familyCode
-  if (formData.familyType) searchParams.familyType = formData.familyType
-  if (formData.familySizeMin !== null) searchParams.familySizeMin = formData.familySizeMin
-  if (formData.familySizeMax !== null) searchParams.familySizeMax = formData.familySizeMax
+  if (formData.familyCode) searchParams.familyCode = formData.familyCode;
+  if (formData.familyType) searchParams.familyType = formData.familyType;
+  if (formData.familySizeMin !== null) searchParams.familySizeMin = formData.familySizeMin;
+  if (formData.familySizeMax !== null) searchParams.familySizeMax = formData.familySizeMax;
 
   // 处理社会保障
-  if (formData.medicalInsurance) searchParams.medicalInsurance = formData.medicalInsurance === 'true'
-  if (formData.insuranceType) searchParams.insuranceType = formData.insuranceType
-  if (formData.pensionInsurance) searchParams.pensionInsurance = formData.pensionInsurance === 'true'
+  if (formData.medicalInsurance)
+    searchParams.medicalInsurance = formData.medicalInsurance === 'true';
+  if (formData.insuranceType) searchParams.insuranceType = formData.insuranceType;
+  if (formData.pensionInsurance)
+    searchParams.pensionInsurance = formData.pensionInsurance === 'true';
 
   // 处理日期范围
   if (formData.createdAtRange && formData.createdAtRange.length === 2) {
-    searchParams.createdAtStart = formData.createdAtRange[0]
-    searchParams.createdAtEnd = formData.createdAtRange[1]
+    searchParams.createdAtStart = formData.createdAtRange[0];
+    searchParams.createdAtEnd = formData.createdAtRange[1];
   }
   if (formData.updatedAtRange && formData.updatedAtRange.length === 2) {
-    searchParams.updatedAtStart = formData.updatedAtRange[0]
-    searchParams.updatedAtEnd = formData.updatedAtRange[1]
+    searchParams.updatedAtStart = formData.updatedAtRange[0];
+    searchParams.updatedAtEnd = formData.updatedAtRange[1];
   }
 
   // 处理状态
-  if (formData.status) searchParams.status = formData.status
+  if (formData.status) searchParams.status = formData.status;
 
-  emit('search', searchParams)
-}
+  emit('search', searchParams);
+};
 
 // 重置表单
 const handleReset = () => {
-  formRef.value.resetFields()
+  formRef.value.resetFields();
 
   // 重置数组类型的数据
-  formData.tags = []
-  formData.createdAtRange = []
-  formData.updatedAtRange = []
+  formData.tags = [];
+  formData.createdAtRange = [];
+  formData.updatedAtRange = [];
 
-  emit('reset')
-}
+  emit('reset');
+};
 
 // 导出结果
 const handleExport = () => {
-  ElMessage.info('导出功能开发中...')
-}
+  ElMessage.info('导出功能开发中...');
+};
 
 // 保存为模板
 const handleSaveTemplate = () => {
@@ -580,24 +497,26 @@ const handleSaveTemplate = () => {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     inputPattern: /^.{1,20}$/,
-    inputErrorMessage: '模板名称长度在1到20个字符'
-  }).then(({ value }) => {
-    // 保存模板到本地存储
-    const templates = JSON.parse(localStorage.getItem('searchTemplates') || '[]')
-    templates.push({
-      name: value,
-      filters: { ...formData },
-      createdAt: new Date().toISOString()
-    })
-    localStorage.setItem('searchTemplates', JSON.stringify(templates))
-    ElMessage.success('模板保存成功')
-  }).catch(() => {
-    // 用户取消
+    inputErrorMessage: '模板名称长度在1到20个字符',
   })
-}
+    .then(({ value }) => {
+      // 保存模板到本地存储
+      const templates = JSON.parse(localStorage.getItem('searchTemplates') || '[]');
+      templates.push({
+        name: value,
+        filters: { ...formData },
+        createdAt: new Date().toISOString(),
+      });
+      localStorage.setItem('searchTemplates', JSON.stringify(templates));
+      ElMessage.success('模板保存成功');
+    })
+    .catch(() => {
+      // 用户取消
+    });
+};
 
 // 初始化
-initFormData()
+initFormData();
 </script>
 
 <style lang="scss" scoped>

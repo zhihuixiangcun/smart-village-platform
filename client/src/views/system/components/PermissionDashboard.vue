@@ -59,10 +59,7 @@
                 <div class="activity-time">{{ formatTime(activity.timestamp) }}</div>
               </div>
               <div class="activity-result">
-                <el-tag
-                  :type="activity.result === 'ALLOWED' ? 'success' : 'danger'"
-                  size="small"
-                >
+                <el-tag :type="activity.result === 'ALLOWED' ? 'success' : 'danger'" size="small">
                   {{ activity.result === 'ALLOWED' ? '允许' : '拒绝' }}
                 </el-tag>
               </div>
@@ -92,26 +89,24 @@
                 <div class="policy-name">{{ policy.name }}</div>
                 <div class="policy-description">{{ policy.description }}</div>
                 <div class="policy-meta">
-                  <el-tag size="small" :type="policy.priority === 'high' ? 'danger' :
-                                     policy.priority === 'medium' ? 'warning' : 'info'">
+                  <el-tag
+                    size="small"
+                    :type="
+                      policy.priority === 'high'
+                        ? 'danger'
+                        : policy.priority === 'medium'
+                          ? 'warning'
+                          : 'info'
+                    "
+                  >
                     {{ policy.priority }}优先级
                   </el-tag>
                   <span class="policy-target">作用于: {{ policy.targetRoles.join(', ') }}</span>
                 </div>
               </div>
               <div class="policy-actions">
-                <el-switch
-                  v-model="policy.enabled"
-                  @change="togglePolicy(policy)"
-                  size="small"
-                />
-                <el-button
-                  type="text"
-                  size="small"
-                  @click="editPolicy(policy)"
-                >
-                  编辑
-                </el-button>
+                <el-switch v-model="policy.enabled" @change="togglePolicy(policy)" size="small" />
+                <el-button type="text" size="small" @click="editPolicy(policy)"> 编辑 </el-button>
               </div>
             </div>
           </div>
@@ -145,12 +140,7 @@
       width="600px"
       :destroy-on-close="true"
     >
-      <el-form
-        ref="policyFormRef"
-        :model="policyForm"
-        :rules="policyRules"
-        label-width="100px"
-      >
+      <el-form ref="policyFormRef" :model="policyForm" :rules="policyRules" label-width="100px">
         <el-form-item label="策略名称" prop="name">
           <el-input v-model="policyForm.name" placeholder="输入策略名称" />
         </el-form-item>
@@ -211,66 +201,56 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onUnmounted, nextTick } from 'vue'
-import { ElMessage } from 'element-plus'
-import {
-  CircleCheck, CircleClose
-} from '@element-plus/icons-vue'
-import * as echarts from 'echarts'
-import enhancedPermissionService from '@/services/enhancedPermissionService'
+import { ref, reactive, onMounted, onUnmounted, nextTick } from 'vue';
+import { ElMessage } from 'element-plus';
+import { CircleCheck, CircleClose } from '@element-plus/icons-vue';
+import * as echarts from 'echarts';
+import enhancedPermissionService from '@/services/enhancedPermissionService';
 
 // 响应式数据
-const chartTimeRange = ref('7d')
-const isRealTimeActive = ref(true)
-const heatmapView = ref('user')
-const policyDialogVisible = ref(false)
-const permissionActivities = ref([])
-const dynamicPolicies = ref([])
+const chartTimeRange = ref('7d');
+const isRealTimeActive = ref(true);
+const heatmapView = ref('user');
+const policyDialogVisible = ref(false);
+const permissionActivities = ref([]);
+const dynamicPolicies = ref([]);
 const availableRoles = ref([
   { label: '村级管理员', value: 'village_admin' },
   { label: '部门主管', value: 'department_head' },
   { label: '工作人员', value: 'staff' },
-  { label: '村民', value: 'villager' }
-])
+  { label: '村民', value: 'villager' },
+]);
 
 // 图表实例
-let trendChart = null
-let distributionChart = null
-let heatmapChart = null
+let trendChart = null;
+let distributionChart = null;
+let heatmapChart = null;
 
 // 表单数据
-const policyFormRef = ref(null)
+const policyFormRef = ref(null);
 const policyForm = reactive({
   name: '',
   description: '',
   rules: [],
   targetRoles: [],
   priority: 'medium',
-  enabled: true
-})
+  enabled: true,
+});
 
 const policyRules = {
-  name: [
-    { required: true, message: '请输入策略名称', trigger: 'blur' }
-  ],
-  description: [
-    { required: true, message: '请输入策略描述', trigger: 'blur' }
-  ],
-  rules: [
-    { type: 'array', required: true, message: '请选择至少一个规则类型', trigger: 'change' }
-  ],
-  targetRoles: [
-    { type: 'array', required: true, message: '请选择目标角色', trigger: 'change' }
-  ]
-}
+  name: [{ required: true, message: '请输入策略名称', trigger: 'blur' }],
+  description: [{ required: true, message: '请输入策略描述', trigger: 'blur' }],
+  rules: [{ type: 'array', required: true, message: '请选择至少一个规则类型', trigger: 'change' }],
+  targetRoles: [{ type: 'array', required: true, message: '请选择目标角色', trigger: 'change' }],
+};
 
 // 获取权限活动数据
 const fetchPermissionActivities = async () => {
   try {
     const report = await enhancedPermissionService.generatePermissionAuditReport({
       startDate: new Date(Date.now() - 24 * 60 * 60 * 1000), // 最近24小时
-      endDate: new Date()
-    })
+      endDate: new Date(),
+    });
 
     if (report.success) {
       // 模拟实时活动数据
@@ -281,7 +261,7 @@ const fetchPermissionActivities = async () => {
           resource: 'finance',
           action: 'approve',
           result: 'ALLOWED',
-          timestamp: new Date(Date.now() - 1000 * 60 * 5)
+          timestamp: new Date(Date.now() - 1000 * 60 * 5),
         },
         {
           id: '2',
@@ -289,7 +269,7 @@ const fetchPermissionActivities = async () => {
           resource: 'resident',
           action: 'delete',
           result: 'DENIED',
-          timestamp: new Date(Date.now() - 1000 * 60 * 10)
+          timestamp: new Date(Date.now() - 1000 * 60 * 10),
         },
         {
           id: '3',
@@ -297,7 +277,7 @@ const fetchPermissionActivities = async () => {
           resource: 'village',
           action: 'announcement',
           result: 'ALLOWED',
-          timestamp: new Date(Date.now() - 1000 * 60 * 15)
+          timestamp: new Date(Date.now() - 1000 * 60 * 15),
         },
         {
           id: '4',
@@ -305,7 +285,7 @@ const fetchPermissionActivities = async () => {
           resource: 'service',
           action: 'apply',
           result: 'ALLOWED',
-          timestamp: new Date(Date.now() - 1000 * 60 * 20)
+          timestamp: new Date(Date.now() - 1000 * 60 * 20),
         },
         {
           id: '5',
@@ -313,19 +293,19 @@ const fetchPermissionActivities = async () => {
           resource: 'emergency',
           action: 'dispatch',
           result: 'ALLOWED',
-          timestamp: new Date(Date.now() - 1000 * 60 * 25)
-        }
-      ]
+          timestamp: new Date(Date.now() - 1000 * 60 * 25),
+        },
+      ];
     }
   } catch (error) {
-    console.error('获取权限活动失败:', error)
+    console.error('获取权限活动失败:', error);
   }
-}
+};
 
 // 获取动态策略数据
 const fetchDynamicPolicies = async () => {
   try {
-    const policies = await enhancedPermissionService.getPermissionPolicies()
+    const policies = await enhancedPermissionService.getPermissionPolicies();
     dynamicPolicies.value = policies || [
       {
         id: '1',
@@ -333,7 +313,7 @@ const fetchDynamicPolicies = async () => {
         description: '财务审批仅在工作时间允许',
         priority: 'high',
         enabled: true,
-        targetRoles: ['village_admin', 'department_head']
+        targetRoles: ['village_admin', 'department_head'],
       },
       {
         id: '2',
@@ -341,7 +321,7 @@ const fetchDynamicPolicies = async () => {
         description: '敏感操作需要可信设备',
         priority: 'high',
         enabled: true,
-        targetRoles: ['village_admin']
+        targetRoles: ['village_admin'],
       },
       {
         id: '3',
@@ -349,44 +329,44 @@ const fetchDynamicPolicies = async () => {
         description: '防止频繁操作',
         priority: 'medium',
         enabled: false,
-        targetRoles: ['staff', 'villager']
-      }
-    ]
+        targetRoles: ['staff', 'villager'],
+      },
+    ];
   } catch (error) {
-    console.error('获取动态策略失败:', error)
+    console.error('获取动态策略失败:', error);
   }
-}
+};
 
 // 初始化趋势图表
 const initTrendChart = () => {
-  const chartDom = document.querySelector('[ref="permissionTrendChart"]')
-  if (!chartDom) return
+  const chartDom = document.querySelector('[ref="permissionTrendChart"]');
+  if (!chartDom) return;
 
-  trendChart = echarts.init(chartDom)
+  trendChart = echarts.init(chartDom);
 
   const option = {
     tooltip: {
       trigger: 'axis',
       axisPointer: {
-        type: 'cross'
-      }
+        type: 'cross',
+      },
     },
     legend: {
-      data: ['允许', '拒绝', '总检查次数']
+      data: ['允许', '拒绝', '总检查次数'],
     },
     grid: {
       left: '3%',
       right: '4%',
       bottom: '3%',
-      containLabel: true
+      containLabel: true,
     },
     xAxis: {
       type: 'category',
       boundaryGap: false,
-      data: generateTimeLabels()
+      data: generateTimeLabels(),
     },
     yAxis: {
-      type: 'value'
+      type: 'value',
     },
     series: [
       {
@@ -395,9 +375,9 @@ const initTrendChart = () => {
         stack: 'Total',
         smooth: true,
         itemStyle: {
-          color: '#67c23a'
+          color: '#67c23a',
         },
-        data: generateRandomData(7, 100, 500)
+        data: generateRandomData(7, 100, 500),
       },
       {
         name: '拒绝',
@@ -405,39 +385,39 @@ const initTrendChart = () => {
         stack: 'Total',
         smooth: true,
         itemStyle: {
-          color: '#f56c6c'
+          color: '#f56c6c',
         },
-        data: generateRandomData(7, 10, 50)
+        data: generateRandomData(7, 10, 50),
       },
       {
         name: '总检查次数',
         type: 'line',
         smooth: true,
         itemStyle: {
-          color: '#409eff'
+          color: '#409eff',
         },
-        data: generateRandomData(7, 200, 600)
-      }
-    ]
-  }
+        data: generateRandomData(7, 200, 600),
+      },
+    ],
+  };
 
-  trendChart.setOption(option)
-}
+  trendChart.setOption(option);
+};
 
 // 初始化分布图表
 const initDistributionChart = () => {
-  const chartDom = document.querySelector('[ref="permissionDistributionChart"]')
-  if (!chartDom) return
+  const chartDom = document.querySelector('[ref="permissionDistributionChart"]');
+  if (!chartDom) return;
 
-  distributionChart = echarts.init(chartDom)
+  distributionChart = echarts.init(chartDom);
 
   const option = {
     tooltip: {
-      trigger: 'item'
+      trigger: 'item',
     },
     legend: {
       orient: 'vertical',
-      left: 'left'
+      left: 'left',
     },
     series: [
       {
@@ -449,50 +429,50 @@ const initDistributionChart = () => {
           { value: 310, name: '写入权限' },
           { value: 234, name: '删除权限' },
           { value: 135, name: '审批权限' },
-          { value: 148, name: '管理权限' }
+          { value: 148, name: '管理权限' },
         ],
         emphasis: {
           itemStyle: {
             shadowBlur: 10,
             shadowOffsetX: 0,
-            shadowColor: 'rgba(0, 0, 0, 0.5)'
-          }
-        }
-      }
-    ]
-  }
+            shadowColor: 'rgba(0, 0, 0, 0.5)',
+          },
+        },
+      },
+    ],
+  };
 
-  distributionChart.setOption(option)
-}
+  distributionChart.setOption(option);
+};
 
 // 初始化热力图
 const initHeatmap = () => {
-  const chartDom = document.querySelector('[ref="permissionHeatmap"]')
-  if (!chartDom) return
+  const chartDom = document.querySelector('[ref="permissionHeatmap"]');
+  if (!chartDom) return;
 
-  heatmapChart = echarts.init(chartDom)
+  heatmapChart = echarts.init(chartDom);
 
   const option = {
     tooltip: {
-      position: 'top'
+      position: 'top',
     },
     grid: {
       height: '50%',
-      top: '10%'
+      top: '10%',
     },
     xAxis: {
       type: 'category',
       data: ['村民管理', '财务管理', '村务治理', '应急管理', '系统管理'],
       splitArea: {
-        show: true
-      }
+        show: true,
+      },
     },
     yAxis: {
       type: 'category',
       data: ['读取', '写入', '删除', '审批', '管理'],
       splitArea: {
-        show: true
-      }
+        show: true,
+      },
     },
     visualMap: {
       min: 0,
@@ -500,73 +480,75 @@ const initHeatmap = () => {
       calculable: true,
       orient: 'horizontal',
       left: 'center',
-      bottom: '15%'
+      bottom: '15%',
     },
-    series: [{
-      name: '权限使用频率',
-      type: 'heatmap',
-      data: generateHeatmapData(),
-      label: {
-        show: true
+    series: [
+      {
+        name: '权限使用频率',
+        type: 'heatmap',
+        data: generateHeatmapData(),
+        label: {
+          show: true,
+        },
+        emphasis: {
+          itemStyle: {
+            shadowBlur: 10,
+            shadowColor: 'rgba(0, 0, 0, 0.5)',
+          },
+        },
       },
-      emphasis: {
-        itemStyle: {
-          shadowBlur: 10,
-          shadowColor: 'rgba(0, 0, 0, 0.5)'
-        }
-      }
-    }]
-  }
+    ],
+  };
 
-  heatmapChart.setOption(option)
-}
+  heatmapChart.setOption(option);
+};
 
 // 生成时间标签
 const generateTimeLabels = () => {
-  const labels = []
-  const now = new Date()
+  const labels = [];
+  const now = new Date();
   for (let i = 6; i >= 0; i--) {
-    const date = new Date(now - i * 24 * 60 * 60 * 1000)
-    labels.push(date.toLocaleDateString())
+    const date = new Date(now - i * 24 * 60 * 60 * 1000);
+    labels.push(date.toLocaleDateString());
   }
-  return labels
-}
+  return labels;
+};
 
 // 生成随机数据
 const generateRandomData = (count, min, max) => {
-  const data = []
+  const data = [];
   for (let i = 0; i < count; i++) {
-    data.push(Math.floor(Math.random() * (max - min + 1)) + min)
+    data.push(Math.floor(Math.random() * (max - min + 1)) + min);
   }
-  return data
-}
+  return data;
+};
 
 // 生成热力图数据
 const generateHeatmapData = () => {
-  const data = []
+  const data = [];
   for (let i = 0; i < 5; i++) {
     for (let j = 0; j < 5; j++) {
-      data.push([i, j, Math.floor(Math.random() * 10)])
+      data.push([i, j, Math.floor(Math.random() * 10)]);
     }
   }
-  return data
-}
+  return data;
+};
 
 // 格式化时间
-const formatTime = (timestamp) => {
-  const now = new Date()
-  const diff = now - timestamp
-  const minutes = Math.floor(diff / 60000)
+const formatTime = timestamp => {
+  const now = new Date();
+  const diff = now - timestamp;
+  const minutes = Math.floor(diff / 60000);
 
   if (minutes < 1) {
-    return '刚刚'
+    return '刚刚';
   } else if (minutes < 60) {
-    return `${minutes}分钟前`
+    return `${minutes}分钟前`;
   } else {
-    const hours = Math.floor(minutes / 60)
-    return `${hours}小时前`
+    const hours = Math.floor(minutes / 60);
+    return `${hours}小时前`;
   }
-}
+};
 
 // 显示添加策略对话框
 const showAddPolicyDialog = () => {
@@ -576,97 +558,97 @@ const showAddPolicyDialog = () => {
     rules: [],
     targetRoles: [],
     priority: 'medium',
-    enabled: true
-  })
-  policyDialogVisible.value = true
-}
+    enabled: true,
+  });
+  policyDialogVisible.value = true;
+};
 
 // 编辑策略
-const editPolicy = (policy) => {
-  Object.assign(policyForm, policy)
-  policyDialogVisible.value = true
-}
+const editPolicy = policy => {
+  Object.assign(policyForm, policy);
+  policyDialogVisible.value = true;
+};
 
 // 切换策略状态
-const togglePolicy = async (policy) => {
+const togglePolicy = async policy => {
   try {
     // 调用API更新策略状态
-    ElMessage.success(`策略"${policy.name}"已${policy.enabled ? '启用' : '禁用'}`)
+    ElMessage.success(`策略"${policy.name}"已${policy.enabled ? '启用' : '禁用'}`);
   } catch (error) {
-    policy.enabled = !policy.enabled
-    ElMessage.error('更新策略状态失败')
+    policy.enabled = !policy.enabled;
+    ElMessage.error('更新策略状态失败');
   }
-}
+};
 
 // 提交策略
 const submitPolicy = async () => {
   try {
-    await policyFormRef.value.validate()
+    await policyFormRef.value.validate();
 
-    const result = await enhancedPermissionService.createPermissionPolicy(policyForm)
+    const result = await enhancedPermissionService.createPermissionPolicy(policyForm);
     if (result.success) {
-      ElMessage.success('策略创建成功')
-      policyDialogVisible.value = false
-      await fetchDynamicPolicies()
+      ElMessage.success('策略创建成功');
+      policyDialogVisible.value = false;
+      await fetchDynamicPolicies();
     }
   } catch (error) {
-    console.error('创建策略失败:', error)
+    console.error('创建策略失败:', error);
   }
-}
+};
 
 // 定时刷新活动数据
-let activityTimer = null
+let activityTimer = null;
 const startActivityRefresh = () => {
   if (isRealTimeActive.value) {
     activityTimer = setInterval(() => {
-      fetchPermissionActivities()
-    }, 5000) // 每5秒刷新一次
+      fetchPermissionActivities();
+    }, 5000); // 每5秒刷新一次
   }
-}
+};
 
 const stopActivityRefresh = () => {
   if (activityTimer) {
-    clearInterval(activityTimer)
-    activityTimer = null
+    clearInterval(activityTimer);
+    activityTimer = null;
   }
-}
+};
 
 // 生命周期
 onMounted(async () => {
-  await nextTick()
+  await nextTick();
 
   // 初始化图表
-  initTrendChart()
-  initDistributionChart()
-  initHeatmap()
+  initTrendChart();
+  initDistributionChart();
+  initHeatmap();
 
   // 获取数据
-  await fetchPermissionActivities()
-  await fetchDynamicPolicies()
+  await fetchPermissionActivities();
+  await fetchDynamicPolicies();
 
   // 启动实时刷新
-  startActivityRefresh()
+  startActivityRefresh();
 
   // 监听窗口大小变化
   window.addEventListener('resize', () => {
-    trendChart?.resize()
-    distributionChart?.resize()
-    heatmapChart?.resize()
-  })
-})
+    trendChart?.resize();
+    distributionChart?.resize();
+    heatmapChart?.resize();
+  });
+});
 
 onUnmounted(() => {
   // 清理定时器
-  stopActivityRefresh()
+  stopActivityRefresh();
 
   // 销毁图表实例
-  trendChart?.dispose()
-  distributionChart?.dispose()
-  heatmapChart?.dispose()
+  trendChart?.dispose();
+  distributionChart?.dispose();
+  heatmapChart?.dispose();
 
   // 移除事件监听
-  window.removeEventListener('resize', () => {})
-})
+  window.removeEventListener('resize', () => {});
+});
 </script>
 
 <style lang="scss" scoped>

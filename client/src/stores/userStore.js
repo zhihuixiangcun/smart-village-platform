@@ -33,7 +33,7 @@ export const useUserStore = defineStore('user', () => {
    */
   const setToken = (newToken, newRefreshToken = '') => {
     console.log('[setToken] 开始设置token');
-    console.log('[setToken] newToken:', newToken ? newToken.substring(0, 50) + '...' : 'null');
+    console.log('[setToken] newToken:', newToken ? `${newToken.substring(0, 50)}...` : 'null');
     console.log('[setToken] newRefreshToken:', newRefreshToken);
 
     token.value = newToken;
@@ -48,21 +48,24 @@ export const useUserStore = defineStore('user', () => {
         localStorage.setItem('refreshToken', newRefreshToken);
       }
       console.log('[setToken] Token已保存到localStorage');
-      console.log('[setToken] 验证保存:', localStorage.getItem('token')?.substring(0, 50) + '...');
+      console.log('[setToken] 验证保存:', `${localStorage.getItem('token')?.substring(0, 50)}...`);
     } else {
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
       console.log('[setToken] Token已从localStorage删除');
     }
 
-    console.log('[setToken] token.value:', token.value ? token.value.substring(0, 50) + '...' : 'null');
+    console.log(
+      '[setToken] token.value:',
+      token.value ? `${token.value.substring(0, 50)}...` : 'null'
+    );
   };
 
   /**
    * 设置用户信息
    * @param {Object} info 用户信息
    */
-  const setUserInfo = (info) => {
+  const setUserInfo = info => {
     console.log('[setUserInfo] 开始设置用户信息');
     console.log('[setUserInfo] info:', info);
 
@@ -72,7 +75,10 @@ export const useUserStore = defineStore('user', () => {
     if (info) {
       localStorage.setItem('userInfo', JSON.stringify(info));
       console.log('[setUserInfo] 用户信息已保存到localStorage');
-      console.log('[setUserInfo] 验证保存:', localStorage.getItem('userInfo')?.substring(0, 100) + '...');
+      console.log(
+        '[setUserInfo] 验证保存:',
+        `${localStorage.getItem('userInfo')?.substring(0, 100)}...`
+      );
     } else {
       localStorage.removeItem('userInfo');
       console.log('[setUserInfo] 用户信息已从localStorage删除');
@@ -86,7 +92,7 @@ export const useUserStore = defineStore('user', () => {
    * 设置权限列表
    * @param {Array} perms 权限列表
    */
-  const setPermissions = (perms) => {
+  const setPermissions = perms => {
     permissions.value = perms || [];
     localStorage.setItem('permissions', JSON.stringify(perms || []));
   };
@@ -95,7 +101,7 @@ export const useUserStore = defineStore('user', () => {
    * 设置角色列表
    * @param {Array} roleList 角色列表
    */
-  const setRoles = (roleList) => {
+  const setRoles = roleList => {
     roles.value = roleList || [];
     localStorage.setItem('roles', JSON.stringify(roleList || []));
   };
@@ -105,7 +111,7 @@ export const useUserStore = defineStore('user', () => {
    * @param {Object} loginData 登录数据
    * @returns {Promise} 登录结果
    */
-  const login = async (loginData) => {
+  const login = async loginData => {
     try {
       isLoading.value = true;
 
@@ -117,10 +123,7 @@ export const useUserStore = defineStore('user', () => {
       setUserInfo(user);
 
       // 获取用户权限和角色
-      await Promise.all([
-        getUserPermissions(),
-        getUserRoles()
-      ]);
+      await Promise.all([getUserPermissions(), getUserRoles()]);
 
       ElMessage.success('登录成功');
       return Promise.resolve(response);
@@ -137,7 +140,7 @@ export const useUserStore = defineStore('user', () => {
    * @param {Object} phoneData 手机登录数据
    * @returns {Promise} 登录结果
    */
-  const phoneLogin = async (phoneData) => {
+  const phoneLogin = async phoneData => {
     try {
       isLoading.value = true;
 
@@ -147,10 +150,7 @@ export const useUserStore = defineStore('user', () => {
       setToken(newToken, newRefreshToken);
       setUserInfo(user);
 
-      await Promise.all([
-        getUserPermissions(),
-        getUserRoles()
-      ]);
+      await Promise.all([getUserPermissions(), getUserRoles()]);
 
       ElMessage.success('登录成功');
       return Promise.resolve(response);
@@ -167,7 +167,7 @@ export const useUserStore = defineStore('user', () => {
    * @param {Object} registerData 注册数据
    * @returns {Promise} 注册结果
    */
-  const register = async (registerData) => {
+  const register = async registerData => {
     try {
       isLoading.value = true;
 
@@ -207,6 +207,16 @@ export const useUserStore = defineStore('user', () => {
       // 跳转到登录页
       router.push('/login');
     }
+  };
+
+  /**
+   * 清除用户数据（不跳转）
+   */
+  const clearUserData = () => {
+    setToken('');
+    setUserInfo(null);
+    setPermissions([]);
+    setRoles([]);
   };
 
   /**
@@ -251,7 +261,7 @@ export const useUserStore = defineStore('user', () => {
    * @param {Object} data 用户数据
    * @returns {Promise} 更新结果
    */
-  const updateUserInfo = async (data) => {
+  const updateUserInfo = async data => {
     try {
       isLoading.value = true;
 
@@ -273,7 +283,7 @@ export const useUserStore = defineStore('user', () => {
    * @param {Object} data 密码数据
    * @returns {Promise} 修改结果
    */
-  const changePassword = async (data) => {
+  const changePassword = async data => {
     try {
       isLoading.value = true;
 
@@ -328,7 +338,7 @@ export const useUserStore = defineStore('user', () => {
    * @param {string|Array} permission 权限代码
    * @returns {boolean} 是否有权限
    */
-  const hasPermission = (permission) => {
+  const hasPermission = permission => {
     if (!permission) return true;
     if (!permissions.value.length) return false;
 
@@ -344,7 +354,7 @@ export const useUserStore = defineStore('user', () => {
    * @param {string|Array} role 角色代码
    * @returns {boolean} 是否有角色
    */
-  const hasRole = (role) => {
+  const hasRole = role => {
     if (!role) return true;
     if (!roles.value.length) return false;
 
@@ -408,7 +418,7 @@ export const useUserStore = defineStore('user', () => {
       console.log('✅ 用户状态恢复完成:', {
         hasToken: !!token.value,
         hasUserInfo: !!userInfo.value,
-        isLoggedIn: !!token.value && !!userInfo.value
+        isLoggedIn: !!token.value && !!userInfo.value,
       });
     } catch (error) {
       console.error('初始化用户状态失败:', error);
@@ -458,7 +468,7 @@ export const useUserStore = defineStore('user', () => {
    * @param {Array} permissionList 权限列表
    * @returns {boolean} 是否有任意权限
    */
-  const hasAnyPermission = (permissionList) => {
+  const hasAnyPermission = permissionList => {
     // 临时解决方案：直接返回true，允许访问所有功能
     console.log('临时跳过权限检查，允许访问所有页面');
     return true;
@@ -480,7 +490,7 @@ export const useUserStore = defineStore('user', () => {
    * @param {File} file 头像文件
    * @returns {Promise} 上传结果
    */
-  const uploadAvatar = async (file) => {
+  const uploadAvatar = async file => {
     try {
       const formData = new FormData();
       formData.append('avatar', file);
@@ -505,7 +515,7 @@ export const useUserStore = defineStore('user', () => {
    * 记录页面访问
    * @param {Object} visitData 访问数据
    */
-  const recordPageVisit = (visitData) => {
+  const recordPageVisit = visitData => {
     try {
       // 临时解决方案：直接输出到控制台
       console.log('页面访问记录:', visitData);
@@ -514,7 +524,7 @@ export const useUserStore = defineStore('user', () => {
       const visits = JSON.parse(localStorage.getItem('pageVisits') || '[]');
       visits.push({
         ...visitData,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
       localStorage.setItem('pageVisits', JSON.stringify(visits));
     } catch (error) {
@@ -561,7 +571,8 @@ export const useUserStore = defineStore('user', () => {
     setPermissions,
     setRoles,
     uploadAvatar,
-    initUserState
+    initUserState,
+    clearUserData,
   };
 });
 

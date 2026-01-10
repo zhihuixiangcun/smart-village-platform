@@ -19,7 +19,7 @@ export const SUPPORTED_DIALECTS = {
   cantonese: { code: 1637, name: '粤语', desc: '广东话、香港话' },
   sichuan: { code: 1737, name: '四川话', desc: '西南官话' },
   henan: { code: 2137, name: '河南话', desc: '中原官话' },
-  northeast: { code: 2637, name: '东北话', desc: '东北官话' }
+  northeast: { code: 2637, name: '东北话', desc: '东北官话' },
 };
 
 /**
@@ -30,7 +30,7 @@ export const RECOGNITION_STATUS = {
   LISTENING: 'listening',
   PROCESSING: 'processing',
   SUCCESS: 'success',
-  ERROR: 'error'
+  ERROR: 'error',
 };
 
 /**
@@ -42,7 +42,7 @@ export const COMMAND_TYPES = {
   NAVIGATION: 'navigation',
   EMERGENCY: 'emergency',
   FORM_INPUT: 'form_input',
-  SEARCH: 'search'
+  SEARCH: 'search',
 };
 
 /**
@@ -54,7 +54,7 @@ const COMMAND_PATTERNS = {
   [COMMAND_TYPES.NAVIGATION]: [/去(.*)/i, /导航到(.*)/i, /前往(.*)/i],
   [COMMAND_TYPES.EMERGENCY]: [/紧急求助/i, /救命/i, /报警/i, /呼叫村干部/i],
   [COMMAND_TYPES.FORM_INPUT]: [/填写(.*)/i, /输入(.*)/i],
-  [COMMAND_TYPES.SEARCH]: [/搜索(.*)/i, /找(.*)/i]
+  [COMMAND_TYPES.SEARCH]: [/搜索(.*)/i, /找(.*)/i],
 };
 
 class SpeechRecognizer {
@@ -66,7 +66,7 @@ class SpeechRecognizer {
       interimResults: options.interimResults || true,
       maxAlternatives: options.maxAlternatives || 1,
       lang: options.lang || 'zh-CN',
-      useNative: options.useNative !== false // 默认优先使用原生API
+      useNative: options.useNative !== false, // 默认优先使用原生API
     };
 
     this.status = RECOGNITION_STATUS.IDLE;
@@ -107,7 +107,7 @@ class SpeechRecognizer {
       this.emit('statusChange', this.status);
     };
 
-    this.recognition.onresult = (event) => {
+    this.recognition.onresult = event => {
       const results = event.results;
       const transcript = results[results.length - 1][0].transcript;
       const isFinal = results[results.length - 1].isFinal;
@@ -117,19 +117,19 @@ class SpeechRecognizer {
         this.emit('result', {
           text: transcript,
           isFinal: true,
-          confidence: results[results.length - 1][0].confidence
+          confidence: results[results.length - 1][0].confidence,
         });
       } else {
         this.emit('interim', transcript);
       }
     };
 
-    this.recognition.onerror = (event) => {
+    this.recognition.onerror = event => {
       console.error('语音识别错误:', event.error);
       this.status = RECOGNITION_STATUS.ERROR;
       this.emit('error', {
         code: event.error,
-        message: this.getErrorMessage(event.error)
+        message: this.getErrorMessage(event.error),
       });
     };
 
@@ -165,7 +165,7 @@ class SpeechRecognizer {
       this.status = RECOGNITION_STATUS.ERROR;
       this.emit('error', {
         code: 'start_failed',
-        message: error.message
+        message: error.message,
       });
     }
   }
@@ -190,7 +190,7 @@ class SpeechRecognizer {
       this.mediaRecorder = new MediaRecorder(stream);
       this.audioChunks = [];
 
-      this.mediaRecorder.ondataavailable = (event) => {
+      this.mediaRecorder.ondataavailable = event => {
         this.audioChunks.push(event.data);
       };
 
@@ -212,7 +212,7 @@ class SpeechRecognizer {
       console.error('录音失败:', error);
       this.emit('error', {
         code: 'microphone_error',
-        message: '无法访问麦克风'
+        message: '无法访问麦克风',
       });
     }
   }
@@ -231,9 +231,9 @@ class SpeechRecognizer {
 
       const response = await axios.post(`${this.config.apiBaseUrl}/recognize`, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
+          'Content-Type': 'multipart/form-data',
         },
-        timeout: 30000
+        timeout: 30000,
       });
 
       if (response.data.success) {
@@ -243,7 +243,7 @@ class SpeechRecognizer {
           isFinal: true,
           confidence: response.data.data.confidence,
           dialect: response.data.data.dialect,
-          duration: response.data.data.duration
+          duration: response.data.data.duration,
         });
       } else {
         throw new Error(response.data.message || '识别失败');
@@ -253,7 +253,7 @@ class SpeechRecognizer {
       this.status = RECOGNITION_STATUS.ERROR;
       this.emit('error', {
         code: 'api_error',
-        message: error.response?.data?.message || error.message
+        message: error.response?.data?.message || error.message,
       });
     }
   }
@@ -276,7 +276,7 @@ class SpeechRecognizer {
             type: commandType,
             target: match[1] ? match[1].trim() : '',
             originalText: text,
-            confidence: 0.9
+            confidence: 0.9,
           };
         }
       }
@@ -320,7 +320,7 @@ class SpeechRecognizer {
   getSupportedDialects() {
     return Object.entries(SUPPORTED_DIALECTS).map(([key, value]) => ({
       code: key,
-      ...value
+      ...value,
     }));
   }
 
@@ -344,9 +344,9 @@ class SpeechRecognizer {
       'no-speech': '未检测到语音，请重试',
       'audio-capture': '无法捕获音频',
       'not-allowed': '麦克风权限被拒绝',
-      'network': '网络错误，请检查网络连接',
-      'aborted': '识别被中断',
-      'start_failed': '启动识别失败'
+      network: '网络错误，请检查网络连接',
+      aborted: '识别被中断',
+      start_failed: '启动识别失败',
     };
     return errorMessages[errorCode] || '未知错误';
   }

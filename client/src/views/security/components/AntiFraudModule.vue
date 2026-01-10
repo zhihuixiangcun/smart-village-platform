@@ -90,10 +90,7 @@
         <!-- 电话诈骗检测表单 -->
         <div v-if="detectionForm.eventType === 'phone'" class="detection-form-phone">
           <el-form-item label="电话号码">
-            <el-input
-              v-model="detectionForm.phoneNumber"
-              placeholder="请输入要检测的电话号码"
-            />
+            <el-input v-model="detectionForm.phoneNumber" placeholder="请输入要检测的电话号码" />
           </el-form-item>
           <el-form-item label="通话内容">
             <el-input
@@ -116,26 +113,17 @@
             />
           </el-form-item>
           <el-form-item label="发送号码">
-            <el-input
-              v-model="detectionForm.senderNumber"
-              placeholder="请输入发送方号码"
-            />
+            <el-input v-model="detectionForm.senderNumber" placeholder="请输入发送方号码" />
           </el-form-item>
           <el-form-item label="包含链接">
-            <el-input
-              v-model="detectionForm.links"
-              placeholder="请输入包含的链接地址"
-            />
+            <el-input v-model="detectionForm.links" placeholder="请输入包含的链接地址" />
           </el-form-item>
         </div>
 
         <!-- 钓鱼网站检测表单 -->
         <div v-if="detectionForm.eventType === 'website'" class="detection-form-website">
           <el-form-item label="网站地址">
-            <el-input
-              v-model="detectionForm.url"
-              placeholder="请输入要检测的网站地址"
-            />
+            <el-input v-model="detectionForm.url" placeholder="请输入要检测的网站地址" />
           </el-form-item>
           <el-form-item label="网站内容">
             <el-input
@@ -151,9 +139,7 @@
           <el-button type="primary" @click="performDetection" :loading="detecting">
             开始检测
           </el-button>
-          <el-button @click="clearDetectionForm">
-            清空表单
-          </el-button>
+          <el-button @click="clearDetectionForm"> 清空表单 </el-button>
         </el-form-item>
       </el-form>
 
@@ -188,17 +174,16 @@
         </el-descriptions>
 
         <!-- 检测详情 -->
-        <div v-if="detectionResult.patterns && detectionResult.patterns.length > 0" class="patterns">
+        <div
+          v-if="detectionResult.patterns && detectionResult.patterns.length > 0"
+          class="patterns"
+        >
           <h5>检测到的风险模式:</h5>
           <el-table :data="detectionResult.patterns" style="width: 100%">
             <el-table-column prop="pattern" label="风险模式" />
             <el-table-column prop="confidence" label="置信度" width="100">
               <template #default="scope">
-                <el-progress
-                  :percentage="scope.row.confidence"
-                  color="#F56C6C"
-                  :stroke-width="6"
-                />
+                <el-progress :percentage="scope.row.confidence" color="#F56C6C" :stroke-width="6" />
               </template>
             </el-table-column>
             <el-table-column prop="description" label="描述" />
@@ -253,13 +238,9 @@
             multiple
           >
             <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-            <div class="el-upload__text">
-              将文件拖到此处，或<em>点击上传</em>
-            </div>
+            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
             <template #tip>
-              <div class="el-upload__tip">
-                支持jpg/png/pdf文件，且不超过10MB
-              </div>
+              <div class="el-upload__tip">支持jpg/png/pdf文件，且不超过10MB</div>
             </template>
           </el-upload>
         </el-form-item>
@@ -267,9 +248,7 @@
           <el-button type="primary" @click="submitReport" :loading="reporting">
             提交举报
           </el-button>
-          <el-button @click="clearReportForm">
-            清空表单
-          </el-button>
+          <el-button @click="clearReportForm"> 清空表单 </el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -302,11 +281,7 @@
         </el-table-column>
         <el-table-column label="操作" width="120">
           <template #default="scope">
-            <el-button
-              type="text"
-              size="small"
-              @click="viewReportDetail(scope.row)"
-            >
+            <el-button type="text" size="small" @click="viewReportDetail(scope.row)">
               查看详情
             </el-button>
           </template>
@@ -317,26 +292,26 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, nextTick } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { UploadFilled } from '@element-plus/icons-vue'
-import * as echarts from 'echarts'
-import axios from 'axios'
+import { ref, reactive, onMounted, nextTick } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { UploadFilled } from '@element-plus/icons-vue';
+import * as echarts from 'echarts';
+import axios from 'axios';
 
 // Props
 const props = defineProps({
   moduleData: {
     type: Object,
-    default: () => ({})
-  }
-})
+    default: () => ({}),
+  },
+});
 
 // Emits
-const emit = defineEmits(['refresh'])
+const emit = defineEmits(['refresh']);
 
 // 响应式数据
-const detecting = ref(false)
-const reporting = ref(false)
+const detecting = ref(false);
+const reporting = ref(false);
 
 // 防诈骗统计数据
 const fraudStats = reactive({
@@ -346,8 +321,8 @@ const fraudStats = reactive({
   trend: 0,
   phoneFraud: 0,
   smsFraud: 0,
-  websiteFraud: 0
-})
+  websiteFraud: 0,
+});
 
 // 检测表单
 const detectionForm = reactive({
@@ -356,11 +331,11 @@ const detectionForm = reactive({
   content: '',
   senderNumber: '',
   links: '',
-  url: ''
-})
+  url: '',
+});
 
 // 检测结果
-const detectionResult = ref(null)
+const detectionResult = ref(null);
 
 // 举报表单
 const reportForm = reactive({
@@ -368,77 +343,77 @@ const reportForm = reactive({
   type: '',
   contact: '',
   description: '',
-  evidence: []
-})
+  evidence: [],
+});
 
 // 举报历史
-const reportHistory = ref([])
+const reportHistory = ref([]);
 
 // 图表引用
-const fraudTrendChart = ref(null)
+const fraudTrendChart = ref(null);
 
 // 方法
-const getTrendClass = (trend) => {
-  if (trend > 0) return 'danger'
-  if (trend < 0) return 'success'
-  return 'neutral'
-}
+const getTrendClass = trend => {
+  if (trend > 0) return 'danger';
+  if (trend < 0) return 'success';
+  return 'neutral';
+};
 
 const getPercentage = (value, total) => {
-  return total > 0 ? Math.round((value / total) * 100) : 0
-}
+  return total > 0 ? Math.round((value / total) * 100) : 0;
+};
 
-const getRiskLevelTitle = (level) => {
+const getRiskLevelTitle = level => {
   const titles = {
-    'LOW': '低风险 - 检测结果为安全',
-    'MEDIUM': '中等风险 - 需要谨慎对待',
-    'HIGH': '高风险 - 可能存在诈骗',
-    'CRITICAL': '极高风险 - 高度疑似诈骗'
-  }
-  return titles[level] || '检测结果'
-}
+    LOW: '低风险 - 检测结果为安全',
+    MEDIUM: '中等风险 - 需要谨慎对待',
+    HIGH: '高风险 - 可能存在诈骗',
+    CRITICAL: '极高风险 - 高度疑似诈骗',
+  };
+  return titles[level] || '检测结果';
+};
 
-const getRiskLevelType = (level) => {
+const getRiskLevelType = level => {
   const types = {
-    'LOW': 'success',
-    'MEDIUM': 'warning',
-    'HIGH': 'danger',
-    'CRITICAL': 'error'
-  }
-  return types[level] || 'info'
-}
+    LOW: 'success',
+    MEDIUM: 'warning',
+    HIGH: 'danger',
+    CRITICAL: 'error',
+  };
+  return types[level] || 'info';
+};
 
-const getRiskScoreType = (score) => {
-  if (score < 30) return 'success'
-  if (score < 60) return 'warning'
-  if (score < 80) return 'danger'
-  return 'error'
-}
+const getRiskScoreType = score => {
+  if (score < 30) return 'success';
+  if (score < 60) return 'warning';
+  if (score < 80) return 'danger';
+  return 'error';
+};
 
-const getStatusType = (status) => {
+const getStatusType = status => {
   const types = {
-    '待处理': 'warning',
-    '处理中': 'primary',
-    '已完成': 'success',
-    '已驳回': 'danger'
-  }
-  return types[status] || 'info'
-}
+    待处理: 'warning',
+    处理中: 'primary',
+    已完成: 'success',
+    已驳回: 'danger',
+  };
+  return types[status] || 'info';
+};
 
-const formatDate = (date) => {
-  return new Date(date).toLocaleString('zh-CN')
-}
+const formatDate = date => {
+  return new Date(date).toLocaleString('zh-CN');
+};
 
 // 获取防诈骗统计数据
 const fetchFraudStats = async () => {
   try {
-    const response = await axios.get('/api/v1/security/fraud-stats')
+    const response = await axios.get('/api/v1/security/fraud-stats');
 
     if (response.data.success) {
-      Object.assign(fraudStats, response.data.data.statistics)
+      Object.assign(fraudStats, response.data.data.statistics);
     }
   } catch (error) {
-    console.error('获取防诈骗统计失败:', error)
+    console.error('获取防诈骗统计失败:', error);
     // 使用模拟数据
     Object.assign(fraudStats, {
       totalReports: 156,
@@ -447,21 +422,21 @@ const fetchFraudStats = async () => {
       trend: -12.5,
       phoneFraud: 23,
       smsFraud: 28,
-      websiteFraud: 16
-    })
+      websiteFraud: 16,
+    });
   }
-}
+};
 
 // 获取举报历史
 const fetchReportHistory = async () => {
   try {
-    const response = await axios.get('/api/v1/security/fraud-reports')
+    const response = await axios.get('/api/v1/security/fraud-reports');
 
     if (response.data.success) {
-      reportHistory.value = response.data.data || []
+      reportHistory.value = response.data.data || [];
     }
   } catch (error) {
-    console.error('获取举报历史失败:', error)
+    console.error('获取举报历史失败:', error);
     // 使用模拟数据
     reportHistory.value = [
       {
@@ -470,7 +445,7 @@ const fetchReportHistory = async () => {
         contact: '138****1234',
         description: '冒充公检法人员要求转账',
         status: '处理中',
-        createdAt: new Date('2024-01-15 14:30:00')
+        createdAt: new Date('2024-01-15 14:30:00'),
       },
       {
         reportId: 'FR202401002',
@@ -478,109 +453,109 @@ const fetchReportHistory = async () => {
         contact: '159****5678',
         description: '收到中奖短信，要求支付手续费',
         status: '已完成',
-        createdAt: new Date('2024-01-14 09:15:00')
-      }
-    ]
+        createdAt: new Date('2024-01-14 09:15:00'),
+      },
+    ];
   }
-}
+};
 
 // 执行检测
 const performDetection = async () => {
   if (!detectionForm.eventType) {
-    ElMessage.warning('请选择检测类型')
-    return
+    ElMessage.warning('请选择检测类型');
+    return;
   }
 
   if (detectionForm.eventType === 'phone' && !detectionForm.phoneNumber) {
-    ElMessage.warning('请输入电话号码')
-    return
+    ElMessage.warning('请输入电话号码');
+    return;
   }
 
   if (detectionForm.eventType === 'website' && !detectionForm.url) {
-    ElMessage.warning('请输入网站地址')
-    return
+    ElMessage.warning('请输入网站地址');
+    return;
   }
 
-  detecting.value = true
+  detecting.value = true;
   try {
     const data = {
-      eventType: detectionForm.eventType
-    }
+      eventType: detectionForm.eventType,
+    };
 
     if (detectionForm.eventType === 'phone') {
       data.data = {
         phoneNumber: detectionForm.phoneNumber,
-        content: detectionForm.content
-      }
+        content: detectionForm.content,
+      };
     } else if (detectionForm.eventType === 'sms') {
       data.data = {
         content: detectionForm.content,
         senderNumber: detectionForm.senderNumber,
-        links: detectionForm.links
-      }
+        links: detectionForm.links,
+      };
     } else if (detectionForm.eventType === 'website') {
       data.data = {
         url: detectionForm.url,
-        content: detectionForm.content
-      }
+        content: detectionForm.content,
+      };
     }
 
-    const response = await axios.post('/api/v1/security/detect-fraud', data)
+    const response = await axios.post('/api/v1/security/detect-fraud', data);
 
     if (response.data.success) {
-      detectionResult.value = response.data.data
-      ElMessage.success('检测完成')
+      detectionResult.value = response.data.data;
+      ElMessage.success('检测完成');
     }
   } catch (error) {
-    console.error('检测失败:', error)
-    ElMessage.error('检测失败')
+    console.error('检测失败:', error);
+    ElMessage.error('检测失败');
   } finally {
-    detecting.value = false
+    detecting.value = false;
   }
-}
+};
 
 // 清空检测表单
 const clearDetectionForm = () => {
-  detectionResult.value = null
+  detectionResult.value = null;
   Object.assign(detectionForm, {
     eventType: 'phone',
     phoneNumber: '',
     content: '',
     senderNumber: '',
     links: '',
-    url: ''
-  })
-}
+    url: '',
+  });
+};
 
 // 处理证据上传
-const handleEvidenceUpload = (file) => {
-  reportForm.evidence.push(file)
-  return false // 阻止自动上传
-}
+const handleEvidenceUpload = file => {
+  reportForm.evidence.push(file);
+  return false; // 阻止自动上传
+};
 
 // 提交举报
 const submitReport = async () => {
   if (!reportForm.type || !reportForm.description) {
-    ElMessage.warning('请填写必要的举报信息')
-    return
+    ElMessage.warning('请填写必要的举报信息');
+    return;
   }
 
-  reporting.value = true
+  reporting.value = true;
   try {
-    const response = await axios.post('/api/v1/security/report-fraud', reportForm)
+    const response = await axios.post('/api/v1/security/report-fraud', reportForm);
 
     if (response.data.success) {
-      ElMessage.success('举报提交成功')
-      clearReportForm()
-      await fetchReportHistory()
+      ElMessage.success('举报提交成功');
+      clearReportForm();
+      await fetchReportHistory();
     }
   } catch (error) {
-    console.error('提交举报失败:', error)
-    ElMessage.error('提交举报失败')
+    console.error('提交举报失败:', error);
+    ElMessage.error('提交举报失败');
   } finally {
-    reporting.value = false
+    reporting.value = false;
   }
-}
+};
 
 // 清空举报表单
 const clearReportForm = () => {
@@ -589,88 +564,85 @@ const clearReportForm = () => {
     type: '',
     contact: '',
     description: '',
-    evidence: []
-  })
-}
+    evidence: [],
+  });
+};
 
 // 查看举报详情
-const viewReportDetail = (report) => {
+const viewReportDetail = report => {
   ElMessageBox.alert(
     `举报ID: ${report.reportId}\n诈骗类型: ${report.type}\n联系方式: ${report.contact}\n描述: ${report.description}\n状态: ${report.status}`,
     '举报详情',
     {
-      confirmButtonText: '确定'
+      confirmButtonText: '确定',
     }
-  )
-}
+  );
+};
 
 // 更新趋势图表
 const updateFraudTrendChart = () => {
-  if (!fraudTrendChart.value) return
+  if (!fraudTrendChart.value) return;
 
-  const chart = echarts.init(fraudTrendChart.value)
+  const chart = echarts.init(fraudTrendChart.value);
 
   const option = {
     title: {
       text: '诈骗检测趋势',
-      left: 'center'
+      left: 'center',
     },
     tooltip: {
-      trigger: 'axis'
+      trigger: 'axis',
     },
     legend: {
       data: ['电话诈骗', '短信诈骗', '钓鱼网站', '总计'],
-      top: 30
+      top: 30,
     },
     xAxis: {
       type: 'category',
-      data: ['1月', '2月', '3月', '4月', '5月', '6月']
+      data: ['1月', '2月', '3月', '4月', '5月', '6月'],
     },
     yAxis: {
-      type: 'value'
+      type: 'value',
     },
     series: [
       {
         name: '电话诈骗',
         type: 'line',
         data: [12, 15, 18, 14, 20, 23],
-        itemStyle: { color: '#F56C6C' }
+        itemStyle: { color: '#F56C6C' },
       },
       {
         name: '短信诈骗',
         type: 'line',
         data: [18, 22, 25, 20, 24, 28],
-        itemStyle: { color: '#E6A23C' }
+        itemStyle: { color: '#E6A23C' },
       },
       {
         name: '钓鱼网站',
         type: 'line',
         data: [8, 12, 10, 15, 14, 16],
-        itemStyle: { color: '#909399' }
+        itemStyle: { color: '#909399' },
       },
       {
         name: '总计',
         type: 'line',
         data: [38, 49, 53, 49, 58, 67],
-        itemStyle: { color: '#409EFF' }
-      }
-    ]
-  }
+        itemStyle: { color: '#409EFF' },
+      },
+    ],
+  };
 
-  chart.setOption(option)
-}
+  chart.setOption(option);
+};
 
 // 初始化
 onMounted(async () => {
-  await Promise.all([
-    fetchFraudStats(),
-    fetchReportHistory()
-  ])
+  await Promise.all([fetchFraudStats(), fetchReportHistory()]);
 
   nextTick(() => {
-    updateFraudTrendChart()
-  })
-})
+    updateFraudTrendChart();
+  });
+});
 </script>
 
 <style scoped>
@@ -697,19 +669,19 @@ onMounted(async () => {
 }
 
 .overview-value.blocked {
-  color: #E6A23C;
+  color: #e6a23c;
 }
 
 .overview-value.detected {
-  color: #F56C6C;
+  color: #f56c6c;
 }
 
 .overview-value.danger {
-  color: #F56C6C;
+  color: #f56c6c;
 }
 
 .overview-value.success {
-  color: #67C23A;
+  color: #67c23a;
 }
 
 .overview-value.neutral {

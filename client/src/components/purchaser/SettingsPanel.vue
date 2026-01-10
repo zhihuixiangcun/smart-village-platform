@@ -64,9 +64,7 @@
         <div class="setting-section">
           <h4 class="section-title">账户安全</h4>
           <el-form-item label="修改密码">
-            <el-button @click="showChangePasswordDialog = true">
-              修改密码
-            </el-button>
+            <el-button @click="showChangePasswordDialog = true"> 修改密码 </el-button>
           </el-form-item>
           <el-form-item label="绑定手机">
             <div class="phone-display">
@@ -93,9 +91,7 @@
 
         <!-- 操作按钮 -->
         <div class="setting-actions">
-          <el-button type="primary" @click="handleSave" :loading="saving">
-            保存设置
-          </el-button>
+          <el-button type="primary" @click="handleSave" :loading="saving"> 保存设置 </el-button>
           <el-button @click="handleReset">重置</el-button>
         </div>
       </el-form>
@@ -123,22 +119,22 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
-import { Setting } from '@element-plus/icons-vue'
-import api from '@/api'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { ElMessage } from 'element-plus';
+import { Setting } from '@element-plus/icons-vue';
+import api from '@/api';
 
 const props = defineProps({
   preferences: {
     type: Object,
-    default: () => ({})
-  }
-})
+    default: () => ({}),
+  },
+});
 
-const emit = defineEmits(['save'])
+const emit = defineEmits(['save']);
 
-const saving = ref(false)
-const showChangePasswordDialog = ref(false)
+const saving = ref(false);
+const showChangePasswordDialog = ref(false);
 
 const formData = reactive({
   pushNotifications: true,
@@ -147,85 +143,85 @@ const formData = reactive({
   recommendationRadius: 50,
   language: 'zh-CN',
   shareLocation: false,
-  shareHistory: true
-})
+  shareHistory: true,
+});
 
 const passwordForm = reactive({
   currentPassword: '',
   newPassword: '',
-  confirmPassword: ''
-})
+  confirmPassword: '',
+});
 
 const radiusMarks = {
   10: '10km',
   50: '50km',
   100: '100km',
-  200: '200km'
-}
+  200: '200km',
+};
 
 // 模拟手机号脱敏
 const maskedPhone = computed(() => {
-  return '138****5678'
-})
+  return '138****5678';
+});
 
 // 初始化表单数据
 onMounted(() => {
   if (props.preferences) {
-    Object.assign(formData, props.preferences)
+    Object.assign(formData, props.preferences);
   }
-})
+});
 
 // 保存设置
 const handleSave = async () => {
-  saving.value = true
+  saving.value = true;
   try {
-    emit('save', formData)
+    emit('save', formData);
   } finally {
-    saving.value = false
+    saving.value = false;
   }
-}
+};
 
 // 重置
 const handleReset = () => {
   if (props.preferences) {
-    Object.assign(formData, props.preferences)
+    Object.assign(formData, props.preferences);
   }
-  ElMessage.info('已重置为默认设置')
-}
+  ElMessage.info('已重置为默认设置');
+};
 
 // 修改密码
 const handleChangePassword = async () => {
   if (!passwordForm.currentPassword) {
-    ElMessage.warning('请输入当前密码')
-    return
+    ElMessage.warning('请输入当前密码');
+    return;
   }
   if (!passwordForm.newPassword) {
-    ElMessage.warning('请输入新密码')
-    return
+    ElMessage.warning('请输入新密码');
+    return;
   }
   if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-    ElMessage.warning('两次输入的密码不一致')
-    return
+    ElMessage.warning('两次输入的密码不一致');
+    return;
   }
 
   try {
     const response = await api.put('/api/v1/purchaser/change-password', {
       currentPassword: passwordForm.currentPassword,
-      newPassword: passwordForm.newPassword
-    })
+      newPassword: passwordForm.newPassword,
+    });
     if (response.success) {
-      ElMessage.success('密码修改成功')
-      showChangePasswordDialog.value = false
+      ElMessage.success('密码修改成功');
+      showChangePasswordDialog.value = false;
       // 清空表单
-      passwordForm.currentPassword = ''
-      passwordForm.newPassword = ''
-      passwordForm.confirmPassword = ''
+      passwordForm.currentPassword = '';
+      passwordForm.newPassword = '';
+      passwordForm.confirmPassword = '';
     }
   } catch (error) {
-    console.error('修改密码失败', error)
-    ElMessage.error('修改密码失败')
+    console.error('修改密码失败', error);
+    ElMessage.error('修改密码失败');
   }
-}
+};
 </script>
 
 <style scoped>

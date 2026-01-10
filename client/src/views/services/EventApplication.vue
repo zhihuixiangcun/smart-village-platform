@@ -15,43 +15,43 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
-import StepForm from '@/components/common/StepForm.vue'
-import { useLargeText } from '@/composables/useLargeText'
-import { profileApi } from '@/api/residentProfile'
-import { serviceApi } from '@/api/service'
-import { encryptionService } from '@/utils/encryption'
-import { auditLogService } from '@/utils/security'
+import { ref, reactive, onMounted } from 'vue';
+import { ElMessage } from 'element-plus';
+import StepForm from '@/components/common/StepForm.vue';
+import { useLargeText } from '@/composables/useLargeText';
+import { profileApi } from '@/api/residentProfile';
+import { serviceApi } from '@/api/service';
+import { encryptionService } from '@/utils/encryption';
+import { auditLogService } from '@/utils/security';
 
 const props = defineProps({
   service: {
     type: Object,
-    required: true
-  }
-})
+    required: true,
+  },
+});
 
-const emit = defineEmits(['close', 'submitted'])
+const emit = defineEmits(['close', 'submitted']);
 
-const { isLargeText } = useLargeText()
+const { isLargeText } = useLargeText();
 
-const stepFormRef = ref(null)
+const stepFormRef = ref(null);
 
 // 步骤配置
 const steps = [
   {
     title: '基本信息',
-    description: '填写活动基本资料'
+    description: '填写活动基本资料',
   },
   {
     title: '活动详情',
-    description: '填写活动详细信息'
+    description: '填写活动详细信息',
   },
   {
     title: '确认提交',
-    description: '核对信息并提交'
-  }
-]
+    description: '核对信息并提交',
+  },
+];
 
 // 表单数据
 const formData = reactive({
@@ -92,8 +92,8 @@ const formData = reactive({
   safetyCommitment: false, // 安全承诺
 
   // 备注
-  remark: ''
-})
+  remark: '',
+});
 
 // 活动类型选项
 const eventTypes = [
@@ -103,11 +103,11 @@ const eventTypes = [
   { label: '满月酒', value: 'fullmoon' },
   { label: '升学宴', value: 'graduation' },
   { label: '乔迁宴', value: 'housewarming' },
-  { label: '其他', value: 'other' }
-]
+  { label: '其他', value: 'other' },
+];
 
 // 举办地点选项
-const eventLocations = ['家中', '村委会宴会厅', '农家乐', '酒店', '其他']
+const eventLocations = ['家中', '村委会宴会厅', '农家乐', '酒店', '其他'];
 
 // 组件
 const BasicInfoStep = {
@@ -245,7 +245,7 @@ const BasicInfoStep = {
   props: ['formData'],
   emits: ['update', 'validate', 'voice-input'],
   setup(props, { emit }) {
-    const { Phone } = useElementPlusIcons()
+    const { Phone } = useElementPlusIcons();
 
     const eventTypes = [
       { label: '婚礼', value: 'wedding' },
@@ -254,16 +254,16 @@ const BasicInfoStep = {
       { label: '满月酒', value: 'fullmoon' },
       { label: '升学宴', value: 'graduation' },
       { label: '乔迁宴', value: 'housewarming' },
-      { label: '其他', value: 'other' }
-    ]
+      { label: '其他', value: 'other' },
+    ];
 
-    const eventLocations = ['家中', '村委会宴会厅', '农家乐', '酒店', '其他']
+    const eventLocations = ['家中', '村委会宴会厅', '农家乐', '酒店', '其他'];
 
     const rules = {
       applicantName: [{ required: true, message: '请输入申请人姓名', trigger: 'blur' }],
       applicantPhone: [
         { required: true, message: '请输入联系电话', trigger: 'blur' },
-        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
+        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' },
       ],
       eventType: [{ required: true, message: '请选择活动类型', trigger: 'change' }],
       eventName: [{ required: true, message: '请输入活动名称', trigger: 'blur' }],
@@ -271,36 +271,36 @@ const BasicInfoStep = {
       eventTime: [{ required: true, message: '请选择举办时间', trigger: 'change' }],
       estimatedDays: [{ required: true, message: '请输入预计天数', trigger: 'blur' }],
       eventLocation: [{ required: true, message: '请选择举办地点', trigger: 'change' }],
-      eventAddress: [{ required: true, message: '请输入详细地址', trigger: 'blur' }]
-    }
+      eventAddress: [{ required: true, message: '请输入详细地址', trigger: 'blur' }],
+    };
 
-    const disabledDate = (time) => {
+    const disabledDate = time => {
       // 禁用过去的日期
-      return time.getTime() < Date.now() - 8.64e7
-    }
+      return time.getTime() < Date.now() - 8.64e7;
+    };
 
     // 加载用户信息
     const loadUserInfo = async () => {
       try {
-        const response = await profileApi.getMyProfile()
-        const profile = response.data
+        const response = await profileApi.getMyProfile();
+        const profile = response.data;
 
         if (profile) {
-          props.formData.applicantName = profile.personalInfo?.name || ''
-          props.formData.applicantPhone = profile.contact?.phone || ''
+          props.formData.applicantName = profile.personalInfo?.name || '';
+          props.formData.applicantPhone = profile.contact?.phone || '';
         }
       } catch (error) {
-        console.error('Load user info error:', error)
+        console.error('Load user info error:', error);
       }
-    }
+    };
 
     onMounted(() => {
-      loadUserInfo()
-    })
+      loadUserInfo();
+    });
 
-    return { Phone, eventTypes, eventLocations, rules, disabledDate }
-  }
-}
+    return { Phone, eventTypes, eventLocations, rules, disabledDate };
+  },
+};
 
 const EventDetailStep = {
   template: `
@@ -391,7 +391,7 @@ const EventDetailStep = {
   props: ['formData'],
   emits: ['update', 'validate'],
   setup(props, { emit }) {
-    const serviceItems = ref([])
+    const serviceItems = ref([]);
 
     const rules = {
       estimatedGuests: [{ required: true, message: '请输入预计人数', trigger: 'blur' }],
@@ -401,24 +401,24 @@ const EventDetailStep = {
           enum: [true],
           required: true,
           message: '请阅读并同意安全承诺',
-          trigger: 'change'
-        }
-      ]
-    }
+          trigger: 'change',
+        },
+      ],
+    };
 
     // 监听服务项目变化
-    watch(serviceItems, (newVal) => {
-      props.formData.needsVenue = newVal.includes('needsVenue')
-      props.formData.needsCatering = newVal.includes('needsCatering')
-      props.formData.needsEquipment = newVal.includes('needsEquipment')
-      props.formData.needsStaff = newVal.includes('needsStaff')
-      props.formData.needsDecoration = newVal.includes('needsDecoration')
-      emit('update', { ...props.formData })
-    })
+    watch(serviceItems, newVal => {
+      props.formData.needsVenue = newVal.includes('needsVenue');
+      props.formData.needsCatering = newVal.includes('needsCatering');
+      props.formData.needsEquipment = newVal.includes('needsEquipment');
+      props.formData.needsStaff = newVal.includes('needsStaff');
+      props.formData.needsDecoration = newVal.includes('needsDecoration');
+      emit('update', { ...props.formData });
+    });
 
-    return { serviceItems, rules }
-  }
-}
+    return { serviceItems, rules };
+  },
+};
 
 const ConfirmStep = {
   template: `
@@ -510,14 +510,14 @@ const ConfirmStep = {
   props: ['formData'],
   emits: ['validate'],
   setup(props, { emit }) {
-    const confirmed = ref(false)
+    const confirmed = ref(false);
 
-    const maskPhone = (phone) => {
-      if (!phone) return ''
-      return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')
-    }
+    const maskPhone = phone => {
+      if (!phone) return '';
+      return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
+    };
 
-    const getEventTypeLabel = (type) => {
+    const getEventTypeLabel = type => {
       const map = {
         wedding: '婚礼',
         funeral: '丧礼',
@@ -525,10 +525,10 @@ const ConfirmStep = {
         fullmoon: '满月酒',
         graduation: '升学宴',
         housewarming: '乔迁宴',
-        other: '其他'
-      }
-      return map[type] || type
-    }
+        other: '其他',
+      };
+      return map[type] || type;
+    };
 
     const selectedServices = computed(() => {
       const services = [
@@ -536,67 +536,67 @@ const ConfirmStep = {
         { key: 'needsCatering', label: '餐饮' },
         { key: 'needsEquipment', label: '设备' },
         { key: 'needsStaff', label: '服务人员' },
-        { key: 'needsDecoration', label: '场地布置' }
-      ]
-      return services.filter(s => props.formData[s.key])
-    })
+        { key: 'needsDecoration', label: '场地布置' },
+      ];
+      return services.filter(s => props.formData[s.key]);
+    });
 
-    const handleConfirmChange = (val) => {
-      emit('validate', val)
-    }
+    const handleConfirmChange = val => {
+      emit('validate', val);
+    };
 
     return {
       confirmed,
       maskPhone,
       getEventTypeLabel,
       selectedServices,
-      handleConfirmChange
-    }
-  }
-}
+      handleConfirmChange,
+    };
+  },
+};
 
 // 处理数据更新
-const handleUpdate = (data) => {
-  Object.assign(formData, data)
-}
+const handleUpdate = data => {
+  Object.assign(formData, data);
+};
 
 // 处理语音输入
 const handleVoiceInput = (field, text) => {
   if (field === 'applicantName') {
-    const nameMatch = text.match(/(?:我叫|我是|姓名是)([\u4e00-\u9fa5]{2,4})/)
+    const nameMatch = text.match(/(?:我叫|我是|姓名是)([\u4e00-\u9fa5]{2,4})/);
     if (nameMatch) {
-      formData.applicantName = nameMatch[1]
-      ElMessage.success(`已识别姓名: ${formData.applicantName}`)
+      formData.applicantName = nameMatch[1];
+      ElMessage.success(`已识别姓名: ${formData.applicantName}`);
     }
   }
-}
+};
 
 // 提交申请
-const handleSubmit = async (data) => {
+const handleSubmit = async data => {
   try {
     // 加密敏感信息
     const encryptedData = {
       ...data,
-      applicantPhone: encryptionService.encrypt(data.applicantPhone)
-    }
+      applicantPhone: encryptionService.encrypt(data.applicantPhone),
+    };
 
     await serviceApi.submitEventApplication({
       ...encryptedData,
       serviceType: 'event',
-      serviceName: '红白喜事申请'
-    })
+      serviceName: '红白喜事申请',
+    });
 
     // 记录操作日志
-    await auditLogService.logApplicationSubmit('event', '红白喜事申请')
+    await auditLogService.logApplicationSubmit('event', '红白喜事申请');
 
-    ElMessage.success('申请已提交,请耐心等待审核')
-    emit('submitted', data)
-    emit('close')
+    ElMessage.success('申请已提交,请耐心等待审核');
+    emit('submitted', data);
+    emit('close');
   } catch (error) {
-    ElMessage.error('提交失败: ' + error.message)
-    throw error
+    ElMessage.error('提交失败: ' + error.message);
+    throw error;
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>

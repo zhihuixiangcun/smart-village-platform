@@ -33,7 +33,7 @@ const committeeRoleAssignmentSchema = new Schema({
   roleCode: {
     type: String,
     enum: ['secretary', 'village_head', 'accountant',
-           'population_admin', 'security_director'],
+      'population_admin', 'security_director'],
     required: true,
     index: true
   },

@@ -413,66 +413,66 @@ router.get('/dashboard', async (req, res) => {
 
 // 快速上报（简化接口，用于紧急情况）
 router.post('/quick-report', async (req, res) => {
-    try {
-      const {
-        type,
-        severity = 'critical',
-        description,
-        location,
-        villageId,
-        contactPhone
-      } = req.body;
+  try {
+    const {
+      type,
+      severity = 'critical',
+      description,
+      location,
+      villageId,
+      contactPhone
+    } = req.body;
 
-      // 最小化验证
-      if (!type || !description || !location || !villageId) {
-        return res.status(400).json({
-          success: false,
-          error: '类型、描述、位置和村庄ID为必填项'
-        });
-      }
-
-      // 创建简化的事件记录
-      const Emergency = require('../models/Emergency');
-      const emergency = new Emergency({
-        incidentNumber: generateIncidentNumber(villageId, type),
-        type,
-        severity,
-        title: `紧急上报：${type}`,
-        description,
-        location,
-        villageId,
-        contactPhone: contactPhone ? require('../utils/encryption').encryptSensitiveData(contactPhone) : undefined,
-        isAnonymous: false,
-        status: 'pending',
-        reportedBy: req.user ? req.user.id : null
-      });
-
-      await emergency.save();
-
-      // 立即通知相关人员
-      const { sendEmergencyNotification } = require('../utils/notificationService');
-      await sendEmergencyNotification({
-        type: 'emergency_alert',
-        title: `紧急事件上报：${type}`,
-        message: `位置：${location}\n描述：${description}`,
-        data: { emergencyId: emergency._id }
-      });
-
-      res.status(201).json({
-        success: true,
-        data: {
-          incidentNumber: emergency.incidentNumber,
-          message: '紧急事件已上报，相关人员将立即处理'
-        }
-      });
-    } catch (error) {
-      logger.error('快速上报失败:', error);
-      res.status(500).json({
+    // 最小化验证
+    if (!type || !description || !location || !villageId) {
+      return res.status(400).json({
         success: false,
-        error: '快速上报失败'
+        error: '类型、描述、位置和村庄ID为必填项'
       });
     }
-  });
+
+    // 创建简化的事件记录
+    const Emergency = require('../models/Emergency');
+    const emergency = new Emergency({
+      incidentNumber: generateIncidentNumber(villageId, type),
+      type,
+      severity,
+      title: `紧急上报：${type}`,
+      description,
+      location,
+      villageId,
+      contactPhone: contactPhone ? require('../utils/encryption').encryptSensitiveData(contactPhone) : undefined,
+      isAnonymous: false,
+      status: 'pending',
+      reportedBy: req.user ? req.user.id : null
+    });
+
+    await emergency.save();
+
+    // 立即通知相关人员
+    const { sendEmergencyNotification } = require('../utils/notificationService');
+    await sendEmergencyNotification({
+      type: 'emergency_alert',
+      title: `紧急事件上报：${type}`,
+      message: `位置：${location}\n描述：${description}`,
+      data: { emergencyId: emergency._id }
+    });
+
+    res.status(201).json({
+      success: true,
+      data: {
+        incidentNumber: emergency.incidentNumber,
+        message: '紧急事件已上报，相关人员将立即处理'
+      }
+    });
+  } catch (error) {
+    logger.error('快速上报失败:', error);
+    res.status(500).json({
+      success: false,
+      error: '快速上报失败'
+    });
+  }
+});
 
 // 健康检查
 router.get('/health', async (req, res) => {

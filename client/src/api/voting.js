@@ -4,7 +4,7 @@ const API_BASE = '/api/v1/voting';
 
 export const votingAPI = {
   // 获取投票列表
-  getVoteList: (params) => {
+  getVoteList: params => {
     return axios.get(`${API_BASE}/votes`, { params });
   },
 
@@ -14,7 +14,7 @@ export const votingAPI = {
   },
 
   // 创建投票
-  createVote: (voteData) => {
+  createVote: voteData => {
     return axios.post(`${API_BASE}/votes`, voteData);
   },
 
@@ -24,14 +24,14 @@ export const votingAPI = {
   },
 
   // 获取投票结果
-  getVoteResults: (voteId) => {
+  getVoteResults: voteId => {
     return axios.get(`${API_BASE}/votes/${voteId}/results`);
   },
 
   // 获取投票统计
   getVotingStatistics: () => {
     return axios.get(`${API_BASE}/statistics`);
-  }
+  },
 };
 
 export default votingAPI;

@@ -5,12 +5,7 @@
       <div class="header-content">
         <h2>村务公告管理</h2>
         <div class="header-actions">
-          <el-button
-            type="primary"
-            @click="createAnnouncement"
-            :icon="Plus"
-            size="large"
-          >
+          <el-button type="primary" @click="createAnnouncement" :icon="Plus" size="large">
             发布公告
           </el-button>
         </div>
@@ -71,12 +66,8 @@
         </div>
 
         <div class="filter-actions">
-          <el-button @click="searchAnnouncements" type="primary" :icon="Search">
-            搜索
-          </el-button>
-          <el-button @click="resetFilters" :icon="Refresh">
-            重置
-          </el-button>
+          <el-button @click="searchAnnouncements" type="primary" :icon="Search"> 搜索 </el-button>
+          <el-button @click="resetFilters" :icon="Refresh"> 重置 </el-button>
         </div>
       </div>
 
@@ -97,12 +88,8 @@
       <!-- 批量操作 -->
       <div class="batch-actions" v-if="selectedIds.length > 0">
         <span class="selected-count">已选择 {{ selectedIds.length }} 项</span>
-        <el-button @click="batchDelete" type="danger" :icon="Delete">
-          批量删除
-        </el-button>
-        <el-button @click="batchArchive" :icon="Box">
-          批量归档
-        </el-button>
+        <el-button @click="batchDelete" type="danger" :icon="Delete"> 批量删除 </el-button>
+        <el-button @click="batchArchive" :icon="Box"> 批量归档 </el-button>
       </div>
 
       <!-- 数据表格 -->
@@ -194,12 +181,7 @@
           <template #default="{ row }">
             <div class="action-buttons">
               <el-tooltip content="查看详情">
-                <el-button
-                  @click="viewAnnouncement(row)"
-                  :icon="View"
-                  size="small"
-                  circle
-                />
+                <el-button @click="viewAnnouncement(row)" :icon="View" size="small" circle />
               </el-tooltip>
 
               <el-tooltip content="编辑">
@@ -269,24 +251,31 @@
     />
 
     <!-- 公告详情弹窗 -->
-    <announcement-detail-dialog
-      v-model="detailDialogVisible"
-      :announcement="currentAnnouncement"
-    />
+    <announcement-detail-dialog v-model="detailDialogVisible" :announcement="currentAnnouncement" />
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, watch } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, reactive, computed, onMounted, watch } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
-  Plus, Search, Refresh, Delete, Box, Edit, View, Top,
-  MoreFilled, CopyDocument, ChatLineSquare, Star
-} from '@element-plus/icons-vue'
-import { useAnnouncementStore } from '@/stores/announcement'
-import { formatTime, getTimeAgo } from '@/utils/time'
-import AnnouncementFormDialog from './components/AnnouncementFormDialog.vue'
-import AnnouncementDetailDialog from './components/AnnouncementDetailDialog.vue'
+  Plus,
+  Search,
+  Refresh,
+  Delete,
+  Box,
+  Edit,
+  View,
+  Top,
+  MoreFilled,
+  CopyDocument,
+  ChatLineSquare,
+  Star,
+} from '@element-plus/icons-vue';
+import { useAnnouncementStore } from '@/stores/announcement';
+import { formatTime, getTimeAgo } from '@/utils/time';
+import AnnouncementFormDialog from './components/AnnouncementFormDialog.vue';
+import AnnouncementDetailDialog from './components/AnnouncementDetailDialog.vue';
 
 // 公告分类配置
 const categories = [
@@ -299,121 +288,121 @@ const categories = [
   { value: 'emergency', label: '紧急通知', icon: '🚨', color: '#f56c6c' },
   { value: 'meeting', label: '会议通知', icon: '👥', color: '#409eff' },
   { value: 'service', label: '便民服务', icon: '🔧', color: '#67c23a' },
-  { value: 'other', label: '其他', icon: '📄', color: '#c0c4cc' }
-]
+  { value: 'other', label: '其他', icon: '📄', color: '#c0c4cc' },
+];
 
 // Store
-const announcementStore = useAnnouncementStore()
+const announcementStore = useAnnouncementStore();
 
 // 响应式数据
-const loading = ref(false)
-const announcements = ref([])
-const selectedIds = ref([])
+const loading = ref(false);
+const announcements = ref([]);
+const selectedIds = ref([]);
 
 // 搜索筛选
-const searchKeyword = ref('')
-const dateRange = ref([])
+const searchKeyword = ref('');
+const dateRange = ref([]);
 const filters = reactive({
   category: '',
   status: '',
-  priority: ''
-})
+  priority: '',
+});
 
 // 分页
 const pagination = reactive({
   page: 1,
   size: 20,
-  total: 0
-})
+  total: 0,
+});
 
 // 弹窗控制
-const formDialogVisible = ref(false)
-const detailDialogVisible = ref(false)
-const formMode = ref('create') // create | edit
-const currentAnnouncement = ref(null)
+const formDialogVisible = ref(false);
+const detailDialogVisible = ref(false);
+const formMode = ref('create'); // create | edit
+const currentAnnouncement = ref(null);
 
 // 方法
 const searchAnnouncements = async () => {
-  loading.value = true
+  loading.value = true;
   try {
     const params = {
       page: pagination.page,
       limit: pagination.size,
       search: searchKeyword.value,
-      ...filters
-    }
+      ...filters,
+    };
 
     if (dateRange.value && dateRange.value.length === 2) {
-      params.startDate = dateRange.value[0]
-      params.endDate = dateRange.value[1]
+      params.startDate = dateRange.value[0];
+      params.endDate = dateRange.value[1];
     }
 
-    const result = await announcementStore.getAnnouncements(params)
-    announcements.value = result.data.announcements
-    pagination.total = result.data.pagination.total
+    const result = await announcementStore.getAnnouncements(params);
+    announcements.value = result.data.announcements;
+    pagination.total = result.data.pagination.total;
   } catch (error) {
-    ElMessage.error('获取公告列表失败')
+    ElMessage.error('获取公告列表失败');
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const resetFilters = () => {
-  searchKeyword.value = ''
-  dateRange.value = []
+  searchKeyword.value = '';
+  dateRange.value = [];
   Object.keys(filters).forEach(key => {
-    filters[key] = ''
-  })
-  pagination.page = 1
-  searchAnnouncements()
-}
+    filters[key] = '';
+  });
+  pagination.page = 1;
+  searchAnnouncements();
+};
 
-const handleDateRangeChange = (value) => {
-  dateRange.value = value
-}
+const handleDateRangeChange = value => {
+  dateRange.value = value;
+};
 
-const handleSelectionChange = (selection) => {
-  selectedIds.value = selection.map(item => item.id)
-}
+const handleSelectionChange = selection => {
+  selectedIds.value = selection.map(item => item.id);
+};
 
-const handleSizeChange = (size) => {
-  pagination.size = size
-  pagination.page = 1
-  searchAnnouncements()
-}
+const handleSizeChange = size => {
+  pagination.size = size;
+  pagination.page = 1;
+  searchAnnouncements();
+};
 
-const handlePageChange = (page) => {
-  pagination.page = page
-  searchAnnouncements()
-}
+const handlePageChange = page => {
+  pagination.page = page;
+  searchAnnouncements();
+};
 
 // 公告操作
 const createAnnouncement = () => {
-  currentAnnouncement.value = null
-  formMode.value = 'create'
-  formDialogVisible.value = true
-}
+  currentAnnouncement.value = null;
+  formMode.value = 'create';
+  formDialogVisible.value = true;
+};
 
-const editAnnouncement = (announcement) => {
-  currentAnnouncement.value = announcement
-  formMode.value = 'edit'
-  formDialogVisible.value = true
-}
+const editAnnouncement = announcement => {
+  currentAnnouncement.value = announcement;
+  formMode.value = 'edit';
+  formDialogVisible.value = true;
+};
 
-const viewAnnouncement = (announcement) => {
-  currentAnnouncement.value = announcement
-  detailDialogVisible.value = true
-}
+const viewAnnouncement = announcement => {
+  currentAnnouncement.value = announcement;
+  detailDialogVisible.value = true;
+};
 
-const toggleTop = async (announcement) => {
+const toggleTop = async announcement => {
   try {
-    await announcementStore.toggleTop(announcement.id)
-    announcement.isTop = !announcement.isTop
-    ElMessage.success(`公告${announcement.isTop ? '置顶' : '取消置顶'}成功`)
+    await announcementStore.toggleTop(announcement.id);
+    announcement.isTop = !announcement.isTop;
+    ElMessage.success(`公告${announcement.isTop ? '置顶' : '取消置顶'}成功`);
   } catch (error) {
-    ElMessage.error('操作失败')
+    ElMessage.error('操作失败');
   }
-}
+};
 
 const batchDelete = async () => {
   const confirmed = await ElMessageBox.confirm(
@@ -424,156 +413,152 @@ const batchDelete = async () => {
       cancelButtonText: '取消',
       type: 'warning',
     }
-  )
+  );
 
   if (confirmed) {
     try {
-      await announcementStore.batchDelete(selectedIds.value)
-      ElMessage.success('批量删除成功')
-      selectedIds.value = []
-      searchAnnouncements()
+      await announcementStore.batchDelete(selectedIds.value);
+      ElMessage.success('批量删除成功');
+      selectedIds.value = [];
+      searchAnnouncements();
     } catch (error) {
-      ElMessage.error('批量删除失败')
+      ElMessage.error('批量删除失败');
     }
   }
-}
+};
 
 const batchArchive = async () => {
   try {
-    await announcementStore.batchArchive(selectedIds.value)
-    ElMessage.success('批量归档成功')
-    selectedIds.value = []
-    searchAnnouncements()
+    await announcementStore.batchArchive(selectedIds.value);
+    ElMessage.success('批量归档成功');
+    selectedIds.value = [];
+    searchAnnouncements();
   } catch (error) {
-    ElMessage.error('批量归档失败')
+    ElMessage.error('批量归档失败');
   }
-}
+};
 
-const handleMoreAction = async (command) => {
-  const [action, id] = command.split('_')
+const handleMoreAction = async command => {
+  const [action, id] = command.split('_');
 
   switch (action) {
     case 'clone':
-      await cloneAnnouncement(id)
-      break
+      await cloneAnnouncement(id);
+      break;
     case 'archive':
-      await archiveAnnouncement(id)
-      break
+      await archiveAnnouncement(id);
+      break;
     case 'delete':
-      await deleteAnnouncement(id)
-      break
+      await deleteAnnouncement(id);
+      break;
   }
-}
+};
 
-const cloneAnnouncement = async (id) => {
+const cloneAnnouncement = async id => {
   try {
-    const announcement = announcements.value.find(a => a.id === id)
+    const announcement = announcements.value.find(a => a.id === id);
     currentAnnouncement.value = {
       ...announcement,
       title: `${announcement.title}（副本）`,
-      status: 'draft'
-    }
-    formMode.value = 'create'
-    formDialogVisible.value = true
+      status: 'draft',
+    };
+    formMode.value = 'create';
+    formDialogVisible.value = true;
   } catch (error) {
-    ElMessage.error('复制公告失败')
+    ElMessage.error('复制公告失败');
   }
-}
+};
 
-const archiveAnnouncement = async (id) => {
+const archiveAnnouncement = async id => {
   try {
-    await announcementStore.archive(id)
-    ElMessage.success('归档成功')
-    searchAnnouncements()
+    await announcementStore.archive(id);
+    ElMessage.success('归档成功');
+    searchAnnouncements();
   } catch (error) {
-    ElMessage.error('归档失败')
+    ElMessage.error('归档失败');
   }
-}
+};
 
-const deleteAnnouncement = async (id) => {
-  const confirmed = await ElMessageBox.confirm(
-    '确定要删除这条公告吗？',
-    '删除公告',
-    {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning',
-    }
-  )
+const deleteAnnouncement = async id => {
+  const confirmed = await ElMessageBox.confirm('确定要删除这条公告吗？', '删除公告', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  });
 
   if (confirmed) {
     try {
-      await announcementStore.delete(id)
-      ElMessage.success('删除成功')
-      searchAnnouncements()
+      await announcementStore.delete(id);
+      ElMessage.success('删除成功');
+      searchAnnouncements();
     } catch (error) {
-      ElMessage.error('删除失败')
+      ElMessage.error('删除失败');
     }
   }
-}
+};
 
 const handleAnnouncementSaved = () => {
-  formDialogVisible.value = false
-  searchAnnouncements()
-}
+  formDialogVisible.value = false;
+  searchAnnouncements();
+};
 
 // 工具函数
-const getPriorityType = (priority) => {
+const getPriorityType = priority => {
   const types = {
     emergency: 'danger',
     urgent: 'warning',
     high: 'warning',
     normal: 'info',
-    low: 'info'
-  }
-  return types[priority] || 'info'
-}
+    low: 'info',
+  };
+  return types[priority] || 'info';
+};
 
-const getPriorityLabel = (priority) => {
+const getPriorityLabel = priority => {
   const labels = {
     emergency: '紧急',
     urgent: '重要',
     high: '高',
     normal: '普通',
-    low: '低'
-  }
-  return labels[priority] || '普通'
-}
+    low: '低',
+  };
+  return labels[priority] || '普通';
+};
 
-const getCategoryType = (category) => {
-  const categoryInfo = categories.find(c => c.value === category)
-  return categoryInfo ? 'primary' : 'info'
-}
+const getCategoryType = category => {
+  const categoryInfo = categories.find(c => c.value === category);
+  return categoryInfo ? 'primary' : 'info';
+};
 
-const getCategoryLabel = (category) => {
-  const categoryInfo = categories.find(c => c.value === category)
-  return categoryInfo ? categoryInfo.label : '其他'
-}
+const getCategoryLabel = category => {
+  const categoryInfo = categories.find(c => c.value === category);
+  return categoryInfo ? categoryInfo.label : '其他';
+};
 
-const getStatusType = (status) => {
+const getStatusType = status => {
   const types = {
     draft: 'info',
     published: 'success',
     archived: 'warning',
-    expired: 'danger'
-  }
-  return types[status] || 'info'
-}
+    expired: 'danger',
+  };
+  return types[status] || 'info';
+};
 
-const getStatusLabel = (status) => {
+const getStatusLabel = status => {
   const labels = {
     draft: '草稿',
     published: '已发布',
     archived: '已归档',
-    expired: '已过期'
-  }
-  return labels[status] || '未知'
-}
+    expired: '已过期',
+  };
+  return labels[status] || '未知';
+};
 
 // 生命周期
 onMounted(() => {
-  searchAnnouncements()
-})
+  searchAnnouncements();
+});
 </script>
 
 <style lang="scss" scoped>

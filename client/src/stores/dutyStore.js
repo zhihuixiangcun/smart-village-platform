@@ -15,7 +15,7 @@ export const useDutyStore = defineStore('duty', () => {
     upcomingDuties: 0,
     personnelCount: 0,
     workloadDistribution: [],
-    monthlyStats: []
+    monthlyStats: [],
   });
   const loading = ref(false);
   const calendarLoading = ref(false);
@@ -27,8 +27,7 @@ export const useDutyStore = defineStore('duty', () => {
 
     return dutySchedules.value.filter(schedule => {
       const scheduleDate = new Date(schedule.date);
-      return scheduleDate.getFullYear() === year &&
-             scheduleDate.getMonth() === month;
+      return scheduleDate.getFullYear() === year && scheduleDate.getMonth() === month;
     });
   });
 
@@ -81,7 +80,7 @@ export const useDutyStore = defineStore('duty', () => {
     }
   };
 
-  const addPersonnel = async (personnelData) => {
+  const addPersonnel = async personnelData => {
     try {
       const response = await dutyApi.addPersonnel(personnelData);
       dutyPersonnel.value.push(response.data);
@@ -110,7 +109,7 @@ export const useDutyStore = defineStore('duty', () => {
     }
   };
 
-  const deletePersonnel = async (id) => {
+  const deletePersonnel = async id => {
     try {
       await dutyApi.deletePersonnel(id);
       dutyPersonnel.value = dutyPersonnel.value.filter(p => p.id !== id);
@@ -122,7 +121,7 @@ export const useDutyStore = defineStore('duty', () => {
     }
   };
 
-  const createSchedule = async (scheduleData) => {
+  const createSchedule = async scheduleData => {
     try {
       const response = await dutyApi.createSchedule(scheduleData);
       dutySchedules.value.push(response.data);
@@ -151,7 +150,7 @@ export const useDutyStore = defineStore('duty', () => {
     }
   };
 
-  const deleteSchedule = async (id) => {
+  const deleteSchedule = async id => {
     try {
       await dutyApi.deleteSchedule(id);
       dutySchedules.value = dutySchedules.value.filter(s => s.id !== id);
@@ -163,7 +162,7 @@ export const useDutyStore = defineStore('duty', () => {
     }
   };
 
-  const batchCreateSchedules = async (schedulesData) => {
+  const batchCreateSchedules = async schedulesData => {
     try {
       const response = await dutyApi.batchCreateSchedules(schedulesData);
       dutySchedules.value.push(...response.data);
@@ -207,7 +206,7 @@ export const useDutyStore = defineStore('duty', () => {
     }
   };
 
-  const generateQRCode = async (personnelId) => {
+  const generateQRCode = async personnelId => {
     try {
       const response = await dutyApi.generateQRCode(personnelId);
       return response.data.qrCode;
@@ -223,7 +222,7 @@ export const useDutyStore = defineStore('duty', () => {
       const response = await dutyApi.exportReport(startDate, endDate);
       // 创建下载链接
       const blob = new Blob([response.data], {
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -243,21 +242,15 @@ export const useDutyStore = defineStore('duty', () => {
 
   // 初始化方法
   const init = async () => {
-    await Promise.all([
-      fetchDutyPersonnel(),
-      fetchStatistics()
-    ]);
+    await Promise.all([fetchDutyPersonnel(), fetchStatistics()]);
   };
 
   // 切换月份
-  const changeMonth = (date) => {
+  const changeMonth = date => {
     currentMonth.value = date;
     const startDate = new Date(date.getFullYear(), date.getMonth(), 1);
     const endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-    fetchDutySchedules(
-      startDate.toISOString().split('T')[0],
-      endDate.toISOString().split('T')[0]
-    );
+    fetchDutySchedules(startDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]);
   };
 
   return {
@@ -291,6 +284,6 @@ export const useDutyStore = defineStore('duty', () => {
     generateQRCode,
     exportScheduleReport,
     init,
-    changeMonth
+    changeMonth,
   };
 });

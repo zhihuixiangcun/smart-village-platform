@@ -15,51 +15,51 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
-import StepForm from '@/components/common/StepForm.vue'
-import { useLargeText } from '@/composables/useLargeText'
-import { profileApi } from '@/api/residentProfile'
-import { serviceApi } from '@/api/service'
-import { encryptionService } from '@/utils/encryption'
-import { auditLogService } from '@/utils/security'
+import { ref, reactive, onMounted } from 'vue';
+import { ElMessage } from 'element-plus';
+import StepForm from '@/components/common/StepForm.vue';
+import { useLargeText } from '@/composables/useLargeText';
+import { profileApi } from '@/api/residentProfile';
+import { serviceApi } from '@/api/service';
+import { encryptionService } from '@/utils/encryption';
+import { auditLogService } from '@/utils/security';
 
 const props = defineProps({
   service: {
     type: Object,
-    required: true
-  }
-})
+    required: true,
+  },
+});
 
-const emit = defineEmits(['close', 'submitted'])
+const emit = defineEmits(['close', 'submitted']);
 
-const { isLargeText } = useLargeText()
+const { isLargeText } = useLargeText();
 
-const stepFormRef = ref(null)
+const stepFormRef = ref(null);
 
 // 步骤配置
 const steps = [
   {
     title: '男方信息',
-    description: '填写男方基本资料'
+    description: '填写男方基本资料',
   },
   {
     title: '女方信息',
-    description: '填写女方基本资料'
+    description: '填写女方基本资料',
   },
   {
     title: '材料上传',
-    description: '上传所需证件照片'
+    description: '上传所需证件照片',
   },
   {
     title: '预约时间',
-    description: '选择办理时间'
+    description: '选择办理时间',
   },
   {
     title: '确认提交',
-    description: '核对信息并提交'
-  }
-]
+    description: '核对信息并提交',
+  },
+];
 
 // 表单数据
 const formData = reactive({
@@ -97,8 +97,8 @@ const formData = reactive({
   otherMaterials: [],
 
   // 备注
-  remark: ''
-})
+  remark: '',
+});
 
 // 组件
 const BasicInfoStep = {
@@ -292,67 +292,75 @@ const BasicInfoStep = {
   props: ['formData'],
   emits: ['update', 'validate', 'voice-input'],
   setup(props, { emit }) {
-    const { Phone } = useElementPlusIcons()
-    const activeTab = ref('man')
+    const { Phone } = useElementPlusIcons();
+    const activeTab = ref('man');
 
     const manRules = {
       manName: [{ required: true, message: '请输入男方姓名', trigger: 'blur' }],
       manIdCard: [
         { required: true, message: '请输入男方身份证号', trigger: 'blur' },
-        { pattern: /^(\d{15}$|^\d{18}$|^\d{17}(\d|X|x)$)/, message: '请输入正确的身份证号', trigger: 'blur' }
+        {
+          pattern: /^(\d{15}$|^\d{18}$|^\d{17}(\d|X|x)$)/,
+          message: '请输入正确的身份证号',
+          trigger: 'blur',
+        },
       ],
       manPhone: [
         { required: true, message: '请输入男方联系电话', trigger: 'blur' },
-        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
+        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' },
       ],
       manAddress: [{ required: true, message: '请输入男方现住址', trigger: 'blur' }],
-      manMaritalStatus: [{ required: true, message: '请选择婚姻状况', trigger: 'change' }]
-    }
+      manMaritalStatus: [{ required: true, message: '请选择婚姻状况', trigger: 'change' }],
+    };
 
     const womanRules = {
       womanName: [{ required: true, message: '请输入女方姓名', trigger: 'blur' }],
       womanIdCard: [
         { required: true, message: '请输入女方身份证号', trigger: 'blur' },
-        { pattern: /^(\d{15}$|^\d{18}$|^\d{17}(\d|X|x)$)/, message: '请输入正确的身份证号', trigger: 'blur' }
+        {
+          pattern: /^(\d{15}$|^\d{18}$|^\d{17}(\d|X|x)$)/,
+          message: '请输入正确的身份证号',
+          trigger: 'blur',
+        },
       ],
       womanPhone: [
         { required: true, message: '请输入女方联系电话', trigger: 'blur' },
-        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
+        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' },
       ],
       womanAddress: [{ required: true, message: '请输入女方现住址', trigger: 'blur' }],
-      womanMaritalStatus: [{ required: true, message: '请选择婚姻状况', trigger: 'change' }]
-    }
+      womanMaritalStatus: [{ required: true, message: '请选择婚姻状况', trigger: 'change' }],
+    };
 
     const commonRules = {
       registrationType: [{ required: true, message: '请选择登记类型', trigger: 'change' }],
-      relationship: [{ required: true, message: '请选择双方关系', trigger: 'change' }]
-    }
+      relationship: [{ required: true, message: '请选择双方关系', trigger: 'change' }],
+    };
 
     // 加载当前用户信息
     const loadUserInfo = async () => {
       try {
-        const response = await profileApi.getMyProfile()
-        const profile = response.data
+        const response = await profileApi.getMyProfile();
+        const profile = response.data;
 
         if (profile) {
           // 默认将当前用户信息填入男方信息
-          props.formData.manName = profile.personalInfo?.name || ''
-          props.formData.manIdCard = profile.personalInfo?.idCard || ''
-          props.formData.manPhone = profile.contact?.phone || ''
-          props.formData.manAddress = profile.contact?.address || ''
+          props.formData.manName = profile.personalInfo?.name || '';
+          props.formData.manIdCard = profile.personalInfo?.idCard || '';
+          props.formData.manPhone = profile.contact?.phone || '';
+          props.formData.manAddress = profile.contact?.address || '';
         }
       } catch (error) {
-        console.error('Load user info error:', error)
+        console.error('Load user info error:', error);
       }
-    }
+    };
 
     onMounted(() => {
-      loadUserInfo()
-    })
+      loadUserInfo();
+    });
 
-    return { activeTab, manRules, womanRules, commonRules, Phone }
-  }
-}
+    return { activeTab, manRules, womanRules, commonRules, Phone };
+  },
+};
 
 const UploadStep = {
   template: `
@@ -442,16 +450,16 @@ const UploadStep = {
   emits: ['update', 'validate'],
   setup(props, { emit }) {
     const handleUpdate = () => {
-      emit('update', { ...props.formData })
-    }
+      emit('update', { ...props.formData });
+    };
 
-    const handleValidate = (isValid) => {
-      emit('validate', isValid)
-    }
+    const handleValidate = isValid => {
+      emit('validate', isValid);
+    };
 
-    return { handleUpdate, handleValidate }
-  }
-}
+    return { handleUpdate, handleValidate };
+  },
+};
 
 const AppointmentStep = {
   template: `
@@ -524,20 +532,20 @@ const AppointmentStep = {
     const rules = {
       appointmentDate: [{ required: true, message: '请选择预约日期', trigger: 'change' }],
       appointmentTime: [{ required: true, message: '请选择预约时间', trigger: 'change' }],
-      registrationOffice: [{ required: true, message: '请选择登记地点', trigger: 'change' }]
-    }
+      registrationOffice: [{ required: true, message: '请选择登记地点', trigger: 'change' }],
+    };
 
-    const disabledDate = (time) => {
+    const disabledDate = time => {
       // 禁用周末和过去的日期
-      const day = time.getDay()
-      const isWeekend = day === 0 || day === 6
-      const isPast = time.getTime() < Date.now() - 8.64e7 // 减去一天,允许今天预约
-      return isWeekend || isPast
-    }
+      const day = time.getDay();
+      const isWeekend = day === 0 || day === 6;
+      const isPast = time.getTime() < Date.now() - 8.64e7; // 减去一天,允许今天预约
+      return isWeekend || isPast;
+    };
 
-    return { rules, disabledDate }
-  }
-}
+    return { rules, disabledDate };
+  },
+};
 
 const ConfirmStep = {
   template: `
@@ -616,66 +624,66 @@ const ConfirmStep = {
   props: ['formData'],
   emits: ['validate'],
   setup(props, { emit }) {
-    const confirmed = ref(false)
+    const confirmed = ref(false);
 
-    const getRegistrationTypeLabel = (type) => {
+    const getRegistrationTypeLabel = type => {
       const map = {
         first: '初婚登记',
-        remarriage: '再婚登记'
-      }
-      return map[type] || type
-    }
+        remarriage: '再婚登记',
+      };
+      return map[type] || type;
+    };
 
-    const getRelationshipLabel = (relationship) => {
+    const getRelationshipLabel = relationship => {
       const map = {
         none: '无血缘关系',
         collateral: '三代以内旁系血亲',
-        direct: '直系血亲'
-      }
-      return map[relationship] || relationship
-    }
+        direct: '直系血亲',
+      };
+      return map[relationship] || relationship;
+    };
 
-    const getOfficeLabel = (office) => {
+    const getOfficeLabel = office => {
       const map = {
         district: '区民政局婚姻登记处',
-        city: '市民政局婚姻登记处'
-      }
-      return map[office] || office
-    }
+        city: '市民政局婚姻登记处',
+      };
+      return map[office] || office;
+    };
 
-    const maskIdCard = (idCard) => {
-      if (!idCard) return ''
-      return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2')
-    }
+    const maskIdCard = idCard => {
+      if (!idCard) return '';
+      return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2');
+    };
 
-    const maskPhone = (phone) => {
-      if (!phone) return ''
-      return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')
-    }
+    const maskPhone = phone => {
+      if (!phone) return '';
+      return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
+    };
 
     const getUploadedFiles = () => {
-      const files = []
+      const files = [];
       if (props.formData.manIdCardPhotos?.length) {
-        files.push({ name: '男方身份证照片' })
+        files.push({ name: '男方身份证照片' });
       }
       if (props.formData.womanIdCardPhotos?.length) {
-        files.push({ name: '女方身份证照片' })
+        files.push({ name: '女方身份证照片' });
       }
       if (props.formData.householdPhotos?.length) {
-        files.push({ name: '户口本照片' })
+        files.push({ name: '户口本照片' });
       }
       if (props.formData.photos?.length) {
-        files.push({ name: '证件照' })
+        files.push({ name: '证件照' });
       }
       if (props.formData.otherMaterials?.length) {
-        files.push({ name: '其他材料' })
+        files.push({ name: '其他材料' });
       }
-      return files
-    }
+      return files;
+    };
 
-    const handleConfirmChange = (val) => {
-      emit('validate', val)
-    }
+    const handleConfirmChange = val => {
+      emit('validate', val);
+    };
 
     return {
       confirmed,
@@ -685,35 +693,35 @@ const ConfirmStep = {
       maskIdCard,
       maskPhone,
       getUploadedFiles,
-      handleConfirmChange
-    }
-  }
-}
+      handleConfirmChange,
+    };
+  },
+};
 
 // 处理数据更新
-const handleUpdate = (data) => {
-  Object.assign(formData, data)
-}
+const handleUpdate = data => {
+  Object.assign(formData, data);
+};
 
 // 处理语音输入
 const handleVoiceInput = (field, text) => {
   if (field === 'manName') {
-    const nameMatch = text.match(/(?:我叫|我是|姓名是)([\u4e00-\u9fa5]{2,4})/)
+    const nameMatch = text.match(/(?:我叫|我是|姓名是)([\u4e00-\u9fa5]{2,4})/);
     if (nameMatch) {
-      formData.manName = nameMatch[1]
-      ElMessage.success(`已识别姓名: ${formData.manName}`)
+      formData.manName = nameMatch[1];
+      ElMessage.success(`已识别姓名: ${formData.manName}`);
     }
   } else if (field === 'womanName') {
-    const nameMatch = text.match(/(?:她叫|女方叫|女方姓名是)([\u4e00-\u9fa5]{2,4})/)
+    const nameMatch = text.match(/(?:她叫|女方叫|女方姓名是)([\u4e00-\u9fa5]{2,4})/);
     if (nameMatch) {
-      formData.womanName = nameMatch[1]
-      ElMessage.success(`已识别姓名: ${formData.womanName}`)
+      formData.womanName = nameMatch[1];
+      ElMessage.success(`已识别姓名: ${formData.womanName}`);
     }
   }
-}
+};
 
 // 提交申请
-const handleSubmit = async (data) => {
+const handleSubmit = async data => {
   try {
     // 加密敏感信息
     const encryptedData = {
@@ -721,26 +729,26 @@ const handleSubmit = async (data) => {
       manIdCard: encryptionService.encrypt(data.manIdCard),
       womanIdCard: encryptionService.encrypt(data.womanIdCard),
       manPhone: encryptionService.encrypt(data.manPhone),
-      womanPhone: encryptionService.encrypt(data.womanPhone)
-    }
+      womanPhone: encryptionService.encrypt(data.womanPhone),
+    };
 
     await serviceApi.submitMarriageRegistration({
       ...encryptedData,
       serviceType: 'marriage',
-      serviceName: '结婚登记预约'
-    })
+      serviceName: '结婚登记预约',
+    });
 
     // 记录操作日志
-    await auditLogService.logApplicationSubmit('marriage', '结婚登记预约')
+    await auditLogService.logApplicationSubmit('marriage', '结婚登记预约');
 
-    ElMessage.success('预约成功,请按时到场办理')
-    emit('submitted', data)
-    emit('close')
+    ElMessage.success('预约成功,请按时到场办理');
+    emit('submitted', data);
+    emit('close');
   } catch (error) {
-    ElMessage.error('提交失败: ' + error.message)
-    throw error
+    ElMessage.error('提交失败: ' + error.message);
+    throw error;
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>

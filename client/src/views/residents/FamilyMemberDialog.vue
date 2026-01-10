@@ -12,14 +12,14 @@
           <span>当前村民信息</span>
         </template>
         <div class="resident-info">
-          <el-avatar
-            :size="50"
-            :src="resident.avatar"
-            :icon="UserFilled"
-          />
+          <el-avatar :size="50" :src="resident.avatar" :icon="UserFilled" />
           <div class="info">
             <h4>{{ resident.name }}</h4>
-            <p>户码：{{ resident.householdCode }} | 家庭角色：{{ getFamilyRoleText(resident.familyRole) }}</p>
+            <p>
+              户码：{{ resident.householdCode }} | 家庭角色：{{
+                getFamilyRoleText(resident.familyRole)
+              }}
+            </p>
           </div>
         </div>
       </el-card>
@@ -29,23 +29,13 @@
         <template #header>
           <div class="card-header">
             <span>家庭成员列表</span>
-            <el-button
-              type="primary"
-              size="small"
-              @click="showAddMemberDialog"
-              icon="Plus"
-            >
+            <el-button type="primary" size="small" @click="showAddMemberDialog" icon="Plus">
               添加成员
             </el-button>
           </div>
         </template>
 
-        <el-table
-          :data="familyMembers"
-          border
-          style="width: 100%"
-          v-loading="loading"
-        >
+        <el-table :data="familyMembers" border style="width: 100%" v-loading="loading">
           <el-table-column prop="name" label="姓名" width="120" />
 
           <el-table-column prop="relationship" label="与户主关系" width="120">
@@ -80,10 +70,7 @@
 
           <el-table-column prop="healthStatus" label="健康状态" width="100">
             <template #default="scope">
-              <el-tag
-                :type="getHealthStatusType(scope.row.healthStatus)"
-                size="small"
-              >
+              <el-tag :type="getHealthStatusType(scope.row.healthStatus)" size="small">
                 {{ getHealthStatusText(scope.row.healthStatus) }}
               </el-tag>
             </template>
@@ -91,20 +78,10 @@
 
           <el-table-column label="操作" width="150" fixed="right">
             <template #default="scope">
-              <el-button
-                type="text"
-                size="small"
-                @click="editMember(scope.row)"
-                icon="Edit"
-              >
+              <el-button type="text" size="small" @click="editMember(scope.row)" icon="Edit">
                 编辑
               </el-button>
-              <el-button
-                type="text"
-                size="small"
-                @click="viewMember(scope.row)"
-                icon="View"
-              >
+              <el-button type="text" size="small" @click="viewMember(scope.row)" icon="View">
                 查看
               </el-button>
               <el-button
@@ -156,11 +133,7 @@
             <!-- 子女 -->
             <div v-if="children.length" class="children-nodes">
               <div class="children-connection"></div>
-              <div
-                v-for="child in children"
-                :key="child.id"
-                class="child-node"
-              >
+              <div v-for="child in children" :key="child.id" class="child-node">
                 <div class="node-content">
                   <el-avatar :size="30" :src="child.avatar" :icon="UserFilled" />
                   <div class="node-info">
@@ -174,11 +147,7 @@
             <!-- 父母 -->
             <div v-if="parents.length" class="parents-nodes">
               <div class="parents-connection"></div>
-              <div
-                v-for="parent in parents"
-                :key="parent.id"
-                class="parent-node"
-              >
+              <div v-for="parent in parents" :key="parent.id" class="parent-node">
                 <div class="node-content">
                   <el-avatar :size="35" :src="parent.avatar" :icon="UserFilled" />
                   <div class="node-info">
@@ -190,9 +159,7 @@
             </div>
           </div>
 
-          <div v-if="!householder" class="no-tree">
-            暂无家庭关系数据
-          </div>
+          <div v-if="!householder" class="no-tree">暂无家庭关系数据</div>
         </div>
       </el-card>
     </div>
@@ -200,9 +167,7 @@
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="dialogVisible = false">关闭</el-button>
-        <el-button type="primary" @click="refreshData" icon="Refresh">
-          刷新数据
-        </el-button>
+        <el-button type="primary" @click="refreshData" icon="Refresh"> 刷新数据 </el-button>
       </div>
     </template>
 
@@ -216,112 +181,105 @@
     />
 
     <!-- 成员详情对话框 -->
-    <member-detail-dialog
-      v-model="memberDetailVisible"
-      :member="currentMember"
-    />
+    <member-detail-dialog v-model="memberDetailVisible" :member="currentMember" />
   </el-dialog>
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { UserFilled, Plus, Edit, View, Delete, Refresh } from '@element-plus/icons-vue'
-import { residentAPI } from '@/api/resident'
-import MemberFormDialog from './MemberFormDialog.vue'
-import MemberDetailDialog from './MemberDetailDialog.vue'
+import { ref, computed, watch, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { UserFilled, Plus, Edit, View, Delete, Refresh } from '@element-plus/icons-vue';
+import { residentAPI } from '@/api/resident';
+import MemberFormDialog from './MemberFormDialog.vue';
+import MemberDetailDialog from './MemberDetailDialog.vue';
 
 const props = defineProps({
   modelValue: {
     type: Boolean,
-    default: false
+    default: false,
   },
   resident: {
     type: Object,
-    default: null
-  }
-})
+    default: null,
+  },
+});
 
-const emit = defineEmits(['update:modelValue', 'refresh'])
+const emit = defineEmits(['update:modelValue', 'refresh']);
 
 // 响应式数据
-const loading = ref(false)
-const familyMembers = ref([])
-const currentMember = ref(null)
-const memberFormVisible = ref(false)
-const memberDetailVisible = ref(false)
-const memberFormMode = ref('add') // 'add' | 'edit'
-const familyTreeRef = ref()
+const loading = ref(false);
+const familyMembers = ref([]);
+const currentMember = ref(null);
+const memberFormVisible = ref(false);
+const memberDetailVisible = ref(false);
+const memberFormMode = ref('add'); // 'add' | 'edit'
+const familyTreeRef = ref();
 
 // 对话框显示状态
 const dialogVisible = computed({
   get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
-})
+  set: value => emit('update:modelValue', value),
+});
 
 // 计算属性 - 家庭成员分类
 const householder = computed(() => {
-  return familyMembers.value.find(member => member.relationship === 'head') || props.resident
-})
+  return familyMembers.value.find(member => member.relationship === 'head') || props.resident;
+});
 
 const spouse = computed(() => {
-  return familyMembers.value.find(member => member.relationship === 'spouse')
-})
+  return familyMembers.value.find(member => member.relationship === 'spouse');
+});
 
 const children = computed(() => {
-  return familyMembers.value.filter(member => member.relationship === 'child')
-})
+  return familyMembers.value.filter(member => member.relationship === 'child');
+});
 
 const parents = computed(() => {
-  return familyMembers.value.filter(member => member.relationship === 'parent')
-})
+  return familyMembers.value.filter(member => member.relationship === 'parent');
+});
 
 // 方法
 const loadFamilyMembers = async () => {
-  if (!props.resident?.id) return
+  if (!props.resident?.id) return;
 
-  loading.value = true
+  loading.value = true;
   try {
-    const response = await residentAPI.getResidentFamily(props.resident.id)
+    const response = await residentAPI.getResidentFamily(props.resident.id);
     if (response.success) {
-      familyMembers.value = response.data || []
+      familyMembers.value = response.data || [];
     }
   } catch (error) {
-    console.error('获取家庭成员失败:', error)
-    ElMessage.error('获取家庭成员失败')
+    console.error('获取家庭成员失败:', error);
+    ElMessage.error('获取家庭成员失败');
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const showAddMemberDialog = () => {
-  currentMember.value = null
-  memberFormMode.value = 'add'
-  memberFormVisible.value = true
-}
+  currentMember.value = null;
+  memberFormMode.value = 'add';
+  memberFormVisible.value = true;
+};
 
-const editMember = (member) => {
-  currentMember.value = member
-  memberFormMode.value = 'edit'
-  memberFormVisible.value = true
-}
+const editMember = member => {
+  currentMember.value = member;
+  memberFormMode.value = 'edit';
+  memberFormVisible.value = true;
+};
 
-const viewMember = (member) => {
-  currentMember.value = member
-  memberDetailVisible.value = true
-}
+const viewMember = member => {
+  currentMember.value = member;
+  memberDetailVisible.value = true;
+};
 
-const removeMember = async (member) => {
+const removeMember = async member => {
   try {
-    await ElMessageBox.confirm(
-      `确定要移除家庭成员 ${member.name} 吗？`,
-      '移除确认',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
+    await ElMessageBox.confirm(`确定要移除家庭成员 ${member.name} 吗？`, '移除确认', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
 
     // 这里调用移除家庭成员的API
     // const response = await residentAPI.removeFamilyMember(props.resident.id, member.id)
@@ -331,92 +289,95 @@ const removeMember = async (member) => {
     // }
 
     // 临时处理：从列表中移除
-    const index = familyMembers.value.findIndex(m => m.id === member.id)
+    const index = familyMembers.value.findIndex(m => m.id === member.id);
     if (index > -1) {
-      familyMembers.value.splice(index, 1)
-      ElMessage.success('移除成功')
+      familyMembers.value.splice(index, 1);
+      ElMessage.success('移除成功');
     }
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('移除失败')
+      ElMessage.error('移除失败');
     }
   }
-}
+};
 
 const handleMemberSave = () => {
-  memberFormVisible.value = false
-  loadFamilyMembers()
-  emit('refresh')
-}
+  memberFormVisible.value = false;
+  loadFamilyMembers();
+  emit('refresh');
+};
 
 const refreshData = () => {
-  loadFamilyMembers()
-}
+  loadFamilyMembers();
+};
 
 // 工具函数
-const maskIdCard = (idCard) => {
-  if (!idCard) return ''
-  return idCard.replace(/^(.{6}).*(.{4})$/, '$1**********$2')
-}
+const maskIdCard = idCard => {
+  if (!idCard) return '';
+  return idCard.replace(/^(.{6}).*(.{4})$/, '$1**********$2');
+};
 
-const maskPhone = (phone) => {
-  if (!phone) return ''
-  return phone.replace(/^(.{3}).*(.{4})$/, '$1****$2')
-}
+const maskPhone = phone => {
+  if (!phone) return '';
+  return phone.replace(/^(.{3}).*(.{4})$/, '$1****$2');
+};
 
-const getFamilyRoleText = (role) => {
+const getFamilyRoleText = role => {
   const map = {
     head: '户主',
     spouse: '配偶',
     child: '子女',
     parent: '父母',
-    other: '其他'
-  }
-  return map[role] || '未知'
-}
+    other: '其他',
+  };
+  return map[role] || '未知';
+};
 
-const getRelationshipText = (relationship) => {
+const getRelationshipText = relationship => {
   const map = {
     head: '户主',
     spouse: '配偶',
     child: '子女',
     parent: '父母',
     sibling: '兄弟姐妹',
-    other: '其他'
-  }
-  return map[relationship] || '未知'
-}
+    other: '其他',
+  };
+  return map[relationship] || '未知';
+};
 
-const getHealthStatusText = (status) => {
+const getHealthStatusText = status => {
   const map = {
     healthy: '健康',
     chronic: '慢性病',
-    disabled: '残疾'
-  }
-  return map[status] || '未知'
-}
+    disabled: '残疾',
+  };
+  return map[status] || '未知';
+};
 
-const getHealthStatusType = (status) => {
+const getHealthStatusType = status => {
   const map = {
     healthy: 'success',
     chronic: 'warning',
-    disabled: 'danger'
-  }
-  return map[status] || 'info'
-}
+    disabled: 'danger',
+  };
+  return map[status] || 'info';
+};
 
 // 监听对话框显示状态
-watch(() => props.modelValue, (newVal) => {
-  if (newVal && props.resident) {
-    loadFamilyMembers()
+watch(
+  () => props.modelValue,
+  newVal => {
+    if (newVal && props.resident) {
+      loadFamilyMembers();
+    }
   }
-})
+);
 
 onMounted(() => {
   if (props.modelValue && props.resident) {
-    loadFamilyMembers()
+    loadFamilyMembers();
   }
-})
+});
 </script>
 
 <style lang="scss" scoped>

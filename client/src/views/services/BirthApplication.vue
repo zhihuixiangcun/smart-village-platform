@@ -15,47 +15,47 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
-import StepForm from '@/components/common/StepForm.vue'
-import { useLargeText } from '@/composables/useLargeText'
-import { profileApi } from '@/api/residentProfile'
-import { serviceApi } from '@/api/service'
-import { encryptionService } from '@/utils/encryption'
-import { auditLogService } from '@/utils/security'
+import { ref, reactive, onMounted } from 'vue';
+import { ElMessage } from 'element-plus';
+import StepForm from '@/components/common/StepForm.vue';
+import { useLargeText } from '@/composables/useLargeText';
+import { profileApi } from '@/api/residentProfile';
+import { serviceApi } from '@/api/service';
+import { encryptionService } from '@/utils/encryption';
+import { auditLogService } from '@/utils/security';
 
 const props = defineProps({
   service: {
     type: Object,
-    required: true
-  }
-})
+    required: true,
+  },
+});
 
-const emit = defineEmits(['close', 'submitted'])
+const emit = defineEmits(['close', 'submitted']);
 
-const { isLargeText } = useLargeText()
+const { isLargeText } = useLargeText();
 
-const stepFormRef = ref(null)
+const stepFormRef = ref(null);
 
 // 步骤配置
 const steps = [
   {
     title: '基本信息',
-    description: '填写申请人基本资料'
+    description: '填写申请人基本资料',
   },
   {
     title: '生育信息',
-    description: '填写生育相关情况'
+    description: '填写生育相关情况',
   },
   {
     title: '材料上传',
-    description: '上传证明材料'
+    description: '上传证明材料',
   },
   {
     title: '确认提交',
-    description: '核对信息并提交'
-  }
-]
+    description: '核对信息并提交',
+  },
+];
 
 // 表单数据
 const formData = reactive({
@@ -103,21 +103,21 @@ const formData = reactive({
   otherMaterials: [],
 
   // 备注
-  remark: ''
-})
+  remark: '',
+});
 
 // 生育类型选项
-const birthTypes = ['一胎', '二胎', '三胎及以上']
+const birthTypes = ['一胎', '二胎', '三胎及以上'];
 
 // 分娩方式选项
-const deliveryModes = ['顺产', '剖宫产']
+const deliveryModes = ['顺产', '剖宫产'];
 
 // 补贴类型选项
 const subsidyTypes = [
   { label: '生育津贴', value: 'maternity' },
   { label: '陪产假津贴', value: 'paternity' },
-  { label: '育儿假津贴', value: 'parental' }
-]
+  { label: '育儿假津贴', value: 'parental' },
+];
 
 // 组件
 const BasicInfoStep = {
@@ -245,58 +245,66 @@ const BasicInfoStep = {
   props: ['formData'],
   emits: ['update', 'validate', 'voice-input'],
   setup(props, { emit }) {
-    const { Phone } = useElementPlusIcons()
-    const activeTab = ref('mother')
+    const { Phone } = useElementPlusIcons();
+    const activeTab = ref('mother');
 
     const motherRules = {
       motherName: [{ required: true, message: '请输入产妇姓名', trigger: 'blur' }],
       motherIdCard: [
         { required: true, message: '请输入身份证号', trigger: 'blur' },
-        { pattern: /^(\d{15}$|^\d{18}$|^\d{17}(\d|X|x)$)/, message: '请输入正确的身份证号', trigger: 'blur' }
+        {
+          pattern: /^(\d{15}$|^\d{18}$|^\d{17}(\d|X|x)$)/,
+          message: '请输入正确的身份证号',
+          trigger: 'blur',
+        },
       ],
       motherPhone: [
         { required: true, message: '请输入联系电话', trigger: 'blur' },
-        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
+        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' },
       ],
-      motherAddress: [{ required: true, message: '请输入现住址', trigger: 'blur' }]
-    }
+      motherAddress: [{ required: true, message: '请输入现住址', trigger: 'blur' }],
+    };
 
     const fatherRules = {
       fatherName: [{ required: true, message: '请输入配偶姓名', trigger: 'blur' }],
       fatherIdCard: [
         { required: true, message: '请输入身份证号', trigger: 'blur' },
-        { pattern: /^(\d{15}$|^\d{18}$|^\d{17}(\d|X|x)$)/, message: '请输入正确的身份证号', trigger: 'blur' }
+        {
+          pattern: /^(\d{15}$|^\d{18}$|^\d{17}(\d|X|x)$)/,
+          message: '请输入正确的身份证号',
+          trigger: 'blur',
+        },
       ],
       fatherPhone: [
         { required: true, message: '请输入联系电话', trigger: 'blur' },
-        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
-      ]
-    }
+        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' },
+      ],
+    };
 
     // 加载用户信息
     const loadUserInfo = async () => {
       try {
-        const response = await profileApi.getMyProfile()
-        const profile = response.data
+        const response = await profileApi.getMyProfile();
+        const profile = response.data;
 
         if (profile) {
-          props.formData.motherName = profile.personalInfo?.name || ''
-          props.formData.motherIdCard = profile.personalInfo?.idCard || ''
-          props.formData.motherPhone = profile.contact?.phone || ''
-          props.formData.motherAddress = profile.contact?.address || ''
+          props.formData.motherName = profile.personalInfo?.name || '';
+          props.formData.motherIdCard = profile.personalInfo?.idCard || '';
+          props.formData.motherPhone = profile.contact?.phone || '';
+          props.formData.motherAddress = profile.contact?.address || '';
         }
       } catch (error) {
-        console.error('Load user info error:', error)
+        console.error('Load user info error:', error);
       }
-    }
+    };
 
     onMounted(() => {
-      loadUserInfo()
-    })
+      loadUserInfo();
+    });
 
-    return { activeTab, Phone, motherRules, fatherRules }
-  }
-}
+    return { activeTab, Phone, motherRules, fatherRules };
+  },
+};
 
 const BirthInfoStep = {
   template: `
@@ -459,9 +467,9 @@ const BirthInfoStep = {
   props: ['formData'],
   emits: ['update', 'validate'],
   setup(props, { emit }) {
-    const birthTypes = ['一胎', '二胎', '三胎及以上']
-    const deliveryModes = ['顺产', '剖宫产']
-    const selectedSubsidies = ref(['maternity'])
+    const birthTypes = ['一胎', '二胎', '三胎及以上'];
+    const deliveryModes = ['顺产', '剖宫产'];
+    const selectedSubsidies = ref(['maternity']);
 
     const rules = {
       babyName: [{ required: true, message: '请输入婴儿姓名', trigger: 'blur' }],
@@ -471,26 +479,26 @@ const BirthInfoStep = {
       hospitalName: [{ required: true, message: '请输入出生医院', trigger: 'blur' }],
       birthType: [{ required: true, message: '请选择生育类型', trigger: 'change' }],
       deliveryMode: [{ required: true, message: '请选择分娩方式', trigger: 'change' }],
-      babyCount: [{ required: true, message, message: '请输入新生儿数量', trigger: 'blur' }]
-    }
+      babyCount: [{ required: true, message, message: '请输入新生儿数量', trigger: 'blur' }],
+    };
 
-    const handleMultipleChange = (val) => {
+    const handleMultipleChange = val => {
       if (val && props.formData.babyCount < 2) {
-        props.formData.babyCount = 2
+        props.formData.babyCount = 2;
       }
-    }
+    };
 
     // 监听补贴选择
-    watch(selectedSubsidies, (newVal) => {
+    watch(selectedSubsidies, newVal => {
       if (newVal.length === 0) {
         // 至少选择一项
-        selectedSubsidies.value = ['maternity']
+        selectedSubsidies.value = ['maternity'];
       }
-    })
+    });
 
-    return { birthTypes, deliveryModes, selectedSubsidies, rules, handleMultipleChange }
-  }
-}
+    return { birthTypes, deliveryModes, selectedSubsidies, rules, handleMultipleChange };
+  },
+};
 
 const UploadStep = {
   template: `
@@ -605,16 +613,16 @@ const UploadStep = {
   emits: ['update', 'validate'],
   setup(props, { emit }) {
     const handleUpdate = () => {
-      emit('update', { ...props.formData })
-    }
+      emit('update', { ...props.formData });
+    };
 
-    const handleValidate = (isValid) => {
-      emit('validate', isValid)
-    }
+    const handleValidate = isValid => {
+      emit('validate', isValid);
+    };
 
-    return { handleUpdate, handleValidate }
-  }
-}
+    return { handleUpdate, handleValidate };
+  },
+};
 
 const ConfirmStep = {
   template: `
@@ -717,57 +725,57 @@ const ConfirmStep = {
   props: ['formData'],
   emits: ['validate'],
   setup(props, { emit }) {
-    const confirmed = ref(false)
-    const subsidies = ref(['maternity'])
+    const confirmed = ref(false);
+    const subsidies = ref(['maternity']);
 
-    const maskIdCard = (idCard) => {
-      if (!idCard) return ''
-      return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2')
-    }
+    const maskIdCard = idCard => {
+      if (!idCard) return '';
+      return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2');
+    };
 
-    const maskBankCard = (card) => {
-      if (!card) return ''
-      return card.replace(/(\d{4})\d+(\d{4})/, '$1 **** **** $2')
-    }
+    const maskBankCard = card => {
+      if (!card) return '';
+      return card.replace(/(\d{4})\d+(\d{4})/, '$1 **** **** $2');
+    };
 
-    const getSubsidyLabel = (subsidy) => {
+    const getSubsidyLabel = subsidy => {
       const map = {
         maternity: '生育津贴',
         paternity: '陪产假津贴',
-        parental: '育儿假津贴'
-      }
-      return map[subsidy] || subsidy
-    }
+        parental: '育儿假津贴',
+      };
+      return map[subsidy] || subsidy;
+    };
 
     const getUploadedFiles = () => {
-      const files = []
+      const files = [];
       if (props.formData.motherIdCardPhotos?.length) {
-        files.push({ name: '产妇身份证' })
+        files.push({ name: '产妇身份证' });
       }
       if (props.formData.fatherIdCardPhotos?.length) {
-        files.push({ name: '配偶身份证' })
+        files.push({ name: '配偶身份证' });
       }
       if (props.formData.marriageCertificate?.length) {
-        files.push({ name: '结婚证' })
+        files.push({ name: '结婚证' });
       }
       if (props.formData.householdPhotos?.length) {
-        files.push({ name: '户口本' })
+        files.push({ name: '户口本' });
       }
       if (props.formData.birthCertificate?.length) {
-        files.push({ name: '出生医学证明' })
+        files.push({ name: '出生医学证明' });
       }
       if (props.formData.hospitalProof?.length) {
-        files.push({ name: '医院证明' })
+        files.push({ name: '医院证明' });
       }
       if (props.formData.otherMaterials?.length) {
-        files.push({ name: '其他材料' })
+        files.push({ name: '其他材料' });
       }
-      return files
-    }
+      return files;
+    };
 
-    const handleConfirmChange = (val) => {
-      emit('validate', val)
-    }
+    const handleConfirmChange = val => {
+      emit('validate', val);
+    };
 
     return {
       confirmed,
@@ -776,29 +784,29 @@ const ConfirmStep = {
       maskBankCard,
       getSubsidyLabel,
       getUploadedFiles,
-      handleConfirmChange
-    }
-  }
-}
+      handleConfirmChange,
+    };
+  },
+};
 
 // 处理数据更新
-const handleUpdate = (data) => {
-  Object.assign(formData, data)
-}
+const handleUpdate = data => {
+  Object.assign(formData, data);
+};
 
 // 处理语音输入
 const handleVoiceInput = (field, text) => {
   if (field === 'motherName') {
-    const nameMatch = text.match(/(?:我叫|我是|姓名是)([\u4e00-\u9fa5]{2,4})/)
+    const nameMatch = text.match(/(?:我叫|我是|姓名是)([\u4e00-\u9fa5]{2,4})/);
     if (nameMatch) {
-      formData.motherName = nameMatch[1]
-      ElMessage.success(`已识别姓名: ${formData.motherName}`)
+      formData.motherName = nameMatch[1];
+      ElMessage.success(`已识别姓名: ${formData.motherName}`);
     }
   }
-}
+};
 
 // 提交申请
-const handleSubmit = async (data) => {
+const handleSubmit = async data => {
   try {
     // 加密敏感信息
     const encryptedData = {
@@ -807,26 +815,26 @@ const handleSubmit = async (data) => {
       motherPhone: encryptionService.encrypt(data.motherPhone),
       fatherIdCard: encryptionService.encrypt(data.fatherIdCard),
       fatherPhone: encryptionService.encrypt(data.fatherPhone),
-      bankAccount: encryptionService.encrypt(data.bankAccount)
-    }
+      bankAccount: encryptionService.encrypt(data.bankAccount),
+    };
 
     await serviceApi.submitBirthApplication({
       ...encryptedData,
       serviceType: 'birth',
-      serviceName: '生育补贴申请'
-    })
+      serviceName: '生育补贴申请',
+    });
 
     // 记录操作日志
-    await auditLogService.logApplicationSubmit('birth', '生育补贴申请')
+    await auditLogService.logApplicationSubmit('birth', '生育补贴申请');
 
-    ElMessage.success('申请已提交,请耐心等待审核')
-    emit('submitted', data)
-    emit('close')
+    ElMessage.success('申请已提交,请耐心等待审核');
+    emit('submitted', data);
+    emit('close');
   } catch (error) {
-    ElMessage.error('提交失败: ' + error.message)
-    throw error
+    ElMessage.error('提交失败: ' + error.message);
+    throw error;
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>

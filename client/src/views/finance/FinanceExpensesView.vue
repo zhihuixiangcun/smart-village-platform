@@ -24,9 +24,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref } from 'vue';
 
-const title = ref('支出管理')
+const title = ref('支出管理');
 </script>
 
 <style lang="scss" scoped>

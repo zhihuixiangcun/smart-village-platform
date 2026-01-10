@@ -7,12 +7,14 @@
           <div class="header-left">
             <div class="household-code">
               <el-tag type="primary" size="small">{{ household.codeId }}</el-tag>
-              <el-tag v-if="household.specialTags.length > 0"
-                     v-for="tag in household.specialTags.slice(0, 2)"
-                     :key="tag"
-                     type="warning"
-                     size="small"
-                     class="ml-1">
+              <el-tag
+                v-if="household.specialTags.length > 0"
+                v-for="tag in household.specialTags.slice(0, 2)"
+                :key="tag"
+                type="warning"
+                size="small"
+                class="ml-1"
+              >
                 {{ tag }}
               </el-tag>
             </div>
@@ -30,7 +32,9 @@
                 <el-dropdown-menu>
                   <el-dropdown-item command="view">查看详情</el-dropdown-item>
                   <el-dropdown-item command="edit" v-if="canEdit">编辑信息</el-dropdown-item>
-                  <el-dropdown-item command="qrcode" v-if="canGenerateQR">生成二维码</el-dropdown-item>
+                  <el-dropdown-item command="qrcode" v-if="canGenerateQR"
+                    >生成二维码</el-dropdown-item
+                  >
                   <el-dropdown-item command="verify" v-if="canVerify">血缘验证</el-dropdown-item>
                   <el-dropdown-item command="history" divided>变更历史</el-dropdown-item>
                 </el-dropdown-menu>
@@ -47,7 +51,9 @@
           <div class="info-item">
             <el-icon class="info-icon"><User /></el-icon>
             <span class="info-label">家庭成员:</span>
-            <span class="info-value">{{ household.totalMembers || household.members.length + 1 }}人</span>
+            <span class="info-value"
+              >{{ household.totalMembers || household.members.length + 1 }}人</span
+            >
           </div>
           <div class="info-item">
             <el-icon class="info-icon"><Location /></el-icon>
@@ -69,9 +75,11 @@
             <el-badge :value="household.members.length" type="info" />
           </div>
           <div class="members-list">
-            <div v-for="member in household.members.slice(0, 3)"
-                 :key="member.idCard"
-                 class="member-item">
+            <div
+              v-for="member in household.members.slice(0, 3)"
+              :key="member.idCard"
+              class="member-item"
+            >
               <el-avatar :size="32" class="member-avatar">
                 {{ member.name.charAt(0) }}
               </el-avatar>
@@ -93,11 +101,13 @@
             <span>特殊标签</span>
           </div>
           <div class="tags-container">
-            <el-tag v-for="tag in household.specialTags"
-                    :key="tag"
-                    :type="getTagType(tag)"
-                    size="small"
-                    effect="light">
+            <el-tag
+              v-for="tag in household.specialTags"
+              :key="tag"
+              :type="getTagType(tag)"
+              size="small"
+              effect="light"
+            >
               {{ tag }}
             </el-tag>
           </div>
@@ -115,7 +125,8 @@
               :color="getQRUsageColor(household.qrCode)"
               :show-text="false"
               :stroke-width="6"
-              class="qr-progress" />
+              class="qr-progress"
+            />
             <div class="qr-details">
               <span>已使用: {{ household.qrCode.usageCount }}/{{ household.qrCode.maxUsage }}</span>
               <el-tag :type="isQRExpired(household.qrCode) ? 'danger' : 'success'" size="small">
@@ -153,175 +164,186 @@
     <HouseholdDetailDialog
       v-model="detailDialogVisible"
       :household="household"
-      @updated="handleHouseholdUpdated" />
+      @updated="handleHouseholdUpdated"
+    />
 
     <!-- 血缘关系验证弹窗 -->
-    <BloodRelationVerifyDialog
-      v-model="verifyDialogVisible"
-      :household="household" />
+    <BloodRelationVerifyDialog v-model="verifyDialogVisible" :household="household" />
 
     <!-- 二维码生成弹窗 -->
     <QRCodeGenerateDialog
       v-model="qrDialogVisible"
       :household="household"
-      @generated="handleQRGenerated" />
+      @generated="handleQRGenerated"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, defineProps, defineEmits } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, computed, defineProps, defineEmits } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
-  User, Location, Phone, Users, CollectionTag, QrCode,
-  MoreFilled, View, Connection
-} from '@element-plus/icons-vue'
-import HouseholdDetailDialog from './HouseholdDetailDialog.vue'
-import BloodRelationVerifyDialog from './BloodRelationVerifyDialog.vue'
-import QRCodeGenerateDialog from './QRCodeGenerateDialog.vue'
-import { useUserStore } from '@/stores/user'
+  User,
+  Location,
+  Phone,
+  Users,
+  CollectionTag,
+  QrCode,
+  MoreFilled,
+  View,
+  Connection,
+} from '@element-plus/icons-vue';
+import HouseholdDetailDialog from './HouseholdDetailDialog.vue';
+import BloodRelationVerifyDialog from './BloodRelationVerifyDialog.vue';
+import QRCodeGenerateDialog from './QRCodeGenerateDialog.vue';
+import { useUserStore } from '@/stores/user';
 
 // Props
 const props = defineProps({
   household: {
     type: Object,
-    required: true
+    required: true,
   },
   elevated: {
     type: Boolean,
-    default: false
-  }
-})
+    default: false,
+  },
+});
 
 // Emits
-const emit = defineEmits(['updated', 'qr-generated', 'relation-verified'])
+const emit = defineEmits(['updated', 'qr-generated', 'relation-verified']);
 
 // Store
-const userStore = useUserStore()
+const userStore = useUserStore();
 
 // Refs
-const detailDialogVisible = ref(false)
-const verifyDialogVisible = ref(false)
-const qrDialogVisible = ref(false)
+const detailDialogVisible = ref(false);
+const verifyDialogVisible = ref(false);
+const qrDialogVisible = ref(false);
 
 // Computed
 const canEdit = computed(() => {
-  return userStore.hasRole(['village_admin', 'department_head']) ||
-         userStore.villageId === props.household.villageId
-})
+  return (
+    userStore.hasRole(['village_admin', 'department_head']) ||
+    userStore.villageId === props.household.villageId
+  );
+});
 
 const canGenerateQR = computed(() => {
-  return userStore.hasRole(['village_admin', 'department_head']) ||
-         (userStore.hasRole(['villager']) && userStore.villageId === props.household.villageId)
-})
+  return (
+    userStore.hasRole(['village_admin', 'department_head']) ||
+    (userStore.hasRole(['villager']) && userStore.villageId === props.household.villageId)
+  );
+});
 
 const canVerify = computed(() => {
-  return userStore.hasRole(['villager', 'village_admin', 'department_head'])
-})
+  return userStore.hasRole(['villager', 'village_admin', 'department_head']);
+});
 
 // Methods
-const formatAddress = (address) => {
-  if (!address) return '未知地址'
+const formatAddress = address => {
+  if (!address) return '未知地址';
   const parts = [
     address.province,
     address.city,
     address.county,
     address.township,
     address.village,
-    address.detailed
-  ].filter(Boolean)
-  return parts.join(' ') || '地址信息不完整'
-}
+    address.detailed,
+  ].filter(Boolean);
+  return parts.join(' ') || '地址信息不完整';
+};
 
-const formatPhone = (phone) => {
-  if (!phone) return '未提供'
-  return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')
-}
+const formatPhone = phone => {
+  if (!phone) return '未提供';
+  return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
+};
 
-const getTagType = (tag) => {
+const getTagType = tag => {
   const typeMap = {
-    '党员家庭': 'danger',
-    '军属家庭': 'warning',
-    '低保户': 'info',
-    '五保户': 'info',
-    '文明家庭': 'success',
-    '卫生家庭': 'success',
-    '安全家庭': 'success'
-  }
-  return typeMap[tag] || 'primary'
-}
+    党员家庭: 'danger',
+    军属家庭: 'warning',
+    低保户: 'info',
+    五保户: 'info',
+    文明家庭: 'success',
+    卫生家庭: 'success',
+    安全家庭: 'success',
+  };
+  return typeMap[tag] || 'primary';
+};
 
-const getQRUsagePercentage = (qrCode) => {
-  if (!qrCode || !qrCode.maxUsage) return 0
-  return Math.round((qrCode.usageCount / qrCode.maxUsage) * 100)
-}
+const getQRUsagePercentage = qrCode => {
+  if (!qrCode || !qrCode.maxUsage) return 0;
+  return Math.round((qrCode.usageCount / qrCode.maxUsage) * 100);
+};
 
-const getQRUsageColor = (qrCode) => {
-  const percentage = getQRUsagePercentage(qrCode)
-  if (percentage >= 80) return '#f56c6c'
-  if (percentage >= 60) return '#e6a23c'
-  return '#67c23a'
-}
+const getQRUsageColor = qrCode => {
+  const percentage = getQRUsagePercentage(qrCode);
+  if (percentage >= 80) return '#f56c6c';
+  if (percentage >= 60) return '#e6a23c';
+  return '#67c23a';
+};
 
-const isQRExpired = (qrCode) => {
-  if (!qrCode || !qrCode.expiryDate) return false
-  return new Date() > new Date(qrCode.expiryDate)
-}
+const isQRExpired = qrCode => {
+  if (!qrCode || !qrCode.expiryDate) return false;
+  return new Date() > new Date(qrCode.expiryDate);
+};
 
-const handleCommand = (command) => {
+const handleCommand = command => {
   switch (command) {
     case 'view':
-      handleViewDetails()
-      break
+      handleViewDetails();
+      break;
     case 'edit':
-      handleEdit()
-      break
+      handleEdit();
+      break;
     case 'qrcode':
-      handleGenerateQR()
-      break
+      handleGenerateQR();
+      break;
     case 'verify':
-      handleVerifyRelation()
-      break
+      handleVerifyRelation();
+      break;
     case 'history':
-      handleViewHistory()
-      break
+      handleViewHistory();
+      break;
   }
-}
+};
 
 const handleViewDetails = () => {
-  detailDialogVisible.value = true
-}
+  detailDialogVisible.value = true;
+};
 
 const handleEdit = () => {
   // 这里可以跳转到编辑页面或打开编辑弹窗
-  emit('edit', props.household)
-}
+  emit('edit', props.household);
+};
 
 const handleGenerateQR = () => {
-  qrDialogVisible.value = true
-}
+  qrDialogVisible.value = true;
+};
 
 const handleVerifyRelation = () => {
-  verifyDialogVisible.value = true
-}
+  verifyDialogVisible.value = true;
+};
 
 const handleViewHistory = () => {
   // 查看变更历史
-  emit('view-history', props.household)
-}
+  emit('view-history', props.household);
+};
 
-const handleHouseholdUpdated = (updatedHousehold) => {
-  emit('updated', updatedHousehold)
-  ElMessage.success('家庭信息更新成功')
-}
+const handleHouseholdUpdated = updatedHousehold => {
+  emit('updated', updatedHousehold);
+  ElMessage.success('家庭信息更新成功');
+};
 
-const handleQRGenerated = (qrData) => {
-  emit('qr-generated', qrData)
-  ElMessage.success('二维码生成成功')
-}
+const handleQRGenerated = qrData => {
+  emit('qr-generated', qrData);
+  ElMessage.success('二维码生成成功');
+};
 
-const handleRelationVerified = (verificationResult) => {
-  emit('relation-verified', verificationResult)
-}
+const handleRelationVerified = verificationResult => {
+  emit('relation-verified', verificationResult);
+};
 </script>
 
 <style scoped>

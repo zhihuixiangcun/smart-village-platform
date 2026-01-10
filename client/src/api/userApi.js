@@ -29,7 +29,7 @@ const userApi = {
    * 获取用户详情
    * @param {string} userId 用户ID
    */
-  getUserDetail: async (userId) => {
+  getUserDetail: async userId => {
     const response = await axios.get(`${API_BASE_URL}/api/v1/users/${userId}`);
     return response.data;
   },
@@ -38,7 +38,7 @@ const userApi = {
    * 创建用户
    * @param {Object} userData 用户数据
    */
-  createUser: async (userData) => {
+  createUser: async userData => {
     const response = await axios.post(`${API_BASE_URL}/api/v1/users`, userData);
     return response.data;
   },
@@ -57,7 +57,7 @@ const userApi = {
    * 删除用户
    * @param {string} userId 用户ID
    */
-  deleteUser: async (userId) => {
+  deleteUser: async userId => {
     const response = await axios.delete(`${API_BASE_URL}/api/v1/users/${userId}`);
     return response.data;
   },
@@ -66,7 +66,7 @@ const userApi = {
    * 重置用户密码
    * @param {string} userId 用户ID
    */
-  resetPassword: async (userId) => {
+  resetPassword: async userId => {
     const response = await axios.post(`${API_BASE_URL}/api/v1/users/${userId}/reset-password`);
     return response.data;
   },
@@ -79,7 +79,7 @@ const userApi = {
   toggleUserStatus: async (userId, enabled) => {
     const response = await axios.put(`${API_BASE_URL}/api/v1/users/${userId}/status`, { enabled });
     return response.data;
-  }
+  },
 };
 
 export default userApi;

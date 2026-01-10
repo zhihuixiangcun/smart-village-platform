@@ -10,7 +10,7 @@ export function useResponsive() {
   const breakpoints = {
     mobile: 768,
     tablet: 1024,
-    desktop: 1440
+    desktop: 1440,
   };
 
   const updateScreenSize = () => {
@@ -18,7 +18,8 @@ export function useResponsive() {
     screenHeight.value = window.innerHeight;
 
     isMobile.value = screenWidth.value < breakpoints.mobile;
-    isTablet.value = screenWidth.value >= breakpoints.mobile && screenWidth.value < breakpoints.tablet;
+    isTablet.value =
+      screenWidth.value >= breakpoints.mobile && screenWidth.value < breakpoints.tablet;
     isDesktop.value = screenWidth.value >= breakpoints.tablet;
   };
 
@@ -54,7 +55,7 @@ export function useResponsive() {
       top: parseInt(style.getPropertyValue('env(safe-area-inset-top)')) || 0,
       right: parseInt(style.getPropertyValue('env(safe-area-inset-right)')) || 0,
       bottom: parseInt(style.getPropertyValue('env(safe-area-inset-bottom)')) || 0,
-      left: parseInt(style.getPropertyValue('env(safe-area-inset-left)')) || 0
+      left: parseInt(style.getPropertyValue('env(safe-area-inset-left)')) || 0,
     };
   };
 
@@ -81,6 +82,6 @@ export function useResponsive() {
     isTouchDevice,
     getViewportHeight,
     getSafeAreaInsets,
-    breakpoints
+    breakpoints,
   };
 }

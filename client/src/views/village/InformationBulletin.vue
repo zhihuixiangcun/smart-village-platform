@@ -132,7 +132,7 @@
           v-for="item in filteredBulletins"
           :key="item.id"
           class="bulletin-card"
-          :class="{ 'urgent': item.priority === 'urgent', 'unread': !item.isRead }"
+          :class="{ urgent: item.priority === 'urgent', unread: !item.isRead }"
         >
           <div class="bulletin-header">
             <div class="bulletin-meta">
@@ -150,7 +150,7 @@
                 <el-icon><View /></el-icon>
                 标记未读
               </el-button>
-              <el-dropdown @command="(command) => handleItemAction(command, item)">
+              <el-dropdown @command="command => handleItemAction(command, item)">
                 <el-button type="text" size="small">
                   <el-icon><MoreFilled /></el-icon>
                 </el-button>
@@ -273,20 +273,18 @@
           >
             <el-button type="primary">选择文件</el-button>
             <template #tip>
-              <div class="el-upload__tip">
-                支持jpg/png/pdf/doc/docx格式，单个文件不超过10MB
-              </div>
+              <div class="el-upload__tip">支持jpg/png/pdf/doc/docx格式，单个文件不超过10MB</div>
             </template>
           </el-upload>
         </el-form-item>
 
         <el-form-item label="语音播报">
-          <el-switch
-            v-model="publishForm.enableVoice"
-            active-text="开启"
-            inactive-text="关闭"
-          />
-          <el-select v-if="publishForm.enableVoice" v-model="publishForm.voiceStyle" style="margin-left: 1rem">
+          <el-switch v-model="publishForm.enableVoice" active-text="开启" inactive-text="关闭" />
+          <el-select
+            v-if="publishForm.enableVoice"
+            v-model="publishForm.voiceStyle"
+            style="margin-left: 1rem"
+          >
             <el-option label="标准播报" value="standard" />
             <el-option label="方言播报" value="dialect" />
           </el-select>
@@ -308,11 +306,7 @@
     </el-dialog>
 
     <!-- 政策计算器对话框 -->
-    <el-dialog
-      v-model="calculatorDialogVisible"
-      title="政策计算器"
-      width="700px"
-    >
+    <el-dialog v-model="calculatorDialogVisible" title="政策计算器" width="700px">
       <div class="calculator-content">
         <el-form :model="calculatorForm" label-width="120px">
           <el-form-item label="政策类型">
@@ -326,18 +320,33 @@
           </el-form-item>
 
           <el-form-item v-if="calculatorForm.policyType === 'land_subsidy'" label="耕地面积">
-            <el-input-number v-model="calculatorForm.landArea" placeholder="请输入耕地面积" :min="0" />
-            <span style="margin-left: 10px;">亩</span>
+            <el-input-number
+              v-model="calculatorForm.landArea"
+              placeholder="请输入耕地面积"
+              :min="0"
+            />
+            <span style="margin-left: 10px">亩</span>
           </el-form-item>
 
-          <el-form-item v-if="calculatorForm.policyType === 'agricultural_subsidy'" label="农业人口">
-            <el-input-number v-model="calculatorForm.agriculturalPopulation" placeholder="请输入农业人口数" :min="0" />
-            <span style="margin-left: 10px;">人</span>
+          <el-form-item
+            v-if="calculatorForm.policyType === 'agricultural_subsidy'"
+            label="农业人口"
+          >
+            <el-input-number
+              v-model="calculatorForm.agriculturalPopulation"
+              placeholder="请输入农业人口数"
+              :min="0"
+            />
+            <span style="margin-left: 10px">人</span>
           </el-form-item>
 
           <el-form-item v-if="calculatorForm.policyType === 'low_income_subsidy'" label="家庭人口">
-            <el-input-number v-model="calculatorForm.familySize" placeholder="请输入家庭人口数" :min="1" />
-            <span style="margin-left: 10px;">人</span>
+            <el-input-number
+              v-model="calculatorForm.familySize"
+              placeholder="请输入家庭人口数"
+              :min="1"
+            />
+            <span style="margin-left: 10px">人</span>
           </el-form-item>
 
           <el-form-item>
@@ -369,8 +378,8 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
   EditPen,
   Calculator,
@@ -387,24 +396,24 @@ import {
   Share,
   Top,
   Delete,
-  Paperclip
-} from '@element-plus/icons-vue'
+  Paperclip,
+} from '@element-plus/icons-vue';
 
 // 响应式数据
-const selectedCategory = ref('')
-const searchKeyword = ref('')
-const filterType = ref('')
-const filterPriority = ref('')
-const dateRange = ref([])
-const publishDialogVisible = ref(false)
-const calculatorDialogVisible = ref(false)
+const selectedCategory = ref('');
+const searchKeyword = ref('');
+const filterType = ref('');
+const filterPriority = ref('');
+const dateRange = ref([]);
+const publishDialogVisible = ref(false);
+const calculatorDialogVisible = ref(false);
 
 const statistics = reactive({
   announcements: 156,
   policies: 89,
   todayPublished: 5,
-  unreadCount: 23
-})
+  unreadCount: 23,
+});
 
 const categories = [
   { label: '全部', value: '' },
@@ -413,8 +422,8 @@ const categories = [
   { label: '财务公开', value: 'finance_disclosure' },
   { label: '项目进展', value: 'project_progress' },
   { label: '便民服务', value: 'service_info' },
-  { label: '应急通知', value: 'emergency_notice' }
-]
+  { label: '应急通知', value: 'emergency_notice' },
+];
 
 const bulletins = ref([
   {
@@ -431,8 +440,8 @@ const bulletins = ref([
     isTop: true,
     attachments: [
       { name: '春耕生产方案.pdf', size: '2.3MB' },
-      { name: '农业补贴标准.docx', size: '156KB' }
-    ]
+      { name: '农业补贴标准.docx', size: '156KB' },
+    ],
   },
   {
     id: 2,
@@ -446,7 +455,7 @@ const bulletins = ref([
     readCount: 89,
     isRead: false,
     isTop: false,
-    attachments: []
+    attachments: [],
   },
   {
     id: 3,
@@ -460,15 +469,15 @@ const bulletins = ref([
     readCount: 234,
     isRead: false,
     isTop: true,
-    attachments: []
-  }
-])
+    attachments: [],
+  },
+]);
 
 const pagination = reactive({
   currentPage: 1,
   pageSize: 20,
-  total: 0
-})
+  total: 0,
+});
 
 // 发布表单
 const publishForm = reactive({
@@ -480,190 +489,189 @@ const publishForm = reactive({
   attachments: [],
   enableVoice: false,
   voiceStyle: 'standard',
-  settings: ['立即发布']
-})
+  settings: ['立即发布'],
+});
 
 const publishRules = {
   title: [{ required: true, message: '请输入标题', trigger: 'blur' }],
   type: [{ required: true, message: '请选择类型', trigger: 'change' }],
   category: [{ required: true, message: '请选择分类', trigger: 'change' }],
-  content: [{ required: true, message: '请输入内容', trigger: 'blur' }]
-}
+  content: [{ required: true, message: '请输入内容', trigger: 'blur' }],
+};
 
-const publishFormRef = ref(null)
+const publishFormRef = ref(null);
 
 // 政策计算器表单
 const calculatorForm = reactive({
   policyType: '',
   landArea: 0,
   agriculturalPopulation: 0,
-  familySize: 0
-})
+  familySize: 0,
+});
 
 const calculatorResult = reactive({
   standard: 0,
   base: '',
-  amount: 0
-})
+  amount: 0,
+});
 
 // 计算属性
 const filteredBulletins = computed(() => {
   return bulletins.value.filter(bulletin => {
-    const matchCategory = !selectedCategory.value || bulletin.category === selectedCategory.value
-    const matchKeyword = !searchKeyword.value ||
+    const matchCategory = !selectedCategory.value || bulletin.category === selectedCategory.value;
+    const matchKeyword =
+      !searchKeyword.value ||
       bulletin.title.includes(searchKeyword.value) ||
-      bulletin.summary.includes(searchKeyword.value)
-    const matchType = !filterType.value || bulletin.type === filterType.value
-    const matchPriority = !filterPriority.value || bulletin.priority === filterPriority.value
+      bulletin.summary.includes(searchKeyword.value);
+    const matchType = !filterType.value || bulletin.type === filterType.value;
+    const matchPriority = !filterPriority.value || bulletin.priority === filterPriority.value;
 
-    return matchCategory && matchKeyword && matchType && matchPriority
-  })
-})
+    return matchCategory && matchKeyword && matchType && matchPriority;
+  });
+});
 
 // 方法
-const selectCategory = (category) => {
-  selectedCategory.value = category
-}
+const selectCategory = category => {
+  selectedCategory.value = category;
+};
 
-const getTypeColor = (type) => {
+const getTypeColor = type => {
   const colorMap = {
-    'announcement': 'primary',
-    'policy': 'success',
-    'village': 'info',
-    'finance': 'warning',
-    'project': 'danger'
-  }
-  return colorMap[type] || 'info'
-}
+    announcement: 'primary',
+    policy: 'success',
+    village: 'info',
+    finance: 'warning',
+    project: 'danger',
+  };
+  return colorMap[type] || 'info';
+};
 
-const getTypeText = (type) => {
+const getTypeText = type => {
   const textMap = {
-    'announcement': '公告通知',
-    'policy': '政策文件',
-    'village': '村务公开',
-    'finance': '财务公示',
-    'project': '项目公示'
-  }
-  return textMap[type] || type
-}
+    announcement: '公告通知',
+    policy: '政策文件',
+    village: '村务公开',
+    finance: '财务公示',
+    project: '项目公示',
+  };
+  return textMap[type] || type;
+};
 
-const getCategoryText = (category) => {
+const getCategoryText = category => {
   const textMap = {
-    'village_notice': '村务通知',
-    'policy_regulation': '政策法规',
-    'finance_disclosure': '财务公开',
-    'project_progress': '项目进展',
-    'service_info': '便民服务',
-    'emergency_notice': '应急通知'
-  }
-  return textMap[category] || category
-}
+    village_notice: '村务通知',
+    policy_regulation: '政策法规',
+    finance_disclosure: '财务公开',
+    project_progress: '项目进展',
+    service_info: '便民服务',
+    emergency_notice: '应急通知',
+  };
+  return textMap[category] || category;
+};
 
-const formatDate = (date) => {
+const formatDate = date => {
   if (typeof date === 'string') {
-    date = new Date(date)
+    date = new Date(date);
   }
-  return date.toLocaleDateString() + ' ' + date.toLocaleTimeString().slice(0, 5)
-}
+  return date.toLocaleDateString() + ' ' + date.toLocaleTimeString().slice(0, 5);
+};
 
 const handleSearch = () => {
-  pagination.currentPage = 1
-}
+  pagination.currentPage = 1;
+};
 
-const handleSizeChange = (size) => {
-  pagination.pageSize = size
-  handleSearch()
-}
+const handleSizeChange = size => {
+  pagination.pageSize = size;
+  handleSearch();
+};
 
-const handleCurrentChange = (page) => {
-  pagination.currentPage = page
-}
+const handleCurrentChange = page => {
+  pagination.currentPage = page;
+};
 
-const viewBulletin = (bulletin) => {
-  bulletin.isRead = true
-  ElMessage.success(`正在查看: ${bulletin.title}`)
-}
+const viewBulletin = bulletin => {
+  bulletin.isRead = true;
+  ElMessage.success(`正在查看: ${bulletin.title}`);
+};
 
-const markAsUnread = (bulletin) => {
-  bulletin.isRead = false
-  ElMessage.success('已标记为未读')
-}
+const markAsUnread = bulletin => {
+  bulletin.isRead = false;
+  ElMessage.success('已标记为未读');
+};
 
 const handleItemAction = (command, bulletin) => {
   switch (command) {
     case 'edit':
-      editBulletin(bulletin)
-      break
+      editBulletin(bulletin);
+      break;
     case 'share':
-      shareBulletin(bulletin)
-      break
+      shareBulletin(bulletin);
+      break;
     case 'voice':
-      voiceBroadcast(bulletin)
-      break
+      voiceBroadcast(bulletin);
+      break;
     case 'top':
-      setTopBulletin(bulletin)
-      break
+      setTopBulletin(bulletin);
+      break;
     case 'delete':
-      deleteBulletin(bulletin)
-      break
+      deleteBulletin(bulletin);
+      break;
   }
-}
+};
 
-const editBulletin = (bulletin) => {
+const editBulletin = bulletin => {
   Object.assign(publishForm, {
     title: bulletin.title,
     type: bulletin.type,
     category: bulletin.category,
     priority: bulletin.priority,
-    content: bulletin.summary
+    content: bulletin.summary,
+  });
+  publishDialogVisible.value = true;
+};
+
+const shareBulletin = bulletin => {
+  ElMessage.success(`已分享: ${bulletin.title}`);
+};
+
+const voiceBroadcast = bulletin => {
+  ElMessage.success(`开始语音播报: ${bulletin.title}`);
+};
+
+const setTopBulletin = bulletin => {
+  bulletin.isTop = !bulletin.isTop;
+  ElMessage.success(bulletin.isTop ? '已置顶' : '已取消置顶');
+};
+
+const deleteBulletin = bulletin => {
+  ElMessageBox.confirm(`确定要删除"${bulletin.title}"吗？`, '删除确认', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
   })
-  publishDialogVisible.value = true
-}
-
-const shareBulletin = (bulletin) => {
-  ElMessage.success(`已分享: ${bulletin.title}`)
-}
-
-const voiceBroadcast = (bulletin) => {
-  ElMessage.success(`开始语音播报: ${bulletin.title}`)
-}
-
-const setTopBulletin = (bulletin) => {
-  bulletin.isTop = !bulletin.isTop
-  ElMessage.success(bulletin.isTop ? '已置顶' : '已取消置顶')
-}
-
-const deleteBulletin = (bulletin) => {
-  ElMessageBox.confirm(
-    `确定要删除"${bulletin.title}"吗？`,
-    '删除确认',
-    {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }
-  ).then(() => {
-    const index = bulletins.value.findIndex(b => b.id === bulletin.id)
-    if (index !== -1) {
-      bulletins.value.splice(index, 1)
-      ElMessage.success('删除成功')
-    }
-  }).catch(() => {})
-}
+    .then(() => {
+      const index = bulletins.value.findIndex(b => b.id === bulletin.id);
+      if (index !== -1) {
+        bulletins.value.splice(index, 1);
+        ElMessage.success('删除成功');
+      }
+    })
+    .catch(() => {});
+};
 
 const showPublishDialog = () => {
-  publishDialogVisible.value = true
-  resetPublishForm()
-}
+  publishDialogVisible.value = true;
+  resetPublishForm();
+};
 
 const showPolicyCalculator = () => {
-  calculatorDialogVisible.value = true
-  resetCalculatorForm()
-}
+  calculatorDialogVisible.value = true;
+  resetCalculatorForm();
+};
 
 const showVoiceSettings = () => {
-  ElMessage.info('语音设置功能开发中...')
-}
+  ElMessage.info('语音设置功能开发中...');
+};
 
 const resetPublishForm = () => {
   Object.assign(publishForm, {
@@ -675,18 +683,18 @@ const resetPublishForm = () => {
     attachments: [],
     enableVoice: false,
     voiceStyle: 'standard',
-    settings: ['立即发布']
-  })
+    settings: ['立即发布'],
+  });
   if (publishFormRef.value) {
-    publishFormRef.value.resetFields()
+    publishFormRef.value.resetFields();
   }
-}
+};
 
 const publishBulletin = async () => {
-  if (!publishFormRef.value) return
+  if (!publishFormRef.value) return;
 
   try {
-    await publishFormRef.value.validate()
+    await publishFormRef.value.validate();
 
     const newBulletin = {
       id: Date.now(),
@@ -695,85 +703,91 @@ const publishBulletin = async () => {
       publishTime: new Date(),
       readCount: 0,
       isRead: false,
-      isTop: false
-    }
+      isTop: false,
+    };
 
-    bulletins.value.unshift(newBulletin)
-    publishDialogVisible.value = false
-    ElMessage.success('公告发布成功')
+    bulletins.value.unshift(newBulletin);
+    publishDialogVisible.value = false;
+    ElMessage.success('公告发布成功');
 
     if (publishForm.settings.includes('短信通知')) {
-      ElMessage.info('短信通知已发送')
+      ElMessage.info('短信通知已发送');
     }
   } catch (error) {
-    console.error('表单验证失败:', error)
+    console.error('表单验证失败:', error);
   }
-}
+};
 
 const handleFileChange = (file, fileList) => {
-  publishForm.attachments = fileList
-}
+  publishForm.attachments = fileList;
+};
 
 const handleFileRemove = (file, fileList) => {
-  publishForm.attachments = fileList
-}
+  publishForm.attachments = fileList;
+};
 
-const beforeUpload = (file) => {
-  const isValidType = ['image/jpeg', 'image/png', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'].includes(file.type)
-  const isLt10M = file.size / 1024 / 1024 < 10
+const beforeUpload = file => {
+  const isValidType = [
+    'image/jpeg',
+    'image/png',
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  ].includes(file.type);
+  const isLt10M = file.size / 1024 / 1024 < 10;
 
   if (!isValidType) {
-    ElMessage.error('只能上传jpg/png/pdf/doc/docx格式的文件!')
+    ElMessage.error('只能上传jpg/png/pdf/doc/docx格式的文件!');
   }
   if (!isLt10M) {
-    ElMessage.error('文件大小不能超过10MB!')
+    ElMessage.error('文件大小不能超过10MB!');
   }
-  return isValidType && isLt10M
-}
+  return isValidType && isLt10M;
+};
 
 const resetCalculatorForm = () => {
   Object.assign(calculatorForm, {
     policyType: '',
     landArea: 0,
     agriculturalPopulation: 0,
-    familySize: 0
-  })
+    familySize: 0,
+  });
   Object.assign(calculatorResult, {
     standard: 0,
     base: '',
-    amount: 0
-  })
-}
+    amount: 0,
+  });
+};
 
 const calculateSubsidy = () => {
   switch (calculatorForm.policyType) {
     case 'land_subsidy':
-      calculatorResult.standard = 120
-      calculatorResult.base = `${calculatorForm.landArea} 亩`
-      calculatorResult.amount = calculatorForm.landArea * 120
-      break
+      calculatorResult.standard = 120;
+      calculatorResult.base = `${calculatorForm.landArea} 亩`;
+      calculatorResult.amount = calculatorForm.landArea * 120;
+      break;
     case 'agricultural_subsidy':
-      calculatorResult.standard = 200
-      calculatorResult.base = `${calculatorForm.agriculturalPopulation} 人`
-      calculatorResult.amount = calculatorForm.agriculturalPopulation * 200
-      break
+      calculatorResult.standard = 200;
+      calculatorResult.base = `${calculatorForm.agriculturalPopulation} 人`;
+      calculatorResult.amount = calculatorForm.agriculturalPopulation * 200;
+      break;
     case 'low_income_subsidy':
-      calculatorResult.standard = 350
-      calculatorResult.base = `${calculatorForm.familySize} 人家庭`
-      calculatorResult.amount = calculatorForm.familySize * 350
-      break
+      calculatorResult.standard = 350;
+      calculatorResult.base = `${calculatorForm.familySize} 人家庭`;
+      calculatorResult.amount = calculatorForm.familySize * 350;
+      break;
     default:
-      ElMessage.warning('请先选择政策类型')
-      return
+      ElMessage.warning('请先选择政策类型');
+      return;
   }
 
-  ElMessage.success('计算完成')
-}
+  ElMessage.success('计算完成');
+};
 
 // 生命周期
 onMounted(() => {
-  pagination.total = filteredBulletins.value.length
-})
+  pagination.total = filteredBulletins.value.length;
+});
 </script>
 
 <style scoped>

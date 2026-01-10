@@ -16,13 +16,25 @@
           <el-button @click="showQRCode" :size="largeTextMode ? 'large' : 'default'" icon="User">
             我的二维码
           </el-button>
-          <el-button @click="showPolicyCalculator" :size="largeTextMode ? 'large' : 'default'" :icon="Management">
+          <el-button
+            @click="showPolicyCalculator"
+            :size="largeTextMode ? 'large' : 'default'"
+            :icon="Management"
+          >
             政策计算器
           </el-button>
-          <el-button @click="showVoiceAssistant" :size="largeTextMode ? 'large' : 'default'" icon="Microphone">
+          <el-button
+            @click="showVoiceAssistant"
+            :size="largeTextMode ? 'large' : 'default'"
+            icon="Microphone"
+          >
             语音助手
           </el-button>
-          <el-button @click="showSettings" :size="largeTextMode ? 'large' : 'default'" icon="Setting">
+          <el-button
+            @click="showSettings"
+            :size="largeTextMode ? 'large' : 'default'"
+            icon="Setting"
+          >
             设置
           </el-button>
         </div>
@@ -80,351 +92,355 @@
         </div>
       </div>
 
-    <!-- 积分展示 -->
-    <div class="points-section">
-      <el-card class="points-card">
-        <div class="points-content">
-          <div class="points-info">
-            <div class="points-label">我的积分</div>
-            <div class="points-value">{{ userPoints.total }}</div>
-            <div class="points-rank">排名: 第 {{ userPoints.rank }} 名</div>
-          </div>
-          <div class="points-actions">
-            <el-button type="primary" @click="showPointsDetail" :size="largeTextMode ? 'large' : 'default'">
-              查看详情
-            </el-button>
-            <el-button @click="showPointsMall" :size="largeTextMode ? 'large' : 'default'">
-              积分商城
-            </el-button>
-          </div>
-        </div>
-        <div class="points-progress">
-          <div class="progress-label">
-            距离下一等级还需 {{ userPoints.nextLevelPoints }} 积分
-          </div>
-          <el-progress :percentage="userPoints.progress" :stroke-width="20" />
-        </div>
-      </el-card>
-    </div>
-
-    <!-- 信息分类导航 -->
-    <div class="category-nav">
-      <div class="nav-container">
-        <div
-          v-for="category in categories"
-          :key="category.key"
-          class="nav-item"
-          :class="{ active: activeCategory === category.key }"
-          @click="setActiveCategory(category.key)"
-        >
-          <div class="nav-icon">{{ category.icon }}</div>
-          <span class="nav-label">{{ category.label }}</span>
-          <el-badge
-            v-if="category.count > 0"
-            :value="category.count"
-            class="nav-badge"
-          />
-        </div>
-      </div>
-    </div>
-
-    <!-- 主要内容区域 -->
-    <div class="main-content">
-      <el-row :gutter="24">
-        <!-- 左侧信息列表 -->
-        <el-col :xs="24" :lg="16">
-          <!-- 搜索和筛选 -->
-          <el-card class="search-card">
-            <div class="search-container">
-              <el-input
-                v-model="searchQuery"
-                placeholder="搜索村务信息..."
-                :size="largeTextMode ? 'large' : 'default'"
-                clearable
-                @keyup.enter="handleSearch"
-              >
-                <template #prefix>
-                  <el-icon><Search /></el-icon>
-                </template>
-              </el-input>
-
-              <el-select
-                v-model="timeFilter"
-                placeholder="时间范围"
-                :size="largeTextMode ? 'large' : 'default'"
-                @change="handleTimeFilter"
-              >
-                <el-option label="全部时间" value="" />
-                <el-option label="今天" value="today" />
-                <el-option label="本周" value="week" />
-                <el-option label="本月" value="month" />
-                <el-option label="最近三月" value="quarter" />
-              </el-select>
-
+      <!-- 积分展示 -->
+      <div class="points-section">
+        <el-card class="points-card">
+          <div class="points-content">
+            <div class="points-info">
+              <div class="points-label">我的积分</div>
+              <div class="points-value">{{ userPoints.total }}</div>
+              <div class="points-rank">排名: 第 {{ userPoints.rank }} 名</div>
+            </div>
+            <div class="points-actions">
               <el-button
                 type="primary"
-                @click="handleSearch"
+                @click="showPointsDetail"
                 :size="largeTextMode ? 'large' : 'default'"
-                icon="Search"
               >
-                搜索
+                查看详情
+              </el-button>
+              <el-button @click="showPointsMall" :size="largeTextMode ? 'large' : 'default'">
+                积分商城
               </el-button>
             </div>
-          </el-card>
+          </div>
+          <div class="points-progress">
+            <div class="progress-label">距离下一等级还需 {{ userPoints.nextLevelPoints }} 积分</div>
+            <el-progress :percentage="userPoints.progress" :stroke-width="20" />
+          </div>
+        </el-card>
+      </div>
 
-          <!-- 信息列表 -->
-          <el-card class="content-card">
-            <template #header>
-              <div class="card-header">
-                <span class="card-title">{{ getCurrentCategoryTitle() }}</span>
-                <div class="header-actions">
-                  <el-button size="small" @click="refreshContent" icon="Refresh">
-                    刷新
+      <!-- 信息分类导航 -->
+      <div class="category-nav">
+        <div class="nav-container">
+          <div
+            v-for="category in categories"
+            :key="category.key"
+            class="nav-item"
+            :class="{ active: activeCategory === category.key }"
+            @click="setActiveCategory(category.key)"
+          >
+            <div class="nav-icon">{{ category.icon }}</div>
+            <span class="nav-label">{{ category.label }}</span>
+            <el-badge v-if="category.count > 0" :value="category.count" class="nav-badge" />
+          </div>
+        </div>
+      </div>
+
+      <!-- 主要内容区域 -->
+      <div class="main-content">
+        <el-row :gutter="24">
+          <!-- 左侧信息列表 -->
+          <el-col :xs="24" :lg="16">
+            <!-- 搜索和筛选 -->
+            <el-card class="search-card">
+              <div class="search-container">
+                <el-input
+                  v-model="searchQuery"
+                  placeholder="搜索村务信息..."
+                  :size="largeTextMode ? 'large' : 'default'"
+                  clearable
+                  @keyup.enter="handleSearch"
+                >
+                  <template #prefix>
+                    <el-icon><Search /></el-icon>
+                  </template>
+                </el-input>
+
+                <el-select
+                  v-model="timeFilter"
+                  placeholder="时间范围"
+                  :size="largeTextMode ? 'large' : 'default'"
+                  @change="handleTimeFilter"
+                >
+                  <el-option label="全部时间" value="" />
+                  <el-option label="今天" value="today" />
+                  <el-option label="本周" value="week" />
+                  <el-option label="本月" value="month" />
+                  <el-option label="最近三月" value="quarter" />
+                </el-select>
+
+                <el-button
+                  type="primary"
+                  @click="handleSearch"
+                  :size="largeTextMode ? 'large' : 'default'"
+                  icon="Search"
+                >
+                  搜索
+                </el-button>
+              </div>
+            </el-card>
+
+            <!-- 信息列表 -->
+            <el-card class="content-card">
+              <template #header>
+                <div class="card-header">
+                  <span class="card-title">{{ getCurrentCategoryTitle() }}</span>
+                  <div class="header-actions">
+                    <el-button size="small" @click="refreshContent" icon="Refresh">
+                      刷新
+                    </el-button>
+                  </div>
+                </div>
+              </template>
+
+              <div class="affairs-list" v-loading="loading">
+                <!-- 重要通知置顶 -->
+                <div
+                  v-for="item in importantNotices"
+                  :key="'important-' + item.id"
+                  class="affair-item important"
+                  @click="viewDetail(item)"
+                >
+                  <div class="item-header">
+                    <div class="item-title">
+                      <el-icon class="important-icon" color="#f56c6c"><Warning /></el-icon>
+                      <span class="title-text">{{ item.title }}</span>
+                      <el-tag type="danger" size="small">重要</el-tag>
+                    </div>
+                    <div class="item-time">{{ formatTime(item.publishTime) }}</div>
+                  </div>
+                  <div class="item-summary">{{ item.summary }}</div>
+                  <div class="item-footer">
+                    <div class="item-meta">
+                      <span class="meta-item">{{ item.category }}</span>
+                      <span class="meta-item">阅读 {{ item.readCount }}</span>
+                    </div>
+                    <el-button type="text" size="small">查看详情</el-button>
+                  </div>
+                </div>
+
+                <!-- 普通信息 -->
+                <div
+                  v-for="item in filteredAffairs"
+                  :key="item.id"
+                  class="affair-item"
+                  @click="viewDetail(item)"
+                >
+                  <div class="item-header">
+                    <div class="item-title">
+                      <span class="title-text">{{ item.title }}</span>
+                      <el-tag :type="getCategoryType(item.category)" size="small">
+                        {{ item.category }}
+                      </el-tag>
+                    </div>
+                    <div class="item-time">{{ formatTime(item.publishTime) }}</div>
+                  </div>
+                  <div class="item-summary">{{ item.summary }}</div>
+                  <div class="item-footer">
+                    <div class="item-meta">
+                      <span class="meta-item">{{ item.publisher }}</span>
+                      <span class="meta-item">阅读 {{ item.readCount }}</span>
+                      <span class="meta-item" v-if="item.attachments.length > 0">
+                        <el-icon><Paperclip /></el-icon> {{ item.attachments.length }}个附件
+                      </span>
+                    </div>
+                    <div class="item-actions">
+                      <el-button type="text" size="small" @click.stop="likeItem(item)">
+                        <el-icon><StarFilled /></el-icon> {{ item.likeCount }}
+                      </el-button>
+                      <el-button type="text" size="small" @click.stop="shareItem(item)">
+                        <el-icon><Share /></el-icon> 分享
+                      </el-button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 空状态 -->
+                <el-empty
+                  v-if="!loading && filteredAffairs.length === 0 && importantNotices.length === 0"
+                  description="暂无相关村务信息"
+                />
+
+                <!-- 加载更多 -->
+                <div class="load-more" v-if="hasMore">
+                  <el-button @click="loadMore" :loading="loadingMore">
+                    {{ loadingMore ? '加载中...' : '加载更多' }}
                   </el-button>
                 </div>
               </div>
-            </template>
+            </el-card>
+          </el-col>
 
-            <div class="affairs-list" v-loading="loading">
-              <!-- 重要通知置顶 -->
-              <div
-                v-for="item in importantNotices"
-                :key="'important-' + item.id"
-                class="affair-item important"
-                @click="viewDetail(item)"
-              >
-                <div class="item-header">
-                  <div class="item-title">
-                    <el-icon class="important-icon" color="#f56c6c"><Warning /></el-icon>
-                    <span class="title-text">{{ item.title }}</span>
-                    <el-tag type="danger" size="small">重要</el-tag>
-                  </div>
-                  <div class="item-time">{{ formatTime(item.publishTime) }}</div>
+          <!-- 右侧边栏 -->
+          <el-col :xs="24" :lg="8">
+            <!-- 村情速览 -->
+            <el-card class="village-info-card">
+              <template #header>
+                <div class="card-header">
+                  <el-icon><Location /></el-icon>
+                  <span>村情速览</span>
                 </div>
-                <div class="item-summary">{{ item.summary }}</div>
-                <div class="item-footer">
-                  <div class="item-meta">
-                    <span class="meta-item">{{ item.category }}</span>
-                    <span class="meta-item">阅读 {{ item.readCount }}</span>
-                  </div>
-                  <el-button type="text" size="small">查看详情</el-button>
-                </div>
-              </div>
+              </template>
 
-              <!-- 普通信息 -->
-              <div
-                v-for="item in filteredAffairs"
-                :key="item.id"
-                class="affair-item"
-                @click="viewDetail(item)"
-              >
-                <div class="item-header">
-                  <div class="item-title">
-                    <span class="title-text">{{ item.title }}</span>
-                    <el-tag
-                      :type="getCategoryType(item.category)"
-                      size="small"
-                    >
-                      {{ item.category }}
-                    </el-tag>
-                  </div>
-                  <div class="item-time">{{ formatTime(item.publishTime) }}</div>
+              <div class="village-info">
+                <div class="info-row">
+                  <span class="info-label">村庄名称:</span>
+                  <span class="info-value">{{ villageInfo.name }}</span>
                 </div>
-                <div class="item-summary">{{ item.summary }}</div>
-                <div class="item-footer">
-                  <div class="item-meta">
-                    <span class="meta-item">{{ item.publisher }}</span>
-                    <span class="meta-item">阅读 {{ item.readCount }}</span>
-                    <span class="meta-item" v-if="item.attachments.length > 0">
-                      <el-icon><Paperclip /></el-icon> {{ item.attachments.length }}个附件
-                    </span>
-                  </div>
-                  <div class="item-actions">
-                    <el-button type="text" size="small" @click.stop="likeItem(item)">
-                      <el-icon><StarFilled /></el-icon> {{ item.likeCount }}
-                    </el-button>
-                    <el-button type="text" size="small" @click.stop="shareItem(item)">
-                      <el-icon><Share /></el-icon> 分享
-                    </el-button>
-                  </div>
+                <div class="info-row">
+                  <span class="info-label">总人口:</span>
+                  <span class="info-value">{{ villageInfo.population }} 人</span>
                 </div>
-              </div>
-
-              <!-- 空状态 -->
-              <el-empty
-                v-if="!loading && filteredAffairs.length === 0 && importantNotices.length === 0"
-                description="暂无相关村务信息"
-              />
-
-              <!-- 加载更多 -->
-              <div class="load-more" v-if="hasMore">
-                <el-button @click="loadMore" :loading="loadingMore">
-                  {{ loadingMore ? '加载中...' : '加载更多' }}
+                <div class="info-row">
+                  <span class="info-label">户数:</span>
+                  <span class="info-value">{{ villageInfo.households }} 户</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">面积:</span>
+                  <span class="info-value">{{ villageInfo.area }} 平方公里</span>
+                </div>
+                <el-button
+                  type="primary"
+                  @click="viewVillageMap"
+                  style="width: 100%; margin-top: 12px"
+                >
+                  查看村情地图
                 </el-button>
               </div>
-            </div>
-          </el-card>
-        </el-col>
+            </el-card>
 
-        <!-- 右侧边栏 -->
-        <el-col :xs="24" :lg="8">
-          <!-- 村情速览 -->
-          <el-card class="village-info-card">
-            <template #header>
-              <div class="card-header">
-                <el-icon><Location /></el-icon>
-                <span>村情速览</span>
-              </div>
-            </template>
-
-            <div class="village-info">
-              <div class="info-row">
-                <span class="info-label">村庄名称:</span>
-                <span class="info-value">{{ villageInfo.name }}</span>
-              </div>
-              <div class="info-row">
-                <span class="info-label">总人口:</span>
-                <span class="info-value">{{ villageInfo.population }} 人</span>
-              </div>
-              <div class="info-row">
-                <span class="info-label">户数:</span>
-                <span class="info-value">{{ villageInfo.households }} 户</span>
-              </div>
-              <div class="info-row">
-                <span class="info-label">面积:</span>
-                <span class="info-value">{{ villageInfo.area }} 平方公里</span>
-              </div>
-              <el-button type="primary" @click="viewVillageMap" style="width: 100%; margin-top: 12px;">
-                查看村情地图
-              </el-button>
-            </div>
-          </el-card>
-
-          <!-- 值班表 -->
-          <el-card class="duty-card">
-            <template #header>
-              <div class="card-header">
-                <el-icon><Clock /></el-icon>
-                <span>今日值班</span>
-              </div>
-            </template>
-
-            <div class="duty-info">
-              <div class="duty-person">
-                <div class="person-avatar">
-                  <el-avatar :size="50">{{ todayDuty.person?.name?.charAt(0) || '?' }}</el-avatar>
+            <!-- 值班表 -->
+            <el-card class="duty-card">
+              <template #header>
+                <div class="card-header">
+                  <el-icon><Clock /></el-icon>
+                  <span>今日值班</span>
                 </div>
-                <div class="person-details">
-                  <div class="person-name">{{ todayDuty.person?.name || '暂无值班人员' }}</div>
-                  <div class="person-role">{{ todayDuty.person?.role || '' }}</div>
-                  <div class="duty-time">
-                    值班时间: {{ todayDuty.startTime }} - {{ todayDuty.endTime }}
+              </template>
+
+              <div class="duty-info">
+                <div class="duty-person">
+                  <div class="person-avatar">
+                    <el-avatar :size="50">{{ todayDuty.person?.name?.charAt(0) || '?' }}</el-avatar>
+                  </div>
+                  <div class="person-details">
+                    <div class="person-name">{{ todayDuty.person?.name || '暂无值班人员' }}</div>
+                    <div class="person-role">{{ todayDuty.person?.role || '' }}</div>
+                    <div class="duty-time">
+                      值班时间: {{ todayDuty.startTime }} - {{ todayDuty.endTime }}
+                    </div>
+                  </div>
+                </div>
+                <el-button
+                  type="danger"
+                  @click="callDuty"
+                  style="width: 100%; margin-top: 12px"
+                  icon="Phone"
+                >
+                  一键呼叫
+                </el-button>
+              </div>
+            </el-card>
+
+            <!-- 热门话题 -->
+            <el-card class="hot-topics-card">
+              <template #header>
+                <div class="card-header">
+                  <el-icon><TrendCharts /></el-icon>
+                  <span>热门话题</span>
+                </div>
+              </template>
+
+              <div class="hot-topics">
+                <div
+                  v-for="(topic, index) in hotTopics"
+                  :key="topic.id"
+                  class="topic-item"
+                  @click="viewTopic(topic)"
+                >
+                  <div class="topic-rank" :class="`rank-${index + 1}`">{{ index + 1 }}</div>
+                  <div class="topic-content">
+                    <div class="topic-title">{{ topic.title }}</div>
+                    <div class="topic-meta">
+                      <span>{{ topic.discussCount }} 讨论</span>
+                      <span>{{ topic.viewCount }} 浏览</span>
+                    </div>
+                  </div>
+                  <div class="topic-trend" :class="topic.trend">
+                    <el-icon v-if="topic.trend === 'up'"><TrendCharts /></el-icon>
+                    <el-icon v-else-if="topic.trend === 'down'"><TrendCharts /></el-icon>
+                    <el-icon v-else><Minus /></el-icon>
                   </div>
                 </div>
               </div>
-              <el-button type="danger" @click="callDuty" style="width: 100%; margin-top: 12px;" icon="Phone">
-                一键呼叫
-              </el-button>
-            </div>
-          </el-card>
+            </el-card>
 
-          <!-- 热门话题 -->
-          <el-card class="hot-topics-card">
-            <template #header>
-              <div class="card-header">
-                <el-icon><TrendCharts /></el-icon>
-                <span>热门话题</span>
-              </div>
-            </template>
+            <!-- 政策解读 -->
+            <el-card class="policy-card">
+              <template #header>
+                <div class="card-header">
+                  <el-icon><Document /></el-icon>
+                  <span>政策解读</span>
+                </div>
+              </template>
 
-            <div class="hot-topics">
-              <div
-                v-for="(topic, index) in hotTopics"
-                :key="topic.id"
-                class="topic-item"
-                @click="viewTopic(topic)"
-              >
-                <div class="topic-rank" :class="`rank-${index + 1}`">{{ index + 1 }}</div>
-                <div class="topic-content">
-                  <div class="topic-title">{{ topic.title }}</div>
-                  <div class="topic-meta">
-                    <span>{{ topic.discussCount }} 讨论</span>
-                    <span>{{ topic.viewCount }} 浏览</span>
+              <div class="policy-list">
+                <div
+                  v-for="policy in policyInterpretations"
+                  :key="policy.id"
+                  class="policy-item"
+                  @click="viewPolicy(policy)"
+                >
+                  <div class="policy-icon">📋</div>
+                  <div class="policy-content">
+                    <div class="policy-title">{{ policy.title }}</div>
+                    <div class="policy-desc">{{ policy.description }}</div>
+                    <div class="policy-time">{{ formatTime(policy.publishTime) }}</div>
                   </div>
                 </div>
-                <div class="topic-trend" :class="topic.trend">
-                  <el-icon v-if="topic.trend === 'up'"><TrendCharts /></el-icon>
-                  <el-icon v-else-if="topic.trend === 'down'"><TrendCharts /></el-icon>
-                  <el-icon v-else><Minus /></el-icon>
-                </div>
               </div>
-            </div>
-          </el-card>
+            </el-card>
 
-          <!-- 政策解读 -->
-          <el-card class="policy-card">
-            <template #header>
-              <div class="card-header">
-                <el-icon><Document /></el-icon>
-                <span>政策解读</span>
-              </div>
-            </template>
-
-            <div class="policy-list">
-              <div
-                v-for="policy in policyInterpretations"
-                :key="policy.id"
-                class="policy-item"
-                @click="viewPolicy(policy)"
-              >
-                <div class="policy-icon">📋</div>
-                <div class="policy-content">
-                  <div class="policy-title">{{ policy.title }}</div>
-                  <div class="policy-desc">{{ policy.description }}</div>
-                  <div class="policy-time">{{ formatTime(policy.publishTime) }}</div>
+            <!-- 意见反馈 -->
+            <el-card class="feedback-card">
+              <template #header>
+                <div class="card-header">
+                  <el-icon><ChatDotRound /></el-icon>
+                  <span>意见反馈</span>
                 </div>
-              </div>
-            </div>
-          </el-card>
+              </template>
 
-          <!-- 意见反馈 -->
-          <el-card class="feedback-card">
-            <template #header>
-              <div class="card-header">
-                <el-icon><ChatDotRound /></el-icon>
-                <span>意见反馈</span>
-              </div>
-            </template>
+              <div class="feedback-section">
+                <div class="feedback-stats">
+                  <div class="stat-item">
+                    <span class="stat-number">{{ feedbackStats.total }}</span>
+                    <span class="stat-label">总反馈</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-number">{{ feedbackStats.replied }}</span>
+                    <span class="stat-label">已回复</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-number">{{ feedbackStats.pending }}</span>
+                    <span class="stat-label">待处理</span>
+                  </div>
+                </div>
 
-            <div class="feedback-section">
-              <div class="feedback-stats">
-                <div class="stat-item">
-                  <span class="stat-number">{{ feedbackStats.total }}</span>
-                  <span class="stat-label">总反馈</span>
-                </div>
-                <div class="stat-item">
-                  <span class="stat-number">{{ feedbackStats.replied }}</span>
-                  <span class="stat-label">已回复</span>
-                </div>
-                <div class="stat-item">
-                  <span class="stat-number">{{ feedbackStats.pending }}</span>
-                  <span class="stat-label">待处理</span>
-                </div>
+                <el-button
+                  type="primary"
+                  @click="showFeedbackDialog"
+                  :size="largeTextMode ? 'large' : 'default'"
+                  style="width: 100%; margin-top: 16px"
+                >
+                  我要反馈
+                </el-button>
               </div>
-
-              <el-button
-                type="primary"
-                @click="showFeedbackDialog"
-                :size="largeTextMode ? 'large' : 'default'"
-                style="width: 100%; margin-top: 16px;"
-              >
-                我要反馈
-              </el-button>
-            </div>
-          </el-card>
-        </el-col>
-      </el-row>
-    </div>
+            </el-card>
+          </el-col>
+        </el-row>
+      </div>
     </div>
 
     <!-- 生活服务区域 -->
@@ -482,7 +498,9 @@
             <img :src="userQRCode" alt="我的二维码" />
           </div>
           <div class="qrcode-info">
-            <p class="user-name"><strong>{{ userInfo.name || '村民' }}</strong></p>
+            <p class="user-name">
+              <strong>{{ userInfo.name || '村民' }}</strong>
+            </p>
             <p class="user-phone">{{ userInfo.phone || '' }}</p>
             <p class="user-village">{{ userInfo.village || '' }}</p>
             <p class="qrcode-tip">扫码查看我的家庭信息</p>
@@ -495,9 +513,7 @@
         <!-- 无家庭信息提示 -->
         <div v-else class="qrcode-empty">
           <el-empty description="未绑定家庭信息">
-            <el-button type="primary" @click="qrcodeDialogVisible = false">
-              我知道了
-            </el-button>
+            <el-button type="primary" @click="qrcodeDialogVisible = false"> 我知道了 </el-button>
           </el-empty>
         </div>
 
@@ -506,12 +522,8 @@
           <el-button type="primary" @click="downloadQRCode" :icon="Download">
             下载二维码
           </el-button>
-          <el-button @click="shareQRCode" :icon="Share">
-            分享户码
-          </el-button>
-          <el-button @click="showQRCode" :icon="Refresh">
-            刷新二维码
-          </el-button>
+          <el-button @click="shareQRCode" :icon="Share"> 分享户码 </el-button>
+          <el-button @click="showQRCode" :icon="Refresh"> 刷新二维码 </el-button>
         </div>
       </div>
     </el-dialog>
@@ -540,7 +552,7 @@
             @change="calculatePolicy"
             style="width: 100%"
           />
-          <span style="margin-left: 8px;">亩</span>
+          <span style="margin-left: 8px">亩</span>
         </el-form-item>
         <el-form-item label="家庭人口">
           <el-input-number
@@ -582,7 +594,11 @@
         </div>
 
         <div class="voice-input-controls">
-          <el-select v-model="voiceDialect" placeholder="选择方言" style="width: 100%; margin-bottom: 12px;">
+          <el-select
+            v-model="voiceDialect"
+            placeholder="选择方言"
+            style="width: 100%; margin-bottom: 12px"
+          >
             <el-option label="普通话" value="mandarin" />
             <el-option label="粤语" value="cantonese" />
             <el-option label="闽南语" value="hokkien" />
@@ -608,7 +624,7 @@
             :rows="3"
             placeholder="语音识别结果将显示在这里"
           />
-          <div class="result-actions" style="margin-top: 12px;">
+          <div class="result-actions" style="margin-top: 12px">
             <el-button type="primary" @click="searchByVoice">搜索</el-button>
             <el-button @click="clearVoiceResult">清除</el-button>
           </div>
@@ -621,7 +637,7 @@
               v-for="cmd in voiceCommands"
               :key="cmd"
               @click="speakCommand(cmd)"
-              style="margin: 4px; cursor: pointer;"
+              style="margin: 4px; cursor: pointer"
             >
               {{ cmd }}
             </el-tag>
@@ -631,11 +647,7 @@
     </el-dialog>
 
     <!-- 积分详情对话框 -->
-    <el-dialog
-      v-model="pointsDetailVisible"
-      title="积分详情"
-      width="700px"
-    >
+    <el-dialog v-model="pointsDetailVisible" title="积分详情" width="700px">
       <div class="points-detail">
         <el-tabs v-model="pointsTab">
           <el-tab-pane label="积分明细" name="history">
@@ -652,11 +664,7 @@
           </el-tab-pane>
           <el-tab-pane label="积分商城" name="mall">
             <div class="mall-items">
-              <div
-                v-for="item in mallItems"
-                :key="item.id"
-                class="mall-item"
-              >
+              <div v-for="item in mallItems" :key="item.id" class="mall-item">
                 <div class="item-image">{{ item.icon }}</div>
                 <div class="item-info">
                   <div class="item-name">{{ item.name }}</div>
@@ -684,9 +692,7 @@
             <el-tag :type="getCategoryType(currentItem.category)">
               {{ currentItem.category }}
             </el-tag>
-            <span class="publish-info">
-              发布者：{{ currentItem.publisher }}
-            </span>
+            <span class="publish-info"> 发布者：{{ currentItem.publisher }} </span>
             <span class="publish-time">
               {{ formatTime(currentItem.publishTime) }}
             </span>
@@ -737,18 +743,14 @@
               type="primary"
               @click="submitComment"
               :size="largeTextMode ? 'large' : 'default'"
-              style="margin-top: 12px;"
+              style="margin-top: 12px"
             >
               发表评论
             </el-button>
           </div>
 
           <div class="comment-list">
-            <div
-              v-for="comment in currentItem.comments"
-              :key="comment.id"
-              class="comment-item"
-            >
+            <div v-for="comment in currentItem.comments" :key="comment.id" class="comment-item">
               <el-avatar :size="32" :src="comment.avatar">
                 {{ comment.author?.charAt(0) }}
               </el-avatar>
@@ -772,7 +774,12 @@
       :width="largeTextMode ? '800px' : '600px'"
       :close-on-click-modal="false"
     >
-      <el-form :model="feedbackForm" :rules="feedbackRules" ref="feedbackFormRef" label-width="80px">
+      <el-form
+        :model="feedbackForm"
+        :rules="feedbackRules"
+        ref="feedbackFormRef"
+        label-width="80px"
+      >
         <el-form-item label="反馈类型" prop="type">
           <el-select v-model="feedbackForm.type" :size="largeTextMode ? 'large' : 'default'">
             <el-option label="建议" value="suggestion" />
@@ -841,10 +848,7 @@
             <h4>语音播报</h4>
             <p>自动朗读村务信息内容</p>
           </div>
-          <el-switch
-            v-model="autoRead"
-            :size="largeTextMode ? 'large' : 'default'"
-          />
+          <el-switch v-model="autoRead" :size="largeTextMode ? 'large' : 'default'" />
         </div>
 
         <div class="setting-item">
@@ -852,10 +856,7 @@
             <h4>消息推送</h4>
             <p>接收新村务信息推送通知</p>
           </div>
-          <el-switch
-            v-model="notificationEnabled"
-            :size="largeTextMode ? 'large' : 'default'"
-          />
+          <el-switch v-model="notificationEnabled" :size="largeTextMode ? 'large' : 'default'" />
         </div>
 
         <div class="setting-item">
@@ -863,10 +864,7 @@
             <h4>仅显示WiFi下图片</h4>
             <p>节省流量，WiFi环境下才显示图片</p>
           </div>
-          <el-switch
-            v-model="wifiOnly"
-            :size="largeTextMode ? 'large' : 'default'"
-          />
+          <el-switch v-model="wifiOnly" :size="largeTextMode ? 'large' : 'default'" />
         </div>
       </div>
 
@@ -878,11 +876,11 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, defineAsyncComponent } from 'vue'
-import { useRouter } from 'vue-router'
-import { useUserStore } from '@/stores/userStore'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import householdQRApi from '@/api/householdQR'
+import { ref, reactive, computed, onMounted, defineAsyncComponent } from 'vue';
+import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/userStore';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import householdQRApi from '@/api/householdQR';
 import {
   Search,
   Setting,
@@ -906,189 +904,204 @@ import {
   ArrowRight,
   Download,
   ShoppingBag,
-  Loading
-} from '@element-plus/icons-vue'
+  Loading,
+} from '@element-plus/icons-vue';
 
 // 异步加载生活服务组件
-const SubsidySection = defineAsyncComponent(() =>
-  import('@/components/resident/SubsidySection.vue')
-)
-const ServiceHallSection = defineAsyncComponent(() =>
-  import('@/components/resident/ServiceHallSection.vue')
-)
-const NearbyProductsSection = defineAsyncComponent(() =>
-  import('@/components/resident/NearbyProductsSection.vue')
-)
-const NearbyServicesSection = defineAsyncComponent(() =>
-  import('@/components/resident/NearbyServicesSection.vue')
-)
-const NearbyJobsSection = defineAsyncComponent(() =>
-  import('@/components/resident/NearbyJobsSection.vue')
-)
-const TravelSection = defineAsyncComponent(() =>
-  import('@/components/resident/TravelSection.vue')
-)
-const MarketplacePublishSection = defineAsyncComponent(() =>
-  import('@/components/resident/MarketplacePublishSection.vue')
-)
-const AnnouncementSection = defineAsyncComponent(() =>
-  import('@/components/resident/AnnouncementSection.vue')
-)
-const FamilySection = defineAsyncComponent(() =>
-  import('@/components/resident/FamilySection.vue')
-)
+const SubsidySection = defineAsyncComponent(
+  () => import('@/components/resident/SubsidySection.vue')
+);
+const ServiceHallSection = defineAsyncComponent(
+  () => import('@/components/resident/ServiceHallSection.vue')
+);
+const NearbyProductsSection = defineAsyncComponent(
+  () => import('@/components/resident/NearbyProductsSection.vue')
+);
+const NearbyServicesSection = defineAsyncComponent(
+  () => import('@/components/resident/NearbyServicesSection.vue')
+);
+const NearbyJobsSection = defineAsyncComponent(
+  () => import('@/components/resident/NearbyJobsSection.vue')
+);
+const TravelSection = defineAsyncComponent(() => import('@/components/resident/TravelSection.vue'));
+const MarketplacePublishSection = defineAsyncComponent(
+  () => import('@/components/resident/MarketplacePublishSection.vue')
+);
+const AnnouncementSection = defineAsyncComponent(
+  () => import('@/components/resident/AnnouncementSection.vue')
+);
+const FamilySection = defineAsyncComponent(() => import('@/components/resident/FamilySection.vue'));
 
-const router = useRouter()
-const userStore = useUserStore()
+const router = useRouter();
+const userStore = useUserStore();
 
 // 用户信息 - 从userStore获取
 const userInfo = computed(() => {
-  const user = userStore.userInfo || {}
+  const user = userStore.userInfo || {};
   return {
     name: user.profile?.firstName || user.username || '村民',
     phone: user.profile?.phone || user.phone || '未设置',
     village: user.villageName || '未设置村庄',
-    role: user.role || 'resident'
-  }
-})
+    role: user.role || 'resident',
+  };
+});
 
 // 村庄信息 - 从userStore获取
 const villageInfo = computed(() => {
-  const user = userStore.userInfo || {}
+  const user = userStore.userInfo || {};
   return {
     name: user.villageName || '未设置村庄',
     population: 1500,
     households: 350,
-    area: 8.5
-  }
-})
+    area: 8.5,
+  };
+});
 
 // 用户积分
 const userPoints = reactive({
   total: 1250,
   rank: 15,
   progress: 65,
-  nextLevelPoints: 250
-})
+  nextLevelPoints: 250,
+});
 
 // 今日值班
 const todayDuty = reactive({
   person: {
     name: '李明',
     role: '村主任',
-    phone: '138****5678'
+    phone: '138****5678',
   },
   startTime: '08:00',
-  endTime: '18:00'
-})
+  endTime: '18:00',
+});
 
 // 响应式数据
-const activeZone = ref('village') // 当前激活的功能区：village/life/family
-const largeTextMode = ref(false)
-const autoRead = ref(false)
-const notificationEnabled = ref(true)
-const wifiOnly = ref(false)
-const loading = ref(false)
-const loadingMore = ref(false)
-const hasMore = ref(true)
-const detailDialogVisible = ref(false)
-const feedbackDialogVisible = ref(false)
-const settingsDialogVisible = ref(false)
-const qrcodeDialogVisible = ref(false)
-const policyCalculatorVisible = ref(false)
-const voiceAssistantVisible = ref(false)
-const pointsDetailVisible = ref(false)
-const submitting = ref(false)
-const isListening = ref(false)
-const voiceDialect = ref('mandarin')
+const activeZone = ref('village'); // 当前激活的功能区：village/life/family
+const largeTextMode = ref(false);
+const autoRead = ref(false);
+const notificationEnabled = ref(true);
+const wifiOnly = ref(false);
+const loading = ref(false);
+const loadingMore = ref(false);
+const hasMore = ref(true);
+const detailDialogVisible = ref(false);
+const feedbackDialogVisible = ref(false);
+const settingsDialogVisible = ref(false);
+const qrcodeDialogVisible = ref(false);
+const policyCalculatorVisible = ref(false);
+const voiceAssistantVisible = ref(false);
+const pointsDetailVisible = ref(false);
+const submitting = ref(false);
+const isListening = ref(false);
+const voiceDialect = ref('mandarin');
 
 // 搜索和筛选
-const searchQuery = ref('')
-const timeFilter = ref('')
-const activeCategory = ref('all')
+const searchQuery = ref('');
+const timeFilter = ref('');
+const activeCategory = ref('all');
 
 // 当前查看的项目
-const currentItem = ref(null)
-const newComment = ref('')
+const currentItem = ref(null);
+const newComment = ref('');
 
 // 表单引用
-const feedbackFormRef = ref(null)
+const feedbackFormRef = ref(null);
 
 // 二维码
-const userQRCode = ref('')
-const qrCodeLoading = ref(false)
-const householdInfo = ref(null)
-const pointsTab = ref('history')
+const userQRCode = ref('');
+const qrCodeLoading = ref(false);
+const householdInfo = ref(null);
+const pointsTab = ref('history');
 
 // 语音识别结果
-const voiceResult = ref('')
+const voiceResult = ref('');
 
 // 政策计算表单
 const policyForm = reactive({
   type: 'farmland',
   area: 5,
-  familyMembers: 4
-})
+  familyMembers: 4,
+});
 
 // 政策计算结果
 const policyResult = reactive({
   amount: 0,
   basis: '',
-  source: ''
-})
+  source: '',
+});
 
 // 反馈表单
 const feedbackForm = reactive({
   type: '',
   title: '',
   content: '',
-  contact: ''
-})
+  contact: '',
+});
 
 const feedbackRules = {
-  type: [
-    { required: true, message: '请选择反馈类型', trigger: 'change' }
-  ],
-  title: [
-    { required: true, message: '请输入反馈标题', trigger: 'blur' }
-  ],
-  content: [
-    { required: true, message: '请输入反馈内容', trigger: 'blur' }
-  ]
-}
+  type: [{ required: true, message: '请选择反馈类型', trigger: 'change' }],
+  title: [{ required: true, message: '请输入反馈标题', trigger: 'blur' }],
+  content: [{ required: true, message: '请输入反馈内容', trigger: 'blur' }],
+};
 
 // 积分历史
 const pointsHistory = reactive([
-  { id: '1', description: '参与村务投票 +50', points: 50, type: 'primary', time: '2024-01-15 10:30' },
-  { id: '2', description: '提交意见建议 +20', points: 20, type: 'success', time: '2024-01-14 15:20' },
-  { id: '3', description: '参与环境整治 +30', points: 30, type: 'warning', time: '2024-01-13 09:15' }
-])
+  {
+    id: '1',
+    description: '参与村务投票 +50',
+    points: 50,
+    type: 'primary',
+    time: '2024-01-15 10:30',
+  },
+  {
+    id: '2',
+    description: '提交意见建议 +20',
+    points: 20,
+    type: 'success',
+    time: '2024-01-14 15:20',
+  },
+  {
+    id: '3',
+    description: '参与环境整治 +30',
+    points: 30,
+    type: 'warning',
+    time: '2024-01-13 09:15',
+  },
+]);
 
 // 商城物品
 const mallItems = reactive([
   { id: '1', name: '洗衣液', icon: '🧴', points: 500 },
   { id: '2', name: '大米10斤', icon: '🍚', points: 800 },
   { id: '3', name: '食用油5L', icon: '🫗', points: 600 },
-  { id: '4', name: '纸巾提装', icon: '🧻', points: 300 }
-])
+  { id: '4', name: '纸巾提装', icon: '🧻', points: 300 },
+]);
 
 // 语音命令
-const voiceCommands = [
-  '查看财务公开',
-  '我要反馈意见',
-  '查看我的积分',
-  '今日谁值班'
-]
+const voiceCommands = ['查看财务公开', '我要反馈意见', '查看我的积分', '今日谁值班'];
 
 // 快捷功能入口
 const quickAccessItems = reactive([
-  { id: 'qrcode', title: '我的二维码', description: '一户一码，信息数字化', icon: '📱', route: '/qrcode' },
-  { id: 'policy', title: '政策计算器', description: '补贴金额一键计算', icon: '🧮', action: 'policy' },
+  {
+    id: 'qrcode',
+    title: '我的二维码',
+    description: '一户一码，信息数字化',
+    icon: '📱',
+    route: '/qrcode',
+  },
+  {
+    id: 'policy',
+    title: '政策计算器',
+    description: '补贴金额一键计算',
+    icon: '🧮',
+    action: 'policy',
+  },
   { id: 'map', title: '村情地图', description: '查看村庄地图', icon: '🗺️', route: '/map' },
   { id: 'duty', title: '今日值班', description: '一键呼叫值班人员', icon: '☎️', action: 'duty' },
   { id: 'mall', title: '积分商城', description: '积分兑换商品', icon: '🎁', route: '/mall' },
-  { id: 'services', title: '在线办事', description: '证件办理等', icon: '📝', route: '/services' }
-])
+  { id: 'services', title: '在线办事', description: '证件办理等', icon: '📝', route: '/services' },
+]);
 
 // 信息分类
 const categories = reactive([
@@ -1099,8 +1112,8 @@ const categories = reactive([
   { key: 'finance', label: '财务公开', icon: '💰', count: 28 },
   { key: 'project', label: '项目进展', icon: '🏗️', count: 12 },
   { key: 'meeting', label: '会议纪要', icon: '👥', count: 35 },
-  { key: 'emergency', label: '应急信息', icon: '🚨', count: 8 }
-])
+  { key: 'emergency', label: '应急信息', icon: '🚨', count: 8 },
+]);
 
 // 重要通知
 const importantNotices = reactive([
@@ -1112,9 +1125,9 @@ const importantNotices = reactive([
     publisher: '村委会',
     publishTime: '2024-01-16 09:00',
     readCount: 1256,
-    content: '详细内容...'
-  }
-])
+    content: '详细内容...',
+  },
+]);
 
 // 村务信息列表
 const affairsList = reactive([
@@ -1127,19 +1140,17 @@ const affairsList = reactive([
     publishTime: '2024-01-15 14:30',
     readCount: 856,
     likeCount: 45,
-    attachments: [
-      { id: '1', name: '2024年Q1财务报表.pdf', size: 2457600 }
-    ],
+    attachments: [{ id: '1', name: '2024年Q1财务报表.pdf', size: 2457600 }],
     comments: [
       {
         id: '1',
         author: '张三',
         content: '公开透明，做得很好！',
         time: '2024-01-15 15:00',
-        avatar: ''
-      }
+        avatar: '',
+      },
     ],
-    content: '<p>详细财务内容...</p>'
+    content: '<p>详细财务内容...</p>',
   },
   {
     id: '2',
@@ -1152,7 +1163,7 @@ const affairsList = reactive([
     likeCount: 28,
     attachments: [],
     comments: [],
-    content: '<p>工程详细进展...</p>'
+    content: '<p>工程详细进展...</p>',
   },
   {
     id: '3',
@@ -1163,13 +1174,11 @@ const affairsList = reactive([
     publishTime: '2024-01-13 16:45',
     readCount: 445,
     likeCount: 67,
-    attachments: [
-      { id: '2', name: '春节活动安排.docx', size: 532480 }
-    ],
+    attachments: [{ id: '2', name: '春节活动安排.docx', size: 532480 }],
     comments: [],
-    content: '<p>活动详细安排...</p>'
-  }
-])
+    content: '<p>活动详细安排...</p>',
+  },
+]);
 
 // 热门话题
 const hotTopics = reactive([
@@ -1178,23 +1187,23 @@ const hotTopics = reactive([
     title: '村口道路建设何时完工？',
     discussCount: 23,
     viewCount: 1456,
-    trend: 'up'
+    trend: 'up',
   },
   {
     id: '2',
     title: '农村医保报销比例提高',
     discussCount: 18,
     viewCount: 987,
-    trend: 'up'
+    trend: 'up',
   },
   {
     id: '3',
     title: '春季农作物种植补贴政策',
     discussCount: 15,
     viewCount: 765,
-    trend: 'stable'
-  }
-])
+    trend: 'stable',
+  },
+]);
 
 // 政策解读
 const policyInterpretations = reactive([
@@ -1202,324 +1211,326 @@ const policyInterpretations = reactive([
     id: '1',
     title: '2024年农业补贴政策解读',
     description: '详解各类农业补贴的申请条件和流程',
-    publishTime: '2024-01-12 09:00'
+    publishTime: '2024-01-12 09:00',
   },
   {
     id: '2',
     title: '农村宅基地政策新变化',
     description: '最新宅基地管理政策要点说明',
-    publishTime: '2024-01-10 14:30'
-  }
-])
+    publishTime: '2024-01-10 14:30',
+  },
+]);
 
 // 反馈统计
 const feedbackStats = reactive({
   total: 156,
   replied: 128,
-  pending: 28
-})
+  pending: 28,
+});
 
 // 计算属性
 const filteredAffairs = computed(() => {
-  let filtered = affairsList
+  let filtered = affairsList;
 
   // 按分类筛选
   if (activeCategory.value !== 'all') {
-    filtered = filtered.filter(item => item.category === getCategoryLabel(activeCategory.value))
+    filtered = filtered.filter(item => item.category === getCategoryLabel(activeCategory.value));
   }
 
   // 按搜索关键词筛选
   if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase()
-    filtered = filtered.filter(item =>
-      item.title.toLowerCase().includes(query) ||
-      item.summary.toLowerCase().includes(query)
-    )
+    const query = searchQuery.value.toLowerCase();
+    filtered = filtered.filter(
+      item => item.title.toLowerCase().includes(query) || item.summary.toLowerCase().includes(query)
+    );
   }
 
   // 按时间筛选
   if (timeFilter.value) {
-    const now = new Date()
+    const now = new Date();
     filtered = filtered.filter(item => {
-      const itemTime = new Date(item.publishTime)
+      const itemTime = new Date(item.publishTime);
       switch (timeFilter.value) {
         case 'today':
-          return itemTime.toDateString() === now.toDateString()
+          return itemTime.toDateString() === now.toDateString();
         case 'week':
-          return (now - itemTime) <= 7 * 24 * 60 * 60 * 1000
+          return now - itemTime <= 7 * 24 * 60 * 60 * 1000;
         case 'month':
-          return itemTime.getMonth() === now.getMonth() && itemTime.getFullYear() === now.getFullYear()
+          return (
+            itemTime.getMonth() === now.getMonth() && itemTime.getFullYear() === now.getFullYear()
+          );
         case 'quarter':
-          return (now - itemTime) <= 3 * 30 * 24 * 60 * 60 * 1000
+          return now - itemTime <= 3 * 30 * 24 * 60 * 60 * 1000;
         default:
-          return true
+          return true;
       }
-    })
+    });
   }
 
-  return filtered
-})
+  return filtered;
+});
 
 // 方法
-const handleZoneChange = (zoneName) => {
-  activeZone.value = zoneName
-  console.log('切换到功能区:', zoneName)
-}
+const handleZoneChange = zoneName => {
+  activeZone.value = zoneName;
+  console.log('切换到功能区:', zoneName);
+};
 
 const getUserRoleType = () => {
-  return 'success'
-}
+  return 'success';
+};
 
 const getRoleLabel = () => {
-  return '村民'
-}
+  return '村民';
+};
 
 const getCurrentCategoryTitle = () => {
-  const category = categories.find(cat => cat.key === activeCategory.value)
-  return category ? category.label : '全部信息'
-}
+  const category = categories.find(cat => cat.key === activeCategory.value);
+  return category ? category.label : '全部信息';
+};
 
-const getCategoryLabel = (key) => {
-  const category = categories.find(cat => cat.key === key)
-  return category ? category.label : key
-}
+const getCategoryLabel = key => {
+  const category = categories.find(cat => cat.key === key);
+  return category ? category.label : key;
+};
 
-const getCategoryType = (category) => {
+const getCategoryType = category => {
   const types = {
-    '通知公告': 'primary',
-    '政策宣传': 'success',
-    '村务活动': 'warning',
-    '财务公开': 'danger',
-    '项目进展': 'info',
-    '会议纪要': '',
-    '应急信息': 'danger'
-  }
-  return types[category] || ''
-}
+    通知公告: 'primary',
+    政策宣传: 'success',
+    村务活动: 'warning',
+    财务公开: 'danger',
+    项目进展: 'info',
+    会议纪要: '',
+    应急信息: 'danger',
+  };
+  return types[category] || '';
+};
 
-const setActiveCategory = (key) => {
-  activeCategory.value = key
-}
+const setActiveCategory = key => {
+  activeCategory.value = key;
+};
 
-const handleQuickAccess = (access) => {
+const handleQuickAccess = access => {
   if (access.route) {
-    router.push(access.route)
+    router.push(access.route);
   } else if (access.action) {
-    handleQuickAction(access.action)
+    handleQuickAction(access.action);
   } else {
-    ElMessage.info(`打开功能: ${access.title}`)
+    ElMessage.info(`打开功能: ${access.title}`);
   }
-}
+};
 
-const handleQuickAction = (action) => {
+const handleQuickAction = action => {
   switch (action) {
     case 'policy':
-      showPolicyCalculator()
-      break
+      showPolicyCalculator();
+      break;
     case 'duty':
-      callDuty()
-      break
+      callDuty();
+      break;
     default:
-      ElMessage.info(`打开功能: ${action}`)
+      ElMessage.info(`打开功能: ${action}`);
   }
-}
+};
 
 const showQRCode = async () => {
-  qrcodeDialogVisible.value = true
-  qrCodeLoading.value = true
+  qrcodeDialogVisible.value = true;
+  qrCodeLoading.value = true;
 
   try {
     // 获取用户的家庭ID
-    let householdId = userStore.userInfo?.householdId
+    let householdId = userStore.userInfo?.householdId;
 
     // 如果没有家庭ID，尝试从后端刷新用户信息
     if (!householdId) {
-      console.log('⚠️ 用户信息中没有householdId,尝试刷新...')
-      ElMessage.info('正在获取最新用户信息...')
+      console.log('⚠️ 用户信息中没有householdId,尝试刷新...');
+      ElMessage.info('正在获取最新用户信息...');
 
       try {
-        const updatedUser = await userStore.refreshUserInfo()
-        householdId = updatedUser?.householdId
+        const updatedUser = await userStore.refreshUserInfo();
+        householdId = updatedUser?.householdId;
 
-        console.log('✅ 刷新后的用户信息:', updatedUser)
-        console.log('✅ householdId:', householdId)
+        console.log('✅ 刷新后的用户信息:', updatedUser);
+        console.log('✅ householdId:', householdId);
       } catch (refreshError) {
-        console.error('❌ 刷新用户信息失败:', refreshError)
+        console.error('❌ 刷新用户信息失败:', refreshError);
       }
 
       // 如果刷新后还是没有家庭ID，显示提示
       if (!householdId) {
-        ElMessage.warning('您还未绑定家庭信息，请联系村委会')
-        userQRCode.value = ''
-        householdInfo.value = null
-        qrCodeLoading.value = false
-        return
+        ElMessage.warning('您还未绑定家庭信息，请联系村委会');
+        userQRCode.value = '';
+        householdInfo.value = null;
+        qrCodeLoading.value = false;
+        return;
       }
     }
 
-    console.log('🚀 开始生成二维码，householdId:', householdId)
+    console.log('🚀 开始生成二维码，householdId:', householdId);
 
     // 调用API生成二维码
-    const response = await householdQRApi.generateQR(householdId, { includeImage: true })
+    const response = await householdQRApi.generateQR(householdId, { includeImage: true });
 
     if (response.success) {
-      userQRCode.value = response.data.qrImageUrl
-      householdInfo.value = response.data.household
-      ElMessage.success('二维码生成成功')
+      userQRCode.value = response.data.qrImageUrl;
+      householdInfo.value = response.data.household;
+      ElMessage.success('二维码生成成功');
     } else {
-      throw new Error(response.message || '生成二维码失败')
+      throw new Error(response.message || '生成二维码失败');
     }
   } catch (error) {
-    console.error('生成二维码失败:', error)
+    console.error('生成二维码失败:', error);
     // 使用默认占位图
-    userQRCode.value = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9aw=='
-    householdInfo.value = null
-    ElMessage.error('生成二维码失败，请稍后重试')
+    userQRCode.value =
+      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9aw==';
+    householdInfo.value = null;
+    ElMessage.error('生成二维码失败，请稍后重试');
   } finally {
-    qrCodeLoading.value = false
+    qrCodeLoading.value = false;
   }
-}
+};
 
 const downloadQRCode = () => {
   if (!userQRCode.value) {
-    ElMessage.warning('请先生成二维码')
-    return
+    ElMessage.warning('请先生成二维码');
+    return;
   }
 
   try {
     // 创建下载链接
-    const link = document.createElement('a')
-    link.href = userQRCode.value
-    link.download = `我的二维码_${userInfo.value.name || '村民'}.png`
-    link.click()
-    ElMessage.success('二维码已下载')
+    const link = document.createElement('a');
+    link.href = userQRCode.value;
+    link.download = `我的二维码_${userInfo.value.name || '村民'}.png`;
+    link.click();
+    ElMessage.success('二维码已下载');
   } catch (error) {
-    console.error('下载失败:', error)
-    ElMessage.error('下载失败，请稍后重试')
+    console.error('下载失败:', error);
+    ElMessage.error('下载失败，请稍后重试');
   }
-}
+};
 
 const shareQRCode = async () => {
   if (!householdInfo.value) {
-    ElMessage.warning('请先生成二维码')
-    return
+    ElMessage.warning('请先生成二维码');
+    return;
   }
 
   try {
     // 复制户码到剪贴板
-    const householdId = userStore.userInfo?.householdId
+    const householdId = userStore.userInfo?.householdId;
     if (householdId) {
-      await navigator.clipboard.writeText(householdId)
-      ElMessage.success('户码已复制到剪贴板')
+      await navigator.clipboard.writeText(householdId);
+      ElMessage.success('户码已复制到剪贴板');
     } else {
-      ElMessage.warning('户码不存在')
+      ElMessage.warning('户码不存在');
     }
   } catch (error) {
-    console.error('分享失败:', error)
-    ElMessage.error('分享失败，请稍后重试')
+    console.error('分享失败:', error);
+    ElMessage.error('分享失败，请稍后重试');
   }
-}
+};
 
 const showPolicyCalculator = () => {
-  policyCalculatorVisible.value = true
-  calculatePolicy()
-}
+  policyCalculatorVisible.value = true;
+  calculatePolicy();
+};
 
 const calculatePolicy = () => {
-  const { type, area, familyMembers } = policyForm
+  const { type, area, familyMembers } = policyForm;
 
   // 简单的计算逻辑
-  let rate = 0
-  let basis = ''
-  let source = ''
+  let rate = 0;
+  let basis = '';
+  let source = '';
 
   switch (type) {
     case 'farmland':
-      rate = 120 // 每亩120元
-      basis = `${area}亩 × ${rate}元/亩`
-      source = '耕地地力保护补贴政策'
-      policyResult.amount = Math.floor(area * rate)
-      break
+      rate = 120; // 每亩120元
+      basis = `${area}亩 × ${rate}元/亩`;
+      source = '耕地地力保护补贴政策';
+      policyResult.amount = Math.floor(area * rate);
+      break;
     case 'insurance':
-      rate = 30 // 每人30元
-      basis = `${familyMembers}人 × ${rate}元/人`
-      source = '农业保险补贴政策'
-      policyResult.amount = Math.floor(familyMembers * rate)
-      break
+      rate = 30; // 每人30元
+      basis = `${familyMembers}人 × ${rate}元/人`;
+      source = '农业保险补贴政策';
+      policyResult.amount = Math.floor(familyMembers * rate);
+      break;
     case 'machinery':
-      rate = 500
-      basis = '农机购置补贴30%'
-      source = '农机购置补贴政策'
-      policyResult.amount = rate
-      break
+      rate = 500;
+      basis = '农机购置补贴30%';
+      source = '农机购置补贴政策';
+      policyResult.amount = rate;
+      break;
   }
-}
+};
 
 const showVoiceAssistant = () => {
-  voiceAssistantVisible.value = true
-}
+  voiceAssistantVisible.value = true;
+};
 
 const toggleVoiceInput = async () => {
   if (!('webkitSpeechRecognition' in window)) {
-    ElMessage.error('您的浏览器不支持语音识别')
-    return
+    ElMessage.error('您的浏览器不支持语音识别');
+    return;
   }
 
   if (isListening.value) {
-    stopVoiceRecognition()
+    stopVoiceRecognition();
   } else {
-    startVoiceRecognition()
+    startVoiceRecognition();
   }
-}
+};
 
 const startVoiceRecognition = () => {
-  const recognition = new webkitSpeechRecognition()
-  recognition.lang = voiceDialect.value === 'mandarin' ? 'zh-CN' : 'yue-Hant-HK'
+  const recognition = new webkitSpeechRecognition();
+  recognition.lang = voiceDialect.value === 'mandarin' ? 'zh-CN' : 'yue-Hant-HK';
 
-  recognition.onresult = (event) => {
-    voiceResult.value = event.results[0][0].transcript
-    stopVoiceRecognition()
-  }
+  recognition.onresult = event => {
+    voiceResult.value = event.results[0][0].transcript;
+    stopVoiceRecognition();
+  };
 
   recognition.onerror = () => {
-    ElMessage.error('语音识别失败，请重试')
-    stopVoiceRecognition()
-  }
+    ElMessage.error('语音识别失败，请重试');
+    stopVoiceRecognition();
+  };
 
   recognition.onend = () => {
-    isListening.value = false
-  }
+    isListening.value = false;
+  };
 
-  recognition.start()
-  isListening.value = true
-}
+  recognition.start();
+  isListening.value = true;
+};
 
 const stopVoiceRecognition = () => {
   // 停止录音的逻辑会在onend中处理
-}
+};
 
-const speakCommand = (command) => {
+const speakCommand = command => {
   if ('speechSynthesis' in window) {
-    const utterance = new SpeechSynthesisUtterance(command)
-    utterance.lang = voiceDialect.value === 'mandarin' ? 'zh-CN' : 'yue-Hant-HK'
-    speechSynthesis.speak(utterance)
+    const utterance = new SpeechSynthesisUtterance(command);
+    utterance.lang = voiceDialect.value === 'mandarin' ? 'zh-CN' : 'yue-Hant-HK';
+    speechSynthesis.speak(utterance);
   }
-}
+};
 
 const searchByVoice = () => {
   if (voiceResult.value) {
-    searchQuery.value = voiceResult.value
-    handleSearch()
+    searchQuery.value = voiceResult.value;
+    handleSearch();
   }
-}
+};
 
 const clearVoiceResult = () => {
-  voiceResult.value = ''
-}
+  voiceResult.value = '';
+};
 
 const viewVillageMap = () => {
-  router.push('/village/map')
-}
+  router.push('/village/map');
+};
 
 const callDuty = () => {
   ElMessageBox.confirm(
@@ -1528,105 +1539,105 @@ const callDuty = () => {
     {
       confirmButtonText: '确定呼叫',
       cancelButtonText: '取消',
-      type: 'warning'
+      type: 'warning',
     }
-  ).then(() => {
-    ElMessage.success('正在呼叫...')
-    // 实际项目中可以集成tel:链接
-  }).catch(() => {})
-}
+  )
+    .then(() => {
+      ElMessage.success('正在呼叫...');
+      // 实际项目中可以集成tel:链接
+    })
+    .catch(() => {});
+};
 
 const showPointsDetail = () => {
-  pointsDetailVisible.value = true
-}
+  pointsDetailVisible.value = true;
+};
 
 const showPointsMall = () => {
-  pointsDetailVisible.value = true
-  pointsTab.value = 'mall'
-}
+  pointsDetailVisible.value = true;
+  pointsTab.value = 'mall';
+};
 
-const exchangeItem = (item) => {
+const exchangeItem = item => {
   if (userPoints.total >= item.points) {
-    ElMessageBox.confirm(
-      `确定要兑换 ${item.name} 吗？需要 ${item.points} 积分`,
-      '兑换确认',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'info'
-      }
-    ).then(() => {
-      userPoints.total -= item.points
-      ElMessage.success(`成功兑换 ${item.name}！`)
-    }).catch(() => {})
+    ElMessageBox.confirm(`确定要兑换 ${item.name} 吗？需要 ${item.points} 积分`, '兑换确认', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'info',
+    })
+      .then(() => {
+        userPoints.total -= item.points;
+        ElMessage.success(`成功兑换 ${item.name}！`);
+      })
+      .catch(() => {});
   } else {
-    ElMessage.warning('积分不足')
+    ElMessage.warning('积分不足');
   }
-}
+};
 
 const handleSearch = () => {
-  loading.value = true
+  loading.value = true;
   setTimeout(() => {
-    loading.value = false
-  }, 500)
-}
+    loading.value = false;
+  }, 500);
+};
 
 const handleTimeFilter = () => {
-  handleSearch()
-}
+  handleSearch();
+};
 
 const refreshContent = () => {
-  loading.value = true
+  loading.value = true;
   setTimeout(() => {
-    loading.value = false
-    ElMessage.success('内容已刷新')
-  }, 1000)
-}
+    loading.value = false;
+    ElMessage.success('内容已刷新');
+  }, 1000);
+};
 
 const loadMore = () => {
-  loadingMore.value = true
+  loadingMore.value = true;
   setTimeout(() => {
-    loadingMore.value = false
-    hasMore.value = false
-  }, 1000)
-}
+    loadingMore.value = false;
+    hasMore.value = false;
+  }, 1000);
+};
 
-const viewDetail = (item) => {
-  currentItem.value = item
-  detailDialogVisible.value = true
+const viewDetail = item => {
+  currentItem.value = item;
+  detailDialogVisible.value = true;
 
   // 增加阅读计数
-  item.readCount++
+  item.readCount++;
 
   // 自动朗读
   if (autoRead.value) {
-    startTextToSpeech(item.title + '。' + item.summary)
+    startTextToSpeech(item.title + '。' + item.summary);
   }
-}
+};
 
-const likeItem = (item) => {
-  item.likeCount++
-  ElMessage.success('点赞成功')
+const likeItem = item => {
+  item.likeCount++;
+  ElMessage.success('点赞成功');
   // 增加积分
-  userPoints.total += 5
-}
+  userPoints.total += 5;
+};
 
-const shareItem = (item) => {
-  ElMessage.success('分享链接已复制到剪贴板')
-}
+const shareItem = item => {
+  ElMessage.success('分享链接已复制到剪贴板');
+};
 
-const viewTopic = (topic) => {
-  ElMessage.info(`查看话题: ${topic.title}`)
-}
+const viewTopic = topic => {
+  ElMessage.info(`查看话题: ${topic.title}`);
+};
 
-const viewPolicy = (policy) => {
-  ElMessage.info(`查看政策: ${policy.title}`)
-}
+const viewPolicy = policy => {
+  ElMessage.info(`查看政策: ${policy.title}`);
+};
 
 const submitComment = () => {
   if (!newComment.value.trim()) {
-    ElMessage.warning('请输入评论内容')
-    return
+    ElMessage.warning('请输入评论内容');
+    return;
   }
 
   const comment = {
@@ -1634,154 +1645,173 @@ const submitComment = () => {
     author: userStore.userInfo?.name || '村民',
     content: newComment.value,
     time: new Date().toISOString(),
-    avatar: ''
-  }
+    avatar: '',
+  };
 
   if (!currentItem.value.comments) {
-    currentItem.value.comments = []
+    currentItem.value.comments = [];
   }
-  currentItem.value.comments.push(comment)
-  newComment.value = ''
+  currentItem.value.comments.push(comment);
+  newComment.value = '';
 
   // 评论获得积分
-  userPoints.total += 10
-  ElMessage.success('评论发表成功，获得10积分')
-}
+  userPoints.total += 10;
+  ElMessage.success('评论发表成功，获得10积分');
+};
 
-const downloadAttachment = (attachment) => {
-  ElMessage.info(`下载附件: ${attachment.name}`)
-}
+const downloadAttachment = attachment => {
+  ElMessage.info(`下载附件: ${attachment.name}`);
+};
 
 const showFeedbackDialog = () => {
-  feedbackDialogVisible.value = true
-}
+  feedbackDialogVisible.value = true;
+};
 
 const submitFeedback = async () => {
-  if (!feedbackFormRef.value) return
+  if (!feedbackFormRef.value) return;
 
   try {
-    await feedbackFormRef.value.validate()
+    await feedbackFormRef.value.validate();
 
-    submitting.value = true
+    submitting.value = true;
 
     // 模拟提交
     setTimeout(() => {
-      submitting.value = false
-      feedbackDialogVisible.value = false
-      ElMessage.success('反馈提交成功，我们会尽快处理')
+      submitting.value = false;
+      feedbackDialogVisible.value = false;
+      ElMessage.success('反馈提交成功，我们会尽快处理');
 
       // 反馈获得积分
-      userPoints.total += 20
-      feedbackStats.total++
-      feedbackStats.replied++
+      userPoints.total += 20;
+      feedbackStats.total++;
+      feedbackStats.replied++;
 
       // 重置表单
       Object.assign(feedbackForm, {
         type: '',
         title: '',
         content: '',
-        contact: ''
-      })
-    }, 1500)
+        contact: '',
+      });
+    }, 1500);
   } catch (error) {
-    console.error('表单验证失败:', error)
+    console.error('表单验证失败:', error);
   }
-}
+};
 
 const subscribeNotifications = () => {
-  ElMessage.success('已订阅村务信息通知')
-}
+  ElMessage.success('已订阅村务信息通知');
+};
 
 const showSettings = () => {
-  settingsDialogVisible.value = true
-}
+  settingsDialogVisible.value = true;
+};
 
-const toggleLargeTextMode = (value) => {
+const toggleLargeTextMode = value => {
   if (value) {
-    document.body.classList.add('large-text-mode')
-    ElMessage.success('已开启大字模式')
+    document.body.classList.add('large-text-mode');
+    ElMessage.success('已开启大字模式');
   } else {
-    document.body.classList.remove('large-text-mode')
-    ElMessage.info('已关闭大字模式')
+    document.body.classList.remove('large-text-mode');
+    ElMessage.info('已关闭大字模式');
   }
-}
+};
 
-const startTextToSpeech = (text) => {
+const startTextToSpeech = text => {
   if ('speechSynthesis' in window) {
-    const utterance = new SpeechSynthesisUtterance(text)
-    utterance.lang = 'zh-CN'
-    speechSynthesis.speak(utterance)
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'zh-CN';
+    speechSynthesis.speak(utterance);
   }
-}
+};
 
-const formatTime = (timeString) => {
-  const date = new Date(timeString)
-  const now = new Date()
-  const diff = now - date
+const formatTime = timeString => {
+  const date = new Date(timeString);
+  const now = new Date();
+  const diff = now - date;
 
   if (diff < 60 * 1000) {
-    return '刚刚'
+    return '刚刚';
   } else if (diff < 60 * 60 * 1000) {
-    return `${Math.floor(diff / (60 * 1000))}分钟前`
+    return `${Math.floor(diff / (60 * 1000))}分钟前`;
   } else if (diff < 24 * 60 * 60 * 1000) {
-    return `${Math.floor(diff / (60 * 60 * 1000))}小时前`
+    return `${Math.floor(diff / (60 * 60 * 1000))}小时前`;
   } else if (diff < 7 * 24 * 60 * 60 * 1000) {
-    return `${Math.floor(diff / (24 * 60 * 60 * 1000))}天前`
+    return `${Math.floor(diff / (24 * 60 * 60 * 1000))}天前`;
   } else {
-    return date.toLocaleDateString()
+    return date.toLocaleDateString();
   }
-}
+};
 
-const formatFileSize = (bytes) => {
-  if (bytes === 0) return '0 B'
-  const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i]
-}
+const formatFileSize = bytes => {
+  if (bytes === 0) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+};
 
 onMounted(async () => {
-  console.log('村务公开页面加载完成')
+  console.log('村务公开页面加载完成');
 
   // 获取村庄信息
-  await fetchVillageInfo()
-})
+  await fetchVillageInfo();
+});
 
 /**
  * 获取村庄信息 - 从数据库现有村庄映射
  */
 const fetchVillageInfo = async () => {
   try {
-    const villageId = userStore.userInfo?.villageId
+    const villageId = userStore.userInfo?.villageId;
     if (!villageId) {
-      console.log('[村庄信息] 未找到villageId')
-      return
+      console.log('[村庄信息] 未找到villageId');
+      return;
     }
 
-    // 村庄ID到名称的映射(临时方案)
     const villageMap = {
       '695d2f0a1993c080b9fa520b': '贵州省贞丰县鲁贡镇么扒村',
       '695da4e954f6af867bebc416': '贵州省贞丰县鲁贡镇弄洋村',
       '695da4e954f6af867bebc417': '贵州省贞丰县鲁贡镇林桃村',
-      '695da4e954f6af867bebc418': '贵州省贞丰县鲁贡镇者央村'
-    }
+      '695da4e954f6af867bebc418': '贵州省贞丰县鲁贡镇者央村',
+      '69620ba44261831e215211b3': '贵州省贞丰县鲁贡镇么扒村',
+      '69620ba44261831e215211be': '贵州省贞丰县鲁贡镇弄洋村',
+      '69620ba44261831e215211c1': '贵州省贞丰县鲁贡镇者央村',
+      '69620ba44261831e215211c4': '贵州省贞丰县鲁贡镇林桃村',
+      '69620ba44261831e215211c7': '贵州省望谟县乐元镇乐元村',
+      '69620c30a56e5cb7d408a2fe': '贵州省兴义市顶效镇绿化村',
+      '69620c30a56e5cb7d408a303': '贵州省兴义市顶效镇绿荫村',
+      '69620c30a56e5cb7d408a307': '贵州省兴义市顶效镇查白村',
+      '69620c30a56e5cb7d408a30a': '贵州省兴义市顶效镇楼纳村',
+      '69620d263aae7459331c09fe': '贵州省贞丰县沙坪镇者索村',
+      '69620d263aae7459331c0a01': '贵州省贞丰县沙坪镇板昌村',
+      '69620d263aae7459331c0a04': '贵州省贞丰县沙坪镇这年村',
+      '69620d263aae7459331c0a07': '贵州省贞丰县沙坪镇者砍村',
+      '69620e87edd9c22fcd029c81': '贵州省贞丰县白层镇兴龙村',
+      '69620e87edd9c22fcd029c84': '贵州省贞丰县白层镇坝桥村',
+      '69620e87edd9c22fcd029c87': '贵州省贞丰县白层镇坡们村',
+      '69620e87edd9c22fcd029c8a': '贵州省贞丰县白层镇纳杠村',
+      '69620e87edd9c22fcd029c8d': '贵州省望谟县乐元镇里好村',
+      '69620e87edd9c22fcd029c90': '贵州省望谟县乐元镇纳管村',
+      '69620e87edd9c22fcd029c93': '贵州省望谟县乐元镇董万村',
+    };
 
-    const villageName = villageMap[villageId]
+    const villageName = villageMap[villageId];
     if (villageName) {
       // 更新用户信息中的村庄名称
       const updatedUserInfo = {
         ...userStore.userInfo,
-        villageName: villageName
-      }
-      userStore.setUserInfo(updatedUserInfo)
-      console.log('[村庄信息] 已更新:', villageName)
+        villageName: villageName,
+      };
+      userStore.setUserInfo(updatedUserInfo);
+      console.log('[村庄信息] 已更新:', villageName);
     } else {
-      console.log('[村庄信息] 未找到villageId对应的村庄名称:', villageId)
+      console.log('[村庄信息] 未找到villageId对应的村庄名称:', villageId);
     }
   } catch (error) {
-    console.error('[村庄信息] 获取失败:', error)
+    console.error('[村庄信息] 获取失败:', error);
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>
@@ -2523,7 +2553,8 @@ const fetchVillageInfo = async () => {
       align-items: center;
       gap: 12px;
 
-      .publish-info, .publish-time {
+      .publish-info,
+      .publish-time {
         color: #666;
         font-size: 14px;
       }

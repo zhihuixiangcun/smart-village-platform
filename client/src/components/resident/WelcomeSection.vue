@@ -2,7 +2,9 @@
   <div class="welcome-section">
     <div class="welcome-content">
       <div class="greeting">
-        <h1 class="greeting-text">{{ greetingText }}，{{ profile?.personalInfo?.name || '村民' }}！</h1>
+        <h1 class="greeting-text">
+          {{ greetingText }}，{{ profile?.personalInfo?.name || '村民' }}！
+        </h1>
         <p class="date-info">{{ formattedDate }} {{ weatherIcon }}</p>
       </div>
 
@@ -101,8 +103,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ref, computed, onMounted, watch } from 'vue';
+import { ElMessage } from 'element-plus';
 import {
   Edit,
   Microphone,
@@ -111,44 +113,51 @@ import {
   Check,
   Plus,
   Minus,
-  Close
-} from '@element-plus/icons-vue'
-import { useFontSize, type FontSizeLevel } from '@/composables/useFontSize'
-import { useRouter } from 'vue-router'
+  Close,
+} from '@element-plus/icons-vue';
+import { useFontSize, type FontSizeLevel } from '@/composables/useFontSize';
+import { useRouter } from 'vue-router';
 
 interface Props {
-  profile?: any
+  profile?: any;
 }
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
 const emit = defineEmits<{
-  'settings-click': []
-  'notifications-click': []
-}>()
+  'settings-click': [];
+  'notifications-click': [];
+}>();
 
-const router = useRouter()
+const router = useRouter();
 
 // Composables
-const { config, isCustomMode, currentLevelLabel, setFontSizeLevel, increaseFontSize, decreaseFontSize } = useFontSize()
+const {
+  config,
+  isCustomMode,
+  currentLevelLabel,
+  setFontSizeLevel,
+  increaseFontSize,
+  decreaseFontSize,
+} = useFontSize();
 
 // 语音功能占位符（待实现）
-const isListening = ref(false)
-const recognizedText = ref('')
+const isListening = ref(false);
+const recognizedText = ref('');
 const startListening = () => {
-  ElMessage.info('语音识别功能开发中...')
-}
+  ElMessage.info('语音识别功能开发中...');
+};
 const stopVoiceListening = () => {
-  isListening.value = false
-}
+  isListening.value = false;
+};
 const parseVoiceIntent = (text: string) => {
-  console.log('解析语音指令:', text)
-}
+  console.log('解析语音指令:', text);
+};
 
 // 响应式数据
-const showSettings = ref(false)
-const showNotifications = ref(false)
-const unreadCount = ref(3)
+const showSettings = ref(false);
+const showNotifications = ref(false);
+const unreadCount = ref(3);
 
 // 字体大小级别选项
 const fontSizeLevels = [
@@ -156,47 +165,41 @@ const fontSizeLevels = [
   { label: '正常 (100%)', value: 'normal' as FontSizeLevel },
   { label: '大字 (125%)', value: 'large' as FontSizeLevel },
   { label: '超大 (150%)', value: 'extra-large' as FontSizeLevel },
-  { label: '巨大 (175%)', value: 'huge' as FontSizeLevel }
-]
+  { label: '巨大 (175%)', value: 'huge' as FontSizeLevel },
+];
 
 // 语音示例
-const voiceExamples = [
-  '打开一户一码',
-  '我要办证件',
-  '查询补贴',
-  '我要紧急求助',
-  '打开办事大厅'
-]
+const voiceExamples = ['打开一户一码', '我要办证件', '查询补贴', '我要紧急求助', '打开办事大厅'];
 
 // 天气图标（根据实际情况）
-const weatherIcon = ref('🌤️')
+const weatherIcon = ref('🌤️');
 
 /**
  * 获取问候语
  */
 const greetingText = computed(() => {
-  const hour = new Date().getHours()
-  if (hour < 6) return '凌晨好'
-  if (hour < 9) return '早上好'
-  if (hour < 12) return '上午好'
-  if (hour < 14) return '中午好'
-  if (hour < 17) return '下午好'
-  if (hour < 19) return '傍晚好'
-  return '晚上好'
-})
+  const hour = new Date().getHours();
+  if (hour < 6) return '凌晨好';
+  if (hour < 9) return '早上好';
+  if (hour < 12) return '上午好';
+  if (hour < 14) return '中午好';
+  if (hour < 17) return '下午好';
+  if (hour < 19) return '傍晚好';
+  return '晚上好';
+});
 
 /**
  * 格式化日期
  */
 const formattedDate = computed(() => {
-  const date = new Date()
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  const weekDays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
-  const weekDay = weekDays[date.getDay()]
-  return `${year}年${month}月${day}日 ${weekDay}`
-})
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const weekDays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+  const weekDay = weekDays[date.getDay()];
+  return `${year}年${month}月${day}日 ${weekDay}`;
+});
 
 /**
  * 处理字体大小命令
@@ -204,96 +207,96 @@ const formattedDate = computed(() => {
 const handleFontSizeCommand = async (command: FontSizeLevel | 'increase' | 'decrease') => {
   switch (command) {
     case 'increase':
-      increaseFontSize()
-      ElMessage.success(`字体已放大: ${currentLevelLabel.value}`)
-      break
+      increaseFontSize();
+      ElMessage.success(`字体已放大: ${currentLevelLabel.value}`);
+      break;
     case 'decrease':
-      decreaseFontSize()
-      ElMessage.success(`字体已缩小: ${currentLevelLabel.value}`)
-      break
+      decreaseFontSize();
+      ElMessage.success(`字体已缩小: ${currentLevelLabel.value}`);
+      break;
     default:
-      setFontSizeLevel(command as FontSizeLevel)
-      ElMessage.success(`已切换到${currentLevelLabel.value}模式`)
+      setFontSizeLevel(command as FontSizeLevel);
+      ElMessage.success(`已切换到${currentLevelLabel.value}模式`);
   }
-}
+};
 
 /**
  * 处理语音点击
  */
 const handleVoiceClick = async () => {
   if (isListening.value) {
-    stopVoiceListening()
-    return
+    stopVoiceListening();
+    return;
   }
 
   try {
-    const text = await startListening({ lang: 'zh-CN' })
-    const intent = parseVoiceIntent(text)
+    const text = await startListening({ lang: 'zh-CN' });
+    const intent = parseVoiceIntent(text);
 
     // 处理语音意图
-    handleVoiceIntent(intent)
+    handleVoiceIntent(intent);
   } catch (error) {
-    console.error('Voice recognition error:', error)
-    ElMessage.error('语音识别失败，请重试')
+    console.error('Voice recognition error:', error);
+    ElMessage.error('语音识别失败，请重试');
   }
-}
+};
 
 /**
  * 处理语音意图
  */
 const handleVoiceIntent = (intent: any) => {
   if (!intent || intent.action === 'unknown') {
-    ElMessage.warning('未识别到相关功能，请重试或使用文字输入')
-    return
+    ElMessage.warning('未识别到相关功能，请重试或使用文字输入');
+    return;
   }
 
   switch (intent.action) {
     case 'navigate':
-      router.push(intent.route)
-      ElMessage.success(`正在打开: ${intent.originalText}`)
-      break
+      router.push(intent.route);
+      ElMessage.success(`正在打开: ${intent.originalText}`);
+      break;
     case 'toggle':
       if (intent.feature === 'largeText') {
-        increaseFontSize()
-        ElMessage.success('已切换到大字模式')
+        increaseFontSize();
+        ElMessage.success('已切换到大字模式');
       }
-      break
+      break;
   }
-}
+};
 
 /**
  * 点击语音示例
  */
 const handleExampleClick = async (example: string) => {
   try {
-    const intent = parseVoiceIntent(example)
-    handleVoiceIntent(intent)
+    const intent = parseVoiceIntent(example);
+    handleVoiceIntent(intent);
   } catch (error) {
-    console.error('Example click error:', error)
+    console.error('Example click error:', error);
   }
-}
+};
 
 /**
  * 停止语音监听
  */
 const stopListening = () => {
-  stopVoiceListening()
-}
+  stopVoiceListening();
+};
 
 // 监听设置和通知事件
-watch(showSettings, (val) => {
-  if (val) emit('settings-click')
-})
+watch(showSettings, val => {
+  if (val) emit('settings-click');
+});
 
-watch(showNotifications, (val) => {
-  if (val) emit('notifications-click')
-})
+watch(showNotifications, val => {
+  if (val) emit('notifications-click');
+});
 
 // 生命周期
 onMounted(() => {
   // 获取天气信息（可选）
   // fetchWeather()
-})
+});
 </script>
 
 <style lang="scss" scoped>
@@ -460,7 +463,8 @@ onMounted(() => {
 
 // 动画
 @keyframes wave {
-  0%, 100% {
+  0%,
+  100% {
     transform: scaleY(0.5);
   }
   50% {
@@ -469,7 +473,8 @@ onMounted(() => {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     box-shadow: 0 0 0 0 rgba(255, 82, 82, 0.7);
   }
   50% {

@@ -8,8 +8,8 @@ const api = axios.create({
   baseURL: BASE_URL,
   timeout: 30000,
   headers: {
-    'Content-Type': 'application/json'
-  }
+    'Content-Type': 'application/json',
+  },
 });
 
 // 请求拦截器 - 添加认证令牌
@@ -114,7 +114,7 @@ export const agricultureApi = {
   // 专家认证
   verifyPost(id, data) {
     return api.post(`/api/v1/agriculture/posts/${id}/verify`, data);
-  }
+  },
 };
 
 /**
@@ -214,7 +214,7 @@ export const socialApi = {
   // 创建话题
   createTopic(data) {
     return api.post('/api/v1/social/topics', data);
-  }
+  },
 };
 
 /**
@@ -279,7 +279,7 @@ export const carpoolApi = {
   // 智能匹配
   smartMatch(data) {
     return api.post('/api/v1/carpool/match', data);
-  }
+  },
 };
 
 /**
@@ -350,9 +350,9 @@ export const committeeApi = {
   exportMembers(params) {
     return api.get('/api/v1/committee/members/export', {
       params,
-      responseType: 'blob'
+      responseType: 'blob',
     });
-  }
+  },
 };
 
 /**
@@ -364,12 +364,14 @@ export const batchImportApi = {
     const formData = new FormData();
     formData.append('file', file);
     if (options.villageId) formData.append('villageId', options.villageId);
-    if (options.skipDuplicates !== undefined) formData.append('skipDuplicates', options.skipDuplicates);
-    if (options.updateExisting !== undefined) formData.append('updateExisting', options.updateExisting);
+    if (options.skipDuplicates !== undefined)
+      formData.append('skipDuplicates', options.skipDuplicates);
+    if (options.updateExisting !== undefined)
+      formData.append('updateExisting', options.updateExisting);
 
     return api.post('/api/v1/batch-import/residents', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
-      onUploadProgress: options.onProgress
+      onUploadProgress: options.onProgress,
     });
   },
 
@@ -386,7 +388,7 @@ export const batchImportApi = {
   // 获取导入模板
   getImportTemplate(type) {
     return api.get(`/api/v1/batch-import/template/${type}`, {
-      responseType: 'blob'
+      responseType: 'blob',
     });
   },
 
@@ -398,7 +400,7 @@ export const batchImportApi = {
   // 下载导入报告
   downloadReport(taskId) {
     return api.get(`/api/v1/batch-import/report/${taskId}`, {
-      responseType: 'blob'
+      responseType: 'blob',
     });
   },
 
@@ -409,9 +411,9 @@ export const batchImportApi = {
     formData.append('type', type);
 
     return api.post('/api/v1/batch-import/validate', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+      headers: { 'Content-Type': 'multipart/form-data' },
     });
-  }
+  },
 };
 
 /**
@@ -431,7 +433,7 @@ export const documentApi = {
   // 上传证件
   uploadDocument(formData) {
     return api.post('/api/v1/documents', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+      headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
 
@@ -458,7 +460,7 @@ export const documentApi = {
   // 下载证件
   downloadDocument(id) {
     return api.get(`/api/v1/documents/${id}/download`, {
-      responseType: 'blob'
+      responseType: 'blob',
     });
   },
 
@@ -470,7 +472,7 @@ export const documentApi = {
   // 获取证件统计
   getStatistics() {
     return api.get('/api/v1/documents/statistics');
-  }
+  },
 };
 
 /**
@@ -520,7 +522,7 @@ export const dashboardApi = {
   // 获取服务统计
   getServiceStats(params) {
     return api.get('/api/v1/dashboard/services', { params });
-  }
+  },
 };
 
 /**
@@ -565,14 +567,14 @@ export const chatApi = {
   // 上传图片
   uploadImage(conversationId, formData) {
     return api.post(`/api/v1/chat/conversations/${conversationId}/upload-image`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+      headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
 
   // 上传语音
   uploadVoice(conversationId, formData) {
     return api.post(`/api/v1/chat/conversations/${conversationId}/upload-voice`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+      headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
 
@@ -589,7 +591,7 @@ export const chatApi = {
   // 静音/取消静音
   toggleMute(conversationId) {
     return api.post(`/api/v1/chat/conversations/${conversationId}/mute`);
-  }
+  },
 };
 
 /**
@@ -656,9 +658,9 @@ export const friendApi = {
     const formData = new FormData();
     formData.append('avatar', file);
     return api.post('/api/v1/friends/avatar', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+      headers: { 'Content-Type': 'multipart/form-data' },
     });
-  }
+  },
 };
 
 /**
@@ -678,14 +680,14 @@ export const cadreTaskApi = {
   // 获取象限任务
   getQuadrantTasks(villageId, quadrant, params = {}) {
     return api.get(`/api/v1/cadre-tasks/quadrant/${quadrant}`, {
-      params: { villageId, ...params }
+      params: { villageId, ...params },
     });
   },
 
   // 获取我的任务
   getMyTasks(villageId, params = {}) {
     return api.get('/api/v1/cadre-tasks/my-tasks', {
-      params: { villageId, ...params }
+      params: { villageId, ...params },
     });
   },
 
@@ -727,7 +729,7 @@ export const cadreTaskApi = {
   // 删除任务
   deleteTask(id) {
     return api.delete(`/api/v1/cadre-tasks/${id}`);
-  }
+  },
 };
 
 /**
@@ -767,7 +769,7 @@ export const announcementApi = {
   // 获取公告分类
   getCategories() {
     return api.get('/api/v1/governance/announcements/categories');
-  }
+  },
 };
 
 /**
@@ -807,7 +809,7 @@ export const governanceApi = {
   // 获取统计数据
   getStats(params) {
     return api.get('/api/v1/governance/stats', { params });
-  }
+  },
 };
 
 /**
@@ -847,7 +849,7 @@ export const financePublicApi = {
   // 获取财务摘要
   getFinanceSummary(params) {
     return api.get('/api/v1/finance/village/summary', { params });
-  }
+  },
 };
 
 /**
@@ -882,7 +884,7 @@ export const contentReviewApi = {
   // 获取审核历史
   getReviewHistory(params) {
     return api.get('/api/v1/content-review/history', { params });
-  }
+  },
 };
 
 /**
@@ -942,7 +944,7 @@ export const authApi = {
   // 刷新Token
   refreshToken() {
     return api.post('/api/v1/auth/refresh');
-  }
+  },
 };
 
 // Export the axios instance as a named export for direct access
@@ -963,5 +965,5 @@ export default {
   governance: governanceApi,
   financePublic: financePublicApi,
   contentReview: contentReviewApi,
-  auth: authApi
+  auth: authApi,
 };

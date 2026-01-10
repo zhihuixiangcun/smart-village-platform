@@ -1,0 +1,66 @@
+[
+  {
+    "username": "cengfangguo",
+    "password": "Ceng@123456",
+    "name": "岑方国",
+    "phone": "13801234567",
+    "villageName": "么扒村",
+    "result": {
+      "success": true,
+      "data": {
+        "userId": "695e825d4769790a904c977e",
+        "username": "cengfangguo",
+        "name": "岑方国",
+        "villageId": "695d2f0a1993c080b9fa520b"
+      }
+    }
+  },
+  {
+    "username": "wangdingquan",
+    "password": "Wang@123456",
+    "name": "王定权",
+    "phone": "13801234568",
+    "villageName": "弄洋村",
+    "result": {
+      "success": true,
+      "data": {
+        "userId": "695e825e4769790a904c977f",
+        "username": "wangdingquan",
+        "name": "王定权",
+        "villageId": "695da4e954f6af867bebc416"
+      }
+    }
+  },
+  {
+    "username": "cengxiaoduo",
+    "password": "Ceng@123456",
+    "name": "岑小多",
+    "phone": "13801234569",
+    "villageName": "者央村",
+    "result": {
+      "success": true,
+      "data": {
+        "userId": "695e825e4769790a904c9780",
+        "username": "cengxiaoduo",
+        "name": "岑小多",
+        "villageId": "695da4e954f6af867bebc418"
+      }
+    }
+  },
+  {
+    "username": "maoguangqing",
+    "password": "Mao@123456",
+    "name": "毛光情",
+    "phone": "13801234570",
+    "villageName": "林桃村",
+    "result": {
+      "success": true,
+      "data": {
+        "userId": "695e825e4769790a904c9781",
+        "username": "maoguangqing",
+        "name": "毛光情",
+        "villageId": "695da4e954f6af867bebc417"
+      }
+    }
+  }
+]

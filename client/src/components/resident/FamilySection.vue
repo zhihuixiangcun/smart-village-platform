@@ -98,32 +98,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
-import {
-  UserFilled,
-  ArrowRight,
-  User,
-  Plus,
-  CircleCheck
-} from '@element-plus/icons-vue'
-import { useFontSize } from '@/composables/useFontSize'
+import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { ElMessage } from 'element-plus';
+import { UserFilled, ArrowRight, User, Plus, CircleCheck } from '@element-plus/icons-vue';
+import { useFontSize } from '@/composables/useFontSize';
 
 interface FamilyMember {
-  id: string
-  name: string
-  relation: string
-  avatar?: string
-  isSelf?: boolean
-  tags?: string[]
-  healthStatus?: string
-  age?: number
-  phone?: string
+  id: string;
+  name: string;
+  relation: string;
+  avatar?: string;
+  isSelf?: boolean;
+  tags?: string[];
+  healthStatus?: string;
+  age?: number;
+  phone?: string;
 }
 
-const router = useRouter()
-const { isLargeText } = useFontSize()
+const router = useRouter();
+const { isLargeText } = useFontSize();
 
 // 家庭成员数据
 const familyMembers = ref<FamilyMember[]>([
@@ -136,7 +130,7 @@ const familyMembers = ref<FamilyMember[]>([
     tags: ['党员'],
     healthStatus: '健康',
     age: 45,
-    phone: '138****1234'
+    phone: '138****1234',
   },
   {
     id: '2',
@@ -145,7 +139,7 @@ const familyMembers = ref<FamilyMember[]>([
     avatar: '',
     tags: [],
     healthStatus: '健康',
-    age: 43
+    age: 43,
   },
   {
     id: '3',
@@ -154,7 +148,7 @@ const familyMembers = ref<FamilyMember[]>([
     avatar: '',
     tags: ['学生'],
     healthStatus: '健康',
-    age: 18
+    age: 18,
   },
   {
     id: '4',
@@ -163,42 +157,42 @@ const familyMembers = ref<FamilyMember[]>([
     avatar: '',
     tags: ['独居老人', '高血压'],
     healthStatus: '需关注',
-    age: 78
-  }
-])
+    age: 78,
+  },
+]);
 
 // 特殊家庭标签统计
 const specialFamilyCount = computed(() => {
   return familyMembers.value.reduce((count, member) => {
-    return count + (member.tags?.length || 0)
-  }, 0)
-})
+    return count + (member.tags?.length || 0);
+  }, 0);
+});
 
 // 特殊家庭类型
 const specialFamilyType = computed(() => {
-  const allTags = familyMembers.value.flatMap(m => m.tags || [])
-  if (allTags.includes('低保户')) return '低保家庭'
-  if (allTags.includes('独居老人')) return '独居老人户'
-  if (allTags.includes('残疾人')) return '残疾人家庭'
-  if (allTags.includes('党员')) return '党员家庭'
-  return null
-})
+  const allTags = familyMembers.value.flatMap(m => m.tags || []);
+  if (allTags.includes('低保户')) return '低保家庭';
+  if (allTags.includes('独居老人')) return '独居老人户';
+  if (allTags.includes('残疾人')) return '残疾人家庭';
+  if (allTags.includes('党员')) return '党员家庭';
+  return null;
+});
 
 /**
  * 获取标签颜色类型
  */
 const getTagType = (tag: string): 'success' | 'warning' | 'danger' | 'info' | 'primary' => {
   const typeMap: Record<string, string> = {
-    '党员': 'danger',
-    '低保户': 'warning',
-    '独居老人': 'danger',
-    '残疾人': 'info',
-    '学生': 'success',
-    '高血压': 'warning',
-    '糖尿病': 'warning'
-  }
-  return (typeMap[tag] as any) || 'info'
-}
+    党员: 'danger',
+    低保户: 'warning',
+    独居老人: 'danger',
+    残疾人: 'info',
+    学生: 'success',
+    高血压: 'warning',
+    糖尿病: 'warning',
+  };
+  return (typeMap[tag] as any) || 'info';
+};
 
 /**
  * 处理家庭成员卡片点击
@@ -206,27 +200,27 @@ const getTagType = (tag: string): 'success' | 'warning' | 'danger' | 'info' | 'p
 const handleMemberClick = (member: FamilyMember) => {
   router.push({
     path: '/family/member',
-    query: { id: member.id }
-  })
-}
+    query: { id: member.id },
+  });
+};
 
 /**
  * 处理添加家庭成员
  */
 const handleAddMember = () => {
-  ElMessage.info('添加家庭成员功能开发中')
+  ElMessage.info('添加家庭成员功能开发中');
   // TODO: 实现添加家庭成员流程
   // 1. 人脸识别认证
   // 2. 填写成员信息
   // 3. 上传相关证件
-}
+};
 
 /**
  * 跳转到家庭详情页面
  */
 const goToFamilyDetail = () => {
-  router.push('/family')
-}
+  router.push('/family');
+};
 </script>
 
 <style lang="scss" scoped>

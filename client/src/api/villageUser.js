@@ -55,7 +55,7 @@ const villageUserApi = {
   // 分配权限（管理员）
   assignPermissions(userId, permissions) {
     return request.put(`/api/village-users/users/${userId}/permissions`, { permissions });
-  }
+  },
 };
 
 export default villageUserApi;

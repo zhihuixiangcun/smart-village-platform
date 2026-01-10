@@ -41,8 +41,8 @@
               :key="getRowKey ? getRowKey(item) : index"
               class="table-row"
               :class="{
-                'selected': selectedItems.includes(item),
-                'hover': hoveredIndex === startIndex + index
+                selected: selectedItems.includes(item),
+                hover: hoveredIndex === startIndex + index,
               }"
               @click="handleRowClick(item, startIndex + index)"
               @mouseenter="hoveredIndex = startIndex + index"
@@ -98,200 +98,200 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
-import { Sort } from '@element-plus/icons-vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
+import { Sort } from '@element-plus/icons-vue';
 
 // Props
 const props = defineProps({
   data: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   columns: {
     type: Array,
-    required: true
+    required: true,
   },
   itemHeight: {
     type: Number,
-    default: 50
+    default: 50,
   },
   containerHeight: {
     type: Number,
-    default: 400
+    default: 400,
   },
   buffer: {
     type: Number,
-    default: 5
+    default: 5,
   },
   getRowKey: {
     type: Function,
-    default: null
+    default: null,
   },
   loading: {
     type: Boolean,
-    default: false
+    default: false,
   },
   showPerformancePanel: {
     type: Boolean,
-    default: false
-  }
-})
+    default: false,
+  },
+});
 
 // Emits
-const emit = defineEmits(['row-click', 'selection-change', 'sort-change', 'scroll-bottom'])
+const emit = defineEmits(['row-click', 'selection-change', 'sort-change', 'scroll-bottom']);
 
 // 响应式数据
-const containerRef = ref()
-const bodyRef = ref()
-const scrollTop = ref(0)
-const scrollLeft = ref(0)
-const selectedItems = ref([])
-const hoveredIndex = ref(-1)
-const sortField = ref('')
-const sortOrder = ref('') // 'asc' | 'desc' | ''
+const containerRef = ref();
+const bodyRef = ref();
+const scrollTop = ref(0);
+const scrollLeft = ref(0);
+const selectedItems = ref([]);
+const hoveredIndex = ref(-1);
+const sortField = ref('');
+const sortOrder = ref(''); // 'asc' | 'desc' | ''
 
 // 性能监控
-const fps = ref(0)
-const memoryUsage = ref(0)
-const lastFrameTime = ref(0)
-const frameCount = ref(0)
+const fps = ref(0);
+const memoryUsage = ref(0);
+const lastFrameTime = ref(0);
+const frameCount = ref(0);
 
 // 计算属性
-const totalItems = computed(() => props.data.length)
-const totalHeight = computed(() => totalItems.value * props.itemHeight)
+const totalItems = computed(() => props.data.length);
+const totalHeight = computed(() => totalItems.value * props.itemHeight);
 
 const visibleCount = computed(() => {
-  return Math.ceil(props.containerHeight / props.itemHeight) + props.buffer * 2
-})
+  return Math.ceil(props.containerHeight / props.itemHeight) + props.buffer * 2;
+});
 
 const startIndex = computed(() => {
-  return Math.max(0, Math.floor(scrollTop.value / props.itemHeight) - props.buffer)
-})
+  return Math.max(0, Math.floor(scrollTop.value / props.itemHeight) - props.buffer);
+});
 
 const endIndex = computed(() => {
-  return Math.min(totalItems.value, startIndex.value + visibleCount.value)
-})
+  return Math.min(totalItems.value, startIndex.value + visibleCount.value);
+});
 
 const visibleItems = computed(() => {
-  return props.data.slice(startIndex.value, endIndex.value)
-})
+  return props.data.slice(startIndex.value, endIndex.value);
+});
 
 const offsetY = computed(() => {
-  return startIndex.value * props.itemHeight
-})
+  return startIndex.value * props.itemHeight;
+});
 
 // 方法
-const handleScroll = (event) => {
-  const target = event.target
-  scrollTop.value = target.scrollTop
-  scrollLeft.value = target.scrollLeft
+const handleScroll = event => {
+  const target = event.target;
+  scrollTop.value = target.scrollTop;
+  scrollLeft.value = target.scrollLeft;
 
   // 检测是否滚动到底部
   if (target.scrollTop + target.clientHeight >= target.scrollHeight - 10) {
-    emit('scroll-bottom')
+    emit('scroll-bottom');
   }
 
   // 性能监控
-  updatePerformanceMetrics()
-}
+  updatePerformanceMetrics();
+};
 
 const handleRowClick = (item, index) => {
-  emit('row-click', item, index)
-}
+  emit('row-click', item, index);
+};
 
-const handleSort = (field) => {
+const handleSort = field => {
   if (sortField.value === field) {
     // 切换排序方向
     if (sortOrder.value === 'asc') {
-      sortOrder.value = 'desc'
+      sortOrder.value = 'desc';
     } else if (sortOrder.value === 'desc') {
-      sortOrder.value = ''
-      sortField.value = ''
+      sortOrder.value = '';
+      sortField.value = '';
     } else {
-      sortOrder.value = 'asc'
+      sortOrder.value = 'asc';
     }
   } else {
-    sortField.value = field
-    sortOrder.value = 'asc'
+    sortField.value = field;
+    sortOrder.value = 'asc';
   }
 
   emit('sort-change', {
     field: sortField.value,
-    order: sortOrder.value
-  })
-}
+    order: sortOrder.value,
+  });
+};
 
-const getSortClass = (field) => {
-  if (sortField.value !== field) return ''
+const getSortClass = field => {
+  if (sortField.value !== field) return '';
   return {
     'sort-asc': sortOrder.value === 'asc',
-    'sort-desc': sortOrder.value === 'desc'
-  }
-}
+    'sort-desc': sortOrder.value === 'desc',
+  };
+};
 
 const getCellValue = (row, key) => {
-  const keys = key.split('.')
-  let value = row
+  const keys = key.split('.');
+  let value = row;
   for (const k of keys) {
-    value = value?.[k]
+    value = value?.[k];
   }
-  return value
-}
+  return value;
+};
 
 const updatePerformanceMetrics = () => {
-  const now = performance.now()
+  const now = performance.now();
 
   if (lastFrameTime.value) {
-    frameCount.value++
+    frameCount.value++;
     if (now - lastFrameTime.value >= 1000) {
-      fps.value = Math.round(frameCount.value * 1000 / (now - lastFrameTime.value))
-      frameCount.value = 0
-      lastFrameTime.value = now
+      fps.value = Math.round((frameCount.value * 1000) / (now - lastFrameTime.value));
+      frameCount.value = 0;
+      lastFrameTime.value = now;
     }
   } else {
-    lastFrameTime.value = now
+    lastFrameTime.value = now;
   }
 
   // 内存使用情况 (近似值)
   if (performance.memory) {
-    memoryUsage.value = Math.round(performance.memory.usedJSHeapSize / 1024 / 1024)
+    memoryUsage.value = Math.round(performance.memory.usedJSHeapSize / 1024 / 1024);
   }
-}
+};
 
 // 滚动到指定位置
-const scrollToIndex = (index) => {
+const scrollToIndex = index => {
   if (bodyRef.value) {
-    const targetScrollTop = index * props.itemHeight
-    bodyRef.value.scrollTop = targetScrollTop
+    const targetScrollTop = index * props.itemHeight;
+    bodyRef.value.scrollTop = targetScrollTop;
   }
-}
+};
 
 // 选择/取消选择行
-const toggleRowSelection = (item) => {
-  const index = selectedItems.value.indexOf(item)
+const toggleRowSelection = item => {
+  const index = selectedItems.value.indexOf(item);
   if (index > -1) {
-    selectedItems.value.splice(index, 1)
+    selectedItems.value.splice(index, 1);
   } else {
-    selectedItems.value.push(item)
+    selectedItems.value.push(item);
   }
-  emit('selection-change', selectedItems.value)
-}
+  emit('selection-change', selectedItems.value);
+};
 
 // 清除选择
 const clearSelection = () => {
-  selectedItems.value = []
-  emit('selection-change', selectedItems.value)
-}
+  selectedItems.value = [];
+  emit('selection-change', selectedItems.value);
+};
 
 // 全选/取消全选
 const toggleSelectAll = () => {
   if (selectedItems.value.length === props.data.length) {
-    clearSelection()
+    clearSelection();
   } else {
-    selectedItems.value = [...props.data]
-    emit('selection-change', selectedItems.value)
+    selectedItems.value = [...props.data];
+    emit('selection-change', selectedItems.value);
   }
-}
+};
 
 // 暴露方法
 defineExpose({
@@ -299,16 +299,16 @@ defineExpose({
   toggleRowSelection,
   clearSelection,
   toggleSelectAll,
-  getSelectedItems: () => selectedItems.value
-})
+  getSelectedItems: () => selectedItems.value,
+});
 
 // 生命周期
 onMounted(() => {
   // 初始化性能监控
   if (props.showPerformancePanel) {
-    updatePerformanceMetrics()
+    updatePerformanceMetrics();
   }
-})
+});
 
 // 监听数据变化
 watch(
@@ -316,12 +316,12 @@ watch(
   () => {
     // 数据变化时重置滚动位置
     if (bodyRef.value) {
-      bodyRef.value.scrollTop = 0
+      bodyRef.value.scrollTop = 0;
     }
-    scrollTop.value = 0
-    clearSelection()
+    scrollTop.value = 0;
+    clearSelection();
   }
-)
+);
 </script>
 
 <style lang="scss" scoped>

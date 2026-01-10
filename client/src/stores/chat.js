@@ -151,7 +151,7 @@ export const useChatStore = defineStore('chat', () => {
         content: content || {},
         replyTo,
         mentions: mentions || [],
-        mentionAll: mentionAll || false
+        mentionAll: mentionAll || false,
       });
 
       if (data.success) {
@@ -204,7 +204,11 @@ export const useChatStore = defineStore('chat', () => {
     try {
       const messages = messagesCache.value.get(conversationId) || [];
       const unreadMessageIds = messages
-        .filter(m => m.sender?._id !== getCurrentUserId() && !m.readBy?.some(r => r.user === getCurrentUserId()))
+        .filter(
+          m =>
+            m.sender?._id !== getCurrentUserId() &&
+            !m.readBy?.some(r => r.user === getCurrentUserId())
+        )
         .map(m => m._id);
 
       if (unreadMessageIds.length === 0) return;
@@ -592,6 +596,6 @@ export const useChatStore = defineStore('chat', () => {
     // 工具方法
     clearMessagesCache,
     reset,
-    setWsConnected
+    setWsConnected,
   };
 });

@@ -1,0 +1,30 @@
+[
+  {
+    "username": "cengfangguo",
+    "name": "岑方国",
+    "householdId": "675f1234567890abcdef0001",
+    "success": true,
+    "alreadyBound": true
+  },
+  {
+    "username": "wangdingquan",
+    "name": "王定权",
+    "householdId": "675f1234567890abcdef0002",
+    "success": true,
+    "alreadyBound": true
+  },
+  {
+    "username": "cengxiaoduo",
+    "name": "岑小多",
+    "householdId": "675f1234567890abcdef0003",
+    "success": true,
+    "alreadyBound": true
+  },
+  {
+    "username": "maoguangqing",
+    "name": "毛光情",
+    "householdId": "675f1234567890abcdef0004",
+    "success": true,
+    "alreadyBound": true
+  }
+]

@@ -21,12 +21,8 @@
         <h4>{{ activeEmergency.title }}</h4>
         <p>{{ activeEmergency.description }}</p>
         <div class="emergency-actions">
-          <van-button type="danger" size="small" @click="handleEmergency">
-            立即处理
-          </van-button>
-          <van-button size="small" @click="viewEmergencyDetail">
-            查看详情
-          </van-button>
+          <van-button type="danger" size="small" @click="handleEmergency"> 立即处理 </van-button>
+          <van-button size="small" @click="viewEmergencyDetail"> 查看详情 </van-button>
         </div>
       </div>
     </div>
@@ -127,11 +123,7 @@
     </div>
 
     <!-- 悬浮按钮 -->
-    <van-floating-bubble
-      axis="xy"
-      icon="add"
-      @click="showEmergencyCreator = true"
-    />
+    <van-floating-bubble axis="xy" icon="add" @click="showEmergencyCreator = true" />
 
     <!-- 演练选项弹窗 -->
     <van-popup v-model:show="showDrillOptions" position="bottom">
@@ -186,11 +178,7 @@
               :value="getTypeText(emergencyForm.type)"
               @click="showTypePicker = true"
             />
-            <van-field
-              name="location"
-              label="事发地点"
-              placeholder="请输入具体地点"
-            />
+            <van-field name="location" label="事发地点" placeholder="请输入具体地点" />
             <van-field
               name="affectedPeople"
               label="影响人数"
@@ -232,31 +220,31 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { showToast, showConfirmDialog } from 'vant'
-import villageApi from '@/api/villageManagement'
+import { ref, reactive, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { showToast, showConfirmDialog } from 'vant';
+import villageApi from '@/api/villageManagement';
 
-const router = useRouter()
+const router = useRouter();
 
 // 响应式数据
-const loading = ref(false)
-const finished = ref(false)
-const publishing = ref(false)
-const showDrillOptions = ref(false)
-const showEmergencyCreator = ref(false)
-const showLevelPicker = ref(false)
-const showTypePicker = ref(false)
+const loading = ref(false);
+const finished = ref(false);
+const publishing = ref(false);
+const showDrillOptions = ref(false);
+const showEmergencyCreator = ref(false);
+const showLevelPicker = ref(false);
+const showTypePicker = ref(false);
 
-const activeEmergency = ref(null)
-const emergencyRecords = ref([])
+const activeEmergency = ref(null);
+const emergencyRecords = ref([]);
 
 // 分页参数
 const pagination = reactive({
   page: 1,
   limit: 20,
-  total: 0
-})
+  total: 0,
+});
 
 // 紧急联系人
 const emergencyContacts = ref([
@@ -265,44 +253,44 @@ const emergencyContacts = ref([
     name: '村委书记',
     phone: '13800138000',
     icon: 'user-o',
-    color: '#409EFF'
+    color: '#409EFF',
   },
   {
     id: '2',
     name: '村主任',
     phone: '13800138001',
     icon: 'manager-o',
-    color: '#67C23A'
+    color: '#67C23A',
   },
   {
     id: '3',
     name: '派出所',
     phone: '110',
     icon: 'phone-o',
-    color: '#F56C6C'
+    color: '#F56C6C',
   },
   {
     id: '4',
     name: '卫生院',
     phone: '120',
     icon: 'hospital-o',
-    color: '#E6A23C'
+    color: '#E6A23C',
   },
   {
     id: '5',
     name: '消防队',
     phone: '119',
     icon: 'fire-o',
-    color: '#FF6B6B'
+    color: '#FF6B6B',
   },
   {
     id: '6',
     name: '供电所',
     phone: '95598',
     icon: 'bulb-o',
-    color: '#FFA500'
-  }
-])
+    color: '#FFA500',
+  },
+]);
 
 // 应急预案
 const emergencyPlans = ref([
@@ -312,7 +300,7 @@ const emergencyPlans = ref([
     description: '应对火灾事故的应急处置流程',
     icon: 'fire-o',
     color: '#F56C6C',
-    status: 'active'
+    status: 'active',
   },
   {
     id: '2',
@@ -320,7 +308,7 @@ const emergencyPlans = ref([
     description: '应对洪涝灾害的应急处置流程',
     icon: 'warning-o',
     color: '#409EFF',
-    status: 'active'
+    status: 'active',
   },
   {
     id: '3',
@@ -328,7 +316,7 @@ const emergencyPlans = ref([
     description: '应对地震灾害的应急处置流程',
     icon: 'shop-o',
     color: '#E6A23C',
-    status: 'active'
+    status: 'active',
   },
   {
     id: '4',
@@ -336,9 +324,9 @@ const emergencyPlans = ref([
     description: '应对传染病的应急处置流程',
     icon: 'shield-o',
     color: '#67C23A',
-    status: 'active'
-  }
-])
+    status: 'active',
+  },
+]);
 
 // 应急资源
 const emergencyResources = ref([
@@ -347,30 +335,30 @@ const emergencyResources = ref([
     name: '灭火器',
     icon: 'fire-o',
     count: 25,
-    unit: '个'
+    unit: '个',
   },
   {
     id: '2',
     name: '应急灯',
     icon: 'bulb-o',
     count: 15,
-    unit: '个'
+    unit: '个',
   },
   {
     id: '3',
     name: '急救箱',
     icon: 'first-aid-o',
     count: 8,
-    unit: '个'
+    unit: '个',
   },
   {
     id: '4',
     name: '帐篷',
     icon: 'home-o',
     count: 5,
-    unit: '顶'
-  }
-])
+    unit: '顶',
+  },
+]);
 
 // 应急表单
 const emergencyForm = reactive({
@@ -379,208 +367,208 @@ const emergencyForm = reactive({
   level: 'medium',
   type: 'accident',
   location: '',
-  affectedPeople: ''
-})
+  affectedPeople: '',
+});
 
 // 选择器选项
 const levelColumns = [
   { text: '一般', value: 'low' },
   { text: '较重', value: 'medium' },
   { text: '严重', value: 'high' },
-  { text: '特别严重', value: 'critical' }
-]
+  { text: '特别严重', value: 'critical' },
+];
 
 const typeColumns = [
   { text: '事故灾难', value: 'accident' },
   { text: '自然灾害', value: 'natural' },
   { text: '公共卫生', value: 'health' },
   { text: '社会安全', value: 'security' },
-  { text: '其他', value: 'other' }
-]
+  { text: '其他', value: 'other' },
+];
 
 // 方法
-const getLevelText = (value) => {
-  const level = levelColumns.find(item => item.value === value)
-  return level ? level.text : '较重'
-}
+const getLevelText = value => {
+  const level = levelColumns.find(item => item.value === value);
+  return level ? level.text : '较重';
+};
 
-const getTypeText = (value) => {
-  const type = typeColumns.find(item => item.value === value)
-  return type ? type.text : '事故灾难'
-}
+const getTypeText = value => {
+  const type = typeColumns.find(item => item.value === value);
+  return type ? type.text : '事故灾难';
+};
 
-const getPlanStatusType = (status) => {
+const getPlanStatusType = status => {
   const typeMap = {
-    'active': 'success',
-    'draft': 'warning',
-    'archived': 'default'
-  }
-  return typeMap[status] || 'default'
-}
+    active: 'success',
+    draft: 'warning',
+    archived: 'default',
+  };
+  return typeMap[status] || 'default';
+};
 
-const getPlanStatusText = (status) => {
+const getPlanStatusText = status => {
   const textMap = {
-    'active': '已启用',
-    'draft': '草稿',
-    'archived': '已归档'
-  }
-  return textMap[status] || status
-}
+    active: '已启用',
+    draft: '草稿',
+    archived: '已归档',
+  };
+  return textMap[status] || status;
+};
 
-const getRecordIcon = (type) => {
+const getRecordIcon = type => {
   const iconMap = {
-    'fire': 'fire-o',
-    'flood': 'warning-o',
-    'earthquake': 'shop-o',
-    'epidemic': 'shield-o',
-    'accident': 'warning-o'
-  }
-  return iconMap[type] || 'warning-o'
-}
+    fire: 'fire-o',
+    flood: 'warning-o',
+    earthquake: 'shop-o',
+    epidemic: 'shield-o',
+    accident: 'warning-o',
+  };
+  return iconMap[type] || 'warning-o';
+};
 
-const getRecordStatusType = (status) => {
+const getRecordStatusType = status => {
   const typeMap = {
-    'handling': 'primary',
-    'resolved': 'success',
-    'escalated': 'danger',
-    'closed': 'default'
-  }
-  return typeMap[status] || 'default'
-}
+    handling: 'primary',
+    resolved: 'success',
+    escalated: 'danger',
+    closed: 'default',
+  };
+  return typeMap[status] || 'default';
+};
 
-const getRecordStatusText = (status) => {
+const getRecordStatusText = status => {
   const textMap = {
-    'handling': '处理中',
-    'resolved': '已解决',
-    'escalated': '已上报',
-    'closed': '已关闭'
-  }
-  return textMap[status] || status
-}
+    handling: '处理中',
+    resolved: '已解决',
+    escalated: '已上报',
+    closed: '已关闭',
+  };
+  return textMap[status] || status;
+};
 
-const formatRecordLabel = (record) => {
-  const labels = []
+const formatRecordLabel = record => {
+  const labels = [];
   if (record.createTime) {
-    labels.push(`时间: ${formatDate(record.createTime)}`)
+    labels.push(`时间: ${formatDate(record.createTime)}`);
   }
   if (record.location) {
-    labels.push(`地点: ${record.location}`)
+    labels.push(`地点: ${record.location}`);
   }
   if (record.handler) {
-    labels.push(`处理人: ${record.handler}`)
+    labels.push(`处理人: ${record.handler}`);
   }
-  return labels.join(' • ')
-}
+  return labels.join(' • ');
+};
 
-const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleString()
-}
+const formatDate = dateString => {
+  return new Date(dateString).toLocaleString();
+};
 
-const makeEmergencyCall = async (contact) => {
+const makeEmergencyCall = async contact => {
   try {
     await showConfirmDialog({
       title: '紧急呼叫',
       message: `确认要呼叫${contact.name}(${contact.phone})吗？`,
-    })
+    });
 
-    showToast(`正在呼叫: ${contact.phone}`)
+    showToast(`正在呼叫: ${contact.phone}`);
     // 实际应用中可以调用电话API
     // window.location.href = `tel:${contact.phone}`
   } catch (error) {
     // 用户取消
   }
-}
+};
 
 const handleEmergency = async () => {
   try {
-    showToast('正在启动应急响应...')
+    showToast('正在启动应急响应...');
 
-    const response = await villageApi.handleEmergency(activeEmergency.value.id)
+    const response = await villageApi.handleEmergency(activeEmergency.value.id);
 
     if (response.data.success) {
-      showToast('应急响应已启动')
-      activeEmergency.value = null
+      showToast('应急响应已启动');
+      activeEmergency.value = null;
     }
   } catch (error) {
-    console.error('处理应急事件失败:', error)
-    showToast('处理失败')
+    console.error('处理应急事件失败:', error);
+    showToast('处理失败');
   }
-}
+};
 
 const viewEmergencyDetail = () => {
-  router.push(`/village/emergency/${activeEmergency.value.id}`)
-}
+  router.push(`/village/emergency/${activeEmergency.value.id}`);
+};
 
 const dismissEmergency = () => {
-  activeEmergency.value = null
-}
+  activeEmergency.value = null;
+};
 
-const viewPlan = (plan) => {
-  router.push(`/village/emergency/plan/${plan.id}`)
-}
+const viewPlan = plan => {
+  router.push(`/village/emergency/plan/${plan.id}`);
+};
 
-const viewResource = (resource) => {
-  router.push(`/village/emergency/resource/${resource.id}`)
-}
+const viewResource = resource => {
+  router.push(`/village/emergency/resource/${resource.id}`);
+};
 
-const viewRecord = (record) => {
-  router.push(`/village/emergency/record/${record.id}`)
-}
+const viewRecord = record => {
+  router.push(`/village/emergency/record/${record.id}`);
+};
 
-const startDrill = async (type) => {
-  showDrillOptions.value = false
+const startDrill = async type => {
+  showDrillOptions.value = false;
 
   try {
     await showConfirmDialog({
       title: '应急演练',
       message: `确认要启动${getDrillName(type)}演练吗？`,
-    })
+    });
 
-    showToast(`正在启动${getDrillName(type)}演练...`)
+    showToast(`正在启动${getDrillName(type)}演练...`);
 
-    const response = await villageApi.startEmergencyDrill(type)
+    const response = await villageApi.startEmergencyDrill(type);
 
     if (response.data.success) {
-      showToast('演练已启动')
+      showToast('演练已启动');
     }
   } catch (error) {
     if (error.name !== 'cancel') {
-      console.error('启动演练失败:', error)
-      showToast('启动失败')
+      console.error('启动演练失败:', error);
+      showToast('启动失败');
     }
   }
-}
+};
 
-const getDrillName = (type) => {
+const getDrillName = type => {
   const nameMap = {
-    'fire': '消防',
-    'flood': '防汛',
-    'earthquake': '地震',
-    'epidemic': '疫情'
-  }
-  return nameMap[type] || '应急'
-}
+    fire: '消防',
+    flood: '防汛',
+    earthquake: '地震',
+    epidemic: '疫情',
+  };
+  return nameMap[type] || '应急';
+};
 
 const publishEmergency = async () => {
   try {
     // 验证表单
     if (!emergencyForm.title.trim()) {
-      showToast('请输入事件标题')
-      return
+      showToast('请输入事件标题');
+      return;
     }
 
     if (!emergencyForm.description.trim()) {
-      showToast('请输入事件描述')
-      return
+      showToast('请输入事件描述');
+      return;
     }
 
-    publishing.value = true
+    publishing.value = true;
 
-    const response = await villageApi.publishEmergency(emergencyForm)
+    const response = await villageApi.publishEmergency(emergencyForm);
 
     if (response.data.success) {
-      showToast('紧急警报已发布')
-      showEmergencyCreator.value = false
+      showToast('紧急警报已发布');
+      showEmergencyCreator.value = false;
 
       // 重置表单
       Object.assign(emergencyForm, {
@@ -589,84 +577,84 @@ const publishEmergency = async () => {
         level: 'medium',
         type: 'accident',
         location: '',
-        affectedPeople: ''
-      })
+        affectedPeople: '',
+      });
 
       // 刷新记录
-      loadEmergencyRecords(true)
+      loadEmergencyRecords(true);
     }
   } catch (error) {
-    console.error('发布紧急警报失败:', error)
-    showToast('发布失败')
+    console.error('发布紧急警报失败:', error);
+    showToast('发布失败');
   } finally {
-    publishing.value = false
+    publishing.value = false;
   }
-}
+};
 
 const onLevelConfirm = ({ selectedOptions }) => {
-  emergencyForm.level = selectedOptions[0].value
-  showLevelPicker.value = false
-}
+  emergencyForm.level = selectedOptions[0].value;
+  showLevelPicker.value = false;
+};
 
 const onTypeConfirm = ({ selectedOptions }) => {
-  emergencyForm.type = selectedOptions[0].value
-  showTypePicker.value = false
-}
+  emergencyForm.type = selectedOptions[0].value;
+  showTypePicker.value = false;
+};
 
 const onLoad = () => {
-  loadEmergencyRecords()
-}
+  loadEmergencyRecords();
+};
 
 const loadEmergencyRecords = async (reset = false) => {
   if (reset) {
-    pagination.page = 1
-    emergencyRecords.value = []
-    finished.value = false
+    pagination.page = 1;
+    emergencyRecords.value = [];
+    finished.value = false;
   }
 
-  loading.value = true
+  loading.value = true;
   try {
     const response = await villageApi.getEmergencyRecords({
       page: pagination.page,
-      limit: pagination.limit
-    })
+      limit: pagination.limit,
+    });
 
-    const newRecords = response.data.data.docs || []
+    const newRecords = response.data.data.docs || [];
 
     if (reset) {
-      emergencyRecords.value = newRecords
+      emergencyRecords.value = newRecords;
     } else {
-      emergencyRecords.value.push(...newRecords)
+      emergencyRecords.value.push(...newRecords);
     }
 
-    pagination.total = response.data.data.total || 0
-    pagination.page += 1
+    pagination.total = response.data.data.total || 0;
+    pagination.page += 1;
 
-    finished.value = emergencyRecords.value.length >= pagination.total
+    finished.value = emergencyRecords.value.length >= pagination.total;
   } catch (error) {
-    console.error('加载应急记录失败:', error)
-    showToast('加载失败')
+    console.error('加载应急记录失败:', error);
+    showToast('加载失败');
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const loadActiveEmergency = async () => {
   try {
-    const response = await villageApi.getActiveEmergency()
+    const response = await villageApi.getActiveEmergency();
     if (response.data.success && response.data.data) {
-      activeEmergency.value = response.data.data
+      activeEmergency.value = response.data.data;
     }
   } catch (error) {
-    console.error('加载活跃应急事件失败:', error)
+    console.error('加载活跃应急事件失败:', error);
   }
-}
+};
 
 // 生命周期
 onMounted(() => {
-  loadActiveEmergency()
-  loadEmergencyRecords(true)
-})
+  loadActiveEmergency();
+  loadEmergencyRecords(true);
+});
 </script>
 
 <style scoped>

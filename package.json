@@ -60,6 +60,7 @@
     "node": ">=20.17.0"
   },
   "dependencies": {
+    "@ai-sdk/openai-compatible": "^2.0.4",
     "@anthropic-ai/sdk": "^0.62.0",
     "@dotenvx/dotenvx": "^1.51.0",
     "@tensorflow/tfjs": "^4.20.0",

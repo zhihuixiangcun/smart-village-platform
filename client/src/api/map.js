@@ -13,7 +13,7 @@ import request from '@/utils/request';
 export function getVillageMapConfig(villageId) {
   return request({
     url: `/map/village/${villageId}`,
-    method: 'get'
+    method: 'get',
   });
 }
 
@@ -26,7 +26,7 @@ export function updateVillageMapConfig(villageId, data) {
   return request({
     url: `/map/village/${villageId}`,
     method: 'put',
-    data
+    data,
   });
 }
 
@@ -37,7 +37,7 @@ export function updateVillageMapConfig(villageId, data) {
 export function getMapDataSummary(villageId) {
   return request({
     url: `/map/village/${villageId}/summary`,
-    method: 'get'
+    method: 'get',
   });
 }
 
@@ -52,7 +52,7 @@ export function getLocations(villageId, params = {}) {
   return request({
     url: `/map/locations/${villageId}`,
     method: 'get',
-    params
+    params,
   });
 }
 
@@ -64,7 +64,7 @@ export function addLocation(data) {
   return request({
     url: '/map/locations',
     method: 'post',
-    data
+    data,
   });
 }
 
@@ -77,7 +77,7 @@ export function updateLocation(locationId, data) {
   return request({
     url: `/map/locations/${locationId}`,
     method: 'put',
-    data
+    data,
   });
 }
 
@@ -88,7 +88,7 @@ export function updateLocation(locationId, data) {
 export function deleteLocation(locationId) {
   return request({
     url: `/map/locations/${locationId}`,
-    method: 'delete'
+    method: 'delete',
   });
 }
 
@@ -100,7 +100,7 @@ export function findNearbyLocations(params) {
   return request({
     url: '/map/locations/nearby',
     method: 'get',
-    params
+    params,
   });
 }
 
@@ -117,8 +117,8 @@ export function searchLocations(villageId, keyword, options = {}) {
     params: {
       villageId,
       keyword,
-      ...options
-    }
+      ...options,
+    },
   });
 }
 
@@ -131,7 +131,7 @@ export function searchLocations(villageId, keyword, options = {}) {
 export function getDangerZones(villageId) {
   return request({
     url: `/map/danger-zones/${villageId}`,
-    method: 'get'
+    method: 'get',
   });
 }
 
@@ -143,7 +143,7 @@ export function addDangerZone(data) {
   return request({
     url: '/map/danger-zones',
     method: 'post',
-    data
+    data,
   });
 }
 
@@ -156,7 +156,7 @@ export function updateDangerZoneStatus(zoneId, status) {
   return request({
     url: `/map/danger-zones/${zoneId}/status`,
     method: 'put',
-    data: { status }
+    data: { status },
   });
 }
 
@@ -168,7 +168,7 @@ export function checkLocationInDangerZone(params) {
   return request({
     url: '/map/danger-zones/check',
     method: 'get',
-    params
+    params,
   });
 }
 
@@ -183,7 +183,7 @@ export function getEmergencyResources(villageId, params = {}) {
   return request({
     url: `/map/resources/${villageId}`,
     method: 'get',
-    params
+    params,
   });
 }
 
@@ -195,7 +195,7 @@ export function addEmergencyResource(data) {
   return request({
     url: '/map/resources',
     method: 'post',
-    data
+    data,
   });
 }
 
@@ -209,7 +209,7 @@ export function updateResourceStatus(resourceId, status, remarks) {
   return request({
     url: `/map/resources/${resourceId}/status`,
     method: 'put',
-    data: { status, remarks }
+    data: { status, remarks },
   });
 }
 
@@ -222,7 +222,7 @@ export function recordResourceUsage(resourceId, usageData) {
   return request({
     url: `/map/resources/${resourceId}/usage`,
     method: 'post',
-    data: usageData
+    data: usageData,
   });
 }
 
@@ -235,7 +235,7 @@ export function recordResourceMaintenance(resourceId, checkData) {
   return request({
     url: `/map/resources/${resourceId}/maintenance`,
     method: 'post',
-    data: checkData
+    data: checkData,
   });
 }
 
@@ -247,7 +247,7 @@ export function findNearbyResources(params) {
   return request({
     url: '/map/resources/nearby',
     method: 'get',
-    params
+    params,
   });
 }
 
@@ -258,7 +258,7 @@ export function findNearbyResources(params) {
 export function getResourcesNeedingMaintenance(villageId) {
   return request({
     url: `/map/resources/maintenance/${villageId}`,
-    method: 'get'
+    method: 'get',
   });
 }
 
@@ -271,7 +271,7 @@ export function getExpiringResources(villageId, days = 30) {
   return request({
     url: `/map/resources/expiring/${villageId}`,
     method: 'get',
-    params: { days }
+    params: { days },
   });
 }
 
@@ -285,7 +285,7 @@ export function updateResidentLocation(data) {
   return request({
     url: '/map/residents/location',
     method: 'post',
-    data
+    data,
   });
 }
 
@@ -296,7 +296,7 @@ export function updateResidentLocation(data) {
 export function getResidentLocations(villageId) {
   return request({
     url: `/map/residents/${villageId}`,
-    method: 'get'
+    method: 'get',
   });
 }
 
@@ -308,7 +308,7 @@ export function findNearbyResidents(params) {
   return request({
     url: '/map/residents/nearby',
     method: 'get',
-    params
+    params,
   });
 }
 
@@ -320,7 +320,7 @@ export function updatePrivacySettings(data) {
   return request({
     url: '/map/residents/privacy',
     method: 'put',
-    data
+    data,
   });
 }
 
@@ -335,7 +335,7 @@ export function calculateDistance(point1, point2) {
   return request({
     url: '/map/calculate-distance',
     method: 'post',
-    data: { point1, point2 }
+    data: { point1, point2 },
   });
 }
 
@@ -347,7 +347,7 @@ export function calculateArea(coordinates) {
   return request({
     url: '/map/calculate-area',
     method: 'post',
-    data: { coordinates }
+    data: { coordinates },
   });
 }
 
@@ -379,7 +379,7 @@ export default {
   findNearbyResidents,
   updatePrivacySettings,
   calculateDistance,
-  calculateArea
+  calculateArea,
 };
 
 // 命名导出（便于按需导入）
@@ -410,5 +410,5 @@ export const mapApi = {
   findNearbyResidents,
   updatePrivacySettings,
   calculateDistance,
-  calculateArea
+  calculateArea,
 };

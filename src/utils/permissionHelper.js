@@ -124,15 +124,15 @@ class PermissionHelper {
     const dataScope = userRole.restrictions?.dataScope || 'department';
 
     switch (dataScope) {
-      case 'all':
-        return true;
-      case 'self':
-        return targetUserId === userUserId;
-      case 'department':
-      default:
-        // 部门级别需要根据具体业务逻辑判断
-        // 这里默认返回true，实际应该检查是否同一村庄/部门
-        return true;
+    case 'all':
+      return true;
+    case 'self':
+      return targetUserId === userUserId;
+    case 'department':
+    default:
+      // 部门级别需要根据具体业务逻辑判断
+      // 这里默认返回true，实际应该检查是否同一村庄/部门
+      return true;
     }
   }
 
@@ -223,24 +223,24 @@ class PermissionHelper {
     }
 
     switch (fieldType) {
-      case 'idCard':
-        // 身份证号：保留前6后4
-        return value.replace(/^(.{6})(.*)(.{4})$/, '$1********$3');
+    case 'idCard':
+      // 身份证号：保留前6后4
+      return value.replace(/^(.{6})(.*)(.{4})$/, '$1********$3');
 
-      case 'phone':
-        // 手机号：保留前3后4
-        return value.replace(/^(.{3})(.*)(.{4})$/, '$1****$3');
+    case 'phone':
+      // 手机号：保留前3后4
+      return value.replace(/^(.{3})(.*)(.{4})$/, '$1****$3');
 
-      case 'bankAccount':
-        // 银行卡号：保留前4后4
-        return value.replace(/^(.{4})(.*)(.{4})$/, '$1********$3');
+    case 'bankAccount':
+      // 银行卡号：保留前4后4
+      return value.replace(/^(.{4})(.*)(.{4})$/, '$1********$3');
 
-      case 'name':
-        // 姓名：保留姓氏
-        return value.replace(/^(.{1})(.*)$/, '$1**');
+    case 'name':
+      // 姓名：保留姓氏
+      return value.replace(/^(.{1})(.*)$/, '$1**');
 
-      default:
-        return '****';
+    default:
+      return '****';
     }
   }
 
@@ -260,20 +260,20 @@ class PermissionHelper {
     const dataScope = userRole.restrictions?.dataScope || 'department';
 
     switch (dataScope) {
-      case 'all':
-        // 无限制
-        break;
+    case 'all':
+      // 无限制
+      break;
 
-      case 'self':
-        // 只能查询自己的数据
-        query.userId = userRole.userId;
-        break;
+    case 'self':
+      // 只能查询自己的数据
+      query.userId = userRole.userId;
+      break;
 
-      case 'department':
-      default:
-        // 部门级别：限制在村庄内
-        query.villageId = userRole.villageId;
-        break;
+    case 'department':
+    default:
+      // 部门级别：限制在村庄内
+      query.villageId = userRole.villageId;
+      break;
     }
 
     return query;

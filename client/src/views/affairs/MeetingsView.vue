@@ -16,9 +16,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref } from 'vue';
 
-const title = ref('会议管理')
+const title = ref('会议管理');
 </script>
 
 <style lang="scss" scoped>

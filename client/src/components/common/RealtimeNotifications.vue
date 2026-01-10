@@ -20,11 +20,7 @@
       <div class="notification-header">
         <h3>通知中心</h3>
         <div class="header-actions">
-          <span
-            v-if="unreadCount > 0"
-            class="mark-all-read"
-            @click="markAllAsRead"
-          >
+          <span v-if="unreadCount > 0" class="mark-all-read" @click="markAllAsRead">
             全部已读
           </span>
           <van-icon name="cross" @click="showNotifications = false" />
@@ -93,11 +89,7 @@
     </van-popup>
 
     <!-- 连接状态指示器 -->
-    <div
-      v-if="showConnectionStatus"
-      class="connection-status"
-      :class="{ 'connected': isConnected }"
-    >
+    <div v-if="showConnectionStatus" class="connection-status" :class="{ connected: isConnected }">
       <van-icon :name="isConnected ? 'passed' : 'close'" />
       <span>{{ isConnected ? '已连接' : '连接中...' }}</span>
     </div>
@@ -105,42 +97,42 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onUnmounted, computed, watch } from 'vue'
-import { showToast } from 'vant'
-import realtimeNotification from '@/services/realtimeNotification'
-import NotificationList from './NotificationList.vue'
+import { ref, reactive, onMounted, onUnmounted, computed, watch } from 'vue';
+import { showToast } from 'vant';
+import realtimeNotification from '@/services/realtimeNotification';
+import NotificationList from './NotificationList.vue';
 
 // 响应式数据
-const showNotifications = ref(false)
-const showRealtimeAlert = ref(false)
-const showConnectionStatus = ref(false)
-const activeTab = ref('all')
-const loading = ref(false)
-const isConnected = ref(false)
+const showNotifications = ref(false);
+const showRealtimeAlert = ref(false);
+const showConnectionStatus = ref(false);
+const activeTab = ref('all');
+const loading = ref(false);
+const isConnected = ref(false);
 
-const notifications = ref([])
-const currentAlert = ref(null)
+const notifications = ref([]);
+const currentAlert = ref(null);
 
 // 计算属性
 const unreadCount = computed(() => {
-  return notifications.value.filter(n => !n.read).length
-})
+  return notifications.value.filter(n => !n.read).length;
+});
 
 const allNotifications = computed(() => {
-  return notifications.value
-})
+  return notifications.value;
+});
 
 const unreadNotifications = computed(() => {
-  return notifications.value.filter(n => !n.read)
-})
+  return notifications.value.filter(n => !n.read);
+});
 
 const urgentNotifications = computed(() => {
-  return notifications.value.filter(n => n.priority === 'high')
-})
+  return notifications.value.filter(n => n.priority === 'high');
+});
 
 // 方法
 const loadNotifications = async () => {
-  loading.value = true
+  loading.value = true;
   try {
     // 这里调用获取通知列表的API
     // const response = await notificationApi.getNotifications()
@@ -156,7 +148,7 @@ const loadNotifications = async () => {
         time: new Date(Date.now() - 1000 * 60 * 5),
         read: false,
         priority: 'normal',
-        data: { collectionId: '123' }
+        data: { collectionId: '123' },
       },
       {
         id: '2',
@@ -167,7 +159,7 @@ const loadNotifications = async () => {
         read: false,
         priority: 'high',
         action: 'handle_emergency',
-        actionText: '处理'
+        actionText: '处理',
       },
       {
         id: '3',
@@ -176,81 +168,81 @@ const loadNotifications = async () => {
         content: '系统将于今晚22:00进行维护升级',
         time: new Date(Date.now() - 1000 * 60 * 60),
         read: true,
-        priority: 'normal'
-      }
-    ]
+        priority: 'normal',
+      },
+    ];
   } catch (error) {
-    console.error('加载通知失败:', error)
+    console.error('加载通知失败:', error);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const loadMore = async () => {
   // 加载更多通知
-  console.log('加载更多通知')
-}
+  console.log('加载更多通知');
+};
 
-const markAsRead = async (notificationId) => {
+const markAsRead = async notificationId => {
   try {
-    const notification = notifications.value.find(n => n.id === notificationId)
+    const notification = notifications.value.find(n => n.id === notificationId);
     if (notification) {
-      notification.read = true
+      notification.read = true;
       // await notificationApi.markAsRead(notificationId)
     }
   } catch (error) {
-    console.error('标记已读失败:', error)
+    console.error('标记已读失败:', error);
   }
-}
+};
 
 const markAllAsRead = async () => {
   try {
-    notifications.value.forEach(n => n.read = true)
+    notifications.value.forEach(n => (n.read = true));
     // await notificationApi.markAllAsRead()
-    showToast('已全部标记为已读')
+    showToast('已全部标记为已读');
   } catch (error) {
-    console.error('标记全部已读失败:', error)
+    console.error('标记全部已读失败:', error);
   }
-}
+};
 
-const deleteNotification = async (notificationId) => {
+const deleteNotification = async notificationId => {
   try {
-    const index = notifications.value.findIndex(n => n.id === notificationId)
+    const index = notifications.value.findIndex(n => n.id === notificationId);
     if (index > -1) {
-      notifications.value.splice(index, 1)
+      notifications.value.splice(index, 1);
       // await notificationApi.deleteNotification(notificationId)
     }
   } catch (error) {
-    console.error('删除通知失败:', error)
+    console.error('删除通知失败:', error);
   }
-}
+};
 
-const handleRealtimeNotification = (notification) => {
+const handleRealtimeNotification = notification => {
   // 添加到通知列表
   notifications.value.unshift({
     id: Date.now().toString(),
     ...notification,
     time: new Date(),
-    read: false
-  })
+    read: false,
+  });
 
   // 如果是紧急通知，显示弹窗
   if (notification.priority === 'high') {
-    currentAlert.value = notification
-    showRealtimeAlert.value = true
+    currentAlert.value = notification;
+    showRealtimeAlert.value = true;
   }
-}
+};
 
-const getAlertIcon = (type) => {
+const getAlertIcon = type => {
   const iconMap = {
-    'document_created': 'add-o',
-    'document_updated': 'edit',
-    'emergency_call': 'warning-o',
-    'system': 'info-o',
-    'permission_update': 'shield-o'
-  }
-  return iconMap[type] || 'info-o'
-}
+    document_created: 'add-o',
+    document_updated: 'edit',
+    emergency_call: 'warning-o',
+    system: 'info-o',
+    permission_update: 'shield-o',
+  };
+  return iconMap[type] || 'info-o';
+};
 
 const handleAlertAction = () => {
   if (currentAlert.value?.action) {
@@ -258,73 +250,73 @@ const handleAlertAction = () => {
     switch (currentAlert.value.action) {
       case 'handle_emergency':
         // 跳转到紧急处理页面
-        const router = require('@/router').default
-        router.push('/village/emergency')
-        break
+        const router = require('@/router').default;
+        router.push('/village/emergency');
+        break;
       case 'view_document':
         // 跳转到文档详情
-        router.push(`/village/documents/${currentAlert.value.data.collectionId}`)
-        break
+        router.push(`/village/documents/${currentAlert.value.data.collectionId}`);
+        break;
     }
   }
 
-  dismissAlert()
-}
+  dismissAlert();
+};
 
 const dismissAlert = () => {
-  showRealtimeAlert.value = false
-  currentAlert.value = null
-}
+  showRealtimeAlert.value = false;
+  currentAlert.value = null;
+};
 
-const updateConnectionStatus = (status) => {
-  isConnected.value = status.connected
+const updateConnectionStatus = status => {
+  isConnected.value = status.connected;
 
   // 显示连接状态提示
   if (!status.connected) {
-    showConnectionStatus.value = true
+    showConnectionStatus.value = true;
     setTimeout(() => {
-      showConnectionStatus.value = false
-    }, 3000)
+      showConnectionStatus.value = false;
+    }, 3000);
   }
-}
+};
 
 // 监听通知数量变化
-watch(unreadCount, (count) => {
+watch(unreadCount, count => {
   // 更新应用角标（如果支持）
   if ('setAppBadge' in navigator) {
     if (count > 0) {
-      navigator.setAppBadge(count)
+      navigator.setAppBadge(count);
     } else {
-      navigator.setAppBadge(0)
+      navigator.setAppBadge(0);
     }
   }
-})
+});
 
 // 生命周期
 onMounted(() => {
   // 加载通知列表
-  loadNotifications()
+  loadNotifications();
 
   // 监听实时通知
-  realtimeNotification.on('notification', handleRealtimeNotification)
-  realtimeNotification.on('emergency', handleRealtimeNotification)
-  realtimeNotification.on('system', handleRealtimeNotification)
+  realtimeNotification.on('notification', handleRealtimeNotification);
+  realtimeNotification.on('emergency', handleRealtimeNotification);
+  realtimeNotification.on('system', handleRealtimeNotification);
 
   // 监听连接状态
-  realtimeNotification.on('connection', updateConnectionStatus)
+  realtimeNotification.on('connection', updateConnectionStatus);
 
   // 初始化连接状态
-  const status = realtimeNotification.getConnectionStatus()
-  isConnected.value = status.connected
-})
+  const status = realtimeNotification.getConnectionStatus();
+  isConnected.value = status.connected;
+});
 
 onUnmounted(() => {
   // 移除事件监听
-  realtimeNotification.off('notification', handleRealtimeNotification)
-  realtimeNotification.off('emergency', handleRealtimeNotification)
-  realtimeNotification.off('system', handleRealtimeNotification)
-  realtimeNotification.off('connection', updateConnectionStatus)
-})
+  realtimeNotification.off('notification', handleRealtimeNotification);
+  realtimeNotification.off('emergency', handleRealtimeNotification);
+  realtimeNotification.off('system', handleRealtimeNotification);
+  realtimeNotification.off('connection', updateConnectionStatus);
+});
 </script>
 
 <style scoped>

@@ -197,7 +197,7 @@ const policyCalculatorApi = {
     const calculators = await this.getPolicyCalculators({
       policyType: 'subsidy',
       category: 'agriculture',
-      tags: '耕地保护'
+      tags: '耕地保护',
     });
 
     if (!calculators.data || calculators.data.length === 0) {
@@ -210,10 +210,10 @@ const policyCalculatorApi = {
       applicantInfo: {
         name: options.applicantName || '',
         idNumber: options.idNumber || '',
-        birthDate: options.birthDate || ''
+        birthDate: options.birthDate || '',
       },
       householdInfo: {
-        registeredHouseholdSize: householdSize
+        registeredHouseholdSize: householdSize,
       },
       landInfo: {
         totalLandArea: landArea,
@@ -222,10 +222,10 @@ const policyCalculatorApi = {
           {
             area: landArea,
             areaUnit: 'mu',
-            landType: 'cultivated'
-          }
-        ]
-      }
+            landType: 'cultivated',
+          },
+        ],
+      },
     });
   },
 
@@ -239,9 +239,9 @@ const policyCalculatorApi = {
       villageId,
       isActive: true,
       sortBy: 'createdAt',
-      order: 'desc'
+      order: 'desc',
     });
-  }
+  },
 };
 
 export default policyCalculatorApi;

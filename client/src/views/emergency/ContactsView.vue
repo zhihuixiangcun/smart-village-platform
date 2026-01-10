@@ -20,10 +20,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref } from 'vue';
 
-const title = ref('应急联系人')
-const name = ref('ContactsView')
+const title = ref('应急联系人');
+const name = ref('ContactsView');
 </script>
 
 <style lang="scss" scoped>

@@ -15,7 +15,13 @@
         </template>
       </el-input>
 
-      <el-select v-model="statusFilter" placeholder="状态筛选" clearable @change="handleFilter" style="width: 150px">
+      <el-select
+        v-model="statusFilter"
+        placeholder="状态筛选"
+        clearable
+        @change="handleFilter"
+        style="width: 150px"
+      >
         <el-option label="全部" value="" />
         <el-option label="草稿" value="draft" />
         <el-option label="待审核" value="pending" />
@@ -44,9 +50,7 @@
 
       <el-table-column prop="content" label="内容摘要" min-width="250">
         <template #default="{ row }">
-          <div class="content-cell">
-            {{ (row.content || row.text || '').substring(0, 80) }}...
-          </div>
+          <div class="content-cell">{{ (row.content || row.text || '').substring(0, 80) }}...</div>
         </template>
       </el-table-column>
 
@@ -84,7 +88,12 @@
             <el-icon><Edit /></el-icon>
             编辑
           </el-button>
-          <el-button link type="success" @click="$emit('publish', row)" v-if="row.status !== 'published'">
+          <el-button
+            link
+            type="success"
+            @click="$emit('publish', row)"
+            v-if="row.status !== 'published'"
+          >
             <el-icon><Promotion /></el-icon>
             发布
           </el-button>
@@ -112,95 +121,99 @@
 </template>
 
 <script setup>
-import { ref, computed, defineProps, defineEmits, watch } from 'vue'
-import { Search, Refresh, View, Star, Edit, Promotion, Delete } from '@element-plus/icons-vue'
+import { ref, computed, defineProps, defineEmits, watch } from 'vue';
+import { Search, Refresh, View, Star, Edit, Promotion, Delete } from '@element-plus/icons-vue';
 
 defineProps({
   type: {
     type: String,
-    default: ''
+    default: '',
   },
   items: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   loading: {
     type: Boolean,
-    default: false
-  }
-})
+    default: false,
+  },
+});
 
-defineEmits(['refresh', 'edit', 'delete', 'publish'])
+defineEmits(['refresh', 'edit', 'delete', 'publish']);
 
-const searchKeyword = ref('')
-const statusFilter = ref('')
+const searchKeyword = ref('');
+const statusFilter = ref('');
 
 const pagination = ref({
   page: 1,
   pageSize: 10,
-  total: 0
-})
+  total: 0,
+});
 
 // 过滤后的列表
 const filteredItems = computed(() => {
-  let result = [...props.items]
+  let result = [...props.items];
 
   if (searchKeyword.value) {
-    const keyword = searchKeyword.value.toLowerCase()
+    const keyword = searchKeyword.value.toLowerCase();
     result = result.filter(item => {
       return (
         (item.title && item.title.toLowerCase().includes(keyword)) ||
         (item.content && item.content.toLowerCase().includes(keyword)) ||
         (item.text && item.text.toLowerCase().includes(keyword))
-      )
-    })
+      );
+    });
   }
 
   if (statusFilter.value) {
-    result = result.filter(item => item.status === statusFilter.value)
+    result = result.filter(item => item.status === statusFilter.value);
   }
 
-  return result
-})
+  return result;
+});
 
 // 监听items变化，更新总数
-watch(() => props.items, (newItems) => {
-  pagination.value.total = newItems.length
-}, { immediate: true })
+watch(
+  () => props.items,
+  newItems => {
+    pagination.value.total = newItems.length;
+  },
+  { immediate: true }
+);
 
 const handleSearch = () => {
-  pagination.value.page = 1
-}
+  pagination.value.page = 1;
+};
 
 const handleFilter = () => {
-  pagination.value.page = 1
-}
+  pagination.value.page = 1;
+};
 
-const getStatusType = (status) => {
+const getStatusType = status => {
   const types = {
     draft: 'info',
     pending: 'warning',
     published: 'success',
-    archived: 'danger'
-  }
-  return types[status] || 'info'
-}
+    archived: 'danger',
+  };
+  return types[status] || 'info';
+};
 
-const getStatusLabel = (status) => {
+const getStatusLabel = status => {
   const labels = {
     draft: '草稿',
     pending: '待审核',
     published: '已发布',
-    archived: '已下架'
-  }
-  return labels[status] || status
-}
+    archived: '已下架',
+  };
+  return labels[status] || status;
+};
 
-const formatTime = (time) => {
-  if (!time) return '-'
-  const date = new Date(time)
-  return date.toLocaleDateString('zh-CN')
-}
+const formatTime = time => {
+  if (!time) return '-';
+  const date = new Date(time);
+  return date.toLocaleDateString('zh-CN');
+};
 </script>
 
 <style scoped lang="scss">

@@ -53,32 +53,32 @@ const populationChangeSchema = new Schema({
   personInfo: {
     name: {
       type: String,
-      required: function() {
+      required() {
         return ['birth', 'marriage_in', 'move_in'].includes(this.changeType);
       }
     },
     idCard: {
       type: String,
-      required: function() {
+      required() {
         return ['birth', 'marriage_in', 'move_in'].includes(this.changeType);
       }
     },
     gender: {
       type: String,
       enum: ['male', 'female'],
-      required: function() {
+      required() {
         return ['birth', 'marriage_in', 'move_in'].includes(this.changeType);
       }
     },
     birthDate: {
       type: Date,
-      required: function() {
+      required() {
         return this.changeType === 'birth';
       }
     },
     relation: {
       type: String,
-      required: function() {
+      required() {
         return ['birth', 'marriage_in', 'move_in'].includes(this.changeType);
       }
       // 与户主关系（如：儿子、女儿、妻子、儿媳等）
@@ -94,19 +94,19 @@ const populationChangeSchema = new Schema({
     userId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
-      required: function() {
+      required() {
         return ['marriage_out', 'death', 'move_out'].includes(this.changeType);
       }
     },
     name: {
       type: String,
-      required: function() {
+      required() {
         return ['marriage_out', 'death', 'move_out'].includes(this.changeType);
       }
     },
     idCard: {
       type: String,
-      required: function() {
+      required() {
         return ['marriage_out', 'death', 'move_out'].includes(this.changeType);
       }
     },
@@ -125,7 +125,7 @@ const populationChangeSchema = new Schema({
     type: {
       type: String,
       enum: ['birth_certificate', 'marriage_certificate', 'death_certificate',
-             'id_card', 'household_register', 'move_permit', 'other'],
+        'id_card', 'household_register', 'move_permit', 'other'],
       required: true
     },
     url: {
@@ -306,64 +306,64 @@ populationChangeSchema.methods.updateHousehold = async function() {
     }
 
     switch (this.changeType) {
-      case 'birth':
-        // 新生儿：创建用户和村民记录
-        const newUser = await User.create({
-          name: this.personInfo.name,
-          idCard: this.personInfo.idCard,
-          gender: this.personInfo.gender,
-          birthDate: this.personInfo.birthDate,
-          villageId: this.villageId,
-          householdId: this.householdId
-        });
+    case 'birth':
+      // 新生儿：创建用户和村民记录
+      const newUser = await User.create({
+        name: this.personInfo.name,
+        idCard: this.personInfo.idCard,
+        gender: this.personInfo.gender,
+        birthDate: this.personInfo.birthDate,
+        villageId: this.villageId,
+        householdId: this.householdId
+      });
 
-        await Resident.create({
-          userId: newUser._id,
-          householdId: this.householdId,
-          relation: this.personInfo.relation,
-          populationChange: true
-        });
+      await Resident.create({
+        userId: newUser._id,
+        householdId: this.householdId,
+        relation: this.personInfo.relation,
+        populationChange: true
+      });
 
-        household.memberCount += 1;
-        break;
+      household.memberCount += 1;
+      break;
 
-      case 'marriage_in':
-        // 婚入：创建用户和村民记录
-        // (类似birth的逻辑)
-        household.memberCount += 1;
-        break;
+    case 'marriage_in':
+      // 婚入：创建用户和村民记录
+      // (类似birth的逻辑)
+      household.memberCount += 1;
+      break;
 
-      case 'marriage_out':
-        // 婚出：更新用户状态
-        await User.findByIdAndUpdate(this.relatedPerson.userId, {
-          marriageStatus: 'married_out',
-          previousHouseholdId: this.householdId
-        });
-        household.memberCount -= 1;
-        break;
+    case 'marriage_out':
+      // 婚出：更新用户状态
+      await User.findByIdAndUpdate(this.relatedPerson.userId, {
+        marriageStatus: 'married_out',
+        previousHouseholdId: this.householdId
+      });
+      household.memberCount -= 1;
+      break;
 
-      case 'death':
-        // 死亡：标记用户为已故
-        await User.findByIdAndUpdate(this.relatedPerson.userId, {
-          isDeceased: true,
-          deathDate: this.changeDate
-        });
-        household.memberCount -= 1;
-        break;
+    case 'death':
+      // 死亡：标记用户为已故
+      await User.findByIdAndUpdate(this.relatedPerson.userId, {
+        isDeceased: true,
+        deathDate: this.changeDate
+      });
+      household.memberCount -= 1;
+      break;
 
-      case 'move_in':
-        // 迁入：创建用户和村民记录
-        household.memberCount += 1;
-        break;
+    case 'move_in':
+      // 迁入：创建用户和村民记录
+      household.memberCount += 1;
+      break;
 
-      case 'move_out':
-        // 迁出：更新用户状态
-        await User.findByIdAndUpdate(this.relatedPerson.userId, {
-          isMovedOut: true,
-          moveOutDate: this.changeDate
-        });
-        household.memberCount -= 1;
-        break;
+    case 'move_out':
+      // 迁出：更新用户状态
+      await User.findByIdAndUpdate(this.relatedPerson.userId, {
+        isMovedOut: true,
+        moveOutDate: this.changeDate
+      });
+      household.memberCount -= 1;
+      break;
     }
 
     await household.save();

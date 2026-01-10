@@ -80,182 +80,180 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick, onMounted } from 'vue'
-import { ArrowLeft, MoreFilled, Top, Bell, User, Delete, Loading } from '@element-plus/icons-vue'
-import { useChatStore } from '@/stores/chat'
-import { useUserStore } from '@/stores/user'
-import { ElMessageBox, ElMessage } from 'element-plus'
-import MessageBubble from './MessageBubble.vue'
-import MessageInput from './MessageInput.vue'
+import { ref, computed, watch, nextTick, onMounted } from 'vue';
+import { ArrowLeft, MoreFilled, Top, Bell, User, Delete, Loading } from '@element-plus/icons-vue';
+import { useChatStore } from '@/stores/chat';
+import { useUserStore } from '@/stores/user';
+import { ElMessageBox, ElMessage } from 'element-plus';
+import MessageBubble from './MessageBubble.vue';
+import MessageInput from './MessageInput.vue';
 
 const props = defineProps({
   conversationId: {
     type: String,
-    required: true
-  }
-})
+    required: true,
+  },
+});
 
-const emit = defineEmits(['close', 'back'])
+const emit = defineEmits(['close', 'back']);
 
-const chatStore = useChatStore()
-const userStore = useUserStore()
+const chatStore = useChatStore();
+const userStore = useUserStore();
 
 // 当前用户ID
-const currentUserId = computed(() => userStore.user?.id)
+const currentUserId = computed(() => userStore.user?.id);
 
 // 是否是移动端
-const isMobile = ref(window.innerWidth < 768)
+const isMobile = ref(window.innerWidth < 768);
 
 // 消息列表引用
-const messageListRef = ref(null)
+const messageListRef = ref(null);
 
 // 输入文本
-const inputText = ref('')
+const inputText = ref('');
 
 // 发送中
-const sending = ref(false)
+const sending = ref(false);
 
 // 回复消息
-const replyToMessage = ref(null)
+const replyToMessage = ref(null);
 
 // 加载状态
-const loading = ref(false)
+const loading = ref(false);
 
 // 当前会话
 const conversation = computed(() => {
-  return chatStore.conversations.find(c => c._id === props.conversationId)
-})
+  return chatStore.conversations.find(c => c._id === props.conversationId);
+});
 
 // 消息列表
 const messages = computed(() => {
-  return chatStore.getMessages(props.conversationId) || []
-})
+  return chatStore.getMessages(props.conversationId) || [];
+});
 
 // 是否是群聊
 const isGroup = computed(() => {
-  return conversation.value?.type === 'group'
-})
+  return conversation.value?.type === 'group';
+});
 
 // 聊天名称
 const chatName = computed(() => {
-  if (!conversation.value) return ''
+  if (!conversation.value) return '';
 
   if (conversation.value.type === 'group') {
-    return conversation.value.groupInfo?.name || '群聊'
+    return conversation.value.groupInfo?.name || '群聊';
   } else {
-    const otherUser = conversation.value.participants?.find(
-      p => p._id !== currentUserId.value
-    )
-    return otherUser?.profile?.nickName || otherUser?.username || '未知用户'
+    const otherUser = conversation.value.participants?.find(p => p._id !== currentUserId.value);
+    return otherUser?.profile?.nickName || otherUser?.username || '未知用户';
   }
-})
+});
 
 // 是否置顶
 const isPinned = computed(() => {
-  return conversation.value?.pinnedBy?.some(p => p.user === currentUserId.value)
-})
+  return conversation.value?.pinnedBy?.some(p => p.user === currentUserId.value);
+});
 
 // 是否静音
 const isMuted = computed(() => {
-  return conversation.value?.mutedBy?.includes(currentUserId.value)
-})
+  return conversation.value?.mutedBy?.includes(currentUserId.value);
+});
 
 // 是否正在输入
-const isTyping = ref(false)
+const isTyping = ref(false);
 
 // 滚动到底部
 const scrollToBottom = () => {
   nextTick(() => {
     if (messageListRef.value) {
-      messageListRef.value.scrollTop = messageListRef.value.scrollHeight
+      messageListRef.value.scrollTop = messageListRef.value.scrollHeight;
     }
-  })
-}
+  });
+};
 
 // 加载消息
 const loadMessages = async () => {
-  loading.value = true
+  loading.value = true;
   try {
-    await chatStore.loadMessages(props.conversationId)
-    scrollToBottom()
+    await chatStore.loadMessages(props.conversationId);
+    scrollToBottom();
   } catch (error) {
-    ElMessage.error('加载消息失败')
+    ElMessage.error('加载消息失败');
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 // 发送消息
-const sendMessage = async (content) => {
-  if (sending.value) return
+const sendMessage = async content => {
+  if (sending.value) return;
 
-  sending.value = true
+  sending.value = true;
   try {
     await chatStore.sendMessage({
       conversationId: props.conversationId,
       type: 'text',
       content: { text: content },
-      replyTo: replyToMessage.value?._id
-    })
+      replyTo: replyToMessage.value?._id,
+    });
 
-    inputText.value = ''
-    replyToMessage.value = null
-    scrollToBottom()
+    inputText.value = '';
+    replyToMessage.value = null;
+    scrollToBottom();
   } catch (error) {
-    ElMessage.error('发送失败')
+    ElMessage.error('发送失败');
   } finally {
-    sending.value = false
+    sending.value = false;
   }
-}
+};
 
 // 回复消息
-const handleReply = (message) => {
-  replyToMessage.value = message
-}
+const handleReply = message => {
+  replyToMessage.value = message;
+};
 
 // 撤回消息
-const handleRecall = async (message) => {
+const handleRecall = async message => {
   try {
     await ElMessageBox.confirm('确认撤回这条消息吗？', '撤回消息', {
       confirmButtonText: '确认',
       cancelButtonText: '取消',
-      type: 'warning'
-    })
+      type: 'warning',
+    });
 
-    await chatStore.recallMessage(props.conversationId, message._id)
-    ElMessage.success('消息已撤回')
+    await chatStore.recallMessage(props.conversationId, message._id);
+    ElMessage.success('消息已撤回');
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('撤回失败')
+      ElMessage.error('撤回失败');
     }
   }
-}
+};
 
 // 置顶/取消置顶
 const togglePin = async () => {
   try {
-    await chatStore.togglePin(props.conversationId)
-    ElMessage.success(isPinned.value ? '已取消置顶' : '已置顶')
+    await chatStore.togglePin(props.conversationId);
+    ElMessage.success(isPinned.value ? '已取消置顶' : '已置顶');
   } catch (error) {
-    ElMessage.error('操作失败')
+    ElMessage.error('操作失败');
   }
-}
+};
 
 // 静音/取消静音
 const toggleMute = async () => {
   try {
-    await chatStore.toggleMute(props.conversationId)
-    ElMessage.success(isMuted.value ? '已取消静音' : '已静音')
+    await chatStore.toggleMute(props.conversationId);
+    ElMessage.success(isMuted.value ? '已取消静音' : '已静音');
   } catch (error) {
-    ElMessage.error('操作失败')
+    ElMessage.error('操作失败');
   }
-}
+};
 
 // 显示群聊信息
 const showGroupInfo = () => {
   // TODO: 实现群聊信息弹窗
-  ElMessage.info('群聊信息功能开发中')
-}
+  ElMessage.info('群聊信息功能开发中');
+};
 
 // 清空聊天记录
 const clearHistory = async () => {
@@ -263,24 +261,28 @@ const clearHistory = async () => {
     await ElMessageBox.confirm('确认清空聊天记录吗？此操作不可恢复。', '清空记录', {
       confirmButtonText: '确认',
       cancelButtonText: '取消',
-      type: 'warning'
-    })
+      type: 'warning',
+    });
 
     // TODO: 实现清空聊天记录
-    ElMessage.info('清空记录功能开发中')
+    ElMessage.info('清空记录功能开发中');
   } catch (error) {
     // 用户取消
   }
-}
+};
 
 // 监听消息变化，滚动到底部
-watch(messages, () => {
-  scrollToBottom()
-}, { deep: true })
+watch(
+  messages,
+  () => {
+    scrollToBottom();
+  },
+  { deep: true }
+);
 
 onMounted(() => {
-  loadMessages()
-})
+  loadMessages();
+});
 </script>
 
 <style scoped>

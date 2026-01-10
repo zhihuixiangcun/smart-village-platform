@@ -160,26 +160,38 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import socketService from '@/services/socket'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import socketService from '@/services/socket';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
-  User, Document, Money, Bell, Plus, Promotion, Warning, DataLine,
-  Refresh, House, Setting, ChatDotRound, TrendCharts, Monitor
-} from '@element-plus/icons-vue'
+  User,
+  Document,
+  Money,
+  Bell,
+  Plus,
+  Promotion,
+  Warning,
+  DataLine,
+  Refresh,
+  House,
+  Setting,
+  ChatDotRound,
+  TrendCharts,
+  Monitor,
+} from '@element-plus/icons-vue';
 
-const router = useRouter()
+const router = useRouter();
 
 // 响应式数据
 const stats = ref({
   residents: 0,
   announcements: 0,
   finances: 0,
-  notifications: 0
-})
+  notifications: 0,
+});
 
-const showDebugInfo = ref(import.meta.env.VITE_SHOW_DEBUG === 'true')
+const showDebugInfo = ref(import.meta.env.VITE_SHOW_DEBUG === 'true');
 
 // 功能模块配置
 const modules = ref([
@@ -190,7 +202,7 @@ const modules = ref([
     icon: 'User',
     color: '#409EFF',
     path: '/residents',
-    enabled: true
+    enabled: true,
   },
   {
     id: 2,
@@ -199,7 +211,7 @@ const modules = ref([
     icon: 'House',
     color: '#67C23A',
     path: '/affairs',
-    enabled: true
+    enabled: true,
   },
   {
     id: 3,
@@ -208,7 +220,7 @@ const modules = ref([
     icon: 'Document',
     color: '#E6A23C',
     path: '/announcements',
-    enabled: true
+    enabled: true,
   },
   {
     id: 4,
@@ -217,7 +229,7 @@ const modules = ref([
     icon: 'ChatDotRound',
     color: '#F56C6C',
     path: '/voting',
-    enabled: true
+    enabled: true,
   },
   {
     id: 5,
@@ -226,7 +238,7 @@ const modules = ref([
     icon: 'TrendCharts',
     color: '#909399',
     path: '/agricultural',
-    enabled: false
+    enabled: false,
   },
   {
     id: 6,
@@ -235,97 +247,93 @@ const modules = ref([
     icon: 'Monitor',
     color: '#606266',
     path: '/monitoring',
-    enabled: true
-  }
-])
+    enabled: true,
+  },
+]);
 
 // Socket连接状态
 const socketConnected = computed(() => {
-  const status = socketService.getConnectionStatus()
-  return status.connected
-})
+  const status = socketService.getConnectionStatus();
+  return status.connected;
+});
 
 const socketId = computed(() => {
-  const status = socketService.getConnectionStatus()
-  return status.socketId
-})
+  const status = socketService.getConnectionStatus();
+  return status.socketId;
+});
 
 // 导航到模块
-const navigateToModule = (path) => {
+const navigateToModule = path => {
   if (path) {
-    router.push(path)
+    router.push(path);
   }
-}
+};
 
 // 快速操作
-const openQuickAction = (action) => {
+const openQuickAction = action => {
   switch (action) {
     case 'add-resident':
-      ElMessage.info('即将跳转到添加村民页面')
-      router.push('/residents/add')
-      break
+      ElMessage.info('即将跳转到添加村民页面');
+      router.push('/residents/add');
+      break;
     case 'new-announcement':
-      ElMessage.info('即将跳转到发布公告页面')
-      router.push('/announcements/new')
-      break
+      ElMessage.info('即将跳转到发布公告页面');
+      router.push('/announcements/new');
+      break;
     case 'emergency':
-      handleEmergencyBroadcast()
-      break
+      handleEmergencyBroadcast();
+      break;
     case 'reports':
-      ElMessage.info('即将跳转到报表页面')
-      router.push('/reports')
-      break
+      ElMessage.info('即将跳转到报表页面');
+      router.push('/reports');
+      break;
   }
-}
+};
 
 // 紧急广播处理
 const handleEmergencyBroadcast = async () => {
   try {
-    const { value: message } = await ElMessageBox.prompt(
-      '请输入紧急广播内容：',
-      '紧急广播',
-      {
-        confirmButtonText: '发送广播',
-        cancelButtonText: '取消',
-        inputPattern: /.+/,
-        inputErrorMessage: '广播内容不能为空'
-      }
-    )
+    const { value: message } = await ElMessageBox.prompt('请输入紧急广播内容：', '紧急广播', {
+      confirmButtonText: '发送广播',
+      cancelButtonText: '取消',
+      inputPattern: /.+/,
+      inputErrorMessage: '广播内容不能为空',
+    });
 
-    const success = socketService.sendEmergencyBroadcast(message)
+    const success = socketService.sendEmergencyBroadcast(message);
     if (success) {
-      ElMessage.success('紧急广播发送成功')
+      ElMessage.success('紧急广播发送成功');
     } else {
-      ElMessage.error('发送失败，请检查网络连接')
+      ElMessage.error('发送失败，请检查网络连接');
     }
   } catch {
     // 用户取消操作
   }
-}
+};
 
 // 刷新数据
 const refreshData = async () => {
   try {
     // 模拟API调用获取统计数据
-    await new Promise(resolve => setTimeout(resolve, 500))
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     stats.value = {
       residents: Math.floor(Math.random() * 500) + 100,
       announcements: Math.floor(Math.random() * 20) + 5,
       finances: Math.floor(Math.random() * 100) + 20,
-      notifications: Math.floor(Math.random() * 10) + 1
-    }
+      notifications: Math.floor(Math.random() * 10) + 1,
+    };
 
-    ElMessage.success('数据已刷新')
+    ElMessage.success('数据已刷新');
   } catch (error) {
-    ElMessage.error('刷新数据失败')
+    ElMessage.error('刷新数据失败');
   }
-}
+};
 
 // 测试实时通信功能
 const testEmergencyBroadcast = () => {
-  socketService.sendEmergencyBroadcast('这是一条测试紧急广播消息')
-}
+  socketService.sendEmergencyBroadcast('这是一条测试紧急广播消息');
+};
 
 const testSystemNotification = () => {
   // 模拟从服务器接收到系统通知
@@ -333,9 +341,9 @@ const testSystemNotification = () => {
     title: '系统通知',
     message: '这是一条测试系统通知',
     type: 'info',
-    duration: 3000
-  })
-}
+    duration: 3000,
+  });
+};
 
 const testVillageUpdate = () => {
   // 模拟村务更新通知
@@ -343,14 +351,14 @@ const testVillageUpdate = () => {
     title: '村务更新',
     message: '村委会发布了新的公告，请及时查看',
     type: 'success',
-    duration: 3000
-  })
-}
+    duration: 3000,
+  });
+};
 
 onMounted(() => {
   // 初始化数据
-  refreshData()
-})
+  refreshData();
+});
 </script>
 
 <style lang="scss" scoped>

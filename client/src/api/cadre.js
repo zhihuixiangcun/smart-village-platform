@@ -104,7 +104,7 @@ export function getStatistics(period) {
  */
 export function exportReport(type, params = {}) {
   return request.get(`/api/v1/cadre/export/${type}`, params, {
-    responseType: 'blob'
+    responseType: 'blob',
   });
 }
 
@@ -159,9 +159,13 @@ export function saveQuickActions(actions) {
  * @returns {Promise} 文件流
  */
 export function downloadNoticeAttachment(noticeId, fileId) {
-  return request.get(`/api/v1/cadre/notices/${noticeId}/attachments/${fileId}`, {}, {
-    responseType: 'blob'
-  });
+  return request.get(
+    `/api/v1/cadre/notices/${noticeId}/attachments/${fileId}`,
+    {},
+    {
+      responseType: 'blob',
+    }
+  );
 }
 
 /**
@@ -355,9 +359,13 @@ export function deleteUploadedFile(fileId) {
  * @returns {Promise} 文件流
  */
 export function downloadSubmissionProof(id) {
-  return request.get(`/api/v1/cadre/submission/tasks/${id}/proof`, {}, {
-    responseType: 'blob'
-  });
+  return request.get(
+    `/api/v1/cadre/submission/tasks/${id}/proof`,
+    {},
+    {
+      responseType: 'blob',
+    }
+  );
 }
 
 /**
@@ -454,7 +462,7 @@ export const productApi = {
   updateProduct,
   deleteProduct,
   toggleProductStatus,
-  batchPublish
+  batchPublish,
 };
 
 // 导出资料收集API
@@ -469,7 +477,7 @@ export const collectionApi = {
   deleteCollectedFile,
   searchResidents,
   batchRemind,
-  batchExtendDeadline
+  batchExtendDeadline,
 };
 
 // 导出资料上交API
@@ -484,7 +492,7 @@ export const submissionApi = {
   deleteUploadedFile,
   downloadSubmissionProof,
   batchSubmit,
-  batchExport
+  batchExport,
 };
 
 // 导出所有API作为对象
@@ -538,7 +546,7 @@ export const cadreApi = {
   updateProduct,
   deleteProduct,
   toggleProductStatus,
-  batchPublish
+  batchPublish,
 };
 
 export default cadreApi;

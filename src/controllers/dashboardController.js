@@ -57,7 +57,7 @@ async function getStatistics(req, res) {
     logger.error('获取Dashboard统计数据失败:', error);
     res.status(500).json({
       success: false,
-      message: '获取统计数据失败: ' + error.message
+      message: `获取统计数据失败: ${  error.message}`
     });
   }
 }
@@ -257,7 +257,7 @@ async function getGovernanceStatistics(villageId) {
     pending,
     inProgress,
     completed,
-      completionRate: total > 0 ? ((completed / total) * 100).toFixed(1) + '%' : '0%'
+    completionRate: total > 0 ? `${((completed / total) * 100).toFixed(1)  }%` : '0%'
   };
 }
 
@@ -374,7 +374,7 @@ async function getEmergencyStatistics(villageId) {
     total,
     active,
     resolved,
-      resolutionRate: total > 0 ? ((resolved / total) * 100).toFixed(1) + '%' : '0%',
+    resolutionRate: total > 0 ? `${((resolved / total) * 100).toFixed(1)  }%` : '0%',
     severityDistribution: severityStats.map(s => ({
       severity: s._id || '未知',
       count: s.count
@@ -428,7 +428,7 @@ async function getServiceStatistics(villageId) {
     pending,
     processing,
     completed,
-    completionRate: total > 0 ? ((completed / total) * 100).toFixed(1) + '%' : '0%',
+    completionRate: total > 0 ? `${((completed / total) * 100).toFixed(1)  }%` : '0%',
     typeDistribution: typeStats.map(s => ({
       type: s._id || '未知',
       count: s.count

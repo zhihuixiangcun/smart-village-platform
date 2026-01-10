@@ -16,7 +16,7 @@ const {
   slideInLeft,
   slideInRight,
   shakeError,
-  showSuccess
+  showSuccess,
 } = useMicroAnimations();
 
 /**
@@ -51,7 +51,7 @@ export const animateDirective = {
     if (typeof value === 'object' && value.trigger === 'update' && value !== oldValue) {
       executeAnimation(el, value.name, 'update');
     }
-  }
+  },
 };
 
 /**
@@ -86,7 +86,7 @@ export const buttonAnimateDirective = {
     if (el._buttonAnimationCleanup) {
       el._buttonAnimationCleanup();
     }
-  }
+  },
 };
 
 /**
@@ -113,7 +113,7 @@ export const cardAnimateDirective = {
     if (el._cardAnimationCleanup) {
       el._cardAnimationCleanup();
     }
-  }
+  },
 };
 
 /**
@@ -123,9 +123,10 @@ export const cardAnimateDirective = {
 export const inputAnimateDirective = {
   mounted(el) {
     // 确保是输入元素
-    const inputElement = el.tagName === 'INPUT' || el.tagName === 'TEXTAREA'
-      ? el
-      : el.querySelector('input, textarea');
+    const inputElement =
+      el.tagName === 'INPUT' || el.tagName === 'TEXTAREA'
+        ? el
+        : el.querySelector('input, textarea');
 
     if (inputElement) {
       inputElement.addEventListener('focus', () => {
@@ -147,7 +148,7 @@ export const inputAnimateDirective = {
     if (el._inputAnimationCleanup) {
       el._inputAnimationCleanup();
     }
-  }
+  },
 };
 
 /**
@@ -169,7 +170,7 @@ export const tableRowAnimateDirective = {
     if (el._tableRowAnimationCleanup) {
       el._tableRowAnimationCleanup();
     }
-  }
+  },
 };
 
 /**
@@ -185,7 +186,7 @@ export const scrollAnimateDirective = {
 
     // 创建 Intersection Observer
     const observer = new IntersectionObserver(
-      (entries) => {
+      entries => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
             executeAnimation(entry.target, animationName);
@@ -209,7 +210,7 @@ export const scrollAnimateDirective = {
     if (el._scrollObserver) {
       el._scrollObserver.disconnect();
     }
-  }
+  },
 };
 
 /**
@@ -234,7 +235,7 @@ export const countAnimateDirective = {
       animateNumber(el, startValue, endValue, duration);
       el._previousValue = newValue;
     }
-  }
+  },
 };
 
 // 辅助函数
@@ -248,7 +249,7 @@ function executeAnimation(el, animationName, trigger = 'mount') {
     showSuccess,
     buttonClick,
     cardHover,
-    highlightTableRow
+    highlightTableRow,
   };
 
   const animationFn = animationMap[animationName];

@@ -101,13 +101,9 @@
         </el-table-column>
         <el-table-column label="操作" width="200" fixed="right">
           <template #default="scope">
-            <el-button type="primary" size="small" @click="handleView(scope.row)">
-              查看
-            </el-button>
-            <el-button type="warning" size="small" @click="handleEdit(scope.row)">
-              编辑
-            </el-button>
-            <el-dropdown @command="(command) => handleAction(command, scope.row)">
+            <el-button type="primary" size="small" @click="handleView(scope.row)"> 查看 </el-button>
+            <el-button type="warning" size="small" @click="handleEdit(scope.row)"> 编辑 </el-button>
+            <el-dropdown @command="command => handleAction(command, scope.row)">
               <el-button type="info" size="small">
                 更多<el-icon class="el-icon--right"><ArrowDown /></el-icon>
               </el-button>
@@ -145,12 +141,7 @@
       width="600px"
       :fullscreen="isMobile"
     >
-      <el-form
-        ref="memberFormRef"
-        :model="memberForm"
-        :rules="memberRules"
-        label-width="100px"
-      >
+      <el-form ref="memberFormRef" :model="memberForm" :rules="memberRules" label-width="100px">
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="姓名" prop="name">
@@ -256,12 +247,7 @@
     </el-dialog>
 
     <!-- 人员详情对话框 -->
-    <el-dialog
-      v-model="showDetailDialog"
-      title="人员详情"
-      width="800px"
-      :fullscreen="isMobile"
-    >
+    <el-dialog v-model="showDetailDialog" title="人员详情" width="800px" :fullscreen="isMobile">
       <div class="detail-content" v-if="currentMember">
         <el-descriptions :column="2" border>
           <el-descriptions-item label="姓名">{{ currentMember.name }}</el-descriptions-item>
@@ -272,7 +258,9 @@
             </el-tag>
           </el-descriptions-item>
           <el-descriptions-item label="联系电话">{{ currentMember.phone }}</el-descriptions-item>
-          <el-descriptions-item label="身份证号">{{ maskIdCard(currentMember.idCard) }}</el-descriptions-item>
+          <el-descriptions-item label="身份证号">{{
+            maskIdCard(currentMember.idCard)
+          }}</el-descriptions-item>
           <el-descriptions-item label="政治面貌">
             <el-tag v-if="currentMember.partyMember" type="danger">党员</el-tag>
             <el-tag v-else type="info">群众</el-tag>
@@ -282,10 +270,18 @@
               {{ getStatusText(currentMember.status) }}
             </el-tag>
           </el-descriptions-item>
-          <el-descriptions-item label="任职时间">{{ formatDate(currentMember.joinDate) }}</el-descriptions-item>
-          <el-descriptions-item label="学历">{{ getEducationText(currentMember.education) }}</el-descriptions-item>
-          <el-descriptions-item label="家庭住址" :span="2">{{ currentMember.address }}</el-descriptions-item>
-          <el-descriptions-item label="备注" :span="2">{{ currentMember.remark || '暂无' }}</el-descriptions-item>
+          <el-descriptions-item label="任职时间">{{
+            formatDate(currentMember.joinDate)
+          }}</el-descriptions-item>
+          <el-descriptions-item label="学历">{{
+            getEducationText(currentMember.education)
+          }}</el-descriptions-item>
+          <el-descriptions-item label="家庭住址" :span="2">{{
+            currentMember.address
+          }}</el-descriptions-item>
+          <el-descriptions-item label="备注" :span="2">{{
+            currentMember.remark || '暂无'
+          }}</el-descriptions-item>
         </el-descriptions>
 
         <div class="detail-actions" v-if="!isMobile">
@@ -296,13 +292,13 @@
     </el-dialog>
 
     <!-- 调任对话框 -->
-    <el-dialog
-      v-model="showTransferDialog"
-      title="人员调任"
-      width="500px"
-      :fullscreen="isMobile"
-    >
-      <el-form ref="transferFormRef" :model="transferForm" :rules="transferRules" label-width="100px">
+    <el-dialog v-model="showTransferDialog" title="人员调任" width="500px" :fullscreen="isMobile">
+      <el-form
+        ref="transferFormRef"
+        :model="transferForm"
+        :rules="transferRules"
+        label-width="100px"
+      >
         <el-form-item label="调任类型" prop="type">
           <el-radio-group v-model="transferForm.type">
             <el-radio label="promotion">升职</el-radio>
@@ -351,13 +347,9 @@
             :file-list="fileList"
           >
             <el-icon class="el-icon--upload"><UploadFilled /></el-icon>
-            <div class="el-upload__text">
-              将文件拖到此处，或<em>点击上传</em>
-            </div>
+            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
             <template #tip>
-              <div class="el-upload__tip">
-                支持jpg/png/pdf文件，且不超过500kb
-              </div>
+              <div class="el-upload__tip">支持jpg/png/pdf文件，且不超过500kb</div>
             </template>
           </el-upload>
         </el-form-item>
@@ -383,9 +375,9 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useCommitteeStore } from '@/stores/villageCommittee/committeeStore'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, computed, onMounted } from 'vue';
+import { useCommitteeStore } from '@/stores/villageCommittee/committeeStore';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
   Search,
   Refresh,
@@ -393,39 +385,39 @@ import {
   Upload,
   Download,
   ArrowDown,
-  UploadFilled
-} from '@element-plus/icons-vue'
-import dayjs from 'dayjs'
+  UploadFilled,
+} from '@element-plus/icons-vue';
+import dayjs from 'dayjs';
 
-const committeeStore = useCommitteeStore()
+const committeeStore = useCommitteeStore();
 
 // 响应式数据
 const searchForm = ref({
   name: '',
   position: '',
-  status: ''
-})
+  status: '',
+});
 
-const showAddDialog = ref(false)
-const showDetailDialog = ref(false)
-const showTransferDialog = ref(false)
-const isEdit = ref(false)
-const submitting = ref(false)
-const isMobile = ref(false)
+const showAddDialog = ref(false);
+const showDetailDialog = ref(false);
+const showTransferDialog = ref(false);
+const isEdit = ref(false);
+const submitting = ref(false);
+const isMobile = ref(false);
 
-const memberFormRef = ref()
-const transferFormRef = ref()
-const fileInput = ref()
+const memberFormRef = ref();
+const transferFormRef = ref();
+const fileInput = ref();
 
-const currentMember = ref(null)
-const selectedMembers = ref([])
-const fileList = ref([])
+const currentMember = ref(null);
+const selectedMembers = ref([]);
+const fileList = ref([]);
 
 const pagination = ref({
   page: 1,
   size: 20,
-  total: 0
-})
+  total: 0,
+});
 
 const memberForm = ref({
   name: '',
@@ -437,16 +429,16 @@ const memberForm = ref({
   joinDate: '',
   education: '',
   address: '',
-  remark: ''
-})
+  remark: '',
+});
 
 const transferForm = ref({
   type: '',
   newPosition: '',
   effectiveDate: '',
   reason: '',
-  attachments: []
-})
+  attachments: [],
+});
 
 // 职务选项
 const positionOptions = [
@@ -458,336 +450,318 @@ const positionOptions = [
   { label: '治保主任', value: 'security_director' },
   { label: '民兵连长', value: 'militia_commander' },
   { label: '文书', value: 'clerk' },
-  { label: '委员', value: 'member' }
-]
+  { label: '委员', value: 'member' },
+];
 
 // 表单验证规则
 const memberRules = {
   name: [
     { required: true, message: '请输入姓名', trigger: 'blur' },
-    { min: 2, max: 10, message: '长度在 2 到 10 个字符', trigger: 'blur' }
+    { min: 2, max: 10, message: '长度在 2 到 10 个字符', trigger: 'blur' },
   ],
-  position: [
-    { required: true, message: '请选择职务', trigger: 'change' }
-  ],
+  position: [{ required: true, message: '请选择职务', trigger: 'change' }],
   phone: [
     { required: true, message: '请输入联系电话', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' }
+    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' },
   ],
   idCard: [
     { required: true, message: '请输入身份证号', trigger: 'blur' },
-    { pattern: /^\d{17}[\dXx]$/, message: '请输入正确的身份证号', trigger: 'blur' }
+    { pattern: /^\d{17}[\dXx]$/, message: '请输入正确的身份证号', trigger: 'blur' },
   ],
-  joinDate: [
-    { required: true, message: '请选择入职时间', trigger: 'change' }
-  ]
-}
+  joinDate: [{ required: true, message: '请选择入职时间', trigger: 'change' }],
+};
 
 const transferRules = {
-  type: [
-    { required: true, message: '请选择调任类型', trigger: 'change' }
-  ],
-  newPosition: [
-    { required: true, message: '请选择新职务', trigger: 'change' }
-  ],
-  effectiveDate: [
-    { required: true, message: '请选择生效日期', trigger: 'change' }
-  ],
+  type: [{ required: true, message: '请选择调任类型', trigger: 'change' }],
+  newPosition: [{ required: true, message: '请选择新职务', trigger: 'change' }],
+  effectiveDate: [{ required: true, message: '请选择生效日期', trigger: 'change' }],
   reason: [
     { required: true, message: '请输入调任原因', trigger: 'blur' },
-    { min: 10, max: 500, message: '长度在 10 到 500 个字符', trigger: 'blur' }
-  ]
-}
+    { min: 10, max: 500, message: '长度在 10 到 500 个字符', trigger: 'blur' },
+  ],
+};
 
 // 计算属性
 const filteredMembers = computed(() => {
-  let result = committeeStore.members
+  let result = committeeStore.members;
 
   if (searchForm.value.name) {
-    result = result.filter(m => m.name.includes(searchForm.value.name))
+    result = result.filter(m => m.name.includes(searchForm.value.name));
   }
 
   if (searchForm.value.position) {
-    result = result.filter(m => m.position === searchForm.value.position)
+    result = result.filter(m => m.position === searchForm.value.position);
   }
 
   if (searchForm.value.status) {
-    result = result.filter(m => m.status === searchForm.value.status)
+    result = result.filter(m => m.status === searchForm.value.status);
   }
 
-  pagination.value.total = result.length
-  const start = (pagination.value.page - 1) * pagination.value.size
-  const end = start + pagination.value.size
-  return result.slice(start, end)
-})
+  pagination.value.total = result.length;
+  const start = (pagination.value.page - 1) * pagination.value.size;
+  const end = start + pagination.value.size;
+  return result.slice(start, end);
+});
 
 // 方法
 const handleSearch = () => {
-  pagination.value.page = 1
-}
+  pagination.value.page = 1;
+};
 
 const handleReset = () => {
   searchForm.value = {
     name: '',
     position: '',
-    status: ''
-  }
-  pagination.value.page = 1
-}
+    status: '',
+  };
+  pagination.value.page = 1;
+};
 
-const handleSelectionChange = (selection) => {
-  selectedMembers.value = selection
-}
+const handleSelectionChange = selection => {
+  selectedMembers.value = selection;
+};
 
-const handleSizeChange = (size) => {
-  pagination.value.size = size
-  pagination.value.page = 1
-}
+const handleSizeChange = size => {
+  pagination.value.size = size;
+  pagination.value.page = 1;
+};
 
-const handleCurrentChange = (page) => {
-  pagination.value.page = page
-}
+const handleCurrentChange = page => {
+  pagination.value.page = page;
+};
 
-const handleView = (row) => {
-  currentMember.value = row
-  showDetailDialog.value = true
-}
+const handleView = row => {
+  currentMember.value = row;
+  showDetailDialog.value = true;
+};
 
-const handleEdit = (row) => {
-  isEdit.value = true
-  memberForm.value = { ...row }
-  showAddDialog.value = true
-  showDetailDialog.value = false
-}
+const handleEdit = row => {
+  isEdit.value = true;
+  memberForm.value = { ...row };
+  showAddDialog.value = true;
+  showDetailDialog.value = false;
+};
 
 const handleAction = async (command, row) => {
-  currentMember.value = row
+  currentMember.value = row;
 
   switch (command) {
     case 'transfer':
-      handleTransfer(row)
-      break
+      handleTransfer(row);
+      break;
     case 'resign':
-      handleResign(row)
-      break
+      handleResign(row);
+      break;
     case 'permissions':
-      handlePermissions(row)
-      break
+      handlePermissions(row);
+      break;
     case 'delete':
-      handleDelete(row)
-      break
+      handleDelete(row);
+      break;
   }
-}
+};
 
-const handleTransfer = (row) => {
-  currentMember.value = row
+const handleTransfer = row => {
+  currentMember.value = row;
   transferForm.value = {
     type: '',
     newPosition: '',
     effectiveDate: dayjs().format('YYYY-MM-DD'),
     reason: '',
-    attachments: []
-  }
-  showTransferDialog.value = true
-}
+    attachments: [],
+  };
+  showTransferDialog.value = true;
+};
 
-const handleResign = (row) => {
-  ElMessageBox.confirm(
-    `确定要将 ${row.name} 办理离职吗？`,
-    '离职确认',
-    {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }
-  ).then(async () => {
+const handleResign = row => {
+  ElMessageBox.confirm(`确定要将 ${row.name} 办理离职吗？`, '离职确认', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  }).then(async () => {
     try {
       await committeeStore.transferMember(row.id, {
         type: 'resign',
         effectiveDate: dayjs().format('YYYY-MM-DD'),
-        reason: '个人原因申请离职'
-      })
-      ElMessage.success('离职手续已办理')
-      await committeeStore.fetchMembers()
+        reason: '个人原因申请离职',
+      });
+      ElMessage.success('离职手续已办理');
+      await committeeStore.fetchMembers();
     } catch (error) {
-      ElMessage.error('操作失败')
+      ElMessage.error('操作失败');
     }
-  })
-}
+  });
+};
 
-const handlePermissions = (row) => {
-  ElMessage.info('权限管理功能开发中...')
-}
+const handlePermissions = row => {
+  ElMessage.info('权限管理功能开发中...');
+};
 
-const handleDelete = (row) => {
-  ElMessageBox.confirm(
-    `确定要删除 ${row.name} 的信息吗？此操作不可恢复！`,
-    '删除确认',
-    {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'error'
-    }
-  ).then(async () => {
+const handleDelete = row => {
+  ElMessageBox.confirm(`确定要删除 ${row.name} 的信息吗？此操作不可恢复！`, '删除确认', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'error',
+  }).then(async () => {
     try {
-      await committeeStore.deleteMember(row.id)
-      ElMessage.success('删除成功')
-      await committeeStore.fetchMembers()
+      await committeeStore.deleteMember(row.id);
+      ElMessage.success('删除成功');
+      await committeeStore.fetchMembers();
     } catch (error) {
-      ElMessage.error('删除失败')
+      ElMessage.error('删除失败');
     }
-  })
-}
+  });
+};
 
 const handleSubmit = async () => {
-  if (!memberFormRef.value) return
+  if (!memberFormRef.value) return;
 
-  await memberFormRef.value.validate(async (valid) => {
+  await memberFormRef.value.validate(async valid => {
     if (valid) {
-      submitting.value = true
+      submitting.value = true;
       try {
         if (isEdit.value) {
-          await committeeStore.updateMember(currentMember.value.id, memberForm.value)
-          ElMessage.success('更新成功')
+          await committeeStore.updateMember(currentMember.value.id, memberForm.value);
+          ElMessage.success('更新成功');
         } else {
-          await committeeStore.createMember(memberForm.value)
-          ElMessage.success('添加成功')
+          await committeeStore.createMember(memberForm.value);
+          ElMessage.success('添加成功');
         }
-        showAddDialog.value = false
-        await committeeStore.fetchMembers()
+        showAddDialog.value = false;
+        await committeeStore.fetchMembers();
       } catch (error) {
-        ElMessage.error('操作失败')
+        ElMessage.error('操作失败');
       } finally {
-        submitting.value = false
+        submitting.value = false;
       }
     }
-  })
-}
+  });
+};
 
 const handleTransferSubmit = async () => {
-  if (!transferFormRef.value) return
+  if (!transferFormRef.value) return;
 
-  await transferFormRef.value.validate(async (valid) => {
+  await transferFormRef.value.validate(async valid => {
     if (valid) {
-      submitting.value = true
+      submitting.value = true;
       try {
-        const formData = new FormData()
+        const formData = new FormData();
         Object.keys(transferForm.value).forEach(key => {
           if (key !== 'attachments') {
-            formData.append(key, transferForm.value[key])
+            formData.append(key, transferForm.value[key]);
           }
-        })
+        });
 
         fileList.value.forEach(file => {
-          formData.append('attachments', file.raw)
-        })
+          formData.append('attachments', file.raw);
+        });
 
-        await committeeStore.transferMember(currentMember.value.id, formData)
-        ElMessage.success('调任申请已提交')
-        showTransferDialog.value = false
-        await committeeStore.fetchMembers()
+        await committeeStore.transferMember(currentMember.value.id, formData);
+        ElMessage.success('调任申请已提交');
+        showTransferDialog.value = false;
+        await committeeStore.fetchMembers();
       } catch (error) {
-        ElMessage.error('提交失败')
+        ElMessage.error('提交失败');
       } finally {
-        submitting.value = false
+        submitting.value = false;
       }
     }
-  })
-}
+  });
+};
 
 const handleFileChange = (file, fileList) => {
-  fileList.value = fileList
-}
+  fileList.value = fileList;
+};
 
 const handleImport = () => {
-  fileInput.value.click()
-}
+  fileInput.value.click();
+};
 
-const handleFileImport = async (event) => {
-  const file = event.target.files[0]
-  if (!file) return
+const handleFileImport = async event => {
+  const file = event.target.files[0];
+  if (!file) return;
 
   try {
-    await committeeStore.importMembers(file)
-    ElMessage.success('导入成功')
-    await committeeStore.fetchMembers()
+    await committeeStore.importMembers(file);
+    ElMessage.success('导入成功');
+    await committeeStore.fetchMembers();
   } catch (error) {
-    ElMessage.error('导入失败')
+    ElMessage.error('导入失败');
   }
 
-  event.target.value = ''
-}
+  event.target.value = '';
+};
 
 const handleExport = async () => {
   try {
-    await committeeStore.exportMembers()
-    ElMessage.success('导出成功')
+    await committeeStore.exportMembers();
+    ElMessage.success('导出成功');
   } catch (error) {
-    ElMessage.error('导出失败')
+    ElMessage.error('导出失败');
   }
-}
+};
 
 // 辅助函数
-const maskIdCard = (idCard) => {
-  if (!idCard) return ''
-  return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2')
-}
+const maskIdCard = idCard => {
+  if (!idCard) return '';
+  return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2');
+};
 
-const formatDate = (date) => {
-  return date ? dayjs(date).format('YYYY-MM-DD') : ''
-}
+const formatDate = date => {
+  return date ? dayjs(date).format('YYYY-MM-DD') : '';
+};
 
-const getPositionTagType = (position) => {
+const getPositionTagType = position => {
   const typeMap = {
     secretary: 'danger',
     director: 'warning',
     deputy_director: 'info',
-    accountant: 'success'
-  }
-  return typeMap[position] || ''
-}
+    accountant: 'success',
+  };
+  return typeMap[position] || '';
+};
 
-const getStatusTagType = (status) => {
+const getStatusTagType = status => {
   const typeMap = {
     active: 'success',
     transferred: 'warning',
-    resigned: 'info'
-  }
-  return typeMap[status] || ''
-}
+    resigned: 'info',
+  };
+  return typeMap[status] || '';
+};
 
-const getStatusText = (status) => {
+const getStatusText = status => {
   const textMap = {
     active: '在职',
     transferred: '调任',
-    resigned: '离职'
-  }
-  return textMap[status] || status
-}
+    resigned: '离职',
+  };
+  return textMap[status] || status;
+};
 
-const getEducationText = (education) => {
+const getEducationText = education => {
   const textMap = {
     junior: '初中',
     high: '高中',
     college: '大专',
     bachelor: '本科',
-    master: '研究生'
-  }
-  return textMap[education] || ''
-}
+    master: '研究生',
+  };
+  return textMap[education] || '';
+};
 
 // 生命周期
 onMounted(async () => {
   // 检测移动端
-  isMobile.value = window.innerWidth < 768
+  isMobile.value = window.innerWidth < 768;
 
   // 加载数据
   try {
-    await committeeStore.fetchMembers()
+    await committeeStore.fetchMembers();
   } catch (error) {
-    console.error('加载数据失败:', error)
+    console.error('加载数据失败:', error);
   }
-})
+});
 </script>
 
 <style lang="scss" scoped>

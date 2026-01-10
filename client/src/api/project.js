@@ -11,7 +11,7 @@ export const projectApi = {
     return request({
       url: '/api/v1/projects',
       method: 'get',
-      params
+      params,
     });
   },
 
@@ -21,7 +21,7 @@ export const projectApi = {
   getProjectDetails(projectId) {
     return request({
       url: `/api/v1/projects/${projectId}`,
-      method: 'get'
+      method: 'get',
     });
   },
 
@@ -34,8 +34,8 @@ export const projectApi = {
       method: 'post',
       data,
       headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+        'Content-Type': 'multipart/form-data',
+      },
     });
   },
 
@@ -46,7 +46,7 @@ export const projectApi = {
     return request({
       url: `/api/v1/projects/${projectId}`,
       method: 'put',
-      data
+      data,
     });
   },
 
@@ -56,7 +56,7 @@ export const projectApi = {
   deleteProject(projectId) {
     return request({
       url: `/api/v1/projects/${projectId}`,
-      method: 'delete'
+      method: 'delete',
     });
   },
 
@@ -66,7 +66,7 @@ export const projectApi = {
   submitProject(projectId) {
     return request({
       url: `/api/v1/projects/${projectId}/submit`,
-      method: 'post'
+      method: 'post',
     });
   },
 
@@ -77,7 +77,7 @@ export const projectApi = {
     return request({
       url: `/api/v1/projects/${projectId}/approve`,
       method: 'post',
-      data
+      data,
     });
   },
 
@@ -87,7 +87,7 @@ export const projectApi = {
   startProject(projectId) {
     return request({
       url: `/api/v1/projects/${projectId}/start`,
-      method: 'post'
+      method: 'post',
     });
   },
 
@@ -100,8 +100,8 @@ export const projectApi = {
       method: 'post',
       data,
       headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+        'Content-Type': 'multipart/form-data',
+      },
     });
   },
 
@@ -112,7 +112,7 @@ export const projectApi = {
     return request({
       url: `/api/v1/projects/${projectId}/risks`,
       method: 'post',
-      data
+      data,
     });
   },
 
@@ -123,7 +123,7 @@ export const projectApi = {
     return request({
       url: `/api/v1/projects/${projectId}/changes`,
       method: 'post',
-      data
+      data,
     });
   },
 
@@ -136,8 +136,8 @@ export const projectApi = {
       method: 'post',
       data,
       headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+        'Content-Type': 'multipart/form-data',
+      },
     });
   },
 
@@ -148,7 +148,7 @@ export const projectApi = {
     return request({
       url: '/api/v1/projects/pending-approvals',
       method: 'get',
-      params
+      params,
     });
   },
 
@@ -159,7 +159,7 @@ export const projectApi = {
     return request({
       url: `/api/v1/projects/statistics/${villageId}`,
       method: 'get',
-      params
+      params,
     });
   },
 
@@ -170,9 +170,9 @@ export const projectApi = {
     return request({
       url: `/api/v1/projects/reports/${type}`,
       method: 'get',
-      params
+      params,
     });
-  }
+  },
 };
 
 /**
@@ -186,7 +186,7 @@ export const financeApi = {
     return request({
       url: '/api/v1/finance/records',
       method: 'get',
-      params
+      params,
     });
   },
 
@@ -199,8 +199,8 @@ export const financeApi = {
       method: 'post',
       data,
       headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+        'Content-Type': 'multipart/form-data',
+      },
     });
   },
 
@@ -211,7 +211,7 @@ export const financeApi = {
     return request({
       url: `/api/v1/finance/records/${recordId}/approve`,
       method: 'post',
-      data
+      data,
     });
   },
 
@@ -222,14 +222,14 @@ export const financeApi = {
     const formData = new FormData();
     formData.append('invoice', file);
     formData.append('ocrProvider', ocrProvider);
-    
+
     return request({
       url: '/api/v1/finance/ocr/invoice',
       method: 'post',
       data: formData,
       headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+        'Content-Type': 'multipart/form-data',
+      },
     });
   },
 
@@ -240,7 +240,7 @@ export const financeApi = {
     return request({
       url: '/api/v1/finance/pending-approvals',
       method: 'get',
-      params
+      params,
     });
   },
 
@@ -251,7 +251,7 @@ export const financeApi = {
     return request({
       url: `/api/v1/finance/statistics/${villageId}`,
       method: 'get',
-      params
+      params,
     });
   },
 
@@ -262,7 +262,7 @@ export const financeApi = {
     return request({
       url: '/api/v1/finance/budgets',
       method: 'post',
-      data
+      data,
     });
   },
 
@@ -273,7 +273,7 @@ export const financeApi = {
     return request({
       url: `/api/v1/finance/budgets/${budgetId}/adjust`,
       method: 'post',
-      data
+      data,
     });
   },
 
@@ -284,12 +284,12 @@ export const financeApi = {
     return request({
       url: `/api/v1/finance/reports/${type}`,
       method: 'get',
-      params
+      params,
     });
-  }
+  },
 };
 
 export default {
   projectApi,
-  financeApi
+  financeApi,
 };

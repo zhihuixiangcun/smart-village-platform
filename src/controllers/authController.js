@@ -114,12 +114,12 @@ const passwordLogin = async (req, res) => {
       const demoAccount = demoAccounts[username];
 
       if (demoAccount && demoAccount.password === password) {
-        const demoUserId = 'demo_' + dbRole + '_' + Date.now();
+        const demoUserId = `demo_${  dbRole  }_${  Date.now()}`;
         user = {
           _id: demoUserId,
-          username: username,
+          username,
           role: dbRole,
-          email: username + '@demo.local',
+          email: `${username  }@demo.local`,
           status: 'active',
           villageId: 'demo_village_001',
           profile: {
@@ -128,7 +128,7 @@ const passwordLogin = async (req, res) => {
             lastName: dbRole === 'purchaser' ? '采购商' : '用户'
           }
         };
-        console.log('[AuthController] 演示登录成功: ' + username + ' (' + dbRole + ')');
+        console.log(`[AuthController] 演示登录成功: ${  username  } (${  dbRole  })`);
       }
     }
 
@@ -156,7 +156,6 @@ const passwordLogin = async (req, res) => {
       });
     }
 
-<<<<<<< Updated upstream
     // 验证密码（仅对真实数据库用户）
     if (user.comparePassword && typeof user.comparePassword === 'function') {
       const isPasswordValid = await user.comparePassword(password);
@@ -199,7 +198,8 @@ const passwordLogin = async (req, res) => {
           role: user.role,
           email: user.email,
           profile: user.profile,
-          villageId: user.villageId
+          villageId: user.villageId,
+          householdId: user.householdId // 添加户码ID
         }
       }
     });

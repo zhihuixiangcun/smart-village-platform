@@ -146,7 +146,7 @@
             placeholder="预估所需资金"
             style="width: 200px"
           ></el-input-number>
-          <span style="margin-left: 10px; color: #909399; font-size: 14px;">
+          <span style="margin-left: 10px; color: #909399; font-size: 14px">
             元（可选，有助于评估可行性）
           </span>
         </el-form-item>
@@ -177,12 +177,7 @@
               @blur="addTag"
               placeholder="输入标签"
             ></el-input>
-            <el-button
-              v-else
-              size="mini"
-              @click="showAddTag"
-              class="add-tag-btn"
-            >
+            <el-button v-else size="mini" @click="showAddTag" class="add-tag-btn">
               + 添加标签
             </el-button>
           </div>
@@ -311,8 +306,8 @@
 </template>
 
 <script>
-import { suggestionAPI } from '@/api/suggestion'
-import { formatDate } from '@/utils/dateUtils'
+import { suggestionAPI } from '@/api/suggestion';
+import { formatDate } from '@/utils/dateUtils';
 
 export default {
   name: 'SuggestionSubmit',
@@ -331,99 +326,105 @@ export default {
         contactInfo: {
           phone: '',
           email: '',
-          preferredContactMethod: 'app'
+          preferredContactMethod: 'app',
         },
         tags: [],
-        attachments: []
+        attachments: [],
       },
       rules: {
         title: [
           { required: true, message: '请输入建议标题', trigger: 'blur' },
-          { min: 1, max: 100, message: '标题长度在1到100个字符', trigger: 'blur' }
+          { min: 1, max: 100, message: '标题长度在1到100个字符', trigger: 'blur' },
         ],
         content: [
           { required: true, message: '请输入建议内容', trigger: 'blur' },
-          { min: 10, max: 2000, message: '内容长度在10到2000个字符', trigger: 'blur' }
+          { min: 10, max: 2000, message: '内容长度在10到2000个字符', trigger: 'blur' },
         ],
-        category: [
-          { required: true, message: '请选择建议分类', trigger: 'change' }
-        ]
+        category: [{ required: true, message: '请选择建议分类', trigger: 'change' }],
       },
       categories: [],
       saving: false,
       submitting: false,
       showTagInput: false,
       newTag: '',
-      relatedSuggestions: []
-    }
+      relatedSuggestions: [],
+    };
   },
   computed: {
     uploadUrl() {
-      return '/api/v1/suggestions/attachments'
+      return '/api/v1/suggestions/attachments';
     },
     uploadHeaders() {
       return {
-        'Authorization': `Bearer ${this.$store.getters.token}`
-      }
+        Authorization: `Bearer ${this.$store.getters.token}`,
+      };
     },
     suggestedTags() {
       const categoryTags = {
-        'infrastructure': ['道路', '照明', '供水', '排水', '绿化'],
-        'services': ['教育', '医疗', '养老', '文化', '体育'],
-        'governance': ['政务', '公开', '效率', '便民', '监督'],
-        'environment': ['卫生', '污染', '美化', '垃圾', '环保'],
-        'security': ['安全', '监控', '巡逻', '消防', '防盗']
-      }
+        infrastructure: ['道路', '照明', '供水', '排水', '绿化'],
+        services: ['教育', '医疗', '养老', '文化', '体育'],
+        governance: ['政务', '公开', '效率', '便民', '监督'],
+        environment: ['卫生', '污染', '美化', '垃圾', '环保'],
+        security: ['安全', '监控', '巡逻', '消防', '防盗'],
+      };
 
-      const selectedCategory = this.categories.find(cat => cat._id === this.form.category)
-      return categoryTags[selectedCategory?.code?.toLowerCase()] || ['改进', '建议', '优化', '便民', '效率']
-    }
+      const selectedCategory = this.categories.find(cat => cat._id === this.form.category);
+      return (
+        categoryTags[selectedCategory?.code?.toLowerCase()] || [
+          '改进',
+          '建议',
+          '优化',
+          '便民',
+          '效率',
+        ]
+      );
+    },
   },
   async mounted() {
-    await this.loadCategories()
-    this.initUserInfo()
+    await this.loadCategories();
+    this.initUserInfo();
   },
   methods: {
     async loadCategories() {
       try {
-        const response = await suggestionAPI.getActiveCategories()
+        const response = await suggestionAPI.getActiveCategories();
         if (response.data.success) {
-          this.categories = response.data.data
+          this.categories = response.data.data;
         }
       } catch (error) {
-        this.$message.error('获取分类失败')
-        console.error(error)
+        this.$message.error('获取分类失败');
+        console.error(error);
       }
     },
 
     initUserInfo() {
-      const user = this.$store.getters.userInfo
+      const user = this.$store.getters.userInfo;
       if (user && !this.form.isAnonymous) {
-        this.form.contactInfo.phone = user.phone || ''
-        this.form.contactInfo.email = user.email || ''
+        this.form.contactInfo.phone = user.phone || '';
+        this.form.contactInfo.email = user.email || '';
       }
     },
 
     handleCategoryChange() {
-      this.form.subcategory = ''
-      this.searchRelatedSuggestions()
+      this.form.subcategory = '';
+      this.searchRelatedSuggestions();
     },
 
     async searchRelatedSuggestions() {
-      if (!this.form.title || !this.form.category) return
+      if (!this.form.title || !this.form.category) return;
 
       try {
         const response = await suggestionAPI.searchSimilar({
           title: this.form.title,
           category: this.form.category,
-          content: this.form.content.substring(0, 100)
-        })
+          content: this.form.content.substring(0, 100),
+        });
 
         if (response.data.success) {
-          this.relatedSuggestions = response.data.data.suggestions || []
+          this.relatedSuggestions = response.data.data.suggestions || [];
         }
       } catch (error) {
-        console.error('搜索相关建议失败:', error)
+        console.error('搜索相关建议失败:', error);
       }
     },
 
@@ -432,63 +433,65 @@ export default {
         this.form.contactInfo = {
           phone: '',
           email: '',
-          preferredContactMethod: 'none'
-        }
+          preferredContactMethod: 'none',
+        };
       } else {
-        this.initUserInfo()
+        this.initUserInfo();
       }
     },
 
     // 标签管理
     showAddTag() {
-      this.showTagInput = true
+      this.showTagInput = true;
       this.$nextTick(() => {
-        this.$refs.tagInput.focus()
-      })
+        this.$refs.tagInput.focus();
+      });
     },
 
     addTag() {
-      const tag = this.newTag.trim()
+      const tag = this.newTag.trim();
       if (tag && !this.form.tags.includes(tag) && this.form.tags.length < 10) {
-        this.form.tags.push(tag)
+        this.form.tags.push(tag);
       }
-      this.newTag = ''
-      this.showTagInput = false
+      this.newTag = '';
+      this.showTagInput = false;
     },
 
     addSuggestedTag(tag) {
       if (!this.form.tags.includes(tag) && this.form.tags.length < 10) {
-        this.form.tags.push(tag)
+        this.form.tags.push(tag);
       }
     },
 
     removeTag(tag) {
-      const index = this.form.tags.indexOf(tag)
+      const index = this.form.tags.indexOf(tag);
       if (index > -1) {
-        this.form.tags.splice(index, 1)
+        this.form.tags.splice(index, 1);
       }
     },
 
     // 文件上传
     beforeUpload(file) {
       const allowedTypes = [
-        'image/jpeg', 'image/png', 'image/gif',
+        'image/jpeg',
+        'image/png',
+        'image/gif',
         'application/pdf',
         'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-      ]
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      ];
 
       if (!allowedTypes.includes(file.type)) {
-        this.$message.error('不支持的文件格式')
-        return false
+        this.$message.error('不支持的文件格式');
+        return false;
       }
 
       if (file.size > 10 * 1024 * 1024) {
-        this.$message.error('文件大小不能超过10MB')
-        return false
+        this.$message.error('文件大小不能超过10MB');
+        return false;
       }
 
-      return true
+      return true;
     },
 
     handleUploadSuccess(response, file) {
@@ -497,118 +500,116 @@ export default {
           name: file.name,
           url: response.data.url,
           type: file.type,
-          size: file.size
-        })
-        this.$message.success('文件上传成功')
+          size: file.size,
+        });
+        this.$message.success('文件上传成功');
       } else {
-        this.$message.error('文件上传失败')
+        this.$message.error('文件上传失败');
       }
     },
 
     handleUploadRemove(file) {
-      const index = this.form.attachments.findIndex(
-        attachment => attachment.name === file.name
-      )
+      const index = this.form.attachments.findIndex(attachment => attachment.name === file.name);
       if (index > -1) {
-        this.form.attachments.splice(index, 1)
+        this.form.attachments.splice(index, 1);
       }
     },
 
     // 保存草稿
     async saveDraft() {
-      this.saving = true
+      this.saving = true;
       try {
         const draftData = {
           ...this.form,
-          status: 'draft'
-        }
+          status: 'draft',
+        };
 
         // 简单验证
         if (!this.form.title.trim()) {
-          this.$message.error('请填写建议标题')
-          return
+          this.$message.error('请填写建议标题');
+          return;
         }
 
-        const response = await suggestionAPI.saveDraft(draftData)
+        const response = await suggestionAPI.saveDraft(draftData);
         if (response.data.success) {
-          this.$message.success('草稿保存成功')
+          this.$message.success('草稿保存成功');
           // 可以保存到本地或跳转到草稿列表
         }
       } catch (error) {
-        this.$message.error('保存草稿失败')
-        console.error(error)
+        this.$message.error('保存草稿失败');
+        console.error(error);
       } finally {
-        this.saving = false
+        this.saving = false;
       }
     },
 
     // 提交建议
     async submitSuggestion() {
       try {
-        await this.$refs.suggestionForm.validate()
+        await this.$refs.suggestionForm.validate();
       } catch (error) {
-        this.$message.error('请填写完整信息')
-        return
+        this.$message.error('请填写完整信息');
+        return;
       }
 
-      this.submitting = true
+      this.submitting = true;
       try {
-        const response = await suggestionAPI.submitSuggestion(this.form)
+        const response = await suggestionAPI.submitSuggestion(this.form);
 
         if (response.data.success) {
-          this.$message.success('建议提交成功')
-          this.$router.push(`/suggestions/${response.data.data.suggestionId}`)
+          this.$message.success('建议提交成功');
+          this.$router.push(`/suggestions/${response.data.data.suggestionId}`);
         }
       } catch (error) {
-        const message = error.response?.data?.message || '提交建议失败'
-        this.$message.error(message)
-        console.error(error)
+        const message = error.response?.data?.message || '提交建议失败';
+        this.$message.error(message);
+        console.error(error);
       } finally {
-        this.submitting = false
+        this.submitting = false;
       }
     },
 
     // 重置表单
     resetForm() {
-      this.$refs.suggestionForm.resetFields()
-      this.form.tags = []
-      this.form.attachments = []
-      this.relatedSuggestions = []
+      this.$refs.suggestionForm.resetFields();
+      this.form.tags = [];
+      this.form.attachments = [];
+      this.relatedSuggestions = [];
     },
 
     // 查看建议详情
     viewSuggestion(suggestionId) {
-      this.$router.push(`/suggestions/${suggestionId}`)
+      this.$router.push(`/suggestions/${suggestionId}`);
     },
 
     // 状态处理
     getStatusType(status) {
       const statusTypes = {
-        'submitted': 'primary',
-        'under_review': 'warning',
-        'approved': 'success',
-        'rejected': 'danger',
-        'in_progress': 'warning',
-        'completed': 'success'
-      }
-      return statusTypes[status] || 'info'
+        submitted: 'primary',
+        under_review: 'warning',
+        approved: 'success',
+        rejected: 'danger',
+        in_progress: 'warning',
+        completed: 'success',
+      };
+      return statusTypes[status] || 'info';
     },
 
     getStatusText(status) {
       const statusTexts = {
-        'submitted': '已提交',
-        'under_review': '审核中',
-        'approved': '已通过',
-        'rejected': '已拒绝',
-        'in_progress': '实施中',
-        'completed': '已完成'
-      }
-      return statusTexts[status] || '未知'
+        submitted: '已提交',
+        under_review: '审核中',
+        approved: '已通过',
+        rejected: '已拒绝',
+        in_progress: '实施中',
+        completed: '已完成',
+      };
+      return statusTexts[status] || '未知';
     },
 
-    formatDate
-  }
-}
+    formatDate,
+  },
+};
 </script>
 
 <style scoped>
@@ -684,10 +685,18 @@ export default {
   display: inline-block;
 }
 
-.priority-low { background-color: #909399; }
-.priority-medium { background-color: #e6a23c; }
-.priority-high { background-color: #f56c6c; }
-.priority-urgent { background-color: #ff4757; }
+.priority-low {
+  background-color: #909399;
+}
+.priority-medium {
+  background-color: #e6a23c;
+}
+.priority-high {
+  background-color: #f56c6c;
+}
+.priority-urgent {
+  background-color: #ff4757;
+}
 
 .content-tips {
   margin-top: 10px;

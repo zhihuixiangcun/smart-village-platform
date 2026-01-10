@@ -166,7 +166,7 @@ router.post('/id-card/validate',
       success: true,
       data: {
         valid: isValid,
-        idCard: idCard
+        idCard
       },
       message: isValid ? '身份证号格式正确' : '身份证号格式不正确'
     });

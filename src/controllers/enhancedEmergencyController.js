@@ -749,12 +749,12 @@ function checkTriggerConditions(conditions, emergency) {
   // 简化的条件检查逻辑
   return conditions.some(condition => {
     switch (condition.condition) {
-      case 'severity':
-        return emergency.severity === condition.threshold;
-      case 'affected_people':
-        return emergency.affectedPeople >= condition.threshold;
-      default:
-        return false;
+    case 'severity':
+      return emergency.severity === condition.threshold;
+    case 'affected_people':
+      return emergency.affectedPeople >= condition.threshold;
+    default:
+      return false;
     }
   });
 }
@@ -858,7 +858,7 @@ async function sendStatusUpdateNotification(emergency, status) {
 
     await sendNotification({
       type: 'emergency_update',
-      title: `应急事件状态更新`,
+      title: '应急事件状态更新',
       content: `${emergency.title} - 状态更新为: ${statusTexts[status]}`,
       data: {
         emergencyId: emergency._id,

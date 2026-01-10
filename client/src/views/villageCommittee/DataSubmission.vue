@@ -88,7 +88,12 @@
           </el-input>
         </el-form-item>
         <el-form-item label="接收部门">
-          <el-select v-model="filters.department" placeholder="选择部门" clearable style="width: 160px">
+          <el-select
+            v-model="filters.department"
+            placeholder="选择部门"
+            clearable
+            style="width: 160px"
+          >
             <el-option label="乡镇政府" value="township" />
             <el-option label="县政府" value="county" />
             <el-option label="市政府" value="city" />
@@ -180,7 +185,12 @@
             {{ row.submittedAt ? formatDateTime(row.submittedAt) : '-' }}
           </template>
         </el-table-column>
-        <el-table-column prop="reviewComment" label="审核意见" min-width="150" show-overflow-tooltip>
+        <el-table-column
+          prop="reviewComment"
+          label="审核意见"
+          min-width="150"
+          show-overflow-tooltip
+        >
           <template #default="{ row }">
             <span v-if="row.reviewComment" :class="{ 'text-danger': row.status === 'rejected' }">
               {{ row.reviewComment }}
@@ -191,12 +201,7 @@
         <el-table-column label="操作" width="280" fixed="right">
           <template #default="{ row }">
             <el-button-group>
-              <el-button
-                size="small"
-                type="primary"
-                link
-                @click="handleView(row)"
-              >
+              <el-button size="small" type="primary" link @click="handleView(row)">
                 <el-icon><View /></el-icon>
                 查看
               </el-button>
@@ -309,7 +314,11 @@
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="接收部门" prop="department">
-              <el-select v-model="submissionForm.department" placeholder="请选择接收部门" style="width: 100%">
+              <el-select
+                v-model="submissionForm.department"
+                placeholder="请选择接收部门"
+                style="width: 100%"
+              >
                 <el-option label="乡镇政府" value="township">
                   <div class="option-item">
                     <el-icon><OfficeBuilding /></el-icon>
@@ -357,7 +366,11 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="资料类型" prop="type">
-              <el-select v-model="submissionForm.type" placeholder="请选择资料类型" style="width: 100%">
+              <el-select
+                v-model="submissionForm.type"
+                placeholder="请选择资料类型"
+                style="width: 100%"
+              >
                 <el-option label="统计报表" value="statistics" />
                 <el-option label="工作报告" value="report" />
                 <el-option label="申请材料" value="application" />
@@ -414,9 +427,7 @@
             drag
           >
             <el-icon class="el-icon--upload"><UploadFilled /></el-icon>
-            <div class="el-upload__text">
-              将文件拖到此处，或<em>点击上传</em>
-            </div>
+            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
             <template #tip>
               <div class="el-upload__tip">
                 支持上传Word、Excel、PDF等格式文件，单个文件不超过50MB
@@ -438,12 +449,8 @@
 
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="handleCloseCreateDialog">
-            取消
-          </el-button>
-          <el-button @click="handleSaveDraft" :loading="submitting">
-            保存草稿
-          </el-button>
+          <el-button @click="handleCloseCreateDialog"> 取消 </el-button>
+          <el-button @click="handleSaveDraft" :loading="submitting"> 保存草稿 </el-button>
           <el-button type="primary" @click="handleSubmitDirectly" :loading="submitting">
             直接提交
           </el-button>
@@ -469,7 +476,11 @@
                 <el-tag :type="getStatusTagType(currentSubmission.status)" size="large">
                   {{ getStatusLabel(currentSubmission.status) }}
                 </el-tag>
-                <el-tag v-if="currentSubmission.priority !== 'normal'" :type="getPriorityTagType(currentSubmission.priority)" size="large">
+                <el-tag
+                  v-if="currentSubmission.priority !== 'normal'"
+                  :type="getPriorityTagType(currentSubmission.priority)"
+                  size="large"
+                >
                   {{ getPriorityLabel(currentSubmission.priority) }}
                 </el-tag>
               </div>
@@ -497,7 +508,13 @@
               {{ currentSubmission.description }}
             </el-descriptions-item>
             <el-descriptions-item label="截止日期">
-              <span :class="{ 'text-danger': isOverdue(currentSubmission.deadline) && currentSubmission.status !== 'approved' }">
+              <span
+                :class="{
+                  'text-danger':
+                    isOverdue(currentSubmission.deadline) &&
+                    currentSubmission.status !== 'approved',
+                }"
+              >
                 {{ formatDateTime(currentSubmission.deadline) }}
               </span>
             </el-descriptions-item>
@@ -526,7 +543,12 @@
             </div>
           </template>
           <el-table :data="uploadedFiles" stripe border style="width: 100%">
-            <el-table-column prop="fileName" label="文件名称" min-width="200" show-overflow-tooltip />
+            <el-table-column
+              prop="fileName"
+              label="文件名称"
+              min-width="200"
+              show-overflow-tooltip
+            />
             <el-table-column prop="fileType" label="文件类型" width="100">
               <template #default="{ row }">
                 <el-tag size="small">{{ row.fileType }}</el-tag>
@@ -564,11 +586,7 @@
     </el-dialog>
 
     <!-- 提交确认对话框 -->
-    <el-dialog
-      v-model="showSubmitConfirmDialog"
-      title="确认提交"
-      width="500px"
-    >
+    <el-dialog v-model="showSubmitConfirmDialog" title="确认提交" width="500px">
       <el-result
         icon="warning"
         title="确认要提交资料吗？"
@@ -602,65 +620,80 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
-  Upload, Plus, Document, Clock, CircleCheck, Warning,
-  Search, Refresh, View, Edit, Delete, Download, UploadFilled,
-  OfficeBuilding, Grape, User, Money, More
-} from '@element-plus/icons-vue'
-import { submissionApi } from '@/api/cadre'
+  Upload,
+  Plus,
+  Document,
+  Clock,
+  CircleCheck,
+  Warning,
+  Search,
+  Refresh,
+  View,
+  Edit,
+  Delete,
+  Download,
+  UploadFilled,
+  OfficeBuilding,
+  Grape,
+  User,
+  Money,
+  More,
+} from '@element-plus/icons-vue';
+import { submissionApi } from '@/api/cadre';
 
 // ==================== 响应式状态 ====================
-const loading = ref(false)
-const submitting = ref(false)
+const loading = ref(false);
+const submitting = ref(false);
 
 // 筛选条件
 const filters = reactive({
   search: '',
   department: '',
   type: '',
-  status: ''
-})
+  status: '',
+});
 
 // 分页信息
 const pagination = reactive({
   page: 1,
   limit: 20,
-  total: 0
-})
+  total: 0,
+});
 
 // 统计数据
 const stats = reactive({
   totalSubmissions: 0,
   pendingSubmissions: 0,
   approvedSubmissions: 0,
-  rejectedSubmissions: 0
-})
+  rejectedSubmissions: 0,
+});
 
 // 上交任务列表
-const submissionList = ref([])
-const selectedSubmissions = ref([])
+const submissionList = ref([]);
+const selectedSubmissions = ref([]);
 
 // 对话框状态
-const showCreateDialog = ref(false)
-const showDetailDialog = ref(false)
-const showSubmitConfirmDialog = ref(false)
-const editingSubmission = ref(null)
-const currentSubmission = ref(null)
+const showCreateDialog = ref(false);
+const showDetailDialog = ref(false);
+const showSubmitConfirmDialog = ref(false);
+const editingSubmission = ref(null);
+const currentSubmission = ref(null);
 
 // 已上传文件列表
-const uploadedFiles = ref([])
-const fileList = ref([])
-const uploadRef = ref(null)
+const uploadedFiles = ref([]);
+const fileList = ref([]);
+const uploadRef = ref(null);
 
 // 提交确认数据
 const submitConfirmData = reactive({
   title: '',
   department: '',
   fileCount: 0,
-  submissionId: ''
-})
+  submissionId: '',
+});
 
 // ==================== 表单数据 ====================
 const submissionForm = reactive({
@@ -671,41 +704,33 @@ const submissionForm = reactive({
   deadline: null,
   priority: 'normal',
   files: [],
-  remark: ''
-})
+  remark: '',
+});
 
 const submissionFormRules = {
   title: [
     { required: true, message: '请输入任务标题', trigger: 'blur' },
-    { min: 5, max: 100, message: '标题长度在5到100个字符', trigger: 'blur' }
+    { min: 5, max: 100, message: '标题长度在5到100个字符', trigger: 'blur' },
   ],
-  department: [
-    { required: true, message: '请选择接收部门', trigger: 'change' }
-  ],
-  type: [
-    { required: true, message: '请选择资料类型', trigger: 'change' }
-  ],
-  description: [
-    { required: true, message: '请输入任务描述', trigger: 'blur' }
-  ],
-  deadline: [
-    { required: true, message: '请选择截止日期', trigger: 'change' }
-  ]
-}
+  department: [{ required: true, message: '请选择接收部门', trigger: 'change' }],
+  type: [{ required: true, message: '请选择资料类型', trigger: 'change' }],
+  description: [{ required: true, message: '请输入任务描述', trigger: 'blur' }],
+  deadline: [{ required: true, message: '请选择截止日期', trigger: 'change' }],
+};
 
 // 表单引用
-const submissionFormRef = ref(null)
+const submissionFormRef = ref(null);
 
 // 上传配置
 const uploadAction = computed(() => {
-  return '/api/v1/cadre/submission/upload'
-})
+  return '/api/v1/cadre/submission/upload';
+});
 
 const uploadHeaders = computed(() => {
   return {
-    'Authorization': `Bearer ${localStorage.getItem('token')}`
-  }
-})
+    Authorization: `Bearer ${localStorage.getItem('token')}`,
+  };
+});
 
 // ==================== 方法 ====================
 
@@ -713,55 +738,55 @@ const uploadHeaders = computed(() => {
  * 加载上交任务列表
  */
 const loadSubmissionList = async () => {
-  loading.value = true
+  loading.value = true;
   try {
     const params = {
       page: pagination.page,
       limit: pagination.limit,
-      ...filters
-    }
+      ...filters,
+    };
 
     // 清理空值参数
     Object.keys(params).forEach(key => {
       if (params[key] === '' || params[key] === null || params[key] === undefined) {
-        delete params[key]
+        delete params[key];
       }
-    })
+    });
 
-    const response = await submissionApi.getSubmissionTasks(params)
+    const response = await submissionApi.getSubmissionTasks(params);
 
     if (response.success) {
-      submissionList.value = response.data.tasks || []
-      pagination.total = response.pagination?.total || 0
+      submissionList.value = response.data.tasks || [];
+      pagination.total = response.pagination?.total || 0;
     } else {
-      ElMessage.error(response.message || '获取任务列表失败')
+      ElMessage.error(response.message || '获取任务列表失败');
     }
   } catch (error) {
-    console.error('加载任务列表失败:', error)
+    console.error('加载任务列表失败:', error);
     // 使用模拟数据
-    loadMockSubmissions()
+    loadMockSubmissions();
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 /**
  * 加载统计数据
  */
 const loadStats = async () => {
   try {
-    const response = await submissionApi.getSubmissionStats()
+    const response = await submissionApi.getSubmissionStats();
     if (response.success) {
-      Object.assign(stats, response.data)
+      Object.assign(stats, response.data);
     }
   } catch (error) {
     // 使用模拟数据
-    stats.totalSubmissions = 28
-    stats.pendingSubmissions = 12
-    stats.approvedSubmissions = 14
-    stats.rejectedSubmissions = 2
+    stats.totalSubmissions = 28;
+    stats.pendingSubmissions = 12;
+    stats.approvedSubmissions = 14;
+    stats.rejectedSubmissions = 2;
   }
-}
+};
 
 /**
  * 加载模拟数据
@@ -781,7 +806,7 @@ const loadMockSubmissions = () => {
       submittedAt: null,
       reviewedAt: null,
       reviewComment: null,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     },
     {
       _id: '2',
@@ -796,7 +821,7 @@ const loadMockSubmissions = () => {
       submittedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
       reviewedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
       reviewComment: '材料齐全，审核通过',
-      createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+      createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
     },
     {
       _id: '3',
@@ -811,66 +836,66 @@ const loadMockSubmissions = () => {
       submittedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
       reviewedAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
       reviewComment: '报表格式不正确，请按照标准格式重新提交',
-      createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
-    }
-  ]
-  pagination.total = submissionList.value.length
-}
+      createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+  ];
+  pagination.total = submissionList.value.length;
+};
 
 /**
  * 搜索
  */
 const handleSearch = () => {
-  pagination.page = 1
-  loadSubmissionList()
-}
+  pagination.page = 1;
+  loadSubmissionList();
+};
 
 /**
  * 重置筛选
  */
 const handleReset = () => {
-  filters.search = ''
-  filters.department = ''
-  filters.type = ''
-  filters.status = ''
-  pagination.page = 1
-  loadSubmissionList()
-}
+  filters.search = '';
+  filters.department = '';
+  filters.type = '';
+  filters.status = '';
+  pagination.page = 1;
+  loadSubmissionList();
+};
 
 /**
  * 分页大小变化
  */
-const handleSizeChange = (size) => {
-  pagination.limit = size
-  loadSubmissionList()
-}
+const handleSizeChange = size => {
+  pagination.limit = size;
+  loadSubmissionList();
+};
 
 /**
  * 页码变化
  */
-const handleCurrentChange = (page) => {
-  pagination.page = page
-  loadSubmissionList()
-}
+const handleCurrentChange = page => {
+  pagination.page = page;
+  loadSubmissionList();
+};
 
 /**
  * 选择变化
  */
-const handleSelectionChange = (selection) => {
-  selectedSubmissions.value = selection
-}
+const handleSelectionChange = selection => {
+  selectedSubmissions.value = selection;
+};
 
 /**
  * 查看详情
  */
-const handleView = async (row) => {
-  currentSubmission.value = row
-  showDetailDialog.value = true
+const handleView = async row => {
+  currentSubmission.value = row;
+  showDetailDialog.value = true;
 
   try {
-    const response = await submissionApi.getUploadedFiles(row._id)
+    const response = await submissionApi.getUploadedFiles(row._id);
     if (response.success) {
-      uploadedFiles.value = response.data.files || []
+      uploadedFiles.value = response.data.files || [];
     }
   } catch (error) {
     // 使用模拟数据
@@ -880,32 +905,32 @@ const handleView = async (row) => {
         fileName: '工作报告.docx',
         fileType: 'docx',
         fileSize: '2.5 MB',
-        uploadedAt: new Date().toISOString()
+        uploadedAt: new Date().toISOString(),
       },
       {
         _id: '2',
         fileName: '统计报表.xlsx',
         fileType: 'xlsx',
         fileSize: '1.8 MB',
-        uploadedAt: new Date().toISOString()
-      }
-    ]
+        uploadedAt: new Date().toISOString(),
+      },
+    ];
   }
-}
+};
 
 /**
  * 编辑任务
  */
-const handleEdit = (row) => {
-  editingSubmission.value = row
+const handleEdit = row => {
+  editingSubmission.value = row;
 
   // 加载已上传文件
-  uploadedFiles.value = row.files || []
+  uploadedFiles.value = row.files || [];
   fileList.value = (row.files || []).map(file => ({
     name: file.fileName,
     url: file.url,
-    uid: file._id
-  }))
+    uid: file._id,
+  }));
 
   Object.assign(submissionForm, {
     title: row.title,
@@ -915,188 +940,184 @@ const handleEdit = (row) => {
     deadline: new Date(row.deadline),
     priority: row.priority,
     files: row.files || [],
-    remark: row.remark || ''
-  })
+    remark: row.remark || '',
+  });
 
-  showCreateDialog.value = true
-}
+  showCreateDialog.value = true;
+};
 
 /**
  * 提交任务
  */
-const handleSubmit = (row) => {
-  submitConfirmData.title = row.title
-  submitConfirmData.department = row.department
-  submitConfirmData.fileCount = row.files?.length || 0
-  submitConfirmData.submissionId = row._id
-  showSubmitConfirmDialog.value = true
-}
+const handleSubmit = row => {
+  submitConfirmData.title = row.title;
+  submitConfirmData.department = row.department;
+  submitConfirmData.fileCount = row.files?.length || 0;
+  submitConfirmData.submissionId = row._id;
+  showSubmitConfirmDialog.value = true;
+};
 
 /**
  * 下载回执
  */
-const handleDownloadProof = async (row) => {
+const handleDownloadProof = async row => {
   try {
-    ElMessage.info('正在生成回执...')
-    const response = await submissionApi.downloadSubmissionProof(row._id)
+    ElMessage.info('正在生成回执...');
+    const response = await submissionApi.downloadSubmissionProof(row._id);
     if (response.success) {
       // 下载文件
-      ElMessage.success('回执下载成功')
+      ElMessage.success('回执下载成功');
     }
   } catch (error) {
-    ElMessage.error('回执下载失败')
+    ElMessage.error('回执下载失败');
   }
-}
+};
 
 /**
  * 删除任务
  */
-const handleDelete = async (row) => {
+const handleDelete = async row => {
   try {
-    await ElMessageBox.confirm(
-      `确定要删除任务 "${row.title}" 吗？`,
-      '确认删除',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
+    await ElMessageBox.confirm(`确定要删除任务 "${row.title}" 吗？`, '确认删除', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
 
-    const response = await submissionApi.deleteSubmissionTask(row._id)
+    const response = await submissionApi.deleteSubmissionTask(row._id);
     if (response.success) {
-      ElMessage.success('删除成功')
-      loadSubmissionList()
-      loadStats()
+      ElMessage.success('删除成功');
+      loadSubmissionList();
+      loadStats();
     }
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('删除失败')
+      ElMessage.error('删除失败');
     }
   }
-}
+};
 
 /**
  * 保存草稿
  */
 const handleSaveDraft = async () => {
-  if (!submissionFormRef.value) return
+  if (!submissionFormRef.value) return;
 
   try {
-    await submissionFormRef.value.validate()
+    await submissionFormRef.value.validate();
 
-    submitting.value = true
+    submitting.value = true;
 
-    const data = { ...submissionForm }
+    const data = { ...submissionForm };
     if (data.deadline) {
-      data.deadline = data.deadline.toISOString()
+      data.deadline = data.deadline.toISOString();
     }
-    data.status = 'draft'
+    data.status = 'draft';
 
-    let response
+    let response;
     if (editingSubmission.value) {
-      response = await submissionApi.updateSubmissionTask(editingSubmission.value._id, data)
+      response = await submissionApi.updateSubmissionTask(editingSubmission.value._id, data);
     } else {
-      response = await submissionApi.createSubmissionTask(data)
+      response = await submissionApi.createSubmissionTask(data);
     }
 
     if (response.success) {
-      ElMessage.success('草稿保存成功')
-      handleCloseCreateDialog()
-      loadSubmissionList()
-      loadStats()
+      ElMessage.success('草稿保存成功');
+      handleCloseCreateDialog();
+      loadSubmissionList();
+      loadStats();
     } else {
-      ElMessage.error(response.message || '保存失败')
+      ElMessage.error(response.message || '保存失败');
     }
   } catch (error) {
     if (error !== 'validation failed') {
-      ElMessage.error('保存失败')
-      console.error('保存草稿失败:', error)
+      ElMessage.error('保存失败');
+      console.error('保存草稿失败:', error);
     }
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
-}
+};
 
 /**
  * 直接提交
  */
 const handleSubmitDirectly = async () => {
-  if (!submissionFormRef.value) return
+  if (!submissionFormRef.value) return;
 
   try {
-    await submissionFormRef.value.validate()
+    await submissionFormRef.value.validate();
 
     if (submissionForm.files.length === 0) {
-      ElMessage.warning('请至少上传一个文件')
-      return
+      ElMessage.warning('请至少上传一个文件');
+      return;
     }
 
-    submitting.value = true
+    submitting.value = true;
 
-    const data = { ...submissionForm }
+    const data = { ...submissionForm };
     if (data.deadline) {
-      data.deadline = data.deadline.toISOString()
+      data.deadline = data.deadline.toISOString();
     }
-    data.status = 'pending'
+    data.status = 'pending';
 
-    let response
+    let response;
     if (editingSubmission.value) {
-      response = await submissionApi.updateSubmissionTask(editingSubmission.value._id, data)
+      response = await submissionApi.updateSubmissionTask(editingSubmission.value._id, data);
     } else {
-      response = await submissionApi.createSubmissionTask(data)
+      response = await submissionApi.createSubmissionTask(data);
     }
 
     if (response.success) {
-      ElMessage.success('提交成功，等待审核')
-      handleCloseCreateDialog()
-      loadSubmissionList()
-      loadStats()
+      ElMessage.success('提交成功，等待审核');
+      handleCloseCreateDialog();
+      loadSubmissionList();
+      loadStats();
     } else {
-      ElMessage.error(response.message || '提交失败')
+      ElMessage.error(response.message || '提交失败');
     }
   } catch (error) {
     if (error !== 'validation failed') {
-      ElMessage.error('提交失败')
-      console.error('提交失败:', error)
+      ElMessage.error('提交失败');
+      console.error('提交失败:', error);
     }
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
-}
+};
 
 /**
  * 确认提交
  */
 const confirmSubmit = async () => {
-  submitting.value = true
+  submitting.value = true;
   try {
-    const response = await submissionApi.submitTask(submitConfirmData.submissionId)
+    const response = await submissionApi.submitTask(submitConfirmData.submissionId);
 
     if (response.success) {
-      ElMessage.success('提交成功，等待审核')
-      showSubmitConfirmDialog.value = false
-      loadSubmissionList()
-      loadStats()
+      ElMessage.success('提交成功，等待审核');
+      showSubmitConfirmDialog.value = false;
+      loadSubmissionList();
+      loadStats();
     } else {
-      ElMessage.error(response.message || '提交失败')
+      ElMessage.error(response.message || '提交失败');
     }
   } catch (error) {
-    ElMessage.error('提交失败')
-    console.error('提交失败:', error)
+    ElMessage.error('提交失败');
+    console.error('提交失败:', error);
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
-}
+};
 
 /**
  * 关闭创建对话框
  */
 const handleCloseCreateDialog = () => {
-  showCreateDialog.value = false
-  editingSubmission.value = null
-  resetSubmissionForm()
-}
+  showCreateDialog.value = false;
+  editingSubmission.value = null;
+  resetSubmissionForm();
+};
 
 /**
  * 重置表单
@@ -1104,180 +1125,172 @@ const handleCloseCreateDialog = () => {
 const resetSubmissionForm = () => {
   Object.keys(submissionForm).forEach(key => {
     if (key === 'priority') {
-      submissionForm[key] = 'normal'
+      submissionForm[key] = 'normal';
     } else if (Array.isArray(submissionForm[key])) {
-      submissionForm[key] = []
+      submissionForm[key] = [];
     } else {
-      submissionForm[key] = ''
+      submissionForm[key] = '';
     }
-  })
+  });
 
-  fileList.value = []
-  uploadedFiles.value = []
+  fileList.value = [];
+  uploadedFiles.value = [];
 
   if (submissionFormRef.value) {
-    submissionFormRef.value.resetFields()
+    submissionFormRef.value.resetFields();
   }
-}
+};
 
 /**
  * 关闭详情对话框
  */
 const handleCloseDetailDialog = () => {
-  showDetailDialog.value = false
-  currentSubmission.value = null
-  uploadedFiles.value = []
-}
+  showDetailDialog.value = false;
+  currentSubmission.value = null;
+  uploadedFiles.value = [];
+};
 
 /**
  * 上传前校验
  */
-const beforeUpload = (file) => {
+const beforeUpload = file => {
   const isValidType = [
     'application/pdf',
     'application/msword',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     'application/vnd.ms-excel',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-  ].includes(file.type)
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  ].includes(file.type);
 
   if (!isValidType) {
-    ElMessage.error('只支持上传Word、Excel、PDF格式的文件')
-    return false
+    ElMessage.error('只支持上传Word、Excel、PDF格式的文件');
+    return false;
   }
 
-  const isValidSize = file.size / 1024 / 1024 < 50
+  const isValidSize = file.size / 1024 / 1024 < 50;
   if (!isValidSize) {
-    ElMessage.error('文件大小不能超过50MB')
-    return false
+    ElMessage.error('文件大小不能超过50MB');
+    return false;
   }
 
-  return true
-}
+  return true;
+};
 
 /**
  * 上传成功
  */
 const handleUploadSuccess = (response, file, fileList) => {
   if (response.success) {
-    ElMessage.success('文件上传成功')
-    submissionForm.files.push(response.data.file)
+    ElMessage.success('文件上传成功');
+    submissionForm.files.push(response.data.file);
   } else {
-    ElMessage.error(response.message || '文件上传失败')
+    ElMessage.error(response.message || '文件上传失败');
   }
-}
+};
 
 /**
  * 上传失败
  */
-const handleUploadError = (error) => {
-  ElMessage.error('文件上传失败')
-  console.error('上传错误:', error)
-}
+const handleUploadError = error => {
+  ElMessage.error('文件上传失败');
+  console.error('上传错误:', error);
+};
 
 /**
  * 删除文件
  */
-const handleRemoveFile = (file) => {
-  const index = submissionForm.files.findIndex(f => f._id === file.uid)
+const handleRemoveFile = file => {
+  const index = submissionForm.files.findIndex(f => f._id === file.uid);
   if (index > -1) {
-    submissionForm.files.splice(index, 1)
+    submissionForm.files.splice(index, 1);
   }
-}
+};
 
 /**
  * 下载文件
  */
-const handleDownloadFile = (file) => {
-  ElMessage.info('正在下载文件...')
+const handleDownloadFile = file => {
+  ElMessage.info('正在下载文件...');
   // 实现文件下载逻辑
-}
+};
 
 /**
  * 删除文件
  */
-const handleDeleteFile = async (file) => {
+const handleDeleteFile = async file => {
   try {
-    await ElMessageBox.confirm(
-      '确定要删除这个文件吗？',
-      '确认删除',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
+    await ElMessageBox.confirm('确定要删除这个文件吗？', '确认删除', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
 
-    const response = await submissionApi.deleteUploadedFile(file._id)
+    const response = await submissionApi.deleteUploadedFile(file._id);
     if (response.success) {
-      ElMessage.success('删除成功')
+      ElMessage.success('删除成功');
       if (currentSubmission.value) {
-        handleView(currentSubmission.value)
+        handleView(currentSubmission.value);
       }
     }
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('删除失败')
+      ElMessage.error('删除失败');
     }
   }
-}
+};
 
 /**
  * 批量提交
  */
 const handleBatchSubmit = async () => {
   try {
-    const canSubmit = selectedSubmissions.value.filter(s =>
-      ['draft', 'rejected'].includes(s.status) && s.files.length > 0
-    )
+    const canSubmit = selectedSubmissions.value.filter(
+      s => ['draft', 'rejected'].includes(s.status) && s.files.length > 0
+    );
 
     if (canSubmit.length === 0) {
-      ElMessage.warning('没有可以提交的任务')
-      return
+      ElMessage.warning('没有可以提交的任务');
+      return;
     }
 
-    await ElMessageBox.confirm(
-      `确定要提交选中的 ${canSubmit.length} 个任务吗？`,
-      '批量提交',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'info'
-      }
-    )
+    await ElMessageBox.confirm(`确定要提交选中的 ${canSubmit.length} 个任务吗？`, '批量提交', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'info',
+    });
 
-    const ids = canSubmit.map(t => t._id)
-    const response = await submissionApi.batchSubmit(ids)
+    const ids = canSubmit.map(t => t._id);
+    const response = await submissionApi.batchSubmit(ids);
 
     if (response.success) {
-      ElMessage.success('批量提交成功')
-      loadSubmissionList()
-      loadStats()
-      selectedSubmissions.value = []
+      ElMessage.success('批量提交成功');
+      loadSubmissionList();
+      loadStats();
+      selectedSubmissions.value = [];
     }
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('批量提交失败')
+      ElMessage.error('批量提交失败');
     }
   }
-}
+};
 
 /**
  * 批量导出
  */
 const handleBatchExport = async () => {
   try {
-    ElMessage.info('正在导出...')
-    const ids = selectedSubmissions.value.map(t => t._id)
-    const response = await submissionApi.batchExport(ids)
+    ElMessage.info('正在导出...');
+    const ids = selectedSubmissions.value.map(t => t._id);
+    const response = await submissionApi.batchExport(ids);
 
     if (response.success) {
-      ElMessage.success('导出成功')
+      ElMessage.success('导出成功');
     }
   } catch (error) {
-    ElMessage.error('导出失败')
+    ElMessage.error('导出失败');
   }
-}
+};
 
 /**
  * 批量删除
@@ -1290,63 +1303,63 @@ const handleBatchDelete = async () => {
       {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
       }
-    )
+    );
 
-    const ids = selectedSubmissions.value.map(t => t._id)
-    const response = await submissionApi.batchDeleteTasks(ids)
+    const ids = selectedSubmissions.value.map(t => t._id);
+    const response = await submissionApi.batchDeleteTasks(ids);
 
     if (response.success) {
-      ElMessage.success('删除成功')
-      loadSubmissionList()
-      loadStats()
-      selectedSubmissions.value = []
+      ElMessage.success('删除成功');
+      loadSubmissionList();
+      loadStats();
+      selectedSubmissions.value = [];
     }
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('删除失败')
+      ElMessage.error('删除失败');
     }
   }
-}
+};
 
 /**
  * 禁用过去的日期
  */
-const disabledDate = (time) => {
-  return time.getTime() < Date.now() - 24 * 60 * 60 * 1000
-}
+const disabledDate = time => {
+  return time.getTime() < Date.now() - 24 * 60 * 60 * 1000;
+};
 
 // ==================== 工具函数 ====================
 
 /**
  * 格式化日期
  */
-const formatDate = (date) => {
-  if (!date) return ''
-  return new Date(date).toLocaleDateString('zh-CN')
-}
+const formatDate = date => {
+  if (!date) return '';
+  return new Date(date).toLocaleDateString('zh-CN');
+};
 
 /**
  * 格式化日期时间
  */
-const formatDateTime = (dateTime) => {
-  if (!dateTime) return ''
-  return new Date(dateTime).toLocaleString('zh-CN')
-}
+const formatDateTime = dateTime => {
+  if (!dateTime) return '';
+  return new Date(dateTime).toLocaleString('zh-CN');
+};
 
 /**
  * 判断是否逾期
  */
-const isOverdue = (deadline) => {
-  if (!deadline) return false
-  return new Date(deadline) < new Date()
-}
+const isOverdue = deadline => {
+  if (!deadline) return false;
+  return new Date(deadline) < new Date();
+};
 
 /**
  * 获取部门标签颜色
  */
-const getDepartmentTagColor = (department) => {
+const getDepartmentTagColor = department => {
   const colorMap = {
     township: 'primary',
     county: 'success',
@@ -1354,15 +1367,15 @@ const getDepartmentTagColor = (department) => {
     agriculture: 'success',
     civil: 'info',
     finance: 'danger',
-    other: ''
-  }
-  return colorMap[department] || ''
-}
+    other: '',
+  };
+  return colorMap[department] || '';
+};
 
 /**
  * 获取部门标签文本
  */
-const getDepartmentLabel = (department) => {
+const getDepartmentLabel = department => {
   const labelMap = {
     township: '乡镇政府',
     county: '县政府',
@@ -1370,83 +1383,83 @@ const getDepartmentLabel = (department) => {
     agriculture: '农业局',
     civil: '民政局',
     finance: '财政局',
-    other: '其他部门'
-  }
-  return labelMap[department] || department
-}
+    other: '其他部门',
+  };
+  return labelMap[department] || department;
+};
 
 /**
  * 获取类型标签文本
  */
-const getTypeLabel = (type) => {
+const getTypeLabel = type => {
   const labelMap = {
     statistics: '统计报表',
     report: '工作报告',
     application: '申请材料',
     project: '项目文档',
     finance: '财务数据',
-    other: '其他资料'
-  }
-  return labelMap[type] || type
-}
+    other: '其他资料',
+  };
+  return labelMap[type] || type;
+};
 
 /**
  * 获取状态标签类型
  */
-const getStatusTagType = (status) => {
+const getStatusTagType = status => {
   const typeMap = {
     draft: 'info',
     pending: 'warning',
     reviewing: 'primary',
     approved: 'success',
-    rejected: 'danger'
-  }
-  return typeMap[status] || 'info'
-}
+    rejected: 'danger',
+  };
+  return typeMap[status] || 'info';
+};
 
 /**
  * 获取状态标签文本
  */
-const getStatusLabel = (status) => {
+const getStatusLabel = status => {
   const labelMap = {
     draft: '草稿',
     pending: '待提交',
     reviewing: '审核中',
     approved: '已通过',
-    rejected: '被驳回'
-  }
-  return labelMap[status] || status
-}
+    rejected: '被驳回',
+  };
+  return labelMap[status] || status;
+};
 
 /**
  * 获取优先级标签类型
  */
-const getPriorityTagType = (priority) => {
+const getPriorityTagType = priority => {
   const typeMap = {
     normal: '',
     important: 'warning',
-    urgent: 'danger'
-  }
-  return typeMap[priority] || ''
-}
+    urgent: 'danger',
+  };
+  return typeMap[priority] || '';
+};
 
 /**
  * 获取优先级标签文本
  */
-const getPriorityLabel = (priority) => {
+const getPriorityLabel = priority => {
   const labelMap = {
     normal: '普通',
     important: '重要',
-    urgent: '紧急'
-  }
-  return labelMap[priority] || priority
-}
+    urgent: '紧急',
+  };
+  return labelMap[priority] || priority;
+};
 
 // ==================== 生命周期 ====================
 onMounted(() => {
-  loadSubmissionList()
-  loadStats()
-})
+  loadSubmissionList();
+  loadStats();
+});
 </script>
 
 <style lang="scss" scoped>

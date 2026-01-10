@@ -16,7 +16,7 @@
               type="text"
               icon="Microphone"
               @click="startVoiceSearch"
-              :class="{ 'recording': isRecording }"
+              :class="{ recording: isRecording }"
             />
           </template>
         </el-input>
@@ -62,12 +62,7 @@
         >
           <el-icon><Clock /></el-icon>
           <span>{{ item.query }}</span>
-          <el-button
-            type="text"
-            icon="Close"
-            size="small"
-            @click.stop="removeHistory(item.id)"
-          />
+          <el-button type="text" icon="Close" size="small" @click.stop="removeHistory(item.id)" />
         </div>
       </div>
     </div>
@@ -75,9 +70,9 @@
     <!-- 村民列表 -->
     <div class="resident-list" ref="listContainer">
       <!-- 下拉刷新 -->
-      <div class="pull-refresh" :class="{ 'refreshing': isRefreshing }">
+      <div class="pull-refresh" :class="{ refreshing: isRefreshing }">
         <div class="refresh-icon">
-          <el-icon :class="{ 'rotating': isRefreshing }"><Refresh /></el-icon>
+          <el-icon :class="{ rotating: isRefreshing }"><Refresh /></el-icon>
         </div>
         <span>{{ isRefreshing ? '正在刷新...' : '下拉刷新' }}</span>
       </div>
@@ -153,11 +148,7 @@
             </div>
 
             <div class="resident-actions">
-              <el-button
-                type="text"
-                icon="More"
-                @click.stop="showActionSheet(resident)"
-              />
+              <el-button type="text" icon="More" @click.stop="showActionSheet(resident)" />
             </div>
           </div>
         </div>
@@ -172,9 +163,7 @@
     <!-- 空状态 -->
     <div class="empty-state" v-if="!loading && residentList.length === 0">
       <el-empty description="暂无数据">
-        <el-button type="primary" @click="showAddDialog = true">
-          添加村民
-        </el-button>
+        <el-button type="primary" @click="showAddDialog = true"> 添加村民 </el-button>
       </el-empty>
     </div>
 
@@ -195,7 +184,7 @@
           <el-button type="text" @click="closeVoiceSearch">关闭</el-button>
         </div>
         <div class="voice-content">
-          <div class="voice-animation" :class="{ 'recording': isRecording }">
+          <div class="voice-animation" :class="{ recording: isRecording }">
             <div class="wave"></div>
             <div class="wave"></div>
             <div class="wave"></div>
@@ -231,45 +220,55 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted, nextTick } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Clock, Close, Refresh, House, Phone, More, Microphone, Plus } from '@element-plus/icons-vue'
-import { VanList, VanActionSheet, VanPopup } from 'vant'
-import ResidentQuickForm from './ResidentQuickForm.vue'
-import { debounce, throttle, runWhenIdle } from '@/utils/performanceOptimizer'
+import { ref, reactive, computed, onMounted, onUnmounted, nextTick } from 'vue';
+import { useRouter } from 'vue-router';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import {
+  Search,
+  Clock,
+  Close,
+  Refresh,
+  House,
+  Phone,
+  More,
+  Microphone,
+  Plus,
+} from '@element-plus/icons-vue';
+import { VanList, VanActionSheet, VanPopup } from 'vant';
+import ResidentQuickForm from './ResidentQuickForm.vue';
+import { debounce, throttle, runWhenIdle } from '@/utils/performanceOptimizer';
 
 // 路由
-const router = useRouter()
+const router = useRouter();
 
 // 响应式数据
-const searchQuery = ref('')
-const residentList = ref([])
-const loading = ref(false)
-const finished = ref(false)
-const page = ref(1)
-const pageSize = 20
-const isRefreshing = ref(false)
-const showSearchHistory = ref(false)
-const searchHistory = ref([])
-const activeFilters = ref([])
-const actionSheetVisible = ref(false)
-const currentResident = ref(null)
-const showAddDialog = ref(false)
-const voiceSearchVisible = ref(false)
-const isRecording = ref(false)
-const voiceText = ref('')
+const searchQuery = ref('');
+const residentList = ref([]);
+const loading = ref(false);
+const finished = ref(false);
+const page = ref(1);
+const pageSize = 20;
+const isRefreshing = ref(false);
+const showSearchHistory = ref(false);
+const searchHistory = ref([]);
+const activeFilters = ref([]);
+const actionSheetVisible = ref(false);
+const currentResident = ref(null);
+const showAddDialog = ref(false);
+const voiceSearchVisible = ref(false);
+const isRecording = ref(false);
+const voiceText = ref('');
 
 // 手势相关
-const touchStartX = ref(0)
-const touchStartY = ref(0)
-const touchStartTime = ref(0)
-const swipeAmount = ref(0)
-const swipeResident = ref(null)
+const touchStartX = ref(0);
+const touchStartY = ref(0);
+const touchStartTime = ref(0);
+const swipeAmount = ref(0);
+const swipeResident = ref(null);
 
 // 定时器变量
-let voiceSearchTimer = null
-let swipeTimer = null
+let voiceSearchTimer = null;
+let swipeTimer = null;
 
 // 快速筛选选项
 const quickFilters = ref([
@@ -278,12 +277,12 @@ const quickFilters = ref([
   { key: 'disabled', label: '残疾人' },
   { key: 'veteran', label: '退伍军人' },
   { key: 'party', label: '党员' },
-  { key: 'youth', label: '青年' }
-])
+  { key: 'youth', label: '青年' },
+]);
 
 // 操作面板选项
 const actionSheetActions = computed(() => {
-  if (!currentResident.value) return []
+  if (!currentResident.value) return [];
 
   return [
     { name: '查看详情', icon: 'eye' },
@@ -292,46 +291,46 @@ const actionSheetActions = computed(() => {
     { name: '发送短信', icon: 'chat' },
     { name: '查看家庭', icon: 'friends' },
     { name: '添加备注', icon: 'comment' },
-    { name: '复制信息', icon: 'link' }
-  ]
-})
+    { name: '复制信息', icon: 'link' },
+  ];
+});
 
 // 方法
 const loadResidents = async (isRefresh = false) => {
   if (isRefresh) {
-    page.value = 1
-    finished.value = false
-    residentList.value = []
+    page.value = 1;
+    finished.value = false;
+    residentList.value = [];
   }
 
-  if (loading.value || finished.value) return
+  if (loading.value || finished.value) return;
 
-  loading.value = true
+  loading.value = true;
 
   try {
     // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const newResidents = generateMockResidents()
+    const newResidents = generateMockResidents();
 
     if (newResidents.length < pageSize) {
-      finished.value = true
+      finished.value = true;
     }
 
-    residentList.value.push(...newResidents)
-    page.value++
+    residentList.value.push(...newResidents);
+    page.value++;
   } catch (error) {
-    ElMessage.error('加载失败')
+    ElMessage.error('加载失败');
   } finally {
-    loading.value = false
-    isRefreshing.value = false
+    loading.value = false;
+    isRefreshing.value = false;
   }
-}
+};
 
 const generateMockResidents = () => {
-  const residents = []
-  const start = (page.value - 1) * pageSize
-  const end = start + pageSize
+  const residents = [];
+  const start = (page.value - 1) * pageSize;
+  const end = start + pageSize;
 
   for (let i = start; i < end && i < 100; i++) {
     residents.push({
@@ -339,347 +338,347 @@ const generateMockResidents = () => {
       name: `村民${i + 1}`,
       gender: Math.random() > 0.5 ? 'male' : 'female',
       age: Math.floor(Math.random() * 60) + 20,
-      phone: `138${Math.floor(Math.random() * 100000000).toString().padStart(8, '0')}`,
+      phone: `138${Math.floor(Math.random() * 100000000)
+        .toString()
+        .padStart(8, '0')}`,
       address: `幸福路${i + 1}号`,
       avatar: '',
       status: Math.random() > 0.2 ? 'normal' : 'away',
-      tags: generateRandomTags()
-    })
+      tags: generateRandomTags(),
+    });
   }
 
-  return residents
-}
+  return residents;
+};
 
 const generateRandomTags = () => {
-  const allTags = ['老年人', '低保户', '党员', '退伍军人', '残疾人', '独居', '慢性病']
-  const count = Math.floor(Math.random() * 3)
-  const tags = []
+  const allTags = ['老年人', '低保户', '党员', '退伍军人', '残疾人', '独居', '慢性病'];
+  const count = Math.floor(Math.random() * 3);
+  const tags = [];
 
   for (let i = 0; i < count; i++) {
-    const tag = allTags[Math.floor(Math.random() * allTags.length)]
+    const tag = allTags[Math.floor(Math.random() * allTags.length)];
     if (!tags.includes(tag)) {
-      tags.push(tag)
+      tags.push(tag);
     }
   }
 
-  return tags
-}
+  return tags;
+};
 
 // 使用防抖优化搜索
-const handleSearch = debounce((value) => {
+const handleSearch = debounce(value => {
   if (!value) {
-    loadResidents(true)
-    return
+    loadResidents(true);
+    return;
   }
 
   // 搜索逻辑
-  page.value = 1
-  finished.value = false
-  residentList.value = []
-  loadResidents()
-}, 300)
+  page.value = 1;
+  finished.value = false;
+  residentList.value = [];
+  loadResidents();
+}, 300);
 
-const toggleFilter = (filterKey) => {
-  const index = activeFilters.value.indexOf(filterKey)
+const toggleFilter = filterKey => {
+  const index = activeFilters.value.indexOf(filterKey);
   if (index > -1) {
-    activeFilters.value.splice(index, 1)
+    activeFilters.value.splice(index, 1);
   } else {
-    activeFilters.value.push(filterKey)
+    activeFilters.value.push(filterKey);
   }
 
-  loadResidents(true)
-}
+  loadResidents(true);
+};
 
-const viewDetail = (resident) => {
+const viewDetail = resident => {
   if (Math.abs(swipeAmount.value) < 50) {
-    router.push(`/resident/${resident.id}`)
+    router.push(`/resident/${resident.id}`);
   }
-}
+};
 
-const editResident = (resident) => {
-  swipeAmount.value = 0
-  router.push(`/resident/${resident.id}/edit`)
-}
+const editResident = resident => {
+  swipeAmount.value = 0;
+  router.push(`/resident/${resident.id}/edit`);
+};
 
-const callResident = (resident) => {
-  swipeAmount.value = 0
-  window.location.href = `tel:${resident.phone}`
-}
+const callResident = resident => {
+  swipeAmount.value = 0;
+  window.location.href = `tel:${resident.phone}`;
+};
 
-const deleteResident = async (resident) => {
-  swipeAmount.value = 0
+const deleteResident = async resident => {
+  swipeAmount.value = 0;
 
   try {
-    await ElMessageBox.confirm(
-      `确定要删除村民"${resident.name}"吗？`,
-      '确认删除',
-      { type: 'warning' }
-    )
+    await ElMessageBox.confirm(`确定要删除村民"${resident.name}"吗？`, '确认删除', {
+      type: 'warning',
+    });
 
     // 执行删除
-    ElMessage.success('删除成功')
-    loadResidents(true)
+    ElMessage.success('删除成功');
+    loadResidents(true);
   } catch {
     // 用户取消
   }
-}
+};
 
-const showActionSheet = (resident) => {
-  currentResident.value = resident
-  actionSheetVisible.value = true
-}
+const showActionSheet = resident => {
+  currentResident.value = resident;
+  actionSheetVisible.value = true;
+};
 
-const handleActionSelect = (action) => {
-  const resident = currentResident.value
+const handleActionSelect = action => {
+  const resident = currentResident.value;
 
   switch (action.name) {
     case '查看详情':
-      viewDetail(resident)
-      break
+      viewDetail(resident);
+      break;
     case '编辑信息':
-      editResident(resident)
-      break
+      editResident(resident);
+      break;
     case '拨打电话':
-      callResident(resident)
-      break
+      callResident(resident);
+      break;
     case '发送短信':
-      window.location.href = `sms:${resident.phone}`
-      break
+      window.location.href = `sms:${resident.phone}`;
+      break;
     case '查看家庭':
-      router.push(`/resident/${resident.id}/family`)
-      break
+      router.push(`/resident/${resident.id}/family`);
+      break;
     case '添加备注':
       // 打开备注弹窗
-      break
+      break;
     case '复制信息':
-      copyResidentInfo(resident)
-      break
+      copyResidentInfo(resident);
+      break;
   }
-}
+};
 
-const copyResidentInfo = (resident) => {
-  const info = `姓名：${resident.name}\n电话：${resident.phone}\n地址：${resident.address}`
-  navigator.clipboard.writeText(info)
-  ElMessage.success('信息已复制到剪贴板')
-}
+const copyResidentInfo = resident => {
+  const info = `姓名：${resident.name}\n电话：${resident.phone}\n地址：${resident.address}`;
+  navigator.clipboard.writeText(info);
+  ElMessage.success('信息已复制到剪贴板');
+};
 
 const startVoiceSearch = () => {
-  voiceSearchVisible.value = true
-}
+  voiceSearchVisible.value = true;
+};
 
 const closeVoiceSearch = () => {
-  voiceSearchVisible.value = false
-  isRecording.value = false
-  voiceText.value = ''
-}
+  voiceSearchVisible.value = false;
+  isRecording.value = false;
+  voiceText.value = '';
+};
 
 const toggleVoiceRecording = () => {
   if (isRecording.value) {
     // 停止录音
-    isRecording.value = false
+    isRecording.value = false;
     if (voiceText.value) {
-      searchQuery.value = voiceText.value
-      handleSearch(voiceText.value)
-      voiceSearchVisible.value = false
+      searchQuery.value = voiceText.value;
+      handleSearch(voiceText.value);
+      voiceSearchVisible.value = false;
     }
   } else {
     // 开始录音
-    isRecording.value = true
+    isRecording.value = true;
     // 模拟语音识别
     if (voiceSearchTimer) {
-      clearTimeout(voiceSearchTimer)
+      clearTimeout(voiceSearchTimer);
     }
     voiceSearchTimer = setTimeout(() => {
-      voiceText.value = '张三'
-      isRecording.value = false
-      voiceSearchTimer = null
-    }, 2000)
+      voiceText.value = '张三';
+      isRecording.value = false;
+      voiceSearchTimer = null;
+    }, 2000);
   }
-}
+};
 
 const handleAddSuccess = () => {
-  showAddDialog.value = false
-  loadResidents(true)
-  ElMessage.success('添加成功')
-}
+  showAddDialog.value = false;
+  loadResidents(true);
+  ElMessage.success('添加成功');
+};
 
 // 手势处理
 const handleTouchStart = (e, resident) => {
-  touchStartX.value = e.touches[0].clientX
-  touchStartY.value = e.touches[0].clientY
-  touchStartTime.value = Date.now()
-  swipeResident.value = resident
-  swipeAmount.value = 0
-}
+  touchStartX.value = e.touches[0].clientX;
+  touchStartY.value = e.touches[0].clientY;
+  touchStartTime.value = Date.now();
+  swipeResident.value = resident;
+  swipeAmount.value = 0;
+};
 
 // 使用节流优化触摸移动处理
-const handleTouchMove = throttle((e) => {
-  if (!touchStartX.value) return
+const handleTouchMove = throttle(e => {
+  if (!touchStartX.value) return;
 
-  const currentX = e.touches[0].clientX
-  const deltaX = currentX - touchStartX.value
+  const currentX = e.touches[0].clientX;
+  const deltaX = currentX - touchStartX.value;
 
   // 限制滑动范围
   if (deltaX < -150) {
-    swipeAmount.value = -150
+    swipeAmount.value = -150;
   } else if (deltaX > 0) {
-    swipeAmount.value = 0
+    swipeAmount.value = 0;
   } else {
-    swipeAmount.value = deltaX
+    swipeAmount.value = deltaX;
   }
-}, 16) // 约60fps
+}, 16); // 约60fps
 
 const handleTouchEnd = () => {
   if (Math.abs(swipeAmount.value) < 50) {
-    swipeAmount.value = 0
-    return
+    swipeAmount.value = 0;
+    return;
   }
 
   // 自动回弹或完全展开
   if (swipeAmount.value < -75) {
-    swipeAmount.value = -150
+    swipeAmount.value = -150;
   } else {
-    swipeAmount.value = 0
+    swipeAmount.value = 0;
   }
 
   // 重置
-  touchStartX.value = 0
-  touchStartY.value = 0
-  swipeResident.value = null
+  touchStartX.value = 0;
+  touchStartY.value = 0;
+  swipeResident.value = null;
 
   if (swipeTimer) {
-    clearTimeout(swipeTimer)
+    clearTimeout(swipeTimer);
   }
   swipeTimer = setTimeout(() => {
-    swipeAmount.value = 0
-    swipeTimer = null
-  }, 3000)
-}
+    swipeAmount.value = 0;
+    swipeTimer = null;
+  }, 3000);
+};
 
-const maskPhone = (phone) => {
-  if (!phone) return ''
-  return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')
-}
+const maskPhone = phone => {
+  if (!phone) return '';
+  return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
+};
 
 const loadMore = () => {
-  loadResidents()
-}
+  loadResidents();
+};
 
 // 下拉刷新
 const setupPullRefresh = () => {
-  const listContainer = document.querySelector('.resident-list')
-  if (!listContainer) return null
+  const listContainer = document.querySelector('.resident-list');
+  if (!listContainer) return null;
 
-  let startY = 0
-  let currentY = 0
+  let startY = 0;
+  let currentY = 0;
 
-  const handleTouchStart = (e) => {
+  const handleTouchStart = e => {
     if (listContainer.scrollTop === 0) {
-      startY = e.touches[0].clientY
+      startY = e.touches[0].clientY;
     }
-  }
+  };
 
-  const handleTouchMove = (e) => {
+  const handleTouchMove = e => {
     if (listContainer.scrollTop === 0) {
-      currentY = e.touches[0].clientY
-      const distance = currentY - startY
+      currentY = e.touches[0].clientY;
+      const distance = currentY - startY;
 
       if (distance > 0 && distance < 100) {
-        e.preventDefault()
-        listContainer.style.transform = `translateY(${distance * 0.5}px)`
+        e.preventDefault();
+        listContainer.style.transform = `translateY(${distance * 0.5}px)`;
       }
     }
-  }
+  };
 
   const handleTouchEnd = () => {
-    listContainer.style.transform = ''
-    listContainer.style.transition = 'transform 0.3s'
+    listContainer.style.transform = '';
+    listContainer.style.transition = 'transform 0.3s';
 
     setTimeout(() => {
-      listContainer.style.transition = ''
-    }, 300)
+      listContainer.style.transition = '';
+    }, 300);
 
     if (currentY - startY > 50) {
-      isRefreshing.value = true
-      loadResidents(true)
+      isRefreshing.value = true;
+      loadResidents(true);
     }
-  }
+  };
 
   // 添加事件监听器
-  listContainer.addEventListener('touchstart', handleTouchStart, { passive: true })
-  listContainer.addEventListener('touchmove', handleTouchMove, { passive: false })
-  listContainer.addEventListener('touchend', handleTouchEnd)
+  listContainer.addEventListener('touchstart', handleTouchStart, { passive: true });
+  listContainer.addEventListener('touchmove', handleTouchMove, { passive: false });
+  listContainer.addEventListener('touchend', handleTouchEnd);
 
   // 返回清理函数
   return () => {
-    listContainer.removeEventListener('touchstart', handleTouchStart)
-    listContainer.removeEventListener('touchmove', handleTouchMove)
-    listContainer.removeEventListener('touchend', handleTouchEnd)
-  }
-}
+    listContainer.removeEventListener('touchstart', handleTouchStart);
+    listContainer.removeEventListener('touchmove', handleTouchMove);
+    listContainer.removeEventListener('touchend', handleTouchEnd);
+  };
+};
 
 // 搜索历史
-const selectHistory = (query) => {
-  searchQuery.value = query
-  handleSearch(query)
-  showSearchHistory.value = false
-}
+const selectHistory = query => {
+  searchQuery.value = query;
+  handleSearch(query);
+  showSearchHistory.value = false;
+};
 
-const removeHistory = (id) => {
-  const index = searchHistory.value.findIndex(item => item.id === id)
+const removeHistory = id => {
+  const index = searchHistory.value.findIndex(item => item.id === id);
   if (index > -1) {
-    searchHistory.value.splice(index, 1)
+    searchHistory.value.splice(index, 1);
   }
-}
+};
 
 const clearHistory = () => {
-  searchHistory.value = []
-}
+  searchHistory.value = [];
+};
 
 // 下拉刷新清理函数
-let pullRefreshCleanup = null
+let pullRefreshCleanup = null;
 
 // 生命周期
 onMounted(() => {
-  loadResidents()
-  pullRefreshCleanup = setupPullRefresh()
+  loadResidents();
+  pullRefreshCleanup = setupPullRefresh();
 
   // 加载搜索历史
-  const saved = localStorage.getItem('resident-search-history')
+  const saved = localStorage.getItem('resident-search-history');
   if (saved) {
     try {
-      searchHistory.value = JSON.parse(saved)
+      searchHistory.value = JSON.parse(saved);
     } catch (error) {
-      console.error('解析搜索历史失败:', error)
-      searchHistory.value = []
+      console.error('解析搜索历史失败:', error);
+      searchHistory.value = [];
     }
   }
-})
+});
 
 onUnmounted(() => {
   // 清理下拉刷新事件监听器
   if (pullRefreshCleanup) {
-    pullRefreshCleanup()
-    pullRefreshCleanup = null
+    pullRefreshCleanup();
+    pullRefreshCleanup = null;
   }
 
   // 保存搜索历史
   try {
-    localStorage.setItem('resident-search-history', JSON.stringify(searchHistory.value))
+    localStorage.setItem('resident-search-history', JSON.stringify(searchHistory.value));
   } catch (error) {
-    console.error('保存搜索历史失败:', error)
+    console.error('保存搜索历史失败:', error);
   }
 
   // 清理定时器
   if (voiceSearchTimer) {
-    clearTimeout(voiceSearchTimer)
-    voiceSearchTimer = null
+    clearTimeout(voiceSearchTimer);
+    voiceSearchTimer = null;
   }
   if (swipeTimer) {
-    clearTimeout(swipeTimer)
-    swipeTimer = null
+    clearTimeout(swipeTimer);
+    swipeTimer = null;
   }
-})
+});
 </script>
 
 <style lang="scss" scoped>
@@ -1044,7 +1043,8 @@ onUnmounted(() => {
 }
 
 @keyframes wave {
-  0%, 100% {
+  0%,
+  100% {
     transform: scaleY(1);
   }
   50% {

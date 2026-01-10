@@ -530,22 +530,22 @@ async function handleNotificationClick(req, res) {
     let redirectUrl = null;
     if (notification.related && notification.related.action) {
       switch (notification.related.action) {
-        case 'view_announcement':
-          redirectUrl = `/announcements/${notification.related.id}`;
-          break;
-        case 'view_financial':
-          redirectUrl = `/finance/${notification.related.id}`;
-          break;
-        case 'view_task':
-          redirectUrl = `/tasks/${notification.related.id}`;
-          break;
-        case 'view_emergency':
-          redirectUrl = `/emergency/${notification.related.id}`;
-          break;
-        default:
-          if (notification.related.route) {
-            redirectUrl = notification.related.route;
-          }
+      case 'view_announcement':
+        redirectUrl = `/announcements/${notification.related.id}`;
+        break;
+      case 'view_financial':
+        redirectUrl = `/finance/${notification.related.id}`;
+        break;
+      case 'view_task':
+        redirectUrl = `/tasks/${notification.related.id}`;
+        break;
+      case 'view_emergency':
+        redirectUrl = `/emergency/${notification.related.id}`;
+        break;
+      default:
+        if (notification.related.route) {
+          redirectUrl = notification.related.route;
+        }
       }
     }
 

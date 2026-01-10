@@ -53,14 +53,14 @@ class OfflineDataManager {
         resolve(this.db);
       };
 
-      request.onupgradeneeded = (event) => {
+      request.onupgradeneeded = event => {
         const db = event.target.result;
 
         // Create operations store for offline actions
         if (!db.objectStoreNames.contains(STORE_OPERATIONS)) {
           const store = db.createObjectStore(STORE_OPERATIONS, {
             keyPath: 'id',
-            autoIncrement: true
+            autoIncrement: true,
           });
           store.createIndex('url', 'url', { unique: false });
           store.createIndex('timestamp', 'timestamp', { unique: false });
@@ -71,7 +71,7 @@ class OfflineDataManager {
         // Create cache store for API responses
         if (!db.objectStoreNames.contains(STORE_CACHE)) {
           const store = db.createObjectStore(STORE_CACHE, {
-            keyPath: 'key'
+            keyPath: 'key',
           });
           store.createIndex('expiry', 'expiry', { unique: false });
           console.log('[OfflineManager] Created cache store');
@@ -110,7 +110,7 @@ class OfflineDataManager {
       body: operation.body,
       timestamp: Date.now(),
       synced: false,
-      retryCount: 0
+      retryCount: 0,
     };
 
     return new Promise((resolve, reject) => {
@@ -188,7 +188,7 @@ class OfflineDataManager {
     const record = {
       key,
       data,
-      expiry: Date.now() + maxAge
+      expiry: Date.now() + maxAge,
     };
 
     return new Promise((resolve, reject) => {
@@ -266,7 +266,7 @@ class OfflineDataManager {
 
       const deleted = [];
 
-      request.onsuccess = (event) => {
+      request.onsuccess = event => {
         const cursor = event.target.result;
         if (cursor) {
           cursor.delete();
@@ -310,7 +310,7 @@ class OfflineDataManager {
           const response = await fetch(operation.url, {
             method: operation.method,
             headers: operation.headers,
-            body: operation.body ? JSON.stringify(operation.body) : undefined
+            body: operation.body ? JSON.stringify(operation.body) : undefined,
           });
 
           if (response.ok) {
@@ -407,7 +407,7 @@ class OfflineDataManager {
     return {
       isOnline: this.isOnline,
       pendingOperations: operations.length,
-      syncInProgress: this.syncInProgress
+      syncInProgress: this.syncInProgress,
     };
   }
 
@@ -478,7 +478,7 @@ export async function offlineFetch(url, options = {}) {
       return {
         ok: true,
         json: async () => cached,
-        text: async () => JSON.stringify(cached)
+        text: async () => JSON.stringify(cached),
       };
     }
   }
@@ -489,13 +489,13 @@ export async function offlineFetch(url, options = {}) {
       url,
       method: options.method,
       headers: options.headers,
-      body: options.body
+      body: options.body,
     });
     console.log('[OfflineManager] Operation queued for later sync');
     return {
       ok: true,
       json: async () => ({ success: true, message: '操作已保存，将在联网后同步' }),
-      text: async () => '{"success":true,"message":"操作已保存，将在联网后同步"}'
+      text: async () => '{"success":true,"message":"操作已保存，将在联网后同步"}',
     };
   }
 
@@ -510,5 +510,5 @@ export const OfflineManagerPlugin = {
   install(app) {
     app.config.globalProperties.$offline = offlineDataManager;
     app.provide('offline', offlineDataManager);
-  }
+  },
 };

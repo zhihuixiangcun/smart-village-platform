@@ -8,7 +8,10 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext vue,js,jsx,ts,tsx --fix",
-    "format": "prettier --write src/"
+    "format": "prettier --write src/",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@amap/amap-jsapi-loader": "^1.0.1",
@@ -18,23 +21,29 @@
     "echarts": "^6.0.0",
     "element-plus": "^2.4.4",
     "lodash-es": "^4.17.21",
+    "nprogress": "^0.2.0",
     "pinia": "^2.1.7",
     "socket.io-client": "^4.8.1",
+    "vant": "^4.9.22",
     "vue": "^3.3.8",
     "vue-router": "^4.2.5",
     "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
+    "@testing-library/vue": "^8.0.0",
     "@types/lodash-es": "^4.17.12",
     "@vitejs/plugin-vue": "^4.5.0",
+    "@vitest/coverage-v8": "^1.0.0",
     "autoprefixer": "^10.4.16",
     "eslint": "^8.56.0",
     "eslint-plugin-vue": "^9.18.1",
+    "happy-dom": "^12.0.0",
     "prettier": "^3.1.0",
     "sass": "^1.69.5",
     "tailwindcss": "^3.4.0",
     "unplugin-auto-import": "^0.17.2",
     "unplugin-vue-components": "^0.25.2",
-    "vite": "^5.0.0"
+    "vite": "^5.0.0",
+    "vitest": "^1.0.0"
   }
 }

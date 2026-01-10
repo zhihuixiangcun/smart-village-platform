@@ -7,9 +7,7 @@
           <el-icon><Lock /></el-icon>
           权限管理中心
         </h1>
-        <p class="page-description">
-          基于RBAC和ABAC的增强权限管理系统，支持动态权限规则和权限继承
-        </p>
+        <p class="page-description">基于RBAC和ABAC的增强权限管理系统，支持动态权限规则和权限继承</p>
       </div>
       <div class="header-actions">
         <el-button type="primary" @click="showPermissionAudit">
@@ -105,38 +103,47 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, reactive, onMounted, computed } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
-  Lock, View, Refresh, ArrowUp, ArrowDown,
-  User, UserFilled, Key, DataAnalysis,
-  Connection, Document, Clock
-} from '@element-plus/icons-vue'
-import { usePermissionStore } from '@/stores/permissionStore'
-import enhancedPermissionService from '@/services/enhancedPermissionService'
+  Lock,
+  View,
+  Refresh,
+  ArrowUp,
+  ArrowDown,
+  User,
+  UserFilled,
+  Key,
+  DataAnalysis,
+  Connection,
+  Document,
+  Clock,
+} from '@element-plus/icons-vue';
+import { usePermissionStore } from '@/stores/permissionStore';
+import enhancedPermissionService from '@/services/enhancedPermissionService';
 
 // 导入组件
-import PermissionDashboard from './components/PermissionDashboard.vue'
-import RoleManagement from './components/RoleManagement.vue'
-import UserPermissionAssignment from './components/UserPermissionAssignment.vue'
-import PermissionRulesConfig from './components/PermissionRulesConfig.vue'
-import PermissionInheritanceConfig from './components/PermissionInheritanceConfig.vue'
-import PermissionAuditLogs from './components/PermissionAuditLogs.vue'
-import PermissionTemplateManagement from './components/PermissionTemplateManagement.vue'
-import SessionManagement from './components/SessionManagement.vue'
-import PermissionAuditDialog from './components/PermissionAuditDialog.vue'
+import PermissionDashboard from './components/PermissionDashboard.vue';
+import RoleManagement from './components/RoleManagement.vue';
+import UserPermissionAssignment from './components/UserPermissionAssignment.vue';
+import PermissionRulesConfig from './components/PermissionRulesConfig.vue';
+import PermissionInheritanceConfig from './components/PermissionInheritanceConfig.vue';
+import PermissionAuditLogs from './components/PermissionAuditLogs.vue';
+import PermissionTemplateManagement from './components/PermissionTemplateManagement.vue';
+import SessionManagement from './components/SessionManagement.vue';
+import PermissionAuditDialog from './components/PermissionAuditDialog.vue';
 
-const permissionStore = usePermissionStore()
+const permissionStore = usePermissionStore();
 
 // 响应式数据
-const activeTab = ref('dashboard')
-const auditDialogVisible = ref(false)
-const permissionStats = ref([])
+const activeTab = ref('dashboard');
+const auditDialogVisible = ref(false);
+const permissionStats = ref([]);
 
 // 获取权限统计数据
 const fetchPermissionStats = async () => {
   try {
-    const stats = await enhancedPermissionService.getPermissionStats()
+    const stats = await enhancedPermissionService.getPermissionStats();
     permissionStats.value = [
       {
         key: 'totalUsers',
@@ -144,7 +151,7 @@ const fetchPermissionStats = async () => {
         value: stats.totalUsers || 0,
         icon: 'User',
         type: 'primary',
-        trend: stats.userGrowth || 0
+        trend: stats.userGrowth || 0,
       },
       {
         key: 'totalRoles',
@@ -152,14 +159,14 @@ const fetchPermissionStats = async () => {
         value: stats.totalRoles || 0,
         icon: 'UserFilled',
         type: 'success',
-        trend: stats.roleGrowth || 0
+        trend: stats.roleGrowth || 0,
       },
       {
         key: 'activePolicies',
         label: '活跃策略',
         value: stats.activePolicies || 0,
         icon: 'Lock',
-        type: 'warning'
+        type: 'warning',
       },
       {
         key: 'dailyChecks',
@@ -167,65 +174,61 @@ const fetchPermissionStats = async () => {
         value: stats.dailyPermissionChecks || 0,
         icon: 'Key',
         type: 'info',
-        trend: stats.checkGrowth || 0
-      }
-    ]
+        trend: stats.checkGrowth || 0,
+      },
+    ];
   } catch (error) {
-    console.error('获取权限统计失败:', error)
-    ElMessage.error('获取统计数据失败')
+    console.error('获取权限统计失败:', error);
+    ElMessage.error('获取统计数据失败');
   }
-}
+};
 
 // 刷新权限缓存
 const refreshPermissionCache = async () => {
   try {
-    await ElMessageBox.confirm(
-      '刷新权限缓存将重新加载所有权限规则，是否继续？',
-      '确认刷新',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
+    await ElMessageBox.confirm('刷新权限缓存将重新加载所有权限规则，是否继续？', '确认刷新', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
 
-    const result = await enhancedPermissionService.clearPermissionCache()
+    const result = await enhancedPermissionService.clearPermissionCache();
     if (result.success) {
-      ElMessage.success('权限缓存刷新成功')
-      await fetchPermissionStats()
+      ElMessage.success('权限缓存刷新成功');
+      await fetchPermissionStats();
     } else {
-      ElMessage.error('权限缓存刷新失败')
+      ElMessage.error('权限缓存刷新失败');
     }
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('刷新权限缓存失败:', error)
-      ElMessage.error('刷新缓存失败')
+      console.error('刷新权限缓存失败:', error);
+      ElMessage.error('刷新缓存失败');
     }
   }
-}
+};
 
 // 显示权限审计
 const showPermissionAudit = () => {
-  auditDialogVisible.value = true
-}
+  auditDialogVisible.value = true;
+};
 
 // 标签页切换
-const handleTabChange = (tabName) => {
-  console.log('切换到标签页:', tabName)
-}
+const handleTabChange = tabName => {
+  console.log('切换到标签页:', tabName);
+};
 
 // 生命周期
 onMounted(() => {
-  fetchPermissionStats()
+  fetchPermissionStats();
 
   // 定期刷新统计数据
-  const timer = setInterval(fetchPermissionStats, 30000) // 30秒刷新一次
+  const timer = setInterval(fetchPermissionStats, 30000); // 30秒刷新一次
 
   // 组件卸载时清除定时器
   onUnmounted(() => {
-    clearInterval(timer)
-  })
-})
+    clearInterval(timer);
+  });
+});
 </script>
 
 <style lang="scss" scoped>

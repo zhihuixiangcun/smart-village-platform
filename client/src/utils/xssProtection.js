@@ -8,7 +8,7 @@
  * @param {string} str - 需要转义的字符串
  * @returns {string} 转义后的安全字符串
  */
-export const escapeHtml = (str) => {
+export const escapeHtml = str => {
   if (typeof str !== 'string') return str;
 
   const htmlEscapes = {
@@ -19,10 +19,10 @@ export const escapeHtml = (str) => {
     '\'': '&#x27;',
     '/': '&#x2F;',
     '`': '&#x60;',
-    '=': '&#x3D;'
+    '=': '&#x3D;',
   };
 
-  return str.replace(/[&<>"'`=\/]/g, (match) => htmlEscapes[match]);
+  return str.replace(/[&<>"'`=\/]/g, match => htmlEscapes[match]);
 };
 
 /**
@@ -30,7 +30,7 @@ export const escapeHtml = (str) => {
  * @param {string} str - 需要转义的属性值
  * @returns {string} 转义后的安全属性值
  */
-export const escapeAttribute = (str) => {
+export const escapeAttribute = str => {
   if (typeof str !== 'string') return str;
 
   return str
@@ -46,7 +46,7 @@ export const escapeAttribute = (str) => {
  * @param {string} url - 需要转义的URL
  * @returns {string} 转义后的安全URL
  */
-export const escapeUrl = (url) => {
+export const escapeUrl = url => {
   if (typeof url !== 'string') return url;
 
   try {
@@ -63,7 +63,7 @@ export const escapeUrl = (url) => {
  * @param {string} str - 需要转义的JS字符串
  * @returns {string} 转义后的安全JS字符串
  */
-export const escapeJsString = (str) => {
+export const escapeJsString = str => {
   if (typeof str !== 'string') return str;
 
   const jsEscapes = {
@@ -76,10 +76,10 @@ export const escapeJsString = (str) => {
     '\b': '\\b',
     '\f': '\\f',
     '\v': '\\v',
-    '\0': '\\0'
+    '\0': '\\0',
   };
 
-  return str.replace(/[\\"'\n\r\t\b\f\v\0]/g, (match) => jsEscapes[match]);
+  return str.replace(/[\\"'\n\r\t\b\f\v\0]/g, match => jsEscapes[match]);
 };
 
 /**
@@ -87,7 +87,7 @@ export const escapeJsString = (str) => {
  * @param {string} input - 需要验证的输入
  * @returns {Object} 验证结果
  */
-export const validateInput = (input) => {
+export const validateInput = input => {
   if (typeof input !== 'string') {
     return { valid: false, reason: '输入必须是字符串' };
   }
@@ -102,7 +102,7 @@ export const validateInput = (input) => {
     /on\w+\s*=/gi,
     /expression\s*\(/gi,
     /@import/gi,
-    /binding\s*:/gi
+    /binding\s*:/gi,
   ];
 
   for (const pattern of dangerousPatterns) {
@@ -110,7 +110,7 @@ export const validateInput = (input) => {
       return {
         valid: false,
         reason: '输入包含潜在危险的脚本代码',
-        pattern: pattern.source
+        pattern: pattern.source,
       };
     }
   }
@@ -130,7 +130,7 @@ export const sanitizeHtml = (html, options = {}) => {
   const {
     allowedTags = ['p', 'br', 'strong', 'em', 'u', 'span', 'div'],
     allowedAttributes = ['class', 'id', 'style'],
-    removeComments = true
+    removeComments = true,
   } = options;
 
   let sanitized = html;
@@ -220,7 +220,7 @@ export const validateFormData = (formData, rules) => {
   return {
     valid: errors.length === 0,
     errors,
-    data: sanitizedData
+    data: sanitizedData,
   };
 };
 
@@ -269,7 +269,7 @@ export const setSafeInnerHTML = (element, html, options = {}) => {
  * @param {string} input - 输入内容
  * @returns {Object} 检测结果
  */
-export const detectCSPViolations = (input) => {
+export const detectCSPViolations = input => {
   if (typeof input !== 'string') {
     return { violations: [], safe: true };
   }
@@ -279,7 +279,7 @@ export const detectCSPViolations = (input) => {
     { pattern: /javascript:/gi, type: 'javascript-protocol', description: 'JavaScript协议' },
     { pattern: /on\w+\s*=/gi, type: 'event-handler', description: '事件处理器' },
     { pattern: /eval\s*\(/gi, type: 'eval-function', description: 'eval函数' },
-    { pattern: /innerHTML\s*=/gi, type: 'inner-html', description: 'innerHTML赋值' }
+    { pattern: /innerHTML\s*=/gi, type: 'inner-html', description: 'innerHTML赋值' },
   ];
 
   const violations = [];
@@ -291,7 +291,7 @@ export const detectCSPViolations = (input) => {
         type,
         description,
         matches: matches || [],
-        count: matches ? matches.length : 0
+        count: matches ? matches.length : 0,
       });
     }
   });
@@ -299,7 +299,7 @@ export const detectCSPViolations = (input) => {
   return {
     violations,
     safe: violations.length === 0,
-    riskLevel: violations.length === 0 ? 'low' : violations.length <= 2 ? 'medium' : 'high'
+    riskLevel: violations.length === 0 ? 'low' : violations.length <= 2 ? 'medium' : 'high',
   };
 };
 
@@ -308,7 +308,7 @@ export const detectCSPViolations = (input) => {
  * @param {string} filename - 文件名
  * @returns {string} 安全的文件名
  */
-export const sanitizeFilename = (filename) => {
+export const sanitizeFilename = filename => {
   if (typeof filename !== 'string') return filename;
 
   // 移除危险字符
@@ -324,7 +324,7 @@ export const sanitizeFilename = (filename) => {
  * @param {string} input - 输入内容
  * @returns {string} 转义后的安全内容
  */
-export const escapeSql = (input) => {
+export const escapeSql = input => {
   if (typeof input !== 'string') return input;
 
   const sqlEscapes = {
@@ -335,10 +335,10 @@ export const escapeSql = (input) => {
     '\r': '\\r',
     '\t': '\\t',
     '\x00': '\\x00',
-    '\x1a': '\\x1a'
+    '\x1a': '\\x1a',
   };
 
-  return input.replace(/['"\\\n\r\t\x00\x1a]/g, (match) => sqlEscapes[match]);
+  return input.replace(/['"\\\n\r\t\x00\x1a]/g, match => sqlEscapes[match]);
 };
 
 /**
@@ -383,5 +383,5 @@ export default {
   detectCSPViolations,
   sanitizeFilename,
   escapeSql,
-  processObjectStrings
+  processObjectStrings,
 };

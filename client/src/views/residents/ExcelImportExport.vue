@@ -6,9 +6,7 @@
         <template #header>
           <div class="card-header">
             <span>Excel数据导入</span>
-            <el-button @click="downloadTemplate" icon="Download" size="small">
-              下载模板
-            </el-button>
+            <el-button @click="downloadTemplate" icon="Download" size="small"> 下载模板 </el-button>
           </div>
         </template>
 
@@ -121,12 +119,7 @@
             </div>
 
             <div class="preview-info">
-              <el-alert
-                title="数据预览"
-                type="info"
-                :closable="false"
-                show-icon
-              >
+              <el-alert title="数据预览" type="info" :closable="false" show-icon>
                 <template #default>
                   <p>显示前10行数据，共识别到 {{ previewColumns.length }} 列</p>
                   <p>请确认数据格式正确后进行下一步</p>
@@ -159,11 +152,7 @@
                 </el-table-column>
                 <el-table-column label="映射到系统字段" width="200">
                   <template #default="scope">
-                    <el-select
-                      v-model="scope.row.systemField"
-                      placeholder="选择系统字段"
-                      clearable
-                    >
+                    <el-select v-model="scope.row.systemField" placeholder="选择系统字段" clearable>
                       <el-option
                         v-for="field in systemFields"
                         :key="field.key"
@@ -192,11 +181,7 @@
                 </el-table-column>
                 <el-table-column label="操作" width="120">
                   <template #default="scope">
-                    <el-button
-                      size="small"
-                      @click="autoMapField(scope.$index)"
-                      icon="MagicStick"
-                    >
+                    <el-button size="small" @click="autoMapField(scope.$index)" icon="MagicStick">
                       智能匹配
                     </el-button>
                   </template>
@@ -219,7 +204,7 @@
                       :key="field.key"
                       type="danger"
                       size="small"
-                      style="margin-right: 8px; margin-bottom: 4px;"
+                      style="margin-right: 8px; margin-bottom: 4px"
                     >
                       {{ field.label }}
                     </el-tag>
@@ -231,11 +216,7 @@
             <div class="step-actions">
               <el-button @click="prevStep">上一步</el-button>
               <el-button @click="autoMapAllFields" icon="MagicStick">智能映射全部</el-button>
-              <el-button
-                type="primary"
-                @click="nextStep"
-                :disabled="!allRequiredFieldsMapped"
-              >
+              <el-button type="primary" @click="nextStep" :disabled="!allRequiredFieldsMapped">
                 下一步
               </el-button>
             </div>
@@ -358,7 +339,10 @@
                   </div>
 
                   <div class="result-actions">
-                    <el-button @click="exportFailedData" v-if="importResult.failed_items?.length > 0">
+                    <el-button
+                      @click="exportFailedData"
+                      v-if="importResult.failed_items?.length > 0"
+                    >
                       导出失败数据
                     </el-button>
                     <el-button @click="resetImport">重新导入</el-button>
@@ -378,9 +362,7 @@
         <template #header>
           <div class="card-header">
             <span>Excel数据导出</span>
-            <el-button @click="quickExport" icon="Download" size="small">
-              快速导出
-            </el-button>
+            <el-button @click="quickExport" icon="Download" size="small"> 快速导出 </el-button>
           </div>
         </template>
 
@@ -396,17 +378,9 @@
           <el-form-item label="导出字段">
             <el-checkbox-group v-model="exportOptions.fields">
               <div class="field-groups">
-                <div
-                  v-for="group in fieldGroups"
-                  :key="group.name"
-                  class="field-group"
-                >
+                <div v-for="group in fieldGroups" :key="group.name" class="field-group">
                   <h5>{{ group.label }}</h5>
-                  <el-checkbox
-                    v-for="field in group.fields"
-                    :key="field.key"
-                    :label="field.key"
-                  >
+                  <el-checkbox v-for="field in group.fields" :key="field.key" :label="field.key">
                     {{ field.label }}
                   </el-checkbox>
                 </div>
@@ -442,55 +416,64 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
-  Upload, View, Connection, Check, SuccessFilled,
-  UploadFilled, Document, Delete, MagicStick, Refresh, Download
-} from '@element-plus/icons-vue'
-import * as XLSX from 'xlsx'
+  Upload,
+  View,
+  Connection,
+  Check,
+  SuccessFilled,
+  UploadFilled,
+  Document,
+  Delete,
+  MagicStick,
+  Refresh,
+  Download,
+} from '@element-plus/icons-vue';
+import * as XLSX from 'xlsx';
 
 // Props
 const props = defineProps({
   modelValue: {
     type: Boolean,
-    default: false
+    default: false,
   },
   importTemplate: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   systemFields: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   exportData: {
     type: Array,
-    default: () => []
-  }
-})
+    default: () => [],
+  },
+});
 
 // Emits
-const emit = defineEmits(['update:modelValue', 'import-success', 'export-success'])
+const emit = defineEmits(['update:modelValue', 'import-success', 'export-success']);
 
 // 响应式数据
-const uploadRef = ref()
-const selectedFile = ref(null)
-const importStep = ref(0)
-const parsing = ref(false)
-const validating = ref(false)
-const importing = ref(false)
-const exporting = ref(false)
+const uploadRef = ref();
+const selectedFile = ref(null);
+const importStep = ref(0);
+const parsing = ref(false);
+const validating = ref(false);
+const importing = ref(false);
+const exporting = ref(false);
 
 // 数据预览
-const previewData = ref([])
-const previewColumns = ref([])
-const sheetNames = ref([])
-const selectedSheet = ref('')
-const hasHeader = ref(true)
+const previewData = ref([]);
+const previewColumns = ref([]);
+const sheetNames = ref([]);
+const selectedSheet = ref('');
+const hasHeader = ref(true);
 
 // 字段映射
-const fieldMappings = ref([])
+const fieldMappings = ref([]);
 
 // 数据验证
 const validationResult = reactive({
@@ -498,15 +481,15 @@ const validationResult = reactive({
   valid: 0,
   invalid: 0,
   warning: 0,
-  errors: []
-})
+  errors: [],
+});
 
 // 导入选项
 const importOptions = reactive({
   skipErrors: true,
   updateExisting: false,
-  createBackup: true
-})
+  createBackup: true,
+});
 
 // 导入结果
 const importResult = reactive({
@@ -516,8 +499,8 @@ const importResult = reactive({
   success_count: 0,
   failed_count: 0,
   duration: 0,
-  failed_items: []
-})
+  failed_items: [],
+});
 
 // 导出选项
 const exportOptions = reactive({
@@ -526,8 +509,8 @@ const exportOptions = reactive({
   format: 'xlsx',
   includeHeader: true,
   maskSensitive: true,
-  includeMetadata: false
-})
+  includeMetadata: false,
+});
 
 // 系统字段定义
 const systemFields = ref([
@@ -540,8 +523,8 @@ const systemFields = ref([
   { key: 'education', label: '文化程度', type: 'enum', required: false },
   { key: 'occupation', label: '职业', type: 'string', required: false },
   { key: 'maritalStatus', label: '婚姻状况', type: 'enum', required: false },
-  { key: 'healthStatus', label: '健康状态', type: 'enum', required: false }
-])
+  { key: 'healthStatus', label: '健康状态', type: 'enum', required: false },
+]);
 
 // 字段分组
 const fieldGroups = ref([
@@ -552,16 +535,16 @@ const fieldGroups = ref([
       { key: 'name', label: '姓名' },
       { key: 'gender', label: '性别' },
       { key: 'idCard', label: '身份证号' },
-      { key: 'birthDate', label: '出生日期' }
-    ]
+      { key: 'birthDate', label: '出生日期' },
+    ],
   },
   {
     name: 'contact',
     label: '联系信息',
     fields: [
       { key: 'phone', label: '联系电话' },
-      { key: 'address', label: '居住地址' }
-    ]
+      { key: 'address', label: '居住地址' },
+    ],
   },
   {
     name: 'social',
@@ -570,185 +553,184 @@ const fieldGroups = ref([
       { key: 'education', label: '文化程度' },
       { key: 'occupation', label: '职业' },
       { key: 'maritalStatus', label: '婚姻状况' },
-      { key: 'healthStatus', label: '健康状态' }
-    ]
-  }
-])
+      { key: 'healthStatus', label: '健康状态' },
+    ],
+  },
+]);
 
 // 计算属性
 const mappedFieldsCount = computed(() => {
-  return fieldMappings.value.filter(mapping => mapping.systemField).length
-})
+  return fieldMappings.value.filter(mapping => mapping.systemField).length;
+});
 
 const requiredFieldsCount = computed(() => {
-  return systemFields.value.filter(field => field.required).length
-})
+  return systemFields.value.filter(field => field.required).length;
+});
 
 const allRequiredFieldsMapped = computed(() => {
   const mappedFields = fieldMappings.value
     .filter(mapping => mapping.systemField)
-    .map(mapping => mapping.systemField)
+    .map(mapping => mapping.systemField);
 
   return systemFields.value
     .filter(field => field.required)
-    .every(field => mappedFields.includes(field.key))
-})
+    .every(field => mappedFields.includes(field.key));
+});
 
 const unmappedRequiredFields = computed(() => {
   const mappedFields = fieldMappings.value
     .filter(mapping => mapping.systemField)
-    .map(mapping => mapping.systemField)
+    .map(mapping => mapping.systemField);
 
-  return systemFields.value
-    .filter(field => field.required && !mappedFields.includes(field.key))
-})
+  return systemFields.value.filter(field => field.required && !mappedFields.includes(field.key));
+});
 
 // 方法
-const handleFileChange = (file) => {
-  selectedFile.value = file.raw
-}
+const handleFileChange = file => {
+  selectedFile.value = file.raw;
+};
 
 const handleFileExceed = () => {
-  ElMessage.warning('只能选择一个文件')
-}
+  ElMessage.warning('只能选择一个文件');
+};
 
 const removeFile = () => {
-  selectedFile.value = null
-  uploadRef.value?.clearFiles()
-}
+  selectedFile.value = null;
+  uploadRef.value?.clearFiles();
+};
 
-const formatFileSize = (size) => {
-  if (size < 1024) return size + ' B'
-  if (size < 1024 * 1024) return (size / 1024).toFixed(1) + ' KB'
-  return (size / (1024 * 1024)).toFixed(1) + ' MB'
-}
+const formatFileSize = size => {
+  if (size < 1024) return size + ' B';
+  if (size < 1024 * 1024) return (size / 1024).toFixed(1) + ' KB';
+  return (size / (1024 * 1024)).toFixed(1) + ' MB';
+};
 
 const parseExcelFile = async () => {
-  if (!selectedFile.value) return
+  if (!selectedFile.value) return;
 
-  parsing.value = true
+  parsing.value = true;
 
   try {
-    const buffer = await selectedFile.value.arrayBuffer()
-    const workbook = XLSX.read(buffer, { type: 'buffer' })
+    const buffer = await selectedFile.value.arrayBuffer();
+    const workbook = XLSX.read(buffer, { type: 'buffer' });
 
-    sheetNames.value = workbook.SheetNames
-    selectedSheet.value = sheetNames.value[0]
+    sheetNames.value = workbook.SheetNames;
+    selectedSheet.value = sheetNames.value[0];
 
-    switchSheet()
-    importStep.value = 1
+    switchSheet();
+    importStep.value = 1;
   } catch (error) {
-    ElMessage.error('文件解析失败：' + error.message)
+    ElMessage.error('文件解析失败：' + error.message);
   } finally {
-    parsing.value = false
+    parsing.value = false;
   }
-}
+};
 
 const switchSheet = () => {
-  if (!selectedFile.value || !selectedSheet.value) return
+  if (!selectedFile.value || !selectedSheet.value) return;
 
   try {
-    const buffer = selectedFile.value.arrayBuffer()
-    const workbook = XLSX.read(buffer, { type: 'buffer' })
-    const worksheet = workbook.Sheets[selectedSheet.value]
-    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 })
+    const buffer = selectedFile.value.arrayBuffer();
+    const workbook = XLSX.read(buffer, { type: 'buffer' });
+    const worksheet = workbook.Sheets[selectedSheet.value];
+    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
     if (jsonData.length === 0) {
-      ElMessage.warning('工作表为空')
-      return
+      ElMessage.warning('工作表为空');
+      return;
     }
 
     if (hasHeader.value) {
-      previewColumns.value = jsonData[0] || []
+      previewColumns.value = jsonData[0] || [];
       previewData.value = jsonData.slice(1).map(row => {
-        const obj = {}
+        const obj = {};
         row.forEach((cell, index) => {
-          obj[`col_${index}`] = cell
-        })
-        return obj
-      })
+          obj[`col_${index}`] = cell;
+        });
+        return obj;
+      });
     } else {
-      previewColumns.value = jsonData[0]?.map((_, index) => `列${index + 1}`) || []
+      previewColumns.value = jsonData[0]?.map((_, index) => `列${index + 1}`) || [];
       previewData.value = jsonData.map(row => {
-        const obj = {}
+        const obj = {};
         row.forEach((cell, index) => {
-          obj[`col_${index}`] = cell
-        })
-        return obj
-      })
+          obj[`col_${index}`] = cell;
+        });
+        return obj;
+      });
     }
 
     // 初始化字段映射
     fieldMappings.value = previewColumns.value.map((column, index) => ({
       excelColumn: column,
       systemField: '',
-      exampleValue: previewData.value[0]?.[`col_${index}`] || ''
-    }))
+      exampleValue: previewData.value[0]?.[`col_${index}`] || '',
+    }));
   } catch (error) {
-    ElMessage.error('工作表解析失败：' + error.message)
+    ElMessage.error('工作表解析失败：' + error.message);
   }
-}
+};
 
-const autoMapField = (index) => {
-  const mapping = fieldMappings.value[index]
-  const excelColumn = mapping.excelColumn.toLowerCase()
+const autoMapField = index => {
+  const mapping = fieldMappings.value[index];
+  const excelColumn = mapping.excelColumn.toLowerCase();
 
   // 智能匹配逻辑
   const matchMap = {
-    '姓名': 'name',
-    'name': 'name',
-    '性别': 'gender',
-    'gender': 'gender',
-    '身份证': 'idCard',
-    'id': 'idCard',
-    '电话': 'phone',
-    'phone': 'phone',
-    '地址': 'address',
-    'address': 'address'
-  }
+    姓名: 'name',
+    name: 'name',
+    性别: 'gender',
+    gender: 'gender',
+    身份证: 'idCard',
+    id: 'idCard',
+    电话: 'phone',
+    phone: 'phone',
+    地址: 'address',
+    address: 'address',
+  };
 
   for (const [key, value] of Object.entries(matchMap)) {
     if (excelColumn.includes(key.toLowerCase())) {
       if (!isFieldMapped(value, index)) {
-        mapping.systemField = value
-        break
+        mapping.systemField = value;
+        break;
       }
     }
   }
-}
+};
 
 const autoMapAllFields = () => {
   fieldMappings.value.forEach((_, index) => {
-    autoMapField(index)
-  })
-}
+    autoMapField(index);
+  });
+};
 
 const isFieldMapped = (fieldKey, excludeIndex = -1) => {
-  return fieldMappings.value.some((mapping, index) =>
-    index !== excludeIndex && mapping.systemField === fieldKey
-  )
-}
+  return fieldMappings.value.some(
+    (mapping, index) => index !== excludeIndex && mapping.systemField === fieldKey
+  );
+};
 
-const getFieldInfo = (fieldKey) => {
-  return systemFields.value.find(field => field.key === fieldKey)
-}
+const getFieldInfo = fieldKey => {
+  return systemFields.value.find(field => field.key === fieldKey);
+};
 
 const validateData = async () => {
-  validating.value = true
+  validating.value = true;
 
   try {
     // 模拟数据验证
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const total = previewData.value.length
-    const errors = []
+    const total = previewData.value.length;
+    const errors = [];
 
     // 验证逻辑
     previewData.value.forEach((row, index) => {
       fieldMappings.value.forEach(mapping => {
         if (mapping.systemField) {
-          const fieldInfo = getFieldInfo(mapping.systemField)
-          const value = row[`col_${fieldMappings.value.indexOf(mapping)}`]
+          const fieldInfo = getFieldInfo(mapping.systemField);
+          const value = row[`col_${fieldMappings.value.indexOf(mapping)}`];
 
           // 必填验证
           if (fieldInfo?.required && (!value || value.toString().trim() === '')) {
@@ -756,8 +738,8 @@ const validateData = async () => {
               row: index + 2, // Excel行号（考虑标题行）
               field: fieldInfo.label,
               value: value || '',
-              error: '必填字段不能为空'
-            })
+              error: '必填字段不能为空',
+            });
           }
 
           // 数据类型验证
@@ -767,174 +749,187 @@ const validateData = async () => {
                 row: index + 2,
                 field: fieldInfo.label,
                 value: value,
-                error: '日期格式不正确'
-              })
+                error: '日期格式不正确',
+              });
             }
           }
         }
-      })
-    })
+      });
+    });
 
-    validationResult.total = total
-    validationResult.invalid = errors.length
-    validationResult.valid = total - errors.length
-    validationResult.warning = 0
-    validationResult.errors = errors
-
+    validationResult.total = total;
+    validationResult.invalid = errors.length;
+    validationResult.valid = total - errors.length;
+    validationResult.warning = 0;
+    validationResult.errors = errors;
   } catch (error) {
-    ElMessage.error('数据验证失败')
+    ElMessage.error('数据验证失败');
   } finally {
-    validating.value = false
+    validating.value = false;
   }
-}
+};
 
 const confirmImport = async () => {
-  importing.value = true
+  importing.value = true;
 
   try {
-    const startTime = Date.now()
+    const startTime = Date.now();
 
     // 模拟导入过程
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
-    const duration = Date.now() - startTime
+    const duration = Date.now() - startTime;
 
-    importResult.success = true
-    importResult.message = '数据导入成功'
-    importResult.total = validationResult.total
-    importResult.success_count = validationResult.valid
-    importResult.failed_count = validationResult.invalid
-    importResult.duration = duration
+    importResult.success = true;
+    importResult.message = '数据导入成功';
+    importResult.total = validationResult.total;
+    importResult.success_count = validationResult.valid;
+    importResult.failed_count = validationResult.invalid;
+    importResult.duration = duration;
     importResult.failed_items = validationResult.errors.map(error => ({
       row: error.row,
       data: error.field + ': ' + error.value,
-      reason: error.error
-    }))
+      reason: error.error,
+    }));
 
-    importStep.value = 4
-    emit('import-success', importResult)
-
+    importStep.value = 4;
+    emit('import-success', importResult);
   } catch (error) {
-    importResult.success = false
-    importResult.message = '数据导入失败：' + error.message
-    importStep.value = 4
+    importResult.success = false;
+    importResult.message = '数据导入失败：' + error.message;
+    importStep.value = 4;
   } finally {
-    importing.value = false
+    importing.value = false;
   }
-}
+};
 
 const nextStep = () => {
   if (importStep.value === 2) {
-    validateData()
+    validateData();
   }
-  importStep.value++
-}
+  importStep.value++;
+};
 
 const prevStep = () => {
-  importStep.value--
-}
+  importStep.value--;
+};
 
 const resetImport = () => {
-  importStep.value = 0
-  selectedFile.value = null
-  previewData.value = []
-  previewColumns.value = []
-  fieldMappings.value = []
-  uploadRef.value?.clearFiles()
-}
+  importStep.value = 0;
+  selectedFile.value = null;
+  previewData.value = [];
+  previewColumns.value = [];
+  fieldMappings.value = [];
+  uploadRef.value?.clearFiles();
+};
 
 const closeDialog = () => {
-  emit('update:modelValue', false)
-  resetImport()
-}
+  emit('update:modelValue', false);
+  resetImport();
+};
 
 const downloadTemplate = () => {
   // 创建模板数据
   const templateData = [
     ['姓名', '性别', '身份证号', '联系电话', '出生日期', '居住地址', '文化程度', '职业'],
-    ['张三', '男', '320123199001011234', '13800138001', '1990-01-01', '某某村123号', '大专', '农民'],
-    ['李四', '女', '320123199101011234', '13800138002', '1991-01-01', '某某村456号', '高中', '务工']
-  ]
+    [
+      '张三',
+      '男',
+      '320123199001011234',
+      '13800138001',
+      '1990-01-01',
+      '某某村123号',
+      '大专',
+      '农民',
+    ],
+    [
+      '李四',
+      '女',
+      '320123199101011234',
+      '13800138002',
+      '1991-01-01',
+      '某某村456号',
+      '高中',
+      '务工',
+    ],
+  ];
 
-  const ws = XLSX.utils.aoa_to_sheet(templateData)
-  const wb = XLSX.utils.book_new()
-  XLSX.utils.book_append_sheet(wb, ws, '村民信息模板')
+  const ws = XLSX.utils.aoa_to_sheet(templateData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, '村民信息模板');
 
-  XLSX.writeFile(wb, '村民信息导入模板.xlsx')
-  ElMessage.success('模板下载成功')
-}
+  XLSX.writeFile(wb, '村民信息导入模板.xlsx');
+  ElMessage.success('模板下载成功');
+};
 
 const quickExport = () => {
-  exportOptions.scope = 'all'
-  exportOptions.fields = systemFields.value.map(field => field.key)
-  exportData()
-}
+  exportOptions.scope = 'all';
+  exportOptions.fields = systemFields.value.map(field => field.key);
+  exportData();
+};
 
 const exportData = async () => {
-  exporting.value = true
+  exporting.value = true;
 
   try {
     // 模拟导出过程
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     // 创建导出数据
     const headers = exportOptions.fields.map(fieldKey => {
-      const field = systemFields.value.find(f => f.key === fieldKey)
-      return field?.label || fieldKey
-    })
+      const field = systemFields.value.find(f => f.key === fieldKey);
+      return field?.label || fieldKey;
+    });
 
     const data = [
       headers,
-      ...props.exportData.map(item =>
-        exportOptions.fields.map(fieldKey => item[fieldKey] || '')
-      )
-    ]
+      ...props.exportData.map(item => exportOptions.fields.map(fieldKey => item[fieldKey] || '')),
+    ];
 
-    const ws = XLSX.utils.aoa_to_sheet(data)
-    const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, '村民数据')
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, '村民数据');
 
-    const fileName = `村民数据_${new Date().toISOString().split('T')[0]}.${exportOptions.format}`
-    XLSX.writeFile(wb, fileName)
+    const fileName = `村民数据_${new Date().toISOString().split('T')[0]}.${exportOptions.format}`;
+    XLSX.writeFile(wb, fileName);
 
-    ElMessage.success('导出成功')
-    emit('export-success', { fileName, recordCount: data.length - 1 })
-
+    ElMessage.success('导出成功');
+    emit('export-success', { fileName, recordCount: data.length - 1 });
   } catch (error) {
-    ElMessage.error('导出失败：' + error.message)
+    ElMessage.error('导出失败：' + error.message);
   } finally {
-    exporting.value = false
+    exporting.value = false;
   }
-}
+};
 
 const previewExport = () => {
-  ElMessage.info('预览功能开发中...')
-}
+  ElMessage.info('预览功能开发中...');
+};
 
 const saveExportTemplate = () => {
-  ElMessage.info('保存模板功能开发中...')
-}
+  ElMessage.info('保存模板功能开发中...');
+};
 
 const exportFailedData = () => {
-  if (importResult.failed_items.length === 0) return
+  if (importResult.failed_items.length === 0) return;
 
   const data = [
     ['行号', '数据', '失败原因'],
-    ...importResult.failed_items.map(item => [item.row, item.data, item.reason])
-  ]
+    ...importResult.failed_items.map(item => [item.row, item.data, item.reason]),
+  ];
 
-  const ws = XLSX.utils.aoa_to_sheet(data)
-  const wb = XLSX.utils.book_new()
-  XLSX.utils.book_append_sheet(wb, ws, '失败数据')
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, '失败数据');
 
-  XLSX.writeFile(wb, `导入失败数据_${new Date().toISOString().split('T')[0]}.xlsx`)
-  ElMessage.success('失败数据导出成功')
-}
+  XLSX.writeFile(wb, `导入失败数据_${new Date().toISOString().split('T')[0]}.xlsx`);
+  ElMessage.success('失败数据导出成功');
+};
 
 // 初始化
 onMounted(() => {
-  exportOptions.fields = systemFields.value.map(field => field.key)
-})
+  exportOptions.fields = systemFields.value.map(field => field.key);
+});
 </script>
 
 <style lang="scss" scoped>

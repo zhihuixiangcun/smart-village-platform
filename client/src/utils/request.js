@@ -8,8 +8,8 @@ const service = axios.create({
   baseURL: import.meta.env.VITE_APP_BASE_API || '/api',
   timeout: 15000, // 请求超时时间
   headers: {
-    'Content-Type': 'application/json;charset=UTF-8'
-  }
+    'Content-Type': 'application/json;charset=UTF-8',
+  },
 });
 
 // 请求拦截器
@@ -26,7 +26,7 @@ service.interceptors.request.use(
     if (config.method === 'get') {
       config.params = {
         ...config.params,
-        _t: Date.now()
+        _t: Date.now(),
       };
     }
 
@@ -62,48 +62,48 @@ service.interceptors.response.use(
       const { status, data } = response;
 
       switch (status) {
-        case 401:
-          // 未授权，token过期或无效
-          console.warn('[Request] 401 未授权错误');
+      case 401:
+        // 未授权，token过期或无效
+        console.warn('[Request] 401 未授权错误');
 
-          // 尝试刷新token
-          try {
-            await userStore.doRefreshToken();
-            // 重新发送原请求
-            return service.request(error.config);
-          } catch (refreshError) {
-            // 刷新失败，跳转到统一登录页
-            console.warn('[Request] Token刷新失败，跳转到登录页');
-            await userStore.logout(false);
-            router.push({
-              name: 'unified-login',
-              query: { redirect: window.location.pathname + window.location.search }
-            });
-            return Promise.reject(error);
-          }
+        // 尝试刷新token
+        try {
+          await userStore.doRefreshToken();
+          // 重新发送原请求
+          return service.request(error.config);
+        } catch (refreshError) {
+          // 刷新失败，跳转到统一登录页
+          console.warn('[Request] Token刷新失败，跳转到登录页');
+          await userStore.logout(false);
+          router.push({
+            name: 'unified-login',
+            query: { redirect: window.location.pathname + window.location.search },
+          });
+          return Promise.reject(error);
+        }
 
-        case 403:
-          // 没有权限
-          ElMessage.error(data?.message || '没有访问权限');
-          router.push('/403');
-          break;
+      case 403:
+        // 没有权限
+        ElMessage.error(data?.message || '没有访问权限');
+        router.push('/403');
+        break;
 
-        case 404:
-          ElMessage.error('请求的资源不存在');
-          break;
+      case 404:
+        ElMessage.error('请求的资源不存在');
+        break;
 
-        case 500:
-          ElMessage.error('服务器内部错误');
-          break;
+      case 500:
+        ElMessage.error('服务器内部错误');
+        break;
 
-        case 502:
-        case 503:
-        case 504:
-          ElMessage.error('服务器暂时无法访问，请稍后重试');
-          break;
+      case 502:
+      case 503:
+      case 504:
+        ElMessage.error('服务器暂时无法访问，请稍后重试');
+        break;
 
-        default:
-          ElMessage.error(data?.message || `请求失败 (${status})`);
+      default:
+        ElMessage.error(data?.message || `请求失败 (${status})`);
       }
     } else if (error.code === 'ECONNABORTED') {
       ElMessage.error('请求超时，请检查网络连接');
@@ -125,7 +125,7 @@ const request = {
       url,
       method: 'get',
       params,
-      ...config
+      ...config,
     });
   },
 
@@ -135,7 +135,7 @@ const request = {
       url,
       method: 'post',
       data,
-      ...config
+      ...config,
     });
   },
 
@@ -145,7 +145,7 @@ const request = {
       url,
       method: 'put',
       data,
-      ...config
+      ...config,
     });
   },
 
@@ -154,7 +154,7 @@ const request = {
     return service({
       url,
       method: 'delete',
-      ...config
+      ...config,
     });
   },
 
@@ -164,7 +164,7 @@ const request = {
       url,
       method: 'patch',
       data,
-      ...config
+      ...config,
     });
   },
 
@@ -175,9 +175,9 @@ const request = {
       method: 'post',
       data: formData,
       headers: {
-        'Content-Type': 'multipart/form-data'
+        'Content-Type': 'multipart/form-data',
       },
-      ...config
+      ...config,
     });
   },
 
@@ -187,7 +187,7 @@ const request = {
       url,
       method: 'get',
       params,
-      responseType: 'blob'
+      responseType: 'blob',
     }).then(response => {
       const blob = new Blob([response.data]);
       const downloadElement = document.createElement('a');
@@ -200,18 +200,18 @@ const request = {
       document.body.removeChild(downloadElement);
       window.URL.revokeObjectURL(href);
     });
-  }
+  },
 };
 
 // 批量请求
-export const batchRequest = async (requests) => {
+export const batchRequest = async requests => {
   try {
     const results = await Promise.allSettled(requests);
     return results.map((result, index) => ({
       index,
       status: result.status,
       data: result.status === 'fulfilled' ? result.value : null,
-      error: result.status === 'rejected' ? result.reason : null
+      error: result.status === 'rejected' ? result.reason : null,
     }));
   } catch (error) {
     console.error('批量请求失败:', error);
@@ -227,7 +227,7 @@ export const createCancelableRequest = () => {
   const source = CancelToken.source();
   return {
     token: source.token,
-    cancel: source.cancel
+    cancel: source.cancel,
   };
 };
 

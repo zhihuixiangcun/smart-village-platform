@@ -41,7 +41,7 @@ export function useVoiceInput() {
         ElMessage.info('正在聆听,请说话...');
       };
 
-      recognition.onresult = (event) => {
+      recognition.onresult = event => {
         const results = event.results;
         const latest = results[results.length - 1];
         const transcript = latest[0].transcript;
@@ -54,7 +54,7 @@ export function useVoiceInput() {
         }
       };
 
-      recognition.onerror = (event) => {
+      recognition.onerror = event => {
         isListening.value = false;
         ElMessage.error(`语音识别失败: ${event.error}`);
         reject(new Error(event.error));
@@ -81,7 +81,7 @@ export function useVoiceInput() {
   };
 
   // 语音意图解析
-  const parseVoiceIntent = (text) => {
+  const parseVoiceIntent = text => {
     const lowerText = text.toLowerCase();
 
     // 功能意图
@@ -103,7 +103,7 @@ export function useVoiceInput() {
       // 大字模式
       '大字|大字体|放大|字体变大': { action: 'toggle', feature: 'largeText' },
       // 搜索
-      '搜索|查找|查询': { action: 'search', query: extractQuery(text) }
+      '搜索|查找|查询': { action: 'search', query: extractQuery(text) },
     };
 
     // 匹配意图
@@ -119,7 +119,7 @@ export function useVoiceInput() {
   };
 
   // 提取搜索关键词
-  const extractQuery = (text) => {
+  const extractQuery = text => {
     const patterns = ['搜索', '查找', '查询', '找'];
     for (const pattern of patterns) {
       const index = text.indexOf(pattern);
@@ -136,7 +136,7 @@ export function useVoiceInput() {
     isSupported,
     startListening,
     stopListening,
-    parseVoiceIntent
+    parseVoiceIntent,
   };
 }
 

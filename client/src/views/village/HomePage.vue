@@ -10,12 +10,7 @@
         </p>
       </div>
       <div class="user-avatar" @click="showUserPanel">
-        <van-image
-          :src="userInfo.avatar || '/default-avatar.png'"
-          round
-          width="40"
-          height="40"
-        />
+        <van-image :src="userInfo.avatar || '/default-avatar.png'" round width="40" height="40" />
         <span class="user-name">{{ userInfo.name }}</span>
       </div>
     </header>
@@ -27,11 +22,7 @@
         <van-tag type="primary" size="small">每日必用</van-tag>
       </div>
       <van-grid :column-num="2" :gutter="16">
-        <van-grid-item
-          v-for="func in coreFunctions"
-          :key="func.id"
-          @click="navigateTo(func.path)"
-        >
+        <van-grid-item v-for="func in coreFunctions" :key="func.id" @click="navigateTo(func.path)">
           <div class="function-card" :class="func.type">
             <div class="function-icon">
               <van-icon :name="func.icon" size="32" />
@@ -39,11 +30,7 @@
             <div class="function-info">
               <h4>{{ func.title }}</h4>
               <p>{{ func.desc }}</p>
-              <van-tag
-                v-if="func.badge"
-                :type="func.badgeType"
-                size="small"
-              >
+              <van-tag v-if="func.badge" :type="func.badgeType" size="small">
                 {{ func.badge }}
               </van-tag>
             </div>
@@ -114,11 +101,7 @@
     <!-- 快速操作 -->
     <section class="quick-actions">
       <van-grid :column-num="4" :gutter="12">
-        <van-grid-item
-          v-for="action in quickActions"
-          :key="action.id"
-          @click="quickAction(action)"
-        >
+        <van-grid-item v-for="action in quickActions" :key="action.id" @click="quickAction(action)">
           <div class="action-item">
             <van-icon :name="action.icon" size="24" />
             <span>{{ action.name }}</span>
@@ -132,12 +115,7 @@
       <div class="section-header">
         <div class="section-title">
           <h3>村务动态</h3>
-          <van-circle
-            :rate="newsReadRate"
-            :speed="100"
-            :text="newsReadRate + '%'"
-            size="20"
-          />
+          <van-circle :rate="newsReadRate" :speed="100" :text="newsReadRate + '%'" size="20" />
         </div>
         <van-button size="small" @click="refreshNews">
           <van-icon name="replay" />
@@ -157,12 +135,7 @@
 
     <!-- 底部导航栏 -->
     <van-tabbar v-model="activeTab" @change="onTabChange">
-      <van-tabbar-item
-        v-for="tab in tabBar"
-        :key="tab.name"
-        :icon="tab.icon"
-        :name="tab.name"
-      >
+      <van-tabbar-item v-for="tab in tabBar" :key="tab.name" :icon="tab.icon" :name="tab.name">
         {{ tab.label }}
       </van-tabbar-item>
     </van-tabbar>
@@ -170,32 +143,32 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 
-const router = useRouter()
+const router = useRouter();
 
 // 响应式数据
-const activeTab = ref('home')
+const activeTab = ref('home');
 const currentVillage = ref({
   name: '智慧村务管理系统',
-  code: 'ZH-001'
-})
+  code: 'ZH-001',
+});
 
 const userInfo = ref({
   name: '张主任',
   avatar: '',
-  role: 'village_director'
-})
+  role: 'village_director',
+});
 
-const weather = ref('晴')
-const temperature = ref(23)
+const weather = ref('晴');
+const temperature = ref(23);
 
 const taskStats = reactive({
   total: 8,
   completed: 3,
-  urgent: 2
-})
+  urgent: 2,
+});
 
 const todayTasks = ref([
   {
@@ -205,7 +178,7 @@ const todayTasks = ref([
     location: '村委办公室',
     assignee: '李会计',
     priority: 'urgent',
-    completed: false
+    completed: false,
   },
   {
     id: 2,
@@ -214,9 +187,9 @@ const todayTasks = ref([
     location: '档案室',
     assignee: '王干事',
     priority: 'normal',
-    completed: true
-  }
-])
+    completed: true,
+  },
+]);
 
 const statsData = ref([
   {
@@ -226,7 +199,7 @@ const statsData = ref([
     change: '+12%',
     trend: 'up',
     icon: 'description',
-    color: '#1890ff'
+    color: '#1890ff',
   },
   {
     key: 'tasks',
@@ -235,7 +208,7 @@ const statsData = ref([
     change: '+25%',
     trend: 'up',
     icon: 'checked',
-    color: '#52c41a'
+    color: '#52c41a',
   },
   {
     key: 'users',
@@ -244,29 +217,29 @@ const statsData = ref([
     change: '-5%',
     trend: 'down',
     icon: 'friends',
-    color: '#faad14'
-  }
-])
+    color: '#faad14',
+  },
+]);
 
 const quickActions = ref([
   { id: 1, name: '扫码上传', icon: 'scan' },
   { id: 2, name: '语音输入', icon: 'volume' },
   { id: 3, name: '紧急呼叫', icon: 'phone-o' },
-  { id: 4, name: '数据导出', icon: 'down' }
-])
+  { id: 4, name: '数据导出', icon: 'down' },
+]);
 
 const villageNews = ref([
   {
     id: 1,
     title: '明天上午9点召开村委会，请准时参加',
-    type: 'primary'
+    type: 'primary',
   },
   {
     id: 2,
     title: '养老保险认证开始了，请村民们及时办理',
-    type: 'warning'
-  }
-])
+    type: 'warning',
+  },
+]);
 
 const coreFunctions = ref([
   {
@@ -277,7 +250,7 @@ const coreFunctions = ref([
     path: '/village/documents',
     type: 'primary',
     badge: '5个待处理',
-    badgeType: 'warning'
+    badgeType: 'warning',
   },
   {
     id: 2,
@@ -287,7 +260,7 @@ const coreFunctions = ref([
     path: '/village/duty',
     type: 'success',
     badge: '今日值班',
-    badgeType: 'success'
+    badgeType: 'success',
   },
   {
     id: 3,
@@ -295,7 +268,7 @@ const coreFunctions = ref([
     desc: '图表、报表、趋势分析',
     icon: 'chart-trending-o',
     path: '/village/statistics',
-    type: 'warning'
+    type: 'warning',
   },
   {
     id: 4,
@@ -303,117 +276,117 @@ const coreFunctions = ref([
     desc: '文件、记录、快速查找',
     icon: 'search',
     path: '/village/search',
-    type: 'danger'
-  }
-])
+    type: 'danger',
+  },
+]);
 
 const tabBar = ref([
   { name: 'home', label: '首页', icon: 'home-o' },
   { name: 'documents', label: '资料', icon: 'description' },
   { name: 'duty', label: '值班', icon: 'calendar-o' },
   { name: 'statistics', label: '统计', icon: 'chart-trending-o' },
-  { name: 'profile', label: '我的', icon: 'user-o' }
-])
+  { name: 'profile', label: '我的', icon: 'user-o' },
+]);
 
 // 计算属性
 const lastUpdateTime = computed(() => {
   return new Date().toLocaleTimeString('zh-CN', {
     hour: '2-digit',
-    minute: '2-digit'
-  })
-})
+    minute: '2-digit',
+  });
+});
 
 const newsReadRate = computed(() => {
-  return Math.floor(Math.random() * 30) + 70
-})
+  return Math.floor(Math.random() * 30) + 70;
+});
 
 // 方法
-const navigateTo = (path) => {
-  router.push(path)
-}
+const navigateTo = path => {
+  router.push(path);
+};
 
 const showUserPanel = () => {
-  router.push('/profile')
-}
+  router.push('/profile');
+};
 
 const viewAllTasks = () => {
-  router.push('/village/duty')
-}
+  router.push('/village/duty');
+};
 
-const handleTask = (task) => {
+const handleTask = task => {
   // 处理任务点击
-  router.push(`/village/duty/task/${task.id}`)
-}
+  router.push(`/village/duty/task/${task.id}`);
+};
 
-const quickAction = (action) => {
+const quickAction = action => {
   switch (action.id) {
     case 1:
-      router.push('/village/documents/scan')
-      break
+      router.push('/village/documents/scan');
+      break;
     case 2:
-      startVoiceInput()
-      break
+      startVoiceInput();
+      break;
     case 3:
-      makeEmergencyCall()
-      break
+      makeEmergencyCall();
+      break;
     case 4:
-      exportData()
-      break
+      exportData();
+      break;
   }
-}
+};
 
 const startVoiceInput = () => {
   if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
-    const recognition = new SpeechRecognition()
-    recognition.lang = 'zh-CN'
-    recognition.start()
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'zh-CN';
+    recognition.start();
 
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript
-      console.log('语音输入结果:', transcript)
-    }
+    recognition.onresult = event => {
+      const transcript = event.results[0][0].transcript;
+      console.log('语音输入结果:', transcript);
+    };
   }
-}
+};
 
 const makeEmergencyCall = () => {
-  router.push('/village/emergency')
-}
+  router.push('/village/emergency');
+};
 
 const exportData = () => {
-  router.push('/village/statistics/export')
-}
+  router.push('/village/statistics/export');
+};
 
 const refreshNews = () => {
   // 刷新村务动态
-}
+};
 
-const viewNews = (news) => {
-  router.push(`/village/news/${news.id}`)
-}
+const viewNews = news => {
+  router.push(`/village/news/${news.id}`);
+};
 
-const onTabChange = (name) => {
+const onTabChange = name => {
   const routes = {
     home: '/village/home',
     documents: '/village/documents',
     duty: '/village/duty',
     statistics: '/village/statistics',
-    profile: '/profile'
-  }
+    profile: '/profile',
+  };
 
   if (routes[name]) {
-    router.push(routes[name])
+    router.push(routes[name]);
   }
-}
+};
 
-const getTrendIcon = (trend) => {
-  return trend === 'up' ? 'arrow-up' : 'arrow-down'
-}
+const getTrendIcon = trend => {
+  return trend === 'up' ? 'arrow-up' : 'arrow-down';
+};
 
 // 生命周期
 onMounted(() => {
   // 获取初始数据
-})
+});
 </script>
 
 <style scoped>
@@ -429,7 +402,7 @@ onMounted(() => {
   align-items: center;
   padding: 16px;
   background: white;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .village-info h2 {
@@ -464,7 +437,7 @@ section {
   background: white;
   border-radius: 12px;
   padding: 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .section-header {

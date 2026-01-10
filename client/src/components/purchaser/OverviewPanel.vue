@@ -105,9 +105,7 @@
             <h4 class="item-name">{{ item.name || item.title }}</h4>
             <p class="item-description">{{ item.description || item.content }}</p>
             <div class="item-meta">
-              <span v-if="item.price" class="item-price">
-                ¥{{ item.price }}/{{ item.unit }}
-              </span>
+              <span v-if="item.price" class="item-price"> ¥{{ item.price }}/{{ item.unit }} </span>
               <span v-if="item.distance" class="item-distance">
                 <el-icon><Location /></el-icon>
                 {{ item.distance.toFixed(1) }}km
@@ -126,87 +124,90 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ref, onMounted } from 'vue';
+import { ElMessage } from 'element-plus';
 import {
-  Clock, ShoppingCart, UserFilled, ChatDotRound, Bell,
-  TrendCharts, Location
-} from '@element-plus/icons-vue'
-import api from '@/api'
+  Clock,
+  ShoppingCart,
+  UserFilled,
+  ChatDotRound,
+  Bell,
+  TrendCharts,
+  Location,
+} from '@element-plus/icons-vue';
+import api from '@/api';
 
 const props = defineProps({
   purchaserInfo: {
     type: Object,
-    default: () => ({})
+    default: () => ({}),
   },
   stats: {
     type: Object,
-    default: () => ({})
-  }
-})
+    default: () => ({}),
+  },
+});
 
-const emit = defineEmits(['refresh'])
+const emit = defineEmits(['refresh']);
 
-const recentActivities = ref([])
-const recommendations = ref([])
-const defaultImage = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 150"%3E%3Crect width="200" height="150" fill="%23f0f0f0"/%3E%3C/svg%3E'
+const recentActivities = ref([]);
+const recommendations = ref([]);
+const defaultImage =
+  'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 150"%3E%3Crect width="200" height="150" fill="%23f0f0f0"/%3E%3C/svg%3E';
 
 // 获取最近动态
 const fetchRecentActivities = async () => {
   try {
     const response = await api.get('/api/v1/purchaser/activities', {
-      params: { limit: 5 }
-    })
+      params: { limit: 5 },
+    });
     if (response.success) {
-      recentActivities.value = response.data || []
+      recentActivities.value = response.data || [];
     }
   } catch (error) {
-    console.error('获取动态失败', error)
+    console.error('获取动态失败', error);
   }
-}
+};
 
 // 获取推荐
 const fetchRecommendations = async () => {
   try {
     const response = await api.get('/api/v1/purchaser/recommendations', {
-      params: { limit: 4 }
-    })
+      params: { limit: 4 },
+    });
     if (response.success) {
-      recommendations.value = response.data.recommendations || []
+      recommendations.value = response.data.recommendations || [];
     }
   } catch (error) {
-    console.error('获取推荐失败', error)
+    console.error('获取推荐失败', error);
   }
-}
+};
 
 // 处理动态操作
-const handleActivityAction = (activity) => {
+const handleActivityAction = activity => {
   if (activity.route) {
-    window.location.href = activity.route
+    window.location.href = activity.route;
   }
-}
+};
 
 // 格式化日期
-const formatDate = (date) => {
-  if (!date) return ''
-  const d = new Date(date)
-  const now = new Date()
-  const diff = now - d
+const formatDate = date => {
+  if (!date) return '';
+  const d = new Date(date);
+  const now = new Date();
+  const diff = now - d;
 
-  if (diff < 60000) return '刚刚'
-  if (diff < 3600000) return `${Math.floor(diff / 60000)}分钟前`
-  if (diff < 86400000) return `${Math.floor(diff / 3600000)}小时前`
-  if (diff < 604800000) return `${Math.floor(diff / 86400000)}天前`
+  if (diff < 60000) return '刚刚';
+  if (diff < 3600000) return `${Math.floor(diff / 60000)}分钟前`;
+  if (diff < 86400000) return `${Math.floor(diff / 3600000)}小时前`;
+  if (diff < 604800000) return `${Math.floor(diff / 86400000)}天前`;
 
-  return d.toLocaleDateString('zh-CN')
-}
+  return d.toLocaleDateString('zh-CN');
+};
 
 onMounted(async () => {
-  await Promise.all([
-    fetchRecentActivities(),
-    fetchRecommendations()
-  ])
-})
+  await Promise.all([fetchRecentActivities(), fetchRecommendations()]);
+});
 </script>
 
 <style scoped>

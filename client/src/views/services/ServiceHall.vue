@@ -92,7 +92,16 @@
             <h3>{{ service.name }}</h3>
             <p class="service-desc">{{ service.description }}</p>
             <div class="service-meta">
-              <el-tag size="small" :type="service.type === 'document' ? 'primary' : service.type === 'welfare' ? 'success' : 'warning'">
+              <el-tag
+                size="small"
+                :type="
+                  service.type === 'document'
+                    ? 'primary'
+                    : service.type === 'welfare'
+                      ? 'success'
+                      : 'warning'
+                "
+              >
                 {{ service.typeName }}
               </el-tag>
               <span class="process-time">
@@ -108,11 +117,7 @@
       </div>
 
       <!-- 空状态 -->
-      <el-empty
-        v-if="filteredServices.length === 0"
-        description="未找到相关服务"
-        :image-size="200"
-      >
+      <el-empty v-if="filteredServices.length === 0" description="未找到相关服务" :image-size="200">
         <el-button type="primary" @click="clearSearch">清除搜索</el-button>
       </el-empty>
     </div>
@@ -165,11 +170,7 @@
         </div>
       </div>
 
-      <el-empty
-        v-if="applications.length === 0"
-        description="暂无申请记录"
-        :image-size="200"
-      >
+      <el-empty v-if="applications.length === 0" description="暂无申请记录" :image-size="200">
         <el-button type="primary" @click="goToServices">去办理业务</el-button>
       </el-empty>
     </div>
@@ -194,9 +195,9 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { ElMessage } from 'element-plus';
 import {
   Grid,
   Document,
@@ -210,30 +211,30 @@ import {
   User,
   House,
   Promotion,
-  Suitcase,  // 替代 FirstAid（急救相关）
+  Suitcase, // 替代 FirstAid（急救相关）
   Money,
   Calendar,
   Bell,
   OfficeBuilding,
   Van,
-  Cherry  // 替代 BabyCarriage（生育相关）
-} from '@element-plus/icons-vue'
-import { useLargeText } from '@/composables/useLargeText'
-import { useVoiceInput } from '@/composables/useVoiceInput'
-import { serviceApi } from '@/api/service'
+  Cherry, // 替代 BabyCarriage（生育相关）
+} from '@element-plus/icons-vue';
+import { useLargeText } from '@/composables/useLargeText';
+import { useVoiceInput } from '@/composables/useVoiceInput';
+import { serviceApi } from '@/api/service';
 
-const router = useRouter()
+const router = useRouter();
 
 // Composables
-const { isLargeText } = useLargeText()
-const { startListening } = useVoiceInput()
+const { isLargeText } = useLargeText();
+const { startListening } = useVoiceInput();
 
 // 状态
-const activeCategory = ref('all')
-const searchQuery = ref('')
-const showServiceDialog = ref(false)
-const currentService = ref(null)
-const applicationCount = ref(3)
+const activeCategory = ref('all');
+const searchQuery = ref('');
+const showServiceDialog = ref(false);
+const currentService = ref(null);
+const applicationCount = ref(3);
 
 // 服务列表数据
 const services = ref([
@@ -247,7 +248,7 @@ const services = ref([
     type: 'document',
     typeName: '证件办理',
     processTime: '7-15个工作日',
-    component: 'IdCardApplication'
+    component: 'IdCardApplication',
   },
   {
     id: 'household',
@@ -258,7 +259,7 @@ const services = ref([
     type: 'document',
     typeName: '证件办理',
     processTime: '5-10个工作日',
-    component: 'HouseholdApplication'
+    component: 'HouseholdApplication',
   },
   {
     id: 'marriage',
@@ -269,7 +270,7 @@ const services = ref([
     type: 'document',
     typeName: '证件办理',
     processTime: '1-3个工作日',
-    component: 'MarriageRegistration'
+    component: 'MarriageRegistration',
   },
   // 福利申请类
   {
@@ -281,7 +282,7 @@ const services = ref([
     type: 'welfare',
     typeName: '福利申请',
     processTime: '15-30个工作日',
-    component: 'SubsistenceApplication'
+    component: 'SubsistenceApplication',
   },
   {
     id: 'disability',
@@ -292,7 +293,7 @@ const services = ref([
     type: 'welfare',
     typeName: '福利申请',
     processTime: '10-20个工作日',
-    component: 'DisabilityApplication'
+    component: 'DisabilityApplication',
   },
   {
     id: 'elderly',
@@ -303,7 +304,7 @@ const services = ref([
     type: 'welfare',
     typeName: '福利申请',
     processTime: '7-15个工作日',
-    component: 'ElderlyApplication'
+    component: 'ElderlyApplication',
   },
   {
     id: 'birth',
@@ -314,7 +315,7 @@ const services = ref([
     type: 'welfare',
     typeName: '福利申请',
     processTime: '10-20个工作日',
-    component: 'BirthApplication'
+    component: 'BirthApplication',
   },
   {
     id: 'transport',
@@ -325,7 +326,7 @@ const services = ref([
     type: 'welfare',
     typeName: '福利申请',
     processTime: '5-10个工作日',
-    component: 'TransportApplication'
+    component: 'TransportApplication',
   },
   // 其他服务类
   {
@@ -337,7 +338,7 @@ const services = ref([
     type: 'other',
     typeName: '其他服务',
     processTime: '15-30个工作日',
-    component: 'HouseBuildingApplication'
+    component: 'HouseBuildingApplication',
   },
   {
     id: 'event',
@@ -348,7 +349,7 @@ const services = ref([
     type: 'other',
     typeName: '其他服务',
     processTime: '1-3个工作日',
-    component: 'EventApplication'
+    component: 'EventApplication',
   },
   {
     id: 'residence',
@@ -359,7 +360,7 @@ const services = ref([
     type: 'certificate',
     typeName: '证明开具',
     processTime: '1-3个工作日',
-    component: 'ResidenceCertificate'
+    component: 'ResidenceCertificate',
   },
   {
     id: 'income',
@@ -370,7 +371,7 @@ const services = ref([
     type: 'certificate',
     typeName: '证明开具',
     processTime: '1-3个工作日',
-    component: 'IncomeCertificate'
+    component: 'IncomeCertificate',
   },
   {
     id: 'health',
@@ -381,9 +382,9 @@ const services = ref([
     type: 'certificate',
     typeName: '证明开具',
     processTime: '1-2个工作日',
-    component: 'HealthCertificate'
-  }
-])
+    component: 'HealthCertificate',
+  },
+]);
 
 // 我的申请列表
 const applications = ref([
@@ -392,23 +393,23 @@ const applications = ref([
     serviceName: '身份证补办',
     serviceType: 'id-card',
     status: 'processing',
-    applyTime: '2025-01-03 14:30'
+    applyTime: '2025-01-03 14:30',
   },
   {
     id: 2,
     serviceName: '老年补贴申请',
     serviceType: 'elderly',
     status: 'pending',
-    applyTime: '2025-01-02 10:15'
+    applyTime: '2025-01-02 10:15',
   },
   {
     id: 3,
     serviceName: '居住证明',
     serviceType: 'residence',
     status: 'approved',
-    applyTime: '2025-01-01 09:20'
-  }
-])
+    applyTime: '2025-01-01 09:20',
+  },
+]);
 
 // 统计数据
 const stats = computed(() => {
@@ -416,79 +417,78 @@ const stats = computed(() => {
     pending: applications.value.filter(a => a.status === 'pending').length,
     approved: applications.value.filter(a => a.status === 'approved').length,
     rejected: applications.value.filter(a => a.status === 'rejected').length,
-    processing: applications.value.filter(a => a.status === 'processing').length
-  }
-})
+    processing: applications.value.filter(a => a.status === 'processing').length,
+  };
+});
 
 // 过滤后的服务列表
 const filteredServices = computed(() => {
-  let result = services.value
+  let result = services.value;
 
   // 分类过滤
   if (activeCategory.value !== 'all') {
-    result = result.filter(s => s.type === activeCategory.value)
+    result = result.filter(s => s.type === activeCategory.value);
   }
 
   // 搜索过滤
   if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase()
-    result = result.filter(s =>
-      s.name.toLowerCase().includes(query) ||
-      s.description.toLowerCase().includes(query)
-    )
+    const query = searchQuery.value.toLowerCase();
+    result = result.filter(
+      s => s.name.toLowerCase().includes(query) || s.description.toLowerCase().includes(query)
+    );
   }
 
-  return result
-})
+  return result;
+});
 
 // 当前服务组件
 const serviceComponent = computed(() => {
-  if (!currentService.value) return null
+  if (!currentService.value) return null;
   // 动态导入组件
-  return () => import(`@/views/services/${currentService.value.component}.vue`)
-})
+  return () => import(`@/views/services/${currentService.value.component}.vue`);
+});
 
 // 搜索处理
 const handleSearch = () => {
   // 搜索逻辑已在computed中实现
-}
+};
 
 // 清除搜索
 const clearSearch = () => {
-  searchQuery.value = ''
-}
+  searchQuery.value = '';
+};
 
 // 语音搜索
 const voiceSearch = async () => {
   try {
-    const text = await startListening()
-    searchQuery.value = text
-    ElMessage.success(`已搜索: ${text}`)
+    const text = await startListening();
+    searchQuery.value = text;
+    ElMessage.success(`已搜索: ${text}`);
   } catch (error) {
-    console.error('Voice search error:', error)
+    console.error('Voice search error:', error);
   }
-}
+};
 
 // 打开服务
-const openService = (service) => {
-  currentService.value = service
-  showServiceDialog.value = true
-}
+const openService = service => {
+  currentService.value = service;
+  showServiceDialog.value = true;
+};
 
 // 查看申请详情
-const viewApplication = (app) => {
-  router.push(`/services/application/${app.id}`)
-}
+const viewApplication = app => {
+  router.push(`/services/application/${app.id}`);
+};
 
 // 跳转到服务列表
 const goToServices = () => {
-  activeCategory.value = 'all'
-}
+  activeCategory.value = 'all';
+};
 
 // 申请提交成功处理
 const handleSubmitted = () => {
-  ElMessage.success('申请已提交')
-  showServiceDialog.value = false
+  ElMessage.success('申请已提交');
+  showServiceDialog.value = false;
 
   // 添加到申请列表
   applications.value.unshift({
@@ -501,78 +501,78 @@ const handleSubmitted = () => {
       month: '2-digit',
       day: '2-digit',
       hour: '2-digit',
-      minute: '2-digit'
-    })
-  })
+      minute: '2-digit',
+    }),
+  });
 
-  applicationCount.value++
-}
+  applicationCount.value++;
+};
 
 // 获取服务图标
-const getServiceIcon = (type) => {
+const getServiceIcon = type => {
   const iconMap = {
     'id-card': User,
-    'household': House,
-    'marriage': Promotion,
-    'subsistence': Money,
-    'disability': Suitcase,
-    'elderly': Calendar,
-    'birth': Cherry,
-    'transport': Van,
+    household: House,
+    marriage: Promotion,
+    subsistence: Money,
+    disability: Suitcase,
+    elderly: Calendar,
+    birth: Cherry,
+    transport: Van,
     'house-building': OfficeBuilding,
-    'event': Bell,
-    'residence': Stamp,
-    'income': Document,
-    'health': Bell
-  }
-  return iconMap[type] || Document
-}
+    event: Bell,
+    residence: Stamp,
+    income: Document,
+    health: Bell,
+  };
+  return iconMap[type] || Document;
+};
 
 // 获取服务颜色
-const getServiceColor = (type) => {
+const getServiceColor = type => {
   const colorMap = {
     'id-card': '#409eff',
-    'household': '#67c23a',
-    'marriage': '#e6a23c',
-    'subsistence': '#f56c6c',
-    'disability': '#909399',
-    'elderly': '#00bcd4',
-    'birth': '#ff7675',
-    'transport': '#74b9ff',
+    household: '#67c23a',
+    marriage: '#e6a23c',
+    subsistence: '#f56c6c',
+    disability: '#909399',
+    elderly: '#00bcd4',
+    birth: '#ff7675',
+    transport: '#74b9ff',
     'house-building': '#fd79a8',
-    'event': '#a29bfe',
-    'residence': '#ff6b6b',
-    'income': '#4ecdc4',
-    'health': '#95e1d3'
-  }
-  return colorMap[type] || '#409eff'
-}
+    event: '#a29bfe',
+    residence: '#ff6b6b',
+    income: '#4ecdc4',
+    health: '#95e1d3',
+  };
+  return colorMap[type] || '#409eff';
+};
 
 // 获取状态类型
-const getStatusType = (status) => {
+const getStatusType = status => {
   const typeMap = {
     pending: 'warning',
     processing: 'primary',
     approved: 'success',
-    rejected: 'danger'
-  }
-  return typeMap[status] || 'info'
-}
+    rejected: 'danger',
+  };
+  return typeMap[status] || 'info';
+};
 
 // 获取状态标签
-const getStatusLabel = (status) => {
+const getStatusLabel = status => {
   const labelMap = {
     pending: '待审核',
     processing: '办理中',
     approved: '已通过',
-    rejected: '未通过'
-  }
-  return labelMap[status] || status
-}
+    rejected: '未通过',
+  };
+  return labelMap[status] || status;
+};
 
 onMounted(() => {
   // 加载申请列表
-})
+});
 </script>
 
 <style lang="scss" scoped>

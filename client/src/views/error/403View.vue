@@ -15,33 +15,33 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 
-const router = useRouter()
-const title = ref('访问禁止')
+const router = useRouter();
+const title = ref('访问禁止');
 
 const errorCode = computed(() => {
-  if (title.value.includes('403')) return '403'
-  if (title.value.includes('404')) return '404'
-  if (title.value.includes('500')) return '500'
-  return 'Error'
-})
+  if (title.value.includes('403')) return '403';
+  if (title.value.includes('404')) return '404';
+  if (title.value.includes('500')) return '500';
+  return 'Error';
+});
 
 const description = computed(() => {
-  if (title.value.includes('403')) return '抱歉，您没有权限访问此页面'
-  if (title.value.includes('404')) return '抱歉，您访问的页面不存在'
-  if (title.value.includes('500')) return '抱歉，服务器出现了错误'
-  return '系统出现了未知错误'
-})
+  if (title.value.includes('403')) return '抱歉，您没有权限访问此页面';
+  if (title.value.includes('404')) return '抱歉，您访问的页面不存在';
+  if (title.value.includes('500')) return '抱歉，服务器出现了错误';
+  return '系统出现了未知错误';
+});
 
 const goHome = () => {
-  router.push('/')
-}
+  router.push('/');
+};
 
 const goBack = () => {
-  router.go(-1)
-}
+  router.go(-1);
+};
 </script>
 
 <style lang="scss" scoped>

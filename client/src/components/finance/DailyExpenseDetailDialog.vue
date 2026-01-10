@@ -39,7 +39,7 @@
             <template #header>
               <span class="card-title">基本信息</span>
             </template>
-            
+
             <div class="info-grid">
               <div class="info-item">
                 <span class="info-label">凭证号码</span>
@@ -52,7 +52,7 @@
               <div class="info-item">
                 <span class="info-label">经手人</span>
                 <span class="info-value">
-                  {{ expense.handler?.handlerName }} 
+                  {{ expense.handler?.handlerName }}
                   <el-tag v-if="expense.handler?.handlerPosition" size="small" type="info">
                     {{ expense.handler.handlerPosition }}
                   </el-tag>
@@ -91,13 +91,13 @@
             <template #header>
               <span class="card-title">预算信息</span>
             </template>
-            
+
             <div class="budget-info">
               <div class="budget-type">
                 <el-icon><Money /></el-icon>
                 <span>{{ expense.budgetType === 'budgeted' ? '预算内开支' : '预算外开支' }}</span>
               </div>
-              
+
               <div v-if="expense.budgetInfo.budgetCategory" class="budget-details">
                 <div class="budget-item">
                   <span class="budget-label">预算分类：</span>
@@ -109,7 +109,10 @@
                 </div>
                 <div v-if="expense.budgetInfo.remainingBudget !== undefined" class="budget-item">
                   <span class="budget-label">剩余预算：</span>
-                  <span class="budget-value" :class="{ 'over-budget': expense.budgetInfo.isOverBudget }">
+                  <span
+                    class="budget-value"
+                    :class="{ 'over-budget': expense.budgetInfo.isOverBudget }"
+                  >
                     ¥{{ formatCurrency(expense.budgetInfo.remainingBudget) }}
                   </span>
                 </div>
@@ -122,7 +125,7 @@
             <template #header>
               <span class="card-title">供应商信息</span>
             </template>
-            
+
             <div class="vendor-info">
               <div class="vendor-header">
                 <h4 class="vendor-name">{{ expense.vendor.vendorName }}</h4>
@@ -130,11 +133,13 @@
                   优选供应商
                 </el-tag>
               </div>
-              
+
               <div class="vendor-details">
                 <div v-if="expense.vendor.vendorType" class="vendor-item">
                   <span class="vendor-label">类型：</span>
-                  <span class="vendor-value">{{ getVendorTypeName(expense.vendor.vendorType) }}</span>
+                  <span class="vendor-value">{{
+                    getVendorTypeName(expense.vendor.vendorType)
+                  }}</span>
                 </div>
                 <div v-if="expense.vendor.vendorContact" class="vendor-item">
                   <span class="vendor-label">联系方式：</span>
@@ -163,20 +168,22 @@
           </el-card>
 
           <!-- 物品明细 -->
-          <el-card v-if="expense.items && expense.items.length > 0" class="info-card" shadow="never">
+          <el-card
+            v-if="expense.items && expense.items.length > 0"
+            class="info-card"
+            shadow="never"
+          >
             <template #header>
               <span class="card-title">物品明细</span>
             </template>
-            
+
             <el-table :data="expense.items" size="small" border>
               <el-table-column prop="itemName" label="物品名称" />
               <el-table-column prop="specification" label="规格型号" width="120" />
               <el-table-column prop="quantity" label="数量" width="80" align="center" />
               <el-table-column prop="unit" label="单位" width="60" align="center" />
               <el-table-column prop="unitPrice" label="单价" width="100" align="right">
-                <template #default="{ row }">
-                  ¥{{ formatCurrency(row.unitPrice) }}
-                </template>
+                <template #default="{ row }"> ¥{{ formatCurrency(row.unitPrice) }} </template>
               </el-table-column>
               <el-table-column prop="totalPrice" label="小计" width="120" align="right">
                 <template #default="{ row }">
@@ -199,7 +206,7 @@
             <template #header>
               <span class="card-title">审批流程</span>
             </template>
-            
+
             <div class="approval-process">
               <div class="process-current">
                 <div class="current-stage">
@@ -210,11 +217,16 @@
                 </div>
                 <div v-if="expense.approvalProcess?.currentStage" class="current-approver">
                   <span class="stage-label">当前阶段：</span>
-                  <span class="stage-value">{{ getStageName(expense.approvalProcess.currentStage) }}</span>
+                  <span class="stage-value">{{
+                    getStageName(expense.approvalProcess.currentStage)
+                  }}</span>
                 </div>
               </div>
 
-              <div v-if="expense.approvalProcess?.approvalHistory?.length > 0" class="approval-history">
+              <div
+                v-if="expense.approvalProcess?.approvalHistory?.length > 0"
+                class="approval-history"
+              >
                 <h5>审批历史</h5>
                 <el-timeline>
                   <el-timeline-item
@@ -246,19 +258,25 @@
             <template #header>
               <span class="card-title">定期开支</span>
             </template>
-            
+
             <div class="recurring-info">
               <div class="recurring-item">
                 <span class="recurring-label">重复频率：</span>
-                <span class="recurring-value">{{ getFrequencyName(expense.recurringInfo.frequency) }}</span>
+                <span class="recurring-value">{{
+                  getFrequencyName(expense.recurringInfo.frequency)
+                }}</span>
               </div>
               <div v-if="expense.recurringInfo.nextDueDate" class="recurring-item">
                 <span class="recurring-label">下次到期：</span>
-                <span class="recurring-value">{{ formatDate(expense.recurringInfo.nextDueDate) }}</span>
+                <span class="recurring-value">{{
+                  formatDate(expense.recurringInfo.nextDueDate)
+                }}</span>
               </div>
               <div v-if="expense.recurringInfo.recurringAmount" class="recurring-item">
                 <span class="recurring-label">定期金额：</span>
-                <span class="recurring-value">¥{{ formatCurrency(expense.recurringInfo.recurringAmount) }}</span>
+                <span class="recurring-value"
+                  >¥{{ formatCurrency(expense.recurringInfo.recurringAmount) }}</span
+                >
               </div>
               <div class="recurring-item">
                 <span class="recurring-label">自动审批：</span>
@@ -274,7 +292,7 @@
             <template #header>
               <span class="card-title">凭证文件</span>
             </template>
-            
+
             <div class="voucher-files">
               <!-- 发票 -->
               <div v-if="expense.vouchers?.invoices?.length > 0" class="voucher-section">
@@ -328,20 +346,19 @@
           </el-card>
 
           <!-- 其他信息 -->
-          <el-card v-if="expense.tags?.length > 0 || expense.remarks" class="info-card" shadow="never">
+          <el-card
+            v-if="expense.tags?.length > 0 || expense.remarks"
+            class="info-card"
+            shadow="never"
+          >
             <template #header>
               <span class="card-title">其他信息</span>
             </template>
-            
+
             <div class="other-info">
               <div v-if="expense.tags?.length > 0" class="tags-section">
                 <h5>标签</h5>
-                <el-tag
-                  v-for="tag in expense.tags"
-                  :key="tag"
-                  size="small"
-                  class="tag-item"
-                >
+                <el-tag v-for="tag in expense.tags" :key="tag" size="small" class="tag-item">
                   {{ tag }}
                 </el-tag>
               </div>
@@ -359,37 +376,14 @@
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="handleClose">关闭</el-button>
-        <el-button 
-          v-if="canEdit" 
-          type="primary" 
-          @click="handleEdit"
-        >
-          编辑
-        </el-button>
-        <el-button 
-          v-if="canApprove" 
-          type="success" 
-          @click="handleApprove"
-        >
-          审批
-        </el-button>
-        <el-button 
-          v-if="canPay" 
-          type="warning" 
-          @click="handlePay"
-        >
-          标记支付
-        </el-button>
+        <el-button v-if="canEdit" type="primary" @click="handleEdit"> 编辑 </el-button>
+        <el-button v-if="canApprove" type="success" @click="handleApprove"> 审批 </el-button>
+        <el-button v-if="canPay" type="warning" @click="handlePay"> 标记支付 </el-button>
       </div>
     </template>
 
     <!-- 文件预览对话框 -->
-    <el-dialog
-      v-model="showPreview"
-      title="文件预览"
-      width="60%"
-      append-to-body
-    >
+    <el-dialog v-model="showPreview" title="文件预览" width="60%" append-to-body>
       <div class="file-preview">
         <img v-if="isImage(previewFile)" :src="previewFileUrl" alt="预览" />
         <iframe v-else-if="isPdf(previewFile)" :src="previewFileUrl" width="100%" height="500px" />
@@ -404,280 +398,286 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { ElMessage } from 'element-plus'
-import { 
-  Money, Document, Picture, Folder 
-} from '@element-plus/icons-vue'
-import { useUserStore } from '@/store/user'
+import { ref, computed } from 'vue';
+import { ElMessage } from 'element-plus';
+import { Money, Document, Picture, Folder } from '@element-plus/icons-vue';
+import { useUserStore } from '@/store/user';
 
 const props = defineProps({
   modelValue: {
     type: Boolean,
-    default: false
+    default: false,
   },
   expense: {
     type: Object,
-    default: null
-  }
-})
+    default: null,
+  },
+});
 
-const emit = defineEmits(['update:modelValue', 'edit', 'approve', 'pay'])
+const emit = defineEmits(['update:modelValue', 'edit', 'approve', 'pay']);
 
-const userStore = useUserStore()
+const userStore = useUserStore();
 
 // 响应式数据
-const showPreview = ref(false)
-const previewFile = ref('')
-const previewFileUrl = ref('')
+const showPreview = ref(false);
+const previewFile = ref('');
+const previewFileUrl = ref('');
 
 // 计算属性
 const visible = computed({
   get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
-})
+  set: value => emit('update:modelValue', value),
+});
 
 const hasVouchers = computed(() => {
-  if (!props.expense?.vouchers) return false
-  return (props.expense.vouchers.invoices?.length > 0) ||
-         (props.expense.vouchers.receipts?.length > 0) ||
-         (props.expense.vouchers.approvalDocuments?.length > 0)
-})
+  if (!props.expense?.vouchers) return false;
+  return (
+    props.expense.vouchers.invoices?.length > 0 ||
+    props.expense.vouchers.receipts?.length > 0 ||
+    props.expense.vouchers.approvalDocuments?.length > 0
+  );
+});
 
 const canEdit = computed(() => {
-  if (!props.expense) return false
-  return ['draft', 'pending_approval'].includes(props.expense.status) &&
-         (props.expense.handler?.handlerId === userStore.user._id || 
-          userStore.hasPermission('daily_expense_management', 'update'))
-})
+  if (!props.expense) return false;
+  return (
+    ['draft', 'pending_approval'].includes(props.expense.status) &&
+    (props.expense.handler?.handlerId === userStore.user._id ||
+      userStore.hasPermission('daily_expense_management', 'update'))
+  );
+});
 
 const canApprove = computed(() => {
-  if (!props.expense) return false
-  return props.expense.status === 'pending_approval' &&
-         userStore.hasPermission('daily_expense_management', 'approve')
-})
+  if (!props.expense) return false;
+  return (
+    props.expense.status === 'pending_approval' &&
+    userStore.hasPermission('daily_expense_management', 'approve')
+  );
+});
 
 const canPay = computed(() => {
-  if (!props.expense) return false
-  return props.expense.status === 'approved' &&
-         userStore.hasPermission('daily_expense_management', 'pay')
-})
+  if (!props.expense) return false;
+  return (
+    props.expense.status === 'approved' &&
+    userStore.hasPermission('daily_expense_management', 'pay')
+  );
+});
 
 // 方法
-const formatCurrency = (amount) => {
-  if (amount === undefined || amount === null) return '0.00'
+const formatCurrency = amount => {
+  if (amount === undefined || amount === null) return '0.00';
   return Number(amount).toLocaleString('zh-CN', {
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  })
-}
+    maximumFractionDigits: 2,
+  });
+};
 
-const formatDate = (date) => {
-  if (!date) return '-'
-  return new Date(date).toLocaleDateString('zh-CN')
-}
+const formatDate = date => {
+  if (!date) return '-';
+  return new Date(date).toLocaleDateString('zh-CN');
+};
 
-const formatDateTime = (date) => {
-  if (!date) return '-'
-  return new Date(date).toLocaleString('zh-CN')
-}
+const formatDateTime = date => {
+  if (!date) return '-';
+  return new Date(date).toLocaleString('zh-CN');
+};
 
 // 获取各种显示名称的方法
-const getCategoryName = (category) => {
+const getCategoryName = category => {
   const categoryMap = {
-    'office_supplies': '办公用品',
-    'utilities': '水电费',
-    'communication': '通讯费',
-    'transportation': '交通费',
-    'accommodation': '住宿费',
-    'meals_entertainment': '餐费接待',
-    'maintenance': '维修保养',
-    'training': '培训费',
-    'conference': '会议费',
-    'printing': '印刷费',
-    'postal': '邮寄费',
-    'cleaning': '清洁费',
-    'security': '安保费',
-    'insurance': '保险费',
-    'fuel': '燃料费',
-    'medical': '医疗费',
-    'emergency': '应急开支',
-    'other': '其他'
-  }
-  return categoryMap[category] || category
-}
+    office_supplies: '办公用品',
+    utilities: '水电费',
+    communication: '通讯费',
+    transportation: '交通费',
+    accommodation: '住宿费',
+    meals_entertainment: '餐费接待',
+    maintenance: '维修保养',
+    training: '培训费',
+    conference: '会议费',
+    printing: '印刷费',
+    postal: '邮寄费',
+    cleaning: '清洁费',
+    security: '安保费',
+    insurance: '保险费',
+    fuel: '燃料费',
+    medical: '医疗费',
+    emergency: '应急开支',
+    other: '其他',
+  };
+  return categoryMap[category] || category;
+};
 
-const getCategoryColor = (category) => {
+const getCategoryColor = category => {
   const colorMap = {
-    'office_supplies': '',
-    'utilities': 'warning',
-    'communication': 'info',
-    'transportation': 'success',
-    'emergency': 'danger',
-    'other': 'info'
-  }
-  return colorMap[category] || ''
-}
+    office_supplies: '',
+    utilities: 'warning',
+    communication: 'info',
+    transportation: 'success',
+    emergency: 'danger',
+    other: 'info',
+  };
+  return colorMap[category] || '';
+};
 
-const getStatusName = (status) => {
+const getStatusName = status => {
   const statusMap = {
-    'draft': '草稿',
-    'pending_approval': '待审批',
-    'approved': '已批准',
-    'paid': '已支付',
-    'rejected': '已拒绝',
-    'cancelled': '已取消'
-  }
-  return statusMap[status] || status
-}
+    draft: '草稿',
+    pending_approval: '待审批',
+    approved: '已批准',
+    paid: '已支付',
+    rejected: '已拒绝',
+    cancelled: '已取消',
+  };
+  return statusMap[status] || status;
+};
 
-const getStatusColor = (status) => {
+const getStatusColor = status => {
   const colorMap = {
-    'draft': 'info',
-    'pending_approval': 'warning',
-    'approved': 'success',
-    'paid': 'primary',
-    'rejected': 'danger',
-    'cancelled': 'info'
-  }
-  return colorMap[status] || ''
-}
+    draft: 'info',
+    pending_approval: 'warning',
+    approved: 'success',
+    paid: 'primary',
+    rejected: 'danger',
+    cancelled: 'info',
+  };
+  return colorMap[status] || '';
+};
 
-const getUrgencyName = (urgency) => {
+const getUrgencyName = urgency => {
   const urgencyMap = {
-    'routine': '常规',
-    'urgent': '紧急',
-    'emergency': '应急'
-  }
-  return urgencyMap[urgency] || urgency
-}
+    routine: '常规',
+    urgent: '紧急',
+    emergency: '应急',
+  };
+  return urgencyMap[urgency] || urgency;
+};
 
-const getUrgencyColor = (urgency) => {
+const getUrgencyColor = urgency => {
   const colorMap = {
-    'routine': '',
-    'urgent': 'warning',
-    'emergency': 'danger'
-  }
-  return colorMap[urgency] || ''
-}
+    routine: '',
+    urgent: 'warning',
+    emergency: 'danger',
+  };
+  return colorMap[urgency] || '';
+};
 
-const getPaymentMethodName = (method) => {
+const getPaymentMethodName = method => {
   const methodMap = {
-    'cash': '现金',
-    'bank_transfer': '银行转账',
-    'credit_card': '信用卡',
-    'alipay': '支付宝',
-    'wechat_pay': '微信支付',
-    'check': '支票',
-    'other': '其他'
-  }
-  return methodMap[method] || method
-}
+    cash: '现金',
+    bank_transfer: '银行转账',
+    credit_card: '信用卡',
+    alipay: '支付宝',
+    wechat_pay: '微信支付',
+    check: '支票',
+    other: '其他',
+  };
+  return methodMap[method] || method;
+};
 
-const getBeneficiaryName = (beneficiary) => {
+const getBeneficiaryName = beneficiary => {
   const beneficiaryMap = {
-    'village_committee': '村委会',
-    'public_service': '公共服务',
-    'infrastructure': '基础设施',
-    'residents': '村民',
-    'visitors': '访客',
-    'other': '其他'
-  }
-  return beneficiaryMap[beneficiary] || beneficiary
-}
+    village_committee: '村委会',
+    public_service: '公共服务',
+    infrastructure: '基础设施',
+    residents: '村民',
+    visitors: '访客',
+    other: '其他',
+  };
+  return beneficiaryMap[beneficiary] || beneficiary;
+};
 
-const getVendorTypeName = (type) => {
+const getVendorTypeName = type => {
   const typeMap = {
-    'individual': '个人',
-    'company': '公司',
-    'government': '政府机构',
-    'ngo': '非营利组织'
-  }
-  return typeMap[type] || type
-}
+    individual: '个人',
+    company: '公司',
+    government: '政府机构',
+    ngo: '非营利组织',
+  };
+  return typeMap[type] || type;
+};
 
-const getStageName = (stage) => {
+const getStageName = stage => {
   const stageMap = {
-    'pending': '待处理',
-    'village_director': '村主任审批',
-    'village_secretary': '村支书审批',
-    'completed': '已完成',
-    'rejected': '已拒绝'
-  }
-  return stageMap[stage] || stage
-}
+    pending: '待处理',
+    village_director: '村主任审批',
+    village_secretary: '村支书审批',
+    completed: '已完成',
+    rejected: '已拒绝',
+  };
+  return stageMap[stage] || stage;
+};
 
-const getApprovalActionName = (action) => {
+const getApprovalActionName = action => {
   const actionMap = {
-    'approve': '批准',
-    'reject': '拒绝',
-    'request_info': '要求补充信息'
-  }
-  return actionMap[action] || action
-}
+    approve: '批准',
+    reject: '拒绝',
+    request_info: '要求补充信息',
+  };
+  return actionMap[action] || action;
+};
 
-const getApprovalColor = (action) => {
+const getApprovalColor = action => {
   const colorMap = {
-    'approve': '#67c23a',
-    'reject': '#f56c6c',
-    'request_info': '#e6a23c'
-  }
-  return colorMap[action] || '#909399'
-}
+    approve: '#67c23a',
+    reject: '#f56c6c',
+    request_info: '#e6a23c',
+  };
+  return colorMap[action] || '#909399';
+};
 
-const getApprovalTagType = (action) => {
+const getApprovalTagType = action => {
   const typeMap = {
-    'approve': 'success',
-    'reject': 'danger',
-    'request_info': 'warning'
-  }
-  return typeMap[action] || 'info'
-}
+    approve: 'success',
+    reject: 'danger',
+    request_info: 'warning',
+  };
+  return typeMap[action] || 'info';
+};
 
-const getFrequencyName = (frequency) => {
+const getFrequencyName = frequency => {
   const frequencyMap = {
-    'daily': '每日',
-    'weekly': '每周',
-    'monthly': '每月',
-    'quarterly': '每季度',
-    'yearly': '每年'
-  }
-  return frequencyMap[frequency] || frequency
-}
+    daily: '每日',
+    weekly: '每周',
+    monthly: '每月',
+    quarterly: '每季度',
+    yearly: '每年',
+  };
+  return frequencyMap[frequency] || frequency;
+};
 
-const previewFile = (filePath) => {
-  previewFile.value = filePath
-  previewFileUrl.value = `/api/files/${filePath}`
-  showPreview.value = true
-}
+const previewFile = filePath => {
+  previewFile.value = filePath;
+  previewFileUrl.value = `/api/files/${filePath}`;
+  showPreview.value = true;
+};
 
-const isImage = (filePath) => {
-  return /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(filePath)
-}
+const isImage = filePath => {
+  return /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(filePath);
+};
 
-const isPdf = (filePath) => {
-  return /\.pdf$/i.test(filePath)
-}
+const isPdf = filePath => {
+  return /\.pdf$/i.test(filePath);
+};
 
 const downloadFile = () => {
-  window.open(previewFileUrl.value, '_blank')
-}
+  window.open(previewFileUrl.value, '_blank');
+};
 
 const handleEdit = () => {
-  emit('edit', props.expense)
-}
+  emit('edit', props.expense);
+};
 
 const handleApprove = () => {
-  emit('approve', props.expense)
-}
+  emit('approve', props.expense);
+};
 
 const handlePay = () => {
-  emit('pay', props.expense)
-}
+  emit('pay', props.expense);
+};
 
 const handleClose = () => {
-  visible.value = false
-}
+  visible.value = false;
+};
 </script>
 
 <style scoped>
@@ -1116,31 +1116,31 @@ const handleClose = () => {
     flex-direction: column;
     text-align: left;
   }
-  
+
   .header-right {
     text-align: left;
     margin-top: 16px;
   }
-  
+
   .amount-display {
     align-items: flex-start;
   }
-  
+
   .info-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .info-item {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
-  
+
   .info-value {
     margin-left: 0;
     text-align: left;
   }
-  
+
   .timeline-header {
     flex-direction: column;
     align-items: flex-start;

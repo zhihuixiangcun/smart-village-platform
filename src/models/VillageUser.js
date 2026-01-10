@@ -39,14 +39,11 @@ const villageUserSchema = new mongoose.Schema({
   role: {
     type: String,
     enum: [
-      'village_head',      // 村书记
-      'village_director',  // 村主任
-      'deputy_director',   // 副主任
-      'accountant',        // 会计
-      'committee_member',  // 村委成员
-      'staff',             // 村工作人员
-      'volunteer',         // 志愿者
-      'resident'           // 普通村民
+      'village_official',   // 村干部（包含村书记、村主任等）
+      'township_official', // 乡镇干部
+      'resident',          // 普通村民
+      'purchaser',         // 采购商
+      'admin'             // 管理员
     ],
     required: true
   },
@@ -178,7 +175,7 @@ villageUserSchema.index({ 'devices.deviceId': 1 });
 
 // 虚拟字段
 villageUserSchema.virtual('isVillageLeader').get(function() {
-  return ['village_head', 'village_director'].includes(this.role);
+  return ['village_official', 'township_official'].includes(this.role);
 });
 
 villageUserSchema.virtual('hasAdminPrivileges').get(function() {
@@ -326,10 +323,11 @@ villageUserSchema.statics.searchUsers = function(villageId, searchTerm, filters 
 // 中间件
 villageUserSchema.pre('save', async function(next) {
   // 生成工号
-  if (!this.employeeId && this.role !== 'resident') {
+  if (!this.employeeId && ['village_official', 'township_official', 'admin'].includes(this.role)) {
     const villageCode = this.villageName ? this.villageName.slice(0, 3).toUpperCase() : 'VIL';
+    const roleCode = this.role ? this.role.slice(0, 3).toUpperCase() : 'USR';
     const randomNum = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-    this.employeeId = `${villageCode}${randomNum}`;
+    this.employeeId = `${villageCode}${roleCode}${randomNum}`;
   }
 
   // 密码加密

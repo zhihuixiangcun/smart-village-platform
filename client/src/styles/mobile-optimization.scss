@@ -341,18 +341,33 @@ $tablet-breakpoint: 1024px;
 }
 
 @keyframes haptic-light {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(0.99); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.99);
+  }
 }
 
 @keyframes haptic-medium {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(0.97); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.97);
+  }
 }
 
 @keyframes haptic-heavy {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(0.95); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.95);
+  }
 }
 
 // 暗色模式适配

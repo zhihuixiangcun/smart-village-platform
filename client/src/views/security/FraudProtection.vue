@@ -75,9 +75,7 @@
           </el-button>
         </el-col>
         <el-col :span="8">
-          <el-button @click="loadFraudNumbers" :icon="Refresh">
-            刷新数据
-          </el-button>
+          <el-button @click="loadFraudNumbers" :icon="Refresh"> 刷新数据 </el-button>
         </el-col>
       </el-row>
     </el-card>
@@ -105,12 +103,7 @@
         </div>
       </template>
 
-      <el-table
-        :data="filteredFraudNumbers"
-        v-loading="loading"
-        stripe
-        style="width: 100%"
-      >
+      <el-table :data="filteredFraudNumbers" v-loading="loading" stripe style="width: 100%">
         <el-table-column prop="phoneNumber" label="电话号码" width="130" />
         <el-table-column prop="fraudTypeName" label="诈骗类型" width="120" />
         <el-table-column label="风险等级" width="100">
@@ -163,11 +156,7 @@
     </el-card>
 
     <!-- 号码检测对话框 -->
-    <el-dialog
-      v-model="showCheckDialog"
-      title="检测电话号码"
-      width="500px"
-    >
+    <el-dialog v-model="showCheckDialog" title="检测电话号码" width="500px">
       <el-form :model="checkForm" label-width="100px">
         <el-form-item label="电话号码">
           <el-input
@@ -188,18 +177,12 @@
       </el-form>
       <template #footer>
         <el-button @click="showCheckDialog = false">取消</el-button>
-        <el-button type="primary" @click="checkPhoneNumber" :loading="checking">
-          检测
-        </el-button>
+        <el-button type="primary" @click="checkPhoneNumber" :loading="checking"> 检测 </el-button>
       </template>
     </el-dialog>
 
     <!-- 举报对话框 -->
-    <el-dialog
-      v-model="showReportDialog"
-      title="举报诈骗号码"
-      width="600px"
-    >
+    <el-dialog v-model="showReportDialog" title="举报诈骗号码" width="600px">
       <el-form :model="reportForm" :rules="reportRules" ref="reportFormRef" label-width="120px">
         <el-form-item label="电话号码" prop="phoneNumber">
           <el-input
@@ -209,7 +192,11 @@
           />
         </el-form-item>
         <el-form-item label="诈骗类型" prop="fraudType">
-          <el-select v-model="reportForm.fraudType" placeholder="请选择诈骗类型" style="width: 100%">
+          <el-select
+            v-model="reportForm.fraudType"
+            placeholder="请选择诈骗类型"
+            style="width: 100%"
+          >
             <el-option label="冒充公检法" value="impersonation" />
             <el-option label="刷单返利" value="brush_order" />
             <el-option label="投资理财" value="investment" />
@@ -241,18 +228,12 @@
       </el-form>
       <template #footer>
         <el-button @click="showReportDialog = false">取消</el-button>
-        <el-button type="primary" @click="submitReport" :loading="reporting">
-          提交举报
-        </el-button>
+        <el-button type="primary" @click="submitReport" :loading="reporting"> 提交举报 </el-button>
       </template>
     </el-dialog>
 
     <!-- 详情对话框 -->
-    <el-dialog
-      v-model="showDetailDialog"
-      title="号码详情"
-      width="700px"
-    >
+    <el-dialog v-model="showDetailDialog" title="号码详情" width="700px">
       <el-descriptions :column="2" border v-if="currentNumber">
         <el-descriptions-item label="电话号码">
           {{ currentNumber.phoneNumber }}
@@ -287,7 +268,11 @@
         <el-descriptions-item label="创建时间" :span="2">
           {{ formatDate(currentNumber.createdAt) }}
         </el-descriptions-item>
-        <el-descriptions-item label="防范建议" :span="2" v-if="currentNumber.caseDetails?.preventionTips">
+        <el-descriptions-item
+          label="防范建议"
+          :span="2"
+          v-if="currentNumber.caseDetails?.preventionTips"
+        >
           <ul>
             <li v-for="(tip, index) in currentNumber.caseDetails.preventionTips" :key="index">
               {{ tip }}
@@ -336,254 +321,253 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, computed, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
-  Search, Refresh, Warning, View, SuccessFilled,
-  TrendCharts, WarningFilled
-} from '@element-plus/icons-vue'
-import * as echarts from 'echarts'
-import { securityApi } from '@/api/security'
+  Search,
+  Refresh,
+  Warning,
+  View,
+  SuccessFilled,
+  TrendCharts,
+  WarningFilled,
+} from '@element-plus/icons-vue';
+import * as echarts from 'echarts';
+import { securityApi } from '@/api/security';
 
 // 用户角色
 const userRole = computed(() => {
   // 从store获取用户角色
-  return localStorage.getItem('userRole') || 'user'
-})
+  return localStorage.getItem('userRole') || 'user';
+});
 
 // 统计数据
 const stats = ref({
   totalFraudNumbers: 0,
   todayReports: 0,
   blockedToday: 0,
-  trend: 0
-})
+  trend: 0,
+});
 
 // 诈骗号码列表
-const fraudNumbers = ref([])
-const loading = ref(false)
-const searchKeyword = ref('')
+const fraudNumbers = ref([]);
+const loading = ref(false);
+const searchKeyword = ref('');
 
 // 分页
 const pagination = ref({
   page: 1,
   limit: 20,
-  total: 0
-})
+  total: 0,
+});
 
 // 对话框状态
-const showCheckDialog = ref(false)
-const showReportDialog = ref(false)
-const showDetailDialog = ref(false)
+const showCheckDialog = ref(false);
+const showReportDialog = ref(false);
+const showDetailDialog = ref(false);
 
 // 检测表单
 const checkForm = ref({
-  phoneNumber: ''
-})
-const checkResult = ref(null)
-const checking = ref(false)
+  phoneNumber: '',
+});
+const checkResult = ref(null);
+const checking = ref(false);
 
 // 举报表单
 const reportForm = ref({
   phoneNumber: '',
   fraudType: '',
   reason: '',
-  lossAmount: 0
-})
+  lossAmount: 0,
+});
 const reportRules = {
   phoneNumber: [
     { required: true, message: '请输入电话号码', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入有效的手机号码', trigger: 'blur' }
+    { pattern: /^1[3-9]\d{9}$/, message: '请输入有效的手机号码', trigger: 'blur' },
   ],
-  fraudType: [
-    { required: true, message: '请选择诈骗类型', trigger: 'change' }
-  ],
-  reason: [
-    { required: true, message: '请输入举报原因', trigger: 'blur' }
-  ]
-}
-const reportFormRef = ref(null)
-const reporting = ref(false)
+  fraudType: [{ required: true, message: '请选择诈骗类型', trigger: 'change' }],
+  reason: [{ required: true, message: '请输入举报原因', trigger: 'blur' }],
+};
+const reportFormRef = ref(null);
+const reporting = ref(false);
 
 // 当前查看的号码
-const currentNumber = ref(null)
+const currentNumber = ref(null);
 
 // 防骗知识
-const activeKnowledge = ref(['1'])
+const activeKnowledge = ref(['1']);
 
 // 图表
-const fraudTypeChart = ref(null)
+const fraudTypeChart = ref(null);
 
 // 过滤后的号码列表
 const filteredFraudNumbers = computed(() => {
   if (!searchKeyword.value) {
-    return fraudNumbers.value
+    return fraudNumbers.value;
   }
-  return fraudNumbers.value.filter(item =>
-    item.phoneNumber.includes(searchKeyword.value)
-  )
-})
+  return fraudNumbers.value.filter(item => item.phoneNumber.includes(searchKeyword.value));
+});
 
 // 获取风险等级标签类型
-const getRiskTagType = (level) => {
+const getRiskTagType = level => {
   const typeMap = {
     low: 'info',
     medium: 'warning',
     high: 'danger',
-    critical: 'danger'
-  }
-  return typeMap[level] || 'info'
-}
+    critical: 'danger',
+  };
+  return typeMap[level] || 'info';
+};
 
 // 格式化日期
-const formatDate = (date) => {
-  if (!date) return ''
-  return new Date(date).toLocaleString('zh-CN')
-}
+const formatDate = date => {
+  if (!date) return '';
+  return new Date(date).toLocaleString('zh-CN');
+};
 
 // 获取检测描述
 const getCheckDescription = () => {
-  if (!checkResult.value) return ''
+  if (!checkResult.value) return '';
   if (checkResult.value.isFraud) {
-    return `风险等级：${checkResult.value.riskLevelName}\n诈骗类型：${checkResult.value.fraudTypeName}\n举报次数：${checkResult.value.reportCount}`
+    return `风险等级：${checkResult.value.riskLevelName}\n诈骗类型：${checkResult.value.fraudTypeName}\n举报次数：${checkResult.value.reportCount}`;
   }
-  return '该号码未在诈骗号码库中，但仍需保持警惕'
-}
+  return '该号码未在诈骗号码库中，但仍需保持警惕';
+};
 
 // 加载诈骗号码列表
 const loadFraudNumbers = async () => {
   try {
-    loading.value = true
+    loading.value = true;
     const response = await securityApi.getFraudNumbers({
       page: pagination.value.page,
-      limit: pagination.value.limit
-    })
+      limit: pagination.value.limit,
+    });
 
     if (response.success) {
-      fraudNumbers.value = response.data
-      pagination.value.total = response.pagination.total
+      fraudNumbers.value = response.data;
+      pagination.value.total = response.pagination.total;
     }
   } catch (error) {
-    ElMessage.error('加载失败')
-    console.error(error)
+    ElMessage.error('加载失败');
+    console.error(error);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 // 加载统计数据
 const loadStats = async () => {
   try {
-    const response = await securityApi.getFraudStats()
+    const response = await securityApi.getFraudStats();
     if (response.success) {
       // 这里应该从API获取真实统计数据
       stats.value = {
         totalFraudNumbers: 156,
         todayReports: 12,
         blockedToday: 45,
-        trend: -15
-      }
+        trend: -15,
+      };
     }
   } catch (error) {
-    console.error(error)
+    console.error(error);
   }
-}
+};
 
 // 检测电话号码
 const checkPhoneNumber = async () => {
   if (!checkForm.value.phoneNumber) {
-    ElMessage.warning('请输入电话号码')
-    return
+    ElMessage.warning('请输入电话号码');
+    return;
   }
 
   try {
-    checking.value = true
-    const response = await securityApi.checkPhoneNumber(checkForm.value.phoneNumber)
+    checking.value = true;
+    const response = await securityApi.checkPhoneNumber(checkForm.value.phoneNumber);
 
     if (response.success) {
-      checkResult.value = response.data
+      checkResult.value = response.data;
     }
   } catch (error) {
-    ElMessage.error('检测失败')
-    console.error(error)
+    ElMessage.error('检测失败');
+    console.error(error);
   } finally {
-    checking.value = false
+    checking.value = false;
   }
-}
+};
 
 // 提交举报
 const submitReport = async () => {
   try {
-    await reportFormRef.value.validate()
+    await reportFormRef.value.validate();
 
-    reporting.value = true
-    const response = await securityApi.reportFraudNumber(reportForm.value)
+    reporting.value = true;
+    const response = await securityApi.reportFraudNumber(reportForm.value);
 
     if (response.success) {
-      ElMessage.success('举报成功，感谢您的反馈')
-      showReportDialog.value = false
+      ElMessage.success('举报成功，感谢您的反馈');
+      showReportDialog.value = false;
       reportForm.value = {
         phoneNumber: '',
         fraudType: '',
         reason: '',
-        lossAmount: 0
-      }
-      loadFraudNumbers()
-      loadStats()
+        lossAmount: 0,
+      };
+      loadFraudNumbers();
+      loadStats();
     } else {
-      ElMessage.error(response.message || '举报失败')
+      ElMessage.error(response.message || '举报失败');
     }
   } catch (error) {
-    console.error(error)
+    console.error(error);
   } finally {
-    reporting.value = false
+    reporting.value = false;
   }
-}
+};
 
 // 查看详情
-const viewDetails = (number) => {
-  currentNumber.value = number
-  showDetailDialog.value = true
-}
+const viewDetails = number => {
+  currentNumber.value = number;
+  showDetailDialog.value = true;
+};
 
 // 验证号码
-const verifyNumber = async (number) => {
+const verifyNumber = async number => {
   try {
     await ElMessageBox.confirm('确认验证此号码为诈骗号码？', '确认', {
-      type: 'warning'
-    })
+      type: 'warning',
+    });
 
-    const response = await securityApi.verifyFraudNumber(number._id)
+    const response = await securityApi.verifyFraudNumber(number._id);
 
     if (response.success) {
-      ElMessage.success('验证成功')
-      loadFraudNumbers()
+      ElMessage.success('验证成功');
+      loadFraudNumbers();
     } else {
-      ElMessage.error(response.message || '验证失败')
+      ElMessage.error(response.message || '验证失败');
     }
   } catch (error) {
     if (error !== 'cancel') {
-      console.error(error)
+      console.error(error);
     }
   }
-}
+};
 
 // 搜索
 const handleSearch = () => {
   // 搜索由computed自动处理
-}
+};
 
 // 初始化图表
 const initChart = () => {
-  const chart = echarts.init(fraudTypeChart.value)
+  const chart = echarts.init(fraudTypeChart.value);
 
   const option = {
     tooltip: {
-      trigger: 'item'
+      trigger: 'item',
     },
     legend: {
       orient: 'vertical',
-      left: 'left'
+      left: 'left',
     },
     series: [
       {
@@ -596,32 +580,32 @@ const initChart = () => {
           { value: 28, name: '投资理财' },
           { value: 20, name: '贷款诈骗' },
           { value: 15, name: '冒充客服' },
-          { value: 16, name: '其他' }
+          { value: 16, name: '其他' },
         ],
         emphasis: {
           itemStyle: {
             shadowBlur: 10,
             shadowOffsetX: 0,
-            shadowColor: 'rgba(0, 0, 0, 0.5)'
-          }
-        }
-      }
-    ]
-  }
+            shadowColor: 'rgba(0, 0, 0, 0.5)',
+          },
+        },
+      },
+    ],
+  };
 
-  chart.setOption(option)
+  chart.setOption(option);
 
   // 响应式
   window.addEventListener('resize', () => {
-    chart.resize()
-  })
-}
+    chart.resize();
+  });
+};
 
 onMounted(() => {
-  loadFraudNumbers()
-  loadStats()
-  initChart()
-})
+  loadFraudNumbers();
+  loadStats();
+  initChart();
+});
 </script>
 
 <style scoped>

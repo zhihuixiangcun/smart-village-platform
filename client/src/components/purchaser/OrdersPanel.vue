@@ -8,7 +8,11 @@
             <span>我的订单</span>
           </div>
           <div class="header-right">
-            <el-select v-model="orderFilter" placeholder="筛选订单" style="width: 140px; margin-right: 12px">
+            <el-select
+              v-model="orderFilter"
+              placeholder="筛选订单"
+              style="width: 140px; margin-right: 12px"
+            >
               <el-option label="全部订单" value="all" />
               <el-option label="待付款" value="pending" />
               <el-option label="待发货" value="confirmed" />
@@ -56,7 +60,10 @@
 
           <div class="order-content">
             <div class="product-image">
-              <img :src="order.product?.images?.[0] || defaultProductImage" :alt="order.product?.name" />
+              <img
+                :src="order.product?.images?.[0] || defaultProductImage"
+                :alt="order.product?.name"
+              />
             </div>
             <div class="product-info">
               <h4 class="product-name">{{ order.product?.name }}</h4>
@@ -121,156 +128,157 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { ShoppingCart, Plus, Loading, User } from '@element-plus/icons-vue'
-import api from '@/api'
+import { ref, computed, onMounted, watch } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { ShoppingCart, Plus, Loading, User } from '@element-plus/icons-vue';
+import api from '@/api';
 
-const emit = defineEmits(['view-order'])
+const emit = defineEmits(['view-order']);
 
-const loading = ref(false)
-const orders = ref([])
-const orderFilter = ref('all')
-const currentPage = ref(1)
-const pageSize = ref(10)
-const total = ref(0)
+const loading = ref(false);
+const orders = ref([]);
+const orderFilter = ref('all');
+const currentPage = ref(1);
+const pageSize = ref(10);
+const total = ref(0);
 
-const defaultProductImage = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect width="100" height="100" fill="%23f0f0f0"/%3E%3C/svg%3E'
+const defaultProductImage =
+  'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect width="100" height="100" fill="%23f0f0f0"/%3E%3C/svg%3E';
 
 // 筛选后的订单
 const filteredOrders = computed(() => {
   if (orderFilter.value === 'all') {
-    return orders.value
+    return orders.value;
   }
-  return orders.value.filter(order => order.status === orderFilter.value)
-})
+  return orders.value.filter(order => order.status === orderFilter.value);
+});
 
 // 获取订单列表
 const fetchOrders = async () => {
-  loading.value = true
+  loading.value = true;
   try {
     const response = await api.get('/api/v1/purchaser/orders', {
       params: {
         page: currentPage.value,
-        limit: pageSize.value
-      }
-    })
+        limit: pageSize.value,
+      },
+    });
     if (response.success) {
-      orders.value = response.data.orders || []
-      total.value = response.data.total || 0
+      orders.value = response.data.orders || [];
+      total.value = response.data.total || 0;
     }
   } catch (error) {
-    console.error('获取订单列表失败', error)
-    ElMessage.error('获取订单列表失败')
+    console.error('获取订单列表失败', error);
+    ElMessage.error('获取订单列表失败');
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 // 获取订单状态类型
-const getOrderStatusType = (status) => {
+const getOrderStatusType = status => {
   const types = {
     pending: 'warning',
     confirmed: 'primary',
     shipping: 'primary',
     completed: 'success',
-    cancelled: 'info'
-  }
-  return types[status] || 'info'
-}
+    cancelled: 'info',
+  };
+  return types[status] || 'info';
+};
 
 // 获取订单状态标签
-const getOrderStatusLabel = (status) => {
+const getOrderStatusLabel = status => {
   const labels = {
     pending: '待付款',
     confirmed: '待发货',
     shipping: '运输中',
     completed: '已完成',
-    cancelled: '已取消'
-  }
-  return labels[status] || status
-}
+    cancelled: '已取消',
+  };
+  return labels[status] || status;
+};
 
 // 格式化日期
-const formatDate = (date) => {
-  if (!date) return ''
-  return new Date(date).toLocaleString('zh-CN')
-}
+const formatDate = date => {
+  if (!date) return '';
+  return new Date(date).toLocaleString('zh-CN');
+};
 
 // 查看详情
-const handleViewDetail = (order) => {
-  emit('view-order', order)
-}
+const handleViewDetail = order => {
+  emit('view-order', order);
+};
 
 // 付款
-const handlePay = async (order) => {
+const handlePay = async order => {
   try {
     await ElMessageBox.confirm(`确认支付订单 ¥${order.totalPrice}？`, '确认支付', {
-      type: 'warning'
-    })
+      type: 'warning',
+    });
     // 调用支付接口
-    ElMessage.success('支付成功')
-    await fetchOrders()
+    ElMessage.success('支付成功');
+    await fetchOrders();
   } catch (error) {
     // 用户取消
   }
-}
+};
 
 // 确认收货
-const handleConfirmReceive = async (order) => {
+const handleConfirmReceive = async order => {
   try {
     await ElMessageBox.confirm('确认已收到货物？', '确认收货', {
-      type: 'warning'
-    })
-    const response = await api.put(`/api/v1/purchaser/orders/${order._id}/confirm`)
+      type: 'warning',
+    });
+    const response = await api.put(`/api/v1/purchaser/orders/${order._id}/confirm`);
     if (response.success) {
-      ElMessage.success('确认收货成功')
-      await fetchOrders()
+      ElMessage.success('确认收货成功');
+      await fetchOrders();
     }
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('操作失败')
+      ElMessage.error('操作失败');
     }
   }
-}
+};
 
 // 取消订单
-const handleCancel = async (order) => {
+const handleCancel = async order => {
   try {
     await ElMessageBox.confirm('确定要取消此订单吗？', '取消订单', {
-      type: 'warning'
-    })
-    const response = await api.put(`/api/v1/purchaser/orders/${order._id}/cancel`)
+      type: 'warning',
+    });
+    const response = await api.put(`/api/v1/purchaser/orders/${order._id}/cancel`);
     if (response.success) {
-      ElMessage.success('订单已取消')
-      await fetchOrders()
+      ElMessage.success('订单已取消');
+      await fetchOrders();
     }
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('操作失败')
+      ElMessage.error('操作失败');
     }
   }
-}
+};
 
 // 分页
-const handleSizeChange = (size) => {
-  pageSize.value = size
-  fetchOrders()
-}
+const handleSizeChange = size => {
+  pageSize.value = size;
+  fetchOrders();
+};
 
-const handlePageChange = (page) => {
-  currentPage.value = page
-  fetchOrders()
-}
+const handlePageChange = page => {
+  currentPage.value = page;
+  fetchOrders();
+};
 
 // 监听筛选变化
 watch(orderFilter, () => {
   // 筛选只是前端过滤，不需要重新请求
-})
+});
 
 onMounted(() => {
-  fetchOrders()
-})
+  fetchOrders();
+});
 </script>
 
 <style scoped>

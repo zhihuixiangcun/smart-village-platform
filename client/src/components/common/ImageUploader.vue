@@ -2,13 +2,9 @@
   <div class="image-uploader" :class="{ 'large-text-mode': isLargeText }">
     <!-- 已上传的图片列表 -->
     <div class="upload-list">
-      <div
-        v-for="(file, index) in fileList"
-        :key="index"
-        class="upload-item"
-      >
+      <div v-for="(file, index) in fileList" :key="index" class="upload-item">
         <div class="image-wrapper">
-          <img :src="file.url" :alt="file.name">
+          <img :src="file.url" :alt="file.name" />
           <div class="image-mask">
             <div class="mask-actions">
               <el-icon @click="handlePreview(file)" :size="24"><View /></el-icon>
@@ -20,9 +16,7 @@
           <p class="file-name">{{ file.name }}</p>
           <p class="file-size">{{ formatSize(file.size) }}</p>
         </div>
-        <el-tag v-if="file.status === 'success'" type="success" size="small">
-          已上传
-        </el-tag>
+        <el-tag v-if="file.status === 'success'" type="success" size="small"> 已上传 </el-tag>
         <el-tag v-else-if="file.status === 'uploading'" type="primary" size="small">
           上传中...
         </el-tag>
@@ -54,12 +48,7 @@
 
     <!-- OCR识别提示 -->
     <div v-if="enableOCR && showOCR" class="ocr-tip">
-      <el-alert
-        title="智能识别"
-        type="info"
-        :closable="false"
-        show-icon
-      >
+      <el-alert title="智能识别" type="info" :closable="false" show-icon>
         <template #default>
           <p>上传证件照片后,系统将自动识别信息</p>
         </template>
@@ -67,14 +56,9 @@
     </div>
 
     <!-- 图片预览对话框 -->
-    <el-dialog
-      v-model="previewVisible"
-      title="图片预览"
-      width="600px"
-      append-to-body
-    >
+    <el-dialog v-model="previewVisible" title="图片预览" width="600px" append-to-body>
       <div class="preview-container">
-        <img :src="previewUrl" style="width: 100%">
+        <img :src="previewUrl" style="width: 100%" />
       </div>
     </el-dialog>
   </div>

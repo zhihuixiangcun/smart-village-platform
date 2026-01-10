@@ -32,7 +32,9 @@
           <div class="stat-value">{{ stats.announcements.total || 0 }}</div>
           <div class="stat-meta">
             <span class="unread">未读: {{ stats.announcements.unread || 0 }}</span>
-            <span class="published">本周发布: {{ stats.announcements.publishedThisWeek || 0 }}</span>
+            <span class="published"
+              >本周发布: {{ stats.announcements.publishedThisWeek || 0 }}</span
+            >
           </div>
         </div>
       </div>
@@ -58,7 +60,9 @@
           <div class="stat-value">¥{{ formatMoney(stats.finance.monthly?.balance || 0) }}</div>
           <div class="stat-meta">
             <span class="income">收入: ¥{{ formatMoney(stats.finance.monthly?.income || 0) }}</span>
-            <span class="expense">支出: ¥{{ formatMoney(stats.finance.monthly?.expense || 0) }}</span>
+            <span class="expense"
+              >支出: ¥{{ formatMoney(stats.finance.monthly?.expense || 0) }}</span
+            >
           </div>
         </div>
       </div>
@@ -223,7 +227,10 @@
 
           <!-- 上传进度 -->
           <div v-if="uploadStatus === 'uploading'" class="upload-progress">
-            <el-progress :percentage="uploadProgress" :status="uploadProgress === 100 ? 'success' : undefined" />
+            <el-progress
+              :percentage="uploadProgress"
+              :status="uploadProgress === 100 ? 'success' : undefined"
+            />
             <div class="progress-text">正在上传... {{ uploadProgress }}%</div>
           </div>
         </div>
@@ -240,9 +247,15 @@
           <div class="success-icon">✅</div>
           <div class="success-text">导入成功！</div>
           <div class="success-details">
-            <p>成功导入 <strong>{{ importResult.success || 0 }}</strong> 条数据</p>
-            <p v-if="importResult.failed > 0" class="failed-count">失败 <strong>{{ importResult.failed }}</strong> 条</p>
-            <p v-if="importResult.updated > 0">更新 <strong>{{ importResult.updated }}</strong> 条</p>
+            <p>
+              成功导入 <strong>{{ importResult.success || 0 }}</strong> 条数据
+            </p>
+            <p v-if="importResult.failed > 0" class="failed-count">
+              失败 <strong>{{ importResult.failed }}</strong> 条
+            </p>
+            <p v-if="importResult.updated > 0">
+              更新 <strong>{{ importResult.updated }}</strong> 条
+            </p>
           </div>
         </div>
 
@@ -305,123 +318,157 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { useUserStore } from '@/stores/userStore'
-import { dashboardApi, batchImportApi } from '@/api'
-import { ElMessage, ElDialog, ElUpload, ElProgress, ElButton } from 'element-plus'
-import MyProfileOptimized from '@/views/resident/MyProfileOptimized.vue'
+import { ref, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/userStore';
+import { dashboardApi, batchImportApi } from '@/api';
+import { ElMessage, ElDialog, ElUpload, ElProgress, ElButton } from 'element-plus';
+import MyProfileOptimized from '@/views/resident/MyProfileOptimized.vue';
 
-const router = useRouter()
-const userStore = useUserStore()
+const router = useRouter();
+const userStore = useUserStore();
 
 // 数据状态
-const loading = ref(true)
-const onlineUsers = ref(0)
-const dailyVisits = ref(0)
-const systemStatus = ref({ status: 'unknown' })
+const loading = ref(true);
+const onlineUsers = ref(0);
+const dailyVisits = ref(0);
+const systemStatus = ref({ status: 'unknown' });
 
 // 批量导入对话框状态
-const importDialogVisible = ref(false)
-const uploadProgress = ref(0)
-const uploadingFile = ref(false)
-const uploadStatus = ref('idle') // idle, uploading, processing, completed, error
-const selectedFile = ref(null)
-const downloadingTemplate = ref(false)
-const errorMessage = ref('')
-const importResult = ref({ success: 0, failed: 0, updated: 0 })
+const importDialogVisible = ref(false);
+const uploadProgress = ref(0);
+const uploadingFile = ref(false);
+const uploadStatus = ref('idle'); // idle, uploading, processing, completed, error
+const selectedFile = ref(null);
+const downloadingTemplate = ref(false);
+const errorMessage = ref('');
+const importResult = ref({ success: 0, failed: 0, updated: 0 });
 
 // 统计数据
 const stats = ref({
   residents: { total: 0, online: 0, newThisMonth: 0 },
   announcements: { total: 0, unread: 0, publishedThisWeek: 0 },
   governance: { total: 0, pending: 0, inProgress: 0, completed: 0, completionRate: '0%' },
-  finance: { monthly: { balance: 0, income: 0, expense: 0 }, yearly: { balance: 0, income: 0, expense: 0 } },
+  finance: {
+    monthly: { balance: 0, income: 0, expense: 0 },
+    yearly: { balance: 0, income: 0, expense: 0 },
+  },
   emergency: { total: 0, active: 0, resolved: 0, resolutionRate: '0%' },
-  services: { total: 0, pending: 0, processing: 0, completed: 0, completionRate: '0%' }
-})
+  services: { total: 0, pending: 0, processing: 0, completed: 0, completionRate: '0%' },
+});
 
 // 格式化金额显示
-const formatMoney = (value) => {
-  if (!value && value !== 0) return '0'
+const formatMoney = value => {
+  if (!value && value !== 0) return '0';
   return Number(value).toLocaleString('zh-CN', {
     minimumFractionDigits: 0,
-    maximumFractionDigits: 2
-  })
-}
+    maximumFractionDigits: 2,
+  });
+};
 
 // 根据用户角色显示不同的功能卡片
-const userRole = computed(() => userStore.userInfo?.role || 'villager')
-const isAdmin = computed(() => userRole.value === 'admin')
+const userRole = computed(() => userStore.userInfo?.role || 'villager');
+const isAdmin = computed(() => userRole.value === 'admin');
 const isResident = computed(() => {
   // 村民不再显示 dashboard 中的优化主页，统一使用 /village-affairs
   // DashboardView 只用于管理员和管理类角色
-  return false
-})
+  return false;
+});
 
 // 系统状态显示
 const statusText = computed(() => {
   switch (systemStatus.value.status) {
-    case 'healthy': return '🟢 正常运行'
-    case 'degraded': return '🟡 部分服务异常'
-    case 'error': return '🔴 系统异常'
-    default: return '⚪ 检测中...'
+    case 'healthy':
+      return '🟢 正常运行';
+    case 'degraded':
+      return '🟡 部分服务异常';
+    case 'error':
+      return '🔴 系统异常';
+    default:
+      return '⚪ 检测中...';
   }
-})
+});
 
 const statusClass = computed(() => {
   switch (systemStatus.value.status) {
-    case 'healthy': return 'online'
-    case 'degraded': return 'warning'
-    case 'error': return 'offline'
-    default: return 'checking'
+    case 'healthy':
+      return 'online';
+    case 'degraded':
+      return 'warning';
+    case 'error':
+      return 'offline';
+    default:
+      return 'checking';
   }
-})
+});
 
 // 获取系统状态
 const fetchSystemStatus = async () => {
   try {
-    const health = await dashboardApi.getHealthStatus()
-    systemStatus.value = health
+    const health = await dashboardApi.getHealthStatus();
+    systemStatus.value = health;
   } catch (error) {
-    console.warn('系统健康检查失败:', error)
-    systemStatus.value = { status: 'error' }
+    console.warn('系统健康检查失败:', error);
+    systemStatus.value = { status: 'error' };
   }
-}
+};
 
 // 获取统计数据
 const fetchStatistics = async () => {
   try {
-    loading.value = true
+    loading.value = true;
 
     // 使用新的综合统计API
-    const response = await dashboardApi.getStatistics()
+    const response = await dashboardApi.getStatistics();
 
     if (response.success && response.data) {
       // 更新统计数据
-      stats.value.residents = response.data.residents || { total: 0, online: 0, newThisMonth: 0 }
-      stats.value.announcements = response.data.announcements || { total: 0, unread: 0, publishedThisWeek: 0 }
-      stats.value.governance = response.data.governance || { total: 0, pending: 0, inProgress: 0, completed: 0, completionRate: '0%' }
-      stats.value.finance = response.data.finance || { monthly: { balance: 0, income: 0, expense: 0 }, yearly: { balance: 0, income: 0, expense: 0 } }
-      stats.value.emergency = response.data.emergency || { total: 0, active: 0, resolved: 0, resolutionRate: '0%' }
-      stats.value.services = response.data.services || { total: 0, pending: 0, processing: 0, completed: 0, completionRate: '0%' }
+      stats.value.residents = response.data.residents || { total: 0, online: 0, newThisMonth: 0 };
+      stats.value.announcements = response.data.announcements || {
+        total: 0,
+        unread: 0,
+        publishedThisWeek: 0,
+      };
+      stats.value.governance = response.data.governance || {
+        total: 0,
+        pending: 0,
+        inProgress: 0,
+        completed: 0,
+        completionRate: '0%',
+      };
+      stats.value.finance = response.data.finance || {
+        monthly: { balance: 0, income: 0, expense: 0 },
+        yearly: { balance: 0, income: 0, expense: 0 },
+      };
+      stats.value.emergency = response.data.emergency || {
+        total: 0,
+        active: 0,
+        resolved: 0,
+        resolutionRate: '0%',
+      };
+      stats.value.services = response.data.services || {
+        total: 0,
+        pending: 0,
+        processing: 0,
+        completed: 0,
+        completionRate: '0%',
+      };
     }
 
     // 模拟在线用户和访问数据（实际项目中需要从监控API获取）
-    onlineUsers.value = Math.floor(Math.random() * 20) + 5
-    dailyVisits.value = Math.floor(Math.random() * 200) + 100
-
+    onlineUsers.value = Math.floor(Math.random() * 20) + 5;
+    dailyVisits.value = Math.floor(Math.random() * 200) + 100;
   } catch (error) {
-    console.error('获取统计数据失败:', error)
-    ElMessage.warning('部分数据加载失败，显示默认值')
+    console.error('获取统计数据失败:', error);
+    ElMessage.warning('部分数据加载失败，显示默认值');
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const openMonitoring = () => {
-  window.open('http://localhost:3001/monitoring', '_blank')
-}
+  window.open('http://localhost:3001/monitoring', '_blank');
+};
 
 // ==================== 批量导入功能 ====================
 
@@ -429,9 +476,9 @@ const openMonitoring = () => {
  * 打开批量导入对话框
  */
 const openBatchImport = () => {
-  importDialogVisible.value = true
-  console.log('打开批量导入对话框')
-}
+  importDialogVisible.value = true;
+  console.log('打开批量导入对话框');
+};
 
 /**
  * 关闭批量导入对话框
@@ -439,176 +486,175 @@ const openBatchImport = () => {
 const closeImportDialog = () => {
   // 如果正在上传或处理，提示用户
   if (uploadStatus.value === 'uploading' || uploadStatus.value === 'processing') {
-    ElMessage.warning('正在处理中，请稍候...')
-    return
+    ElMessage.warning('正在处理中，请稍候...');
+    return;
   }
-  importDialogVisible.value = false
+  importDialogVisible.value = false;
   // 延迟重置状态，等待对话框关闭动画完成
   setTimeout(() => {
-    resetImportState()
-  }, 300)
-}
+    resetImportState();
+  }, 300);
+};
 
 /**
  * 重置导入状态
  */
 const resetImportState = () => {
-  selectedFile.value = null
-  uploadProgress.value = 0
-  uploadStatus.value = 'idle'
-  uploadingFile.value = false
-  downloadingTemplate.value = false
-  errorMessage.value = ''
-  importResult.value = { success: 0, failed: 0, updated: 0 }
-}
+  selectedFile.value = null;
+  uploadProgress.value = 0;
+  uploadStatus.value = 'idle';
+  uploadingFile.value = false;
+  downloadingTemplate.value = false;
+  errorMessage.value = '';
+  importResult.value = { success: 0, failed: 0, updated: 0 };
+};
 
 /**
  * 处理文件选择变化
  */
-const handleFileChange = (file) => {
-  console.log('文件选择变化:', file)
+const handleFileChange = file => {
+  console.log('文件选择变化:', file);
   // 验证文件类型
   const validTypes = [
     'application/vnd.ms-excel',
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    'text/csv'
-  ]
-  const fileName = file.name.toLowerCase()
-  const isValidType = validTypes.includes(file.raw?.type) ||
-                      fileName.endsWith('.xlsx') ||
-                      fileName.endsWith('.xls') ||
-                      fileName.endsWith('.csv')
+    'text/csv',
+  ];
+  const fileName = file.name.toLowerCase();
+  const isValidType =
+    validTypes.includes(file.raw?.type) ||
+    fileName.endsWith('.xlsx') ||
+    fileName.endsWith('.xls') ||
+    fileName.endsWith('.csv');
 
   if (!isValidType) {
-    ElMessage.error('仅支持 .xlsx、.xls、.csv 格式的文件')
-    return false
+    ElMessage.error('仅支持 .xlsx、.xls、.csv 格式的文件');
+    return false;
   }
 
   // 验证文件大小（最大10MB）
-  const maxSize = 10 * 1024 * 1024
+  const maxSize = 10 * 1024 * 1024;
   if (file.raw?.size > maxSize) {
-    ElMessage.error('文件大小不能超过10MB')
-    return false
+    ElMessage.error('文件大小不能超过10MB');
+    return false;
   }
 
-  selectedFile.value = file.raw
-  console.log('文件已选择:', selectedFile.value?.name)
-}
+  selectedFile.value = file.raw;
+  console.log('文件已选择:', selectedFile.value?.name);
+};
 
 /**
  * 下载导入模板
  */
 const downloadTemplate = async () => {
   try {
-    downloadingTemplate.value = true
-    console.log('开始下载导入模板...')
+    downloadingTemplate.value = true;
+    console.log('开始下载导入模板...');
 
-    const response = await batchImportApi.getImportTemplate('residents')
+    const response = await batchImportApi.getImportTemplate('residents');
 
     // 创建 Blob 对象
     const blob = new Blob([response], {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    })
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
 
     // 创建下载链接
-    const url = window.URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `村民导入模板_${new Date().toISOString().split('T')[0]}.xlsx`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    window.URL.revokeObjectURL(url)
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `村民导入模板_${new Date().toISOString().split('T')[0]}.xlsx`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
 
-    ElMessage.success('模板下载成功！')
+    ElMessage.success('模板下载成功！');
   } catch (error) {
-    console.error('下载模板失败:', error)
-    ElMessage.error('模板下载失败：' + (error.response?.data?.message || error.message))
+    console.error('下载模板失败:', error);
+    ElMessage.error('模板下载失败：' + (error.response?.data?.message || error.message));
   } finally {
-    downloadingTemplate.value = false
+    downloadingTemplate.value = false;
   }
-}
+};
 
 /**
  * 开始批量导入
  */
 const startImport = async () => {
   if (!selectedFile.value) {
-    ElMessage.warning('请先选择要导入的文件')
-    return
+    ElMessage.warning('请先选择要导入的文件');
+    return;
   }
 
   try {
-    uploadingFile.value = true
-    uploadStatus.value = 'uploading'
-    uploadProgress.value = 0
-    console.log('开始批量导入...')
+    uploadingFile.value = true;
+    uploadStatus.value = 'uploading';
+    uploadProgress.value = 0;
+    console.log('开始批量导入...');
 
     // 调用批量导入 API
     const result = await batchImportApi.importResidents(selectedFile.value, {
       villageId: userStore.userInfo?.villageId || 'default',
       skipDuplicates: true,
       updateExisting: false,
-      onProgress: (progressEvent) => {
-        const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-        uploadProgress.value = progress
-        console.log('上传进度:', progress + '%')
-      }
-    })
+      onProgress: progressEvent => {
+        const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        uploadProgress.value = progress;
+        console.log('上传进度:', progress + '%');
+      },
+    });
 
-    console.log('导入结果:', result)
+    console.log('导入结果:', result);
 
     // 切换到处理中状态
-    uploadStatus.value = 'processing'
+    uploadStatus.value = 'processing';
 
     // 等待一小段时间显示处理动画
-    await new Promise(resolve => setTimeout(resolve, 1500))
+    await new Promise(resolve => setTimeout(resolve, 1500));
 
     // 导入成功
-    uploadStatus.value = 'completed'
+    uploadStatus.value = 'completed';
     importResult.value = result.data || {
       success: result.success || 0,
       failed: result.failed || 0,
-      updated: result.updated || 0
-    }
+      updated: result.updated || 0,
+    };
 
     // 根据结果显示不同的消息
     if (importResult.value.failed > 0) {
-      ElMessage.warning(`导入完成！成功 ${importResult.value.success} 条，失败 ${importResult.value.failed} 条`)
+      ElMessage.warning(
+        `导入完成！成功 ${importResult.value.success} 条，失败 ${importResult.value.failed} 条`
+      );
     } else {
-      ElMessage.success(`导入成功！共导入 ${importResult.value.success} 条数据`)
+      ElMessage.success(`导入成功！共导入 ${importResult.value.success} 条数据`);
     }
 
     // 刷新统计数据
-    await fetchStatistics()
-
+    await fetchStatistics();
   } catch (error) {
-    console.error('批量导入失败:', error)
-    uploadStatus.value = 'error'
-    errorMessage.value = error.response?.data?.message || error.message || '导入失败，请重试'
-    ElMessage.error('导入失败：' + errorMessage.value)
+    console.error('批量导入失败:', error);
+    uploadStatus.value = 'error';
+    errorMessage.value = error.response?.data?.message || error.message || '导入失败，请重试';
+    ElMessage.error('导入失败：' + errorMessage.value);
   } finally {
-    uploadingFile.value = false
+    uploadingFile.value = false;
   }
-}
+};
 
 /**
  * 重置导入（用于完成或错误状态后重新导入）
  */
 const resetImport = () => {
-  resetImportState()
-  ElMessage.info('已重置，请重新选择文件')
-}
+  resetImportState();
+  ElMessage.info('已重置，请重新选择文件');
+};
 
 onMounted(async () => {
-  console.log('智慧村庄仪表板加载完成，用户角色:', userRole.value)
+  console.log('智慧村庄仪表板加载完成，用户角色:', userRole.value);
 
   // 获取数据
-  await Promise.all([
-    fetchSystemStatus(),
-    fetchStatistics()
-  ])
-})
+  await Promise.all([fetchSystemStatus(), fetchStatistics()]);
+});
 </script>
 
 <style scoped>
@@ -677,7 +723,7 @@ onMounted(async () => {
 }
 
 .card-btn {
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -733,8 +779,13 @@ onMounted(async () => {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .skeleton {
@@ -745,11 +796,17 @@ onMounted(async () => {
 }
 
 @keyframes skeleton-loading {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.8; }
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.8;
+  }
 }
 
-.user-count, .visit-count {
+.user-count,
+.visit-count {
   font-size: 2em;
   font-weight: bold;
   color: #007bff;
@@ -829,8 +886,12 @@ onMounted(async () => {
 }
 
 @keyframes rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .processing-text {
@@ -853,9 +914,17 @@ onMounted(async () => {
 }
 
 @keyframes scaleIn {
-  0% { transform: scale(0); opacity: 0; }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .success-text {
@@ -1127,8 +1196,12 @@ onMounted(async () => {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .stats-loading p {

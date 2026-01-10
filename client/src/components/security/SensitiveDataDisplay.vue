@@ -42,12 +42,7 @@
         <div class="face-auth-placeholder">
           <el-icon :size="80"><User /></el-icon>
           <p>请将脸部对准摄像头</p>
-          <el-button
-            type="primary"
-            @click="startFaceAuth"
-            :loading="authenticating"
-            size="large"
-          >
+          <el-button type="primary" @click="startFaceAuth" :loading="authenticating" size="large">
             {{ authenticating ? '验证中...' : '开始验证' }}
           </el-button>
         </div>
@@ -70,162 +65,162 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { ElMessage } from 'element-plus'
-import { View, Hide, User } from '@element-plus/icons-vue'
-import { securityApi } from '@/api/security'
+import { ref, computed } from 'vue';
+import { ElMessage } from 'element-plus';
+import { View, Hide, User } from '@element-plus/icons-vue';
+import { securityApi } from '@/api/security';
 
 const props = defineProps({
   // 字段类型
   fieldType: {
     type: String,
-    required: true
+    required: true,
   },
   // 完整值
   value: {
     type: String,
-    default: ''
+    default: '',
   },
   // 记录ID
   recordId: {
     type: String,
-    required: true
+    required: true,
   },
   // 是否需要点击验证
   requireAuth: {
     type: Boolean,
-    default: true
+    default: true,
   },
   // 是否已通过验证
   preVerified: {
     type: Boolean,
-    default: false
-  }
-})
+    default: false,
+  },
+});
 
-const emit = defineEmits(['view', 'hide'])
+const emit = defineEmits(['view', 'hide']);
 
 // 显示状态
-const showFullData = ref(props.preVerified)
-const showFaceAuthDialog = ref(false)
-const authenticating = ref(false)
+const showFullData = ref(props.preVerified);
+const showFaceAuthDialog = ref(false);
+const authenticating = ref(false);
 
 // 脱敏值
 const maskedValue = computed(() => {
-  if (!props.value) return ''
+  if (!props.value) return '';
 
-  const fieldType = props.fieldType
-  const value = props.value
+  const fieldType = props.fieldType;
+  const value = props.value;
 
   // 根据字段类型进行脱敏
   switch (fieldType) {
     case 'id_card':
-      return value.replace(/^(.{6})(.*)(.{4})$/, '$1****$3')
+      return value.replace(/^(.{6})(.*)(.{4})$/, '$1****$3');
     case 'phone':
-      return value.replace(/^(.{3})(.*)(.{4})$/, '$1****$3')
+      return value.replace(/^(.{3})(.*)(.{4})$/, '$1****$3');
     case 'bank_card':
-      return value.replace(/^(.{4})(.*)(.{4})$/, '$1********$3')
+      return value.replace(/^(.{4})(.*)(.{4})$/, '$1********$3');
     case 'email':
-      return value.replace(/^([^@]+)(@.*)$/, '$1***$2')
+      return value.replace(/^([^@]+)(@.*)$/, '$1***$2');
     case 'name':
-      return value.replace(/^(.{1})(.*)$/, '$1*')
+      return value.replace(/^(.{1})(.*)$/, '$1*');
     case 'address':
-      return value.replace(/(.{2}省.{2,6}市).*(区|县).*/, '$1****$2')
+      return value.replace(/(.{2}省.{2,6}市).*(区|县).*/, '$1****$2');
     default:
-      return value.substring(0, 3) + '****' + value.substring(value.length - 3)
+      return value.substring(0, 3) + '****' + value.substring(value.length - 3);
   }
-})
+});
 
 // 完整值
 const fullValue = computed(() => {
-  return props.value
-})
+  return props.value;
+});
 
 // 点击处理
 const handleClick = () => {
   if (!props.requireAuth) {
-    showFullData.value = true
-    emit('view', props.fieldType)
-    return
+    showFullData.value = true;
+    emit('view', props.fieldType);
+    return;
   }
 
   if (showFullData.value) {
-    return
+    return;
   }
 
   // 显示人脸识别对话框
-  showFaceAuthDialog.value = true
-}
+  showFaceAuthDialog.value = true;
+};
 
 // 开始人脸识别
 const startFaceAuth = async () => {
   try {
-    authenticating.value = true
+    authenticating.value = true;
 
     // 调用API验证权限
     const response = await securityApi.requestViewFullInfo({
       fieldType: props.fieldType,
       recordId: props.recordId,
-      faceVerified: false
-    })
+      faceVerified: false,
+    });
 
     if (response.success && !response.requireFaceAuth) {
       // 不需要人脸识别，直接显示
-      showFullData.value = true
-      showFaceAuthDialog.value = false
-      emit('view', props.fieldType)
-      ElMessage.success('验证通过')
+      showFullData.value = true;
+      showFaceAuthDialog.value = false;
+      emit('view', props.fieldType);
+      ElMessage.success('验证通过');
     } else if (response.requireFaceAuth) {
       // 需要人脸识别
       // 这里应该调用真实的人脸识别SDK
       // 模拟人脸识别过程
-      await simulateFaceAuth()
+      await simulateFaceAuth();
     } else {
-      ElMessage.error(response.message || '验证失败')
+      ElMessage.error(response.message || '验证失败');
     }
   } catch (error) {
-    ElMessage.error('验证失败')
-    console.error(error)
+    ElMessage.error('验证失败');
+    console.error(error);
   } finally {
-    authenticating.value = false
+    authenticating.value = false;
   }
-}
+};
 
 // 模拟人脸识别（实际项目中应该使用真实的人脸识别SDK）
 const simulateFaceAuth = async () => {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     setTimeout(async () => {
       // 模拟人脸识别成功
       const response = await securityApi.requestViewFullInfo({
         fieldType: props.fieldType,
         recordId: props.recordId,
-        faceVerified: true
-      })
+        faceVerified: true,
+      });
 
       if (response.success) {
-        showFullData.value = true
-        showFaceAuthDialog.value = false
-        emit('view', props.fieldType)
-        ElMessage.success('人脸识别成功')
+        showFullData.value = true;
+        showFaceAuthDialog.value = false;
+        emit('view', props.fieldType);
+        ElMessage.success('人脸识别成功');
       } else {
-        ElMessage.error(response.message || '验证失败')
+        ElMessage.error(response.message || '验证失败');
       }
 
-      resolve()
-    }, 2000)
-  })
-}
+      resolve();
+    }, 2000);
+  });
+};
 
 // 取消验证
 const cancelAuth = () => {
-  showFaceAuthDialog.value = false
-}
+  showFaceAuthDialog.value = false;
+};
 
 // 隐藏完整数据
 const hideFullData = () => {
-  showFullData.value = false
-  emit('hide', props.fieldType)
-}
+  showFullData.value = false;
+  emit('hide', props.fieldType);
+};
 </script>
 
 <style scoped>

@@ -55,11 +55,7 @@
 
         <!-- 图片上传 -->
         <div class="input-attachments" v-if="newComment.images.length > 0">
-          <div
-            v-for="(image, index) in newComment.images"
-            :key="index"
-            class="attachment-item"
-          >
+          <div v-for="(image, index) in newComment.images" :key="index" class="attachment-item">
             <img :src="image.url" :alt="image.name" />
             <el-button
               @click="removeImage(index)"
@@ -84,9 +80,7 @@
               <el-button :icon="Picture" size="small">添加图片</el-button>
             </el-upload>
 
-            <el-checkbox v-model="newComment.isAnonymous" size="small">
-              匿名评论
-            </el-checkbox>
+            <el-checkbox v-model="newComment.isAnonymous" size="small"> 匿名评论 </el-checkbox>
           </div>
 
           <div class="right-actions">
@@ -138,7 +132,7 @@
             <div class="comment-meta">
               <span class="comment-time">{{ formatTime(comment.createdAt) }}</span>
               <el-dropdown
-                @command="(command) => handleCommentAction(command, comment)"
+                @command="command => handleCommentAction(command, comment)"
                 trigger="click"
                 v-if="canManageComment(comment)"
               >
@@ -204,10 +198,7 @@
           </div>
 
           <!-- 回复输入框 -->
-          <div
-            v-if="replyingTo === comment.id"
-            class="reply-input"
-          >
+          <div v-if="replyingTo === comment.id" class="reply-input">
             <el-input
               v-model="replyContent"
               type="textarea"
@@ -232,11 +223,7 @@
 
           <!-- 子评论 -->
           <div class="replies" v-if="comment.replies && comment.replies.length > 0">
-            <div
-              v-for="reply in comment.replies"
-              :key="reply.id"
-              class="reply-item"
-            >
+            <div v-for="reply in comment.replies" :key="reply.id" class="reply-item">
               <div class="reply-avatar">
                 <el-avatar :size="28" :src="reply.author.avatar">
                   {{ reply.author.name?.charAt(0) }}
@@ -273,10 +260,7 @@
             </div>
 
             <!-- 加载更多回复 -->
-            <div
-              v-if="comment.stats.replies > comment.replies.length"
-              class="load-more-replies"
-            >
+            <div v-if="comment.stats.replies > comment.replies.length" class="load-more-replies">
               <el-button
                 @click="loadMoreReplies(comment)"
                 size="small"
@@ -344,84 +328,93 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, nextTick } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, reactive, computed, onMounted, nextTick } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
-  ChatLineSquare, Refresh, ArrowDown, Picture, Close,
-  Top, MoreFilled, Delete, Star, StarFilled,
-  ChatDotSquare, Flag
-} from '@element-plus/icons-vue'
-import { useUserStore } from '@/stores/user'
-import { useCommentStore } from '@/stores/comment'
-import { formatTime } from '@/utils/time'
+  ChatLineSquare,
+  Refresh,
+  ArrowDown,
+  Picture,
+  Close,
+  Top,
+  MoreFilled,
+  Delete,
+  Star,
+  StarFilled,
+  ChatDotSquare,
+  Flag,
+} from '@element-plus/icons-vue';
+import { useUserStore } from '@/stores/user';
+import { useCommentStore } from '@/stores/comment';
+import { formatTime } from '@/utils/time';
 
 // Props
 const props = defineProps({
   announcementId: {
     type: String,
-    required: true
+    required: true,
   },
   allowComment: {
     type: Boolean,
-    default: true
-  }
-})
+    default: true,
+  },
+});
 
 // Store
-const userStore = useUserStore()
-const commentStore = useCommentStore()
+const userStore = useUserStore();
+const commentStore = useCommentStore();
 
 // 响应式数据
-const loading = ref(false)
-const loadingMore = ref(false)
-const submitting = ref(false)
-const replySubmitting = ref(false)
-const reportSubmitting = ref(false)
-const loadingReplies = ref({})
+const loading = ref(false);
+const loadingMore = ref(false);
+const submitting = ref(false);
+const replySubmitting = ref(false);
+const reportSubmitting = ref(false);
+const loadingReplies = ref({});
 
-const comments = ref([])
-const hasMore = ref(true)
-const totalComments = ref(0)
-const currentSort = ref('newest')
-const replyingTo = ref(null)
-const replyContent = ref('')
-const reportDialogVisible = ref(false)
-const reportingComment = ref(null)
+const comments = ref([]);
+const hasMore = ref(true);
+const totalComments = ref(0);
+const currentSort = ref('newest');
+const replyingTo = ref(null);
+const replyContent = ref('');
+const reportDialogVisible = ref(false);
+const reportingComment = ref(null);
 
-const uploadUrl = '/api/announcements/upload'
+const uploadUrl = '/api/announcements/upload';
 
 // 排序选项
 const sortOptions = {
   newest: '最新回复',
   oldest: '最早回复',
-  hottest: '最热评论'
-}
+  hottest: '最热评论',
+};
 
 // 新评论数据
 const newComment = reactive({
   content: '',
   images: [],
-  isAnonymous: false
-})
+  isAnonymous: false,
+});
 
 // 举报表单
 const reportForm = reactive({
   reason: '',
-  description: ''
-})
+  description: '',
+});
 
 // 计算属性
 const canComment = computed(() => {
-  return props.allowComment && userStore.isLoggedIn
-})
+  return props.allowComment && userStore.isLoggedIn;
+});
 
 // 方法
 const loadComments = async (reset = true) => {
   if (reset) {
-    loading.value = true
-    comments.value = []
+    loading.value = true;
+    comments.value = [];
   } else {
-    loadingMore.value = true
+    loadingMore.value = true;
   }
 
   try {
@@ -429,331 +422,323 @@ const loadComments = async (reset = true) => {
       announcementId: props.announcementId,
       page: reset ? 1 : Math.floor(comments.value.length / 20) + 1,
       limit: 20,
-      sort: currentSort.value
-    }
+      sort: currentSort.value,
+    };
 
-    const result = await commentStore.getComments(params)
+    const result = await commentStore.getComments(params);
 
     if (reset) {
-      comments.value = result.data.comments
+      comments.value = result.data.comments;
     } else {
-      comments.value.push(...result.data.comments)
+      comments.value.push(...result.data.comments);
     }
 
-    totalComments.value = result.data.pagination.total
-    hasMore.value = result.data.pagination.page < result.data.pagination.pages
-
+    totalComments.value = result.data.pagination.total;
+    hasMore.value = result.data.pagination.page < result.data.pagination.pages;
   } catch (error) {
-    ElMessage.error('加载评论失败')
+    ElMessage.error('加载评论失败');
   } finally {
-    loading.value = false
-    loadingMore.value = false
+    loading.value = false;
+    loadingMore.value = false;
   }
-}
+};
 
 const refreshComments = () => {
-  loadComments(true)
-}
+  loadComments(true);
+};
 
 const loadMoreComments = () => {
-  loadComments(false)
-}
+  loadComments(false);
+};
 
-const handleSortChange = (command) => {
-  currentSort.value = command
-  loadComments(true)
-}
+const handleSortChange = command => {
+  currentSort.value = command;
+  loadComments(true);
+};
 
 // 评论提交
 const submitComment = async () => {
   if (!newComment.content.trim()) {
-    ElMessage.warning('请输入评论内容')
-    return
+    ElMessage.warning('请输入评论内容');
+    return;
   }
 
-  submitting.value = true
+  submitting.value = true;
 
   try {
     const commentData = {
       announcementId: props.announcementId,
       content: newComment.content.trim(),
       images: newComment.images,
-      isAnonymous: newComment.isAnonymous
-    }
+      isAnonymous: newComment.isAnonymous,
+    };
 
-    const result = await commentStore.createComment(commentData)
+    const result = await commentStore.createComment(commentData);
 
     // 添加到评论列表顶部
-    comments.value.unshift(result)
-    totalComments.value += 1
+    comments.value.unshift(result);
+    totalComments.value += 1;
 
     // 清空输入
-    clearComment()
+    clearComment();
 
-    ElMessage.success('评论发表成功')
-
+    ElMessage.success('评论发表成功');
   } catch (error) {
-    ElMessage.error('评论发表失败')
+    ElMessage.error('评论发表失败');
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
-}
+};
 
 const clearComment = () => {
-  newComment.content = ''
-  newComment.images = []
-  newComment.isAnonymous = false
-}
+  newComment.content = '';
+  newComment.images = [];
+  newComment.isAnonymous = false;
+};
 
 // 图片上传
-const beforeImageUpload = (file) => {
-  const isImage = file.type.startsWith('image/')
-  const isLt2M = file.size / 1024 / 1024 < 2
+const beforeImageUpload = file => {
+  const isImage = file.type.startsWith('image/');
+  const isLt2M = file.size / 1024 / 1024 < 2;
 
   if (!isImage) {
-    ElMessage.error('只能上传图片文件')
-    return false
+    ElMessage.error('只能上传图片文件');
+    return false;
   }
   if (!isLt2M) {
-    ElMessage.error('图片大小不能超过2MB')
-    return false
+    ElMessage.error('图片大小不能超过2MB');
+    return false;
   }
-  return true
-}
+  return true;
+};
 
 const handleImageSuccess = (response, file) => {
   if (response.success) {
     newComment.images.push({
       name: file.name,
       url: response.data.url,
-      size: file.size
-    })
+      size: file.size,
+    });
   } else {
-    ElMessage.error('图片上传失败')
+    ElMessage.error('图片上传失败');
   }
-}
+};
 
-const removeImage = (index) => {
-  newComment.images.splice(index, 1)
-}
+const removeImage = index => {
+  newComment.images.splice(index, 1);
+};
 
 // 回复功能
 const showReplyInput = (comment, reply = null) => {
-  replyingTo.value = comment.id
-  replyContent.value = ''
+  replyingTo.value = comment.id;
+  replyContent.value = '';
 
   if (reply) {
-    replyContent.value = `@${reply.author.name} `
+    replyContent.value = `@${reply.author.name} `;
   }
 
   nextTick(() => {
     // 聚焦到回复输入框
-  })
-}
+  });
+};
 
 const cancelReply = () => {
-  replyingTo.value = null
-  replyContent.value = ''
-}
+  replyingTo.value = null;
+  replyContent.value = '';
+};
 
-const submitReply = async (comment) => {
+const submitReply = async comment => {
   if (!replyContent.value.trim()) {
-    ElMessage.warning('请输入回复内容')
-    return
+    ElMessage.warning('请输入回复内容');
+    return;
   }
 
-  replySubmitting.value = true
+  replySubmitting.value = true;
 
   try {
     const replyData = {
       announcementId: props.announcementId,
       parentId: comment.id,
-      content: replyContent.value.trim()
-    }
+      content: replyContent.value.trim(),
+    };
 
-    const result = await commentStore.createComment(replyData)
+    const result = await commentStore.createComment(replyData);
 
     // 添加到回复列表
     if (!comment.replies) {
-      comment.replies = []
+      comment.replies = [];
     }
-    comment.replies.push(result)
-    comment.stats.replies = (comment.stats.replies || 0) + 1
+    comment.replies.push(result);
+    comment.stats.replies = (comment.stats.replies || 0) + 1;
 
-    cancelReply()
-    ElMessage.success('回复发表成功')
-
+    cancelReply();
+    ElMessage.success('回复发表成功');
   } catch (error) {
-    ElMessage.error('回复发表失败')
+    ElMessage.error('回复发表失败');
   } finally {
-    replySubmitting.value = false
+    replySubmitting.value = false;
   }
-}
+};
 
-const loadMoreReplies = async (comment) => {
-  loadingReplies.value[comment.id] = true
+const loadMoreReplies = async comment => {
+  loadingReplies.value[comment.id] = true;
 
   try {
     const params = {
       parentId: comment.id,
       page: Math.floor(comment.replies.length / 10) + 1,
-      limit: 10
-    }
+      limit: 10,
+    };
 
-    const result = await commentStore.getComments(params)
-    comment.replies.push(...result.data.comments)
-
+    const result = await commentStore.getComments(params);
+    comment.replies.push(...result.data.comments);
   } catch (error) {
-    ElMessage.error('加载回复失败')
+    ElMessage.error('加载回复失败');
   } finally {
-    loadingReplies.value[comment.id] = false
+    loadingReplies.value[comment.id] = false;
   }
-}
+};
 
 // 点赞功能
-const toggleLike = async (comment) => {
+const toggleLike = async comment => {
   try {
     if (comment.isLiked) {
-      await commentStore.unlikeComment(comment.id)
-      comment.isLiked = false
-      comment.stats.likes = Math.max(0, (comment.stats.likes || 0) - 1)
+      await commentStore.unlikeComment(comment.id);
+      comment.isLiked = false;
+      comment.stats.likes = Math.max(0, (comment.stats.likes || 0) - 1);
     } else {
-      await commentStore.likeComment(comment.id)
-      comment.isLiked = true
-      comment.stats.likes = (comment.stats.likes || 0) + 1
+      await commentStore.likeComment(comment.id);
+      comment.isLiked = true;
+      comment.stats.likes = (comment.stats.likes || 0) + 1;
     }
   } catch (error) {
-    ElMessage.error('操作失败')
+    ElMessage.error('操作失败');
   }
-}
+};
 
 // 评论管理
-const canManageComment = (comment) => {
-  if (!userStore.user) return false
+const canManageComment = comment => {
+  if (!userStore.user) return false;
 
   // 管理员或作者可以管理
-  if (['admin', 'village_admin'].includes(userStore.user.role)) return true
-  if (comment.author.id === userStore.user.id) return true
+  if (['admin', 'village_admin'].includes(userStore.user.role)) return true;
+  if (comment.author.id === userStore.user.id) return true;
 
-  return false
-}
+  return false;
+};
 
 const handleCommentAction = async (command, comment) => {
-  const [action, id] = command.split('_')
+  const [action, id] = command.split('_');
 
   switch (action) {
     case 'top':
-      await toggleTopComment(id, true)
-      break
+      await toggleTopComment(id, true);
+      break;
     case 'untop':
-      await toggleTopComment(id, false)
-      break
+      await toggleTopComment(id, false);
+      break;
     case 'delete':
-      await deleteComment(id)
-      break
+      await deleteComment(id);
+      break;
   }
-}
+};
 
 const toggleTopComment = async (id, isTop) => {
   try {
-    await commentStore.toggleTop(id)
-    const comment = comments.value.find(c => c.id === id)
+    await commentStore.toggleTop(id);
+    const comment = comments.value.find(c => c.id === id);
     if (comment) {
-      comment.isTop = isTop
+      comment.isTop = isTop;
     }
-    ElMessage.success(isTop ? '置顶成功' : '取消置顶成功')
+    ElMessage.success(isTop ? '置顶成功' : '取消置顶成功');
   } catch (error) {
-    ElMessage.error('操作失败')
+    ElMessage.error('操作失败');
   }
-}
+};
 
-const deleteComment = async (id) => {
-  const confirmed = await ElMessageBox.confirm(
-    '确定要删除这条评论吗？',
-    '删除评论',
-    {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning',
-    }
-  )
+const deleteComment = async id => {
+  const confirmed = await ElMessageBox.confirm('确定要删除这条评论吗？', '删除评论', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  });
 
   if (confirmed) {
     try {
-      await commentStore.deleteComment(id)
-      const index = comments.value.findIndex(c => c.id === id)
+      await commentStore.deleteComment(id);
+      const index = comments.value.findIndex(c => c.id === id);
       if (index !== -1) {
-        comments.value.splice(index, 1)
-        totalComments.value -= 1
+        comments.value.splice(index, 1);
+        totalComments.value -= 1;
       }
-      ElMessage.success('删除成功')
+      ElMessage.success('删除成功');
     } catch (error) {
-      ElMessage.error('删除失败')
+      ElMessage.error('删除失败');
     }
   }
-}
+};
 
 // 举报功能
-const reportComment = (comment) => {
-  reportingComment.value = comment
-  reportForm.reason = ''
-  reportForm.description = ''
-  reportDialogVisible.value = true
-}
+const reportComment = comment => {
+  reportingComment.value = comment;
+  reportForm.reason = '';
+  reportForm.description = '';
+  reportDialogVisible.value = true;
+};
 
 const submitReport = async () => {
   if (!reportForm.reason) {
-    ElMessage.warning('请选择举报原因')
-    return
+    ElMessage.warning('请选择举报原因');
+    return;
   }
 
   if (reportForm.reason === 'other' && !reportForm.description.trim()) {
-    ElMessage.warning('请填写详细说明')
-    return
+    ElMessage.warning('请填写详细说明');
+    return;
   }
 
-  reportSubmitting.value = true
+  reportSubmitting.value = true;
 
   try {
-    await commentStore.reportComment(reportingComment.value.id, reportForm)
-    ElMessage.success('举报提交成功，我们会尽快处理')
-    reportDialogVisible.value = false
+    await commentStore.reportComment(reportingComment.value.id, reportForm);
+    ElMessage.success('举报提交成功，我们会尽快处理');
+    reportDialogVisible.value = false;
   } catch (error) {
-    ElMessage.error('举报提交失败')
+    ElMessage.error('举报提交失败');
   } finally {
-    reportSubmitting.value = false
+    reportSubmitting.value = false;
   }
-}
+};
 
 // 工具函数
-const getRoleType = (role) => {
+const getRoleType = role => {
   const types = {
     village_admin: 'danger',
     committee_member: 'warning',
     secretary: 'success',
-    resident: 'info'
-  }
-  return types[role] || 'info'
-}
+    resident: 'info',
+  };
+  return types[role] || 'info';
+};
 
-const getRoleLabel = (role) => {
+const getRoleLabel = role => {
   const labels = {
     village_admin: '村主任',
     committee_member: '委员',
     secretary: '书记',
-    resident: '村民'
-  }
-  return labels[role] || '用户'
-}
+    resident: '村民',
+  };
+  return labels[role] || '用户';
+};
 
 const focusCommentInput = () => {
   // 聚焦到评论输入框
-}
+};
 
 // 生命周期
 onMounted(() => {
-  loadComments()
-})
+  loadComments();
+});
 </script>
 
 <style lang="scss" scoped>

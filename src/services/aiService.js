@@ -1,6 +1,6 @@
 /**
  * AI智能服务
- * 集成Anthropic Claude、百度语音识别、TTS等功能
+ * 集成智谱AI、Anthropic Claude、百度语音识别、TTS等功能
  */
 
 const axios = require('axios');
@@ -8,9 +8,25 @@ const FormData = require('form-data');
 const crypto = require('crypto');
 const logger = require('../utils/logger');
 const NodeCache = require('node-cache');
+const fs = require('fs');
+const path = require('path');
 
 // 缓存配置 (TTL: 1小时)
 const cache = new NodeCache({ stdTTL: 3600, checkperiod: 600 });
+
+// 加载AI提供商配置
+let aiProvidersConfig = null;
+try {
+  const configPath = path.join(__dirname, '../config/ai-providers.config.json');
+  aiProvidersConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+} catch (error) {
+  logger.warn('AI提供商配置文件未找到，使用默认配置:', error.message);
+  aiProvidersConfig = {
+    providers: {},
+    defaultProvider: 'anthropic',
+    fallbackProvider: 'anthropic'
+  };
+}
 
 /**
  * 方言代码映射表
@@ -92,13 +108,21 @@ const INTENT_TYPES = {
  */
 class AIService {
   constructor() {
+    // Anthropic配置
     this.anthropicApiKey = process.env.ANTHROPIC_API_KEY || '';
     this.anthropicBaseUrl = process.env.ANTHROPIC_BASE_URL || 'https://api.anthropic.com';
+    
+    // 百度配置
     this.baiduAppId = process.env.BAIDU_APP_ID || '';
     this.baiduApiKey = process.env.BAIDU_API_KEY || '';
     this.baiduSecretKey = process.env.BAIDU_SECRET_KEY || '';
     this.baiduAccessToken = null;
     this.tokenExpireTime = null;
+    
+    // 智谱AI配置
+    this.zhipuaiConfig = aiProvidersConfig.providers.zhipuai || null;
+    this.currentProvider = aiProvidersConfig.defaultProvider || 'anthropic';
+    this.fallbackProvider = aiProvidersConfig.fallbackProvider || 'anthropic';
   }
 
   // ==================== 语音识别 (ASR) ====================
@@ -252,7 +276,7 @@ class AIService {
       const accessToken = await this.getBaiduAccessToken();
       const dialectCode = DIALECT_CODE_MAP[dialect] || '1737';
 
-      const url = `https://tsn.baidu.com/text2audio`;
+      const url = 'https://tsn.baidu.com/text2audio';
 
       const params = {
         tex: text,
@@ -289,7 +313,69 @@ class AIService {
   // ==================== AI智能问答 ====================
 
   /**
-   * AI智能问答 (基于Claude)
+   * 智谱AI聊天
+   * @param {string} message - 用户消息
+   * @param {object} context - 上下文信息
+   * @returns {Promise<object>} - 回答结果
+   */
+  async chatWithZhipuai(message, context = {}) {
+    try {
+      if (!this.zhipuaiConfig) {
+        throw new Error('智谱AI配置未找到');
+      }
+
+      const { userId, location, conversationHistory = [] } = context;
+
+      // 构建系统提示词
+      const systemPrompt = this.buildSystemPrompt(location);
+
+      // 构建消息
+      const messages = [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: message }
+      ];
+
+      // 如果有历史对话，添加到消息中
+      if (conversationHistory.length > 0) {
+        messages.splice(1, 0, ...conversationHistory.slice(-10));
+      }
+
+      const response = await axios.post(
+        `${this.zhipuaiConfig.options.baseURL}chat/completions`,
+        {
+          model: 'glm-4.6',
+          messages,
+          max_tokens: 8192,
+          temperature: 0.7,
+          top_p: 0.9,
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${this.zhipuaiConfig.options.apiKey}`,
+            'Content-Type': 'application/json'
+          },
+          timeout: 30000
+        }
+      );
+
+      const answer = response.data.choices[0].message.content;
+
+      return {
+        answer,
+        source: this.extractSources(answer),
+        relatedTopics: this.extractRelatedTopics(message),
+        provider: 'zhipuai',
+        model: 'glm-4.6',
+        timestamp: new Date().toISOString()
+      };
+    } catch (error) {
+      logger.error('智谱AI聊天失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * AI智能问答 (支持多提供商)
    * @param {string} message - 用户消息
    * @param {object} context - 上下文信息
    * @returns {Promise<object>} - 回答结果
@@ -303,49 +389,33 @@ class AIService {
         return cached;
       }
 
-      // 如果没有配置API密钥，返回模拟回答
-      if (!this.anthropicApiKey) {
-        return this.getFallbackResponse(message, context);
+      let result = null;
+      let lastError = null;
+
+      // 优先使用默认提供商
+      if (this.currentProvider === 'zhipuai' && this.zhipuaiConfig) {
+        try {
+          result = await this.chatWithZhipuai(message, context);
+        } catch (error) {
+          lastError = error;
+          logger.warn('智谱AI调用失败，尝试备用方案:', error.message);
+        }
       }
 
-      const { userId, location, conversationHistory = [] } = context;
-
-      // 构建系统提示词
-      const systemPrompt = this.buildSystemPrompt(location);
-
-      // 构建消息历史
-      const messages = [
-        { role: 'user', content: message }
-      ];
-
-      // 调用Claude API
-      const response = await axios.post(
-        `${this.anthropicBaseUrl}/v1/messages`,
-        {
-          model: 'claude-3-5-sonnet-20241022',
-          max_tokens: 1024,
-          system: systemPrompt,
-          messages: conversationHistory.length > 0
-            ? [...conversationHistory.slice(-5), { role: 'user', content: message }]
-            : messages
-        },
-        {
-          headers: {
-            'x-api-key': this.anthropicApiKey,
-            'anthropic-version': '2023-06-01',
-            'content-type': 'application/json'
-          }
+      // 如果智谱AI失败，尝试Anthropic
+      if (!result && this.anthropicApiKey) {
+        try {
+          result = await this.chatWithAnthropic(message, context);
+        } catch (error) {
+          lastError = error;
+          logger.warn('Anthropic调用失败，返回本地答案:', error.message);
         }
-      );
+      }
 
-      const answer = response.data.content[0].text;
-
-      const result = {
-        answer,
-        source: this.extractSources(answer),
-        relatedTopics: this.extractRelatedTopics(message),
-        timestamp: new Date().toISOString()
-      };
+      // 如果所有AI提供商都失败，返回本地知识库答案
+      if (!result) {
+        result = this.getFallbackResponse(message, context);
+      }
 
       // 缓存结果
       cache.set(cacheKey, result);
@@ -353,9 +423,57 @@ class AIService {
       return result;
     } catch (error) {
       logger.error('AI问答失败:', error);
-      // 降级：返回本地知识库答案
       return this.getFallbackResponse(message, context);
     }
+  }
+
+  /**
+   * Anthropic聊天
+   * @param {string} message - 用户消息
+   * @param {object} context - 上下文信息
+   * @returns {Promise<object>} - 回答结果
+   */
+  async chatWithAnthropic(message, context = {}) {
+    const { userId, location, conversationHistory = [] } = context;
+
+    // 构建系统提示词
+    const systemPrompt = this.buildSystemPrompt(location);
+
+    // 构建消息历史
+    const messages = [
+      { role: 'user', content: message }
+    ];
+
+    // 调用Claude API
+    const response = await axios.post(
+      `${this.anthropicBaseUrl}/v1/messages`,
+      {
+        model: 'claude-3-5-sonnet-20241022',
+        max_tokens: 1024,
+        system: systemPrompt,
+        messages: conversationHistory.length > 0
+          ? [...conversationHistory.slice(-5), { role: 'user', content: message }]
+          : messages
+      },
+      {
+        headers: {
+          'x-api-key': this.anthropicApiKey,
+          'anthropic-version': '2023-06-01',
+          'content-type': 'application/json'
+        }
+      }
+    );
+
+    const answer = response.data.content[0].text;
+
+    return {
+      answer,
+      source: this.extractSources(answer),
+      relatedTopics: this.extractRelatedTopics(message),
+      provider: 'anthropic',
+      model: 'claude-3-5-sonnet-20241022',
+      timestamp: new Date().toISOString()
+    };
   }
 
   /**
@@ -587,12 +705,15 @@ class AIService {
    */
   async healthCheck() {
     const checks = {
+      zhipuai: !!(this.zhipuaiConfig && this.zhipuaiConfig.options.apiKey),
       anthropic: !!this.anthropicApiKey,
       baidu: !!(this.baiduApiKey && this.baiduSecretKey),
-      cache: cache.getStats().keys > 0
+      cache: cache.getStats().keys > 0,
+      currentProvider: this.currentProvider,
+      fallbackProvider: this.fallbackProvider
     };
 
-    const healthy = checks.anthropic || checks.baidu;
+    const healthy = checks.zhipuai || checks.anthropic || checks.baidu;
 
     return {
       status: healthy ? 'healthy' : 'degraded',

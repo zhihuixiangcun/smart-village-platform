@@ -302,30 +302,30 @@ dataVersionSchema.methods.createNextVersion = function(changeType, newData, oper
     targetId: this.targetId,
     isDeleted: false
   })
-  .sort({ version: -1 })
-  .then(latestVersion => {
-    const nextVersion = new DataVersion({
-      targetModel: this.targetModel,
-      targetId: this.targetId,
-      villageId: this.villageId,
-      version: (latestVersion?.version || 0) + 1,
-      parentVersionId: this._id,
-      changeType,
-      operator: typeof operator === 'object' ? operator : { userId: operator },
-      dataSnapshot: newData,
-      previousData: this.dataSnapshot,
-      summary: options.summary,
-      context: options.context || this.context,
-      metadata: options.metadata || this.metadata
+    .sort({ version: -1 })
+    .then(latestVersion => {
+      const nextVersion = new DataVersion({
+        targetModel: this.targetModel,
+        targetId: this.targetId,
+        villageId: this.villageId,
+        version: (latestVersion?.version || 0) + 1,
+        parentVersionId: this._id,
+        changeType,
+        operator: typeof operator === 'object' ? operator : { userId: operator },
+        dataSnapshot: newData,
+        previousData: this.dataSnapshot,
+        summary: options.summary,
+        context: options.context || this.context,
+        metadata: options.metadata || this.metadata
+      });
+
+      // 如果是更新，计算变更字段
+      if (changeType === 'update') {
+        nextVersion.changedFields = this.getDiff({ dataSnapshot: newData });
+      }
+
+      return nextVersion.calculateChecksum();
     });
-
-    // 如果是更新，计算变更字段
-    if (changeType === 'update') {
-      nextVersion.changedFields = this.getDiff({ dataSnapshot: newData });
-    }
-
-    return nextVersion.calculateChecksum();
-  });
 };
 
 /**
@@ -362,8 +362,8 @@ dataVersionSchema.statics.getLatestVersion = function(targetModel, targetId) {
     targetId,
     isDeleted: false
   })
-  .sort({ version: -1 })
-  .lean();
+    .sort({ version: -1 })
+    .lean();
 };
 
 /**
@@ -406,7 +406,7 @@ dataVersionSchema.statics.getVersion = function(targetModel, targetId, version) 
     version,
     isDeleted: false
   })
-  .lean();
+    .lean();
 };
 
 /**
@@ -430,7 +430,7 @@ dataVersionSchema.statics.createInitialVersion = function(targetModel, targetId,
       source: 'api'
     }
   })
-  .then(version => version.calculateChecksum());
+    .then(version => version.calculateChecksum());
 };
 
 /**
@@ -494,8 +494,8 @@ dataVersionSchema.statics.detectConflict = function(targetModel, targetId, clien
     version: { $gt: clientVersion },
     isDeleted: false
   })
-  .sort({ version: -1 })
-  .lean();
+    .sort({ version: -1 })
+    .lean();
 };
 
 /**
@@ -545,15 +545,15 @@ dataVersionSchema.statics.cleanupOldVersions = function(targetModel, targetId, k
     targetId,
     isDeleted: false
   })
-  .sort({ version: -1 })
-  .skip(keepVersions)
-  .then(oldVersions => {
-    if (oldVersions.length > 0) {
-      const versionIds = oldVersions.map(v => v._id);
-      return this.deleteMany({ _id: { $in: versionIds } });
-    }
-    return Promise.resolve({ deletedCount: 0 });
-  });
+    .sort({ version: -1 })
+    .skip(keepVersions)
+    .then(oldVersions => {
+      if (oldVersions.length > 0) {
+        const versionIds = oldVersions.map(v => v._id);
+        return this.deleteMany({ _id: { $in: versionIds } });
+      }
+      return Promise.resolve({ deletedCount: 0 });
+    });
 };
 
 /**
@@ -611,19 +611,19 @@ dataVersionSchema.statics.exportHistory = function(targetModel, targetId) {
     targetModel,
     targetId
   })
-  .sort({ version: 1 })
-  .populate('operator.userId', 'username name')
-  .lean()
-  .then(versions => {
-    return versions.map(v => ({
-      version: v.version,
-      changeType: v.changeType,
-      operator: v.operator,
-      createdAt: v.createdAt,
-      summary: v.summary,
-      changedFields: v.changedFields
-    }));
-  });
+    .sort({ version: 1 })
+    .populate('operator.userId', 'username name')
+    .lean()
+    .then(versions => {
+      return versions.map(v => ({
+        version: v.version,
+        changeType: v.changeType,
+        operator: v.operator,
+        createdAt: v.createdAt,
+        summary: v.summary,
+        changedFields: v.changedFields
+      }));
+    });
 };
 
 // 中间件

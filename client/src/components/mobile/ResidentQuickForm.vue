@@ -52,19 +52,9 @@
         </el-form-item>
 
         <el-form-item label="手机号" prop="phone">
-          <el-input
-            v-model="formData.phone"
-            placeholder="请输入手机号"
-            clearable
-            maxlength="11"
-          >
+          <el-input v-model="formData.phone" placeholder="请输入手机号" clearable maxlength="11">
             <template #suffix>
-              <el-button
-                type="text"
-                size="small"
-                @click="pickFromContacts"
-                icon="AddressBook"
-              >
+              <el-button type="text" size="small" @click="pickFromContacts" icon="AddressBook">
                 通讯录
               </el-button>
             </template>
@@ -128,11 +118,7 @@
         </el-form-item>
 
         <el-form-item label="职业" prop="occupation">
-          <el-input
-            v-model="formData.occupation"
-            placeholder="请输入职业"
-            clearable
-          />
+          <el-input v-model="formData.occupation" placeholder="请输入职业" clearable />
         </el-form-item>
       </div>
 
@@ -197,7 +183,11 @@
           </el-form-item>
 
           <el-form-item label="关系" prop="emergencyContact.relationship">
-            <el-select v-model="formData.emergencyContact.relationship" placeholder="请选择" style="width: 100%">
+            <el-select
+              v-model="formData.emergencyContact.relationship"
+              placeholder="请选择"
+              style="width: 100%"
+            >
               <el-option label="配偶" value="spouse" />
               <el-option label="父母" value="parent" />
               <el-option label="子女" value="child" />
@@ -270,30 +260,30 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { User, Camera, Plus, AddressBook } from '@element-plus/icons-vue'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { User, Camera, Plus, AddressBook } from '@element-plus/icons-vue';
 
 // Props
 const props = defineProps({
   resident: {
     type: Object,
-    default: null
-  }
-})
+    default: null,
+  },
+});
 
 // Emits
-const emit = defineEmits(['success', 'cancel'])
+const emit = defineEmits(['success', 'cancel']);
 
 // 响应式数据
-const formRef = ref(null)
-const submitting = ref(false)
-const uploadUrl = '/api/upload/photo'
+const formRef = ref(null);
+const submitting = ref(false);
+const uploadUrl = '/api/upload/photo';
 const uploadHeaders = computed(() => ({
-  Authorization: `Bearer ${localStorage.getItem('token')}`
-}))
+  Authorization: `Bearer ${localStorage.getItem('token')}`,
+}));
 
-const isEdit = computed(() => !!props.resident)
+const isEdit = computed(() => !!props.resident);
 
 // 表单数据
 const formData = reactive({
@@ -312,36 +302,36 @@ const formData = reactive({
   emergencyContact: {
     name: '',
     phone: '',
-    relationship: ''
+    relationship: '',
   },
   remarks: '',
-  photo: ''
-})
+  photo: '',
+});
 
 // 表单验证规则
 const formRules = {
   name: [
     { required: true, message: '请输入姓名', trigger: 'blur' },
-    { min: 2, max: 10, message: '姓名长度应在2-10个字符', trigger: 'blur' }
+    { min: 2, max: 10, message: '姓名长度应在2-10个字符', trigger: 'blur' },
   ],
-  gender: [
-    { required: true, message: '请选择性别', trigger: 'change' }
-  ],
+  gender: [{ required: true, message: '请选择性别', trigger: 'change' }],
   idCard: [
     { required: true, message: '请输入身份证号', trigger: 'blur' },
-    { pattern: /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/, message: '身份证号格式错误', trigger: 'blur' }
+    {
+      pattern: /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/,
+      message: '身份证号格式错误',
+      trigger: 'blur',
+    },
   ],
   phone: [
     { required: true, message: '请输入手机号', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '手机号格式错误', trigger: 'blur' }
+    { pattern: /^1[3-9]\d{9}$/, message: '手机号格式错误', trigger: 'blur' },
   ],
-  maritalStatus: [
-    { required: true, message: '请选择婚姻状况', trigger: 'change' }
-  ]
-}
+  maritalStatus: [{ required: true, message: '请选择婚姻状况', trigger: 'change' }],
+};
 
 // 地区选项
-const regionOptions = ref([])
+const regionOptions = ref([]);
 
 // 标签选项
 const identityTags = ref([
@@ -349,16 +339,16 @@ const identityTags = ref([
   { key: 'veteran', label: '退伍军人' },
   { key: 'cadre', label: '村干部' },
   { key: 'volunteer', label: '志愿者' },
-  { key: 'grid', label: '网格员' }
-])
+  { key: 'grid', label: '网格员' },
+]);
 
 const healthTags = ref([
   { key: 'elderly', label: '老年人' },
   { key: 'disabled', label: '残疾人' },
   { key: 'lowIncome', label: '低保户' },
   { key: 'chronic', label: '慢性病' },
-  { key: 'lonely', label: '独居' }
-])
+  { key: 'lonely', label: '独居' },
+]);
 
 // 方法
 const loadRegionOptions = async () => {
@@ -376,8 +366,8 @@ const loadRegionOptions = async () => {
             { value: '330103', label: '下城区' },
             { value: '330104', label: '江干区' },
             { value: '330105', label: '拱墅区' },
-            { value: '330106', label: '西湖区' }
-          ]
+            { value: '330106', label: '西湖区' },
+          ],
         },
         {
           value: '330200',
@@ -387,165 +377,165 @@ const loadRegionOptions = async () => {
             { value: '330205', label: '江北区' },
             { value: '330206', label: '北仑区' },
             { value: '330211', label: '镇海区' },
-            { value: '330212', label: '鄞州区' }
-          ]
-        }
-      ]
-    }
-  ]
-}
+            { value: '330212', label: '鄞州区' },
+          ],
+        },
+      ],
+    },
+  ];
+};
 
 const extractInfoFromIdCard = () => {
-  const idCard = formData.idCard
-  if (!idCard || idCard.length !== 18) return
+  const idCard = formData.idCard;
+  if (!idCard || idCard.length !== 18) return;
 
   // 提取出生日期
-  const birthDate = `${idCard.slice(6, 10)}-${idCard.slice(10, 12)}-${idCard.slice(12, 14)}`
-  formData.birthDate = birthDate
+  const birthDate = `${idCard.slice(6, 10)}-${idCard.slice(10, 12)}-${idCard.slice(12, 14)}`;
+  formData.birthDate = birthDate;
 
   // 提取性别
-  const genderCode = parseInt(idCard.slice(16, 17))
-  formData.gender = genderCode % 2 === 1 ? 'male' : 'female'
+  const genderCode = parseInt(idCard.slice(16, 17));
+  formData.gender = genderCode % 2 === 1 ? 'male' : 'female';
 
-  ElMessage.success('已自动提取身份证信息')
-}
+  ElMessage.success('已自动提取身份证信息');
+};
 
-const handleRegionChange = (value) => {
+const handleRegionChange = value => {
   // 根据选择的地区做相应处理
-}
+};
 
-const toggleTag = (tagKey) => {
-  const index = formData.tags.indexOf(tagKey)
+const toggleTag = tagKey => {
+  const index = formData.tags.indexOf(tagKey);
   if (index > -1) {
-    formData.tags.splice(index, 1)
+    formData.tags.splice(index, 1);
   } else {
-    formData.tags.push(tagKey)
+    formData.tags.push(tagKey);
   }
-}
+};
 
 const pickFromContacts = async () => {
   // 检查是否支持通讯录API
   if (!('contacts' in navigator)) {
-    ElMessage.warning('当前浏览器不支持通讯录功能')
-    return
+    ElMessage.warning('当前浏览器不支持通讯录功能');
+    return;
   }
 
   try {
-    const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: false })
+    const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: false });
     if (contacts.length > 0) {
-      const contact = contacts[0]
-      formData.phone = contact.tel[0]
-      ElMessage.success('已从通讯录获取手机号')
+      const contact = contacts[0];
+      formData.phone = contact.tel[0];
+      ElMessage.success('已从通讯录获取手机号');
     }
   } catch (error) {
-    ElMessage.error('获取通讯录失败')
+    ElMessage.error('获取通讯录失败');
   }
-}
+};
 
-const beforePhotoUpload = (file) => {
-  const isImage = file.type.startsWith('image/')
-  const isLt2M = file.size / 1024 / 1024 < 2
+const beforePhotoUpload = file => {
+  const isImage = file.type.startsWith('image/');
+  const isLt2M = file.size / 1024 / 1024 < 2;
 
   if (!isImage) {
-    ElMessage.error('只能上传图片文件')
-    return false
+    ElMessage.error('只能上传图片文件');
+    return false;
   }
   if (!isLt2M) {
-    ElMessage.error('图片大小不能超过2MB')
-    return false
+    ElMessage.error('图片大小不能超过2MB');
+    return false;
   }
-  return true
-}
+  return true;
+};
 
-const handlePhotoSuccess = (response) => {
+const handlePhotoSuccess = response => {
   if (response.code === 200) {
-    formData.photo = response.data.url
-    ElMessage.success('照片上传成功')
+    formData.photo = response.data.url;
+    ElMessage.success('照片上传成功');
   } else {
-    ElMessage.error(response.message || '上传失败')
+    ElMessage.error(response.message || '上传失败');
   }
-}
+};
 
 const handleSubmit = async () => {
-  if (!formRef.value) return
+  if (!formRef.value) return;
 
   try {
-    await formRef.value.validate()
-    submitting.value = true
+    await formRef.value.validate();
+    submitting.value = true;
 
     // 构建完整地址
     const address = {
       region: formData.region,
-      detail: formData.detailAddress
-    }
+      detail: formData.detailAddress,
+    };
 
     const submitData = {
       ...formData,
       address,
-      age: calculateAge(formData.birthDate)
-    }
+      age: calculateAge(formData.birthDate),
+    };
 
     // 调用API
     if (isEdit.value) {
-      await updateResident(props.resident.id, submitData)
-      ElMessage.success('更新成功')
+      await updateResident(props.resident.id, submitData);
+      ElMessage.success('更新成功');
     } else {
-      await createResident(submitData)
-      ElMessage.success('添加成功')
+      await createResident(submitData);
+      ElMessage.success('添加成功');
     }
 
-    emit('success', submitData)
+    emit('success', submitData);
   } catch (error) {
     if (error.message) {
-      ElMessage.error(error.message)
+      ElMessage.error(error.message);
     }
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
-}
+};
 
 const handleCancel = () => {
-  emit('cancel')
-}
+  emit('cancel');
+};
 
-const calculateAge = (birthDate) => {
-  if (!birthDate) return 0
-  const today = new Date()
-  const birth = new Date(birthDate)
-  let age = today.getFullYear() - birth.getFullYear()
-  const monthDiff = today.getMonth() - birth.getMonth()
+const calculateAge = birthDate => {
+  if (!birthDate) return 0;
+  const today = new Date();
+  const birth = new Date(birthDate);
+  let age = today.getFullYear() - birth.getFullYear();
+  const monthDiff = today.getMonth() - birth.getMonth();
   if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-    age--
+    age--;
   }
-  return age
-}
+  return age;
+};
 
-const createResident = async (data) => {
+const createResident = async data => {
   // 模拟API调用
-  await new Promise(resolve => setTimeout(resolve, 1000))
-}
+  await new Promise(resolve => setTimeout(resolve, 1000));
+};
 
 const updateResident = async (id, data) => {
   // 模拟API调用
-  await new Promise(resolve => setTimeout(resolve, 1000))
-}
+  await new Promise(resolve => setTimeout(resolve, 1000));
+};
 
 // 初始化数据
 const initFormData = () => {
   if (props.resident) {
-    Object.assign(formData, props.resident)
+    Object.assign(formData, props.resident);
     if (props.resident.address) {
-      formData.region = props.resident.address.region || []
-      formData.detailAddress = props.resident.address.detail || ''
+      formData.region = props.resident.address.region || [];
+      formData.detailAddress = props.resident.address.detail || '';
     }
   }
-}
+};
 
 // 生命周期
 onMounted(() => {
-  loadRegionOptions()
-  initFormData()
-})
+  loadRegionOptions();
+  initFormData();
+});
 </script>
 
 <style lang="scss" scoped>

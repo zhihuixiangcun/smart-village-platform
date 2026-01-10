@@ -35,7 +35,7 @@ const permission = {
     } else {
       el.style.display = 'none';
     }
-  }
+  },
 };
 
 /**
@@ -67,7 +67,7 @@ const role = {
     } else {
       el.style.display = 'none';
     }
-  }
+  },
 };
 
 /**
@@ -93,7 +93,7 @@ const admin = {
     } else {
       el.style.display = 'none';
     }
-  }
+  },
 };
 
 /**
@@ -132,7 +132,7 @@ const auth = {
     } else {
       el.style.display = 'none';
     }
-  }
+  },
 };
 
 /**
@@ -173,7 +173,7 @@ const permissionDisabled = {
       el.style.cursor = 'not-allowed';
       el.style.opacity = '0.5';
     }
-  }
+  },
 };
 
 /**
@@ -212,10 +212,4 @@ export default function install(app) {
 }
 
 // 导出所有指令
-export {
-  permission,
-  role,
-  admin,
-  auth,
-  permissionDisabled
-};
+export { permission, role, admin, auth, permissionDisabled };

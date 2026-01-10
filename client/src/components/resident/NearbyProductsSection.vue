@@ -110,11 +110,7 @@
         @keydown.enter="viewProductDetail(product)"
       >
         <div class="product-image">
-          <img
-            :src="product.images[0] || defaultImage"
-            :alt="product.name"
-            loading="lazy"
-          />
+          <img :src="product.images[0] || defaultImage" :alt="product.name" loading="lazy" />
           <span v-if="product.distance" class="distance-badge">
             {{ formatDistance(product.distance) }}
           </span>
@@ -124,9 +120,7 @@
           <div class="merchant-info">
             <el-icon><Shop /></el-icon>
             <span>{{ product.merchant.name }}</span>
-            <el-tag v-if="product.merchant.verified" size="small" type="success">
-              已认证
-            </el-tag>
+            <el-tag v-if="product.merchant.verified" size="small" type="success"> 已认证 </el-tag>
           </div>
           <div class="rating-row">
             <el-rate
@@ -141,21 +135,12 @@
           <div class="price-row">
             <span class="price">¥{{ product.price }}</span>
             <span class="unit">/{{ product.unit }}</span>
-            <el-tag
-              :type="getStatusType(product.status)"
-              size="small"
-              class="status-tag"
-            >
+            <el-tag :type="getStatusType(product.status)" size="small" class="status-tag">
               {{ getStatusText(product.status) }}
             </el-tag>
           </div>
           <div class="tags-row" v-if="product.tags && product.tags.length">
-            <el-tag
-              v-for="tag in product.tags.slice(0, 3)"
-              :key="tag"
-              size="small"
-              effect="plain"
-            >
+            <el-tag v-for="tag in product.tags.slice(0, 3)" :key="tag" size="small" effect="plain">
               {{ tag }}
             </el-tag>
           </div>
@@ -164,11 +149,7 @@
     </div>
 
     <!-- 地图视图 -->
-    <div
-      v-else-if="viewMode === 'map'"
-      class="map-container"
-      role="tabpanel"
-    >
+    <div v-else-if="viewMode === 'map'" class="map-container" role="tabpanel">
       <div id="nearby-products-map" class="map"></div>
       <div class="map-legend">
         <div class="legend-item">
@@ -199,19 +180,13 @@
 
     <!-- 加载更多 -->
     <div v-if="hasMore" class="load-more">
-      <el-button
-        :loading="loadingMore"
-        @click="loadMore"
-        text
-      >
-        加载更多
-      </el-button>
+      <el-button :loading="loadingMore" @click="loadMore" text> 加载更多 </el-button>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
 import {
   Shop,
   Search,
@@ -222,47 +197,47 @@ import {
   Apple,
   Grape,
   ShoppingCart,
-  Food
-} from '@element-plus/icons-vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { useFontSize } from '@/composables/useFontSize'
-import type { Product, ProductCategory, SortType, ViewMode } from '@/types/marketplace'
-import * as mapService from '@/utils/mapService'
+  Food,
+} from '@element-plus/icons-vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { useFontSize } from '@/composables/useFontSize';
+import type { Product, ProductCategory, SortType, ViewMode } from '@/types/marketplace';
+import * as mapService from '@/utils/mapService';
 
 // Props
 interface Props {
-  userLocation?: GeolocationPosition
+  userLocation?: GeolocationPosition;
 }
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
 // Emits
 const emit = defineEmits<{
-  productClick: [product: Product]
-  locationRequired: []
-}>()
+  productClick: [product: Product];
+  locationRequired: [];
+}>();
 
 // Composables
-const { currentScale } = useFontSize()
+const { currentScale } = useFontSize();
 
 // 状态
-const viewMode = ref<ViewMode>('list')
-const loading = ref(true)
-const loadingMore = ref(false)
-const searchKeyword = ref('')
-const activeCategory = ref<ProductCategory | 'all'>('all')
-const currentSort = ref<SortType>('distance')
-const products = ref<Product[]>([])
-const userLocation = ref<any>(null) // 当前位置信息
-const page = ref(1)
-const pageSize = ref(10)
-const hasMore = ref(false)
-const supportsSpeechRecognition = ref(false)
-const mapInstance = ref<any>(null) // 地图实例
-const markers = ref<any[]>([]) // 地图标记数组
+const viewMode = ref<ViewMode>('list');
+const loading = ref(true);
+const loadingMore = ref(false);
+const searchKeyword = ref('');
+const activeCategory = ref<ProductCategory | 'all'>('all');
+const currentSort = ref<SortType>('distance');
+const products = ref<Product[]>([]);
+const userLocation = ref<any>(null); // 当前位置信息
+const page = ref(1);
+const pageSize = ref(10);
+const hasMore = ref(false);
+const supportsSpeechRecognition = ref(false);
+const mapInstance = ref<any>(null); // 地图实例
+const markers = ref<any[]>([]); // 地图标记数组
 
 // 默认图片
-const defaultImage = 'https://via.placeholder.com/200?text=暂无图片'
+const defaultImage = 'https://via.placeholder.com/200?text=暂无图片';
 
 // 分类配置
 const categories = ref([
@@ -270,142 +245,143 @@ const categories = ref([
   { key: 'agricultural' as const, label: '农产品', icon: Apple, count: 0 },
   { key: 'supplies' as const, label: '农资', icon: Grape, count: 0 },
   { key: 'daily' as const, label: '日用品', icon: ShoppingCart, count: 0 },
-  { key: 'food' as const, label: '食品', icon: Food, count: 0 }
-])
+  { key: 'food' as const, label: '食品', icon: Food, count: 0 },
+]);
 
 // 计算属性
 const filteredProducts = computed(() => {
-  let result = products.value
+  let result = products.value;
 
   // 分类筛选
   if (activeCategory.value !== 'all') {
-    result = result.filter(p => p.category === activeCategory.value)
+    result = result.filter(p => p.category === activeCategory.value);
   }
 
   // 搜索筛选
   if (searchKeyword.value.trim()) {
-    const keyword = searchKeyword.value.toLowerCase()
-    result = result.filter(p =>
-      p.name.toLowerCase().includes(keyword) ||
-      p.description.toLowerCase().includes(keyword) ||
-      p.merchant.name.toLowerCase().includes(keyword)
-    )
+    const keyword = searchKeyword.value.toLowerCase();
+    result = result.filter(
+      p =>
+        p.name.toLowerCase().includes(keyword) ||
+        p.description.toLowerCase().includes(keyword) ||
+        p.merchant.name.toLowerCase().includes(keyword)
+    );
   }
 
   // 排序
   result = [...result].sort((a, b) => {
     switch (currentSort.value) {
       case 'distance':
-        return (a.distance || Infinity) - (b.distance || Infinity)
+        return (a.distance || Infinity) - (b.distance || Infinity);
       case 'rating':
-        return b.rating - a.rating
+        return b.rating - a.rating;
       case 'price_asc':
-        return a.price - b.price
+        return a.price - b.price;
       case 'price_desc':
-        return b.price - a.price
+        return b.price - a.price;
       default:
-        return 0
+        return 0;
     }
-  })
+  });
 
-  return result
-})
+  return result;
+});
 
 const paginatedProducts = computed(() => {
-  return filteredProducts.value.slice(0, page.value * pageSize.value)
-})
+  return filteredProducts.value.slice(0, page.value * pageSize.value);
+});
 
-const productCount = computed(() => filteredProducts.value.length)
+const productCount = computed(() => filteredProducts.value.length);
 
 const currentSortLabel = computed(() => {
   const labels: Record<SortType, string> = {
     distance: '距离优先',
     rating: '评分优先',
     price_asc: '价格从低到高',
-    price_desc: '价格从高到低'
-  }
-  return labels[currentSort.value]
-})
+    price_desc: '价格从高到低',
+  };
+  return labels[currentSort.value];
+});
 
 // 方法
 const switchViewMode = (mode: ViewMode) => {
-  viewMode.value = mode
+  viewMode.value = mode;
   if (mode === 'map') {
-    initMap()
+    initMap();
   }
-}
+};
 
 const selectCategory = (category: ProductCategory | 'all') => {
-  activeCategory.value = category
-  page.value = 1
-}
+  activeCategory.value = category;
+  page.value = 1;
+};
 
 const handleSearch = () => {
-  page.value = 1
-}
+  page.value = 1;
+};
 
 const handleSort = (sort: SortType) => {
-  currentSort.value = sort
-}
+  currentSort.value = sort;
+};
 
 const formatDistance = (distance: number): string => {
   if (distance < 1000) {
-    return `${Math.round(distance)}m`
+    return `${Math.round(distance)}m`;
   }
-  return `${(distance / 1000).toFixed(1)}km`
-}
+  return `${(distance / 1000).toFixed(1)}km`;
+};
 
 const getStatusType = (status: string) => {
   const types: Record<string, any> = {
     available: 'success',
     sold_out: 'info',
-    reserved: 'warning'
-  }
-  return types[status] || 'info'
-}
+    reserved: 'warning',
+  };
+  return types[status] || 'info';
+};
 
 const getStatusText = (status: string) => {
   const texts: Record<string, string> = {
     available: '可售',
     sold_out: '已售罄',
-    reserved: '已预订'
-  }
-  return texts[status] || status
-}
+    reserved: '已预订',
+  };
+  return texts[status] || status;
+};
 
 const viewProductDetail = (product: Product) => {
-  emit('productClick', product)
-}
+  emit('productClick', product);
+};
 
 const loadMore = async () => {
-  if (loadingMore.value || !hasMore.value) return
+  if (loadingMore.value || !hasMore.value) return;
 
-  loadingMore.value = true
+  loadingMore.value = true;
   try {
     // 模拟加载更多
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    page.value++
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    page.value++;
   } finally {
-    loadingMore.value = false
+    loadingMore.value = false;
   }
-}
+};
 
 const refreshLocation = async () => {
   try {
-    ElMessage.info('正在获取您的位置...')
+    ElMessage.info('正在获取您的位置...');
 
     // 使用高德地图API获取位置
-    const location = await mapService.getCurrentLocation()
+    const location = await mapService.getCurrentLocation();
 
-    userLocation.value = location
-    console.log('定位成功:', location)
+    userLocation.value = location;
+    console.log('定位成功:', location);
 
     // 重新加载附近商品
-    await loadNearbyProducts()
+    await loadNearbyProducts();
 
-    ElMessage.success(`定位成功：${location.address || location.city || ''}`)
+    ElMessage.success(`定位成功：${location.address || location.city || ''}`);
   } catch (error) {
-    console.error('获取位置失败:', error)
+    console.error('获取位置失败:', error);
 
     // 降级方案：使用浏览器原生定位
     if (navigator.geolocation) {
@@ -414,44 +390,44 @@ const refreshLocation = async () => {
           navigator.geolocation.getCurrentPosition(resolve, reject, {
             enableHighAccuracy: true,
             timeout: 10000,
-            maximumAge: 0
-          })
-        })
+            maximumAge: 0,
+          });
+        });
 
         userLocation.value = {
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
-          address: '当前位置'
-        }
+          address: '当前位置',
+        };
 
-        await loadNearbyProducts()
-        ElMessage.success('定位成功')
+        await loadNearbyProducts();
+        ElMessage.success('定位成功');
       } catch (geoError) {
-        ElMessage.error('获取位置失败，请检查定位权限')
-        emit('locationRequired')
+        ElMessage.error('获取位置失败，请检查定位权限');
+        emit('locationRequired');
       }
     } else {
-      ElMessage.error('您的浏览器不支持定位功能')
-      emit('locationRequired')
+      ElMessage.error('您的浏览器不支持定位功能');
+      emit('locationRequired');
     }
   }
-}
+};
 
 const startVoiceSearch = () => {
   if (!supportsSpeechRecognition.value) {
-    ElMessage.warning('您的浏览器不支持语音识别')
-    return
+    ElMessage.warning('您的浏览器不支持语音识别');
+    return;
   }
 
-  ElMessage.info('语音搜索功能开发中...')
+  ElMessage.info('语音搜索功能开发中...');
   // TODO: 集成语音识别
-}
+};
 
 const loadNearbyProducts = async () => {
-  loading.value = true
+  loading.value = true;
   try {
     // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     // 模拟数据
     const mockProducts: Product[] = [
@@ -471,7 +447,7 @@ const loadNearbyProducts = async () => {
           rating: 4.8,
           reviewCount: 156,
           isOpen: true,
-          verified: true
+          verified: true,
         },
         distance: 1200,
         rating: 4.8,
@@ -481,7 +457,7 @@ const loadNearbyProducts = async () => {
         tags: ['新鲜', '不打蜡', '包邮'],
         publishTime: new Date().toISOString(),
         viewCount: 234,
-        likeCount: 56
+        likeCount: 56,
       },
       {
         id: '2',
@@ -499,7 +475,7 @@ const loadNearbyProducts = async () => {
           rating: 4.5,
           reviewCount: 203,
           isOpen: true,
-          verified: true
+          verified: true,
         },
         distance: 800,
         rating: 4.5,
@@ -509,22 +485,22 @@ const loadNearbyProducts = async () => {
         tags: ['有机', '新鲜'],
         publishTime: new Date().toISOString(),
         viewCount: 156,
-        likeCount: 34
-      }
-    ]
+        likeCount: 34,
+      },
+    ];
 
-    products.value = mockProducts
-    hasMore.value = mockProducts.length >= pageSize.value
+    products.value = mockProducts;
+    hasMore.value = mockProducts.length >= pageSize.value;
 
     // 更新分类计数
-    updateCategoryCounts()
+    updateCategoryCounts();
   } catch (error) {
-    console.error('加载商品失败:', error)
-    ElMessage.error('加载商品失败，请重试')
+    console.error('加载商品失败:', error);
+    ElMessage.error('加载商品失败，请重试');
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const updateCategoryCounts = () => {
   const counts: Record<string, number> = {
@@ -532,93 +508,93 @@ const updateCategoryCounts = () => {
     agricultural: 0,
     supplies: 0,
     daily: 0,
-    food: 0
-  }
+    food: 0,
+  };
 
   products.value.forEach(p => {
-    counts[p.category]++
-  })
+    counts[p.category]++;
+  });
 
   categories.value.forEach(cat => {
-    cat.count = counts[cat.key] || 0
-  })
-}
+    cat.count = counts[cat.key] || 0;
+  });
+};
 
 const initMap = async () => {
   try {
     // 清理旧地图
     if (mapInstance.value) {
-      mapInstance.value.destroy()
-      mapInstance.value = null
+      mapInstance.value.destroy();
+      mapInstance.value = null;
     }
 
     // 清理旧标记
-    markers.value.forEach(marker => marker.setMap(null))
-    markers.value = []
+    markers.value.forEach(marker => marker.setMap(null));
+    markers.value = [];
 
     // 初始化地图
     const center = userLocation.value
       ? [userLocation.value.longitude, userLocation.value.latitude]
-      : [116.397428, 39.90923] // 默认北京天安门
+      : [116.397428, 39.90923]; // 默认北京天安门
 
     mapInstance.value = await mapService.initAMap('nearby-products-map', {
       zoom: 15,
       center: center,
-      viewMode: '2D'
-    })
+      viewMode: '2D',
+    });
 
     // 添加商品标记
     if (products.value.length > 0) {
-      addProductMarkers()
+      addProductMarkers();
     }
 
-    console.log('地图初始化成功')
+    console.log('地图初始化成功');
   } catch (error) {
-    console.error('地图初始化失败:', error)
-    ElMessage.error('地图加载失败')
+    console.error('地图初始化失败:', error);
+    ElMessage.error('地图加载失败');
   }
-}
+};
 
 const addProductMarkers = () => {
-  if (!mapInstance.value || !products.value.length) return
+  if (!mapInstance.value || !products.value.length) return;
 
   // 创建标记数据
   const markerConfigs = products.value.map((product: Product) => {
     return {
       position: {
         longitude: product.merchant.location.longitude,
-        latitude: product.merchant.location.latitude
+        latitude: product.merchant.location.latitude,
       },
       title: product.name,
       onClick: (marker: any) => {
-        showProductInfoWindow(product, marker)
-      }
-    }
-  })
+        showProductInfoWindow(product, marker);
+      },
+    };
+  });
 
   // 添加标记到地图
-  markers.value = mapService.addMarkers(mapInstance.value, markerConfigs)
+  markers.value = mapService.addMarkers(mapInstance.value, markerConfigs);
 
   // 调整地图视野以包含所有标记
   if (markers.value.length > 0) {
     // @ts-ignore - AMap types will be available after script loads
-    const bounds = new window.AMap.Bounds()
+    const bounds = new window.AMap.Bounds();
     markers.value.forEach((marker: any) => {
-      bounds.extend(marker.getPosition())
-    })
-    mapInstance.value.setFitView([markers.value[0]])
+      bounds.extend(marker.getPosition());
+    });
+    mapInstance.value.setFitView([markers.value[0]]);
   }
-}
+};
 
 const getCategoryColor = (category: ProductCategory): string => {
   const colors: Record<ProductCategory, string> = {
     agricultural: '#67c23a', // 绿色
-    supplies: '#e6a23c',      // 橙色
-    daily: '#409eff',         // 蓝色
-    food: '#f56c6c'           // 红色
-  }
-  return colors[category] || '#409eff'
-}
+    supplies: '#e6a23c', // 橙色
+    daily: '#409eff', // 蓝色
+    food: '#f56c6c', // 红色
+  };
+  return colors[category] || '#409eff';
+};
 
 const showProductInfoWindow = (product: Product, marker: any) => {
   const content = `
@@ -637,56 +613,59 @@ const showProductInfoWindow = (product: Product, marker: any) => {
         查看详情
       </button>
     </div>
-  `
+  `;
 
   // @ts-ignore - AMap types will be available after script loads
   const infoWindow = mapService.createInfoWindow(mapInstance.value, {
     content: content,
-    offset: new (window as any).AMap.Pixel(0, -30)
-  })
+    offset: new (window as any).AMap.Pixel(0, -30),
+  });
 
-  infoWindow.open(mapInstance.value, marker.getPosition())
+  infoWindow.open(mapInstance.value, marker.getPosition());
 
   // 延迟绑定事件到DOM
   setTimeout(() => {
-    const btn = document.querySelector(`button[data-product-id="${product.id}"]`)
+    const btn = document.querySelector(`button[data-product-id="${product.id}"]`);
     if (btn) {
       btn.addEventListener('click', () => {
-        viewProductDetail(product)
-      })
+        viewProductDetail(product);
+      });
     }
-  }, 100)
-}
+  }, 100);
+};
 
 // 生命周期
 onMounted(async () => {
   // 检查语音识别支持
-  supportsSpeechRecognition.value = 'webkitSpeechRecognition' in window ||
-                                    'SpeechRecognition' in window
+  supportsSpeechRecognition.value =
+    'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
 
   // 获取位置
   if (props.userLocation) {
-    userLocation.value = props.userLocation
+    userLocation.value = props.userLocation;
   }
 
   // 加载商品
-  await loadNearbyProducts()
-})
+  await loadNearbyProducts();
+});
 
 onBeforeUnmount(() => {
   // 清理地图资源
   if (viewMode.value === 'map') {
     // TODO: 销毁地图实例
   }
-})
+});
 
 // 监听位置变化
-watch(() => props.userLocation, (newLocation) => {
-  if (newLocation) {
-    userLocation.value = newLocation
-    loadNearbyProducts()
+watch(
+  () => props.userLocation,
+  newLocation => {
+    if (newLocation) {
+      userLocation.value = newLocation;
+      loadNearbyProducts();
+    }
   }
-})
+);
 </script>
 
 <style lang="scss" scoped>

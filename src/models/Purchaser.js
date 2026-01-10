@@ -25,7 +25,7 @@ const purchaserSchema = new mongoose.Schema({
     idCard: {
       type: String,
       required: true,
-      set: function(v) { return encrypt(v); },
+      set(v) { return encrypt(v); },
       select: false  // 默认不返回身份证号
     },
     idCardFront: {
@@ -70,7 +70,7 @@ const purchaserSchema = new mongoose.Schema({
   // 商家采购商专属信息
   businessInfo: {
     // 企业名称
-    companyName: { type: String, required: function() { return this.purchaserType === 'business'; } },
+    companyName: { type: String, required() { return this.purchaserType === 'business'; } },
     // 统一社会信用代码
     creditCode: String,
     // 营业执照

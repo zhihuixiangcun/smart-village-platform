@@ -21,11 +21,7 @@
       </div>
 
       <div v-else class="requirements-list">
-        <div
-          v-for="req in requirements"
-          :key="req._id"
-          class="requirement-item"
-        >
+        <div v-for="req in requirements" :key="req._id" class="requirement-item">
           <div class="req-header">
             <div class="req-title">
               <h4>{{ req.productCategory }}</h4>
@@ -92,9 +88,7 @@
       <el-table :data="currentResponses" stripe>
         <el-table-column prop="supplier.name" label="供应商" />
         <el-table-column prop="quote" label="报价">
-          <template #default="{ row }">
-            ¥{{ row.quote }}/{{ row.unit }}
-          </template>
+          <template #default="{ row }"> ¥{{ row.quote }}/{{ row.unit }} </template>
         </el-table-column>
         <el-table-column prop="availableQuantity" label="可供应量" />
         <el-table-column prop="responseTime" label="响应时间">
@@ -104,9 +98,7 @@
         </el-table-column>
         <el-table-column label="操作" width="120">
           <template #default="{ row }">
-            <el-button size="small" type="primary" @click="contactSupplier(row)">
-              联系
-            </el-button>
+            <el-button size="small" type="primary" @click="contactSupplier(row)"> 联系 </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -115,76 +107,76 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Document, Plus, Clock, ChatDotRound } from '@element-plus/icons-vue'
-import api from '@/api'
+import { ref } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { Document, Plus, Clock, ChatDotRound } from '@element-plus/icons-vue';
+import api from '@/api';
 
 const props = defineProps({
   requirements: {
     type: Array,
-    default: () => []
-  }
-})
+    default: () => [],
+  },
+});
 
-const emit = defineEmits(['add', 'edit', 'delete'])
+const emit = defineEmits(['add', 'edit', 'delete']);
 
-const responsesDialogVisible = ref(false)
-const currentResponses = ref([])
+const responsesDialogVisible = ref(false);
+const currentResponses = ref([]);
 
-const getStatusType = (status) => {
+const getStatusType = status => {
   const types = {
     pending: 'info',
     active: 'success',
     completed: 'info',
-    cancelled: 'danger'
-  }
-  return types[status] || 'info'
-}
+    cancelled: 'danger',
+  };
+  return types[status] || 'info';
+};
 
-const getStatusLabel = (status) => {
+const getStatusLabel = status => {
   const labels = {
     pending: '待响应',
     active: '进行中',
     completed: '已完成',
-    cancelled: '已取消'
-  }
-  return labels[status] || status
-}
+    cancelled: '已取消',
+  };
+  return labels[status] || status;
+};
 
-const formatDate = (date) => {
-  if (!date) return ''
-  return new Date(date).toLocaleDateString('zh-CN')
-}
+const formatDate = date => {
+  if (!date) return '';
+  return new Date(date).toLocaleDateString('zh-CN');
+};
 
-const handleDelete = async (req) => {
+const handleDelete = async req => {
   try {
     await ElMessageBox.confirm('确定要删除此采购需求吗？', '确认删除', {
-      type: 'warning'
-    })
-    emit('delete', req)
+      type: 'warning',
+    });
+    emit('delete', req);
   } catch (error) {
     // 用户取消
   }
-}
+};
 
-const viewResponses = async (req) => {
+const viewResponses = async req => {
   try {
-    const response = await api.get(`/api/v1/purchaser/requirements/${req._id}/responses`)
+    const response = await api.get(`/api/v1/purchaser/requirements/${req._id}/responses`);
     if (response.success) {
-      currentResponses.value = response.data || []
-      responsesDialogVisible.value = true
+      currentResponses.value = response.data || [];
+      responsesDialogVisible.value = true;
     }
   } catch (error) {
-    console.error('获取响应列表失败', error)
-    ElMessage.error('获取响应列表失败')
+    console.error('获取响应列表失败', error);
+    ElMessage.error('获取响应列表失败');
   }
-}
+};
 
-const contactSupplier = (supplier) => {
-  ElMessage.info(`正在联系 ${supplier.supplier.name}...`)
+const contactSupplier = supplier => {
+  ElMessage.info(`正在联系 ${supplier.supplier.name}...`);
   // 这里可以跳转到聊天页面或显示联系方式
-}
+};
 </script>
 
 <style scoped>

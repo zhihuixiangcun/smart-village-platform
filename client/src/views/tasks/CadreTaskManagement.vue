@@ -20,7 +20,12 @@
           clearable
           style="width: 200px; margin-right: 12px"
         />
-        <el-select v-model="filterStatus" placeholder="状态筛选" clearable style="width: 120px; margin-right: 12px">
+        <el-select
+          v-model="filterStatus"
+          placeholder="状态筛选"
+          clearable
+          style="width: 120px; margin-right: 12px"
+        >
           <el-option label="待处理" value="pending" />
           <el-option label="进行中" value="in-progress" />
           <el-option label="已完成" value="completed" />
@@ -54,7 +59,11 @@
               @click="viewTaskDetail(task)"
               @status-change="handleStatusChange"
             />
-            <el-empty v-if="!quadrantTasks['urgent-important']?.length" description="暂无任务" :image-size="60" />
+            <el-empty
+              v-if="!quadrantTasks['urgent-important']?.length"
+              description="暂无任务"
+              :image-size="60"
+            />
           </div>
         </div>
 
@@ -65,7 +74,9 @@
               <el-icon class="icon"><TrendCharts /></el-icon>
               <span>重要不紧急</span>
             </div>
-            <div class="quadrant-count">{{ quadrantTasks['important-not-urgent']?.length || 0 }}</div>
+            <div class="quadrant-count">
+              {{ quadrantTasks['important-not-urgent']?.length || 0 }}
+            </div>
           </div>
           <div class="quadrant-body">
             <TaskCard
@@ -75,7 +86,11 @@
               @click="viewTaskDetail(task)"
               @status-change="handleStatusChange"
             />
-            <el-empty v-if="!quadrantTasks['important-not-urgent']?.length" description="暂无任务" :image-size="60" />
+            <el-empty
+              v-if="!quadrantTasks['important-not-urgent']?.length"
+              description="暂无任务"
+              :image-size="60"
+            />
           </div>
         </div>
 
@@ -86,7 +101,9 @@
               <el-icon class="icon"><Odometer /></el-icon>
               <span>紧急不重要</span>
             </div>
-            <div class="quadrant-count">{{ quadrantTasks['urgent-not-important']?.length || 0 }}</div>
+            <div class="quadrant-count">
+              {{ quadrantTasks['urgent-not-important']?.length || 0 }}
+            </div>
           </div>
           <div class="quadrant-body">
             <TaskCard
@@ -96,7 +113,11 @@
               @click="viewTaskDetail(task)"
               @status-change="handleStatusChange"
             />
-            <el-empty v-if="!quadrantTasks['urgent-not-important']?.length" description="暂无任务" :image-size="60" />
+            <el-empty
+              v-if="!quadrantTasks['urgent-not-important']?.length"
+              description="暂无任务"
+              :image-size="60"
+            />
           </div>
         </div>
 
@@ -107,7 +128,9 @@
               <el-icon class="icon"><DeleteFilled /></el-icon>
               <span>不重要不紧急</span>
             </div>
-            <div class="quadrant-count">{{ quadrantTasks['not-urgent-not-important']?.length || 0 }}</div>
+            <div class="quadrant-count">
+              {{ quadrantTasks['not-urgent-not-important']?.length || 0 }}
+            </div>
           </div>
           <div class="quadrant-body">
             <TaskCard
@@ -117,7 +140,11 @@
               @click="viewTaskDetail(task)"
               @status-change="handleStatusChange"
             />
-            <el-empty v-if="!quadrantTasks['not-urgent-not-important']?.length" description="暂无任务" :image-size="60" />
+            <el-empty
+              v-if="!quadrantTasks['not-urgent-not-important']?.length"
+              description="暂无任务"
+              :image-size="60"
+            />
           </div>
         </div>
       </div>
@@ -129,12 +156,16 @@
         <el-table-column prop="title" label="任务标题" min-width="200" />
         <el-table-column prop="category" label="类别" width="120">
           <template #default="{ row }">
-            <el-tag :type="getCategoryType(row.category)">{{ getCategoryLabel(row.category) }}</el-tag>
+            <el-tag :type="getCategoryType(row.category)">{{
+              getCategoryLabel(row.category)
+            }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="quadrant" label="象限" width="140">
           <template #default="{ row }">
-            <el-tag :type="getQuadrantType(row.quadrant)">{{ getQuadrantLabel(row.quadrant) }}</el-tag>
+            <el-tag :type="getQuadrantType(row.quadrant)">{{
+              getQuadrantLabel(row.quadrant)
+            }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="priority" label="优先级" width="100">
@@ -235,9 +266,16 @@
           <span>任务分类统计</span>
         </template>
         <div class="category-stats">
-          <div v-for="(count, category) in statistics.byCategory" :key="category" class="category-stat-item">
+          <div
+            v-for="(count, category) in statistics.byCategory"
+            :key="category"
+            class="category-stat-item"
+          >
             <span class="category-label">{{ getCategoryLabel(category) }}</span>
-            <el-progress :percentage="calculatePercentage(count, statistics.totalTasks)" :color="getCategoryColor(category)" />
+            <el-progress
+              :percentage="calculatePercentage(count, statistics.totalTasks)"
+              :color="getCategoryColor(category)"
+            />
           </div>
         </div>
       </el-card>
@@ -248,8 +286,14 @@
           <span>任务状态分布</span>
         </template>
         <div class="status-stats">
-          <div v-for="(count, status) in statistics.byStatus" :key="status" class="status-stat-item">
-            <el-tag :type="getStatusType(status)" style="width: 100px">{{ getStatusLabel(status) }}</el-tag>
+          <div
+            v-for="(count, status) in statistics.byStatus"
+            :key="status"
+            class="status-stat-item"
+          >
+            <el-tag :type="getStatusType(status)" style="width: 100px">{{
+              getStatusLabel(status)
+            }}</el-tag>
             <span class="status-count">{{ count }}</span>
           </div>
         </div>
@@ -257,52 +301,55 @@
     </div>
 
     <!-- 创建/编辑任务对话框 -->
-    <TaskForm
-      v-model="showCreateDialog"
-      :task="editingTask"
-      @saved="handleTaskSaved"
-    />
+    <TaskForm v-model="showCreateDialog" :task="editingTask" @saved="handleTaskSaved" />
 
     <!-- 任务详情对话框 -->
-    <TaskDetail
-      v-model="showDetailDialog"
-      :task="selectedTask"
-      @updated="loadTasks"
-    />
+    <TaskDetail v-model="showDetailDialog" :task="selectedTask" @updated="loadTasks" />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { Search, Plus, Refresh, WarningFilled, TrendCharts, Odometer, DeleteFilled, SuccessFilled, Clock, DataLine } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
-import { cadreTaskApi } from '@/api'
-import TaskCard from './components/TaskCard.vue'
-import TaskForm from './components/TaskForm.vue'
-import TaskDetail from './components/TaskDetail.vue'
-import { useUserStore } from '@/stores/user'
+import { ref, computed, onMounted } from 'vue';
+import {
+  Search,
+  Plus,
+  Refresh,
+  WarningFilled,
+  TrendCharts,
+  Odometer,
+  DeleteFilled,
+  SuccessFilled,
+  Clock,
+  DataLine,
+} from '@element-plus/icons-vue';
+import { ElMessage } from 'element-plus';
+import { cadreTaskApi } from '@/api';
+import TaskCard from './components/TaskCard.vue';
+import TaskForm from './components/TaskForm.vue';
+import TaskDetail from './components/TaskDetail.vue';
+import { useUserStore } from '@/stores/user';
 
-const userStore = useUserStore()
+const userStore = useUserStore();
 
 // 视图模式
-const viewMode = ref('quadrant')
+const viewMode = ref('quadrant');
 
 // 搜索和筛选
-const searchKeyword = ref('')
-const filterStatus = ref('')
+const searchKeyword = ref('');
+const filterStatus = ref('');
 
 // 任务数据
-const tasks = ref([])
-const loading = ref(false)
+const tasks = ref([]);
+const loading = ref(false);
 
 // 对话框状态
-const showCreateDialog = ref(false)
-const showDetailDialog = ref(false)
-const editingTask = ref(null)
-const selectedTask = ref(null)
+const showCreateDialog = ref(false);
+const showDetailDialog = ref(false);
+const editingTask = ref(null);
+const selectedTask = ref(null);
 
 // 统计数据
-const statistics = ref({})
+const statistics = ref({});
 
 // 四象限任务
 const quadrantTasks = computed(() => {
@@ -310,124 +357,125 @@ const quadrantTasks = computed(() => {
     'urgent-important': [],
     'important-not-urgent': [],
     'urgent-not-important': [],
-    'not-urgent-not-important': []
-  }
+    'not-urgent-not-important': [],
+  };
 
   tasks.value.forEach(task => {
     if (result[task.quadrant]) {
-      result[task.quadrant].push(task)
+      result[task.quadrant].push(task);
     }
-  })
+  });
 
-  return result
-})
+  return result;
+});
 
 // 过滤后的任务（列表视图）
 const filteredTasks = computed(() => {
-  let result = tasks.value
+  let result = tasks.value;
 
   if (searchKeyword.value) {
-    const keyword = searchKeyword.value.toLowerCase()
-    result = result.filter(task =>
-      task.title?.toLowerCase().includes(keyword) ||
-      task.description?.toLowerCase().includes(keyword)
-    )
+    const keyword = searchKeyword.value.toLowerCase();
+    result = result.filter(
+      task =>
+        task.title?.toLowerCase().includes(keyword) ||
+        task.description?.toLowerCase().includes(keyword)
+    );
   }
 
   if (filterStatus.value) {
-    result = result.filter(task => task.status === filterStatus.value)
+    result = result.filter(task => task.status === filterStatus.value);
   }
 
-  return result
-})
+  return result;
+});
 
 // 加载任务列表
 const loadTasks = async () => {
-  loading.value = true
+  loading.value = true;
   try {
-    const villageId = userStore.user?.villageId
+    const villageId = userStore.user?.villageId;
     if (!villageId) {
-      ElMessage.warning('请先选择村庄')
-      return
+      ElMessage.warning('请先选择村庄');
+      return;
     }
 
-    const { data } = await cadreTaskApi.getTasks({ villageId })
+    const { data } = await cadreTaskApi.getTasks({ villageId });
     if (data.success) {
-      tasks.value = data.data
+      tasks.value = data.data;
     }
   } catch (error) {
-    console.error('Load tasks error:', error)
-    ElMessage.error('加载任务失败')
+    console.error('Load tasks error:', error);
+    ElMessage.error('加载任务失败');
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 // 加载统计数据
 const loadStatistics = async () => {
   try {
-    const villageId = userStore.user?.villageId
-    if (!villageId) return
+    const villageId = userStore.user?.villageId;
+    if (!villageId) return;
 
-    const { data } = await cadreTaskApi.getStatistics({ villageId })
+    const { data } = await cadreTaskApi.getStatistics({ villageId });
     if (data.success) {
-      statistics.value = data.data
+      statistics.value = data.data;
     }
   } catch (error) {
-    console.error('Load statistics error:', error)
+    console.error('Load statistics error:', error);
   }
-}
+};
 
 // 查看任务详情
-const viewTaskDetail = (task) => {
-  selectedTask.value = task
-  showDetailDialog.value = true
-}
+const viewTaskDetail = task => {
+  selectedTask.value = task;
+  showDetailDialog.value = true;
+};
 
 // 编辑任务
-const editTask = (task) => {
-  editingTask.value = task
-  showCreateDialog.value = true
-}
+const editTask = task => {
+  editingTask.value = task;
+  showCreateDialog.value = true;
+};
 
 // 删除任务
-const deleteTask = async (taskId) => {
+const deleteTask = async taskId => {
   try {
-    const { data } = await cadreTaskApi.deleteTask(taskId)
+    const { data } = await cadreTaskApi.deleteTask(taskId);
     if (data.success) {
-      ElMessage.success('删除成功')
-      loadTasks()
+      ElMessage.success('删除成功');
+      loadTasks();
     }
   } catch (error) {
-    console.error('Delete task error:', error)
-    ElMessage.error('删除失败')
+    console.error('Delete task error:', error);
+    ElMessage.error('删除失败');
   }
-}
+};
 
 // 处理状态变更
 const handleStatusChange = async (taskId, newStatus) => {
   try {
-    const { data } = await cadreTaskApi.updateTaskStatus(taskId, { status: newStatus })
+    const { data } = await cadreTaskApi.updateTaskStatus(taskId, { status: newStatus });
     if (data.success) {
-      ElMessage.success('状态更新成功')
-      loadTasks()
+      ElMessage.success('状态更新成功');
+      loadTasks();
     }
   } catch (error) {
-    console.error('Update status error:', error)
-    ElMessage.error('状态更新失败')
+    console.error('Update status error:', error);
+    ElMessage.error('状态更新失败');
   }
-}
+};
 
 // 任务保存回调
 const handleTaskSaved = () => {
-  showCreateDialog.value = false
-  editingTask.value = null
-  loadTasks()
-  loadStatistics()
-}
+  showCreateDialog.value = false;
+  editingTask.value = null;
+  loadTasks();
+  loadStatistics();
+};
 
 // 工具函数
-const getCategoryType = (category) => {
+const getCategoryType = category => {
   const types = {
     governance: 'primary',
     emergency: 'danger',
@@ -435,12 +483,12 @@ const getCategoryType = (category) => {
     service: 'info',
     infrastructure: 'warning',
     agriculture: 'success',
-    other: 'info'
-  }
-  return types[category] || 'info'
-}
+    other: 'info',
+  };
+  return types[category] || 'info';
+};
 
-const getCategoryLabel = (category) => {
+const getCategoryLabel = category => {
   const labels = {
     governance: '村务',
     emergency: '应急',
@@ -448,12 +496,12 @@ const getCategoryLabel = (category) => {
     service: '服务',
     infrastructure: '基建',
     agriculture: '农业',
-    other: '其他'
-  }
-  return labels[category] || category
-}
+    other: '其他',
+  };
+  return labels[category] || category;
+};
 
-const getCategoryColor = (category) => {
+const getCategoryColor = category => {
   const colors = {
     governance: '#409eff',
     emergency: '#f56c6c',
@@ -461,65 +509,65 @@ const getCategoryColor = (category) => {
     service: '#909399',
     infrastructure: '#e6a23c',
     agriculture: '#67c23a',
-    other: '#909399'
-  }
-  return colors[category] || '#909399'
-}
+    other: '#909399',
+  };
+  return colors[category] || '#909399';
+};
 
-const getQuadrantType = (quadrant) => {
+const getQuadrantType = quadrant => {
   const types = {
     'urgent-important': 'danger',
     'important-not-urgent': 'warning',
     'urgent-not-important': 'info',
-    'not-urgent-not-important': 'info'
-  }
-  return types[quadrant] || 'info'
-}
+    'not-urgent-not-important': 'info',
+  };
+  return types[quadrant] || 'info';
+};
 
-const getQuadrantLabel = (quadrant) => {
+const getQuadrantLabel = quadrant => {
   const labels = {
     'urgent-important': '重要且紧急',
     'important-not-urgent': '重要不紧急',
     'urgent-not-important': '紧急不重要',
-    'not-urgent-not-important': '不重要不紧急'
-  }
-  return labels[quadrant] || quadrant
-}
+    'not-urgent-not-important': '不重要不紧急',
+  };
+  return labels[quadrant] || quadrant;
+};
 
-const getStatusType = (status) => {
+const getStatusType = status => {
   const types = {
     pending: 'info',
     'in-progress': 'primary',
     completed: 'success',
     cancelled: 'danger',
-    'on-hold': 'warning'
-  }
-  return types[status] || 'info'
-}
+    'on-hold': 'warning',
+  };
+  return types[status] || 'info';
+};
 
-const getStatusLabel = (status) => {
+const getStatusLabel = status => {
   const labels = {
     pending: '待处理',
     'in-progress': '进行中',
     completed: '已完成',
     cancelled: '已取消',
-    'on-hold': '暂停'
-  }
-  return labels[status] || status
-}
+    'on-hold': '暂停',
+  };
+  return labels[status] || status;
+};
 
-const formatDate = (date) => {
-  return new Date(date).toLocaleDateString('zh-CN')
-}
+const formatDate = date => {
+  return new Date(date).toLocaleDateString('zh-CN');
+};
 
 const calculatePercentage = (count, total) => {
-  return total > 0 ? Math.round((count / total) * 100) : 0
-}
+  return total > 0 ? Math.round((count / total) * 100) : 0;
+};
 
 onMounted(() => {
-  loadTasks()
-  loadStatistics()
-})
+  loadTasks();
+  loadStatistics();
+});
 </script>
 
 <style scoped>

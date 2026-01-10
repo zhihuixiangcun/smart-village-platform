@@ -1,9 +1,9 @@
-import { mount, VueWrapper } from '@vue/test-utils'
-import { createRouter, createWebHistory } from 'vue-router'
-import { createPinia } from 'pinia'
-import ElementPlus from 'element-plus'
-import type { ComponentPublicInstance } from 'vue'
-import { nextTick } from 'vue'
+import { mount, VueWrapper } from '@vue/test-utils';
+import { createRouter, createWebHistory } from 'vue-router';
+import { createPinia } from 'pinia';
+import ElementPlus from 'element-plus';
+import type { ComponentPublicInstance } from 'vue';
+import { nextTick } from 'vue';
 
 /**
  * 测试辅助工具类
@@ -19,35 +19,35 @@ export class TestHelper {
         { path: '/', component: { template: '<div>Home</div>' } },
         { path: '/residents', component: { template: '<div>Residents</div>' } },
         { path: '/committee', component: { template: '<div>Committee</div>' } },
-        { path: '/finance', component: { template: '<div>Finance</div>' } }
-      ]
-    })
+        { path: '/finance', component: { template: '<div>Finance</div>' } },
+      ],
+    });
 
-    const pinia = createPinia()
+    const pinia = createPinia();
 
     const wrapper = mount(component, {
       global: {
         plugins: [ElementPlus, router, pinia],
         stubs: {
           'router-link': { template: '<a><slot /></a>' },
-          'router-view': { template: '<div><slot /></div>' }
-        }
+          'router-view': { template: '<div><slot /></div>' },
+        },
       },
-      ...options
-    })
+      ...options,
+    });
 
-    await router.isReady()
-    await nextTick()
+    await router.isReady();
+    await nextTick();
 
-    return wrapper as VueWrapper<ComponentPublicInstance>
+    return wrapper as VueWrapper<ComponentPublicInstance>;
   }
 
   /**
    * 等待 DOM 更新
    */
   static async waitForUpdate() {
-    await nextTick()
-    await new Promise(resolve => setTimeout(resolve, 0))
+    await nextTick();
+    await new Promise(resolve => setTimeout(resolve, 0));
   }
 
   /**
@@ -55,12 +55,12 @@ export class TestHelper {
    */
   static async fillForm(wrapper: VueWrapper, formData: Record<string, any>) {
     for (const [selector, value] of Object.entries(formData)) {
-      const element = wrapper.find(selector)
+      const element = wrapper.find(selector);
       if (element.exists()) {
-        await element.setValue(value)
-        await element.trigger('input')
-        await element.trigger('blur')
-        await this.waitForUpdate()
+        await element.setValue(value);
+        await element.trigger('input');
+        await element.trigger('blur');
+        await this.waitForUpdate();
       }
     }
   }
@@ -69,10 +69,10 @@ export class TestHelper {
    * 模拟表单提交
    */
   static async submitForm(wrapper: VueWrapper) {
-    const form = wrapper.find('form')
+    const form = wrapper.find('form');
     if (form.exists()) {
-      await form.trigger('submit.prevent')
-      await this.waitForUpdate()
+      await form.trigger('submit.prevent');
+      await this.waitForUpdate();
     }
   }
 
@@ -80,10 +80,10 @@ export class TestHelper {
    * 模拟点击操作
    */
   static async click(wrapper: VueWrapper, selector: string) {
-    const element = wrapper.find(selector)
+    const element = wrapper.find(selector);
     if (element.exists()) {
-      await element.trigger('click')
-      await this.waitForUpdate()
+      await element.trigger('click');
+      await this.waitForUpdate();
     }
   }
 
@@ -91,44 +91,49 @@ export class TestHelper {
    * 检查元素是否存在
    */
   static expectElementExists(wrapper: VueWrapper, selector: string) {
-    const element = wrapper.find(selector)
-    expect(element.exists()).toBe(true)
+    const element = wrapper.find(selector);
+    expect(element.exists()).toBe(true);
   }
 
   /**
    * 检查元素文本内容
    */
   static expectElementText(wrapper: VueWrapper, selector: string, text: string | RegExp) {
-    const element = wrapper.find(selector)
-    expect(element.exists()).toBe(true)
-    expect(element.text()).toMatch(text)
+    const element = wrapper.find(selector);
+    expect(element.exists()).toBe(true);
+    expect(element.text()).toMatch(text);
   }
 
   /**
    * 检查元素属性
    */
-  static expectElementAttribute(wrapper: VueWrapper, selector: string, attribute: string, value: string) {
-    const element = wrapper.find(selector)
-    expect(element.exists()).toBe(true)
-    expect(element.attributes(attribute)).toBe(value)
+  static expectElementAttribute(
+    wrapper: VueWrapper,
+    selector: string,
+    attribute: string,
+    value: string
+  ) {
+    const element = wrapper.find(selector);
+    expect(element.exists()).toBe(true);
+    expect(element.attributes(attribute)).toBe(value);
   }
 
   /**
    * 检查元素是否可见
    */
   static expectElementVisible(wrapper: VueWrapper, selector: string) {
-    const element = wrapper.find(selector)
-    expect(element.exists()).toBe(true)
-    expect(element.isVisible()).toBe(true)
+    const element = wrapper.find(selector);
+    expect(element.exists()).toBe(true);
+    expect(element.isVisible()).toBe(true);
   }
 
   /**
    * 检查元素是否隐藏
    */
   static expectElementHidden(wrapper: VueWrapper, selector: string) {
-    const element = wrapper.find(selector)
+    const element = wrapper.find(selector);
     if (element.exists()) {
-      expect(element.isVisible()).toBe(false)
+      expect(element.isVisible()).toBe(false);
     }
   }
 
@@ -136,19 +141,23 @@ export class TestHelper {
    * 检查组件是否渲染
    */
   static expectComponentExists(wrapper: VueWrapper, componentName: string) {
-    const component = wrapper.findComponent({ name: componentName })
-    expect(component.exists()).toBe(true)
+    const component = wrapper.findComponent({ name: componentName });
+    expect(component.exists()).toBe(true);
   }
 
   /**
    * 检查组件 Props
    */
-  static expectComponentProps(wrapper: VueWrapper, componentName: string, props: Record<string, any>) {
-    const component = wrapper.findComponent({ name: componentName })
-    expect(component.exists()).toBe(true)
+  static expectComponentProps(
+    wrapper: VueWrapper,
+    componentName: string,
+    props: Record<string, any>
+  ) {
+    const component = wrapper.findComponent({ name: componentName });
+    expect(component.exists()).toBe(true);
 
     for (const [propName, expectedValue] of Object.entries(props)) {
-      expect(component.props(propName)).toEqual(expectedValue)
+      expect(component.props(propName)).toEqual(expectedValue);
     }
   }
 
@@ -156,11 +165,11 @@ export class TestHelper {
    * 检查事件是否触发
    */
   static async expectEventEmitted(wrapper: VueWrapper, eventName: string, payload?: any) {
-    await wrapper.vm.$nextTick()
+    await wrapper.vm.$nextTick();
     if (payload !== undefined) {
-      expect(wrapper.emitted(eventName)).toEqual([[payload]])
+      expect(wrapper.emitted(eventName)).toEqual([[payload]]);
     } else {
-      expect(wrapper.emitted(eventName)).toBeTruthy()
+      expect(wrapper.emitted(eventName)).toBeTruthy();
     }
   }
 
@@ -168,7 +177,7 @@ export class TestHelper {
    * 模拟 API 延迟
    */
   static async delay(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms))
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   /**
@@ -180,44 +189,44 @@ export class TestHelper {
       data: {
         success: status === 200,
         data,
-        message: status === 200 ? 'Success' : 'Error'
-      }
-    }
+        message: status === 200 ? 'Success' : 'Error',
+      },
+    };
   }
 
   /**
    * 检查表单验证错误
    */
   static expectValidationError(wrapper: VueWrapper, fieldName: string, errorMessage: string) {
-    const errorElement = wrapper.find(`[data-testid="${fieldName}-error"]`)
-    expect(errorElement.exists()).toBe(true)
-    expect(errorElement.text()).toContain(errorMessage)
+    const errorElement = wrapper.find(`[data-testid="${fieldName}-error"]`);
+    expect(errorElement.exists()).toBe(true);
+    expect(errorElement.text()).toContain(errorMessage);
   }
 
   /**
    * 检查加载状态
    */
   static expectLoadingState(wrapper: VueWrapper) {
-    const loadingElement = wrapper.find('[data-testid="loading"]')
-    expect(loadingElement.exists()).toBe(true)
+    const loadingElement = wrapper.find('[data-testid="loading"]');
+    expect(loadingElement.exists()).toBe(true);
   }
 
   /**
    * 检查空状态
    */
   static expectEmptyState(wrapper: VueWrapper) {
-    const emptyElement = wrapper.find('[data-testid="empty"]')
-    expect(emptyElement.exists()).toBe(true)
+    const emptyElement = wrapper.find('[data-testid="empty"]');
+    expect(emptyElement.exists()).toBe(true);
   }
 
   /**
    * 检查错误状态
    */
   static expectErrorState(wrapper: VueWrapper, errorMessage?: string) {
-    const errorElement = wrapper.find('[data-testid="error"]')
-    expect(errorElement.exists()).toBe(true)
+    const errorElement = wrapper.find('[data-testid="error"]');
+    expect(errorElement.exists()).toBe(true);
     if (errorMessage) {
-      expect(errorElement.text()).toContain(errorMessage)
+      expect(errorElement.text()).toContain(errorMessage);
     }
   }
 
@@ -225,16 +234,16 @@ export class TestHelper {
    * 模拟网络错误
    */
   static mockNetworkError(message = 'Network Error') {
-    return Promise.reject(new Error(message))
+    return Promise.reject(new Error(message));
   }
 
   /**
    * 模拟分页数据
    */
   static createMockPaginationData<T>(items: T[], page = 1, pageSize = 10) {
-    const startIndex = (page - 1) * pageSize
-    const endIndex = startIndex + pageSize
-    const paginatedItems = items.slice(startIndex, endIndex)
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const paginatedItems = items.slice(startIndex, endIndex);
 
     return {
       data: paginatedItems,
@@ -242,9 +251,9 @@ export class TestHelper {
         current: page,
         pageSize,
         total: items.length,
-        pages: Math.ceil(items.length / pageSize)
-      }
-    }
+        pages: Math.ceil(items.length / pageSize),
+      },
+    };
   }
 
   /**
@@ -264,8 +273,8 @@ export class TestHelper {
       permissions: ['read'],
       createdAt: '2024-01-01T00:00:00Z',
       updatedAt: '2024-01-01T00:00:00Z',
-      ...overrides
-    }
+      ...overrides,
+    };
   }
 
   /**
@@ -283,8 +292,8 @@ export class TestHelper {
       villageId: 'village-1',
       createdAt: '2024-01-01T00:00:00Z',
       updatedAt: '2024-01-01T00:00:00Z',
-      ...overrides
-    }
+      ...overrides,
+    };
   }
 
   /**
@@ -303,8 +312,8 @@ export class TestHelper {
       startDate: '2020-01-01',
       isActive: true,
       villageId: 'village-1',
-      ...overrides
-    }
+      ...overrides,
+    };
   }
 
   /**
@@ -324,8 +333,8 @@ export class TestHelper {
       replyContent: null,
       replyUser: null,
       villageId: 'village-1',
-      ...overrides
-    }
+      ...overrides,
+    };
   }
 }
 
@@ -335,31 +344,31 @@ export class TestHelper {
 export function createMockStore(initialState = {}) {
   const store = {
     state: { ...initialState },
-    setState: function(newState: any) {
-      this.state = { ...this.state, ...newState }
+    setState: function (newState: any) {
+      this.state = { ...this.state, ...newState };
     },
-    getState: function() {
-      return this.state
+    getState: function () {
+      return this.state;
     },
     actions: {},
-    getters: {}
-  }
-  return store
+    getters: {},
+  };
+  return store;
 }
 
 /**
  * 模拟 Vue Router
  */
 export function createMockRouter() {
-  const routes: string[] = []
+  const routes: string[] = [];
   return {
     push: jest.fn((route: any) => {
-      routes.push(route)
-      return Promise.resolve()
+      routes.push(route);
+      return Promise.resolve();
     }),
     replace: jest.fn((route: any) => {
-      routes[routes.length - 1] = route
-      return Promise.resolve()
+      routes[routes.length - 1] = route;
+      return Promise.resolve();
     }),
     go: jest.fn(),
     back: jest.fn(),
@@ -369,9 +378,9 @@ export function createMockRouter() {
         path: '/',
         name: 'home',
         params: {},
-        query: {}
-      }
+        query: {},
+      },
     },
-    getRoutes: () => routes
-  }
+    getRoutes: () => routes,
+  };
 }

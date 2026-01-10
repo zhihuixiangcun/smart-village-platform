@@ -64,20 +64,12 @@
         <div class="card-header">
           <h3>权限规则列表</h3>
           <div class="header-actions">
-            <el-switch
-              v-model="showAdvanced"
-              active-text="高级模式"
-              inactive-text="基础模式"
-            />
+            <el-switch v-model="showAdvanced" active-text="高级模式" inactive-text="基础模式" />
           </div>
         </div>
       </template>
 
-      <el-table
-        :data="filteredRules"
-        style="width: 100%"
-        @selection-change="handleSelectionChange"
-      >
+      <el-table :data="filteredRules" style="width: 100%" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" />
 
         <el-table-column prop="name" label="规则名称" min-width="200">
@@ -104,8 +96,9 @@
         <el-table-column prop="priority" label="优先级" width="100">
           <template #default="{ row }">
             <el-tag
-              :type="row.priority === 'high' ? 'danger' :
-                     row.priority === 'medium' ? 'warning' : 'info'"
+              :type="
+                row.priority === 'high' ? 'danger' : row.priority === 'medium' ? 'warning' : 'info'
+              "
               size="small"
             >
               {{ row.priority }}
@@ -115,11 +108,7 @@
 
         <el-table-column prop="status" label="状态" width="100">
           <template #default="{ row }">
-            <el-switch
-              v-model="row.enabled"
-              @change="toggleRuleStatus(row)"
-              size="small"
-            />
+            <el-switch v-model="row.enabled" @change="toggleRuleStatus(row)" size="small" />
           </template>
         </el-table-column>
 
@@ -133,11 +122,7 @@
             >
               {{ getRoleName(role) }}
             </el-tag>
-            <el-tag
-              v-if="row.targetRoles.length > 2"
-              size="small"
-              type="info"
-            >
+            <el-tag v-if="row.targetRoles.length > 2" size="small" type="info">
               +{{ row.targetRoles.length - 2 }}
             </el-tag>
           </template>
@@ -151,18 +136,8 @@
 
         <el-table-column label="操作" width="200" fixed="right">
           <template #default="{ row }">
-            <el-button
-              type="primary"
-              size="small"
-              @click="editRule(row)"
-            >
-              编辑
-            </el-button>
-            <el-button
-              type="success"
-              size="small"
-              @click="openTestRuleDialog(row)"
-            >
+            <el-button type="primary" size="small" @click="editRule(row)"> 编辑 </el-button>
+            <el-button type="success" size="small" @click="openTestRuleDialog(row)">
               测试
             </el-button>
             <el-dropdown @command="handleRuleAction">
@@ -173,10 +148,7 @@
                 <el-dropdown-menu>
                   <el-dropdown-item :command="`copy-${row.id}`">复制规则</el-dropdown-item>
                   <el-dropdown-item :command="`export-${row.id}`">导出规则</el-dropdown-item>
-                  <el-dropdown-item
-                    :command="`delete-${row.id}`"
-                    class="danger-item"
-                  >
+                  <el-dropdown-item :command="`delete-${row.id}`" class="danger-item">
                     删除规则
                   </el-dropdown-item>
                 </el-dropdown-menu>
@@ -196,12 +168,7 @@
     </el-card>
 
     <!-- 规则详情抽屉 -->
-    <el-drawer
-      v-model="ruleDetailVisible"
-      title="规则详情"
-      size="600px"
-      :destroy-on-close="true"
-    >
+    <el-drawer v-model="ruleDetailVisible" title="规则详情" size="600px" :destroy-on-close="true">
       <div v-if="currentRule" class="rule-detail">
         <el-descriptions :column="1" border>
           <el-descriptions-item label="规则名称">
@@ -217,8 +184,13 @@
           </el-descriptions-item>
           <el-descriptions-item label="优先级">
             <el-tag
-              :type="currentRule.priority === 'high' ? 'danger' :
-                     currentRule.priority === 'medium' ? 'warning' : 'info'"
+              :type="
+                currentRule.priority === 'high'
+                  ? 'danger'
+                  : currentRule.priority === 'medium'
+                    ? 'warning'
+                    : 'info'
+              "
             >
               {{ currentRule.priority }}
             </el-tag>
@@ -268,12 +240,7 @@
       width="800px"
       :destroy-on-close="true"
     >
-      <el-form
-        ref="ruleFormRef"
-        :model="ruleForm"
-        :rules="ruleRules"
-        label-width="100px"
-      >
+      <el-form ref="ruleFormRef" :model="ruleForm" :rules="ruleRules" label-width="100px">
         <el-form-item label="规则名称" prop="name">
           <el-input v-model="ruleForm.name" placeholder="输入规则名称" />
         </el-form-item>
@@ -394,10 +361,7 @@
                 </el-radio-group>
               </el-form-item>
               <el-form-item label="设备标识">
-                <el-input
-                  v-model="deviceConfig.deviceId"
-                  placeholder="设备ID或指纹（可选）"
-                />
+                <el-input v-model="deviceConfig.deviceId" placeholder="设备ID或指纹（可选）" />
               </el-form-item>
             </div>
 
@@ -469,11 +433,7 @@
 
         <el-form label-width="100px">
           <el-form-item label="测试用户">
-            <el-select
-              v-model="testData.userId"
-              placeholder="选择测试用户"
-              style="width: 100%"
-            >
+            <el-select v-model="testData.userId" placeholder="选择测试用户" style="width: 100%">
               <el-option
                 v-for="user in testUsers"
                 :key="user.id"
@@ -484,17 +444,11 @@
           </el-form-item>
 
           <el-form-item label="资源">
-            <el-input
-              v-model="testData.resource"
-              placeholder="输入资源名称（如：user:read）"
-            />
+            <el-input v-model="testData.resource" placeholder="输入资源名称（如：user:read）" />
           </el-form-item>
 
           <el-form-item label="操作">
-            <el-input
-              v-model="testData.action"
-              placeholder="输入操作（如：read, write, delete）"
-            />
+            <el-input v-model="testData.action" placeholder="输入操作（如：read, write, delete）" />
           </el-form-item>
 
           <el-form-item label="上下文">
@@ -508,9 +462,7 @@
         </el-form>
 
         <div class="test-actions">
-          <el-button type="primary" @click="executeRuleTest">
-            执行测试
-          </el-button>
+          <el-button type="primary" @click="executeRuleTest"> 执行测试 </el-button>
         </div>
 
         <!-- 测试结果 -->
@@ -530,28 +482,34 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
-  Search, Plus, Upload, Download,
-  MoreFilled, Clock, Location,
-  Iphone, Timer
-} from '@element-plus/icons-vue'
-import enhancedPermissionService from '@/services/enhancedPermissionService'
+  Search,
+  Plus,
+  Upload,
+  Download,
+  MoreFilled,
+  Clock,
+  Location,
+  Iphone,
+  Timer,
+} from '@element-plus/icons-vue';
+import enhancedPermissionService from '@/services/enhancedPermissionService';
 
 // 响应式数据
-const searchKeyword = ref('')
-const filterType = ref('')
-const filterStatus = ref('')
-const showAdvanced = ref(false)
-const selectedRules = ref([])
-const ruleDetailVisible = ref(false)
-const currentRule = ref(null)
-const ruleDialogVisible = ref(false)
-const isEditing = ref(false)
-const testRuleDialogVisible = ref(false)
-const testRule = ref(null)
-const testResult = ref(null)
+const searchKeyword = ref('');
+const filterType = ref('');
+const filterStatus = ref('');
+const showAdvanced = ref(false);
+const selectedRules = ref([]);
+const ruleDetailVisible = ref(false);
+const currentRule = ref(null);
+const ruleDialogVisible = ref(false);
+const isEditing = ref(false);
+const testRuleDialogVisible = ref(false);
+const testRule = ref(null);
+const testResult = ref(null);
 
 // 规则列表
 const rules = ref([
@@ -566,15 +524,15 @@ const rules = ref([
     config: {
       startTime: '09:00',
       endTime: '18:00',
-      days: [1, 2, 3, 4, 5]
+      days: [1, 2, 3, 4, 5],
     },
     conditions: ['working_hours', 'business_days'],
     createdAt: new Date('2025-01-01'),
     stats: {
       executions: 1250,
       allowed: 1180,
-      denied: 70
-    }
+      denied: 70,
+    },
   },
   {
     id: '2',
@@ -585,15 +543,15 @@ const rules = ref([
     enabled: true,
     targetRoles: ['village_admin'],
     config: {
-      trustLevel: 'trusted'
+      trustLevel: 'trusted',
     },
     conditions: ['network_secure'],
     createdAt: new Date('2025-01-05'),
     stats: {
       executions: 890,
       allowed: 850,
-      denied: 40
-    }
+      denied: 40,
+    },
   },
   {
     id: '3',
@@ -605,15 +563,15 @@ const rules = ref([
     targetRoles: ['staff', 'villager'],
     config: {
       maxCount: 10,
-      timeWindow: 'minute'
+      timeWindow: 'minute',
     },
     conditions: [],
     createdAt: new Date('2025-01-10'),
     stats: {
       executions: 0,
       allowed: 0,
-      denied: 0
-    }
+      denied: 0,
+    },
   },
   {
     id: '4',
@@ -625,20 +583,20 @@ const rules = ref([
     targetRoles: ['department_head', 'staff'],
     config: {
       type: 'village',
-      radius: 1000
+      radius: 1000,
     },
     conditions: [],
     createdAt: new Date('2025-01-15'),
     stats: {
       executions: 456,
       allowed: 445,
-      denied: 11
-    }
-  }
-])
+      denied: 11,
+    },
+  },
+]);
 
 // 表单数据
-const ruleFormRef = ref(null)
+const ruleFormRef = ref(null);
 const ruleForm = reactive({
   name: '',
   description: '',
@@ -646,305 +604,294 @@ const ruleForm = reactive({
   priority: 'medium',
   targetRoles: [],
   conditions: [],
-  enabled: true
-})
+  enabled: true,
+});
 
 const timeConfig = reactive({
   startTime: '',
   endTime: '',
-  days: []
-})
+  days: [],
+});
 
 const locationConfig = reactive({
   type: 'village',
   coordinates: '',
-  radius: 1000
-})
+  radius: 1000,
+});
 
 const deviceConfig = reactive({
   trustLevel: 'trusted',
-  deviceId: ''
-})
+  deviceId: '',
+});
 
 const rateConfig = reactive({
   type: 'count',
   maxCount: 10,
   timeWindow: 'hour',
-  minInterval: 60
-})
+  minInterval: 60,
+});
 
 // 测试数据
 const testData = reactive({
   userId: '',
   resource: '',
   action: '',
-  context: ''
-})
+  context: '',
+});
 
 const testUsers = ref([
   { id: '1', name: '张管理员' },
   { id: '2', name: '李主管' },
-  { id: '3', name: '王工作人员' }
-])
+  { id: '3', name: '王工作人员' },
+]);
 
 const roleOptions = ref([
   { label: '村级管理员', value: 'village_admin' },
   { label: '部门主管', value: 'department_head' },
   { label: '工作人员', value: 'staff' },
-  { label: '村民', value: 'villager' }
-])
+  { label: '村民', value: 'villager' },
+]);
 
 const ruleRules = {
-  name: [
-    { required: true, message: '请输入规则名称', trigger: 'blur' }
-  ],
-  description: [
-    { required: true, message: '请输入规则描述', trigger: 'blur' }
-  ],
-  type: [
-    { required: true, message: '请选择规则类型', trigger: 'change' }
-  ],
-  targetRoles: [
-    { type: 'array', required: true, message: '请选择目标角色', trigger: 'change' }
-  ]
-}
+  name: [{ required: true, message: '请输入规则名称', trigger: 'blur' }],
+  description: [{ required: true, message: '请输入规则描述', trigger: 'blur' }],
+  type: [{ required: true, message: '请选择规则类型', trigger: 'change' }],
+  targetRoles: [{ type: 'array', required: true, message: '请选择目标角色', trigger: 'change' }],
+};
 
 // 计算属性
 const filteredRules = computed(() => {
-  let result = rules.value
+  let result = rules.value;
 
   if (searchKeyword.value) {
-    const keyword = searchKeyword.value.toLowerCase()
-    result = result.filter(rule =>
-      rule.name.toLowerCase().includes(keyword) ||
-      rule.description.toLowerCase().includes(keyword)
-    )
+    const keyword = searchKeyword.value.toLowerCase();
+    result = result.filter(
+      rule =>
+        rule.name.toLowerCase().includes(keyword) ||
+        rule.description.toLowerCase().includes(keyword)
+    );
   }
 
   if (filterType.value) {
-    result = result.filter(rule => rule.type === filterType.value)
+    result = result.filter(rule => rule.type === filterType.value);
   }
 
   if (filterStatus.value) {
-    const enabled = filterStatus.value === 'enabled'
-    result = result.filter(rule => rule.enabled === enabled)
+    const enabled = filterStatus.value === 'enabled';
+    result = result.filter(rule => rule.enabled === enabled);
   }
 
-  return result
-})
+  return result;
+});
 
 // 方法
 const handleSearch = () => {
   // 搜索逻辑已通过计算属性实现
-}
+};
 
 const handleFilter = () => {
   // 过滤逻辑已通过计算属性实现
-}
+};
 
-const handleSelectionChange = (selection) => {
-  selectedRules.value = selection
-}
+const handleSelectionChange = selection => {
+  selectedRules.value = selection;
+};
 
-const getTypeColor = (type) => {
+const getTypeColor = type => {
   const colors = {
     time_based: '#409eff',
     location_based: '#67c23a',
     device_trust: '#e6a23c',
-    rate_limit: '#f56c6c'
-  }
-  return colors[type] || '#909399'
-}
+    rate_limit: '#f56c6c',
+  };
+  return colors[type] || '#909399';
+};
 
-const getTypeIcon = (type) => {
+const getTypeIcon = type => {
   const icons = {
     time_based: Clock,
     location_based: Location,
     device_trust: Iphone,
-    rate_limit: Timer
-  }
-  return icons[type] || 'Document'
-}
+    rate_limit: Timer,
+  };
+  return icons[type] || 'Document';
+};
 
-const getTypeLabel = (type) => {
+const getTypeLabel = type => {
   const labels = {
     time_based: '时间规则',
     location_based: '位置规则',
     device_trust: '设备规则',
-    rate_limit: '频率规则'
-  }
-  return labels[type] || '未知规则'
-}
+    rate_limit: '频率规则',
+  };
+  return labels[type] || '未知规则';
+};
 
-const getTypeTagType = (type) => {
+const getTypeTagType = type => {
   const types = {
     time_based: 'primary',
     location_based: 'success',
     device_trust: 'warning',
-    rate_limit: 'danger'
-  }
-  return types[type] || 'info'
-}
+    rate_limit: 'danger',
+  };
+  return types[type] || 'info';
+};
 
-const getRoleName = (roleId) => {
-  const role = roleOptions.value.find(r => r.value === roleId)
-  return role ? role.label : roleId
-}
+const getRoleName = roleId => {
+  const role = roleOptions.value.find(r => r.value === roleId);
+  return role ? role.label : roleId;
+};
 
-const toggleRuleStatus = async (rule) => {
+const toggleRuleStatus = async rule => {
   try {
     // 调用API更新规则状态
-    ElMessage.success(`规则"${rule.name}"已${rule.enabled ? '启用' : '禁用'}`)
+    ElMessage.success(`规则"${rule.name}"已${rule.enabled ? '启用' : '禁用'}`);
   } catch (error) {
-    rule.enabled = !rule.enabled
-    ElMessage.error('更新规则状态失败')
+    rule.enabled = !rule.enabled;
+    ElMessage.error('更新规则状态失败');
   }
-}
+};
 
-const editRule = (rule) => {
-  isEditing.value = true
-  Object.assign(ruleForm, rule)
+const editRule = rule => {
+  isEditing.value = true;
+  Object.assign(ruleForm, rule);
 
   // 根据类型加载配置
   if (rule.type === 'time_based') {
-    Object.assign(timeConfig, rule.config)
+    Object.assign(timeConfig, rule.config);
   } else if (rule.type === 'location_based') {
-    Object.assign(locationConfig, rule.config)
+    Object.assign(locationConfig, rule.config);
   } else if (rule.type === 'device_trust') {
-    Object.assign(deviceConfig, rule.config)
+    Object.assign(deviceConfig, rule.config);
   } else if (rule.type === 'rate_limit') {
-    Object.assign(rateConfig, rule.config)
+    Object.assign(rateConfig, rule.config);
   }
 
-  ruleDialogVisible.value = true
-}
+  ruleDialogVisible.value = true;
+};
 
-const handleRuleTypeChange = (type) => {
+const handleRuleTypeChange = type => {
   // 重置配置
-  Object.assign(timeConfig, { startTime: '', endTime: '', days: [] })
-  Object.assign(locationConfig, { type: 'village', coordinates: '', radius: 1000 })
-  Object.assign(deviceConfig, { trustLevel: 'trusted', deviceId: '' })
-  Object.assign(rateConfig, { type: 'count', maxCount: 10, timeWindow: 'hour', minInterval: 60 })
-}
+  Object.assign(timeConfig, { startTime: '', endTime: '', days: [] });
+  Object.assign(locationConfig, { type: 'village', coordinates: '', radius: 1000 });
+  Object.assign(deviceConfig, { trustLevel: 'trusted', deviceId: '' });
+  Object.assign(rateConfig, { type: 'count', maxCount: 10, timeWindow: 'hour', minInterval: 60 });
+};
 
 const submitRule = async () => {
   try {
-    await ruleFormRef.value.validate()
+    await ruleFormRef.value.validate();
 
     // 构建规则配置
-    let config = {}
+    let config = {};
     if (ruleForm.type === 'time_based') {
-      config = { ...timeConfig }
+      config = { ...timeConfig };
     } else if (ruleForm.type === 'location_based') {
-      config = { ...locationConfig }
+      config = { ...locationConfig };
     } else if (ruleForm.type === 'device_trust') {
-      config = { ...deviceConfig }
+      config = { ...deviceConfig };
     } else if (ruleForm.type === 'rate_limit') {
-      config = { ...rateConfig }
+      config = { ...rateConfig };
     }
 
     const ruleData = {
       ...ruleForm,
       config,
-      createdAt: isEditing.value ? ruleForm.createdAt : new Date()
-    }
+      createdAt: isEditing.value ? ruleForm.createdAt : new Date(),
+    };
 
     if (isEditing.value) {
-      const index = rules.value.findIndex(r => r.id === ruleForm.id)
-      rules.value[index] = ruleData
-      ElMessage.success('规则更新成功')
+      const index = rules.value.findIndex(r => r.id === ruleForm.id);
+      rules.value[index] = ruleData;
+      ElMessage.success('规则更新成功');
     } else {
-      ruleData.id = Date.now().toString()
-      ruleData.stats = { executions: 0, allowed: 0, denied: 0 }
-      rules.value.push(ruleData)
-      ElMessage.success('规则创建成功')
+      ruleData.id = Date.now().toString();
+      ruleData.stats = { executions: 0, allowed: 0, denied: 0 };
+      rules.value.push(ruleData);
+      ElMessage.success('规则创建成功');
     }
 
-    ruleDialogVisible.value = false
+    ruleDialogVisible.value = false;
   } catch (error) {
-    console.error('保存规则失败:', error)
+    console.error('保存规则失败:', error);
   }
-}
+};
 
-const openTestRuleDialog = (rule) => {
-  testRule.value = rule
-  testResult.value = null
+const openTestRuleDialog = rule => {
+  testRule.value = rule;
+  testResult.value = null;
   Object.assign(testData, {
     userId: '',
     resource: '',
     action: '',
-    context: ''
-  })
-  testRuleDialogVisible.value = true
-}
+    context: '',
+  });
+  testRuleDialogVisible.value = true;
+};
 
 const executeRuleTest = async () => {
   try {
     if (!testData.userId || !testData.resource || !testData.action) {
-      ElMessage.warning('请填写完整的测试参数')
-      return
+      ElMessage.warning('请填写完整的测试参数');
+      return;
     }
 
     // 模拟测试执行
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     testResult.value = {
       allowed: Math.random() > 0.3,
       reason: Math.random() > 0.3 ? '规则验证通过' : '规则条件不满足',
-      executionTime: Math.floor(Math.random() * 100) + 'ms'
-    }
+      executionTime: Math.floor(Math.random() * 100) + 'ms',
+    };
 
-    ElMessage.success('测试执行完成')
+    ElMessage.success('测试执行完成');
   } catch (error) {
-    ElMessage.error('测试执行失败')
+    ElMessage.error('测试执行失败');
   }
-}
+};
 
-const handleRuleAction = async (command) => {
-  const [action, ruleId] = command.split('-')
-  const rule = rules.value.find(r => r.id === ruleId)
+const handleRuleAction = async command => {
+  const [action, ruleId] = command.split('-');
+  const rule = rules.value.find(r => r.id === ruleId);
 
   switch (action) {
     case 'copy':
-      isEditing.value = false
+      isEditing.value = false;
       Object.assign(ruleForm, {
         ...rule,
         name: rule.name + '_副本',
-        id: null
-      })
-      ruleDialogVisible.value = true
-      break
+        id: null,
+      });
+      ruleDialogVisible.value = true;
+      break;
 
     case 'export':
-      ElMessage.info('导出规则功能待实现')
-      break
+      ElMessage.info('导出规则功能待实现');
+      break;
 
     case 'delete':
       try {
-        await ElMessageBox.confirm(
-          `确定要删除规则"${rule.name}"吗？`,
-          '确认删除',
-          {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }
-        )
+        await ElMessageBox.confirm(`确定要删除规则"${rule.name}"吗？`, '确认删除', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+        });
 
-        const index = rules.value.findIndex(r => r.id === ruleId)
-        rules.value.splice(index, 1)
-        ElMessage.success('规则删除成功')
+        const index = rules.value.findIndex(r => r.id === ruleId);
+        rules.value.splice(index, 1);
+        ElMessage.success('规则删除成功');
       } catch (error) {
         if (error !== 'cancel') {
-          ElMessage.error('删除规则失败')
+          ElMessage.error('删除规则失败');
         }
       }
-      break
+      break;
   }
-}
+};
 
 const showCreateRuleDialog = () => {
-  isEditing.value = false
+  isEditing.value = false;
   Object.assign(ruleForm, {
     name: '',
     description: '',
@@ -952,43 +899,43 @@ const showCreateRuleDialog = () => {
     priority: 'medium',
     targetRoles: [],
     conditions: [],
-    enabled: true
-  })
-  handleRuleTypeChange('')
-  ruleDialogVisible.value = true
-}
+    enabled: true,
+  });
+  handleRuleTypeChange('');
+  ruleDialogVisible.value = true;
+};
 
 const showImportRulesDialog = () => {
-  ElMessage.info('导入规则功能待实现')
-}
+  ElMessage.info('导入规则功能待实现');
+};
 
 const exportRules = () => {
-  ElMessage.info('导出规则功能待实现')
-}
+  ElMessage.info('导出规则功能待实现');
+};
 
 const batchEnable = async () => {
   try {
     selectedRules.value.forEach(rule => {
-      rule.enabled = true
-    })
-    ElMessage.success(`已启用 ${selectedRules.value.length} 个规则`)
-    selectedRules.value = []
+      rule.enabled = true;
+    });
+    ElMessage.success(`已启用 ${selectedRules.value.length} 个规则`);
+    selectedRules.value = [];
   } catch (error) {
-    ElMessage.error('批量启用失败')
+    ElMessage.error('批量启用失败');
   }
-}
+};
 
 const batchDisable = async () => {
   try {
     selectedRules.value.forEach(rule => {
-      rule.enabled = false
-    })
-    ElMessage.success(`已禁用 ${selectedRules.value.length} 个规则`)
-    selectedRules.value = []
+      rule.enabled = false;
+    });
+    ElMessage.success(`已禁用 ${selectedRules.value.length} 个规则`);
+    selectedRules.value = [];
   } catch (error) {
-    ElMessage.error('批量禁用失败')
+    ElMessage.error('批量禁用失败');
   }
-}
+};
 
 const batchDelete = async () => {
   try {
@@ -998,37 +945,37 @@ const batchDelete = async () => {
       {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
       }
-    )
+    );
 
     selectedRules.value.forEach(rule => {
-      const index = rules.value.findIndex(r => r.id === rule.id)
-      rules.value.splice(index, 1)
-    })
+      const index = rules.value.findIndex(r => r.id === rule.id);
+      rules.value.splice(index, 1);
+    });
 
-    ElMessage.success(`已删除 ${selectedRules.value.length} 个规则`)
-    selectedRules.value = []
+    ElMessage.success(`已删除 ${selectedRules.value.length} 个规则`);
+    selectedRules.value = [];
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('批量删除失败')
+      ElMessage.error('批量删除失败');
     }
   }
-}
+};
 
 // 工具方法
-const formatDateTime = (date) => {
-  return new Date(date).toLocaleString()
-}
+const formatDateTime = date => {
+  return new Date(date).toLocaleString();
+};
 
-const formatRuleConfig = (config) => {
-  return JSON.stringify(config, null, 2)
-}
+const formatRuleConfig = config => {
+  return JSON.stringify(config, null, 2);
+};
 
 // 生命周期
 onMounted(() => {
   // 初始化数据
-})
+});
 </script>
 
 <style lang="scss" scoped>

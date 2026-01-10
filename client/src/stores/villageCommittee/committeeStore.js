@@ -12,13 +12,9 @@ export const useCommitteeStore = defineStore('committee', () => {
   const error = ref(null);
 
   // 计算属性
-  const activeMembers = computed(() =>
-    members.value.filter(m => m.status === 'active')
-  );
+  const activeMembers = computed(() => members.value.filter(m => m.status === 'active'));
 
-  const activePartyMembers = computed(() =>
-    partyMembers.value.filter(m => m.status === 'active')
-  );
+  const activePartyMembers = computed(() => partyMembers.value.filter(m => m.status === 'active'));
 
   const onDutyToday = computed(() => {
     const today = new Date().toISOString().split('T')[0];
@@ -41,7 +37,7 @@ export const useCommitteeStore = defineStore('committee', () => {
     }
   };
 
-  const createMember = async (memberData) => {
+  const createMember = async memberData => {
     try {
       const response = await committeeApi.createMember(memberData);
       members.value.push(response.data);
@@ -66,7 +62,7 @@ export const useCommitteeStore = defineStore('committee', () => {
     }
   };
 
-  const deleteMember = async (id) => {
+  const deleteMember = async id => {
     try {
       await committeeApi.deleteMember(id);
       members.value = members.value.filter(m => m.id !== id);
@@ -105,7 +101,7 @@ export const useCommitteeStore = defineStore('committee', () => {
     }
   };
 
-  const createPartyMember = async (memberData) => {
+  const createPartyMember = async memberData => {
     try {
       const response = await committeeApi.createPartyMember(memberData);
       partyMembers.value.push(response.data);
@@ -145,7 +141,7 @@ export const useCommitteeStore = defineStore('committee', () => {
     }
   };
 
-  const createDutySchedule = async (scheduleData) => {
+  const createDutySchedule = async scheduleData => {
     try {
       const response = await committeeApi.createDutySchedule(scheduleData);
       dutySchedule.value.push(response.data);
@@ -185,7 +181,7 @@ export const useCommitteeStore = defineStore('committee', () => {
     }
   };
 
-  const generateHouseholdCode = async (householdData) => {
+  const generateHouseholdCode = async householdData => {
     try {
       const response = await committeeApi.generateHouseholdCode(householdData);
       householdCodes.value.push(response.data);
@@ -221,7 +217,7 @@ export const useCommitteeStore = defineStore('committee', () => {
     }
   };
 
-  const importMembers = async (file) => {
+  const importMembers = async file => {
     try {
       const formData = new FormData();
       formData.append('file', file);
@@ -285,6 +281,6 @@ export const useCommitteeStore = defineStore('committee', () => {
     importMembers,
 
     // 重置
-    resetState
+    resetState,
   };
 });

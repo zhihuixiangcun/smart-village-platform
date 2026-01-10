@@ -15,47 +15,47 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
-import { ElMessage } from 'element-plus'
-import StepForm from '@/components/common/StepForm.vue'
-import { useLargeText } from '@/composables/useLargeText'
-import { profileApi } from '@/api/residentProfile'
-import { serviceApi } from '@/api/service'
-import { encryptionService } from '@/utils/encryption'
-import { auditLogService } from '@/utils/security'
+import { ref, reactive, onMounted, computed } from 'vue';
+import { ElMessage } from 'element-plus';
+import StepForm from '@/components/common/StepForm.vue';
+import { useLargeText } from '@/composables/useLargeText';
+import { profileApi } from '@/api/residentProfile';
+import { serviceApi } from '@/api/service';
+import { encryptionService } from '@/utils/encryption';
+import { auditLogService } from '@/utils/security';
 
 const props = defineProps({
   service: {
     type: Object,
-    required: true
-  }
-})
+    required: true,
+  },
+});
 
-const emit = defineEmits(['close', 'submitted'])
+const emit = defineEmits(['close', 'submitted']);
 
-const { isLargeText } = useLargeText()
+const { isLargeText } = useLargeText();
 
-const stepFormRef = ref(null)
+const stepFormRef = ref(null);
 
 // 步骤配置
 const steps = [
   {
     title: '基本信息',
-    description: '填写申请人基本资料'
+    description: '填写申请人基本资料',
   },
   {
     title: '补贴类型',
-    description: '选择申请的补贴类型'
+    description: '选择申请的补贴类型',
   },
   {
     title: '材料上传',
-    description: '上传证明材料'
+    description: '上传证明材料',
   },
   {
     title: '确认提交',
-    description: '核对信息并提交'
-  }
-]
+    description: '核对信息并提交',
+  },
+];
 
 // 表单数据
 const formData = reactive({
@@ -93,16 +93,16 @@ const formData = reactive({
   otherMaterials: [],
 
   // 备注
-  remark: ''
-})
+  remark: '',
+});
 
 // 补贴类型选项
 const subsidyTypeOptions = [
   { label: '高龄津贴(80-89周岁)', value: 'age_80_89' },
   { label: '高龄津贴(90-99周岁)', value: 'age_90_99' },
   { label: '高龄津贴(100周岁以上)', value: 'age_100_plus' },
-  { label: '养老服务补贴', value: 'service' }
-]
+  { label: '养老服务补贴', value: 'service' },
+];
 
 // 组件
 const BasicInfoStep = {
@@ -227,82 +227,87 @@ const BasicInfoStep = {
   props: ['formData'],
   emits: ['update', 'validate', 'voice-input'],
   setup(props, { emit }) {
-    const { Phone } = useElementPlusIcons()
+    const { Phone } = useElementPlusIcons();
 
     const rules = {
       applicantName: [{ required: true, message: '请输入申请人姓名', trigger: 'blur' }],
       applicantIdCard: [
         { required: true, message: '请输入身份证号', trigger: 'blur' },
-        { pattern: /^(\d{15}$|^\d{18}$|^\d{17}(\d|X|x)$)/, message: '请输入正确的身份证号', trigger: 'blur' }
+        {
+          pattern: /^(\d{15}$|^\d{18}$|^\d{17}(\d|X|x)$)/,
+          message: '请输入正确的身份证号',
+          trigger: 'blur',
+        },
       ],
       applicantPhone: [
         { required: true, message: '请输入联系电话', trigger: 'blur' },
-        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
+        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' },
       ],
       address: [{ required: true, message: '请输入现住址', trigger: 'blur' }],
       householdType: [{ required: true, message: '请选择户口性质', trigger: 'change' }],
       emergencyContact: [{ required: true, message: '请输入紧急联系人', trigger: 'blur' }],
       emergencyPhone: [
         { required: true, message: '请输入紧急联系电话', trigger: 'blur' },
-        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
-      ]
-    }
+        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' },
+      ],
+    };
 
     // 从身份证号计算年龄
     const calculateAge = () => {
-      const idCard = props.formData.applicantIdCard
+      const idCard = props.formData.applicantIdCard;
       if (idCard && idCard.length >= 15) {
-        let birthYear = idCard.length === 18 ? idCard.substring(6, 10) : '19' + idCard.substring(6, 8)
-        let birthMonth = idCard.length === 18 ? idCard.substring(10, 12) : idCard.substring(8, 10)
-        let birthDay = idCard.length === 18 ? idCard.substring(12, 14) : idCard.substring(10, 12)
+        let birthYear =
+          idCard.length === 18 ? idCard.substring(6, 10) : '19' + idCard.substring(6, 8);
+        let birthMonth = idCard.length === 18 ? idCard.substring(10, 12) : idCard.substring(8, 10);
+        let birthDay = idCard.length === 18 ? idCard.substring(12, 14) : idCard.substring(10, 12);
 
-        props.formData.birthDate = `${birthYear}-${birthMonth}-${birthDay}`
-        calculateAgeFromBirth()
+        props.formData.birthDate = `${birthYear}-${birthMonth}-${birthDay}`;
+        calculateAgeFromBirth();
       }
-    }
+    };
 
     // 从出生日期计算年龄
     const calculateAgeFromBirth = () => {
       if (props.formData.birthDate) {
-        const birthDate = new Date(props.formData.birthDate)
-        const today = new Date()
-        let age = today.getFullYear() - birthDate.getFullYear()
-        const monthDiff = today.getMonth() - birthDate.getMonth()
+        const birthDate = new Date(props.formData.birthDate);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
         if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-          age--
+          age--;
         }
-        props.formData.age = age
+        props.formData.age = age;
 
-        emit('update', { ...props.formData })
+        emit('update', { ...props.formData });
       }
-    }
+    };
 
     // 加载用户信息
     const loadUserInfo = async () => {
       try {
-        const response = await profileApi.getMyProfile()
-        const profile = response.data
+        const response = await profileApi.getMyProfile();
+        const profile = response.data;
 
         if (profile) {
-          props.formData.applicantName = profile.personalInfo?.name || ''
-          props.formData.applicantIdCard = profile.personalInfo?.idCard || ''
-          props.formData.applicantPhone = profile.contact?.phone || ''
-          props.formData.address = profile.contact?.address || ''
-          props.formData.birthDate = profile.personalInfo?.birthDate || ''
-          calculateAgeFromBirth()
+          props.formData.applicantName = profile.personalInfo?.name || '';
+          props.formData.applicantIdCard = profile.personalInfo?.idCard || '';
+          props.formData.applicantPhone = profile.contact?.phone || '';
+          props.formData.address = profile.contact?.address || '';
+          props.formData.birthDate = profile.personalInfo?.birthDate || '';
+          calculateAgeFromBirth();
         }
       } catch (error) {
-        console.error('Load user info error:', error)
+        console.error('Load user info error:', error);
       }
-    }
+    };
 
     onMounted(() => {
-      loadUserInfo()
-    })
+      loadUserInfo();
+    });
 
-    return { rules, Phone, calculateAge, calculateAgeFromBirth }
-  }
-}
+    return { rules, Phone, calculateAge, calculateAgeFromBirth };
+  },
+};
 
 const SubsidyTypeStep = {
   template: `
@@ -402,16 +407,16 @@ const SubsidyTypeStep = {
           type: 'array',
           required: true,
           message: '请至少选择一种补贴类型',
-          trigger: 'change'
-        }
+          trigger: 'change',
+        },
       ],
       livingCondition: [{ required: true, message: '请选择居住情况', trigger: 'change' }],
-      healthCondition: [{ required: true, message: '请选择健康状况', trigger: 'change' }]
-    }
+      healthCondition: [{ required: true, message: '请选择健康状况', trigger: 'change' }],
+    };
 
-    return { rules }
-  }
-}
+    return { rules };
+  },
+};
 
 const UploadStep = {
   template: `
@@ -512,16 +517,16 @@ const UploadStep = {
   emits: ['update', 'validate'],
   setup(props, { emit }) {
     const handleUpdate = () => {
-      emit('update', { ...props.formData })
-    }
+      emit('update', { ...props.formData });
+    };
 
-    const handleValidate = (isValid) => {
-      emit('validate', isValid)
-    }
+    const handleValidate = isValid => {
+      emit('validate', isValid);
+    };
 
-    return { handleUpdate, handleValidate }
-  }
-}
+    return { handleUpdate, handleValidate };
+  },
+};
 
 const ConfirmStep = {
   template: `
@@ -617,87 +622,87 @@ const ConfirmStep = {
   props: ['formData'],
   emits: ['validate'],
   setup(props, { emit }) {
-    const confirmed = ref(false)
+    const confirmed = ref(false);
 
-    const maskIdCard = (idCard) => {
-      if (!idCard) return ''
-      return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2')
-    }
+    const maskIdCard = idCard => {
+      if (!idCard) return '';
+      return idCard.replace(/(\d{6})\d{8}(\d{4})/, '$1********$2');
+    };
 
-    const maskPhone = (phone) => {
-      if (!phone) return ''
-      return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')
-    }
+    const maskPhone = phone => {
+      if (!phone) return '';
+      return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
+    };
 
-    const maskBankCard = (card) => {
-      if (!card) return ''
-      return card.replace(/(\d{4})\d+(\d{4})/, '$1 **** **** $2')
-    }
+    const maskBankCard = card => {
+      if (!card) return '';
+      return card.replace(/(\d{4})\d+(\d{4})/, '$1 **** **** $2');
+    };
 
-    const getLivingConditionLabel = (condition) => {
+    const getLivingConditionLabel = condition => {
       const map = {
         alone: '独居',
         family: '与子女同住',
-        institution: '养老机构'
-      }
-      return map[condition] || condition
-    }
+        institution: '养老机构',
+      };
+      return map[condition] || condition;
+    };
 
-    const getHealthConditionLabel = (condition) => {
+    const getHealthConditionLabel = condition => {
       const map = {
         healthy: '健康',
         basic: '基本自理',
         partial: '部分自理',
-        unable: '不能自理'
-      }
-      return map[condition] || condition
-    }
+        unable: '不能自理',
+      };
+      return map[condition] || condition;
+    };
 
-    const getCareLevelLabel = (level) => {
+    const getCareLevelLabel = level => {
       const map = {
         severe: '重度照护',
         moderate: '中度照护',
-        mild: '轻度照护'
-      }
-      return map[level] || level
-    }
+        mild: '轻度照护',
+      };
+      return map[level] || level;
+    };
 
-    const getSubsidyTypeLabel = (type) => {
+    const getSubsidyTypeLabel = type => {
       const map = {
         age_80_89: '高龄津贴(80-89周岁)',
         age_90_99: '高龄津贴(90-99周岁)',
         age_100_plus: '高龄津贴(100周岁以上)',
-        service: '养老服务补贴'
-      }
-      return map[type] || type
-    }
+        service: '养老服务补贴',
+      };
+      return map[type] || type;
+    };
 
     const getUploadedFiles = () => {
-      const files = []
+      const files = [];
       if (props.formData.idCardPhotos?.length) {
-        files.push({ name: '身份证照片' })
+        files.push({ name: '身份证照片' });
       }
       if (props.formData.householdPhotos?.length) {
-        files.push({ name: '户口本照片' })
+        files.push({ name: '户口本照片' });
       }
       if (props.formData.elderlyCardPhotos?.length) {
-        files.push({ name: '老人证照片' })
+        files.push({ name: '老人证照片' });
       }
       if (props.formData.bankCardPhotos?.length) {
-        files.push({ name: '银行卡照片' })
+        files.push({ name: '银行卡照片' });
       }
       if (props.formData.medicalReport?.length) {
-        files.push({ name: '医疗证明' })
+        files.push({ name: '医疗证明' });
       }
       if (props.formData.otherMaterials?.length) {
-        files.push({ name: '其他材料' })
+        files.push({ name: '其他材料' });
       }
-      return files
-    }
+      return files;
+    };
 
-    const handleConfirmChange = (val) => {
-      emit('validate', val)
-    }
+    const handleConfirmChange = val => {
+      emit('validate', val);
+    };
 
     return {
       confirmed,
@@ -709,29 +714,29 @@ const ConfirmStep = {
       getCareLevelLabel,
       getSubsidyTypeLabel,
       getUploadedFiles,
-      handleConfirmChange
-    }
-  }
-}
+      handleConfirmChange,
+    };
+  },
+};
 
 // 处理数据更新
-const handleUpdate = (data) => {
-  Object.assign(formData, data)
-}
+const handleUpdate = data => {
+  Object.assign(formData, data);
+};
 
 // 处理语音输入
 const handleVoiceInput = (field, text) => {
   if (field === 'applicantName') {
-    const nameMatch = text.match(/(?:我叫|我是|姓名是)([\u4e00-\u9fa5]{2,4})/)
+    const nameMatch = text.match(/(?:我叫|我是|姓名是)([\u4e00-\u9fa5]{2,4})/);
     if (nameMatch) {
-      formData.applicantName = nameMatch[1]
-      ElMessage.success(`已识别姓名: ${formData.applicantName}`)
+      formData.applicantName = nameMatch[1];
+      ElMessage.success(`已识别姓名: ${formData.applicantName}`);
     }
   }
-}
+};
 
 // 提交申请
-const handleSubmit = async (data) => {
+const handleSubmit = async data => {
   try {
     // 加密敏感信息
     const encryptedData = {
@@ -739,26 +744,26 @@ const handleSubmit = async (data) => {
       applicantIdCard: encryptionService.encrypt(data.applicantIdCard),
       applicantPhone: encryptionService.encrypt(data.applicantPhone),
       emergencyPhone: encryptionService.encrypt(data.emergencyPhone),
-      bankAccount: encryptionService.encrypt(data.bankAccount)
-    }
+      bankAccount: encryptionService.encrypt(data.bankAccount),
+    };
 
     await serviceApi.submitElderlyApplication({
       ...encryptedData,
       serviceType: 'elderly',
-      serviceName: '老年补贴申请'
-    })
+      serviceName: '老年补贴申请',
+    });
 
     // 记录操作日志
-    await auditLogService.logApplicationSubmit('elderly', '老年补贴申请')
+    await auditLogService.logApplicationSubmit('elderly', '老年补贴申请');
 
-    ElMessage.success('申请已提交,请耐心等待审核')
-    emit('submitted', data)
-    emit('close')
+    ElMessage.success('申请已提交,请耐心等待审核');
+    emit('submitted', data);
+    emit('close');
   } catch (error) {
-    ElMessage.error('提交失败: ' + error.message)
-    throw error
+    ElMessage.error('提交失败: ' + error.message);
+    throw error;
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>

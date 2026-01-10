@@ -21,7 +21,7 @@ const roleSchema = new Schema({
   code: {
     type: String,
     enum: ['secretary', 'village_head', 'accountant',
-           'population_admin', 'security_director', 'resident'],
+      'population_admin', 'security_director', 'resident'],
     unique: true,
     required: true,
     lowercase: true,

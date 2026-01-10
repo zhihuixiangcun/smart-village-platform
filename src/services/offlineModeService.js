@@ -509,7 +509,7 @@ class OfflineModeService {
 
       // 完成同步
       const finalStatus = failed === 0 ? 'completed' :
-                         succeeded === 0 ? 'failed' : 'partial';
+        succeeded === 0 ? 'failed' : 'partial';
 
       syncLog.status = finalStatus;
       syncLog.timeStats.completedAt = new Date();

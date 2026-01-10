@@ -8,12 +8,8 @@
           <p class="page-subtitle">分级权限体系 • 智能值班调度 • 审计追踪系统</p>
         </div>
         <div class="header-right">
-          <el-button type="primary" @click="showAddDialog" icon="Plus">
-            添加村委成员
-          </el-button>
-          <el-button type="success" @click="showDutySchedule" icon="Calendar">
-            值班安排
-          </el-button>
+          <el-button type="primary" @click="showAddDialog" icon="Plus"> 添加村委成员 </el-button>
+          <el-button type="success" @click="showDutySchedule" icon="Calendar"> 值班安排 </el-button>
         </div>
       </div>
     </div>
@@ -102,28 +98,16 @@
                 </el-select>
               </el-col>
               <el-col :span="6">
-                <el-button type="primary" @click="searchMembers" icon="Search">
-                  搜索
-                </el-button>
-                <el-button @click="resetFilters" icon="Refresh">
-                  重置
-                </el-button>
-                <el-button type="success" @click="exportMembers" icon="Download">
-                  导出
-                </el-button>
+                <el-button type="primary" @click="searchMembers" icon="Search"> 搜索 </el-button>
+                <el-button @click="resetFilters" icon="Refresh"> 重置 </el-button>
+                <el-button type="success" @click="exportMembers" icon="Download"> 导出 </el-button>
               </el-col>
             </el-row>
           </div>
 
           <!-- 成员列表 -->
           <div class="members-table">
-            <el-table
-              :data="filteredMembers"
-              v-loading="loading"
-              stripe
-              border
-              style="width: 100%"
-            >
+            <el-table :data="filteredMembers" v-loading="loading" stripe border style="width: 100%">
               <el-table-column prop="id" label="编号" width="80" />
               <el-table-column prop="name" label="姓名" width="100" />
               <el-table-column prop="position" label="职务" width="120">
@@ -155,15 +139,11 @@
               </el-table-column>
               <el-table-column prop="dutyStatus" label="值班状态" width="100">
                 <template #default="scope">
-                  <el-tag v-if="scope.row.dutyStatus === 'on_duty'" type="success">
-                    值班中
-                  </el-tag>
+                  <el-tag v-if="scope.row.dutyStatus === 'on_duty'" type="success"> 值班中 </el-tag>
                   <el-tag v-else-if="scope.row.dutyStatus === 'scheduled'" type="warning">
                     已排班
                   </el-tag>
-                  <el-tag v-else type="info">
-                    空闲
-                  </el-tag>
+                  <el-tag v-else type="info"> 空闲 </el-tag>
                 </template>
               </el-table-column>
               <el-table-column prop="status" label="在职状态" width="100">
@@ -176,12 +156,7 @@
               <el-table-column prop="joinDate" label="任职时间" width="120" />
               <el-table-column label="操作" width="200" fixed="right">
                 <template #default="scope">
-                  <el-button
-                    type="primary"
-                    size="small"
-                    @click="editMember(scope.row)"
-                    icon="Edit"
-                  >
+                  <el-button type="primary" size="small" @click="editMember(scope.row)" icon="Edit">
                     编辑
                   </el-button>
                   <el-button
@@ -196,13 +171,13 @@
                     <el-button type="info" size="small" icon="More" />
                     <template #dropdown>
                       <el-dropdown-menu>
-                        <el-dropdown-item :command="{action: 'transfer', member: scope.row}">
+                        <el-dropdown-item :command="{ action: 'transfer', member: scope.row }">
                           调任
                         </el-dropdown-item>
-                        <el-dropdown-item :command="{action: 'retire', member: scope.row}">
+                        <el-dropdown-item :command="{ action: 'retire', member: scope.row }">
                           离职
                         </el-dropdown-item>
-                        <el-dropdown-item :command="{action: 'audit', member: scope.row}">
+                        <el-dropdown-item :command="{ action: 'audit', member: scope.row }">
                           审计日志
                         </el-dropdown-item>
                       </el-dropdown-menu>
@@ -250,11 +225,7 @@
               </el-table-column>
               <el-table-column label="操作" width="150">
                 <template #default="scope">
-                  <el-button
-                    type="primary"
-                    size="small"
-                    @click="editRolePermissions(scope.row)"
-                  >
+                  <el-button type="primary" size="small" @click="editRolePermissions(scope.row)">
                     编辑权限
                   </el-button>
                 </template>
@@ -371,12 +342,7 @@
               <el-table-column prop="ip" label="IP地址" width="120" />
               <el-table-column label="操作" width="100">
                 <template #default="scope">
-                  <el-button
-                    type="text"
-                    @click="viewAuditDetail(scope.row)"
-                  >
-                    详情
-                  </el-button>
+                  <el-button type="text" @click="viewAuditDetail(scope.row)"> 详情 </el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -392,12 +358,7 @@
       width="600px"
       :before-close="handleDialogClose"
     >
-      <el-form
-        ref="addFormRef"
-        :model="addForm"
-        :rules="addFormRules"
-        label-width="100px"
-      >
+      <el-form ref="addFormRef" :model="addForm" :rules="addFormRules" label-width="100px">
         <el-form-item label="姓名" prop="name">
           <el-input v-model="addForm.name" placeholder="请输入姓名" />
         </el-form-item>
@@ -431,13 +392,9 @@
             :before-upload="beforeUpload"
           >
             <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-            <div class="el-upload__text">
-              将文件拖到此处，或<em>点击上传</em>
-            </div>
+            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
             <template #tip>
-              <div class="el-upload__tip">
-                只能上传jpg/png/pdf文件，且不超过5MB
-              </div>
+              <div class="el-upload__tip">只能上传jpg/png/pdf文件，且不超过5MB</div>
             </template>
           </el-upload>
         </el-form-item>
@@ -445,9 +402,7 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="addDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitAddForm" :loading="submitting">
-            确定
-          </el-button>
+          <el-button type="primary" @click="submitAddForm" :loading="submitting"> 确定 </el-button>
         </span>
       </template>
     </el-dialog>
@@ -457,52 +412,63 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Edit, Calendar, Plus, More, Star, View, Refresh, Download, UploadFilled } from '@element-plus/icons-vue'
-import { axiosInstance as api } from '@/api'
-import { useUserStore } from '@/stores/userStore'
+import { ref, reactive, computed, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import {
+  Search,
+  Edit,
+  Calendar,
+  Plus,
+  More,
+  Star,
+  View,
+  Refresh,
+  Download,
+  UploadFilled,
+} from '@element-plus/icons-vue';
+import { axiosInstance as api } from '@/api';
+import { useUserStore } from '@/stores/userStore';
 
-const userStore = useUserStore()
+const userStore = useUserStore();
 
 // 从数据库加载数据
 const loadMembers = async () => {
   try {
-    const response = await api.get('/api/v1/committee/members')
+    const response = await api.get('/api/v1/committee/members');
     if (response.success) {
-      members.value = response.data || []
+      members.value = response.data || [];
       // 更新统计
-      stats.value.total = members.value.length
-      stats.value.partyMembers = members.value.filter(m => m.isPartyMember).length
-      stats.value.onDuty = members.value.filter(m => m.dutyStatus === 'onduty').length
+      stats.value.total = members.value.length;
+      stats.value.partyMembers = members.value.filter(m => m.isPartyMember).length;
+      stats.value.onDuty = members.value.filter(m => m.dutyStatus === 'onduty').length;
     }
   } catch (error) {
-    console.error('加载村委数据失败:', error)
-    ElMessage.warning('加载数据失败，显示模拟数据')
+    console.error('加载村委数据失败:', error);
+    ElMessage.warning('加载数据失败，显示模拟数据');
   }
-}
+};
 
 // 响应式数据
-const activeTab = ref('members')
-const loading = ref(false)
-const submitting = ref(false)
+const activeTab = ref('members');
+const loading = ref(false);
+const submitting = ref(false);
 
 // 统计数据
 const statistics = reactive({
   totalMembers: 12,
   partyMembers: 8,
   onDutyToday: 2,
-  activeRoles: 6
-})
+  activeRoles: 6,
+});
 
 // 搜索和筛选
-const searchQuery = ref('')
-const filterRole = ref('')
-const filterStatus = ref('')
-const filterPartyMember = ref('')
-const currentPage = ref(1)
-const pageSize = ref(20)
-const totalMembers = ref(0)
+const searchQuery = ref('');
+const filterRole = ref('');
+const filterStatus = ref('');
+const filterPartyMember = ref('');
+const currentPage = ref(1);
+const pageSize = ref(20);
+const totalMembers = ref(0);
 
 // 成员数据
 const members = ref([
@@ -515,7 +481,7 @@ const members = ref([
     isPartyMember: true,
     dutyStatus: 'on_duty',
     status: 'active',
-    joinDate: '2020-01-15'
+    joinDate: '2020-01-15',
   },
   {
     id: 2,
@@ -526,7 +492,7 @@ const members = ref([
     isPartyMember: true,
     dutyStatus: 'scheduled',
     status: 'active',
-    joinDate: '2019-03-10'
+    joinDate: '2019-03-10',
   },
   {
     id: 3,
@@ -537,120 +503,120 @@ const members = ref([
     isPartyMember: false,
     dutyStatus: 'free',
     status: 'active',
-    joinDate: '2021-06-20'
-  }
-])
+    joinDate: '2021-06-20',
+  },
+]);
 
 // 计算属性
 const filteredMembers = computed(() => {
-  let result = members.value
+  let result = members.value;
 
   if (searchQuery.value) {
-    result = result.filter(member =>
-      member.name.includes(searchQuery.value) ||
-      member.phone.includes(searchQuery.value) ||
-      getPositionName(member.position).includes(searchQuery.value)
-    )
+    result = result.filter(
+      member =>
+        member.name.includes(searchQuery.value) ||
+        member.phone.includes(searchQuery.value) ||
+        getPositionName(member.position).includes(searchQuery.value)
+    );
   }
 
   if (filterRole.value) {
-    result = result.filter(member => member.position === filterRole.value)
+    result = result.filter(member => member.position === filterRole.value);
   }
 
   if (filterStatus.value) {
-    result = result.filter(member => member.status === filterStatus.value)
+    result = result.filter(member => member.status === filterStatus.value);
   }
 
   if (filterPartyMember.value !== '') {
-    result = result.filter(member =>
-      member.isPartyMember === (filterPartyMember.value === 'true')
-    )
+    result = result.filter(member => member.isPartyMember === (filterPartyMember.value === 'true'));
   }
 
-  return result
-})
+  return result;
+});
 
 const activeMembers = computed(() => {
-  return members.value.filter(member => member.status === 'active')
-})
+  return members.value.filter(member => member.status === 'active');
+});
 
 // 添加成员表单
-const addDialogVisible = ref(false)
-const addFormRef = ref()
+const addDialogVisible = ref(false);
+const addFormRef = ref();
 const addForm = reactive({
   name: '',
   idCard: '',
   phone: '',
   position: '',
   isPartyMember: false,
-  fileList: []
-})
+  fileList: [],
+});
 
 const addFormRules = {
-  name: [
-    { required: true, message: '请输入姓名', trigger: 'blur' }
-  ],
+  name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
   idCard: [
     { required: true, message: '请输入身份证号', trigger: 'blur' },
-    { pattern: /^[1-9]\d{5}(18|19|20)\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/, message: '身份证号格式不正确', trigger: 'blur' }
+    {
+      pattern:
+        /^[1-9]\d{5}(18|19|20)\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/,
+      message: '身份证号格式不正确',
+      trigger: 'blur',
+    },
   ],
   phone: [
     { required: true, message: '请输入联系电话', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确', trigger: 'blur' }
+    { pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确', trigger: 'blur' },
   ],
-  position: [
-    { required: true, message: '请选择职务', trigger: 'change' }
-  ]
-}
+  position: [{ required: true, message: '请选择职务', trigger: 'change' }],
+};
 
 // 值班管理
-const dutyCalendarDate = ref(new Date())
+const dutyCalendarDate = ref(new Date());
 const dutyForm = reactive({
   memberId: '',
   dutyDate: [],
-  dutyType: ''
-})
+  dutyType: '',
+});
 
 const dutySchedule = ref([
   {
     date: '2024-01-15',
     name: '张村长',
-    type: 'daily'
+    type: 'daily',
   },
   {
     date: '2024-01-16',
     name: '李支书',
-    type: 'daily'
-  }
-])
+    type: 'daily',
+  },
+]);
 
 // 权限管理
 const rolePermissions = ref([
   {
     roleName: '村支书',
     description: '村党支部书记',
-    permissions: ['all_permissions']
+    permissions: ['all_permissions'],
   },
   {
     roleName: '村主任',
     description: '村民委员会主任',
-    permissions: ['village_management', 'project_approval', 'finance_view']
+    permissions: ['village_management', 'project_approval', 'finance_view'],
   },
   {
     roleName: '会计',
     description: '财务管理人员',
-    permissions: ['finance_management', 'budget_create', 'report_generate']
+    permissions: ['finance_management', 'budget_create', 'report_generate'],
   },
   {
     roleName: '人口主任',
     description: '人口管理人员',
-    permissions: ['resident_management', 'household_change', 'statistics_report']
-  }
-])
+    permissions: ['resident_management', 'household_change', 'statistics_report'],
+  },
+]);
 
 // 审计日志
-const auditDateRange = ref([])
-const auditActionFilter = ref('')
+const auditDateRange = ref([]);
+const auditActionFilter = ref('');
 const auditLogs = ref([
   {
     timestamp: '2024-01-15 14:30:22',
@@ -658,7 +624,7 @@ const auditLogs = ref([
     action: 'add_member',
     target: '张村长',
     details: '添加新的村委成员，职务：村主任',
-    ip: '192.168.1.100'
+    ip: '192.168.1.100',
   },
   {
     timestamp: '2024-01-15 10:15:33',
@@ -666,187 +632,183 @@ const auditLogs = ref([
     action: 'duty_schedule',
     target: '王会计',
     details: '安排值班：2024-01-16 至 2024-01-18',
-    ip: '192.168.1.101'
-  }
-])
+    ip: '192.168.1.101',
+  },
+]);
 
 // 方法
-const getPositionName = (position) => {
+const getPositionName = position => {
   const positions = {
     secretary: '村支书',
     director: '村主任',
     accountant: '会计',
     population_manager: '人口主任',
     women_director: '妇女主任',
-    security_manager: '治安主任'
-  }
-  return positions[position] || position
-}
+    security_manager: '治安主任',
+  };
+  return positions[position] || position;
+};
 
-const getPositionTagType = (position) => {
+const getPositionTagType = position => {
   const types = {
     secretary: 'danger',
     director: 'warning',
     accountant: 'success',
     population_manager: 'info',
     women_director: 'primary',
-    security_manager: 'warning'
-  }
-  return types[position] || 'info'
-}
+    security_manager: 'warning',
+  };
+  return types[position] || 'info';
+};
 
-const getStatusName = (status) => {
+const getStatusName = status => {
   const statuses = {
     active: '在职',
     inactive: '离职',
-    transferred: '调任'
-  }
-  return statuses[status] || status
-}
+    transferred: '调任',
+  };
+  return statuses[status] || status;
+};
 
-const getStatusTagType = (status) => {
+const getStatusTagType = status => {
   const types = {
     active: 'success',
     inactive: 'danger',
-    transferred: 'warning'
-  }
-  return types[status] || 'info'
-}
+    transferred: 'warning',
+  };
+  return types[status] || 'info';
+};
 
-const maskPhone = (phone) => {
-  if (!phone) return ''
-  return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')
-}
+const maskPhone = phone => {
+  if (!phone) return '';
+  return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
+};
 
-const togglePhoneVisibility = (member) => {
-  member.phoneVisible = !member.phoneVisible
-}
+const togglePhoneVisibility = member => {
+  member.phoneVisible = !member.phoneVisible;
+};
 
 const showAddDialog = () => {
-  addDialogVisible.value = true
-}
+  addDialogVisible.value = true;
+};
 
 const showDutySchedule = () => {
-  activeTab.value = 'duty'
-}
+  activeTab.value = 'duty';
+};
 
 const searchMembers = () => {
-  console.log('搜索成员')
+  console.log('搜索成员');
   // 实现搜索逻辑
-}
+};
 
 const resetFilters = () => {
-  searchQuery.value = ''
-  filterRole.value = ''
-  filterStatus.value = ''
-  filterPartyMember.value = ''
-}
+  searchQuery.value = '';
+  filterRole.value = '';
+  filterStatus.value = '';
+  filterPartyMember.value = '';
+};
 
 const exportMembers = () => {
-  ElMessage.success('导出功能开发中...')
-}
+  ElMessage.success('导出功能开发中...');
+};
 
-const editMember = (member) => {
-  console.log('编辑成员:', member)
-  ElMessage.info('编辑功能开发中...')
-}
+const editMember = member => {
+  console.log('编辑成员:', member);
+  ElMessage.info('编辑功能开发中...');
+};
 
-const assignDuty = (member) => {
-  console.log('分配值班:', member)
-  activeTab.value = 'duty'
-  dutyForm.memberId = member.id
-}
+const assignDuty = member => {
+  console.log('分配值班:', member);
+  activeTab.value = 'duty';
+  dutyForm.memberId = member.id;
+};
 
-const handleMemberAction = (command) => {
-  const { action, member } = command
+const handleMemberAction = command => {
+  const { action, member } = command;
 
   switch (action) {
     case 'transfer':
-      ElMessage.info('调任功能开发中...')
-      break
+      ElMessage.info('调任功能开发中...');
+      break;
     case 'retire':
-      ElMessageBox.confirm(
-        `确认要将 ${member.name} 设置为离职状态吗？`,
-        '确认操作',
-        {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }
-      ).then(() => {
-        member.status = 'inactive'
-        ElMessage.success('操作成功')
-      })
-      break
+      ElMessageBox.confirm(`确认要将 ${member.name} 设置为离职状态吗？`, '确认操作', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }).then(() => {
+        member.status = 'inactive';
+        ElMessage.success('操作成功');
+      });
+      break;
     case 'audit':
-      activeTab.value = 'audit'
-      break
+      activeTab.value = 'audit';
+      break;
   }
-}
+};
 
-const handleSizeChange = (val) => {
-  pageSize.value = val
-  currentPage.value = 1
-}
+const handleSizeChange = val => {
+  pageSize.value = val;
+  currentPage.value = 1;
+};
 
-const handleCurrentChange = (val) => {
-  currentPage.value = val
-}
+const handleCurrentChange = val => {
+  currentPage.value = val;
+};
 
-const getDutyInfo = (date) => {
-  return dutySchedule.value.find(duty => duty.date === date)
-}
+const getDutyInfo = date => {
+  return dutySchedule.value.find(duty => duty.date === date);
+};
 
 const scheduleDuty = () => {
   if (!dutyForm.memberId || !dutyForm.dutyDate.length || !dutyForm.dutyType) {
-    ElMessage.warning('请填写完整的值班信息')
-    return
+    ElMessage.warning('请填写完整的值班信息');
+    return;
   }
 
-  ElMessage.success('值班安排成功')
+  ElMessage.success('值班安排成功');
 
   // 重置表单
   Object.assign(dutyForm, {
     memberId: '',
     dutyDate: [],
-    dutyType: ''
-  })
-}
+    dutyType: '',
+  });
+};
 
 const autoSchedule = () => {
-  ElMessage.success('自动排班完成')
-}
+  ElMessage.success('自动排班完成');
+};
 
 const searchAuditLogs = () => {
-  console.log('搜索审计日志')
-}
+  console.log('搜索审计日志');
+};
 
-const viewAuditDetail = (log) => {
-  console.log('查看审计详情:', log)
-  ElMessage.info('详情功能开发中...')
-}
+const viewAuditDetail = log => {
+  console.log('查看审计详情:', log);
+  ElMessage.info('详情功能开发中...');
+};
 
-const getAuditActionName = (action) => {
+const getAuditActionName = action => {
   const actions = {
     add_member: '添加成员',
     edit_member: '编辑信息',
     permission_change: '权限变更',
-    duty_schedule: '排班操作'
-  }
-  return actions[action] || action
-}
+    duty_schedule: '排班操作',
+  };
+  return actions[action] || action;
+};
 
-const getAuditActionType = (action) => {
+const getAuditActionType = action => {
   const types = {
     add_member: 'success',
     edit_member: 'warning',
     permission_change: 'danger',
-    duty_schedule: 'info'
-  }
-  return types[action] || 'info'
-}
+    duty_schedule: 'info',
+  };
+  return types[action] || 'info';
+};
 
-const getPermissionName = (permission) => {
+const getPermissionName = permission => {
   const permissions = {
     all_permissions: '所有权限',
     village_management: '村务管理',
@@ -857,30 +819,30 @@ const getPermissionName = (permission) => {
     report_generate: '报表生成',
     resident_management: '村民管理',
     household_change: '户籍变更',
-    statistics_report: '统计上报'
-  }
-  return permissions[permission] || permission
-}
+    statistics_report: '统计上报',
+  };
+  return permissions[permission] || permission;
+};
 
-const editRolePermissions = (role) => {
-  console.log('编辑角色权限:', role)
-  ElMessage.info('权限编辑功能开发中...')
-}
+const editRolePermissions = role => {
+  console.log('编辑角色权限:', role);
+  ElMessage.info('权限编辑功能开发中...');
+};
 
-const handleDialogClose = (done) => {
+const handleDialogClose = done => {
   ElMessageBox.confirm('确认关闭？')
     .then(() => {
-      done()
+      done();
     })
     .catch(() => {
       // catch error
-    })
-}
+    });
+};
 
 const submitAddForm = () => {
-  addFormRef.value.validate(async (valid) => {
+  addFormRef.value.validate(async valid => {
     if (valid) {
-      submitting.value = true
+      submitting.value = true;
 
       try {
         // 调用API添加村委成员
@@ -889,61 +851,62 @@ const submitAddForm = () => {
           position: addForm.position,
           phone: addForm.phone,
           isPartyMember: addForm.isPartyMember,
-          villageId: userStore.userInfo?.villageId || null
-        })
+          villageId: userStore.userInfo?.villageId || null,
+        });
 
         if (response.success) {
-          members.value.push(response.data)
-          stats.value.total++
+          members.value.push(response.data);
+          stats.value.total++;
           if (response.data.isPartyMember) {
-            stats.value.partyMembers++
+            stats.value.partyMembers++;
           }
-          ElMessage.success('添加成功')
-          addDialogVisible.value = false
+          ElMessage.success('添加成功');
+          addDialogVisible.value = false;
 
           // 重置表单
-          addFormRef.value.resetFields()
-          addForm.fileList = []
+          addFormRef.value.resetFields();
+          addForm.fileList = [];
         } else {
-          ElMessage.error(response.message || '添加失败')
+          ElMessage.error(response.message || '添加失败');
         }
       } catch (error) {
-        console.error('添加村委成员失败:', error)
-        ElMessage.error(error.response?.data?.error || error.message || '添加失败')
+        console.error('添加村委成员失败:', error);
+        ElMessage.error(error.response?.data?.error || error.message || '添加失败');
       } finally {
-        submitting.value = false
+        submitting.value = false;
       }
     }
-  })
-}
+  });
+};
 
-const handlePreview = (file) => {
-  console.log('预览文件:', file)
-}
+const handlePreview = file => {
+  console.log('预览文件:', file);
+};
 
-const handleRemove = (file) => {
-  console.log('删除文件:', file)
-}
+const handleRemove = file => {
+  console.log('删除文件:', file);
+};
 
-const beforeUpload = (file) => {
-  const isJPG = file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'application/pdf'
-  const isLt5M = file.size / 1024 / 1024 < 5
+const beforeUpload = file => {
+  const isJPG =
+    file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'application/pdf';
+  const isLt5M = file.size / 1024 / 1024 < 5;
 
   if (!isJPG) {
-    ElMessage.error('上传文件只能是 JPG/PNG/PDF 格式!')
+    ElMessage.error('上传文件只能是 JPG/PNG/PDF 格式!');
   }
   if (!isLt5M) {
-    ElMessage.error('上传文件大小不能超过 5MB!')
+    ElMessage.error('上传文件大小不能超过 5MB!');
   }
-  return isJPG && isLt5M
-}
+  return isJPG && isLt5M;
+};
 
 // 生命周期
 onMounted(() => {
-  console.log('村委管理模块已加载')
+  console.log('村委管理模块已加载');
   // 加载数据
-  loadMembers()
-})
+  loadMembers();
+});
 </script>
 
 <style scoped lang="scss">
@@ -1003,7 +966,7 @@ onMounted(() => {
         .stat-value {
           font-size: 24px;
           font-weight: bold;
-          color: #409EFF;
+          color: #409eff;
           margin-bottom: 4px;
         }
 

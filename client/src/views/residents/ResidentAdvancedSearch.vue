@@ -15,20 +15,25 @@
             placeholder="姓名、身份证号、电话号码"
             prefix-icon="Search"
             clearable
-            style="width: 280px;"
+            style="width: 280px"
             @keyup.enter="handleSearch"
           />
         </el-form-item>
 
         <el-form-item label="性别">
-          <el-select v-model="searchForm.gender" placeholder="全部" clearable style="width: 120px;">
+          <el-select v-model="searchForm.gender" placeholder="全部" clearable style="width: 120px">
             <el-option label="男" value="male" />
             <el-option label="女" value="female" />
           </el-select>
         </el-form-item>
 
         <el-form-item label="年龄段">
-          <el-select v-model="searchForm.ageGroup" placeholder="全部" clearable style="width: 140px;">
+          <el-select
+            v-model="searchForm.ageGroup"
+            placeholder="全部"
+            clearable
+            style="width: 140px"
+          >
             <el-option label="儿童(0-14)" value="children" />
             <el-option label="青年(15-34)" value="youth" />
             <el-option label="中年(35-59)" value="middle" />
@@ -37,12 +42,8 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" @click="handleSearch" icon="Search">
-            搜索
-          </el-button>
-          <el-button @click="handleReset" icon="Refresh">
-            重置
-          </el-button>
+          <el-button type="primary" @click="handleSearch" icon="Search"> 搜索 </el-button>
+          <el-button @click="handleReset" icon="Refresh"> 重置 </el-button>
           <el-button
             type="text"
             @click="toggleAdvanced"
@@ -69,7 +70,7 @@
               :min="0"
               :max="120"
               :marks="ageMarks"
-              style="width: 200px;"
+              style="width: 200px"
             />
             <span class="age-range-text">
               {{ searchForm.ageRange[0] }} - {{ searchForm.ageRange[1] }} 岁
@@ -83,7 +84,7 @@
               clearable
               multiple
               collapse-tags
-              style="width: 180px;"
+              style="width: 180px"
             >
               <el-option label="健康" value="healthy" />
               <el-option label="慢性病" value="chronic" />
@@ -99,7 +100,7 @@
               clearable
               multiple
               collapse-tags
-              style="width: 160px;"
+              style="width: 160px"
             >
               <el-option label="未婚" value="unmarried" />
               <el-option label="已婚" value="married" />
@@ -126,7 +127,7 @@
               clearable
               multiple
               collapse-tags
-              style="width: 180px;"
+              style="width: 180px"
             >
               <el-option label="小学及以下" value="primary_below" />
               <el-option label="初中" value="junior" />
@@ -171,11 +172,11 @@
               :options="addressOptions"
               placeholder="请选择"
               clearable
-              style="width: 220px;"
+              style="width: 220px"
               :props="{
                 expandTrigger: 'hover',
                 emitPath: false,
-                checkStrictly: true
+                checkStrictly: true,
               }"
             />
           </el-form-item>
@@ -188,12 +189,17 @@
               start-placeholder="开始日期"
               end-placeholder="结束日期"
               value-format="YYYY-MM-DD"
-              style="width: 240px;"
+              style="width: 240px"
             />
           </el-form-item>
 
           <el-form-item label="数据状态">
-            <el-select v-model="searchForm.dataStatus" placeholder="全部" clearable style="width: 140px;">
+            <el-select
+              v-model="searchForm.dataStatus"
+              placeholder="全部"
+              clearable
+              style="width: 140px"
+            >
               <el-option label="已验证" value="verified" />
               <el-option label="待验证" value="pending" />
               <el-option label="需更新" value="need_update" />
@@ -203,15 +209,9 @@
 
         <!-- 操作按钮 -->
         <div class="advanced-actions">
-          <el-button type="primary" @click="handleSearch" icon="Search">
-            执行搜索
-          </el-button>
-          <el-button @click="handleReset" icon="Refresh">
-            重置所有条件
-          </el-button>
-          <el-button @click="saveSearchTemplate" icon="Collection">
-            保存搜索模板
-          </el-button>
+          <el-button type="primary" @click="handleSearch" icon="Search"> 执行搜索 </el-button>
+          <el-button @click="handleReset" icon="Refresh"> 重置所有条件 </el-button>
+          <el-button @click="saveSearchTemplate" icon="Collection"> 保存搜索模板 </el-button>
           <el-dropdown @command="loadSearchTemplate">
             <el-button icon="FolderOpened">
               加载模板<el-icon class="el-icon--right"><arrow-down /></el-icon>
@@ -225,9 +225,7 @@
                 >
                   {{ template.name }}
                 </el-dropdown-item>
-                <el-dropdown-item divided @click="manageTemplates">
-                  管理模板
-                </el-dropdown-item>
+                <el-dropdown-item divided @click="manageTemplates"> 管理模板 </el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -246,8 +244,8 @@
         <template #default>
           <div class="stats-detail">
             <span v-if="searchResults.gender">
-              男性 {{ searchResults.gender.male || 0 }} 人，
-              女性 {{ searchResults.gender.female || 0 }} 人
+              男性 {{ searchResults.gender.male || 0 }} 人， 女性
+              {{ searchResults.gender.female || 0 }} 人
             </span>
             <span v-if="searchResults.ageGroups">
               | 平均年龄 {{ searchResults.averageAge?.toFixed(1) || 0 }} 岁
@@ -261,11 +259,7 @@
     </div>
 
     <!-- 搜索模板管理对话框 -->
-    <el-dialog
-      v-model="templateDialogVisible"
-      title="搜索模板管理"
-      width="600px"
-    >
+    <el-dialog v-model="templateDialogVisible" title="搜索模板管理" width="600px">
       <el-table :data="searchTemplates" style="width: 100%">
         <el-table-column prop="name" label="模板名称" />
         <el-table-column prop="description" label="描述" />
@@ -276,9 +270,7 @@
         </el-table-column>
         <el-table-column label="操作" width="120">
           <template #default="scope">
-            <el-button size="small" @click="loadSearchTemplate(scope.row)">
-              加载
-            </el-button>
+            <el-button size="small" @click="loadSearchTemplate(scope.row)"> 加载 </el-button>
             <el-button size="small" type="danger" @click="deleteTemplate(scope.row)">
               删除
             </el-button>
@@ -290,28 +282,33 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, reactive, computed, watch, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
-  Search, Refresh, Filter, ArrowUp, ArrowDown, Collection,
-  FolderOpened
-} from '@element-plus/icons-vue'
+  Search,
+  Refresh,
+  Filter,
+  ArrowUp,
+  ArrowDown,
+  Collection,
+  FolderOpened,
+} from '@element-plus/icons-vue';
 
 // Props
 const props = defineProps({
   modelValue: {
     type: Object,
-    default: () => ({})
-  }
-})
+    default: () => ({}),
+  },
+});
 
 // Emits
-const emit = defineEmits(['update:modelValue', 'search', 'reset'])
+const emit = defineEmits(['update:modelValue', 'search', 'reset']);
 
 // 响应式数据
-const searchFormRef = ref()
-const showAdvanced = ref(false)
-const templateDialogVisible = ref(false)
+const searchFormRef = ref();
+const showAdvanced = ref(false);
+const templateDialogVisible = ref(false);
 
 // 搜索表单
 const searchForm = reactive({
@@ -326,11 +323,11 @@ const searchForm = reactive({
   specialTags: [],
   address: [],
   createTimeRange: [],
-  dataStatus: ''
-})
+  dataStatus: '',
+});
 
 // 搜索结果统计
-const searchResults = ref(null)
+const searchResults = ref(null);
 
 // 年龄标记
 const ageMarks = {
@@ -338,8 +335,8 @@ const ageMarks = {
   18: '18岁',
   35: '35岁',
   60: '60岁',
-  120: '120岁'
-}
+  120: '120岁',
+};
 
 // 地址选项
 const addressOptions = ref([
@@ -349,16 +346,16 @@ const addressOptions = ref([
     children: [
       { value: 'street1', label: '主街道' },
       { value: 'street2', label: '次街道' },
-      { value: 'street3', label: '后街' }
-    ]
+      { value: 'street3', label: '后街' },
+    ],
   },
   {
     value: 'zone2',
     label: '第二片区',
     children: [
       { value: 'avenue1', label: '中心大道' },
-      { value: 'avenue2', label: '商业街' }
-    ]
+      { value: 'avenue2', label: '商业街' },
+    ],
   },
   {
     value: 'zone3',
@@ -366,10 +363,10 @@ const addressOptions = ref([
     children: [
       { value: 'road1', label: '农贸路' },
       { value: 'road2', label: '工业路' },
-      { value: 'road3', label: '学校路' }
-    ]
-  }
-])
+      { value: 'road3', label: '学校路' },
+    ],
+  },
+]);
 
 // 搜索模板
 const searchTemplates = ref([
@@ -378,18 +375,18 @@ const searchTemplates = ref([
     name: '低保户查询',
     description: '查询所有低保户村民',
     conditions: {
-      specialTags: ['low_income']
+      specialTags: ['low_income'],
     },
-    createTime: '2024-01-15'
+    createTime: '2024-01-15',
   },
   {
     id: 2,
     name: '老年人统计',
     description: '60岁以上老年人',
     conditions: {
-      ageRange: [60, 120]
+      ageRange: [60, 120],
     },
-    createTime: '2024-01-16'
+    createTime: '2024-01-16',
   },
   {
     id: 3,
@@ -397,28 +394,28 @@ const searchTemplates = ref([
     description: '需要特别关注的独居老人',
     conditions: {
       specialTags: ['elderly_alone'],
-      ageRange: [65, 120]
+      ageRange: [65, 120],
     },
-    createTime: '2024-01-17'
-  }
-])
+    createTime: '2024-01-17',
+  },
+]);
 
 // 方法
 const toggleAdvanced = () => {
-  showAdvanced.value = !showAdvanced.value
-}
+  showAdvanced.value = !showAdvanced.value;
+};
 
 const handleSearch = () => {
   const searchParams = {
     ...searchForm,
     // 转换特殊处理的字段
     ageMin: searchForm.ageRange[0],
-    ageMax: searchForm.ageRange[1]
-  }
+    ageMax: searchForm.ageRange[1],
+  };
 
-  emit('search', searchParams)
-  emit('update:modelValue', searchParams)
-}
+  emit('search', searchParams);
+  emit('update:modelValue', searchParams);
+};
 
 const handleReset = () => {
   // 重置表单
@@ -434,13 +431,13 @@ const handleReset = () => {
     specialTags: [],
     address: [],
     createTimeRange: [],
-    dataStatus: ''
-  })
+    dataStatus: '',
+  });
 
-  searchResults.value = null
-  emit('reset')
-  emit('update:modelValue', {})
-}
+  searchResults.value = null;
+  emit('reset');
+  emit('update:modelValue', {});
+};
 
 const saveSearchTemplate = async () => {
   try {
@@ -451,101 +448,98 @@ const saveSearchTemplate = async () => {
         confirmButtonText: '保存',
         cancelButtonText: '取消',
         inputPattern: /^.{1,20}$/,
-        inputErrorMessage: '模板名称长度应为 1-20 个字符'
+        inputErrorMessage: '模板名称长度应为 1-20 个字符',
       }
-    )
+    );
 
     const template = {
       id: Date.now(),
       name: templateName,
       description: generateTemplateDescription(),
       conditions: { ...searchForm },
-      createTime: new Date().toISOString().split('T')[0]
-    }
+      createTime: new Date().toISOString().split('T')[0],
+    };
 
-    searchTemplates.value.push(template)
-    ElMessage.success('搜索模板保存成功')
+    searchTemplates.value.push(template);
+    ElMessage.success('搜索模板保存成功');
   } catch {
     // 用户取消操作
   }
-}
+};
 
 const generateTemplateDescription = () => {
-  const conditions = []
+  const conditions = [];
 
-  if (searchForm.keyword) conditions.push(`关键词: ${searchForm.keyword}`)
-  if (searchForm.gender) conditions.push(`性别: ${searchForm.gender}`)
-  if (searchForm.ageGroup) conditions.push(`年龄段: ${searchForm.ageGroup}`)
-  if (searchForm.specialTags.length) conditions.push(`特殊身份: ${searchForm.specialTags.join(', ')}`)
+  if (searchForm.keyword) conditions.push(`关键词: ${searchForm.keyword}`);
+  if (searchForm.gender) conditions.push(`性别: ${searchForm.gender}`);
+  if (searchForm.ageGroup) conditions.push(`年龄段: ${searchForm.ageGroup}`);
+  if (searchForm.specialTags.length)
+    conditions.push(`特殊身份: ${searchForm.specialTags.join(', ')}`);
 
-  return conditions.join('; ') || '自定义查询条件'
-}
+  return conditions.join('; ') || '自定义查询条件';
+};
 
-const loadSearchTemplate = (template) => {
-  Object.assign(searchForm, template.conditions)
-  ElMessage.success(`已加载模板: ${template.name}`)
-  handleSearch()
-}
+const loadSearchTemplate = template => {
+  Object.assign(searchForm, template.conditions);
+  ElMessage.success(`已加载模板: ${template.name}`);
+  handleSearch();
+};
 
-const deleteTemplate = async (template) => {
+const deleteTemplate = async template => {
   try {
-    await ElMessageBox.confirm(
-      `确定要删除模板 "${template.name}" 吗？`,
-      '删除确认',
-      {
-        confirmButtonText: '删除',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
+    await ElMessageBox.confirm(`确定要删除模板 "${template.name}" 吗？`, '删除确认', {
+      confirmButtonText: '删除',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
 
-    const index = searchTemplates.value.findIndex(t => t.id === template.id)
+    const index = searchTemplates.value.findIndex(t => t.id === template.id);
     if (index > -1) {
-      searchTemplates.value.splice(index, 1)
-      ElMessage.success('模板删除成功')
+      searchTemplates.value.splice(index, 1);
+      ElMessage.success('模板删除成功');
     }
   } catch {
     // 用户取消操作
   }
-}
+};
 
 const manageTemplates = () => {
-  templateDialogVisible.value = true
-}
+  templateDialogVisible.value = true;
+};
 
-const formatDate = (date) => {
-  return new Date(date).toLocaleDateString()
-}
+const formatDate = date => {
+  return new Date(date).toLocaleDateString();
+};
 
 // 更新搜索结果统计
-const updateSearchResults = (results) => {
-  searchResults.value = results
-}
+const updateSearchResults = results => {
+  searchResults.value = results;
+};
 
 // 监听外部搜索条件变化
 watch(
   () => props.modelValue,
-  (newValue) => {
+  newValue => {
     if (newValue && Object.keys(newValue).length > 0) {
-      Object.assign(searchForm, newValue)
+      Object.assign(searchForm, newValue);
     }
   },
   { immediate: true }
-)
+);
 
 // 暴露方法给父组件
 defineExpose({
   updateSearchResults,
   resetForm: handleReset,
-  getSearchParams: () => searchForm
-})
+  getSearchParams: () => searchForm,
+});
 
 onMounted(() => {
   // 初始化时如果有搜索条件则执行搜索
   if (props.modelValue && Object.keys(props.modelValue).length > 0) {
-    handleSearch()
+    handleSearch();
   }
-})
+});
 </script>
 
 <style lang="scss" scoped>
