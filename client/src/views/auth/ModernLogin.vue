@@ -207,6 +207,19 @@
               </el-form-item>
 
               <el-form-item>
+                <el-checkbox v-model="agreeToTerms" class="terms-check">
+                  我已阅读并同意
+                  <el-link type="primary" @click="showTermsDialog = true" class="terms-link">
+                    《用户服务协议》
+                  </el-link>
+                  和
+                  <el-link type="primary" @click="showPrivacyDialog = true" class="terms-link">
+                    《隐私政策》
+                  </el-link>
+                </el-checkbox>
+              </el-form-item>
+
+              <el-form-item>
                 <el-button
                   type="primary"
                   native-type="submit"
@@ -234,8 +247,7 @@
           </div>
 
           <footer class="login-footer">
-            <p>© 2024 智慧乡村平台 技术支持</p>
-            <span class="version-badge">v2.0</span>
+            <p>© 智慧乡村平台</p>
           </footer>
         </div>
       </section>
@@ -347,6 +359,72 @@
         </button>
       </div>
     </el-dialog>
+
+    <el-dialog
+      v-model="showTermsDialog"
+      title="用户服务协议"
+      width="720px"
+      class="custom-dialog"
+      role="dialog"
+      aria-labelledby="terms-title"
+      aria-modal="true"
+    >
+      <div class="dialog-content terms-content">
+        <h3>智慧乡村平台用户服务协议</h3>
+        <p>欢迎使用智慧乡村平台！请您在使用前仔细阅读以下协议条款。</p>
+        
+        <h4>一、服务说明</h4>
+        <p>智慧乡村平台是一个综合性乡村服务平台，旨在为村民、村干部、乡镇干部及采购商提供便捷的数字化服务。</p>
+        
+        <h4>二、用户义务</h4>
+        <p>用户应妥善保管账号密码，不得将账号借予他人使用。用户应对通过其账号进行的所有活动承担责任。</p>
+        
+        <h4>三、隐私保护</h4>
+        <p>平台重视用户隐私保护，承诺依法保护用户的个人信息安全。</p>
+        
+        <h4>四、免责声明</h4>
+        <p>平台尽力确保服务的稳定性和准确性，但不对因不可抗力或网络原因导致的服务中断承担责任。</p>
+        
+        <h4>五、协议更新</h4>
+        <p>平台保留根据实际情况修改本协议的权利，修改将通过平台公告方式通知用户。</p>
+      </div>
+      <template #footer>
+        <el-button type="primary" @click="showTermsDialog = false">我已阅读</el-button>
+      </template>
+    </el-dialog>
+
+    <el-dialog
+      v-model="showPrivacyDialog"
+      title="隐私政策"
+      width="720px"
+      class="custom-dialog"
+      role="dialog"
+      aria-labelledby="privacy-title"
+      aria-modal="true"
+    >
+      <div class="dialog-content privacy-content">
+        <h3>隐私政策</h3>
+        <p>智慧乡村平台重视您的隐私权益，特制定本隐私政策说明。</p>
+        
+        <h4>一、信息收集</h4>
+        <p>我们收集您注册时提供的手机号、姓名等信息，以及使用服务过程中产生的数据。</p>
+        
+        <h4>二、信息使用</h4>
+        <p>您的信息仅用于提供服务、身份验证及平台运营分析，不会用于其他商业目的。</p>
+        
+        <h4>三、信息保护</h4>
+        <p>我们采用加密技术保护您的个人信息，防止未经授权的访问和使用。</p>
+        
+        <h4>四、信息共享</h4>
+        <p>未经您的同意，我们不会向第三方共享您的个人信息，法律法规另有规定的除外。</p>
+        
+        <h4>五、您的权利</h4>
+        <p>您有权查询、更正、删除您的个人信息，或注销账号。</p>
+      </div>
+      <template #footer>
+        <el-button type="primary" @click="showPrivacyDialog = false">我已阅读</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -420,10 +498,13 @@ const userStore = useUserStore();
 const selectedRole = ref(null);
 const showPassword = ref(false);
 const rememberMe = ref(false);
+const agreeToTerms = ref(false);
 const loading = ref(false);
 const codeCountdown = ref(0);
 const showForgotPassword = ref(false);
 const showRegisterDialog = ref(false);
+const showTermsDialog = ref(false);
+const showPrivacyDialog = ref(false);
 
 const loginFormRef = ref(null);
 let countdownTimer = null;
@@ -507,12 +588,13 @@ const loginRules = reactive({
 
 const canLogin = computed(() => {
   const hasCredentials = loginForm.phone.length === 11 && loginForm.password.length >= 6;
+  const hasAgreed = agreeToTerms.value;
   
   if (showVillageSelect.value) {
-    return hasCredentials && loginForm.villageId;
+    return hasCredentials && hasAgreed && loginForm.villageId;
   }
   
-  return hasCredentials;
+  return hasCredentials && hasAgreed;
 });
 
 const showVillageSelect = computed(() => {
@@ -1363,6 +1445,49 @@ onBeforeUnmount(() => {
 
 .forgot-link {
   font-size: 14px;
+}
+
+.terms-check {
+  width: 100%;
+  padding: 8px 0;
+}
+
+.terms-check .el-checkbox__label {
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.terms-link {
+  font-size: 14px;
+}
+
+.dialog-content {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 10px 0;
+}
+
+.dialog-content h3 {
+  margin: 0 0 20px;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.dialog-content h4 {
+  margin: 20px 0 10px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.dialog-content p {
+  margin: 0 0 10px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.7;
 }
 
 .login-btn {
