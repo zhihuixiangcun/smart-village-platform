@@ -107,8 +107,11 @@
                   采购商
                 </el-tag>
               </div>
-            </div>
-          </template>
+    <footer class="page-footer">
+      <p>© 2025 智慧乡村平台 技术支持 v2.0</p>
+    </footer>
+  </div>
+</template>
           
           <el-form
             ref="purchaserFormRef"
@@ -1108,6 +1111,19 @@ onMounted(() => {
 
 .form-footer .el-link {
   font-weight: 500;
+}
+
+.page-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 20px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  background: transparent;
+  z-index: 10;
 }
 
 .separator {

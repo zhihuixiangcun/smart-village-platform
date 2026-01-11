@@ -1,58 +1,69 @@
 <template>
-  <div class="resident-register-container">
+  <div class="register-container">
     <div class="register-wrapper">
       <aside class="brand-section" aria-labelledby="brand-title">
         <div class="brand-content">
           <div class="brand-logo">
             <div class="logo-icon" aria-hidden="true">
-              <el-icon :size="56"><UserFilled /></el-icon>
+              <el-icon :size="56"><Setting /></el-icon>
             </div>
             <h1 id="brand-title" class="brand-name">智慧乡村</h1>
             <p class="brand-tag">Smart Village Platform</p>
           </div>
 
           <div class="brand-slogan">
-            <h2>村民注册</h2>
-            <p>加入智慧乡村，享受便民服务</p>
+            <h2>管理员注册</h2>
+            <p>系统管理，权限控制，维护平台安全</p>
           </div>
 
           <div class="features-showcase">
             <article class="feature-card" role="article">
               <div class="feature-icon-wrapper" aria-hidden="true">
-                <el-icon :size="28"><Document /></el-icon>
-              </div>
-              <div class="feature-info">
-                <h4>村务办理</h4>
-                <p>在线办理各类村务事项</p>
-              </div>
-            </article>
-            <article class="feature-card" role="article">
-              <div class="feature-icon-wrapper" aria-hidden="true">
-                <el-icon :size="28"><Search /></el-icon>
-              </div>
-              <div class="feature-info">
-                <h4>信息查询</h4>
-                <p>村务信息、政策公告查询</p>
-              </div>
-            </article>
-            <article class="feature-card" role="article">
-              <div class="feature-icon-wrapper" aria-hidden="true">
                 <el-icon :size="28"><UserFilled /></el-icon>
               </div>
               <div class="feature-info">
-                <h4>邻里互助</h4>
-                <p>村民互助、信息共享</p>
+                <h4>用户管理</h4>
+                <p>管理各类用户账号和权限分配</p>
               </div>
             </article>
             <article class="feature-card" role="article">
               <div class="feature-icon-wrapper" aria-hidden="true">
-                <el-icon :size="28"><Medal /></el-icon>
+                <el-icon :size="28"><Lock /></el-icon>
               </div>
               <div class="feature-info">
-                <h4>补贴申请</h4>
-                <p>各类惠农补贴在线申请</p>
+                <h4>权限控制</h4>
+                <p>精细化角色权限配置和管理</p>
               </div>
             </article>
+            <article class="feature-card" role="article">
+              <div class="feature-icon-wrapper" aria-hidden="true">
+                <el-icon :size="28"><DataAnalysis /></el-icon>
+              </div>
+              <div class="feature-info">
+                <h4>系统配置</h4>
+                <p>平台参数设置和功能配置</p>
+              </div>
+            </article>
+            <article class="feature-card" role="article">
+              <div class="feature-icon-wrapper" aria-hidden="true">
+                <el-icon :size="28"><Monitor /></el-icon>
+              </div>
+              <div class="feature-info">
+                <h4>安全监控</h4>
+                <p>系统运行监控和安全审计</p>
+              </div>
+            </article>
+          </div>
+
+          <div class="requirements-section">
+            <h3>申请条件</h3>
+            <ul class="requirements-list">
+              <li><el-icon><Check /></el-icon>具备计算机或相关专业背景</li>
+              <li><el-icon><Check /></el-icon>熟悉数据库管理和系统运维</li>
+              <li><el-icon><Check /></el-icon>了解网络安全和信息安全管理</li>
+              <li><el-icon><Check /></el-icon>具有良好的职业道德和保密意识</li>
+              <li><el-icon><Check /></el-icon>能够熟练使用各类办公和管理软件</li>
+            </ul>
           </div>
         </div>
 
@@ -65,11 +76,11 @@
       <section class="form-section" aria-labelledby="form-heading">
         <div class="form-content">
           <header class="form-header">
-            <h2 id="form-heading" class="form-title">村民信息登记</h2>
-            <p class="form-subtitle">请如实填写以下信息，完成村民注册</p>
-            <el-tag type="success" effect="plain" size="large" class="role-tag">
-              <el-icon><UserFilled /></el-icon>
-              村民
+            <h2 id="form-heading" class="form-title">管理员申请表</h2>
+            <p class="form-subtitle">请如实填写以下信息，申请系统管理权限</p>
+            <el-tag type="primary" effect="plain" size="large" class="role-tag">
+              <el-icon><Setting /></el-icon>
+              系统管理员
             </el-tag>
           </header>
 
@@ -80,7 +91,7 @@
             label-position="top"
             size="large"
             class="register-form"
-            @submit.prevent="handleRegister"
+            @submit.prevent="handleSubmit"
           >
             <div class="form-section-block">
               <h3 class="block-title">
@@ -135,52 +146,123 @@
                 </el-col>
 
                 <el-col :span="12">
-                  <el-form-item label="身份证号码" prop="idCard">
+                  <el-form-item label="电子邮箱" prop="email">
                     <el-input
-                      v-model="registerForm.idCard"
-                      placeholder="请输入18位身份证号"
-                      maxlength="18"
+                      v-model="registerForm.email"
+                      placeholder="请输入电子邮箱"
                       clearable
                     >
                       <template #prefix>
-                        <el-icon><Postcard /></el-icon>
+                        <el-icon><Message /></el-icon>
                       </template>
                     </el-input>
                   </el-form-item>
                 </el-col>
               </el-row>
+
+              <el-form-item label="身份证号码" prop="idCard">
+                <el-input
+                  v-model="registerForm.idCard"
+                  placeholder="请输入18位身份证号"
+                  maxlength="18"
+                  clearable
+                >
+                  <template #prefix>
+                    <el-icon><Postcard /></el-icon>
+                  </template>
+                </el-input>
+              </el-form-item>
             </div>
 
             <div class="form-section-block">
               <h3 class="block-title">
-                <el-icon><Location /></el-icon>
-                居住信息
+                <el-icon><OfficeBuilding /></el-icon>
+                工作信息
               </h3>
 
-              <el-form-item label="所属村庄" prop="villageId">
-                <el-select
-                  v-model="registerForm.villageId"
-                  placeholder="请选择所属村庄"
-                  style="width: 100%"
-                  filterable
+              <el-row :gutter="20">
+                <el-col :span="12">
+                  <el-form-item label="申请职务" prop="position">
+                    <el-select
+                      v-model="registerForm.position"
+                      placeholder="请选择申请职务"
+                      style="width: 100%"
+                      clearable
+                    >
+                      <el-option label="系统管理员" value="系统管理员" />
+                      <el-option label="数据管理员" value="数据管理员" />
+                      <el-option label="运营管理员" value="运营管理员" />
+                      <el-option label="安全管理员" value="安全管理员" />
+                    </el-select>
+                  </el-form-item>
+                </el-col>
+
+                <el-col :span="12">
+                  <el-form-item label="所属部门" prop="department">
+                    <el-input
+                      v-model="registerForm.department"
+                      placeholder="请输入部门名称"
+                      clearable
+                    />
+                  </el-form-item>
+                </el-col>
+              </el-row>
+
+              <el-form-item label="工作单位" prop="organization">
+                <el-input
+                  v-model="registerForm.organization"
+                  placeholder="请输入工作单位全称"
                   clearable
-                >
-                  <el-option
-                    v-for="village in villages"
-                    :key="village.id"
-                    :label="village.name"
-                    :value="village.id"
-                  />
-                </el-select>
+                />
               </el-form-item>
 
-              <el-form-item label="详细住址" prop="address">
+              <el-form-item label="工作地址" prop="address">
                 <el-input
                   v-model="registerForm.address"
                   type="textarea"
-                  :rows="3"
-                  placeholder="请输入详细家庭住址"
+                  :rows="2"
+                  placeholder="请输入详细工作地址"
                   maxlength="200"
+                  show-word-limit
+                />
+              </el-form-item>
+            </div>
+
+            <div class="form-section-block">
+              <h3 class="block-title">
+                <el-icon><Document /></el-icon>
+                申请信息
+              </h3>
+
+              <el-form-item label="申请理由" prop="reason">
+                <el-input
+                  v-model="registerForm.reason"
+                  type="textarea"
+                  :rows="4"
+                  placeholder="请说明申请系统管理权限的理由、工作计划和胜任能力（至少100字）"
+                  maxlength="500"
+                  show-word-limit
+                />
+              </el-form-item>
+
+              <el-form-item label="技术专长" prop="technicalSkills">
+                <el-input
+                  v-model="registerForm.technicalSkills"
+                  type="textarea"
+                  :rows="3"
+                  placeholder="请简述您的技术专长，特别是系统管理、数据库、网络安全等相关技能"
+                  maxlength="300"
+                  show-word-limit
+                />
+              </el-form-item>
+
+              <el-form-item label="管理经验" prop="managementExperience">
+                <el-input
+                  v-model="registerForm.managementExperience"
+                  type="textarea"
+                  :rows="3"
+                  placeholder="请简述您的管理经验，特别是用户管理、权限控制等方面的经历"
+                  maxlength="300"
                   show-word-limit
                 />
               </el-form-item>
@@ -198,7 +280,7 @@
                     <el-input
                       v-model="registerForm.password"
                       type="password"
-                      placeholder="请设置6-20位密码"
+                      placeholder="请设置8-20位密码"
                       show-password
                       maxlength="20"
                       @input="updatePasswordStrength"
@@ -261,6 +343,10 @@
                     {{ codeCountdown > 0 ? `${codeCountdown}s` : '获取验证码' }}
                   </el-button>
                 </div>
+
+                <div class="verify-tips">
+                  <p><el-icon><InfoFilled /></el-icon>验证码已发送到您的手机</p>
+                </div>
               </el-form-item>
             </div>
 
@@ -279,11 +365,16 @@
                 :loading="loading"
                 :disabled="!canSubmit"
                 class="submit-btn"
-                @click="handleRegister"
+                @click="handleSubmit"
               >
                 <el-icon><UserFilled /></el-icon>
-                {{ loading ? '注册中...' : '立即注册' }}
+                {{ loading ? '提交申请中...' : '提交申请' }}
               </el-button>
+
+              <div class="submit-note">
+                <el-icon><InfoFilled /></el-icon>
+                提交后我们将进行严格审核，审核结果将通过短信通知您
+              </div>
             </el-form-item>
           </el-form>
 
@@ -338,18 +429,21 @@ import {
   Phone,
   Lock,
   UserFilled,
+  Setting,
   Postcard,
-  Location,
+  Message,
   Document,
-  Search,
-  Medal
+  OfficeBuilding,
+  Check,
+  InfoFilled,
+  Monitor
 } from '@element-plus/icons-vue';
 import villageUserApi from '@/api/villageUser';
 import TermsContent from './TermsContent.vue';
 import PrivacyContent from './PrivacyContent.vue';
 
 defineOptions({
-  name: 'ResidentRegister'
+  name: 'AdminRegister'
 });
 
 const router = useRouter();
@@ -360,20 +454,25 @@ const showTerms = ref(false);
 const showPrivacy = ref(false);
 const codeCountdown = ref(0);
 const registerFormRef = ref(null);
-const villages = ref([]);
 
 const registerForm = reactive({
   name: '',
   phone: '',
+  email: '',
   idCard: '',
   gender: '',
-  villageId: '',
+  position: '',
+  department: '',
+  organization: '',
   address: '',
+  reason: '',
+  technicalSkills: '',
+  managementExperience: '',
   password: '',
   confirmPassword: '',
   verifyCode: '',
   agreement: false,
-  role: 'resident'
+  role: 'admin'
 });
 
 const passwordStrength = reactive({
@@ -384,27 +483,6 @@ const passwordStrength = reactive({
   text: ''
 });
 
-const villagesData = [
-  { id: 'v001', name: '贵州省贞丰县鲁贡镇么扒村' },
-  { id: 'v002', name: '贵州省贞丰县鲁贡镇弄洋村' },
-  { id: 'v003', name: '贵州省望谟县乐元镇乐元村' },
-  { id: 'v004', name: '贵州省兴义市顶效镇绿化村' },
-  { id: 'v005', name: '贵州省贞丰县白层镇兴龙村' },
-  { id: 'v006', name: '贵州省贞丰县沙坪镇者央村' },
-  { id: 'v007', name: '贵州省望谟县乐元镇里好村' },
-  { id: 'v008', name: '贵州省兴义市顶效镇绿荫村' }
-];
-
-const validateConfirmPassword = (rule, value, callback) => {
-  if (value === '') {
-    callback(new Error('请再次输入密码'));
-  } else if (value !== registerForm.password) {
-    callback(new Error('两次输入的密码不一致'));
-  } else {
-    callback();
-  }
-};
-
 const registerRules = reactive({
   name: [
     { required: true, message: '请输入真实姓名', trigger: 'blur' },
@@ -414,29 +492,69 @@ const registerRules = reactive({
     { required: true, message: '请输入手机号', trigger: 'blur' },
     { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的11位手机号', trigger: 'blur' }
   ],
+  email: [
+    { required: true, message: '请输入电子邮箱', trigger: 'blur' },
+    { type: 'email', message: '请输入正确的电子邮箱', trigger: 'blur' }
+  ],
   idCard: [
     { required: true, message: '请输入身份证号', trigger: 'blur' },
-    {
-      pattern: /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/,
-      message: '请输入正确的身份证号',
-      trigger: 'blur'
-    }
+    { pattern: /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/, message: '请输入正确的身份证号', trigger: 'blur' }
   ],
   gender: [
     { required: true, message: '请选择性别', trigger: 'change' }
   ],
-  villageId: [{ required: true, message: '请选择所属村庄', trigger: 'change' }],
+  position: [
+    { required: true, message: '请选择申请职务', trigger: 'change' }
+  ],
+  department: [
+    { required: true, message: '请输入所属部门', trigger: 'blur' }
+  ],
+  organization: [
+    { required: true, message: '请输入工作单位', trigger: 'blur' },
+    { min: 2, message: '工作单位至少2个字符', trigger: 'blur' }
+  ],
   address: [
-    { required: true, message: '请输入家庭住址', trigger: 'blur' },
-    { min: 5, max: 200, message: '住址长度在5-200个字符', trigger: 'blur' }
+    { required: true, message: '请输入工作地址', trigger: 'blur' },
+    { min: 5, message: '地址长度至少5个字符', trigger: 'blur' }
+  ],
+  reason: [
+    { required: true, message: '请输入申请理由', trigger: 'blur' },
+    { min: 100, message: '申请理由至少100字', trigger: 'blur' }
+  ],
+  technicalSkills: [
+    { required: true, message: '请输入技术专长', trigger: 'blur' },
+    { min: 20, message: '技术专长至少20字', trigger: 'blur' }
+  ],
+  managementExperience: [
+    { required: true, message: '请输入管理经验', trigger: 'blur' },
+    { min: 20, message: '管理经验至少20字', trigger: 'blur' }
   ],
   password: [
     { required: true, message: '请设置密码', trigger: 'blur' },
-    { min: 6, max: 20, message: '密码长度在6-20个字符', trigger: 'blur' }
+    { min: 8, max: 20, message: '密码长度在8-20个字符', trigger: 'blur' },
+    {
+      validator: (rule, value, callback) => {
+        if (value && !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,20}$/.test(value)) {
+          callback(new Error('密码必须包含大小写字母和数字'));
+        } else {
+          callback();
+        }
+      },
+      trigger: 'blur'
+    }
   ],
   confirmPassword: [
     { required: true, message: '请再次输入密码', trigger: 'blur' },
-    { validator: validateConfirmPassword, trigger: 'blur' }
+    {
+      validator: (rule, value, callback) => {
+        if (value !== registerForm.password) {
+          callback(new Error('两次输入的密码不一致'));
+        } else {
+          callback();
+        }
+      },
+      trigger: 'blur'
+    }
   ],
   verifyCode: [
     { required: true, message: '请输入验证码', trigger: 'blur' },
@@ -457,25 +575,21 @@ const canSendCode = computed(() => {
 });
 
 const canSubmit = computed(() => {
-  return (
-    registerForm.name &&
-    registerForm.phone &&
-    registerForm.idCard &&
-    registerForm.gender &&
-    registerForm.villageId &&
-    registerForm.address &&
-    registerForm.password &&
-    registerForm.confirmPassword &&
-    registerForm.verifyCode &&
-    registerForm.agreement
-  );
+  const requiredFields = ['name', 'phone', 'idCard', 'gender', 'position', 'department',
+                          'organization', 'address', 'reason', 'technicalSkills',
+                          'managementExperience', 'password', 'confirmPassword', 'verifyCode'];
+  const hasRequired = requiredFields.every(field => registerForm[field]);
+  const hasAgreement = registerForm.agreement;
+  const passwordsMatch = registerForm.password === registerForm.confirmPassword;
+
+  return hasRequired && hasAgreement && passwordsMatch;
 });
 
 const updatePasswordStrength = () => {
   const pwd = registerForm.password;
   let score = 0;
 
-  if (pwd.length >= 6) score += 25;
+  if (pwd.length >= 8) score += 25;
   if (/[A-Z]/.test(pwd)) score += 25;
   if (/[a-z]/.test(pwd)) score += 25;
   if (/[0-9]/.test(pwd)) score += 25;
@@ -505,28 +619,14 @@ const updatePasswordStrength = () => {
   }
 };
 
-const loadVillages = async () => {
-  try {
-    villages.value = villagesData;
-  } catch (error) {
-    console.error('获取村庄列表失败:', error);
-    ElMessage.error('获取村庄列表失败');
-  }
-};
-
 const sendVerifyCode = async () => {
-  if (!registerForm.phone) {
-    ElMessage.warning('请先输入手机号');
-    return;
-  }
-
-  if (!/^1[3-9]\d{9}$/.test(registerForm.phone)) {
-    ElMessage.warning('请输入正确的手机号');
+  if (!canSendCode.value) {
+    ElMessage.warning('请先输入正确的手机号码');
     return;
   }
 
   try {
-    ElMessage.success('验证码已发送');
+    ElMessage.success('验证码已发送到您的手机');
     codeCountdown.value = 60;
     const timer = setInterval(() => {
       codeCountdown.value--;
@@ -535,33 +635,31 @@ const sendVerifyCode = async () => {
       }
     }, 1000);
   } catch (error) {
-    console.error('发送验证码失败:', error);
-    ElMessage.error(error.response?.data?.message || '发送验证码失败');
+    ElMessage.error('发送验证码失败，请重试');
   }
 };
 
-const handleRegister = async () => {
+const handleSubmit = async () => {
   if (!registerFormRef.value) return;
 
   try {
     await registerFormRef.value.validate();
   } catch (error) {
+    ElMessage.error('请检查表单信息是否完整');
     return;
   }
 
   loading.value = true;
   try {
-    const { confirmPassword, verifyCode, agreement, ...registerData } = registerForm;
-    await villageUserApi.register(registerData);
+    const { confirmPassword, agreement, ...data } = registerForm;
+    await villageUserApi.register(data);
 
-    ElMessage.success('注册成功！请使用手机号和密码登录');
-
+    ElMessage.success('申请提交成功！审核结果将通过短信通知您。');
     setTimeout(() => {
       router.push('/auth/login');
-    }, 1500);
+    }, 2000);
   } catch (error) {
-    console.error('注册失败:', error);
-    ElMessage.error(error.response?.data?.message || '注册失败，请稍后重试');
+    ElMessage.error(error.response?.data?.message || '提交申请失败，请重试');
   } finally {
     loading.value = false;
   }
@@ -574,16 +672,12 @@ const handleDialogClose = (done) => {
 const goToLogin = () => {
   router.push('/auth/login');
 };
-
-onMounted(() => {
-  loadVillages();
-});
 </script>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap');
 
-.resident-register-container {
+.register-container {
   min-height: 100vh;
   background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
   font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -608,7 +702,7 @@ onMounted(() => {
 
 .brand-section {
   flex: 1;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
   padding: 40px;
   display: flex;
   align-items: center;
@@ -696,6 +790,7 @@ onMounted(() => {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 14px;
+  margin-bottom: 32px;
 }
 
 .feature-card {
@@ -737,6 +832,40 @@ onMounted(() => {
   font-size: 12px;
   margin: 0;
   opacity: 0.9;
+}
+
+.requirements-section {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.requirements-section h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+}
+
+.requirements-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.requirements-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  font-size: 14px;
+  opacity: 0.95;
+}
+
+.requirements-list .el-icon {
+  color: #60a5fa;
+  font-size: 16px;
 }
 
 .background-effects {
@@ -823,9 +952,9 @@ onMounted(() => {
 .form-section-block {
   margin-bottom: 28px;
   padding: 24px;
-  background: #f0fdf4;
+  background: #eff6ff;
   border-radius: 12px;
-  border: 1px solid #dcfce7;
+  border: 1px solid #dbeafe;
 }
 
 .block-title {
@@ -839,7 +968,7 @@ onMounted(() => {
 }
 
 .block-title .el-icon {
-  color: #10b981;
+  color: #3b82f6;
 }
 
 .password-strength {
@@ -893,6 +1022,23 @@ onMounted(() => {
   flex: 1;
 }
 
+.verify-tips {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: #f0f9ff;
+  border-radius: 6px;
+  border-left: 3px solid #0369A1;
+}
+
+.verify-tips p {
+  margin: 0;
+  color: #0369A1;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .agreement-item {
   margin-top: 8px;
 }
@@ -902,7 +1048,7 @@ onMounted(() => {
   height: 52px;
   font-size: 16px;
   font-weight: 600;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
   border: none;
   border-radius: 10px;
   font-family: 'Source Sans 3', sans-serif;
@@ -911,7 +1057,22 @@ onMounted(() => {
 
 .submit-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 12px 24px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 12px 24px rgba(59, 130, 246, 0.3);
+}
+
+.submit-note {
+  margin-top: 14px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.submit-note .el-icon {
+  color: #f59e0b;
 }
 
 .form-footer {
@@ -959,7 +1120,7 @@ onMounted(() => {
 }
 
 @media (max-width: 640px) {
-  .resident-register-container {
+  .register-container {
     padding: 10px;
   }
 

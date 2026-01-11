@@ -27,6 +27,8 @@ const PurchaserRegister = () => import('@/views/auth/PurchaserRegister.vue');
 const MultiStepRegister = () => import('@/views/auth/MultiStepRegister.vue');
 const OfficialAudit = () => import('@/views/admin/OfficialAudit.vue');
 const PermissionAssign = () => import('@/views/admin/PermissionAssign.vue');
+const VillageOfficialRegister = () => import('@/views/auth/VillageOfficialRegister.vue');
+const AdminRegister = () => import('@/views/auth/AdminRegister.vue');
 
 // AI服务模块
 const AIAssistant = () => import('@/views/ai/AIAssistant.vue');
@@ -157,12 +159,13 @@ const routes = [
       },
       {
         path: 'register',
-        name: 'resident-register',
+        name: 'register',
         component: ResidentRegister,
         meta: {
           title: '村民注册',
           description: '村民账号注册',
           accessibility: routeMeta.accessibility.full,
+          allowGuest: true,
         },
       },
       {
@@ -216,6 +219,28 @@ const routes = [
         meta: {
           title: '采购商注册',
           description: '采购商入驻注册页面',
+          accessibility: routeMeta.accessibility.full,
+          allowGuest: true,
+        },
+      },
+      {
+        path: 'village-official-register',
+        name: 'village-official-register',
+        component: VillageOfficialRegister,
+        meta: {
+          title: '村干部注册',
+          description: '村干部专用注册页面',
+          accessibility: routeMeta.accessibility.full,
+          allowGuest: true,
+        },
+      },
+      {
+        path: 'admin-register',
+        name: 'admin-register',
+        component: AdminRegister,
+        meta: {
+          title: '管理员注册',
+          description: '系统管理员注册页面',
           accessibility: routeMeta.accessibility.full,
           allowGuest: true,
         },

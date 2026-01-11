@@ -245,12 +245,7 @@
               <span>安全加密传输，保护您的隐私</span>
             </div>
           </div>
-
-          <footer class="login-footer">
-            <p>© 智慧乡村平台</p>
-          </footer>
-        </div>
-      </section>
+        </section>
     </div>
 
     <el-dialog
@@ -310,14 +305,14 @@
     <el-dialog
       v-model="showRegisterDialog"
       title="选择注册方式"
-      width="600px"
+      width="720px"
       :close-on-click-modal="false"
       class="custom-dialog"
       role="dialog"
       aria-labelledby="register-title"
       aria-modal="true"
     >
-      <div class="register-options" role="list" aria-label="注册方式选择">
+      <div class="register-options register-grid" role="list" aria-label="注册方式选择">
         <button
           class="register-card"
           type="button"
@@ -326,10 +321,14 @@
           @click="goToRegister('resident')"
         >
           <div class="register-icon resident" aria-hidden="true">
-            <el-icon :size="44"><UserFilled /></el-icon>
+            <el-icon :size="48"><UserFilled /></el-icon>
           </div>
           <h4>村民注册</h4>
           <p>简化流程，快速开通</p>
+          <div class="register-tags">
+            <span class="register-tag">办事大厅</span>
+            <span class="register-tag">便民服务</span>
+          </div>
         </button>
         <button
           class="register-card"
@@ -339,10 +338,31 @@
           @click="goToRegister('village_official')"
         >
           <div class="register-icon official" aria-hidden="true">
-            <el-icon :size="44"><OfficeBuilding /></el-icon>
+            <el-icon :size="48"><OfficeBuilding /></el-icon>
           </div>
           <h4>村干部申请</h4>
           <p>资质审核，正式上岗</p>
+          <div class="register-tags">
+            <span class="register-tag">村务管理</span>
+            <span class="register-tag">资料收集</span>
+          </div>
+        </button>
+        <button
+          class="register-card"
+          type="button"
+          role="listitem"
+          :aria-label="`选择${ROLES.township_official}注册`"
+          @click="goToRegister('township_official')"
+        >
+          <div class="register-icon township" aria-hidden="true">
+            <el-icon :size="48"><Location /></el-icon>
+          </div>
+          <h4>乡镇干部申请</h4>
+          <p>统一管理，政策传达</p>
+          <div class="register-tags">
+            <span class="register-tag">多村管理</span>
+            <span class="register-tag">监督指导</span>
+          </div>
         </button>
         <button
           class="register-card"
@@ -352,10 +372,31 @@
           @click="goToRegister('purchaser')"
         >
           <div class="register-icon purchaser" aria-hidden="true">
-            <el-icon :size="44"><ShoppingCart /></el-icon>
+            <el-icon :size="48"><ShoppingCart /></el-icon>
           </div>
           <h4>采购商入驻</h4>
           <p>快速填写，立即开通</p>
+          <div class="register-tags">
+            <span class="register-tag">产品采购</span>
+            <span class="register-tag">订单管理</span>
+          </div>
+        </button>
+        <button
+          class="register-card"
+          type="button"
+          role="listitem"
+          :aria-label="`选择${ROLES.admin}注册`"
+          @click="goToRegister('admin')"
+        >
+          <div class="register-icon admin" aria-hidden="true">
+            <el-icon :size="48"><Setting /></el-icon>
+          </div>
+          <h4>管理员注册</h4>
+          <p>系统管理，权限控制</p>
+          <div class="register-tags">
+            <span class="register-tag">用户管理</span>
+            <span class="register-tag">系统配置</span>
+          </div>
         </button>
       </div>
     </el-dialog>
@@ -425,6 +466,10 @@
         <el-button type="primary" @click="showPrivacyDialog = false">我已阅读</el-button>
       </template>
     </el-dialog>
+
+    <footer class="page-footer">
+      <p>© 2025 智慧乡村平台 技术支持 v2.0</p>
+    </footer>
   </div>
 </template>
 
@@ -711,8 +756,15 @@ const handleResetPassword = async () => {
 
 const goToRegister = (role) => {
   showRegisterDialog.value = false;
+  const routeMap = {
+    resident: '/auth/register',
+    village_official: '/auth/village-official-register',
+    township_official: '/auth/official-register',
+    purchaser: '/auth/purchaser-register',
+    admin: '/auth/admin-register'
+  };
   router.push({
-    path: '/auth/enhanced-register',
+    path: routeMap[role] || '/auth/register',
     query: { role }
   });
 };
@@ -1559,6 +1611,23 @@ onBeforeUnmount(() => {
   font-size: 12px;
 }
 
+.page-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 20px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  background: transparent;
+  z-index: 10;
+}
+
+.page-footer p {
+  margin: 0;
+}
+
 .version-badge {
   margin-left: 8px;
   padding: 3px 10px;
@@ -1570,14 +1639,31 @@ onBeforeUnmount(() => {
 .register-options {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  gap: 20px;
   padding: 20px 0;
+}
+
+.register-grid {
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .register-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .register-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .register-card {
   background: #f8f9fa;
   border-radius: var(--radius-lg);
-  padding: 28px 20px;
+  padding: 24px 16px;
   cursor: pointer;
   transition: all var(--transition-normal);
   text-align: center;
@@ -1587,10 +1673,14 @@ onBeforeUnmount(() => {
   outline: none;
 }
 
+.register-grid .register-card {
+  padding: 20px 12px;
+}
+
 .register-card:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-lg);
-  border-color: #7b61ff;
+  border-color: #0369A1;
 }
 
 .register-card:focus-visible {
@@ -1599,14 +1689,19 @@ onBeforeUnmount(() => {
 }
 
 .register-icon {
-  width: 72px;
-  height: 72px;
+  width: 64px;
+  height: 64px;
   border-radius: var(--radius-lg);
-  margin: 0 auto 18px;
+  margin: 0 auto 14px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
+}
+
+.register-grid .register-icon {
+  width: 56px;
+  height: 56px;
 }
 
 .register-icon.resident {
@@ -1617,19 +1712,52 @@ onBeforeUnmount(() => {
   background: linear-gradient(135deg, var(--role-village-official, #f59e0b), var(--role-village-official-light, #fbbf24));
 }
 
+.register-icon.township {
+  background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+}
+
 .register-icon.purchaser {
   background: linear-gradient(135deg, var(--role-purchaser, #ec4899), var(--role-purchaser-light, #f472b6));
 }
 
+.register-icon.admin {
+  background: linear-gradient(135deg, #3b82f6, #60a5fa);
+}
+
 .register-card h4 {
-  margin: 14px 0 10px;
-  font-size: 17px;
+  margin: 12px 0 8px;
+  font-size: 16px;
   color: var(--text-primary);
+}
+
+.register-grid .register-card h4 {
+  font-size: 14px;
+  margin: 10px 0 6px;
 }
 
 .register-card p {
   margin: 0;
-  font-size: 14px;
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+.register-grid .register-card p {
+  font-size: 12px;
+}
+
+.register-tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.register-tag {
+  font-size: 11px;
+  padding: 3px 8px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
   color: var(--text-tertiary);
 }
 

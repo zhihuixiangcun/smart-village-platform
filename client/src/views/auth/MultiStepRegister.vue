@@ -608,36 +608,23 @@ const stepRules = {
     ],
   },
   2: {
-    verifyCode: [
-      { required: true, message: '请输入验证码', trigger: 'blur' },
-      { pattern: /^\d{6}$/, message: '请输入6位数字验证码', trigger: 'blur' },
-    ],
     locationId: [{ required: true, message: '请选择所属地区', trigger: 'change' }],
     address: [
       { required: true, message: '请输入地址', trigger: 'blur' },
       { min: 5, message: '地址长度至少5个字符', trigger: 'blur' },
     ],
-    department: [{ required: true, message: '请输入部门', trigger: 'blur' }],
-    position: [{ required: true, message: '请选择职务', trigger: 'change' }],
-    commissionLetter: [
-      { required: role === 'admin' || role === 'township_official', message: '请上传委托书', trigger: 'change' }
-    ],
-    companyName: [{ required: true, message: '请输入公司名称', trigger: 'blur' }],
-    businessLicense: [{ required: true, message: '请输入营业执照号', trigger: 'blur' }],
-  },
-  3: {
-    locationId: [{ required: true, message: '请选择所属地区', trigger: 'change' }],
-    address: [
-      { required: true, message: '请输入地址', trigger: 'blur' },
-      { min: 5, message: '地址长度至少5个字符', trigger: 'blur' },
-    ],
-    department: [{ required: true, message: '请输入部门', trigger: 'blur' }],
-    position: [{ required: true, message: '请选择职务', trigger: 'change' }],
-    commissionLetter: [
-      { required: role === 'admin' || role === 'township_official', message: '请上传委托书', trigger: 'change' }
-    ],
-    companyName: [{ required: true, message: '请输入公司名称', trigger: 'blur' }],
-    businessLicense: [{ required: true, message: '请输入营业执照号', trigger: 'blur' }],
+    department: role.value !== 'resident' ? [
+      { required: true, message: '请输入部门', trigger: 'blur' }
+    ] : [],
+    position: (role.value === 'township_official' || role.value === 'village_official') ? [
+      { required: true, message: '请选择职务', trigger: 'change' }
+    ] : [],
+    companyName: role.value === 'purchaser' ? [
+      { required: true, message: '请输入公司名称', trigger: 'blur' }
+    ] : [],
+    businessLicense: role.value === 'purchaser' ? [
+      { required: true, message: '请输入营业执照号', trigger: 'blur' }
+    ] : [],
   },
   3: {
     password: [
@@ -689,33 +676,44 @@ const canSendCode = computed(() => {
 });
 
 const canGoNext = computed(() => {
-  const stepFields = getStepFields(currentStep.value);
-  const hasRequiredFields = stepFields.every(field => registerForm[field]);
-  
   if (currentStep.value === 0) {
-    return hasRequiredFields;
+    return registerForm.name && registerForm.gender && 
+           registerForm.phone && /^1[3-9]\d{9}$/.test(registerForm.phone) &&
+           registerForm.idCard && /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/.test(registerForm.idCard) &&
+           registerForm.email;
   }
   
   if (currentStep.value === 1) {
-    return hasRequiredFields;
+    return registerForm.verifyCode && /^\d{6}$/.test(registerForm.verifyCode);
   }
   
   if (currentStep.value === 2) {
-    const hasRequired = stepFields.every(field => {
-      if (field === 'commissionLetter') {
-        return registerForm[field].length > 0;
-      }
-      return registerForm[field];
-    });
-    return hasRequired;
+    if (!registerForm.locationId || !registerForm.address) return false;
+    
+    if (role.value !== 'resident') {
+      if (!registerForm.department) return false;
+    }
+    
+    if (role.value === 'township_official' || role.value === 'village_official') {
+      if (!registerForm.position) return false;
+    }
+    
+    if (role.value === 'purchaser') {
+      if (!registerForm.companyName || !registerForm.businessLicense) return false;
+    }
+    
+    return true;
   }
   
   if (currentStep.value === 3) {
-    return hasRequiredFields;
+    if (!registerForm.password || registerForm.password.length < 8) return false;
+    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,20}$/.test(registerForm.password)) return false;
+    if (registerForm.password !== registerForm.confirmPassword) return false;
+    return true;
   }
   
   if (currentStep.value === 4) {
-    return hasRequiredFields && registerForm.agreement;
+    return registerForm.agreement;
   }
   
   return true;
@@ -1088,15 +1086,38 @@ onMounted(() => {
   transition: all 0.3s ease;
   padding: 12px;
   border-radius: 12px;
+  position: relative;
+  overflow: hidden;
 }
 
 .step-item:hover {
   background: rgba(255, 255, 255, 0.1);
 }
 
+.step-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 0;
+  background: #fbbf24;
+  border-radius: 2px;
+  transition: height 0.3s ease;
+}
+
+.step-active::before {
+  height: 60%;
+}
+
 .step-disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.step-disabled:hover {
+  background: transparent;
 }
 
 .step-number {

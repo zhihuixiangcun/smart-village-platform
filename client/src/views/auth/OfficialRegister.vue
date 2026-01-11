@@ -470,6 +470,10 @@
         <el-button type="primary" @click="showPrivacy = false">我已阅读</el-button>
       </template>
     </el-dialog>
+
+    <footer class="page-footer">
+      <p>© 2025 智慧乡村平台 技术支持 v2.0</p>
+    </footer>
   </div>
 </template>
 
@@ -1184,6 +1188,19 @@ onMounted(() => {
 .form-footer .el-link {
   margin-left: 8px;
   font-size: 15px;
+}
+
+.page-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 20px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  background: transparent;
+  z-index: 10;
 }
 
 /* 响应式设计 */
