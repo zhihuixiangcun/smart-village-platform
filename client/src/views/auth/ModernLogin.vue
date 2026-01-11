@@ -1778,65 +1778,6 @@ onBeforeUnmount(() => {
   }
 }
 
-  .login-wrapper {
-    border-radius: var(--radius-lg);
-    max-width: 100%;
-  }
-
-  .login-section {
-    padding: 30px 20px;
-  }
-
-  .login-title {
-    font-size: 28px;
-  }
-
-  .role-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .role-grid .role-card:last-child {
-    grid-column: span 1;
-  }
-
-  .role-card {
-    padding: 20px 16px;
-  }
-
-  .role-icon-box {
-    width: 56px;
-    height: 56px;
-  }
-
-  .register-options {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .brand-section {
-    padding: 30px 20px;
-  }
-
-  .brand-logo {
-    margin-bottom: 24px;
-  }
-
-  .logo-icon {
-    width: 64px;
-    height: 64px;
-  }
-
-  .brand-name {
-    font-size: 28px;
-  }
-
-  .brand-slogan {
-    margin-bottom: 24px;
-    padding: 20px;
-  }
-}
-
 @media (max-width: 480px) {
   .modern-login-container {
     padding: 0;
