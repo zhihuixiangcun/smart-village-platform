@@ -426,19 +426,19 @@ const applyForm = reactive({
 });
 
 const serviceCategories = ref([
-  { key: 'all', name: '全部服务', count: 24, icon: 'Grid', gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
-  { key: 'civil', name: '民政服务', count: 8, icon: 'User', gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' },
-  { key: 'medical', name: '医疗卫生', count: 6, icon: 'FirstAid', gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' },
-  { key: 'education', name: '教育服务', count: 4, icon: 'Reading', gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)' },
-  { key: 'labor', name: '劳务服务', count: 3, icon: 'Work', gradient: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)' },
-  { key: 'security', name: '综治服务', count: 3, icon: 'Shield', gradient: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)' },
+  { key: 'all', name: '全部服务', count: 24, icon: 'Grid', gradient: 'linear-gradient(135deg, #0369A1 0%, #0ea5e9 100%)' },
+  { key: 'civil', name: '民政服务', count: 8, icon: 'User', gradient: 'linear-gradient(135deg, #059669 0%, #10b981 100%)' },
+  { key: 'medical', name: '医疗卫生', count: 6, icon: 'FirstAid', gradient: 'linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)' },
+  { key: 'education', name: '教育服务', count: 4, icon: 'Reading', gradient: 'linear-gradient(135deg, #ea580c 0%, #f97316 100%)' },
+  { key: 'labor', name: '劳务服务', count: 3, icon: 'Work', gradient: 'linear-gradient(135deg, #0891b2 0%, #22d3ee 100%)' },
+  { key: 'security', name: '综治服务', count: 3, icon: 'Shield', gradient: 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)' },
 ]);
 
 const serviceStats = ref([
-  { key: 'total', label: '服务总数', value: 156, icon: 'Service', gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
-  { key: 'pending', label: '待审核', value: 12, icon: 'Clock', gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)' },
-  { key: 'completed', label: '已完成', value: 128, icon: 'CircleCheck', gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' },
-  { key: 'satisfaction', label: '满意度', value: 98.5, icon: 'Star', gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' },
+  { key: 'total', label: '服务总数', value: 156, icon: 'Service', gradient: 'linear-gradient(135deg, #0369A1 0%, #0ea5e9 100%)' },
+  { key: 'pending', label: '待审核', value: 12, icon: 'Clock', gradient: 'linear-gradient(135deg, #ea580c 0%, #f97316 100%)' },
+  { key: 'completed', label: '已完成', value: 128, icon: 'CircleCheck', gradient: 'linear-gradient(135deg, #059669 0%, #10b981 100%)' },
+  { key: 'satisfaction', label: '满意度', value: 98.5, icon: 'Star', gradient: 'linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)' },
 ]);
 
 const services = ref<Service[]>([
@@ -447,7 +447,7 @@ const services = ref<Service[]>([
     name: '低保申请',
     description: '申请城乡居民最低生活保障',
     icon: 'UserFilled',
-    gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    gradient: 'linear-gradient(135deg, #0369A1 0%, #0ea5e9 100%)',
     type: '民政服务',
     duration: '15个工作日',
     category: 'civil',
@@ -457,7 +457,7 @@ const services = ref<Service[]>([
     name: '残疾证办理',
     description: '办理残疾人证、残疾补贴申请',
     icon: 'FirstAid',
-    gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+    gradient: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
     type: '民政服务',
     duration: '20个工作日',
     category: 'civil',
@@ -467,7 +467,7 @@ const services = ref<Service[]>([
     name: '新农合报销',
     description: '新型农村合作医疗报销申请',
     icon: 'FirstAid',
-    gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+    gradient: 'linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)',
     type: '医疗卫生',
     duration: '10个工作日',
     category: 'medical',
@@ -477,7 +477,7 @@ const services = ref<Service[]>([
     name: '健康体检预约',
     description: '65岁以上老年人健康体检预约',
     icon: 'FirstAid',
-    gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+    gradient: 'linear-gradient(135deg, #ea580c 0%, #f97316 100%)',
     type: '医疗卫生',
     duration: '即时预约',
     category: 'medical',
@@ -487,7 +487,7 @@ const services = ref<Service[]>([
     name: '义务教育报名',
     description: '适龄儿童义务教育报名',
     icon: 'Reading',
-    gradient: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
+    gradient: 'linear-gradient(135deg, #0891b2 0%, #22d3ee 100%)',
     type: '教育服务',
     duration: '7个工作日',
     category: 'education',
@@ -497,7 +497,7 @@ const services = ref<Service[]>([
     name: '职业介绍',
     description: '农村劳动力转移就业服务',
     icon: 'Work',
-    gradient: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
+    gradient: 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)',
     type: '劳务服务',
     duration: '5个工作日',
     category: 'labor',
@@ -507,7 +507,7 @@ const services = ref<Service[]>([
     name: '户籍证明',
     description: '开具户籍证明、亲属关系证明',
     icon: 'UserFilled',
-    gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    gradient: 'linear-gradient(135deg, #0369A1 0%, #0ea5e9 100%)',
     type: '民政服务',
     duration: '3个工作日',
     category: 'civil',
@@ -517,7 +517,7 @@ const services = ref<Service[]>([
     name: '矛盾纠纷调解',
     description: '民事纠纷调解申请',
     icon: 'ChatLineSquare',
-    gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+    gradient: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
     type: '综治服务',
     duration: '10个工作日',
     category: 'security',
@@ -672,8 +672,8 @@ const initStatsChart = () => {
         data: [45, 52, 38, 65, 72, 58],
         itemStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: '#667eea' },
-            { offset: 1, color: '#764ba2' },
+            { offset: 0, color: '#0369A1' },
+            { offset: 1, color: '#0ea5e9' },
           ]),
         },
       },
@@ -683,8 +683,8 @@ const initStatsChart = () => {
         data: [38, 48, 35, 58, 65, 52],
         itemStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: '#43e97b' },
-            { offset: 1, color: '#38f9d7' },
+            { offset: 0, color: '#059669' },
+            { offset: 1, color: '#10b981' },
           ]),
         },
       },

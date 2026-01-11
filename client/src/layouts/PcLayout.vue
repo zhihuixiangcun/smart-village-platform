@@ -501,7 +501,7 @@ watch(
   top: 0;
   bottom: 0;
   width: 240px;
-  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  background: linear-gradient(180deg, #0369A1 0%, #0F172A 100%);
   display: flex;
   flex-direction: column;
   transition: width 0.3s ease;
@@ -582,7 +582,7 @@ watch(
     }
 
     &.is-active {
-      background: linear-gradient(90deg, #409eff 0%, #66b1ff 100%);
+      background: linear-gradient(90deg, #0369A1 0%, #0ea5e9 100%);
       color: #fff;
     }
   }
