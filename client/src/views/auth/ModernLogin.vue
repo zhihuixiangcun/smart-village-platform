@@ -691,7 +691,6 @@ onBeforeUnmount(() => {
   width: 100%;
   max-width: 1600px;
   min-height: auto;
-  max-height: 90vh;
   background: white;
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-xl);
@@ -701,7 +700,7 @@ onBeforeUnmount(() => {
 }
 
 .modern-login-container.has-form .login-wrapper {
-  max-height: 85vh;
+  max-height: none;
   margin: 0;
   border-radius: 0;
 }
@@ -713,7 +712,6 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   position: relative;
-  overflow: hidden;
   box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.1);
 }
 
