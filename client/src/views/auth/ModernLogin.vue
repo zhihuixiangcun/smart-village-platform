@@ -645,35 +645,35 @@ onBeforeUnmount(() => {
 
 <style>
 :root {
-  --primary-gradient: linear-gradient(135deg, #5e60ce 0%, #7b61ff 25%, #9d4edd 50%, #c77dff 75%, #e0aaff 100%);
-  --primary-color: #7b61ff;
-  --primary-light: #9d7dff;
-  --primary-dark: #4a3fb6;
-  --text-primary: #303133;
-  --text-secondary: #606266;
-  --text-tertiary: #909399;
-  --border-color: #e4e7ed;
-  --bg-hover: #f5f7fa;
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
-  --shadow-xl: 0 20px 60px rgba(123, 97, 255, 0.25);
-  --shadow-glow: 0 0 60px rgba(157, 78, 221, 0.4);
-  --radius-sm: 8px;
-  --radius-md: 12px;
+  --primary-color: #0369A1;
+  --primary-hover: #0ea5e9;
+  --primary-dark: #01579B;
+  --text-primary: #020617;
+  --text-secondary: #334155;
+  --text-tertiary: #64748b;
+  --border-color: #E2E8F0;
+  --bg-hover: #F8FAFC;
+  --bg-primary: #F8FAFC;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --radius-sm: 6px;
+  --radius-md: 10px;
   --radius-lg: 16px;
-  --radius-xl: 24px;
+  --radius-xl: 20px;
   --transition-fast: 0.15s ease;
-  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.25s ease;
 }
 </style>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap');
 
 .modern-login-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e4e7ed 100%);
+  background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+  font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -708,7 +708,7 @@ onBeforeUnmount(() => {
 
 .brand-section {
   flex: 1;
-  background: linear-gradient(135deg, #5e60ce 0%, #7b61ff 25%, #9d4edd 50%, #c77dff 75%, #e0aaff 100%);
+  background: linear-gradient(135deg, #0369A1 0%, #0F172A 100%);
   padding: 40px 70px;
   display: flex;
   align-items: center;
@@ -773,17 +773,15 @@ onBeforeUnmount(() => {
 .logo-icon {
   width: 72px;
   height: 72px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 100%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 16px;
   backdrop-filter: blur(20px);
-  border: 2px solid rgba(255, 255, 255, 0.45);
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5);
   transition: all var(--transition-normal);
 }
 
@@ -816,14 +814,12 @@ onBeforeUnmount(() => {
 
 .brand-slogan {
   padding: 20px 28px;
-  background: linear-gradient(135deg, rgba(255,255, 255, 0.18) 0%, rgba(255, 255, 255, 0.08) 100%);
-  backdrop-filter: blur(20px);
+  background: linear-gradient(135deg, rgba(255,255, 255, 0.12) 0%, rgba(255, 255, 255, 0.06) 100%);
+  backdrop-filter: blur(15px);
   border-radius: var(--radius-md);
-  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   margin-bottom: 28px;
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .brand-slogan h2 {
@@ -831,10 +827,11 @@ onBeforeUnmount(() => {
   font-weight: 600;
   margin: 0 0 8px 0;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #E0F2FE 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  font-family: 'Lexend', sans-serif;
 }
 
 .brand-slogan p {
@@ -1137,20 +1134,20 @@ onBeforeUnmount(() => {
 }
 
 .role-card:hover {
-  border-color: #7b61ff;
+  border-color: #0369A1;
   transform: translateY(-5px);
-  box-shadow: 0 16px 40px rgba(123, 97, 255, 0.25);
+  box-shadow: 0 16px 40px rgba(3, 105, 161, 0.2);
 }
 
 .role-card:focus-visible {
-  outline: 2px solid #7b61ff;
+  outline: 2px solid #0369A1;
   outline-offset: 2px;
 }
 
 .role-card.active {
-  border-color: #7b61ff;
-  background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 50%, #e9d5ff 100%);
-  box-shadow: 0 16px 48px rgba(123, 97, 255, 0.3);
+  border-color: #0369A1;
+  background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 50%, #BAE6FD 100%);
+  box-shadow: 0 16px 48px rgba(3, 105, 161, 0.25);
 }
 
 .role-badge {
@@ -1375,19 +1372,20 @@ onBeforeUnmount(() => {
   height: 50px;
   font-size: 16px;
   font-weight: 600;
-  background: var(--primary-gradient);
+  background: linear-gradient(135deg, #0369A1 0%, #0ea5e9 100%);
   border: none;
   border-radius: var(--radius-md);
   transition: all var(--transition-normal);
+  font-family: 'Source Sans 3', sans-serif;
 }
 
 .login-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 12px 24px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 12px 24px rgba(3, 105, 161, 0.3);
 }
 
 .login-btn:focus-visible {
-  outline: 2px solid #9d7dff;
+  outline: 2px solid #0369A1;
   outline-offset: 2px;
 }
 

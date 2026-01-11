@@ -84,11 +84,14 @@ onMounted(() => {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap');
+
 .auth-layout {
   min-height: 100vh;
   display: flex;
   position: relative;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0369A1 0%, #0F172A 100%);
+  font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
   overflow: hidden;
 }
 
@@ -196,10 +199,11 @@ onMounted(() => {
   height: 80px;
   margin: 0 auto 16px;
   border-radius: 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0369A1 0%, #0F172A 100%);
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 8px 24px rgba(3, 105, 161, 0.3);
 }
 
 .logo-placeholder {

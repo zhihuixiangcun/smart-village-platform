@@ -856,9 +856,12 @@ onMounted(() => {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap');
+
 .enhanced-register-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+  font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -879,7 +882,7 @@ onMounted(() => {
 /* 左侧品牌区域 */
 .brand-section {
   flex: 1;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0369A1 0%, #0F172A 100%);
   padding: 60px 40px;
   display: flex;
   flex-direction: column;
@@ -1174,15 +1177,15 @@ onMounted(() => {
 }
 
 .step-item.step-active:not(:last-child)::after {
-  background: #3b82f6;
+  background: #0369A1;
 }
 
 .step-number {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: #e5e7eb;
-  color: #6b7280;
+  background: #E2E8F0;
+  color: #64748B;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1192,23 +1195,23 @@ onMounted(() => {
 }
 
 .step-item.step-active .step-number {
-  background: #3b82f6;
+  background: #0369A1;
   color: white;
 }
 
 .step-item.step-completed .step-number {
-  background: #10b981;
+  background: #10B981;
   color: white;
 }
 
 .step-label {
   font-size: 12px;
-  color: #6b7280;
+  color: #64748B;
   font-weight: 500;
 }
 
 .step-item.step-active .step-label {
-  color: #3b82f6;
+  color: #0369A1;
 }
 
 .form-step {
@@ -1306,15 +1309,16 @@ onMounted(() => {
 
 .form-navigation .el-button[type="primary"] {
   flex: 1;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #0369A1 0%, #0ea5e9 100%);
   border: none;
   font-weight: 600;
   height: 44px;
+  font-family: 'Source Sans 3', sans-serif;
 }
 
 .form-navigation .el-button[type="primary"]:hover {
   transform: translateY(-1px);
-  box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 8px 16px rgba(3, 105, 161, 0.3);
 }
 
 .login-link {
