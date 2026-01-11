@@ -1561,32 +1561,6 @@ onBeforeUnmount(() => {
   }
 }
 
-  .brand-name {
-    font-size: 32px;
-  }
-
-  .brand-slogan h2 {
-    font-size: 22px;
-  }
-
-  .features-showcase {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-
-  .feature-card {
-    padding: 16px;
-  }
-
-  .stats-display {
-    padding: 20px;
-  }
-
-  .stat-value {
-    font-size: 28px;
-  }
-}
-
 @media (max-width: 768px) {
   .modern-login-container {
     padding: 10px;
