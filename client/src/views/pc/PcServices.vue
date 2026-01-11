@@ -218,7 +218,11 @@
               </div>
             </template>
             <div class="ranking-list">
-              <div v-for="(service, index) in serviceRanking" :key="service.id" class="ranking-item">
+              <div
+                v-for="(service, index) in serviceRanking"
+                :key="service.id"
+                class="ranking-item"
+              >
                 <div class="ranking-num" :class="`rank-${index + 1}`">{{ index + 1 }}</div>
                 <div class="ranking-info">
                   <span class="ranking-name">{{ service.name }}</span>
@@ -240,7 +244,12 @@
               </div>
             </template>
             <div class="guide-list">
-              <div v-for="guide in serviceGuides" :key="guide.id" class="guide-item" @click="viewGuide(guide)">
+              <div
+                v-for="guide in serviceGuides"
+                :key="guide.id"
+                class="guide-item"
+                @click="viewGuide(guide)"
+              >
                 <el-icon :size="20" :color="guide.color">
                   <component :is="guide.icon" />
                 </el-icon>
@@ -268,8 +277,12 @@
               {{ selectedService.type }}
             </el-tag>
           </el-descriptions-item>
-          <el-descriptions-item label="预计时长" :span="2">{{ selectedService.duration }}</el-descriptions-item>
-          <el-descriptions-item label="服务说明" :span="2">{{ selectedService.description }}</el-descriptions-item>
+          <el-descriptions-item label="预计时长" :span="2">{{
+            selectedService.duration
+          }}</el-descriptions-item>
+          <el-descriptions-item label="服务说明" :span="2">{{
+            selectedService.description
+          }}</el-descriptions-item>
         </el-descriptions>
       </div>
       <el-form :model="applyForm" label-width="100px" style="margin-top: 20px">
@@ -288,12 +301,7 @@
           />
         </el-form-item>
         <el-form-item label="附件">
-          <el-upload
-            action="#"
-            :auto-upload="false"
-            :on-change="handleFileChange"
-            multiple
-          >
+          <el-upload action="#" :auto-upload="false" :on-change="handleFileChange" multiple>
             <el-button type="primary">上传附件</el-button>
             <template #tip>
               <div class="el-upload__tip">支持jpg、png、pdf格式，单个文件不超过10MB</div>
@@ -303,7 +311,9 @@
       </el-form>
       <template #footer>
         <el-button @click="showApplyDialog = false">取消</el-button>
-        <el-button type="primary" @click="submitApplication" :loading="submitting">提交申请</el-button>
+        <el-button type="primary" @click="submitApplication" :loading="submitting"
+          >提交申请</el-button
+        >
       </template>
     </el-dialog>
 
@@ -312,9 +322,15 @@
       <div class="detail-content" v-if="selectedApplication">
         <el-descriptions :column="2" border>
           <el-descriptions-item label="申请编号">{{ selectedApplication.id }}</el-descriptions-item>
-          <el-descriptions-item label="服务名称">{{ selectedApplication.serviceName }}</el-descriptions-item>
-          <el-descriptions-item label="申请人">{{ selectedApplication.applicant }}</el-descriptions-item>
-          <el-descriptions-item label="联系电话">{{ selectedApplication.phone }}</el-descriptions-item>
+          <el-descriptions-item label="服务名称">{{
+            selectedApplication.serviceName
+          }}</el-descriptions-item>
+          <el-descriptions-item label="申请人">{{
+            selectedApplication.applicant
+          }}</el-descriptions-item>
+          <el-descriptions-item label="联系电话">{{
+            selectedApplication.phone
+          }}</el-descriptions-item>
           <el-descriptions-item label="申请时间">
             {{ formatDateTime(selectedApplication.applyTime) }}
           </el-descriptions-item>
@@ -323,17 +339,26 @@
               {{ getStatusLabel(selectedApplication.status) }}
             </el-tag>
           </el-descriptions-item>
-          <el-descriptions-item label="处理人">{{ selectedApplication.handler || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="处理人">{{
+            selectedApplication.handler || '-'
+          }}</el-descriptions-item>
           <el-descriptions-item label="处理时间">
-            {{ selectedApplication.handleTime ? formatDateTime(selectedApplication.handleTime) : '-' }}
+            {{
+              selectedApplication.handleTime ? formatDateTime(selectedApplication.handleTime) : '-'
+            }}
           </el-descriptions-item>
-          <el-descriptions-item label="备注" :span="2">{{ selectedApplication.remark || '无' }}</el-descriptions-item>
+          <el-descriptions-item label="备注" :span="2">{{
+            selectedApplication.remark || '无'
+          }}</el-descriptions-item>
           <el-descriptions-item label="处理意见" :span="2">
             {{ selectedApplication.opinion || '暂无' }}
           </el-descriptions-item>
         </el-descriptions>
 
-        <div v-if="selectedApplication.files && selectedApplication.files.length > 0" class="files-section">
+        <div
+          v-if="selectedApplication.files && selectedApplication.files.length > 0"
+          class="files-section"
+        >
           <h4>附件材料</h4>
           <div class="file-list">
             <div v-for="file in selectedApplication.files" :key="file.name" class="file-item">
@@ -426,19 +451,79 @@ const applyForm = reactive({
 });
 
 const serviceCategories = ref([
-  { key: 'all', name: '全部服务', count: 24, icon: 'Grid', gradient: 'linear-gradient(135deg, #0369A1 0%, #0ea5e9 100%)' },
-  { key: 'civil', name: '民政服务', count: 8, icon: 'User', gradient: 'linear-gradient(135deg, #059669 0%, #10b981 100%)' },
-  { key: 'medical', name: '医疗卫生', count: 6, icon: 'FirstAid', gradient: 'linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)' },
-  { key: 'education', name: '教育服务', count: 4, icon: 'Reading', gradient: 'linear-gradient(135deg, #ea580c 0%, #f97316 100%)' },
-  { key: 'labor', name: '劳务服务', count: 3, icon: 'Work', gradient: 'linear-gradient(135deg, #0891b2 0%, #22d3ee 100%)' },
-  { key: 'security', name: '综治服务', count: 3, icon: 'Shield', gradient: 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)' },
+  {
+    key: 'all',
+    name: '全部服务',
+    count: 24,
+    icon: 'Grid',
+    gradient: 'linear-gradient(135deg, #0369A1 0%, #0ea5e9 100%)',
+  },
+  {
+    key: 'civil',
+    name: '民政服务',
+    count: 8,
+    icon: 'User',
+    gradient: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+  },
+  {
+    key: 'medical',
+    name: '医疗卫生',
+    count: 6,
+    icon: 'FirstAid',
+    gradient: 'linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)',
+  },
+  {
+    key: 'education',
+    name: '教育服务',
+    count: 4,
+    icon: 'Reading',
+    gradient: 'linear-gradient(135deg, #ea580c 0%, #f97316 100%)',
+  },
+  {
+    key: 'labor',
+    name: '劳务服务',
+    count: 3,
+    icon: 'Work',
+    gradient: 'linear-gradient(135deg, #0891b2 0%, #22d3ee 100%)',
+  },
+  {
+    key: 'security',
+    name: '综治服务',
+    count: 3,
+    icon: 'Shield',
+    gradient: 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)',
+  },
 ]);
 
 const serviceStats = ref([
-  { key: 'total', label: '服务总数', value: 156, icon: 'Service', gradient: 'linear-gradient(135deg, #0369A1 0%, #0ea5e9 100%)' },
-  { key: 'pending', label: '待审核', value: 12, icon: 'Clock', gradient: 'linear-gradient(135deg, #ea580c 0%, #f97316 100%)' },
-  { key: 'completed', label: '已完成', value: 128, icon: 'CircleCheck', gradient: 'linear-gradient(135deg, #059669 0%, #10b981 100%)' },
-  { key: 'satisfaction', label: '满意度', value: 98.5, icon: 'Star', gradient: 'linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)' },
+  {
+    key: 'total',
+    label: '服务总数',
+    value: 156,
+    icon: 'Service',
+    gradient: 'linear-gradient(135deg, #0369A1 0%, #0ea5e9 100%)',
+  },
+  {
+    key: 'pending',
+    label: '待审核',
+    value: 12,
+    icon: 'Clock',
+    gradient: 'linear-gradient(135deg, #ea580c 0%, #f97316 100%)',
+  },
+  {
+    key: 'completed',
+    label: '已完成',
+    value: 128,
+    icon: 'CircleCheck',
+    gradient: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+  },
+  {
+    key: 'satisfaction',
+    label: '满意度',
+    value: 98.5,
+    icon: 'Star',
+    gradient: 'linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)',
+  },
 ]);
 
 const services = ref<Service[]>([
@@ -588,7 +673,8 @@ const serviceGuides = ref<Guide[]>([
 
 const filteredServices = computed(() => {
   return services.value.filter(service => {
-    const matchCategory = activeCategory.value === 'all' || service.category === activeCategory.value;
+    const matchCategory =
+      activeCategory.value === 'all' || service.category === activeCategory.value;
     const matchSearch = !searchKeyword.value || service.name.includes(searchKeyword.value);
     return matchCategory && matchSearch;
   });

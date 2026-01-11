@@ -234,11 +234,7 @@
             <el-option label="财政拨款" value="government" />
             <el-option label="土地流转" value="land" />
             <el-option label="其他收入" value="other_income" />
-            <el-option
-              v-if="transactionForm.type === 'expense'"
-              label="工资福利"
-              value="salary"
-            />
+            <el-option v-if="transactionForm.type === 'expense'" label="工资福利" value="salary" />
             <el-option label="办公经费" value="office" />
             <el-option label="基础设施" value="infrastructure" />
             <el-option label="公共事业" value="public" />

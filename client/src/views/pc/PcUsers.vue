@@ -70,7 +70,12 @@
               <el-option label="普通用户" value="user" />
               <el-option label="访客" value="guest" />
             </el-select>
-            <el-select v-model="statusFilter" placeholder="状态筛选" clearable @change="handleSearch">
+            <el-select
+              v-model="statusFilter"
+              placeholder="状态筛选"
+              clearable
+              @change="handleSearch"
+            >
               <el-option label="全部" value="" />
               <el-option label="正常" value="active" />
               <el-option label="禁用" value="disabled" />
@@ -138,7 +143,7 @@
                   {{ row.name?.charAt(0) || '用' }}
                 </el-avatar>
                 <div class="info-content">
-<div class="info-name">
+                  <div class="info-name">
                     {{ row.username }}
                     <el-tag v-if="row.isAdmin" type="danger" size="small">管理员</el-tag>
                   </div>
@@ -231,7 +236,11 @@
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="用户名" prop="username">
-              <el-input v-model="userForm.username" placeholder="请输入用户名" :disabled="isEditing" />
+              <el-input
+                v-model="userForm.username"
+                placeholder="请输入用户名"
+                :disabled="isEditing"
+              />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -317,16 +326,29 @@
               {{ getStatusLabel(selectedUser.status) }}
             </el-tag>
           </el-descriptions-item>
-          <el-descriptions-item label="部门">{{ selectedUser.department || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="创建时间">{{ formatDateTime(selectedUser.createdAt) }}</el-descriptions-item>
-          <el-descriptions-item label="最后登录">{{ formatDateTime(selectedUser.lastLogin) }}</el-descriptions-item>
-          <el-descriptions-item label="登录次数">{{ selectedUser.loginCount }}次</el-descriptions-item>
+          <el-descriptions-item label="部门">{{
+            selectedUser.department || '-'
+          }}</el-descriptions-item>
+          <el-descriptions-item label="创建时间">{{
+            formatDateTime(selectedUser.createdAt)
+          }}</el-descriptions-item>
+          <el-descriptions-item label="最后登录">{{
+            formatDateTime(selectedUser.lastLogin)
+          }}</el-descriptions-item>
+          <el-descriptions-item label="登录次数"
+            >{{ selectedUser.loginCount }}次</el-descriptions-item
+          >
         </el-descriptions>
 
         <div class="permission-section">
           <h4>拥有的权限</h4>
           <div class="permission-tags">
-            <el-tag v-for="perm in selectedUser.permissions" :key="perm" size="small" class="permission-tag">
+            <el-tag
+              v-for="perm in selectedUser.permissions"
+              :key="perm"
+              size="small"
+              class="permission-tag"
+            >
               {{ perm }}
             </el-tag>
           </div>
@@ -555,8 +577,20 @@ const users = ref<User[]>([
 ]);
 
 const roles = ref<Role[]>([
-  { key: 'admin', name: '系统管理员', description: '拥有所有系统权限', userCount: 1, permissions: ['*'] },
-  { key: 'village_admin', name: '村干部', description: '村务管理权限', userCount: 5, permissions: [] },
+  {
+    key: 'admin',
+    name: '系统管理员',
+    description: '拥有所有系统权限',
+    userCount: 1,
+    permissions: ['*'],
+  },
+  {
+    key: 'village_admin',
+    name: '村干部',
+    description: '村务管理权限',
+    userCount: 5,
+    permissions: [],
+  },
   { key: 'user', name: '普通用户', description: '基础查看权限', userCount: 38, permissions: [] },
   { key: 'guest', name: '访客', description: '仅查看公开信息', userCount: 1, permissions: [] },
 ]);

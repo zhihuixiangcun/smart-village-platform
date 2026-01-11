@@ -66,7 +66,11 @@
                   <el-icon><UserFilled /></el-icon>
                   人口统计分析
                 </span>
-                <el-radio-group v-model="populationPeriod" size="small" @change="handlePeriodChange">
+                <el-radio-group
+                  v-model="populationPeriod"
+                  size="small"
+                  @change="handlePeriodChange"
+                >
                   <el-radio-button label="age">年龄分布</el-radio-button>
                   <el-radio-button label="gender">性别比例</el-radio-button>
                   <el-radio-button label="education">学历结构</el-radio-button>
@@ -178,7 +182,10 @@
                   <span class="quality-label">{{ item.label }}</span>
                   <span class="quality-value">{{ item.percentage }}%</span>
                 </div>
-                <el-progress :percentage="item.percentage" :color="getQualityColor(item.percentage)" />
+                <el-progress
+                  :percentage="item.percentage"
+                  :color="getQualityColor(item.percentage)"
+                />
               </div>
             </div>
           </el-card>
@@ -620,10 +627,7 @@ const handlePeriodChange = () => {
   const options: Record<string, object> = {
     age: {
       xAxis: { data: ['0-6岁', '7-17岁', '18-35岁', '36-59岁', '60岁以上'] },
-      series: [
-        { data: [45, 78, 156, 285, 94] },
-        { data: [38, 72, 142, 268, 78] },
-      ],
+      series: [{ data: [45, 78, 156, 285, 94] }, { data: [38, 72, 142, 268, 78] }],
     },
     gender: {
       xAxis: { data: ['村民构成'] },
@@ -634,10 +638,7 @@ const handlePeriodChange = () => {
     },
     education: {
       xAxis: { data: ['小学及以下', '初中', '高中', '大专', '本科及以上'] },
-      series: [
-        { data: [285, 356, 245, 198, 172] },
-        { data: [0, 0, 0, 0, 0] },
-      ],
+      series: [{ data: [285, 356, 245, 198, 172] }, { data: [0, 0, 0, 0, 0] }],
     },
   };
 
