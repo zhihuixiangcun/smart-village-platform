@@ -3,7 +3,7 @@
   智慧乡村综合服务平台 - PC端布局
 -->
 <template>
-  <div class="pc-layout" :class="layoutClasses">
+  <div class="pc-layout" :class="layoutClasses" :class="{ 'dark-mode': useThemeStore().isDark }">
     <!-- 左侧固定侧边栏 -->
     <aside class="pc-sidebar" :class="{ collapsed: sidebarCollapsed }">
       <div class="sidebar-header">
@@ -86,34 +86,37 @@
             </el-button>
           </el-tooltip>
 
-          <el-dropdown trigger="click" @command="handleUserCommand">
-            <div class="user-dropdown-trigger">
-              <el-avatar :size="36" :src="userInfo.avatar">
-                {{ userInfo.name?.charAt(0) || '村' }}
-              </el-avatar>
-              <div class="user-info">
-                <span class="user-name">{{ userInfo.name || '村干部' }}</span>
-                <span class="user-role">{{ getRoleLabel(userInfo.role) }}</span>
-              </div>
-              <el-icon><ArrowDown /></el-icon>
-            </div>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item command="profile">
-                  <el-icon><User /></el-icon>个人中心
-                </el-dropdown-item>
-                <el-dropdown-item command="settings">
-                  <el-icon><Setting /></el-icon>系统设置
-                </el-dropdown-item>
-                <el-dropdown-item command="help">
-                  <el-icon><QuestionFilled /></el-icon>帮助中心
-                </el-dropdown-item>
-                <el-dropdown-item divided command="logout">
-                  <el-icon><SwitchButton /></el-icon>退出登录
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
+              <el-dropdown trigger="click" @command="handleUserCommand">
+                <div class="user-dropdown-trigger">
+                  <el-avatar :size="36" :src="userInfo.avatar">
+                    {{ userInfo.name?.charAt(0) || '村' }}
+                  </el-avatar>
+                  <div class="user-info">
+                    <span class="user-name">{{ userInfo.name || '村干部' }}</span>
+                    <span class="user-role">{{ getRoleLabel(userInfo.role) }}</span>
+                  </div>
+                  <el-icon><ArrowDown /></el-icon>
+                </div>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item command="profile">
+                      <el-icon><User /></el-icon>个人中心
+                    </el-dropdown-item>
+                    <el-dropdown-item command="settings">
+                      <el-icon><Setting /></el-icon>系统设置
+                    </el-dropdown-item>
+                    <el-dropdown-item command="theme">
+                      <el-icon><Sunny /></el-icon>主题切换
+                    </el-dropdown-item>
+                    <el-dropdown-item divided command="help">
+                      <el-icon><QuestionFilled /></el-icon>帮助中心
+                    </el-dropdown-item>
+                    <el-dropdown-item divided command="logout">
+                      <el-icon><SwitchButton /></el-icon>退出登录
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
         </div>
       </header>
 
@@ -194,6 +197,7 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/userStore';
+import { useThemeStore } from '@/stores/themeStore';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import {
   House,
@@ -215,6 +219,9 @@ import {
   InfoFilled,
   SuccessFilled,
   Document,
+  Sunny,
+  Moon,
+  MoreFilled,
 } from '@element-plus/icons-vue';
 
 interface MenuItem {
@@ -269,7 +276,12 @@ const menus: MenuItem[] = [
   { title: '村务管理', path: '/pc/affairs', icon: 'OfficeBuilding', permission: 'village:read' },
   { title: '财务管理', path: '/pc/finance', icon: 'Money', permission: 'finance:read' },
   { title: '生活服务', path: '/pc/services', icon: 'Service', permission: 'service:read' },
-  { title: '数据统计', path: '/pc/statistics', icon: 'DataAnalysis', permission: 'statistics:read' },
+  {
+    title: '数据统计',
+    path: '/pc/statistics',
+    icon: 'DataAnalysis',
+    permission: 'statistics:read',
+  },
   { title: '用户管理', path: '/pc/users', icon: 'UserFilled', permission: 'user:read' },
   { title: '系统设置', path: '/pc/settings', icon: 'Setting', permission: 'settings:manage' },
 ];
@@ -374,6 +386,10 @@ const handleUserCommand = (command: string) => {
       break;
     case 'settings':
       router.push('/profile/settings');
+      break;
+    case 'theme':
+      useThemeStore().toggleDark();
+      ElMessage.success(useThemeStore().isDark ? '已切换到深色模式' : '已切换到浅色模式');
       break;
     case 'help':
       ElMessage.info('帮助中心开发中');
@@ -491,8 +507,9 @@ watch(
 <style lang="scss" scoped>
 .pc-layout {
   display: flex;
-  min-height: 100vh;
-  background-color: #f5f7fa;
+  min-height: pc-height;
+  background-color: var(--el-bg-color);
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .pc-sidebar {
@@ -501,12 +518,52 @@ watch(
   top: 0;
   bottom: 0;
   width: 240px;
-  background: linear-gradient(180deg, #0369A1 0%, #0F172A 100%);
+  background: linear-gradient(180deg, #2196f3 0%, #1565c0 100%);
   display: flex;
   flex-direction: column;
-  transition: width 0.3s ease;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1000;
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 深色模式 */
+.dark-mode .pc-sidebar {
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+}
+
+.dark-mode .pc-sidebar .logo-text,
+.dark-mode .pc-sidebar .logo-text-small {
+  color: #f8fafc;
+}
+
+.dark-mode .pc-sidebar .sidebar-menu {
+  background: transparent;
+}
+
+.dark-mode .pc-sidebar .sidebar-menu :deep(.el-menu-item) {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.dark-mode .pc-sidebar .sidebar-menu :deep(.el-menu-item:hover) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .pc-sidebar .sidebar-menu :deep(.el-menu-item.is-active) {
+  background: linear-gradient(90deg, #3b82f6 0%, #0ea5e9 100%);
+}
+
+.pc-sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 240px;
+  background: linear-gradient(180deg, #2196f3 0%, #1565c0 100%);
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 
   &.collapsed {
     width: 64px;
@@ -569,21 +626,31 @@ watch(
   background: transparent;
 
   :deep(.el-menu-item) {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.8);
     height: 48px;
     line-height: 48px;
-    margin: 4px 8px;
-    border-radius: 8px;
-    transition: all 0.3s;
+    margin: 4px 12px;
+    border-radius: 6px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 14px;
+    font-weight: 400;
 
     &:hover {
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: rgba(255, 255, 255, 0.15);
       color: #fff;
+      transform: translateX(2px);
     }
 
     &.is-active {
-      background: linear-gradient(90deg, #0369A1 0%, #0ea5e9 100%);
+      background: rgba(255, 255, 255, 0.2);
       color: #fff;
+      font-weight: 500;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    &:focus-visible {
+      outline: 2px solid rgba(255, 255, 255, 0.5);
+      outline-offset: 2px;
     }
   }
 }
@@ -627,17 +694,20 @@ watch(
 .pc-header {
   position: sticky;
   top: 0;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
   padding: 0 24px;
   height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   z-index: 999;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
 
   &.header-shadow {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   }
 }
 
@@ -725,10 +795,78 @@ watch(
   color: #909399;
 }
 
+/* 深色模式 */
+.dark-mode .pc-header {
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode .header-left {
+  .breadcrumb {
+    :deep(.el-breadcrumb__inner) {
+      color: rgba(255, 255, 255, 0.7);
+    }
+  }
+}
+
+.dark-mode .header-right {
+  .search-input {
+    :deep(.el-input__wrapper) {
+      background: rgba(0, 0, 0, 0.3);
+      box-shadow: none;
+
+      &:hover,
+      &:focus-within {
+        background: rgba(255, 255, 255, 0.05);
+      }
+    }
+  }
+}
+
+.dark-mode .header-btn {
+  color: rgba(255, 256, 257, 0.8);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.dark-mode .user-dropdown-trigger {
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--el-text-color-primary);
+}
+
+.user-role {
+  font-size: 12px;
+  color: var(--el-text-color-regular);
+}
+
+.dark-mode .user-name {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.dark-mode .user-role {
+  color: rgba(255, 255, 255, 0.6);
+}
+
 .pc-content {
   flex: 1;
   padding: 24px;
   overflow-x: hidden;
+  background-color: var(--el-bg-color);
 
   &.content-fullscreen {
     padding: 0;
@@ -738,11 +876,52 @@ watch(
 .content-wrapper {
   max-width: 1600px;
   margin: 0 auto;
-  background: #fff;
+  background: var(--el-bg-color);
   border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--el-box-shadow);
   min-height: calc(100vh - 112px);
   padding: 24px;
+  transition: all 0.3s ease;
+}
+
+.dark-mode .content-wrapper {
+  background: var(--el-bg-color);
+  box-shadow: 0 1px 3px rgba(255, 255, 255, 0.1);
+}
+
+/* 深色模式 - 表格样式 */
+.dark-mode :deep(.el-table) {
+  background: transparent;
+}
+
+.dark-mode :deep(.el-table th) {
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode :deep(.el-table tr) {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.dark-mode :deep(.el-table tbody tr:hover > td) {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode :deep(.el-table td),
+.dark-mode :deep(.el-table th) {
+  border-color: rgba(255, 235, 238, 0.1);
+}
+}
+
+.content-wrapper {
+  max-width: 1600px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  min-height: calc(100vh - 112px);
+  padding: 24px;
+  transition: all 0.3s ease;
 }
 
 .page-fade-enter-active,

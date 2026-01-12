@@ -45,32 +45,27 @@
       </el-card>
     </section>
 
-    <!-- 统计卡片区域 -->
-    <section class="stats-section">
-      <el-row :gutter="20">
-        <el-col :xs="24" :sm="12" :md="8" :lg="4" v-for="stat in statisticsCards" :key="stat.key">
-          <el-card class="stat-card" shadow="hover" @click="handleStatClick(stat)">
-            <div class="stat-content">
-              <div class="stat-icon" :style="{ background: stat.gradient }">
-                <el-icon :size="28" color="white">
-                  <component :is="stat.icon" />
-                </el-icon>
-              </div>
-              <div class="stat-info">
-                <div class="stat-value">{{ stat.value }}</div>
-                <div class="stat-label">{{ stat.label }}</div>
-                <div class="stat-change" :class="stat.changeClass">
-                  <el-icon size="12">
-                    <component :is="stat.changeIcon" />
-                  </el-icon>
-                  <span>{{ stat.change }}</span>
-                </div>
-              </div>
-            </div>
-          </el-card>
-        </el-col>
-      </el-row>
-    </section>
+     <!-- 统计卡片区域 -->
+     <section class="stats-section">
+       <el-row :gutter="20">
+         <el-col :xs="24" :sm="12" :md="8" :lg="4" v-for="stat in statisticsCards" :key="stat.key">
+           <StatCard
+             :label="stat.label"
+             :value="stat.value"
+             :icon="stat.icon"
+             :type="stat.type"
+             :changeValue="stat.change"
+             :changeType="stat.changeType"
+             :changeText="stat.changeText"
+             :changeIcon="stat.changeIcon"
+             :show-action="true"
+             :clickable="!!stat.route"
+             @click="handleStatClick(stat)"
+           />
+         </el-col>
+       </el-row>
+       <SkeletonScreen v-if="loading" type="card" :rows="6" />
+     </section>
 
     <!-- 主内容区域 -->
     <section class="main-section">
@@ -96,7 +91,8 @@
                 </el-radio-group>
               </div>
             </template>
-            <div ref="chartRef" class="chart-container"></div>
+            <SkeletonScreen v-if="loadingChart" type="chart" :loading="loadingChart" />
+            <div v-else ref="chartRef" class="chart-container" role="img" aria-label="数据概览图表"></div>
           </el-card>
 
           <!-- 快捷操作 -->
@@ -115,6 +111,10 @@
                 :key="action.id"
                 class="quick-action-item"
                 @click="handleQuickAction(action)"
+                role="button"
+                tabindex="0"
+                :aria-label="action.label"
+                @keyup.enter="handleQuickAction(action)"
               >
                 <div class="action-icon" :style="{ background: action.gradient }">
                   <el-icon :size="24" color="white">
@@ -140,13 +140,18 @@
                 <el-badge :value="unreadNoticeCount" type="danger" />
               </div>
             </template>
-            <div class="notice-list">
+            <SkeletonScreen v-if="loading" type="list" :loading="loading" :rows="4" />
+            <div v-else class="notice-list">
               <div
                 v-for="notice in recentNotices"
                 :key="notice.id"
                 class="notice-item"
                 :class="{ unread: !notice.read }"
                 @click="handleNoticeClick(notice)"
+                role="button"
+                tabindex="0"
+                :aria-label="`${notice.title}，${notice.summary}`"
+                @keyup.enter="handleNoticeClick(notice)"
               >
                 <el-tag :type="getNoticeType(notice.level)" size="small" class="notice-tag">
                   {{ notice.level }}
@@ -171,7 +176,8 @@
                 </span>
               </div>
             </template>
-            <div class="activity-list">
+            <SkeletonScreen v-if="loading" type="list" :loading="loading" :rows="4" />
+            <div v-else class="activity-list">
               <div v-for="activity in recentActivities" :key="activity.id" class="activity-item">
                 <el-avatar :size="40" :src="activity.avatar">
                   {{ activity.user.charAt(0) }}
@@ -194,10 +200,14 @@
     <!-- 通知详情对话框 -->
     <el-dialog
       v-model="showNoticeDialog"
-      :title="selectedNotice?.title"
       width="600px"
       destroy-on-close
+      aria-modal="true"
+      :aria-labelledby="'notice-dialog-title'"
     >
+      <template #header>
+        <h3 id="notice-dialog-title">{{ selectedNotice?.title }}</h3>
+      </template>
       <div class="notice-detail" v-if="selectedNotice">
         <div class="notice-meta">
           <el-tag :type="getNoticeType(selectedNotice.level)" size="small">
@@ -222,7 +232,6 @@ import { ref, computed, onMounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/userStore';
 import { ElMessage } from 'element-plus';
-import * as echarts from 'echarts';
 import {
   DataAnalysis,
   CircleCheck,
@@ -242,19 +251,27 @@ import {
   Setting,
   TrendCharts,
   House,
+  MoreFilled,
+  ArrowUp,
+  ArrowDown,
+  Minus,
 } from '@element-plus/icons-vue';
 import dashboardApi from '@/api/dashboard';
+import SkeletonScreen from '@/components/common/SkeletonScreen.vue';
+import StatCard from '@/components/statistics/StatCard.vue';
 
 interface StatCard {
   key: string;
   label: string;
-  value: number;
+  value: number | string;
   icon: string;
-  gradient: string;
+  type?: 'primary' | 'success' | 'warning' | 'info' | 'danger';
   change: string;
-  changeClass: string;
-  changeIcon: string;
+  changeType?: 'positive' | 'negative' | 'neutral';
+  changeText?: string;
+  changeIcon?: string;
   route?: string;
+  extraInfo?: string;
 }
 
 interface QuickAction {
@@ -286,6 +303,8 @@ interface Activity {
 const router = useRouter();
 const userStore = useUserStore();
 
+const loading = ref(true);
+const loadingChart = ref(true);
 const chartRef = ref<HTMLDivElement | null>(null);
 const chartPeriod = ref('week');
 const chartInstance = ref<echarts.ECharts | null>(null);
@@ -307,10 +326,11 @@ const statisticsCards = ref<StatCard[]>([
     label: '村民总数',
     value: 1256,
     icon: 'Users',
-    gradient: 'linear-gradient(135deg, #0369A1 0%, #0ea5e9 100%)',
+    type: 'primary',
     change: '+12%',
-    changeClass: 'positive',
+    changeType: 'positive',
     changeIcon: 'ArrowUp',
+    changeText: '较上周',
     route: '/pc/residents',
   },
   {
@@ -318,20 +338,23 @@ const statisticsCards = ref<StatCard[]>([
     label: '家庭户数',
     value: 456,
     icon: 'OfficeBuilding',
-    gradient: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+    type: 'success',
     change: '+5%',
-    changeClass: 'positive',
+    changeType: 'positive',
     changeIcon: 'ArrowUp',
+    changeText: '较上周',
+    route: '/pc/residents',
   },
   {
     key: 'finance',
-    label: '财务收入',
+    label: '财务收入(万)',
     value: 156.8,
     icon: 'Money',
-    gradient: 'linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)',
+    type: 'primary',
     change: '+8.2%',
-    changeClass: 'positive',
+    changeType: 'positive',
     changeIcon: 'ArrowUp',
+    changeText: '较上月',
     route: '/pc/finance',
   },
   {
@@ -339,10 +362,11 @@ const statisticsCards = ref<StatCard[]>([
     label: '服务次数',
     value: 328,
     icon: 'Service',
-    gradient: 'linear-gradient(135deg, #ea580c 0%, #f97316 100%)',
+    type: 'info',
     change: '+15%',
-    changeClass: 'positive',
+    changeType: 'positive',
     changeIcon: 'ArrowUp',
+    changeText: '较上月',
     route: '/pc/services',
   },
   {
@@ -350,20 +374,22 @@ const statisticsCards = ref<StatCard[]>([
     label: '村委成员',
     value: 12,
     icon: 'UserFilled',
-    gradient: 'linear-gradient(135deg, #0891b2 0%, #22d3ee 100%)',
+    type: 'info',
     change: '0%',
-    changeClass: 'neutral',
+    changeType: 'neutral',
     changeIcon: 'Minus',
+    changeText: '无变化',
   },
   {
     key: 'tasks',
     label: '待办任务',
     value: 8,
     icon: 'TrendCharts',
-    gradient: 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)',
+    type: 'danger',
     change: '-3%',
-    changeClass: 'negative',
+    changeType: 'negative',
     changeIcon: 'ArrowDown',
+    changeText: '较上周',
     route: '/pc/affairs',
   },
 ]);
@@ -537,6 +563,22 @@ const handleQuickAction = (action: QuickAction) => {
   }
 };
 
+const handleStatAction = (action: string) => {
+  switch (action) {
+    case 'view':
+      ElMessage.info('查看详情功能开发中');
+      break;
+    case 'export':
+      ElMessage.info('导出数据功能开发中');
+      break;
+    case 'settings':
+      router.push('/pc/settings');
+      break;
+    default:
+      ElMessage.info('操作处理中');
+  }
+};
+
 const handleNoticeClick = (notice: Notice) => {
   selectedNotice.value = notice;
   showNoticeDialog.value = true;
@@ -557,12 +599,19 @@ const handleChartPeriodChange = () => {
 const initChart = () => {
   if (!chartRef.value) return;
 
+  loadingChart.value = true;
   chartInstance.value = echarts.init(chartRef.value);
 
   const option = {
     tooltip: {
       trigger: 'axis',
-      axisPointer: { type: 'shadow' },
+      axisPointer: {
+        type: 'cross',
+        crossStyle: { color: '#909399', width: 1, type: 'dashed' }
+      },
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      borderColor: '#ebeef5',
+      textStyle: { color: '#303133' }
     },
     legend: {
       data: ['新增村民', '处理事务', '发布公告'],
@@ -571,15 +620,21 @@ const initChart = () => {
     grid: {
       left: '3%',
       right: '4%',
-      bottom: '10%',
+      bottom: '15%',
       top: '10%',
       containLabel: true,
     },
+    dataZoom: [{ type: 'slider', show: true, bottom: 5 }],
     xAxis: {
       type: 'category',
       data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
     },
     yAxis: { type: 'value' },
+    animation: {
+      duration: 1000,
+      easing: 'cubicInOut',
+      delay: 300
+    },
     series: [
       {
         name: '新增村民',
@@ -618,6 +673,7 @@ const initChart = () => {
   };
 
   chartInstance.value.setOption(option);
+  loadingChart.value = false;
 };
 
 const updateChart = () => {
@@ -665,11 +721,12 @@ const updateChart = () => {
   chartInstance.value.setOption({
     xAxis: { data: data.xAxis },
     series: [{ data: data.data1 }, { data: data.data2 }, { data: data.data3 }],
-  });
+  }, { notMerge: true });
 };
 
 const loadDashboardData = async () => {
   try {
+    loading.value = true;
     const villageId = userStore.villageId || 'default';
     const response = await dashboardApi.getDashboardData(villageId);
     if (response.success && response.data) {
@@ -677,6 +734,8 @@ const loadDashboardData = async () => {
     }
   } catch (error) {
     console.error('加载仪表板数据失败:', error);
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -692,8 +751,19 @@ onMounted(async () => {
 </script>
 
 <style lang="scss" scoped>
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInSlide {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
 .pc-dashboard {
   padding: 0;
+  animation: fadeIn 0.5s ease-out;
 }
 
 .welcome-section {
@@ -769,6 +839,14 @@ onMounted(async () => {
   transition:
     transform 0.3s,
     box-shadow 0.3s;
+  animation: fadeIn 0.6s ease-out;
+  animation-fill-mode: both;
+
+  @for $i from 1 through 6 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{$i * 0.1}s;
+    }
+  }
 
   &:hover {
     transform: translateY(-4px);
@@ -871,12 +949,10 @@ onMounted(async () => {
   padding: 20px;
   border-radius: 12px;
   cursor: pointer;
-  transition:
-    transform 0.3s,
-    box-shadow 0.3s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
-    transform: translateY(-4px);
+    transform: scale(1.05);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
   }
 
@@ -906,11 +982,20 @@ onMounted(async () => {
   padding: 16px;
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   margin-bottom: 8px;
+  animation: fadeInSlide 0.4s ease-out;
+  animation-fill-mode: both;
+
+  @for $i from 1 through 10 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{$i * 0.08}s;
+    }
+  }
 
   &:hover {
     background-color: #f5f7fa;
+    transform: translateX(4px);
   }
 
   &.unread {
@@ -965,6 +1050,22 @@ onMounted(async () => {
   gap: 12px;
   padding: 12px 0;
   border-bottom: 1px solid #ebeef5;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fadeInSlide 0.4s ease-out;
+  animation-fill-mode: both;
+
+  @for $i from 1 through 10 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{$i * 0.08}s;
+    }
+  }
+
+  &:hover {
+    background-color: #f9fafb;
+    padding-left: 8px;
+    padding-right: 8px;
+    border-radius: 4px;
+  }
 
   &:last-child {
     border-bottom: none;
@@ -1015,25 +1116,147 @@ onMounted(async () => {
 }
 
 @media (max-width: 768px) {
+  .welcome-card {
+    :deep(.el-card__body) {
+      padding: 16px;
+    }
+  }
+
   .welcome-content {
     flex-direction: column;
     align-items: flex-start;
-    gap: 24px;
+    gap: 20px;
+  }
+
+  .welcome-info {
+    .welcome-title {
+      font-size: 20px;
+    }
+
+    .welcome-subtitle {
+      font-size: 12px;
+      margin-bottom: 12px;
+    }
   }
 
   .welcome-stats {
     width: 100%;
     justify-content: space-between;
+    gap: 16px;
+  }
+
+  .stat-item {
+    gap: 8px;
+
+    .el-icon {
+      font-size: 20px !important;
+    }
+
+    .stat-text {
+      .stat-value {
+        font-size: 18px;
+      }
+
+      .stat-label {
+        font-size: 11px;
+      }
+    }
+  }
+
+  .stat-card {
+    :deep(.el-card__body) {
+      padding: 16px;
+    }
+  }
+
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .stat-info {
+    .stat-value {
+      font-size: 20px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+    }
+  }
+
+  .chart-card {
+    .chart-container {
+      height: 250px;
+    }
   }
 
   .quick-actions-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
 
-  .stat-item {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+  .quick-action-item {
+    padding: 16px 12px;
+    gap: 8px;
+
+    .action-icon {
+      width: 40px;
+      height: 40px;
+    }
+
+    .action-label {
+      font-size: 12px;
+    }
+  }
+
+  .notice-item {
+    padding: 12px;
+    gap: 10px;
+
+    .notice-content {
+      h4 {
+        font-size: 13px;
+      }
+
+      p {
+        font-size: 12px;
+      }
+
+      .notice-time {
+        font-size: 11px;
+      }
+    }
+  }
+
+  .activity-item {
+    padding: 10px 0;
+    gap: 10px;
+
+    .el-avatar {
+      :deep(.el-avatar) {
+        width: 32px;
+        height: 32px;
+        line-height: 32px;
+      }
+    }
+
+    .activity-content {
+      p {
+        font-size: 13px;
+      }
+
+      .activity-time {
+        font-size: 11px;
+      }
+    }
+  }
+
+  .notice-detail {
+    .notice-body {
+      p {
+        font-size: 13px;
+      }
+    }
   }
 }
 </style>

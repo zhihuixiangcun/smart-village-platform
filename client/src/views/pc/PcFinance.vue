@@ -11,19 +11,19 @@
         <p>村集体资金管理、收支明细、预算控制、财务报表</p>
       </div>
       <div class="header-actions">
-        <el-button type="primary" @click="showAddIncomeDialog">
+        <el-button type="primary" @click="showAddIncomeDialog" aria-label="收入登记">
           <el-icon><Plus /></el-icon>
           收入登记
         </el-button>
-        <el-button @click="showAddExpenseDialog">
+        <el-button @click="showAddExpenseDialog" aria-label="支出登记">
           <el-icon><Minus /></el-icon>
           支出登记
         </el-button>
-        <el-button @click="showBudgetDialog">
+        <el-button @click="showBudgetDialog" aria-label="预算管理">
           <el-icon><Coin /></el-icon>
           预算管理
         </el-button>
-        <el-button @click="handleExportReport">
+        <el-button @click="handleExportReport" aria-label="导出报表">
           <el-icon><Download /></el-icon>
           导出报表
         </el-button>
@@ -31,10 +31,16 @@
     </header>
 
     <!-- 财务概览 -->
-    <section class="overview-section">
+    <section class="overview-section" aria-label="财务概览">
       <el-row :gutter="20">
         <el-col :xs="24" :sm="12" :md="6" v-for="stat in overviewStats" :key="stat.key">
-          <el-card class="stat-card" shadow="hover">
+          <el-card
+            class="stat-card"
+            shadow="hover"
+            role="button"
+            tabindex="0"
+            :aria-label="`${stat.label}，${stat.value}`"
+          >
             <div class="stat-content">
               <div class="stat-icon" :style="{ background: stat.gradient }">
                 <el-icon :size="28" color="white">
@@ -55,6 +61,7 @@
           </el-card>
         </el-col>
       </el-row>
+      <SkeletonScreen v-if="loading" type="card" :rows="4" />
     </section>
 
     <!-- 主内容区域 -->
@@ -70,12 +77,12 @@
                   收支明细
                 </span>
                 <div class="card-actions">
-                  <el-radio-group v-model="transactionType" size="small">
+                  <el-radio-group v-model="transactionType" size="small" aria-label="交易类型筛选">
                     <el-radio-button label="all">全部</el-radio-button>
                     <el-radio-button label="income">收入</el-radio-button>
                     <el-radio-button label="expense">支出</el-radio-button>
                   </el-radio-group>
-                  <el-select v-model="categoryFilter" placeholder="分类筛选" clearable size="small">
+                  <el-select v-model="categoryFilter" placeholder="分类筛选" clearable size="small" aria-label="分类筛选">
                     <el-option label="全部" value="" />
                     <el-option label="集体经济收入" value="economic" />
                     <el-option label="财政拨款" value="government" />
@@ -88,7 +95,16 @@
               </div>
             </template>
 
-            <el-table :data="filteredTransactions" stripe style="width: 100%" v-loading="loading">
+            <SkeletonScreen v-if="loading" type="table" :loading="loading" :rows="5" />
+            <el-table
+              v-else
+              :data="filteredTransactions"
+              stripe
+              style="width: 100%"
+              v-show="!loading"
+              aria-label="收支明细列表"
+              row-key="id"
+            >
               <el-table-column prop="date" label="日期" width="120">
                 <template #default="{ row }">
                   {{ formatDate(row.date) }}
@@ -109,18 +125,41 @@
               <el-table-column prop="description" label="说明" min-width="200" />
               <el-table-column prop="amount" label="金额" width="120" align="right">
                 <template #default="{ row }">
-                  <span :class="row.type === 'income' ? 'income-amount' : 'expense-amount'">
+                  <span
+                    :class="row.type === 'income' ? 'income-amount' : 'expense-amount'"
+                    :aria-label="`${row.type === 'income' ? '收入' : '支出'}金额 ${formatAmount(row.amount)}元`"
+                  >
                     {{ row.type === 'income' ? '+' : '-' }}¥{{ formatAmount(row.amount) }}
                   </span>
                 </template>
               </el-table-column>
               <el-table-column label="操作" width="150">
                 <template #default="{ row }">
-                  <el-button size="small" text @click="viewTransaction(row)">详情</el-button>
-                  <el-button size="small" text @click="editTransaction(row)">编辑</el-button>
-                  <el-button size="small" text type="danger" @click="deleteTransaction(row)"
-                    >删除</el-button
+                  <el-button
+                    size="small"
+                    text
+                    @click="viewTransaction(row)"
+                    aria-label="查看详情"
                   >
+                    详情
+                  </el-button>
+                  <el-button
+                    size="small"
+                    text
+                    @click="editTransaction(row)"
+                    aria-label="编辑记录"
+                  >
+                    编辑
+                  </el-button>
+                  <el-button
+                    size="small"
+                    text
+                    type="danger"
+                    @click="deleteTransaction(row)"
+                    aria-label="删除记录"
+                  >
+                    删除
+                  </el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -134,6 +173,7 @@
                 layout="total, sizes, prev, pager, next, jumper"
                 @size-change="handleSizeChange"
                 @current-change="handlePageChange"
+                aria-label="分页导航"
               />
             </div>
           </el-card>
@@ -151,7 +191,14 @@
                 </span>
               </div>
             </template>
-            <div ref="categoryChartRef" class="chart-container"></div>
+            <SkeletonScreen v-if="loadingChart" type="chart" :loading="loadingChart" />
+            <div
+              v-else
+              ref="categoryChartRef"
+              class="chart-container"
+              role="img"
+              aria-label="分类统计饼图"
+            ></div>
           </el-card>
 
           <!-- 预算执行情况 -->
@@ -164,8 +211,15 @@
                 </span>
               </div>
             </template>
-            <div class="budget-list">
-              <div v-for="budget in budgetList" :key="budget.category" class="budget-item">
+            <SkeletonScreen v-if="loading" type="list" :loading="loading" :rows="4" />
+            <div v-else class="budget-list">
+              <div
+                v-for="budget in budgetList"
+                :key="budget.category"
+                class="budget-item"
+                role="region"
+                :aria-label="`${budget.category}预算，已使用${formatAmount(budget.used)}元，剩余${formatAmount(budget.total - budget.used)}元`"
+              >
                 <div class="budget-header">
                   <span class="budget-category">{{ budget.category }}</span>
                   <span class="budget-rate">{{ budget.rate }}%</span>
@@ -174,6 +228,10 @@
                   :percentage="budget.rate"
                   :color="getBudgetColor(budget.rate)"
                   :stroke-width="8"
+                  :aria-valuenow="budget.rate"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  :aria-label="`${budget.category}预算执行率`"
                 />
                 <div class="budget-amounts">
                   <span>已用: ¥{{ formatAmount(budget.used) }}</span>
@@ -193,7 +251,8 @@
                 </span>
               </div>
             </template>
-            <div class="operation-list">
+            <SkeletonScreen v-if="loading" type="list" :loading="loading" :rows="3" />
+            <div v-else class="operation-list">
               <div v-for="op in recentOperations" :key="op.id" class="operation-item">
                 <el-avatar :size="32" :src="op.avatar">{{ op.operator.charAt(0) }}</el-avatar>
                 <div class="operation-content">
@@ -216,16 +275,21 @@
       :title="isIncome ? '收入登记' : '支出登记'"
       width="600px"
       destroy-on-close
+      aria-modal="true"
+      :aria-labelledby="transactionDialogTitle"
     >
+      <h2 id="transactionDialogTitle" style="display: none">
+        {{ isIncome ? '收入登记' : '支出登记' }}
+      </h2>
       <el-form :model="transactionForm" :rules="formRules" ref="formRef" label-width="100px">
         <el-form-item label="类型">
-          <el-radio-group v-model="transactionForm.type">
+          <el-radio-group v-model="transactionForm.type" aria-label="选择类型">
             <el-radio label="income">收入</el-radio>
             <el-radio label="expense">支出</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="分类" prop="category">
-          <el-select v-model="transactionForm.category" placeholder="请选择分类">
+          <el-select v-model="transactionForm.category" placeholder="请选择分类" aria-label="选择分类">
             <el-option
               v-if="transactionForm.type === 'income'"
               label="集体经济收入"
@@ -248,6 +312,7 @@
             :min="0"
             :step="100"
             style="width: 100%"
+            aria-label="输入金额"
           />
         </el-form-item>
         <el-form-item label="日期" prop="date">
@@ -256,6 +321,7 @@
             type="date"
             placeholder="选择日期"
             style="width: 100%"
+            aria-label="选择日期"
           />
         </el-form-item>
         <el-form-item label="说明" prop="description">
@@ -264,6 +330,7 @@
             type="textarea"
             :rows="3"
             placeholder="请输入详细说明"
+            aria-label="输入说明"
           />
         </el-form-item>
         <el-form-item label="凭证">
@@ -272,20 +339,29 @@
             list-type="picture-card"
             :auto-upload="false"
             :on-change="handleFileChange"
+            aria-label="上传凭证"
           >
             <el-icon><Plus /></el-icon>
           </el-upload>
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="showTransactionDialog = false">取消</el-button>
-        <el-button type="primary" @click="saveTransaction" :loading="saving">保存</el-button>
+        <el-button @click="showTransactionDialog = false" aria-label="取消">取消</el-button>
+        <el-button type="primary" @click="saveTransaction" :loading="saving" aria-label="保存">保存</el-button>
       </template>
     </el-dialog>
 
     <!-- 预算管理对话框 -->
-    <el-dialog v-model="showBudgetDialogVisible" title="预算管理" width="800px" destroy-on-close>
-      <el-table :data="budgetTableData" style="width: 100%">
+    <el-dialog
+      v-model="showBudgetDialogVisible"
+      title="预算管理"
+      width="800px"
+      destroy-on-close
+      aria-modal="true"
+      aria-labelledby="budgetDialogTitle"
+    >
+      <h2 id="budgetDialogTitle" style="display: none">预算管理</h2>
+      <el-table :data="budgetTableData" style="width: 100%" aria-label="预算管理列表">
         <el-table-column prop="category" label="预算类别" width="150" />
         <el-table-column prop="total" label="预算金额" width="150">
           <template #default="{ row }"> ¥{{ formatAmount(row.total) }} </template>
@@ -298,18 +374,25 @@
         </el-table-column>
         <el-table-column label="执行进度">
           <template #default="{ row }">
-            <el-progress :percentage="row.rate" :color="getBudgetColor(row.rate)" />
+            <el-progress
+              :percentage="row.rate"
+              :color="getBudgetColor(row.rate)"
+              :aria-valuenow="row.rate"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              :aria-label="`${row.category}预算执行率`"
+            />
           </template>
         </el-table-column>
         <el-table-column label="操作" width="120">
           <template #default="{ row }">
-            <el-button size="small" @click="editBudget(row)">调整</el-button>
+            <el-button size="small" @click="editBudget(row)" aria-label="调整预算">调整</el-button>
           </template>
         </el-table-column>
       </el-table>
       <template #footer>
-        <el-button @click="showBudgetDialogVisible = false">关闭</el-button>
-        <el-button type="primary" @click="addBudgetItem">添加预算</el-button>
+        <el-button @click="showBudgetDialogVisible = false" aria-label="关闭对话框">关闭</el-button>
+        <el-button type="primary" @click="addBudgetItem" aria-label="添加预算">添加预算</el-button>
       </template>
     </el-dialog>
   </div>
@@ -331,6 +414,7 @@ import {
   DataAnalysis,
   Clock,
 } from '@element-plus/icons-vue';
+import SkeletonScreen from '@/components/common/SkeletonScreen.vue';
 
 interface Transaction {
   id: string;
@@ -360,7 +444,8 @@ interface Operation {
 const userStore = useUserStore();
 const formRef = ref<FormInstance | null>(null);
 
-const loading = ref(false);
+const loading = ref(true);
+const loadingChart = ref(true);
 const saving = ref(false);
 const showTransactionDialog = ref(false);
 const showBudgetDialogVisible = ref(false);
@@ -572,15 +657,71 @@ const getBudgetColor = (rate: number): string => {
   return '#67c23a';
 };
 
+const animateNumber = (element: HTMLElement, endValue: number, duration: number = 1000) => {
+  const startValue = 0;
+  const startTime = performance.now();
+
+  const update = (currentTime: number) => {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const easeProgress = 1 - Math.pow(1 - progress, 3);
+    const currentValue = startValue + (endValue - startValue) * easeProgress;
+
+    element.textContent = currentValue.toLocaleString('zh-CN', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    });
+
+    if (progress < 1) {
+      requestAnimationFrame(update);
+    }
+  };
+
+  requestAnimationFrame(update);
+};
+
+const initStatAnimations = () => {
+  setTimeout(() => {
+    const statElements = document.querySelectorAll('.stat-value');
+    const values = [1568000, 892000, 676000, 68.5];
+    statElements.forEach((el, index) => {
+      if (el instanceof HTMLElement && values[index] !== undefined) {
+        animateNumber(el, values[index]);
+      }
+    });
+  }, 500);
+};
+
 const initCategoryChart = () => {
   if (!categoryChartRef.value) return;
 
+  loadingChart.value = true;
   categoryChartInstance = echarts.init(categoryChartRef.value);
 
   const option = {
+    animation: {
+      duration: 1200,
+      easing: 'elasticOut',
+    },
     tooltip: {
       trigger: 'item',
-      formatter: '{b}: ¥{c} ({d}%)',
+      formatter: (params: any) => {
+        return `
+          <div style="padding: 8px;">
+            <div style="font-weight: bold; margin-bottom: 4px;">${params.name}</div>
+            <div style="color: #67c23a;">金额: ¥${params.value.toLocaleString()}</div>
+            <div style="color: #909399;">占比: ${params.percent}%</div>
+          </div>
+        `;
+      },
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      borderColor: '#ebeef5',
+      borderWidth: 1,
+      padding: [8, 12],
+      textStyle: {
+        color: '#303133',
+        fontSize: 13,
+      },
     },
     legend: {
       orient: 'vertical',
@@ -592,6 +733,9 @@ const initCategoryChart = () => {
         fontSize: 12,
         color: '#606266',
       },
+      animation: true,
+      animationDuration: 800,
+      animationEasing: 'cubicOut',
     },
     series: [
       {
@@ -613,10 +757,20 @@ const initCategoryChart = () => {
             fontSize: 14,
             fontWeight: 'bold',
           },
+          itemStyle: {
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.2)',
+          },
+          scale: true,
+          scaleSize: 5,
         },
         labelLine: {
           show: false,
         },
+        animationType: 'scale',
+        animationEasing: 'elasticOut',
+        animationDelay: (idx: number) => Math.random() * 200,
         data: [
           { value: 420000, name: '工资福利', itemStyle: { color: '#0369A1' } },
           { value: 180000, name: '基础设施', itemStyle: { color: '#059669' } },
@@ -629,6 +783,7 @@ const initCategoryChart = () => {
   };
 
   categoryChartInstance.setOption(option);
+  loadingChart.value = false;
 };
 
 const handleSizeChange = (size: number) => {
@@ -731,8 +886,13 @@ const addBudgetItem = () => {
 };
 
 onMounted(async () => {
+  setTimeout(() => {
+    loading.value = false;
+  }, 500);
+
   await nextTick();
   initCategoryChart();
+  initStatAnimations();
 
   window.addEventListener('resize', () => {
     categoryChartInstance?.resize();
@@ -741,8 +901,74 @@ onMounted(async () => {
 </script>
 
 <style lang="scss" scoped>
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes countUp {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes rotateHover {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes buttonClick {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 .pc-finance {
   padding: 0;
+  animation: fadeIn 0.6s ease-out;
 }
 
 .page-header {
@@ -754,6 +980,7 @@ onMounted(async () => {
   padding: 24px;
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  animation: fadeIn 0.6s ease-out;
 
   .header-content {
     h1 {
@@ -773,6 +1000,14 @@ onMounted(async () => {
   .header-actions {
     display: flex;
     gap: 12px;
+
+    .el-button {
+      transition: all 0.3s ease;
+
+      &:active {
+        animation: buttonClick 0.3s ease;
+      }
+    }
   }
 }
 
@@ -782,6 +1017,24 @@ onMounted(async () => {
 
 .stat-card {
   margin-bottom: 20px;
+  opacity: 0;
+  animation: scaleIn 0.6s ease-out forwards;
+
+  &:nth-child(1) {
+    animation-delay: 0.1s;
+  }
+
+  &:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  &:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+
+  &:nth-child(4) {
+    animation-delay: 0.4s;
+  }
 
   .stat-content {
     display: flex;
@@ -796,6 +1049,11 @@ onMounted(async () => {
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: transform 0.3s ease;
+
+    .el-card:hover & {
+      transform: scale(1.1) rotate(5deg);
+    }
   }
 
   .stat-info {
@@ -803,6 +1061,7 @@ onMounted(async () => {
       font-size: 28px;
       font-weight: 600;
       color: #303133;
+      animation: countUp 0.8s ease-out;
     }
 
     .stat-label {
@@ -857,11 +1116,53 @@ onMounted(async () => {
 .income-amount {
   color: #67c23a;
   font-weight: 600;
+  display: inline-block;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
 }
 
 .expense-amount {
   color: #f56c6c;
   font-weight: 600;
+  display: inline-block;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+:deep(.el-table__body tr) {
+  opacity: 0;
+  animation: fadeIn 0.5s ease-out forwards;
+
+  &:nth-child(1) {
+    animation-delay: 0.1s;
+  }
+
+  &:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  &:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+
+  &:nth-child(4) {
+    animation-delay: 0.4s;
+  }
+
+  &:nth-child(5) {
+    animation-delay: 0.5s;
+  }
+
+  &:hover {
+    background-color: #f5f7fa;
+    transition: background-color 0.3s ease;
+  }
 }
 
 .pagination-container {
@@ -891,11 +1192,54 @@ onMounted(async () => {
 
 .chart-container {
   height: 220px;
+  position: relative;
+  animation: fadeIn 0.5s ease-out;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 8px;
+    z-index: -1;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .budget-list {
   .budget-item {
     margin-bottom: 16px;
+    opacity: 0;
+    animation: slideInLeft 0.5s ease-out forwards;
+
+    &:nth-child(1) {
+      animation-delay: 0.1s;
+    }
+
+    &:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    &:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+
+    &:nth-child(4) {
+      animation-delay: 0.4s;
+    }
 
     &:last-child {
       margin-bottom: 0;
@@ -919,6 +1263,10 @@ onMounted(async () => {
       }
     }
 
+    :deep(.el-progress-bar__inner) {
+      transition: width 0.6s ease-out;
+    }
+
     .budget-amounts {
       display: flex;
       justify-content: space-between;
@@ -935,9 +1283,32 @@ onMounted(async () => {
     gap: 12px;
     padding: 12px 0;
     border-bottom: 1px solid #ebeef5;
+    opacity: 0;
+    animation: fadeIn 0.4s ease-out forwards;
+
+    &:nth-child(1) {
+      animation-delay: 0.1s;
+    }
+
+    &:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    &:nth-child(3) {
+      animation-delay: 0.3s;
+    }
 
     &:last-child {
       border-bottom: none;
+    }
+
+    :deep(.el-avatar) {
+      transition: transform 0.3s ease;
+
+      &:hover {
+        animation: rotateHover 0.6s ease-in-out;
+        cursor: pointer;
+      }
     }
 
     .operation-content {
@@ -970,16 +1341,175 @@ onMounted(async () => {
     .header-actions {
       width: 100%;
       flex-wrap: wrap;
+
+      .el-button {
+        flex: 1 1 45%;
+        min-width: 45%;
+      }
+    }
+  }
+
+  .stat-card {
+    opacity: 0;
+    animation: scaleIn 0.5s ease-out forwards;
+
+    &:nth-child(1) {
+      animation-delay: 0.05s;
+    }
+
+    &:nth-child(2) {
+      animation-delay: 0.1s;
+    }
+
+    &:nth-child(3) {
+      animation-delay: 0.15s;
+    }
+
+    &:nth-child(4) {
+      animation-delay: 0.2s;
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      transition: transform 0.3s ease;
+
+      .el-card:hover & {
+        transform: scale(1.1) rotate(5deg);
+      }
+    }
+
+    .stat-info {
+      .stat-value {
+        font-size: 22px;
+        animation: countUp 0.6s ease-out;
+      }
+
+      .stat-label {
+        font-size: 12px;
+      }
+
+      .stat-change {
+        font-size: 11px;
+      }
     }
   }
 
   .card-actions {
     flex-direction: column;
     width: 100%;
+    gap: 8px;
 
     .el-radio-group,
     .el-select {
       width: 100%;
+    }
+  }
+
+  .el-table {
+    overflow-x: auto;
+    display: block;
+
+    .el-table__body-wrapper {
+      overflow-x: auto;
+    }
+  }
+
+  .chart-container {
+    height: 180px;
+  }
+
+  .budget-list {
+    .budget-item {
+      margin-bottom: 12px;
+      opacity: 0;
+      animation: slideInLeft 0.4s ease-out forwards;
+
+      &:nth-child(1) {
+        animation-delay: 0.05s;
+      }
+
+      &:nth-child(2) {
+        animation-delay: 0.1s;
+      }
+
+      &:nth-child(3) {
+        animation-delay: 0.15s;
+      }
+
+      &:nth-child(4) {
+        animation-delay: 0.2s;
+      }
+
+      .budget-header {
+        margin-bottom: 6px;
+
+        .budget-category {
+          font-size: 13px;
+        }
+
+        .budget-rate {
+          font-size: 13px;
+        }
+      }
+
+      :deep(.el-progress) {
+        .el-progress__text {
+          font-size: 12px !important;
+        }
+
+        .el-progress-bar__inner {
+          transition: width 0.6s ease-out;
+        }
+      }
+
+      .budget-amounts {
+        font-size: 11px;
+        margin-top: 6px;
+      }
+    }
+  }
+
+  .operation-list {
+    .operation-item {
+      padding: 10px 0;
+      gap: 10px;
+      opacity: 0;
+      animation: fadeIn 0.4s ease-out forwards;
+
+      &:nth-child(1) {
+        animation-delay: 0.05s;
+      }
+
+      &:nth-child(2) {
+        animation-delay: 0.1s;
+      }
+
+      &:nth-child(3) {
+        animation-delay: 0.15s;
+      }
+
+      :deep(.el-avatar) {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+        transition: transform 0.3s ease;
+
+        &:hover {
+          animation: rotateHover 0.6s ease-in-out;
+          cursor: pointer;
+        }
+      }
+
+      .operation-content {
+        p {
+          font-size: 13px;
+        }
+
+        .operation-time {
+          font-size: 11px;
+        }
+      }
     }
   }
 }

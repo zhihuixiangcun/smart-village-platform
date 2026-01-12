@@ -11,15 +11,15 @@
         <p>人口结构分析、家庭统计、特殊群体管理、数据报表导出</p>
       </div>
       <div class="header-actions">
-        <el-button type="primary" @click="showExportDialog">
+        <el-button type="primary" @click="showExportDialog" aria-label="导出报表">
           <el-icon><Download /></el-icon>
           导出报表
         </el-button>
-        <el-button @click="showChartDialog">
+        <el-button @click="showChartDialog" aria-label="图表分析">
           <el-icon><DataAnalysis /></el-icon>
           图表分析
         </el-button>
-        <el-button @click="refreshData">
+        <el-button @click="refreshData" aria-label="刷新数据">
           <el-icon><Refresh /></el-icon>
           刷新数据
         </el-button>
@@ -30,7 +30,13 @@
     <section class="overview-section">
       <el-row :gutter="20">
         <el-col :xs="12" :sm="8" :md="4" v-for="stat in overviewStats" :key="stat.key">
-          <el-card class="stat-card" shadow="hover">
+          <el-card
+            class="stat-card"
+            shadow="hover"
+            :aria-label="`${stat.label}，${stat.value}，${stat.change}`"
+            role="button"
+            tabindex="0"
+          >
             <div class="stat-content">
               <div class="stat-icon" :style="{ background: stat.gradient }">
                 <el-icon :size="24" color="white">
@@ -51,6 +57,7 @@
           </el-card>
         </el-col>
       </el-row>
+      <SkeletonScreen v-if="loading" type="card" :rows="6" />
     </section>
 
     <!-- 主内容区域 -->
@@ -70,6 +77,7 @@
                   v-model="populationPeriod"
                   size="small"
                   @change="handlePeriodChange"
+                  aria-label="选择人口统计类型"
                 >
                   <el-radio-button label="age">年龄分布</el-radio-button>
                   <el-radio-button label="gender">性别比例</el-radio-button>
@@ -77,7 +85,8 @@
                 </el-radio-group>
               </div>
             </template>
-            <div ref="populationChartRef" class="chart-container"></div>
+            <SkeletonScreen v-if="loadingCharts" type="chart" :loading="loadingCharts" />
+            <div v-else ref="populationChartRef" class="chart-container" role="img" aria-label="人口统计分析图表"></div>
           </el-card>
 
           <!-- 家庭结构分析 -->
@@ -90,12 +99,13 @@
                 </span>
               </div>
             </template>
-            <el-row :gutter="20">
+            <SkeletonScreen v-if="loadingCharts" type="chart" :loading="loadingCharts" />
+            <el-row v-else :gutter="20">
               <el-col :span="12">
-                <div ref="familyTypeChartRef" class="chart-container-half"></div>
+                <div ref="familyTypeChartRef" class="chart-container-half" role="img" aria-label="家庭结构分析图表"></div>
               </el-col>
               <el-col :span="12">
-                <div ref="familySizeChartRef" class="chart-container-half"></div>
+                <div ref="familySizeChartRef" class="chart-container-half" role="img" aria-label="家庭结构分析图表"></div>
               </el-col>
             </el-row>
           </el-card>
@@ -108,15 +118,19 @@
                   <el-icon><WarningFilled /></el-icon>
                   特殊群体统计
                 </span>
-                <el-button size="small" @click="showSpecialGroupDetail">查看详情</el-button>
+                <el-button size="small" @click="showSpecialGroupDetail" aria-label="查看特殊群体详情">查看详情</el-button>
               </div>
             </template>
-            <div class="special-groups">
+            <SkeletonScreen v-if="loading" type="card" :rows="5" />
+            <div v-else class="special-groups">
               <div
                 v-for="group in specialGroups"
                 :key="group.key"
                 class="special-group-item"
                 @click="viewSpecialGroup(group)"
+                :aria-label="`${group.name}，${group.count}人，趋势${group.trend}%`"
+                role="button"
+                tabindex="0"
               >
                 <div class="group-icon" :style="{ background: group.gradient }">
                   <el-icon :size="24" color="white">
@@ -150,7 +164,8 @@
                 </span>
               </div>
             </template>
-            <div ref="compositionChartRef" class="chart-container"></div>
+            <SkeletonScreen v-if="loadingCharts" type="chart" :loading="loadingCharts" />
+            <div v-else ref="compositionChartRef" class="chart-container" role="img" aria-label="村民构成饼图"></div>
           </el-card>
 
           <!-- 动态统计 -->
@@ -163,7 +178,8 @@
                 </span>
               </div>
             </template>
-            <div ref="trendChartRef" class="chart-container"></div>
+            <SkeletonScreen v-if="loadingCharts" type="chart" :loading="loadingCharts" />
+            <div v-else ref="trendChartRef" class="chart-container" role="img" aria-label="年度人口变化趋势图"></div>
           </el-card>
 
           <!-- 数据质量 -->
@@ -176,7 +192,8 @@
                 </span>
               </div>
             </template>
-            <div class="data-quality">
+            <SkeletonScreen v-if="loading" type="list" :loading="loading" :rows="5" />
+            <div v-else class="data-quality">
               <div v-for="item in dataQuality" :key="item.key" class="quality-item">
                 <div class="quality-header">
                   <span class="quality-label">{{ item.label }}</span>
@@ -185,6 +202,10 @@
                 <el-progress
                   :percentage="item.percentage"
                   :color="getQualityColor(item.percentage)"
+                  :aria-valuenow="item.percentage"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  :aria-label="`${item.label}完整度，${item.percentage}%`"
                 />
               </div>
             </div>
@@ -200,8 +221,15 @@
                 </span>
               </div>
             </template>
-            <div class="quick-stats">
-              <div v-for="stat in quickStats" :key="stat.key" class="quick-stat-item">
+            <SkeletonScreen v-if="loading" type="list" :loading="loading" :rows="6" />
+            <div v-else class="quick-stats" role="list">
+              <div
+                v-for="stat in quickStats"
+                :key="stat.key"
+                class="quick-stat-item"
+                role="listitem"
+                :aria-label="`${stat.label}：${stat.value}`"
+              >
                 <span class="quick-stat-label">{{ stat.label }}</span>
                 <span class="quick-stat-value">{{ stat.value }}</span>
               </div>
@@ -212,7 +240,15 @@
     </section>
 
     <!-- 导出报表对话框 -->
-    <el-dialog v-model="showExportDialogVisible" title="导出报表" width="500px" destroy-on-close>
+    <el-dialog
+      v-model="showExportDialogVisible"
+      title="导出报表"
+      width="500px"
+      destroy-on-close
+      aria-modal="true"
+      :aria-labelledby="'export-dialog-title'"
+    >
+      <span id="export-dialog-title" class="sr-only">导出报表对话框</span>
       <el-form label-width="100px">
         <el-form-item label="报表类型">
           <el-select v-model="exportForm.type" placeholder="请选择报表类型" style="width: 100%">
@@ -267,10 +303,12 @@ import {
   ArrowUp,
   ArrowDown,
 } from '@element-plus/icons-vue';
+import SkeletonScreen from '@/components/common/SkeletonScreen.vue';
 
 const router = useRouter();
 
-const loading = ref(false);
+const loading = ref(true);
+const loadingCharts = ref(true);
 const populationPeriod = ref('age');
 const showExportDialogVisible = ref(false);
 
@@ -423,7 +461,12 @@ const initPopulationChart = () => {
   const option = {
     tooltip: {
       trigger: 'axis',
-      axisPointer: { type: 'shadow' },
+      axisPointer: { type: 'cross' },
+      backgroundColor: 'rgba(50, 50, 50, 0.9)',
+      borderColor: '#409eff',
+      borderWidth: 1,
+      textStyle: { color: '#fff' },
+      padding: [10, 15],
     },
     legend: {
       data: ['男', '女'],
@@ -442,18 +485,52 @@ const initPopulationChart = () => {
       axisLabel: { fontSize: 12 },
     },
     yAxis: { type: 'value' },
+    animation: true,
+    animationDuration: 1000,
+    animationEasing: 'cubicInOut',
+    animationDelay: 100,
     series: [
       {
         name: '男',
         type: 'bar',
         data: [45, 78, 156, 285, 94],
-        itemStyle: { color: '#409eff' },
+        itemStyle: { 
+          color: '#409eff',
+          borderRadius: [4, 4, 0, 0],
+        },
+        emphasis: {
+          itemStyle: {
+            color: '#66b1ff',
+            shadowBlur: 10,
+            shadowColor: 'rgba(64, 158, 255, 0.5)',
+          },
+        },
+        showBackground: true,
+        backgroundStyle: {
+          color: 'rgba(180, 180, 180, 0.2)',
+          borderRadius: [4, 4, 0, 0],
+        },
       },
       {
         name: '女',
         type: 'bar',
         data: [38, 72, 142, 268, 78],
-        itemStyle: { color: '#e6a23c' },
+        itemStyle: { 
+          color: '#e6a23c',
+          borderRadius: [4, 4, 0, 0],
+        },
+        emphasis: {
+          itemStyle: {
+            color: '#ebb563',
+            shadowBlur: 10,
+            shadowColor: 'rgba(230, 162, 60, 0.5)',
+          },
+        },
+        showBackground: true,
+        backgroundStyle: {
+          color: 'rgba(180, 180, 180, 0.2)',
+          borderRadius: [4, 4, 0, 0],
+        },
       },
     ],
   };
@@ -467,7 +544,15 @@ const initFamilyTypeChart = () => {
   familyTypeChartInstance = echarts.init(familyTypeChartRef.value);
 
   const option = {
-    tooltip: { trigger: 'item', formatter: '{b}: {c}户 ({d}%)' },
+    tooltip: { 
+      trigger: 'item',
+      formatter: '{b}: {c}户 ({d}%)',
+      backgroundColor: 'rgba(50, 50, 50, 0.9)',
+      borderColor: '#409eff',
+      borderWidth: 1,
+      textStyle: { color: '#fff' },
+      padding: [10, 15],
+    },
     series: [
       {
         type: 'pie',
@@ -478,7 +563,24 @@ const initFamilyTypeChart = () => {
           borderColor: '#fff',
           borderWidth: 2,
         },
-        label: { show: false },
+        label: { 
+          show: true,
+          formatter: '{b}\n{d}%',
+          fontSize: 11,
+          color: '#606266',
+        },
+        emphasis: {
+          scale: true,
+          scaleSize: 10,
+          label: {
+            show: true,
+            fontSize: 12,
+            fontWeight: 'bold',
+          },
+        },
+        animationType: 'expansion',
+        animationEasing: 'cubicInOut',
+        animationDelay: (idx: number) => Math.random() * 200,
         data: [
           { value: 285, name: '核心家庭', itemStyle: { color: '#0369A1' } },
           { value: 95, name: '三代同堂', itemStyle: { color: '#059669' } },
@@ -498,7 +600,15 @@ const initFamilySizeChart = () => {
   familySizeChartInstance = echarts.init(familySizeChartRef.value);
 
   const option = {
-    tooltip: { trigger: 'item', formatter: '{b}: {c}户 ({d}%)' },
+    tooltip: { 
+      trigger: 'item',
+      formatter: '{b}: {c}户 ({d}%)',
+      backgroundColor: 'rgba(50, 50, 50, 0.9)',
+      borderColor: '#409eff',
+      borderWidth: 1,
+      textStyle: { color: '#fff' },
+      padding: [10, 15],
+    },
     series: [
       {
         type: 'pie',
@@ -509,7 +619,24 @@ const initFamilySizeChart = () => {
           borderColor: '#fff',
           borderWidth: 2,
         },
-        label: { show: false },
+        label: { 
+          show: true,
+          formatter: '{b}\n{d}%',
+          fontSize: 11,
+          color: '#606266',
+        },
+        emphasis: {
+          scale: true,
+          scaleSize: 10,
+          label: {
+            show: true,
+            fontSize: 12,
+            fontWeight: 'bold',
+          },
+        },
+        animationType: 'expansion',
+        animationEasing: 'cubicInOut',
+        animationDelay: (idx: number) => Math.random() * 200,
         data: [
           { value: 85, name: '1人户', itemStyle: { color: '#0369A1' } },
           { value: 165, name: '2人户', itemStyle: { color: '#059669' } },
@@ -529,7 +656,15 @@ const initCompositionChart = () => {
   compositionChartInstance = echarts.init(compositionChartRef.value);
 
   const option = {
-    tooltip: { trigger: 'item', formatter: '{b}: {c}人 ({d}%)' },
+    tooltip: { 
+      trigger: 'item',
+      formatter: '{b}: {c}人 ({d}%)',
+      backgroundColor: 'rgba(50, 50, 50, 0.9)',
+      borderColor: '#409eff',
+      borderWidth: 1,
+      textStyle: { color: '#fff' },
+      padding: [10, 15],
+    },
     series: [
       {
         type: 'pie',
@@ -545,6 +680,18 @@ const initCompositionChart = () => {
           fontSize: 11,
           color: '#606266',
         },
+        emphasis: {
+          scale: true,
+          scaleSize: 8,
+          label: {
+            show: true,
+            fontSize: 12,
+            fontWeight: 'bold',
+          },
+        },
+        animationType: 'scale',
+        animationEasing: 'cubicInOut',
+        animationDelay: (idx: number) => idx * 100,
         data: [
           { value: 285, name: '劳动力', itemStyle: { color: '#0369A1' } },
           { value: 156, name: '学生', itemStyle: { color: '#059669' } },
@@ -565,7 +712,14 @@ const initTrendChart = () => {
   trendChartInstance = echarts.init(trendChartRef.value);
 
   const option = {
-    tooltip: { trigger: 'axis' },
+    tooltip: { 
+      trigger: 'axis',
+      backgroundColor: 'rgba(50, 50, 50, 0.9)',
+      borderColor: '#409eff',
+      borderWidth: 1,
+      textStyle: { color: '#fff' },
+      padding: [10, 15],
+    },
     legend: {
       data: ['出生', '死亡', '迁入', '迁出'],
       bottom: 0,
@@ -586,34 +740,133 @@ const initTrendChart = () => {
       axisLabel: { fontSize: 11 },
     },
     yAxis: { type: 'value', axisLabel: { fontSize: 11 } },
+    animation: true,
+    animationDuration: 1500,
+    animationEasing: 'cubicInOut',
     series: [
       {
         name: '出生',
         type: 'line',
         data: [2, 3, 1, 4, 2, 3],
         smooth: true,
+        symbol: 'circle',
+        symbolSize: 6,
         itemStyle: { color: '#67c23a' },
+        lineStyle: { width: 2 },
+        areaStyle: {
+          color: {
+            type: 'linear',
+            x: 0,
+            y: 0,
+            x2: 0,
+            y2: 1,
+            colorStops: [
+              { offset: 0, color: 'rgba(103, 194, 58, 0.3)' },
+              { offset: 1, color: 'rgba(103, 194, 58, 0.05)' },
+            ],
+          },
+        },
+        emphasis: {
+          focus: 'series',
+          itemStyle: {
+            color: '#85ce61',
+            shadowBlur: 10,
+            shadowColor: 'rgba(103, 194, 58, 0.5)',
+          },
+        },
       },
       {
         name: '死亡',
         type: 'line',
         data: [1, 0, 2, 1, 1, 0],
         smooth: true,
+        symbol: 'circle',
+        symbolSize: 6,
         itemStyle: { color: '#f56c6c' },
+        lineStyle: { width: 2 },
+        areaStyle: {
+          color: {
+            type: 'linear',
+            x: 0,
+            y: 0,
+            x2: 0,
+            y2: 1,
+            colorStops: [
+              { offset: 0, color: 'rgba(245, 108, 108, 0.3)' },
+              { offset: 1, color: 'rgba(245, 108, 108, 0.05)' },
+            ],
+          },
+        },
+        emphasis: {
+          focus: 'series',
+          itemStyle: {
+            color: '#f89898',
+            shadowBlur: 10,
+            shadowColor: 'rgba(245, 108, 108, 0.5)',
+          },
+        },
       },
       {
         name: '迁入',
         type: 'line',
         data: [3, 2, 4, 3, 5, 4],
         smooth: true,
+        symbol: 'circle',
+        symbolSize: 6,
         itemStyle: { color: '#409eff' },
+        lineStyle: { width: 2 },
+        areaStyle: {
+          color: {
+            type: 'linear',
+            x: 0,
+            y: 0,
+            x2: 0,
+            y2: 1,
+            colorStops: [
+              { offset: 0, color: 'rgba(64, 158, 255, 0.3)' },
+              { offset: 1, color: 'rgba(64, 158, 255, 0.05)' },
+            ],
+          },
+        },
+        emphasis: {
+          focus: 'series',
+          itemStyle: {
+            color: '#66b1ff',
+            shadowBlur: 10,
+            shadowColor: 'rgba(64, 158, 255, 0.5)',
+          },
+        },
       },
       {
         name: '迁出',
         type: 'line',
         data: [2, 1, 3, 2, 2, 1],
         smooth: true,
+        symbol: 'circle',
+        symbolSize: 6,
         itemStyle: { color: '#e6a23c' },
+        lineStyle: { width: 2 },
+        areaStyle: {
+          color: {
+            type: 'linear',
+            x: 0,
+            y: 0,
+            x2: 0,
+            y2: 1,
+            colorStops: [
+              { offset: 0, color: 'rgba(230, 162, 60, 0.3)' },
+              { offset: 1, color: 'rgba(230, 162, 60, 0.05)' },
+            ],
+          },
+        },
+        emphasis: {
+          focus: 'series',
+          itemStyle: {
+            color: '#ebb563',
+            shadowBlur: 10,
+            shadowColor: 'rgba(230, 162, 60, 0.5)',
+          },
+        },
       },
     ],
   };
@@ -627,18 +880,88 @@ const handlePeriodChange = () => {
   const options: Record<string, object> = {
     age: {
       xAxis: { data: ['0-6岁', '7-17岁', '18-35岁', '36-59岁', '60岁以上'] },
-      series: [{ data: [45, 78, 156, 285, 94] }, { data: [38, 72, 142, 268, 78] }],
+      series: [
+        { 
+          data: [45, 78, 156, 285, 94],
+          itemStyle: { color: '#409eff', borderRadius: [4, 4, 0, 0] },
+          emphasis: {
+            itemStyle: {
+              color: '#66b1ff',
+              shadowBlur: 10,
+              shadowColor: 'rgba(64, 158, 255, 0.5)',
+            },
+          },
+        },
+        { 
+          data: [38, 72, 142, 268, 78],
+          itemStyle: { color: '#e6a23c', borderRadius: [4, 4, 0, 0] },
+          emphasis: {
+            itemStyle: {
+              color: '#ebb563',
+              shadowBlur: 10,
+              shadowColor: 'rgba(230, 162, 60, 0.5)',
+            },
+          },
+        },
+      ],
+      animation: true,
+      animationDuration: 1000,
+      animationEasing: 'cubicInOut',
     },
     gender: {
       xAxis: { data: ['村民构成'] },
       series: [
-        { name: '男', data: [658], itemStyle: { color: '#409eff' } },
-        { name: '女', data: [598], itemStyle: { color: '#e6a23c' } },
+        { 
+          name: '男', 
+          data: [658], 
+          itemStyle: { color: '#409eff', borderRadius: [4, 4, 0, 0] },
+          emphasis: {
+            itemStyle: {
+              color: '#66b1ff',
+              shadowBlur: 10,
+              shadowColor: 'rgba(64, 158, 255, 0.5)',
+            },
+          },
+        },
+        { 
+          name: '女', 
+          data: [598], 
+          itemStyle: { color: '#e6a23c', borderRadius: [4, 4, 0, 0] },
+          emphasis: {
+            itemStyle: {
+              color: '#ebb563',
+              shadowBlur: 10,
+              shadowColor: 'rgba(230, 162, 60, 0.5)',
+            },
+          },
+        },
       ],
+      animation: true,
+      animationDuration: 1000,
+      animationEasing: 'cubicInOut',
     },
     education: {
       xAxis: { data: ['小学及以下', '初中', '高中', '大专', '本科及以上'] },
-      series: [{ data: [285, 356, 245, 198, 172] }, { data: [0, 0, 0, 0, 0] }],
+      series: [
+        { 
+          data: [285, 356, 245, 198, 172],
+          itemStyle: { color: '#409eff', borderRadius: [4, 4, 0, 0] },
+          emphasis: {
+            itemStyle: {
+              color: '#66b1ff',
+              shadowBlur: 10,
+              shadowColor: 'rgba(64, 158, 255, 0.5)',
+            },
+          },
+        },
+        { 
+          data: [0, 0, 0, 0, 0],
+          itemStyle: { color: '#e6a23c', borderRadius: [4, 4, 0, 0] },
+        },
+      ],
+      animation: true,
+      animationDuration: 1000,
+      animationEasing: 'cubicInOut',
     },
   };
 
@@ -688,6 +1011,14 @@ const resizeCharts = () => {
 };
 
 onMounted(async () => {
+  setTimeout(() => {
+    loading.value = false;
+  }, 500);
+
+  setTimeout(() => {
+    loadingCharts.value = false;
+  }, 800);
+
   await nextTick();
   initPopulationChart();
   initFamilyTypeChart();
@@ -708,9 +1039,72 @@ onUnmounted(() => {
 });
 </script>
 
-<style lang="scss" scoped>
+ <style lang="scss" scoped>
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes floatUp {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseArrow {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
 .pc-statistics {
   padding: 0;
+  animation: fadeIn 0.6s ease-in;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
 
 .page-header {
@@ -750,6 +1144,15 @@ onUnmounted(() => {
 
 .stat-card {
   margin-bottom: 20px;
+  opacity: 0;
+  animation: slideUp 0.5s ease-out forwards;
+
+  &:nth-child(1) { animation-delay: 0.1s; }
+  &:nth-child(2) { animation-delay: 0.2s; }
+  &:nth-child(3) { animation-delay: 0.3s; }
+  &:nth-child(4) { animation-delay: 0.4s; }
+  &:nth-child(5) { animation-delay: 0.5s; }
+  &:nth-child(6) { animation-delay: 0.6s; }
 
   .stat-content {
     display: flex;
@@ -784,6 +1187,10 @@ onUnmounted(() => {
       align-items: center;
       gap: 4px;
       font-size: 12px;
+
+      .el-icon {
+        animation: pulseArrow 2s ease-in-out infinite;
+      }
 
       &.positive {
         color: #67c23a;
@@ -844,10 +1251,19 @@ onUnmounted(() => {
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s;
+  opacity: 0;
+  animation: slideUp 0.5s ease-out forwards;
+
+  &:nth-child(1) { animation-delay: 0.1s; }
+  &:nth-child(2) { animation-delay: 0.2s; }
+  &:nth-child(3) { animation-delay: 0.3s; }
+  &:nth-child(4) { animation-delay: 0.4s; }
+  &:nth-child(5) { animation-delay: 0.5s; }
 
   &:hover {
+    transform: translateY(-4px);
     border-color: #409eff;
-    box-shadow: 0 4px 12px rgba(64, 158, 255, 0.1);
+    box-shadow: 0 8px 16px rgba(64, 158, 255, 0.15);
   }
 
   .group-icon {
@@ -882,6 +1298,10 @@ onUnmounted(() => {
     gap: 4px;
     font-size: 13px;
 
+    .el-icon {
+      animation: pulseArrow 2s ease-in-out infinite;
+    }
+
     &.up {
       color: #f56c6c;
     }
@@ -914,6 +1334,14 @@ onUnmounted(() => {
 .data-quality {
   .quality-item {
     margin-bottom: 16px;
+    opacity: 0;
+    animation: fadeIn 0.5s ease-out forwards;
+
+    &:nth-child(1) { animation-delay: 0.1s; }
+    &:nth-child(2) { animation-delay: 0.2s; }
+    &:nth-child(3) { animation-delay: 0.3s; }
+    &:nth-child(4) { animation-delay: 0.4s; }
+    &:nth-child(5) { animation-delay: 0.5s; }
 
     &:last-child {
       margin-bottom: 0;
@@ -935,6 +1363,19 @@ onUnmounted(() => {
         color: #303133;
       }
     }
+
+    :deep(.el-progress__text) {
+      transition: all 0.3s ease;
+    }
+
+    :deep(.el-progress-bar__outer) {
+      border-radius: 6px;
+    }
+
+    :deep(.el-progress-bar__inner) {
+      transition: width 0.8s ease-out;
+      border-radius: 6px;
+    }
   }
 }
 
@@ -944,6 +1385,25 @@ onUnmounted(() => {
     justify-content: space-between;
     padding: 12px 0;
     border-bottom: 1px solid #ebeef5;
+    opacity: 0;
+    animation: slideUp 0.4s ease-out forwards;
+
+    &:nth-child(1) { animation-delay: 0.1s; }
+    &:nth-child(2) { animation-delay: 0.15s; }
+    &:nth-child(3) { animation-delay: 0.2s; }
+    &:nth-child(4) { animation-delay: 0.25s; }
+    &:nth-child(5) { animation-delay: 0.3s; }
+    &:nth-child(6) { animation-delay: 0.35s; }
+
+    &:hover {
+      background-color: #f5f7fa;
+      margin-left: -8px;
+      margin-right: -8px;
+      padding-left: 8px;
+      padding-right: 8px;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+    }
 
     &:last-child {
       border-bottom: none;
@@ -967,10 +1427,106 @@ onUnmounted(() => {
     flex-direction: column;
     gap: 16px;
     align-items: flex-start;
+
+    .header-actions {
+      flex-wrap: wrap;
+      width: 100%;
+
+      .el-button {
+        flex: 1;
+        min-width: calc(50% - 6px);
+      }
+    }
+  }
+
+  .stat-card {
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+    }
+
+    .stat-info {
+      .stat-value {
+        font-size: 22px;
+      }
+
+      .stat-label {
+        font-size: 12px;
+      }
+
+      .stat-change {
+        font-size: 11px;
+      }
+    }
+  }
+
+  .chart-container {
+    height: 220px;
+  }
+
+  .chart-container-half {
+    height: 180px;
+  }
+
+  .chart-card {
+    :deep(.el-row) {
+      flex-direction: column;
+    }
   }
 
   .special-groups {
     grid-template-columns: 1fr;
+  }
+
+  .special-group-item {
+    padding: 12px;
+
+    .group-icon {
+      width: 40px;
+      height: 40px;
+    }
+
+    .group-info {
+      .group-name {
+        font-size: 13px;
+      }
+
+      .group-count {
+        font-size: 16px;
+      }
+    }
+
+    .group-trend {
+      font-size: 12px;
+    }
+  }
+
+  .data-quality {
+    .quality-item {
+      .quality-header {
+        .quality-label {
+          font-size: 12px;
+        }
+
+        .quality-value {
+          font-size: 12px;
+        }
+      }
+    }
+  }
+
+  .quick-stats {
+    .quick-stat-item {
+      padding: 10px 0;
+
+      .quick-stat-label {
+        font-size: 13px;
+      }
+
+      .quick-stat-value {
+        font-size: 13px;
+      }
+    }
   }
 }
 </style>

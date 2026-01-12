@@ -41,6 +41,7 @@
           </el-card>
         </el-col>
       </el-row>
+      <SkeletonScreen v-if="loading" type="card" :rows="5" />
     </section>
 
     <!-- 主内容区域 -->
@@ -50,7 +51,7 @@
         <el-col :xs="24" :sm="24" :md="16" :lg="16">
           <!-- 标签页 -->
           <el-card class="content-card" shadow="never">
-            <el-tabs v-model="activeTab" class="affairs-tabs">
+            <el-tabs v-model="activeTab" class="affairs-tabs" role="tablist">
               <!-- 公告管理 -->
               <el-tab-pane label="公告管理" name="notice">
                 <div class="tab-header">
@@ -68,12 +69,17 @@
                     <el-option label="已过期" value="expired" />
                   </el-select>
                 </div>
-                <div class="notice-list">
+                <SkeletonScreen v-if="loading" type="list" :loading="loading" :rows="3" />
+                <div v-else class="notice-list">
                   <div
                     v-for="notice in filteredNotices"
                     :key="notice.id"
                     class="notice-item"
+                    role="button"
+                    tabindex="0"
+                    :aria-label="`${notice.title}，${notice.summary}`"
                     @click="viewNotice(notice)"
+                    @keyup.enter="viewNotice(notice)"
                   >
                     <div class="notice-header">
                       <el-tag :type="getNoticeType(notice.level)" size="small">
@@ -121,8 +127,9 @@
                     <el-option label="已过期" value="overdue" />
                   </el-select>
                 </div>
-                <div class="task-board">
-                  <div v-for="column in taskColumns" :key="column.key" class="task-column">
+                <SkeletonScreen v-if="loading" type="list" :loading="loading" :rows="3" />
+                <div v-else class="task-board">
+                  <div v-for="column in taskColumns" :key="column.key" class="task-column" role="region" :aria-label="`${column.title}任务列，${column.tasks.length}个任务`">
                     <div class="column-header">
                       <span class="column-title">{{ column.title }}</span>
                       <el-badge :value="column.tasks.length" type="primary" />
@@ -132,7 +139,11 @@
                         v-for="task in column.tasks"
                         :key="task.id"
                         class="task-card"
+                        role="button"
+                        tabindex="0"
+                        :aria-label="`${task.title}，优先级：${task.priority}`"
                         @click="viewTask(task)"
+                        @keyup.enter="viewTask(task)"
                       >
                         <div class="task-priority" :class="task.priority"></div>
                         <div class="task-content">
@@ -169,8 +180,20 @@
                     创建会议
                   </el-button>
                 </div>
-                <div class="meeting-list">
-                  <el-table :data="meetings" style="width: 100%">
+                <SkeletonScreen v-if="loading" type="table" :loading="loading" :rows="2" />
+                <div v-else class="meeting-list">
+                  <el-table :data="meetings" style="width: 100%" aria-label="会议记录列表">
+                    <el-table-column type="index" label="#" width="50">
+                      <template #default="scope">
+                        <div
+                          class="table-row"
+                          role="button"
+                          tabindex="0"
+                          @click="viewMeeting(meetings[scope.$index])"
+                          @keyup.enter="viewMeeting(meetings[scope.$index])"
+                        ></div>
+                      </template>
+                    </el-table-column>
                     <el-table-column prop="title" label="会议主题" min-width="200">
                       <template #default="{ row }">
                         <span class="meeting-title">{{ row.title }}</span>
@@ -216,8 +239,9 @@
                     创建投票
                   </el-button>
                 </div>
-                <div class="vote-list">
-                  <div v-for="vote in filteredVotes" :key="vote.id" class="vote-card">
+                <SkeletonScreen v-if="loading" type="list" :loading="loading" :rows="2" />
+                <div v-else class="vote-list">
+                  <div v-for="vote in filteredVotes" :key="vote.id" class="vote-card" role="button" tabindex="0" :aria-label="`${vote.title}，${vote.description}`" @keyup.enter="viewVoteDetail(vote)">
                     <div class="vote-header">
                       <span class="vote-title">{{ vote.title }}</span>
                       <el-tag :type="getVoteStatusType(vote.status)" size="small">
@@ -269,9 +293,14 @@
                 <el-badge :value="pendingTasks.length" type="danger" />
               </div>
             </template>
-            <div class="pending-list">
+            <SkeletonScreen v-if="loading" type="list" :loading="loading" :rows="3" />
+            <div v-else class="pending-list">
               <div v-for="task in pendingTasks" :key="task.id" class="pending-item">
-                <el-checkbox v-model="task.completed" @change="completeTask(task)">
+                <el-checkbox
+                  v-model="task.completed"
+                  :aria-label="task.title"
+                  @change="completeTask(task)"
+                >
                   <div class="pending-content">
                     <span :class="{ completed: task.completed }">{{ task.title }}</span>
                     <el-tag :type="getPriorityType(task.priority)" size="small">
@@ -294,7 +323,8 @@
                 </span>
               </div>
             </template>
-            <div class="activity-timeline">
+            <SkeletonScreen v-if="loading" type="list" :loading="loading" :rows="3" />
+            <div v-else class="activity-timeline">
               <div v-for="activity in recentActivities" :key="activity.id" class="timeline-item">
                 <div class="timeline-dot" :class="activity.type"></div>
                 <div class="timeline-content">
@@ -310,8 +340,16 @@
     </section>
 
     <!-- 发布公告对话框 -->
-    <el-dialog v-model="showNoticeDialog" title="发布公告" width="700px" destroy-on-close>
+    <el-dialog
+      v-model="showNoticeDialog"
+      title="发布公告"
+      width="700px"
+      destroy-on-close
+      aria-modal="true"
+      aria-labelledby="notice-dialog-title"
+    >
       <el-form :model="noticeForm" label-width="80px">
+        <h2 id="notice-dialog-title" class="sr-only">发布公告</h2>
         <el-form-item label="公告标题" required>
           <el-input v-model="noticeForm.title" placeholder="请输入公告标题" />
         </el-form-item>
@@ -342,8 +380,16 @@
     </el-dialog>
 
     <!-- 创建任务对话框 -->
-    <el-dialog v-model="showTaskDialog" title="创建任务" width="600px" destroy-on-close>
+    <el-dialog
+      v-model="showTaskDialog"
+      title="创建任务"
+      width="600px"
+      destroy-on-close
+      aria-modal="true"
+      aria-labelledby="task-dialog-title"
+    >
       <el-form :model="taskForm" label-width="80px">
+        <h2 id="task-dialog-title" class="sr-only">创建任务</h2>
         <el-form-item label="任务标题" required>
           <el-input v-model="taskForm.title" placeholder="请输入任务标题" />
         </el-form-item>
@@ -386,6 +432,7 @@ import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Edit, Plus, Search, Clock, ChatDotRound, Grid } from '@element-plus/icons-vue';
+import SkeletonScreen from '@/components/common/SkeletonScreen.vue';
 
 interface Notice {
   id: string;
@@ -444,6 +491,7 @@ interface Activity {
 }
 
 const router = useRouter();
+const loading = ref(true);
 
 const activeTab = ref('notice');
 const noticeSearch = ref('');
@@ -851,11 +899,31 @@ const createTask = () => {
   ElMessage.success('任务创建成功');
   showTaskDialog.value = false;
 };
+
+import { onMounted } from 'vue';
+
+onMounted(() => {
+  setTimeout(() => {
+    loading.value = false;
+  }, 500);
+});
 </script>
 
 <style lang="scss" scoped>
 .pc-village-affairs {
   padding: 0;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
 
 .page-header {
@@ -1251,18 +1319,505 @@ const createTask = () => {
     flex-direction: column;
     gap: 16px;
     align-items: flex-start;
+
+    .header-content {
+      h1 {
+        font-size: 20px;
+      }
+
+      p {
+        font-size: 12px;
+      }
+    }
+
+    .header-actions {
+      width: 100%;
+      flex-direction: column;
+
+      .el-button {
+        width: 100%;
+      }
+    }
+  }
+
+  .stats-section {
+    .stat-card {
+      .stat-content {
+        gap: 12px;
+      }
+
+      .stat-icon {
+        width: 40px;
+        height: 40px;
+
+        .el-icon {
+          font-size: 20px;
+        }
+      }
+
+      .stat-info {
+        .stat-value {
+          font-size: 20px;
+        }
+
+        .stat-label {
+          font-size: 11px;
+        }
+      }
+    }
+  }
+
+  .content-card {
+    .tab-header {
+      flex-direction: column;
+      gap: 12px;
+
+      .search-input {
+        width: 100%;
+      }
+
+      .el-select {
+        width: 100%;
+      }
+
+      .el-button {
+        width: 100%;
+      }
+    }
+  }
+
+  .affairs-tabs {
+    :deep(.el-tabs__nav-wrap::after) {
+      display: none;
+    }
+
+    :deep(.el-tabs__item) {
+      font-size: 12px;
+      padding: 0 10px;
+    }
+
+    :deep(.el-tabs__content) {
+      padding: 0 10px 10px;
+    }
   }
 
   .task-board {
     flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    max-height: 600px;
+    padding-bottom: 20px;
+    gap: 12px;
+
+    .task-column {
+      min-width: 100%;
+      max-height: 300px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 10px;
+
+      .column-header {
+        margin-bottom: 10px;
+
+        .column-title {
+          font-size: 12px;
+        }
+      }
+
+      .column-content {
+        gap: 6px;
+      }
+    }
   }
 
-  .tab-header {
-    flex-direction: column;
+  .task-card {
+    padding: 10px;
 
-    .search-input {
-      width: 100%;
+    .task-content {
+      h4 {
+        font-size: 13px;
+      }
+
+      p {
+        font-size: 11px;
+      }
+
+      .task-meta {
+        .el-avatar {
+          width: 20px;
+          height: 20px;
+        }
+
+        .task-deadline {
+          font-size: 11px;
+        }
+      }
     }
+  }
+
+  .notice-list {
+    .notice-item {
+      padding: 12px;
+      margin-bottom: 10px;
+
+      .notice-header {
+        .notice-title {
+          font-size: 14px;
+        }
+      }
+
+      .notice-summary {
+        font-size: 12px;
+        margin-bottom: 8px;
+      }
+
+      .notice-footer {
+        font-size: 11px;
+        flex-wrap: wrap;
+        gap: 8px;
+
+        .notice-actions {
+          margin-left: 0;
+          width: 100%;
+          justify-content: flex-end;
+        }
+      }
+    }
+  }
+
+  .vote-list {
+    .vote-card {
+      padding: 12px;
+      margin-bottom: 12px;
+
+      .vote-header {
+        .vote-title {
+          font-size: 14px;
+        }
+      }
+
+      .vote-description {
+        font-size: 12px;
+        margin-bottom: 12px;
+      }
+
+      .vote-progress {
+        margin-bottom: 12px;
+
+        .progress-info {
+          font-size: 11px;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 4px;
+        }
+
+        .progress-bar {
+          height: 6px;
+        }
+      }
+
+      .vote-actions {
+        flex-direction: column;
+
+        .el-button {
+          width: 100%;
+        }
+      }
+    }
+  }
+
+  .sidebar-card {
+    .card-header {
+      .card-title {
+        font-size: 14px;
+      }
+    }
+  }
+
+  .pending-list {
+    .pending-item {
+      padding: 10px 0;
+
+      .pending-content {
+        font-size: 13px;
+      }
+    }
+  }
+
+  .activity-timeline {
+    .timeline-item {
+      padding: 10px 0;
+
+      .timeline-content {
+        p {
+          font-size: 12px;
+          line-height: 1.4;
+        }
+
+        .timeline-time {
+          font-size: 11px;
+        }
+      }
+    }
+  }
+
+  .meeting-list {
+    :deep(.el-table) {
+      font-size: 12px;
+
+      .el-table__cell {
+        padding: 8px 0;
+      }
+    }
+  }
+}
+
+.pc-village-affairs {
+  animation: pageFadeIn 0.6s ease-out;
+}
+
+@keyframes pageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stat-card {
+  animation: cardSlideIn 0.5s ease-out backwards;
+
+  &:nth-child(1) { animation-delay: 0.1s; }
+  &:nth-child(2) { animation-delay: 0.2s; }
+  &:nth-child(3) { animation-delay: 0.3s; }
+  &:nth-child(4) { animation-delay: 0.4s; }
+  &:nth-child(5) { animation-delay: 0.5s; }
+}
+
+@keyframes cardSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.task-card {
+  animation: taskFadeIn 0.4s ease-out backwards;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+
+  &:hover {
+    transform: scale(1.02) translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &:nth-child(1) { animation-delay: 0.05s; }
+  &:nth-child(2) { animation-delay: 0.1s; }
+  &:nth-child(3) { animation-delay: 0.15s; }
+  &:nth-child(4) { animation-delay: 0.2s; }
+  &:nth-child(5) { animation-delay: 0.25s; }
+}
+
+@keyframes taskFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.notice-item {
+  animation: noticeSlideIn 0.4s ease-out backwards;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+
+  &:hover {
+    transform: translateX(8px);
+    background-color: #f5f7fa;
+  }
+
+  &:nth-child(1) { animation-delay: 0.05s; }
+  &:nth-child(2) { animation-delay: 0.1s; }
+  &:nth-child(3) { animation-delay: 0.15s; }
+  &:nth-child(4) { animation-delay: 0.2s; }
+  &:nth-child(5) { animation-delay: 0.25s; }
+}
+
+@keyframes noticeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.vote-card {
+  animation: voteFadeIn 0.4s ease-out backwards;
+
+  &:nth-child(1) { animation-delay: 0.05s; }
+  &:nth-child(2) { animation-delay: 0.1s; }
+  &:nth-child(3) { animation-delay: 0.15s; }
+  &:nth-child(4) { animation-delay: 0.2s; }
+  &:nth-child(5) { animation-delay: 0.25s; }
+}
+
+@keyframes voteFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.progress-fill {
+  transition: width 0.5s ease-out;
+}
+
+.meeting-list {
+  :deep(.el-table__row) {
+    animation: tableRowFadeIn 0.4s ease-out backwards;
+
+    &:nth-child(1) { animation-delay: 0.05s; }
+    &:nth-child(2) { animation-delay: 0.1s; }
+    &:nth-child(3) { animation-delay: 0.15s; }
+    &:nth-child(4) { animation-delay: 0.2s; }
+    &:nth-child(5) { animation-delay: 0.25s; }
+  }
+}
+
+@keyframes tableRowFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.pending-item {
+  animation: pendingFadeIn 0.3s ease-out backwards;
+
+  &:nth-child(1) { animation-delay: 0.05s; }
+  &:nth-child(2) { animation-delay: 0.1s; }
+  &:nth-child(3) { animation-delay: 0.15s; }
+  &:nth-child(4) { animation-delay: 0.2s; }
+  &:nth-child(5) { animation-delay: 0.25s; }
+}
+
+@keyframes pendingFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.pending-content {
+  span {
+    transition: all 0.3s ease;
+
+    &.completed {
+      text-decoration: line-through;
+      color: #909399;
+    }
+  }
+}
+
+.pending-item {
+  :deep(.el-checkbox__inner) {
+    transition: all 0.3s ease;
+  }
+
+  :deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
+    animation: checkboxCheck 0.3s ease;
+  }
+}
+
+@keyframes checkboxCheck {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.timeline-item {
+  animation: timelineFadeIn 0.4s ease-out backwards;
+
+  &:nth-child(1) { animation-delay: 0.05s; }
+  &:nth-child(2) { animation-delay: 0.1s; }
+  &:nth-child(3) { animation-delay: 0.15s; }
+  &:nth-child(4) { animation-delay: 0.2s; }
+  &:nth-child(5) { animation-delay: 0.25s; }
+}
+
+@keyframes timelineFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.timeline-dot {
+  animation: dotPulse 2s ease-in-out infinite;
+
+  &.notice {
+    animation-delay: 0s;
+  }
+
+  &.task {
+    animation-delay: 0.5s;
+  }
+
+  &.meeting {
+    animation-delay: 1s;
+  }
+
+  &.vote {
+    animation-delay: 1.5s;
+  }
+}
+
+@keyframes dotPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(64, 158, 255, 0.4);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(64, 158, 255, 0);
+    transform: scale(1.1);
   }
 }
 </style>

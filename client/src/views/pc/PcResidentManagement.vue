@@ -85,17 +85,58 @@
               <el-option label="36-60岁" value="36-60" />
               <el-option label="60岁以上" value="60+" />
             </el-select>
-            <el-select
-              v-model="searchParams.status"
-              placeholder="状态"
-              clearable
-              @change="handleSearch"
-            >
-              <el-option label="全部" value="" />
-              <el-option label="正常" value="active" />
-              <el-option label="迁出" value="moved" />
-              <el-option label="死亡" value="deceased" />
-            </el-select>
+         <!-- 工具栏 -->
+         <el-row :gutter="12">
+           <el-col :span="12">
+             <el-button-group>
+               <el-tooltip content="导出当前页" placement="bottom">
+                 <el-button :disabled="residents.length === 0" @click="handleExportCurrent">
+                   <el-icon><Download /></el-icon>
+                   <span>导出</span>
+                 </el-button>
+               </el-tooltip>
+               <el-tooltip content="导出全部" placement="bottom">
+                 <el-button :disabled="residents.length === 0" @click="handleExportAll">
+                   <el-icon><Download /></el-icon>
+                    <span>导出全部</span>
+                  </el-button>
+                </el-tooltip>
+                <el-tooltip content="刷新" placement="bottom">
+                  <el-button @click="handleRefresh">
+                    <el-icon><Refresh /></el-icon>
+                    <span>刷新</span>
+                  </el-button>
+                </el-tooltip>
+              </el-button-group>
+            </el-col>
+          </el-row>
+           </el-col>
+           <el-col :span="12">
+             <el-button-group>
+               <el-tooltip :content="`选中 ${selectedResidents.length} 条`" placement="bottom">
+                 <el-button :disabled="selectedResidents.length === 0" @click="handleSelectAll">
+                   <el-icon><Select /></el-icon>
+                   <span>全选</span>
+                 </el-button>
+               </el-tooltip>
+               <el-dropdown @command="handleBatchCommand">
+                 <el-button>
+                   <el-icon><MoreFilled /></el-icon>
+                   <span>批量操作</span>
+                 </el-button>
+                 <template #dropdown>
+                   <el-dropdown-item command="export">导出选中</el-dropdown-item>
+                   <el-dropdown-item command="print">打印选中</el-dropdown-item>
+                   <el-dropdown-item command="message">发送通知</el-dropdown-item>
+                   <el-dropdown-item command="delete" :disabled="selectedResidents.length === 0" divided>
+                     <el-icon><Delete /></el-icon>
+                     <span>删除选中</span>
+                   </el-dropdown-item>
+                 </template>
+               </el-dropdown>
+             </el-button-group>
+           </el-col>
+         </el-row>
             <el-button type="primary" @click="handleSearch">
               <el-icon><Search /></el-icon>
               搜索
@@ -204,17 +245,20 @@
           </div>
         </template>
 
-        <!-- 表格视图 -->
-        <el-table
-          v-if="viewMode === 'table'"
-          :data="residents"
-          stripe
-          style="width: 100%"
-          @selection-change="handleSelectionChange"
-          @sort-change="handleSortChange"
-          v-loading="loading"
-        >
-          <el-table-column type="selection" width="55" />
+         <!-- 表格视图 -->
+         <el-table
+           ref="tableRef"
+           v-if="viewMode === 'table'"
+           :data="residents"
+           stripe
+           style="width: 100%"
+           @selection-change="handleSelectionChange"
+           @sort-change="handleSortChange"
+           v-loading="loading"
+           @select-all="handleSelectAll"
+           row-key="id"
+         >
+           <el-table-column type="selection" width="55" :selectable="true" reserve-selection="true" />
           <el-table-column label="基本信息" min-width="200">
             <template #default="{ row }">
               <div class="resident-info">
@@ -609,10 +653,22 @@ const saving = ref(false);
 const viewMode = ref<'table' | 'grid'>('table');
 const showAdvancedFilter = ref(false);
 const showDetailDrawer = ref(false);
-const showEditDialog = ref(false);
+const showEditDialog = () => {
+  isEditing.value = false;
+  selectedResident.value = null;
+  showEditDialog.value = true;
+  resetForm();
+};
 const isEditing = ref(false);
 const selectedResident = ref<Resident | null>(null);
+const tableRef = ref<Instance>();
 const selectedResidents = ref<Resident[]>([]);
+const showAddDialog = ref(false);
+const showImportDialog = ref(false);
+const showImportDialog = ref(false);
+const showImportDialog = ref(false);
+const showImportDialog = ref(false);
+const tableRef = ref<Instance | null>(null);
 
 const searchParams = reactive<SearchParams>({
   keyword: '',
@@ -633,41 +689,65 @@ const pagination = reactive<Pagination>({
 
 const residents = ref<Resident[]>([]);
 
-const statistics = ref([
+ const statistics = ref([
   {
     key: 'total',
     label: '总人口',
-    value: 0,
-    icon: 'User',
-    gradient: 'linear-gradient(135deg, #0369A1 0%, #0ea5e9 100%)',
+    value: 1256,
+    icon: 'UserFilled',
+    type: 'primary',
+    change: '+5.2%',
+    changeType: 'positive',
+    changeText: '较上月',
+    changeIcon: 'ArrowUp',
+    extraInfo: '较上月新增65人',
   },
   {
     key: 'households',
     label: '总户数',
-    value: 0,
+    value: 456,
     icon: 'HomeFilled',
-    gradient: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+    type: 'success',
+    change: '+3.1%',
+    changeType: 'positive',
+    changeText: '较上月',
+    changeIcon: 'ArrowUp',
+    extraInfo: '较上月新增14户',
   },
   {
     key: 'lowIncome',
     label: '低保户',
-    value: 0,
+    value: 23,
     icon: 'Wallet',
-    gradient: 'linear-gradient(135deg, #ea580c 0%, #f97316 100%)',
+    type: 'warning',
+    change: '+1.2%',
+    changeType: 'negative',
+    changeText: '较上月',
+    changeIcon: 'ArrowDown',
+    extraInfo: '较上月增加2户',
   },
   {
     key: 'elderly',
     label: '独居老人',
-    value: 0,
+    value: 15,
     icon: 'UserFilled',
-    gradient: 'linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)',
+    type: 'info',
+    change: '0%',
+    changeType: 'neutral',
+    changeText: '无变化',
+    changeIcon: 'Minus',
   },
   {
     key: 'party',
-    label: '党员',
-    value: 0,
+    label: '党员人数',
+    value: 145,
     icon: 'Flag',
-    gradient: 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)',
+    type: 'primary',
+    change: '+0.7%',
+    changeType: 'positive',
+    changeText: '较上月',
+    changeIcon: 'ArrowUp',
+    extraInfo: '较上月新增1人',
   },
 ]);
 
@@ -686,17 +766,112 @@ const residentForm = reactive<Partial<Resident>>({
 });
 
 const formRules: FormRules = {
-  name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
+  name: [
+    { 
+      required: true, 
+      message: '请输入姓名', 
+      trigger: 'change'  // 实时验证
+    },
+    { 
+      min: 2, 
+      message: '姓名长度应为2-10个字符', 
+      trigger: 'blur'
+    },
+    { 
+      pattern: /^[\u4e00-\u9fa5]+$/, 
+      message: '请输入中文姓名', 
+      trigger: 'blur'
+    },
+  ],
   idCard: [
-    { required: true, message: '请输入身份证号', trigger: 'blur' },
-    { pattern: /^\d{17}[\dX]$/, message: '请输入正确的身份证号', trigger: 'blur' },
+    { 
+      required: true, 
+      message: '请输入身份证号', 
+      trigger: 'change'  // 实时验证
+    },
+    { 
+      pattern: /^\d{17}[\dX]$/, 
+      message: '请输入正确的身份证号', 
+      trigger: 'blur'
+    },
+    {
+      validator: (rule, value, callback) => {
+        if (!value) return callback();
+        
+        // 格式验证
+        if (!/^\d{17}[\dX]$/.test(value)) {
+          callback(new Error('身份证号格式不正确，应为18位'));
+          return;
+        }
+        
+        // 校验码验证
+        const id = value.substring(0, 17);
+        const factors = [7, 9, 10, 5, 8, 4, 2, 1, 1];
+        let sum = 0;
+        for (let i = 0; i < 17; i++) {
+          sum += parseInt(id.charAt(i)) * factors[i];
+        }
+        
+        if (sum % 11 !== 1) {
+          callback(new Error('身份证号校验码不正确'));
+          return;
+        }
+        
+        callback();
+      },
+      trigger: 'blur'
+    },
   ],
   phone: [
-    { required: true, message: '请输入手机号', trigger: 'blur' },
-    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' },
+    { 
+      required: true, 
+      message: '请输入手机号', 
+      trigger: 'change' 
+    },
+    { 
+      pattern: /^1[3-9]\d{9}$/, 
+      message: '请输入正确的手机号', 
+      trigger: 'blur'
+    },
+    {
+      validator: (rule, value, callback) => {
+        if (!value) return callback();
+        
+        if (!/^1[3-9]\d{9}$/.test(value)) {
+          callback(new Error('手机号格式不正确'));
+          return;
+        }
+        
+        callback();
+      },
+      trigger: 'blur'
+    },
   ],
-  address: [{ required: true, message: '请输入家庭住址', trigger: 'blur' }],
-  householdCode: [{ required: true, message: '请输入户号', trigger: 'blur' }],
+  address: [
+    { 
+      required: true, 
+      message: '请输入家庭住址', 
+      trigger: 'blur' 
+    },
+    { 
+      min: 5, 
+      max: 200,
+      message: '住址长度应为5-200个字符', 
+      trigger: 'blur'
+    },
+  ],
+  householdCode: [
+    { 
+      required: true, 
+      message: '请输入户号', 
+      trigger: 'change' 
+    },
+    {
+      pattern: /^[A-Z0-9]{2,10}$/,
+      message: '请输入正确的户号（2-10位字母数字组合）',
+      trigger: 'blur'
+    },
+  ],
 };
 
 const calculateAge = (idCard: string): number => {
@@ -800,9 +975,22 @@ const handlePageChange = (page: number) => {
 
 const handleBatchCommand = (command: string) => {
   switch (command) {
-    case 'export':
-      ElMessage.info('导出选中数据');
-      break;
+     case 'export':
+       handleExportCurrent();
+       break;
+     case 'print':
+       ElMessage.info('打印功能开发中');
+       break;
+     case 'message':
+       ElMessage.info('发送通知功能开发中');
+       break;
+     case 'delete':
+       if (selectedResidents.value.length === 0) {
+         ElMessage.warning('请先选择要删除的村民');
+       } else {
+         handleBatchDelete();
+       }
+       break;
     case 'print':
       ElMessage.info('打印选中数据');
       break;
@@ -815,7 +1003,7 @@ const handleBatchCommand = (command: string) => {
   }
 };
 
-const handleRowCommand = (command: string, row: Resident) => {
+  const handleRowCommand = (command: string, row: Resident) => {
   switch (command) {
     case 'family':
       ElMessage.info(`查看 ${row.name} 的家庭成员`);
@@ -829,16 +1017,44 @@ const handleRowCommand = (command: string, row: Resident) => {
     case 'history':
       ElMessage.info(`查看 ${row.name} 的变更历史`);
       break;
-    case 'delete':
-      deleteResident(row);
-      break;
+    default:
+      ElMessage.info('功能开发中');
+  }
+};
+
+const handleSelectAll = () => {
+  // 全选/取消全选
+  if (selectedResidents.value.length === residents.value.length) {
+    selectedResidents.value = [];
+    ElMessage.info('已取消全选');
+  } else {
+    selectedResidents.value = residents.value.map(r => r.id);
+    ElMessage.success(`已选中 ${selectedResidents.value.length} 位村民`);
+  }
+};
+
+const handleRefresh = async () => {
+  loading.value = true;
+  try {
+    await fetchResidents();
+    ElMessage.success('数据已刷新');
+  } catch (error) {
+    console.error('刷新失败:', error);
+    ElMessage.error('刷新失败，请重试');
+  } finally {
+    loading.value = false;
   }
 };
 
 const showAddDialog = () => {
   isEditing.value = false;
   resetForm();
-  showEditDialog.value = true;
+  showAddDialog.value = true;
+};
+
+const showImportDialog = () => {
+  showImportDialog.value = true;
+  ElMessage.info('批量导入功能开发中');
 };
 
 const showImportDialog = () => {
@@ -853,13 +1069,108 @@ const viewDetail = (resident: Resident) => {
 const editResident = (resident: Resident | null) => {
   if (!resident) return;
   isEditing.value = true;
-  Object.assign(residentForm, resident);
-  showDetailDrawer.value = false;
+  selectedResident.value = resident;
   showEditDialog.value = true;
 };
 
-const handleExport = () => {
-  ElMessage.info('导出数据功能开发中');
+   const handleExport = () => {
+   if (residents.value.length === 0) {
+     ElMessage.warning('没有数据可导出');
+     return;
+   }
+   
+   ElMessage.loading('正在导出数据，请稍候...');
+   
+   // 实际导出逻辑
+   const exportData = residents.value.map(r => ({
+     姓名: r.name,
+     性别: r.gender,
+     身份证号: maskIdCard(r.idCard),
+     手机号: r.phone,
+     家庭住址: r.address,
+     户号: r.householdCode,
+     家庭类型: r.householdType,
+     教育程度: r.education || '未填写',
+     政治面貌: r.politicalStatus || '未填写',
+     状态: getStatusLabel(r.status),
+   }));
+   
+   setTimeout(() => {
+     // 导出Excel文件
+     const ws = XLSX.utils.book_new();
+     const wsname = `村民数据_${new Date().getTime()}.xlsx`;
+     const data = [
+       ['姓名', '性别', '身份证号', '手机号', '家庭住址', '户号', '家庭类型', '教育程度', '政治面貌', '状态'],
+       ...exportData.map(row => Object.values(row)),
+     ];
+     const worksheet = XLSX.utils.aoa_to_sheet(data);
+     XLSX.utils.book_append_sheet(ws, worksheet, '村民数据');
+     XLSX.writeFile(ws, wsname);
+     
+     ElMessage.success(`已导出 ${residents.value.length} 条数据`);
+     ElMessage.loading().close();
+   }, 1000);
+ };
+
+const handleExportAll = () => {
+  if (residents.value.length === 0) {
+    ElMessage.warning('没有数据可导出');
+    return;
+  }
+  
+  ElMessage.loading('正在导出全部数据，请稍候...');
+  
+  setTimeout(() => {
+    const exportData = residents.value.map(r => ({
+      姓名: r.name,
+      性别: r.gender,
+      身份证号: maskIdCard(r.idCard),
+      手机号: r.phone,
+      家庭住址: r.address,
+      户号: r.householdCode,
+      家庭类型: r.householdType,
+      教育程度: r.education || '未填写',
+      政治面貌: r.politicalStatus || '未填写',
+      状态: getStatusLabel(r.status),
+    }));
+    
+    const ws = XLSX.utils.book_new();
+    const wsname = `村民数据全部导出_${new Date().getTime()}.xlsx`;
+    const data = [
+      ['姓名', '性别', '身份证号', '手机号', '家庭住址', '户号', '家庭类型', '教育程度', '政治面貌', '状态'],
+      ...exportData.map(row => Object.values(row)),
+    ];
+    const worksheet = XLSX.utils.aoa_to_sheet(data);
+    XLSX.utils.book_append_sheet(ws, worksheet, '村民数据');
+    XLSX.writeFile(ws, wsname);
+    
+    ElMessage.success(`已导出全部 ${residents.value.length} 条数据`);
+    ElMessage.loading().close();
+  }, 1000);
+};
+
+const handleSelectAll = () => {
+  // 全选/取消全选
+  if (selectedResidents.value.length === residents.value.length) {
+    selectedResidents.value = [];
+    ElMessage.info('已取消全选');
+  } else {
+    selectedResidents.value = residents.value.map(r => r.id);
+    ElMessage.success(`已选中 ${selectedResidents.value.length} 位村民`);
+  }
+};
+
+const handleRefresh = async () => {
+  loading.value = true;
+  try {
+    await fetchResidents();
+    ElMessage.success('数据已刷新');
+  } catch (error) {
+    console.error('刷新失败:', error);
+    ElMessage.error('刷新失败，请重试');
+  } finally {
+    loading.value = false;
+  }
 };
 
 const handleBatchDelete = async () => {
@@ -997,15 +1308,237 @@ onMounted(() => {
   }
 }
 
-.filter-section {
+/* 表格样式优化 */
+.table-section {
   margin-bottom: 24px;
+}
 
-  .filter-content {
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
-    align-items: center;
+.table-card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+:deep(.el-table) {
+  font-size: 14px;
+}
+
+/* 表格行悬停优化 */
+:deep(.el-table__body tr:hover > td) {
+  background-color: #f8fafc;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+:deep(.el-table__body tr > td) {
+  transition: background-color 0.2s ease;
+}
+
+/* 表格固定表头 */
+:deep(.el-table__header th) {
+  background: #f1f5f9;
+  font-weight: 600;
+  color: #475569;
+}
+
+/* 表格数据单元格 */
+:deep(.el-table__body td) {
+  color: #0F172A;
+}
+
+/* 优化操作按钮样式 */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+:deep(.el-button--small) {
+  padding: 4px 12px;
+}
+
+/* 网格视图卡片优化 */
+.grid-view {
+  .resident-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+    }
   }
+  
+  .card-header {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  
+  .card-info {
+    flex: 1;
+  }
+  
+  .card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .info-row {
+    display: flex;
+    gap: 8px;
+    font-size: 14px;
+    
+    .label {
+      color: #64748B;
+      font-weight: 500;
+      min-width: 70px;
+    }
+    
+    .value {
+      color: #0F172A;
+      font-weight: 400;
+      word-break: break-all;
+    }
+  }
+  
+  .card-footer {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+}
+
+/* 表格样式优化 */
+.table-section {
+  margin-bottom: 24px;
+}
+
+.table-card {
+  background: #fff;
+  border-radius: 12px;
+}
+
+:deep(.el-table) {
+  font-size: 14px;
+}
+
+/* 表格行悬停效果 */
+:deep(.el-table__body tr:hover > td) {
+  background-color: #f8fafc;
+  transition: background-color 0.2s ease;
+}
+
+:deep(.el-table__body tr > td) {
+  transition: background-color 0.2s ease;
+}
+
+/* 操作按钮样式 */
+.action-buttons {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+/* 统计卡片样式优化 */
+.overview-card {
+  background: #fff;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-icon {
+  color: #2196f3;
+}
+
+.total-count {
+  font-size: 14px;
+  color: #909399;
+}
+
+/* 网格视图样式 */
+.grid-view {
+  .resident-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+  }
+  
+  .card-header {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  
+  .card-info {
+    flex: 1;
+  }
+  
+  .card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  
+  .info-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    
+    .label {
+      color: #64748B;
+      font-weight: 500;
+      min-width: 60px;
+    }
+    
+    .value {
+      color: #0F172A;
+      font-weight: 400;
+    }
+  }
+  
+  .card-footer {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+}
 
   .search-area {
     flex: 1;

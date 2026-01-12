@@ -11,15 +11,15 @@
         <p>系统用户管理、角色分配、权限控制、账户状态管理</p>
       </div>
       <div class="header-actions">
-        <el-button type="primary" @click="showAddUserDialog">
+        <el-button type="primary" @click="showAddUserDialog" aria-label="添加用户">
           <el-icon><Plus /></el-icon>
           添加用户
         </el-button>
-        <el-button @click="showRoleDialog">
+        <el-button @click="showRoleDialog" aria-label="角色管理">
           <el-icon><UserFilled /></el-icon>
           角色管理
         </el-button>
-        <el-button @click="showPermissionDialog">
+        <el-button @click="showPermissionDialog" aria-label="权限配置">
           <el-icon><Key /></el-icon>
           权限配置
         </el-button>
@@ -45,6 +45,7 @@
           </el-card>
         </el-col>
       </el-row>
+      <SkeletonScreen v-if="loading" type="card" :rows="5" />
     </section>
 
     <!-- 搜索筛选 -->
@@ -60,10 +61,11 @@
               @clear="handleSearch"
               @keyup.enter="handleSearch"
               class="search-input"
+              aria-label="搜索用户"
             />
           </div>
           <div class="filter-area">
-            <el-select v-model="roleFilter" placeholder="角色筛选" clearable @change="handleSearch">
+            <el-select v-model="roleFilter" placeholder="角色筛选" clearable @change="handleSearch" aria-label="角色筛选">
               <el-option label="全部" value="" />
               <el-option label="系统管理员" value="admin" />
               <el-option label="村干部" value="village_admin" />
@@ -75,17 +77,18 @@
               placeholder="状态筛选"
               clearable
               @change="handleSearch"
+              aria-label="状态筛选"
             >
               <el-option label="全部" value="" />
               <el-option label="正常" value="active" />
               <el-option label="禁用" value="disabled" />
               <el-option label="待审核" value="pending" />
             </el-select>
-            <el-button type="primary" @click="handleSearch">
+            <el-button type="primary" @click="handleSearch" aria-label="搜索">
               <el-icon><Search /></el-icon>
               搜索
             </el-button>
-            <el-button @click="resetFilters">
+            <el-button @click="resetFilters" aria-label="重置筛选">
               <el-icon><Refresh /></el-icon>
               重置
             </el-button>
@@ -103,22 +106,22 @@
             <div class="table-actions">
               <span class="total-count">共 {{ pagination.total }} 位用户</span>
               <el-dropdown @command="handleBatchCommand" trigger="click">
-                <el-button :disabled="selectedUsers.length === 0">
+                <el-button :disabled="selectedUsers.length === 0" aria-label="批量操作">
                   批量操作 ({{ selectedUsers.length }})
                   <el-icon class="el-icon--right"><ArrowDown /></el-icon>
                 </el-button>
                 <template #dropdown>
                   <el-dropdown-menu>
-                    <el-dropdown-item command="enable">
+                    <el-dropdown-item command="enable" aria-label="启用选中用户">
                       <el-icon><CircleCheck /></el-icon>启用选中
                     </el-dropdown-item>
-                    <el-dropdown-item command="disable">
+                    <el-dropdown-item command="disable" aria-label="禁用选中用户">
                       <el-icon><CircleClose /></el-icon>禁用选中
                     </el-dropdown-item>
-                    <el-dropdown-item command="resetPwd" divided>
+                    <el-dropdown-item command="resetPwd" divided aria-label="重置选中用户密码">
                       <el-icon><RefreshRight /></el-icon>重置密码
                     </el-dropdown-item>
-                    <el-dropdown-item command="delete" :disabled="selectedUsers.length === 0">
+                    <el-dropdown-item command="delete" :disabled="selectedUsers.length === 0" aria-label="删除选中用户">
                       <el-icon><Delete /></el-icon>删除选中
                     </el-dropdown-item>
                   </el-dropdown-menu>
@@ -134,12 +137,14 @@
           style="width: 100%"
           @selection-change="handleSelectionChange"
           v-loading="loading"
+          v-show="!loading"
+          aria-label="用户列表"
         >
           <el-table-column type="selection" width="55" />
           <el-table-column label="用户信息" min-width="200">
             <template #default="{ row }">
-              <div class="user-info">
-                <el-avatar :size="44" :src="row.avatar">
+              <div class="user-info" role="button" tabindex="0" :aria-label="`${row.username}，${row.realName}`">
+                <el-avatar :size="44" :src="row.avatar" :aria-label="`${row.username}的头像`">
                   {{ row.name?.charAt(0) || '用' }}
                 </el-avatar>
                 <div class="info-content">
@@ -178,30 +183,30 @@
           </el-table-column>
           <el-table-column label="操作" width="200" fixed="right">
             <template #default="{ row }">
-              <el-button type="primary" size="small" text @click="viewUser(row)">详情</el-button>
-              <el-button size="small" text @click="editUser(row)">编辑</el-button>
+              <el-button type="primary" size="small" text @click="viewUser(row)" aria-label="查看用户详情">详情</el-button>
+              <el-button size="small" text @click="editUser(row)" aria-label="编辑用户">编辑</el-button>
               <el-dropdown @command="command => handleRowCommand(command, row)" trigger="click">
-                <el-button size="small">
+                <el-button size="small" aria-label="更多操作">
                   更多<el-icon class="el-icon--right"><ArrowDown /></el-icon>
                 </el-button>
                 <template #dropdown>
                   <el-dropdown-menu>
-                    <el-dropdown-item command="resetPwd">
+                    <el-dropdown-item command="resetPwd" aria-label="重置密码">
                       <el-icon><Key /></el-icon>重置密码
                     </el-dropdown-item>
-                    <el-dropdown-item command="assignRole">
+                    <el-dropdown-item command="assignRole" aria-label="分配角色">
                       <el-icon><UserFilled /></el-icon>分配角色
                     </el-dropdown-item>
-                    <el-dropdown-item command="loginLog">
+                    <el-dropdown-item command="loginLog" aria-label="查看登录日志">
                       <el-icon><Clock /></el-icon>登录日志
                     </el-dropdown-item>
-                    <el-dropdown-item command="disable" v-if="row.status === 'active'">
+                    <el-dropdown-item command="disable" v-if="row.status === 'active'" aria-label="禁用账户">
                       <el-icon><CircleClose /></el-icon>禁用账户
                     </el-dropdown-item>
-                    <el-dropdown-item command="enable" v-if="row.status === 'disabled'">
+                    <el-dropdown-item command="enable" v-if="row.status === 'disabled'" aria-label="启用账户">
                       <el-icon><CircleCheck /></el-icon>启用账户
                     </el-dropdown-item>
-                    <el-dropdown-item command="delete" divided>
+                    <el-dropdown-item command="delete" divided aria-label="删除用户">
                       <el-icon><Delete /></el-icon>删除用户
                     </el-dropdown-item>
                   </el-dropdown-menu>
@@ -220,6 +225,7 @@
             layout="total, sizes, prev, pager, next, jumper"
             @size-change="handleSizeChange"
             @current-change="handlePageChange"
+            aria-label="分页器"
           />
         </div>
       </el-card>
@@ -231,7 +237,12 @@
       :title="isEditing ? '编辑用户' : '添加用户'"
       width="700px"
       destroy-on-close
+      aria-modal="true"
+      :aria-labelledby="'user-dialog-title'"
     >
+      <template #header>
+        <span id="user-dialog-title">{{ isEditing ? '编辑用户' : '添加用户' }}</span>
+      </template>
       <el-form :model="userForm" :rules="formRules" ref="formRef" label-width="100px">
         <el-row :gutter="20">
           <el-col :span="12">
@@ -240,31 +251,32 @@
                 v-model="userForm.username"
                 placeholder="请输入用户名"
                 :disabled="isEditing"
+                aria-required="true"
               />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="真实姓名" prop="realName">
-              <el-input v-model="userForm.realName" placeholder="请输入真实姓名" />
+              <el-input v-model="userForm.realName" placeholder="请输入真实姓名" aria-required="true" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="手机号" prop="phone">
-              <el-input v-model="userForm.phone" placeholder="请输入手机号" />
+              <el-input v-model="userForm.phone" placeholder="请输入手机号" aria-required="true" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="邮箱" prop="email">
-              <el-input v-model="userForm.email" placeholder="请输入邮箱" />
+              <el-input v-model="userForm.email" placeholder="请输入邮箱" aria-label="邮箱地址" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="角色" prop="role">
-              <el-select v-model="userForm.role" placeholder="请选择角色">
+              <el-select v-model="userForm.role" placeholder="请选择角色" aria-required="true">
                 <el-option label="系统管理员" value="admin" />
                 <el-option label="村干部" value="village_admin" />
                 <el-option label="普通用户" value="user" />
@@ -274,7 +286,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="部门" prop="department">
-              <el-input v-model="userForm.department" placeholder="请输入部门" />
+              <el-input v-model="userForm.department" placeholder="请输入部门" aria-label="部门名称" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -284,10 +296,11 @@
             type="password"
             placeholder="请输入初始密码"
             show-password
+            aria-required="true"
           />
         </el-form-item>
         <el-form-item label="状态" prop="status">
-          <el-radio-group v-model="userForm.status">
+          <el-radio-group v-model="userForm.status" role="radiogroup" aria-label="账户状态">
             <el-radio label="active">正常</el-radio>
             <el-radio label="disabled">禁用</el-radio>
             <el-radio label="pending">待审核</el-radio>
@@ -299,30 +312,31 @@
             type="textarea"
             :rows="3"
             placeholder="请输入备注信息"
+            aria-label="备注信息"
           />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="showUserDialog = false">取消</el-button>
-        <el-button type="primary" @click="saveUser" :loading="saving">保存</el-button>
+        <el-button @click="showUserDialog = false" aria-label="取消">取消</el-button>
+        <el-button type="primary" @click="saveUser" :loading="saving" aria-label="保存用户">保存</el-button>
       </template>
     </el-dialog>
 
     <!-- 用户详情抽屉 -->
-    <el-drawer v-model="showDetailDrawer" title="用户详情" size="600px" destroy-on-close>
+    <el-drawer v-model="showDetailDrawer" title="用户详情" size="600px" destroy-on-close role="dialog" aria-label="用户详情">
       <div class="detail-content" v-if="selectedUser">
-        <el-descriptions :column="2" border>
+        <el-descriptions :column="2" border aria-label="用户基本信息">
           <el-descriptions-item label="用户名">{{ selectedUser.username }}</el-descriptions-item>
           <el-descriptions-item label="真实姓名">{{ selectedUser.realName }}</el-descriptions-item>
           <el-descriptions-item label="手机号">{{ selectedUser.phone }}</el-descriptions-item>
           <el-descriptions-item label="邮箱">{{ selectedUser.email || '-' }}</el-descriptions-item>
           <el-descriptions-item label="角色">
-            <el-tag :type="getRoleType(selectedUser.role)" size="small">
+            <el-tag :type="getRoleType(selectedUser.role)" size="small" :aria-label="`角色：${getRoleLabel(selectedUser.role)}`">
               {{ getRoleLabel(selectedUser.role) }}
             </el-tag>
           </el-descriptions-item>
           <el-descriptions-item label="状态">
-            <el-tag :type="getStatusType(selectedUser.status)" size="small">
+            <el-tag :type="getStatusType(selectedUser.status)" size="small" :aria-label="`状态：${getStatusLabel(selectedUser.status)}`">
               {{ getStatusLabel(selectedUser.status) }}
             </el-tag>
           </el-descriptions-item>
@@ -340,23 +354,25 @@
           >
         </el-descriptions>
 
-        <div class="permission-section">
+        <div class="permission-section" role="region" aria-label="拥有的权限">
           <h4>拥有的权限</h4>
-          <div class="permission-tags">
+          <div class="permission-tags" role="list">
             <el-tag
               v-for="perm in selectedUser.permissions"
               :key="perm"
               size="small"
               class="permission-tag"
+              :aria-label="`权限：${perm}`"
+              role="listitem"
             >
               {{ perm }}
             </el-tag>
           </div>
         </div>
 
-        <div class="login-history-section">
+        <div class="login-history-section" role="region" aria-label="最近登录记录">
           <h4>最近登录记录</h4>
-          <el-table :data="selectedUser.loginHistory" style="width: 100%" size="small">
+          <el-table :data="selectedUser.loginHistory" style="width: 100%" size="small" aria-label="登录历史">
             <el-table-column prop="time" label="时间" width="180">
               <template #default="{ row }">
                 {{ formatDateTime(row.time) }}
@@ -370,22 +386,25 @@
     </el-drawer>
 
     <!-- 角色管理对话框 -->
-    <el-dialog v-model="showRoleDialogVisible" title="角色管理" width="800px" destroy-on-close>
-      <el-table :data="roles" style="width: 100%">
+    <el-dialog v-model="showRoleDialogVisible" title="角色管理" width="800px" destroy-on-close aria-modal="true" aria-labelledby="role-dialog-title">
+      <template #header>
+        <span id="role-dialog-title">角色管理</span>
+      </template>
+      <el-table :data="roles" style="width: 100%" aria-label="角色列表">
         <el-table-column prop="key" label="角色标识" width="150" />
         <el-table-column prop="name" label="角色名称" width="150" />
         <el-table-column prop="description" label="描述" />
         <el-table-column prop="userCount" label="用户数" width="100" />
         <el-table-column label="操作" width="150">
           <template #default="{ row }">
-            <el-button size="small" @click="editRole(row)">编辑</el-button>
-            <el-button size="small" type="danger" text @click="deleteRole(row)">删除</el-button>
+            <el-button size="small" @click="editRole(row)" aria-label="编辑角色">编辑</el-button>
+            <el-button size="small" type="danger" text @click="deleteRole(row)" aria-label="删除角色">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
       <template #footer>
-        <el-button @click="showRoleDialogVisible = false">关闭</el-button>
-        <el-button type="primary" @click="addRole">添加角色</el-button>
+        <el-button @click="showRoleDialogVisible = false" aria-label="关闭">关闭</el-button>
+        <el-button type="primary" @click="addRole" aria-label="添加角色">添加角色</el-button>
       </template>
     </el-dialog>
   </div>
@@ -409,6 +428,7 @@ import {
   Delete,
   Clock,
 } from '@element-plus/icons-vue';
+import SkeletonScreen from '@/components/common/SkeletonScreen.vue';
 
 interface User {
   id: string;
@@ -439,7 +459,7 @@ interface Role {
 const userStore = useUserStore();
 const formRef = ref<FormInstance | null>(null);
 
-const loading = ref(false);
+const loading = ref(true);
 const saving = ref(false);
 const isEditing = ref(false);
 const showUserDialog = ref(false);
@@ -850,13 +870,71 @@ const addRole = () => {
 };
 
 onMounted(() => {
-  pagination.total = users.value.length;
+  setTimeout(() => {
+    loading.value = false;
+    pagination.total = users.value.length;
+  }, 500);
 });
 </script>
 
 <style lang="scss" scoped>
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes rotateIn {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 .pc-users {
   padding: 0;
+  animation: fadeIn 0.6s ease-out;
 }
 
 .page-header {
@@ -896,6 +974,24 @@ onMounted(() => {
 
 .stat-card {
   margin-bottom: 20px;
+  opacity: 0;
+  animation: scaleIn 0.5s ease-out forwards;
+
+  &:nth-child(1) {
+    animation-delay: 0.1s;
+  }
+  &:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  &:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+  &:nth-child(4) {
+    animation-delay: 0.4s;
+  }
+  &:nth-child(5) {
+    animation-delay: 0.5s;
+  }
 
   .stat-content {
     display: flex;
@@ -975,12 +1071,74 @@ onMounted(() => {
       }
     }
   }
+
+  :deep(.el-table__row) {
+    opacity: 0;
+    animation: fadeIn 0.4s ease-out forwards;
+  }
+
+  :deep(.el-table__row:nth-child(1)) {
+    animation-delay: 0.1s;
+  }
+
+  :deep(.el-table__row:nth-child(2)) {
+    animation-delay: 0.15s;
+  }
+
+  :deep(.el-table__row:nth-child(3)) {
+    animation-delay: 0.2s;
+  }
+
+  :deep(.el-table__row:nth-child(4)) {
+    animation-delay: 0.25s;
+  }
+
+  :deep(.el-table__row:nth-child(5)) {
+    animation-delay: 0.3s;
+  }
+
+  :deep(.el-table__row:nth-child(6)) {
+    animation-delay: 0.35s;
+  }
+
+  :deep(.el-table__row:nth-child(7)) {
+    animation-delay: 0.4s;
+  }
+
+  :deep(.el-table__row:nth-child(8)) {
+    animation-delay: 0.45s;
+  }
+
+  :deep(.el-table__row:nth-child(9)) {
+    animation-delay: 0.5s;
+  }
+
+  :deep(.el-table__row:nth-child(10)) {
+    animation-delay: 0.55s;
+  }
 }
 
 .user-info {
   display: flex;
   align-items: center;
   gap: 12px;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+
+  &:hover {
+    transform: scale(1.05);
+    background-color: #f5f7fa;
+  }
+
+  .el-avatar {
+    transition: transform 0.3s ease;
+
+    &:hover {
+      animation: rotateIn 0.6s ease-in-out;
+    }
+  }
 
   .info-content {
     .info-name {
@@ -1010,6 +1168,55 @@ onMounted(() => {
   margin-top: 20px;
   display: flex;
   justify-content: center;
+}
+
+:deep(.el-button) {
+  transition: all 0.2s ease;
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+:deep(.el-dropdown-menu__item) {
+  opacity: 0;
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+:deep(.el-dropdown-menu__item:nth-child(1)) {
+  animation-delay: 0.1s;
+}
+
+:deep(.el-dropdown-menu__item:nth-child(2)) {
+  animation-delay: 0.15s;
+}
+
+:deep(.el-dropdown-menu__item:nth-child(3)) {
+  animation-delay: 0.2s;
+}
+
+:deep(.el-dropdown-menu__item:nth-child(4)) {
+  animation-delay: 0.25s;
+}
+
+:deep(.el-dropdown-menu__item:nth-child(5)) {
+  animation-delay: 0.3s;
+}
+
+:deep(.el-dropdown-menu__item:nth-child(6)) {
+  animation-delay: 0.35s;
+}
+
+:deep(.el-dropdown-menu__item:nth-child(7)) {
+  animation-delay: 0.4s;
+}
+
+:deep(.el-dialog__body) {
+  animation: fadeIn 0.3s ease-out;
+}
+
+:deep(.el-drawer__body) {
+  animation: slideIn 0.3s ease-out;
 }
 
 .detail-content {
@@ -1055,15 +1262,155 @@ onMounted(() => {
     flex-direction: column;
     gap: 16px;
     align-items: flex-start;
+
+    .header-content {
+      width: 100%;
+
+      h1 {
+        font-size: 20px;
+      }
+
+      p {
+        font-size: 13px;
+      }
+    }
+
+    .header-actions {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+
+      .el-button {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  }
+
+  .stat-card {
+    .stat-content {
+      gap: 12px;
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+    }
+
+    .stat-info {
+      .stat-value {
+        font-size: 22px;
+      }
+
+      .stat-label {
+        font-size: 12px;
+      }
+    }
   }
 
   .filter-content {
     flex-direction: column;
     align-items: stretch;
+    gap: 12px;
+  }
+
+  .search-area {
+    width: 100%;
+    min-width: auto;
   }
 
   .filter-area {
     width: 100%;
+    flex-direction: column;
+
+    .el-select {
+      width: 100%;
+    }
+
+    .el-button {
+      width: 100%;
+    }
+  }
+
+  .table-section {
+    .el-card {
+      overflow: hidden;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      width: 100%;
+
+      .el-table {
+        min-width: 800px;
+      }
+    }
+
+    .table-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+
+      .table-actions {
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+
+        .el-dropdown {
+          width: 100%;
+
+          .el-button {
+            width: 100%;
+          }
+        }
+      }
+    }
+  }
+
+  .user-info {
+    gap: 10px;
+
+    .el-avatar {
+      width: 36px;
+      height: 36px;
+      font-size: 14px;
+    }
+
+    .info-content {
+      .info-name {
+        font-size: 14px;
+      }
+
+      .info-meta {
+        font-size: 12px;
+      }
+    }
+  }
+
+  .pagination-container {
+    .el-pagination {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .el-pagination .el-pager li,
+    .el-pagination button {
+      min-width: 32px;
+      height: 32px;
+      font-size: 12px;
+    }
+  }
+
+  .el-dialog {
+    width: 95% !important;
+    margin: 5% auto;
+  }
+
+  .el-drawer {
+    width: 100% !important;
   }
 }
 </style>

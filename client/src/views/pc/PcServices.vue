@@ -11,11 +11,11 @@
         <p>便民服务、办事指南、申请记录、服务统计</p>
       </div>
       <div class="header-actions">
-        <el-button type="primary" @click="showNewService">
+        <el-button type="primary" aria-label="新建服务" @click="showNewService">
           <el-icon><Plus /></el-icon>
           新建服务
         </el-button>
-        <el-button @click="showServiceGuide">
+        <el-button aria-label="查看服务指南" @click="showServiceGuide">
           <el-icon><Document /></el-icon>
           服务指南
         </el-button>
@@ -23,13 +23,19 @@
     </header>
 
     <!-- 服务分类导航 -->
-    <section class="category-section">
+    <section class="category-section" role="tablist" aria-label="服务分类">
       <el-row :gutter="20">
-        <el-col :xs="12" :sm="8" :md="4" v-for="category in serviceCategories" :key="category.key">
+        <el-col :xs="12" :sm="8" :md="4" v-for="(category, index) in serviceCategories" :key="category.key">
           <div
             class="category-card"
             :class="{ active: activeCategory === category.key }"
+            role="tab"
+            tabindex="0"
+            :aria-selected="activeCategory === category.key"
+            :aria-label="`${category.name}，${category.count}项服务`"
             @click="selectCategory(category.key)"
+            @keydown.enter="selectCategory(category.key)"
+            :style="{ animation: `categoryFadeIn 0.5s ease-out ${index * 0.1}s both` }"
           >
             <div class="category-icon" :style="{ background: category.gradient }">
               <el-icon :size="28" color="white">
@@ -45,9 +51,17 @@
 
     <!-- 统计概览 -->
     <section class="stats-section">
-      <el-row :gutter="20">
-        <el-col :xs="12" :sm="8" :md="4" v-for="stat in serviceStats" :key="stat.key">
-          <el-card class="stat-card" shadow="hover">
+      <SkeletonScreen v-if="loading" type="card" :rows="4" />
+      <el-row :gutter="20" v-else>
+        <el-col :xs="12" :sm="8" :md="4" v-for="(stat, index) in serviceStats" :key="stat.key">
+          <el-card 
+            class="stat-card" 
+            shadow="hover" 
+            role="button" 
+            tabindex="0" 
+            :aria-label="`${stat.label}，${stat.value}`"
+            :style="{ animation: `staggerIn 0.5s ease-out ${index * 0.1}s both` }"
+          >
             <div class="stat-content">
               <div class="stat-icon" :style="{ background: stat.gradient }">
                 <el-icon :size="24" color="white">
@@ -88,13 +102,19 @@
               </div>
             </template>
 
-            <div class="services-grid">
-              <div
-                v-for="service in filteredServices"
-                :key="service.id"
-                class="service-card"
-                @click="openService(service)"
-              >
+            <SkeletonScreen v-if="loading" type="list" :rows="6" />
+            <div class="services-grid" v-else>
+          <div
+            v-for="(service, index) in filteredServices"
+            :key="service.id"
+            class="service-card"
+            role="button"
+            tabindex="0"
+            :aria-label="`${service.name}，${service.description}`"
+            @click="openService(service)"
+            @keydown.enter="openService(service)"
+            :style="{ animationDelay: `${index * 0.1}s` }"
+          >
                 <div class="service-icon" :style="{ background: service.gradient }">
                   <el-icon :size="32" color="white">
                     <component :is="service.icon" />
@@ -114,7 +134,7 @@
                   </div>
                 </div>
                 <div class="service-action">
-                  <el-button type="primary" size="small" @click.stop="applyService(service)">
+                  <el-button type="primary" size="small" aria-label="申请服务" @click.stop="applyService(service)">
                     在线办理
                   </el-button>
                 </div>
@@ -140,7 +160,8 @@
               </div>
             </template>
 
-            <el-table :data="filteredApplications" stripe style="width: 100%">
+            <SkeletonScreen v-if="loading" type="list" :rows="6" />
+            <el-table :data="filteredApplications" stripe style="width: 100%" v-else aria-label="申请记录列表" @row-click="viewApplication">
               <el-table-column prop="serviceName" label="服务名称" min-width="180" />
               <el-table-column prop="applicant" label="申请人" width="100" />
               <el-table-column prop="applyTime" label="申请时间" width="120">
@@ -150,35 +171,19 @@
               </el-table-column>
               <el-table-column prop="status" label="状态" width="100">
                 <template #default="{ row }">
-                  <el-tag :type="getStatusType(row.status)" size="small">
+                  <el-tag :type="getStatusType(row.status)" size="small" :aria-label="`状态：${getStatusLabel(row.status)}`">
                     {{ getStatusLabel(row.status) }}
                   </el-tag>
                 </template>
               </el-table-column>
-              <el-table-column prop="handler" label="处理人" width="100" />
-              <el-table-column label="操作" width="150" fixed="right">
+              <el-table-column label="操作" width="120">
                 <template #default="{ row }">
-                  <el-button size="small" text @click="viewApplication(row)">查看</el-button>
-                  <el-button
-                    v-if="row.status === 'pending'"
-                    size="small"
-                    text
-                    @click="cancelApplication(row)"
-                    >撤销</el-button
-                  >
-                  <el-button
-                    v-if="row.status === 'rejected'"
-                    size="small"
-                    text
-                    type="primary"
-                    @click="resubmit(row)"
-                    >重新提交</el-button
-                  >
+                  <el-button size="small" text type="primary" aria-label="查看详情" @click="viewApplication(row)">查看</el-button>
                 </template>
               </el-table-column>
             </el-table>
 
-            <div class="pagination-container">
+            <div class="pagination-container" v-if="!loading">
               <el-pagination
                 v-model:current-page="pagination.currentPage"
                 v-model:page-size="pagination.pageSize"
@@ -204,7 +209,15 @@
                 </span>
               </div>
             </template>
-            <div ref="statsChartRef" class="chart-container"></div>
+            <SkeletonScreen v-if="loading" type="chart" :loading="loading" />
+            <div 
+              ref="statsChartRef" 
+              class="chart-container" 
+              v-else 
+              role="img" 
+              aria-label="服务统计图表"
+              v-show="!loading"
+            ></div>
           </el-card>
 
           <!-- 服务排行 -->
@@ -217,11 +230,16 @@
                 </span>
               </div>
             </template>
-            <div class="ranking-list">
+            <SkeletonScreen v-if="loading" type="list" :rows="5" />
+            <div class="ranking-list" v-else>
               <div
                 v-for="(service, index) in serviceRanking"
                 :key="service.id"
                 class="ranking-item"
+                role="listitem"
+                tabindex="0"
+                :aria-label="`${service.name}，${service.applications}次申请`"
+                :style="{ animation: `rankingFadeIn 0.5s ease-out ${index * 0.1}s both` }"
               >
                 <div class="ranking-num" :class="`rank-${index + 1}`">{{ index + 1 }}</div>
                 <div class="ranking-info">
@@ -243,12 +261,18 @@
                 </span>
               </div>
             </template>
-            <div class="guide-list">
+            <SkeletonScreen v-if="loading" type="list" :rows="4" />
+            <div class="guide-list" v-else>
               <div
-                v-for="guide in serviceGuides"
+                v-for="(guide, index) in serviceGuides"
                 :key="guide.id"
                 class="guide-item"
+                role="listitem"
+                tabindex="0"
+                :aria-label="`${guide.title}，办事指南`"
                 @click="viewGuide(guide)"
+                @keydown.enter="viewGuide(guide)"
+                :style="{ animation: `guideFadeIn 0.5s ease-out ${index * 0.1}s both` }"
               >
                 <el-icon :size="20" :color="guide.color">
                   <component :is="guide.icon" />
@@ -302,7 +326,7 @@
         </el-form-item>
         <el-form-item label="附件">
           <el-upload action="#" :auto-upload="false" :on-change="handleFileChange" multiple>
-            <el-button type="primary">上传附件</el-button>
+            <el-button type="primary" aria-label="上传附件">上传附件</el-button>
             <template #tip>
               <div class="el-upload__tip">支持jpg、png、pdf格式，单个文件不超过10MB</div>
             </template>
@@ -310,8 +334,8 @@
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="showApplyDialog = false">取消</el-button>
-        <el-button type="primary" @click="submitApplication" :loading="submitting"
+        <el-button aria-label="取消申请" @click="showApplyDialog = false">取消</el-button>
+        <el-button type="primary" aria-label="提交申请" @click="submitApplication" :loading="submitting"
           >提交申请</el-button
         >
       </template>
@@ -335,7 +359,7 @@
             {{ formatDateTime(selectedApplication.applyTime) }}
           </el-descriptions-item>
           <el-descriptions-item label="当前状态">
-            <el-tag :type="getStatusType(selectedApplication.status)" size="small">
+            <el-tag :type="getStatusType(selectedApplication.status)" size="small" :aria-label="`状态：${getStatusLabel(selectedApplication.status)}`">
               {{ getStatusLabel(selectedApplication.status) }}
             </el-tag>
           </el-descriptions-item>
@@ -360,13 +384,13 @@
           class="files-section"
         >
           <h4>附件材料</h4>
-          <div class="file-list">
-            <div v-for="file in selectedApplication.files" :key="file.name" class="file-item">
-              <el-icon><Document /></el-icon>
-              <span>{{ file.name }}</span>
-              <el-button size="small" text type="primary">下载</el-button>
+            <div class="file-list">
+              <div v-for="file in selectedApplication.files" :key="file.name" class="file-item">
+                <el-icon><Document /></el-icon>
+                <span>{{ file.name }}</span>
+                <el-button size="small" text type="primary" aria-label="下载附件">下载</el-button>
+              </div>
             </div>
-          </div>
         </div>
       </div>
     </el-dialog>
@@ -378,6 +402,7 @@ import { ref, reactive, computed, onMounted, nextTick } from 'vue';
 import { useUserStore } from '@/stores/userStore';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import * as echarts from 'echarts';
+import SkeletonScreen from '@/components/common/SkeletonScreen.vue';
 import {
   Plus,
   Document,
@@ -424,7 +449,7 @@ interface Guide {
 
 const userStore = useUserStore();
 
-const loading = ref(false);
+const loading = ref(true);
 const submitting = ref(false);
 const activeCategory = ref('all');
 const searchKeyword = ref('');
@@ -734,9 +759,33 @@ const initStatsChart = () => {
   statsChartInstance = echarts.init(statsChartRef.value);
 
   const option = {
+    animation: true,
+    animationDuration: 1000,
+    animationEasing: 'cubicOut',
+    animationDelay: (idx: number) => idx * 100,
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      borderColor: '#e4e7ed',
+      borderWidth: 1,
+      padding: [12, 16],
+      textStyle: { color: '#303133' },
+      formatter: (params: any) => {
+        let result = `<div style="font-weight: 600; margin-bottom: 8px; color: #409eff;">${params[0].axisValue}</div>`;
+        params.forEach((item: any) => {
+          result += `
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+              <span style="display: flex; align-items: center;">
+                <span style="display: inline-block; width: 10px; height: 10px; background-color: ${item.color}; border-radius: 2px; margin-right: 8px;"></span>
+                ${item.seriesName}
+              </span>
+              <span style="font-weight: 600; color: ${item.color};">${item.value}</span>
+            </div>
+          `;
+        });
+        return result;
+      },
     },
     grid: {
       left: '3%',
@@ -761,6 +810,21 @@ const initStatsChart = () => {
             { offset: 0, color: '#0369A1' },
             { offset: 1, color: '#0ea5e9' },
           ]),
+          borderRadius: [4, 4, 0, 0],
+        },
+        emphasis: {
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: '#0284c7' },
+              { offset: 1, color: '#0ea5e9' },
+            ]),
+            shadowBlur: 10,
+            shadowColor: 'rgba(0, 0, 0, 0.3)',
+          },
+        },
+        showBackground: true,
+        backgroundStyle: {
+          color: 'rgba(180, 180, 180, 0.1)',
         },
       },
       {
@@ -772,6 +836,21 @@ const initStatsChart = () => {
             { offset: 0, color: '#059669' },
             { offset: 1, color: '#10b981' },
           ]),
+          borderRadius: [4, 4, 0, 0],
+        },
+        emphasis: {
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: '#047857' },
+              { offset: 1, color: '#10b981' },
+            ]),
+            shadowBlur: 10,
+            shadowColor: 'rgba(0, 0, 0, 0.3)',
+          },
+        },
+        showBackground: true,
+        backgroundStyle: {
+          color: 'rgba(180, 180, 180, 0.1)',
         },
       },
     ],
@@ -877,12 +956,57 @@ onMounted(async () => {
   window.addEventListener('resize', () => {
     statsChartInstance?.resize();
   });
+
+  loading.value = false;
 });
 </script>
 
-<style lang="scss" scoped>
+ <style lang="scss" scoped>
 .pc-services {
   padding: 0;
+  animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes staggerIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes iconPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(64, 158, 255, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(64, 158, 255, 0);
+  }
 }
 
 .page-header {
@@ -913,6 +1037,14 @@ onMounted(async () => {
   .header-actions {
     display: flex;
     gap: 12px;
+
+    .el-button {
+      transition: all 0.2s;
+
+      &:active {
+        transform: scale(0.95);
+      }
+    }
   }
 }
 
@@ -931,12 +1063,21 @@ onMounted(async () => {
   margin-bottom: 20px;
 
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+
+    .category-icon {
+      transform: scale(1.1) rotate(5deg);
+    }
+
+    .category-icon .el-icon {
+      animation: iconBounce 0.5s ease;
+    }
   }
 
   &.active {
     border: 2px solid #409eff;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
   }
 
   .category-icon {
@@ -947,6 +1088,7 @@ onMounted(async () => {
     align-items: center;
     justify-content: center;
     margin: 0 auto 12px;
+    transition: all 0.3s;
   }
 
   .category-name {
@@ -1039,10 +1181,12 @@ onMounted(async () => {
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s;
+  animation: cardFadeIn 0.5s ease-out both;
 
   &:hover {
     border-color: #409eff;
-    box-shadow: 0 4px 12px rgba(64, 158, 255, 0.15);
+    box-shadow: 0 8px 24px rgba(64, 158, 255, 0.2);
+    transform: translateY(-4px) scale(1.02);
   }
 
   .service-icon {
@@ -1053,6 +1197,20 @@ onMounted(async () => {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    transition: all 0.3s;
+    animation: iconPulse 2s ease-in-out infinite;
+
+    .el-icon {
+      transition: transform 0.3s;
+    }
+  }
+
+  &:hover .service-icon {
+    transform: scale(1.1);
+
+    .el-icon {
+      transform: rotate(15deg);
+    }
   }
 
   .service-info {
@@ -1093,6 +1251,14 @@ onMounted(async () => {
   .service-action {
     display: flex;
     align-items: center;
+
+    .el-button {
+      transition: transform 0.15s;
+    }
+
+    .el-button:active {
+      transform: scale(0.95);
+    }
   }
 }
 
@@ -1108,6 +1274,148 @@ onMounted(async () => {
   margin-top: 20px;
   display: flex;
   justify-content: center;
+}
+
+.records-card {
+  .el-table__row {
+    animation: rowFadeIn 0.4s ease-out both;
+
+    &:nth-child(1) { animation-delay: 0s; }
+    &:nth-child(2) { animation-delay: 0.05s; }
+    &:nth-child(3) { animation-delay: 0.1s; }
+    &:nth-child(4) { animation-delay: 0.15s; }
+    &:nth-child(5) { animation-delay: 0.2s; }
+    &:nth-child(6) { animation-delay: 0.25s; }
+    &:nth-child(7) { animation-delay: 0.3s; }
+    &:nth-child(8) { animation-delay: 0.35s; }
+    &:nth-child(9) { animation-delay: 0.4s; }
+    &:nth-child(10) { animation-delay: 0.45s; }
+
+    &:hover {
+      background-color: #f0f7ff;
+      transform: scale(1.01);
+      transition: all 0.2s;
+    }
+  }
+
+  .el-tag {
+    transition: all 0.3s;
+    cursor: pointer;
+
+    &:hover {
+      transform: scale(1.05);
+      box-shadow: 0 2px 8px rgba(64, 158, 255, 0.2);
+    }
+
+    &.el-tag--warning {
+      animation: tagPulse 2s ease-in-out infinite;
+    }
+  }
+
+  .card-header {
+    .card-title {
+      font-size: 16px;
+    }
+  }
+}
+
+@keyframes rowFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes tagPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes rankingFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.records-card {
+  .el-table__row {
+    animation: rowFadeIn 0.4s ease-out both;
+
+    &:nth-child(1) { animation-delay: 0s; }
+    &:nth-child(2) { animation-delay: 0.05s; }
+    &:nth-child(3) { animation-delay: 0.1s; }
+    &:nth-child(4) { animation-delay: 0.15s; }
+    &:nth-child(5) { animation-delay: 0.2s; }
+    &:nth-child(6) { animation-delay: 0.25s; }
+    &:nth-child(7) { animation-delay: 0.3s; }
+    &:nth-child(8) { animation-delay: 0.35s; }
+    &:nth-child(9) { animation-delay: 0.4s; }
+    &:nth-child(10) { animation-delay: 0.45s; }
+
+    &:hover {
+      background-color: #f0f7ff;
+      transform: scale(1.01);
+      transition: all 0.2s;
+    }
+  }
+
+  .el-tag {
+    transition: all 0.3s;
+    cursor: pointer;
+
+    &:hover {
+      transform: scale(1.05);
+      box-shadow: 0 2px 8px rgba(64, 158, 255, 0.2);
+    }
+
+    &.el-tag--warning {
+      animation: tagPulse 2s ease-in-out infinite;
+    }
+  }
+}
+
+@keyframes rowFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes tagPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes rankingFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .sidebar-card {
@@ -1131,6 +1439,19 @@ onMounted(async () => {
 
 .chart-container {
   height: 200px;
+  animation: chartFadeIn 0.8s ease-out;
+  transition: all 0.3s;
+}
+
+@keyframes chartFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .ranking-list {
@@ -1141,7 +1462,7 @@ onMounted(async () => {
     padding: 12px 0;
     border-bottom: 1px solid #ebeef5;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.3s;
 
     &:last-child {
       border-bottom: none;
@@ -1151,6 +1472,16 @@ onMounted(async () => {
       background-color: #f5f7fa;
       margin: 0 -20px;
       padding: 12px 20px;
+      transform: translateX(5px);
+
+      .ranking-num {
+        transform: scale(1.1) rotate(5deg);
+      }
+
+      .el-icon:last-child {
+        transform: translateX(5px);
+        color: #409eff;
+      }
     }
 
     .ranking-num {
@@ -1163,6 +1494,7 @@ onMounted(async () => {
       font-size: 12px;
       font-weight: 600;
       color: #fff;
+      transition: all 0.3s;
 
       &.rank-1 {
         background: linear-gradient(135deg, #ffd700 0%, #ffb347 100%);
@@ -1216,10 +1548,28 @@ onMounted(async () => {
 
     &:hover {
       color: #409eff;
+      transform: translateX(5px);
 
       .guide-title {
         color: #409eff;
       }
+
+      .el-icon:first-child {
+        transform: scale(1.1);
+      }
+
+      .el-icon:last-child {
+        transform: translateX(5px) rotate(90deg);
+        color: #409eff;
+      }
+    }
+
+    .el-icon:first-child {
+      transition: all 0.3s;
+    }
+
+    .el-icon:last-child {
+      transition: all 0.3s;
     }
 
     .guide-title {
@@ -1228,6 +1578,33 @@ onMounted(async () => {
       color: #303133;
     }
   }
+}
+
+@keyframes guideFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes categoryFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes iconBounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
 }
 
 .detail-content {
@@ -1265,10 +1642,186 @@ onMounted(async () => {
     flex-direction: column;
     gap: 16px;
     align-items: flex-start;
+
+    .header-actions {
+      width: 100%;
+      flex-direction: column;
+
+      .el-button {
+        width: 100%;
+      }
+    }
+  }
+
+  .category-card {
+    .category-icon {
+      width: 48px;
+      height: 48px;
+
+      .el-icon {
+        font-size: 24px;
+      }
+    }
+
+    .category-name {
+      font-size: 13px;
+    }
+
+    .category-count {
+      font-size: 11px;
+    }
+  }
+
+  .stat-card {
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+
+      .el-icon {
+        font-size: 20px;
+      }
+    }
+
+    .stat-info {
+      .stat-value {
+        font-size: 22px;
+      }
+
+      .stat-label {
+        font-size: 12px;
+      }
+    }
   }
 
   .services-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .service-card {
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+
+    .service-icon {
+      width: 48px;
+      height: 48px;
+
+      .el-icon {
+        font-size: 28px;
+      }
+    }
+
+    .service-info {
+      h3 {
+        font-size: 14px;
+      }
+
+      p {
+        font-size: 12px;
+      }
+
+      .service-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+
+        .service-time {
+          font-size: 11px;
+        }
+      }
+    }
+
+    .service-action {
+      width: 100%;
+
+      .el-button {
+        width: 100%;
+      }
+    }
+  }
+
+  .records-card {
+    .el-table {
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+    }
+
+    .el-table__body-wrapper {
+      overflow-x: auto;
+    }
+
+    .card-header {
+      flex-direction: column;
+      gap: 12px;
+      align-items: flex-start;
+
+      .el-select {
+        width: 100%;
+      }
+    }
+
+    .pagination-container {
+      .el-pagination {
+        flex-wrap: wrap;
+      }
+
+      .el-pagination__sizes,
+      .el-pagination__jump {
+        display: none;
+      }
+    }
+  }
+
+  .sidebar-card {
+    .chart-container {
+      height: 220px;
+    }
+  }
+
+  .ranking-list {
+    .ranking-item {
+      padding: 10px 0;
+
+      .ranking-num {
+        width: 20px;
+        height: 20px;
+        font-size: 11px;
+      }
+
+      .ranking-info {
+        .ranking-name {
+          font-size: 13px;
+        }
+
+        .ranking-count {
+          font-size: 11px;
+        }
+      }
+    }
+  }
+
+  .guide-list {
+    .guide-item {
+      padding: 10px 0;
+
+      .guide-title {
+        font-size: 13px;
+      }
+
+      .el-icon:first-child {
+        font-size: 18px;
+      }
+    }
+  }
+
+  .card-actions {
+    width: 100%;
+
+    .search-input {
+      width: 100%;
+    }
   }
 
   .category-section {
