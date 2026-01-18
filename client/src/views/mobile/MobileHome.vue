@@ -155,9 +155,10 @@
  */
 
 import { ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useMobileStore } from '@/stores/mobileStore';
 import { useSpeech } from '@/composables/useSpeech';
+import { getNavigationByRoute } from '@/config/routeNavigation';
 import ElderlyMode from '@/components/mobile/ElderlyMode.vue';
 import VoiceInput from '@/components/mobile/VoiceInput.vue';
 import LargeButton from '@/components/mobile/LargeButton.vue';
@@ -176,7 +177,9 @@ import {
 import { ElMessage, ElMessageBox } from 'element-plus';
 
 const router = useRouter();
+const route = useRoute();
 const mobileStore = useMobileStore();
+const userStore = useUserStore();
 
 // Refs
 const elderlyModeRef = ref(null);
@@ -258,13 +261,11 @@ const todos = ref([
   { id: 3, text: '领取疫苗接种证明', completed: true },
 ]);
 
-// 底部导航
-const navItems = ref([
-  { id: 'home', label: '首页', icon: Home },
-  { id: 'services', label: '服务', icon: Service },
-  { id: 'messages', label: '消息', icon: ChatDotSquare },
-  { id: 'profile', label: '我的', icon: User },
-]);
+// 底部导航 - 根据当前路由动态获取
+const navItems = computed(() => {
+  const currentPath = route.path;
+  return getNavigationByRoute(currentPath);
+});
 
 /**
  * 处理快捷操作

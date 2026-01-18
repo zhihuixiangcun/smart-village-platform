@@ -82,11 +82,11 @@
 
     <!-- 证件列表 -->
     <div class="document-list">
-      <el-empty v-if="filteredList.length === 0" description="暂无证件信息" />
+      <el-empty v-if="!loading && filteredList.length === 0" description="暂无证件信息" />
 
       <el-row v-else :gutter="16">
         <el-col v-for="doc in filteredList" :key="doc._id" :xs="24" :sm="12" :md="8" :lg="6">
-          <el-card class="document-card" :class="{ expiring: isExpiring(doc) }">
+          <el-card v-loading="loading" class="document-card" :class="{ expiring: isExpiring(doc) }">
             <div class="card-header">
               <div class="doc-type">
                 <el-icon class="type-icon">
@@ -113,8 +113,8 @@
             <div class="card-body" @click="viewDocument(doc)">
               <div class="doc-preview">
                 <el-image
-                  v-if="doc.previewUrl"
-                  :src="doc.previewUrl"
+                  v-if="doc.fileUrl"
+                  :src="doc.fileUrl"
                   fit="cover"
                   class="preview-image"
                 >
@@ -159,7 +159,7 @@
       width="500px"
       @close="resetUploadForm"
     >
-      <el-form ref="uploadForm" :model="uploadForm" :rules="uploadRules" label-width="100px">
+      <el-form ref="uploadFormRef" :model="uploadForm" :rules="uploadRules" label-width="100px">
         <el-form-item label="证件类型" prop="type">
           <el-select v-model="uploadForm.type" placeholder="请选择证件类型">
             <el-option label="身份证" value="id_card" />
@@ -190,7 +190,7 @@
 
         <el-form-item label="证件文件" prop="file">
           <el-upload
-            ref="upload"
+            ref="uploadRef"
             :auto-upload="false"
             :limit="1"
             :on-change="handleFileChange"
@@ -205,11 +205,75 @@
             </template>
           </el-upload>
         </el-form-item>
+
+        <el-progress v-if="uploading" :percentage="uploadProgress" :stroke-width="8" />
       </el-form>
 
       <template #footer>
         <el-button @click="uploadDialogVisible = false">取消</el-button>
         <el-button type="primary" :loading="uploading" @click="handleUpload"> 上传 </el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 编辑对话框 -->
+    <el-dialog
+      v-model="editDialogVisible"
+      title="编辑证件"
+      width="500px"
+      @close="resetEditForm"
+    >
+      <el-form ref="editFormRef" :model="editForm" :rules="editRules" label-width="100px">
+        <el-form-item label="证件类型" prop="type">
+          <el-select v-model="editForm.type" placeholder="请选择证件类型">
+            <el-option label="身份证" value="id_card" />
+            <el-option label="户口本" value="household" />
+            <el-option label="驾驶证" value="driving" />
+            <el-option label="护照" value="passport" />
+            <el-option label="其他" value="other" />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="证件名称" prop="name">
+          <el-input v-model="editForm.name" placeholder="请输入证件名称" />
+        </el-form-item>
+
+        <el-form-item label="证件号码" prop="idNumber">
+          <el-input v-model="editForm.idNumber" placeholder="请输入证件号码" />
+        </el-form-item>
+
+        <el-form-item label="有效期至" prop="expiryDate">
+          <el-date-picker
+            v-model="editForm.expiryDate"
+            type="date"
+            placeholder="选择日期"
+            style="width: 100%"
+            value-format="YYYY-MM-DD"
+          />
+        </el-form-item>
+
+        <el-form-item label="重新上传">
+          <el-upload
+            :auto-upload="false"
+            :limit="1"
+            :on-change="handleEditFileChange"
+            :on-exceed="handleExceed"
+            accept="image/*,.pdf"
+            drag
+          >
+            <el-icon class="el-icon--upload"><UploadFilled /></el-icon>
+            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+            <template #tip>
+              <div class="el-upload__tip">如需更新证件图片，请上传新文件（可选）</div>
+            </template>
+          </el-upload>
+        </el-form-item>
+
+        <el-progress v-if="uploading" :percentage="uploadProgress" :stroke-width="8" />
+      </el-form>
+
+      <template #footer>
+        <el-button @click="editDialogVisible = false">取消</el-button>
+        <el-button type="primary" :loading="uploading" @click="handleUpdate"> 保存 </el-button>
       </template>
     </el-dialog>
 
@@ -273,18 +337,35 @@ import {
   UploadFilled,
   WarningFilled,
 } from '@element-plus/icons-vue';
+import { documentApi } from '@/api';
 
 // 响应式数据
 const documents = ref([]);
 const searchQuery = ref('');
 const activeCategory = ref('all');
 const uploadDialogVisible = ref(false);
+const editDialogVisible = ref(false);
 const viewDialogVisible = ref(false);
 const currentDocument = ref(null);
 const uploading = ref(false);
+const loading = ref(false);
+const uploadProgress = ref(0);
+
+// 表单引用
+const uploadFormRef = ref(null);
+const editFormRef = ref(null);
 
 // 上传表单
 const uploadForm = ref({
+  type: '',
+  name: '',
+  idNumber: '',
+  expiryDate: '',
+  file: null,
+});
+
+// 编辑表单
+const editForm = ref({
   type: '',
   name: '',
   idNumber: '',
@@ -297,6 +378,11 @@ const uploadRules = {
   type: [{ required: true, message: '请选择证件类型', trigger: 'change' }],
   name: [{ required: true, message: '请输入证件名称', trigger: 'blur' }],
   file: [{ required: true, message: '请上传证件文件', trigger: 'change' }],
+};
+
+const editRules = {
+  type: [{ required: true, message: '请选择证件类型', trigger: 'change' }],
+  name: [{ required: true, message: '请输入证件名称', trigger: 'blur' }],
 };
 
 // 统计数据
@@ -414,15 +500,18 @@ const getStatusText = doc => {
 // 加载证件列表
 const loadDocuments = async () => {
   try {
-    // TODO: 调用API
-    // const { data } = await documentApi.getMyDocuments()
-    // documents.value = data
-
-    // 模拟数据
-    documents.value = [];
+    loading.value = true;
+    const response = await documentApi.getMyDocuments();
+    if (response.success) {
+      documents.value = response.data || [];
+    } else {
+      ElMessage.error(response.message || '加载证件列表失败');
+    }
   } catch (error) {
-    ElMessage.error('加载证件列表失败');
-    console.error(error);
+    console.error('加载证件列表失败:', error);
+    ElMessage.error(error.message || '加载证件列表失败');
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -439,10 +528,12 @@ const handleExceed = () => {
 // 上传证件
 const handleUpload = async () => {
   try {
-    const valid = await uploadForm.value.validate();
+    if (!uploadFormRef.value) return;
+    const valid = await uploadFormRef.value.validate();
     if (!valid) return;
 
     uploading.value = true;
+    uploadProgress.value = 0;
 
     const formData = new FormData();
     formData.append('type', uploadForm.value.type);
@@ -451,17 +542,27 @@ const handleUpload = async () => {
     formData.append('expiryDate', uploadForm.value.expiryDate);
     formData.append('file', uploadForm.value.file);
 
-    // TODO: 调用API
-    // await documentApi.uploadDocument(formData)
+    const response = await documentApi.uploadDocument(formData, {
+      onUploadProgress: progressEvent => {
+        const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        uploadProgress.value = progress;
+      },
+    });
 
-    ElMessage.success('上传成功');
-    uploadDialogVisible.value = false;
-    loadDocuments();
+    if (response.success) {
+      ElMessage.success('上传成功');
+      uploadDialogVisible.value = false;
+      resetUploadForm();
+      await loadDocuments();
+    } else {
+      ElMessage.error(response.message || '上传失败');
+    }
   } catch (error) {
-    ElMessage.error('上传失败');
-    console.error(error);
+    console.error('上传失败:', error);
+    ElMessage.error(error.message || '上传失败');
   } finally {
     uploading.value = false;
+    uploadProgress.value = 0;
   }
 };
 
@@ -483,8 +584,22 @@ const viewDocument = doc => {
 };
 
 // 下载证件
-const downloadDocument = doc => {
-  ElMessage.info('下载功能开发中...');
+const downloadDocument = async doc => {
+  try {
+    const response = await documentApi.downloadDocument(doc._id);
+    const url = window.URL.createObjectURL(new Blob([response]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `${doc.name}.${doc.fileType || 'pdf'}`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+    ElMessage.success('下载成功');
+  } catch (error) {
+    console.error('下载失败:', error);
+    ElMessage.error('下载失败');
+  }
 };
 
 // 卡片操作
@@ -494,13 +609,13 @@ const handleCardAction = (command, doc) => {
       viewDocument(doc);
       break;
     case 'share':
-      ElMessage.info('分享功能开发中...');
+      handleShare(doc);
       break;
     case 'download':
       downloadDocument(doc);
       break;
     case 'edit':
-      ElMessage.info('编辑功能开发中...');
+      showEditDialog(doc);
       break;
     case 'delete':
       handleDelete(doc);
@@ -517,14 +632,16 @@ const handleDelete = doc => {
   })
     .then(async () => {
       try {
-        // TODO: 调用API
-        // await documentApi.deleteDocument(doc._id)
-
-        ElMessage.success('删除成功');
-        loadDocuments();
+        const response = await documentApi.deleteDocument(doc._id);
+        if (response.success) {
+          ElMessage.success('删除成功');
+          await loadDocuments();
+        } else {
+          ElMessage.error(response.message || '删除失败');
+        }
       } catch (error) {
-        ElMessage.error('删除失败');
-        console.error(error);
+        console.error('删除失败:', error);
+        ElMessage.error(error.message || '删除失败');
       }
     })
     .catch(() => {
@@ -540,6 +657,119 @@ const handleTabChange = () => {
 // 显示上传对话框
 const showUploadDialog = () => {
   uploadDialogVisible.value = true;
+};
+
+// 显示编辑对话框
+const showEditDialog = doc => {
+  currentDocument.value = doc;
+  editForm.value = {
+    type: doc.type,
+    name: doc.name,
+    idNumber: doc.idNumber || '',
+    expiryDate: doc.expiryDate || '',
+    file: null,
+  };
+  editDialogVisible.value = true;
+};
+
+// 处理编辑文件变化
+const handleEditFileChange = file => {
+  editForm.value.file = file.raw;
+};
+
+// 更新证件
+const handleUpdate = async () => {
+  try {
+    if (!editFormRef.value) return;
+    const valid = await editFormRef.value.validate();
+    if (!valid) return;
+
+    uploading.value = true;
+    uploadProgress.value = 0;
+
+    let response;
+    if (editForm.value.file) {
+      const formData = new FormData();
+      formData.append('type', editForm.value.type);
+      formData.append('name', editForm.value.name);
+      formData.append('idNumber', editForm.value.idNumber);
+      formData.append('expiryDate', editForm.value.expiryDate);
+      formData.append('file', editForm.value.file);
+
+      response = await documentApi.updateDocument(currentDocument.value._id, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        onUploadProgress: progressEvent => {
+          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          uploadProgress.value = progress;
+        },
+      });
+    } else {
+      const data = {
+        type: editForm.value.type,
+        name: editForm.value.name,
+        idNumber: editForm.value.idNumber,
+        expiryDate: editForm.value.expiryDate,
+      };
+
+      response = await documentApi.updateDocument(currentDocument.value._id, data);
+    }
+
+    if (response.success) {
+      ElMessage.success('更新成功');
+      editDialogVisible.value = false;
+      resetEditForm();
+      await loadDocuments();
+    } else {
+      ElMessage.error(response.message || '更新失败');
+    }
+  } catch (error) {
+    console.error('更新失败:', error);
+    ElMessage.error(error.message || '更新失败');
+  } finally {
+    uploading.value = false;
+    uploadProgress.value = 0;
+  }
+};
+
+// 重置编辑表单
+const resetEditForm = () => {
+  editForm.value = {
+    type: '',
+    name: '',
+    idNumber: '',
+    expiryDate: '',
+    file: null,
+  };
+  currentDocument.value = null;
+};
+
+// 处理分享
+const handleShare = async doc => {
+  try {
+    const response = await documentApi.shareDocument(doc._id, {
+      type: 'link',
+      expiresIn: 7,
+    });
+
+    if (response.success) {
+      ElMessageBox.alert(
+        `分享链接已生成：${response.data.shareUrl}\n有效期：7天`,
+        '分享证件',
+        {
+          confirmButtonText: '复制链接',
+          callback: () => {
+            navigator.clipboard.writeText(response.data.shareUrl);
+            ElMessage.success('链接已复制到剪贴板');
+          },
+        }
+      );
+    } else {
+      ElMessage.error(response.message || '分享失败');
+    }
+  } catch (error) {
+    console.error('分享失败:', error);
+    ElMessage.error('分享失败');
+  }
 };
 
 // 页面加载时获取数据
@@ -773,5 +1003,15 @@ onMounted(() => {
     width: 100% !important;
     margin-left: 0 !important;
   }
+}
+
+/* 加载动画优化 */
+:deep(.el-loading-spinner) {
+  margin-top: -20px;
+}
+
+/* 上传进度条样式 */
+:deep(.el-progress-bar__inner) {
+  transition: width 0.3s ease;
 }
 </style>

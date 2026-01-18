@@ -377,12 +377,29 @@ const residentSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// 索引
 residentSchema.index({ villageId: 1, status: 1, createdAt: -1 });
 residentSchema.index({ 'household.householdNumber': 1, status: 1 });
 residentSchema.index({ age: 1, gender: 1 });
 residentSchema.index({ 'specialIdentities.type': 1 });
 residentSchema.index({ phone: 1 });
+
+residentSchema.index({
+  name: 'text',
+  phone: 'text',
+  idCard: 'text',
+  'address.detailAddress': 'text',
+  'specialIdentities.type': 'text'
+}, {
+  name: 'resident_text_search',
+  weights: {
+    name: 10,
+    phone: 8,
+    idCard: 8,
+    'address.detailAddress': 5,
+    'specialIdentities.type': 5
+  },
+  default_language: 'none'
+});
 
 // 虚拟字段
 residentSchema.virtual('currentAge').get(function() {

@@ -125,6 +125,12 @@
       "style": {
         "navigationBarTitleText": "注册"
       }
+    },
+    {
+      "path": "home/system-settings",
+      "style": {
+        "navigationBarTitleText": "系统设置"
+      }
     }
   ],
   "tabBar": {

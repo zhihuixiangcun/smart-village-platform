@@ -1,4 +1,4 @@
-const PropertyMaintenance = require('../models/PropertyMaintenance');
+const PropertyIssue = require('../models/PropertyIssue');
 
 const createIssue = async (req, res) => {
   try {
@@ -7,8 +7,7 @@ const createIssue = async (req, res) => {
       userId: req.user.id,
       villageId: req.user.villageId,
     };
-    const issue = await PropertyMaintenance.create(issueData);
-    issue.addTimeline('pending', '问题已提交', req.user.name);
+    const issue = new PropertyIssue(issueData);
     await issue.save();
     
     res.status(201).json({
@@ -27,19 +26,18 @@ const createIssue = async (req, res) => {
 
 const getIssues = async (req, res) => {
   try {
-    const { status, issueType, priority, page = 1, limit = 20 } = req.query;
+    const { status, type, urgency, page = 1, limit = 20 } = req.query;
     const filters = { userId: req.user.id };
     if (status) filters.status = status;
-    if (issueType) filters.issueType = issueType;
-    if (priority) filters.priority = priority;
+    if (type) filters.type = type;
+    if (urgency) filters.urgency = urgency;
     
     const [issues, total] = await Promise.all([
-      PropertyMaintenance.getUserIssues(req.user.id, {
-        ...filters,
-        skip: (page - 1) * limit,
-        limit: parseInt(limit),
-      }),
-      PropertyMaintenance.countDocuments({ userId: req.user.id, ...filters }),
+      PropertyIssue.find(filters)
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(parseInt(limit)),
+      PropertyIssue.countDocuments(filters),
     ]);
     
     res.json({
@@ -53,7 +51,7 @@ const getIssues = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('获取物业问题列表失败:', error);
+    console.error('获取问题列表失败:', error);
     res.status(500).json({
       success: false,
       error: error.message,
@@ -63,22 +61,21 @@ const getIssues = async (req, res) => {
 
 const getPublicIssues = async (req, res) => {
   try {
-    const { issueType, status, priority, page = 1, limit = 20 } = req.query;
+    const { type, status, urgency, page = 1, limit = 20 } = req.query;
     const filters = {
       villageId: req.user.villageId,
       isPublic: true,
     };
-    if (issueType) filters.issueType = issueType;
+    if (type) filters.type = type;
     if (status) filters.status = status;
-    if (priority) filters.priority = priority;
+    if (urgency) filters.urgency = urgency;
     
     const [issues, total] = await Promise.all([
-      PropertyMaintenance.getPublicIssues(req.user.villageId, {
-        ...filters,
-        skip: (page - 1) * limit,
-        limit: parseInt(limit),
-      }),
-      PropertyMaintenance.countDocuments({ villageId: req.user.villageId, isPublic: true, ...filters }),
+      PropertyIssue.find(filters)
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(parseInt(limit)),
+      PropertyIssue.countDocuments(filters),
     ]);
     
     res.json({
@@ -102,7 +99,7 @@ const getPublicIssues = async (req, res) => {
 
 const getIssueById = async (req, res) => {
   try {
-    const issue = await PropertyMaintenance.findOne({
+    const issue = await PropertyIssue.findOne({
       _id: req.params.id,
       userId: req.user.id,
     });
@@ -129,7 +126,7 @@ const getIssueById = async (req, res) => {
 
 const updateIssue = async (req, res) => {
   try {
-    const issue = await PropertyMaintenance.findOne({
+    const issue = await PropertyIssue.findOne({
       _id: req.params.id,
       userId: req.user.id,
     });
@@ -160,7 +157,7 @@ const updateIssue = async (req, res) => {
 
 const updateStatus = async (req, res) => {
   try {
-    const issue = await PropertyMaintenance.findOne({
+    const issue = await PropertyIssue.findOne({
       _id: req.params.id,
       userId: req.user.id,
     });
@@ -173,7 +170,11 @@ const updateStatus = async (req, res) => {
     }
     
     const { status, note } = req.body;
-    await issue.updateStatus(status, note, req.user.name);
+    issue.status = status;
+    if (note) {
+      issue.description += `\n\n[更新]: ${note}`;
+    }
+    await issue.save();
     
     res.json({
       success: true,
@@ -191,7 +192,7 @@ const updateStatus = async (req, res) => {
 
 const evaluateIssue = async (req, res) => {
   try {
-    const issue = await PropertyMaintenance.findOne({
+    const issue = await PropertyIssue.findOne({
       _id: req.params.id,
       userId: req.user.id,
     });
@@ -210,9 +211,12 @@ const evaluateIssue = async (req, res) => {
       });
     }
     
-    const { rating, feedback } = req.body;
-    issue.rating = rating;
-    issue.feedback = feedback;
+    const { rating, comment } = req.body;
+    issue.evaluation = {
+      rating,
+      comment,
+      createdAt: new Date(),
+    };
     await issue.save();
     
     res.json({
@@ -231,7 +235,7 @@ const evaluateIssue = async (req, res) => {
 
 const addLike = async (req, res) => {
   try {
-    const issue = await PropertyMaintenance.findById(req.params.id);
+    const issue = await PropertyIssue.findById(req.params.id);
     
     if (!issue) {
       return res.status(404).json({
@@ -240,18 +244,18 @@ const addLike = async (req, res) => {
       });
     }
     
-    const added = issue.addLike(req.user.id, req.user.name);
-    if (added) {
-      await issue.save();
+    const existingLike = issue.likes.find(like => like.userId.toString() === req.user.id);
+    if (existingLike) {
+      res.json({
+        success: true,
+        message: '已点赞',
+      });
+    } else {
+      await issue.addLike(req.user.id);
       res.json({
         success: true,
         data: issue,
         message: '点赞成功',
-      });
-    } else {
-      res.json({
-        success: true,
-        message: '已点赞',
       });
     }
   } catch (error) {
@@ -265,7 +269,7 @@ const addLike = async (req, res) => {
 
 const removeLike = async (req, res) => {
   try {
-    const issue = await PropertyMaintenance.findById(req.params.id);
+    const issue = await PropertyIssue.findById(req.params.id);
     
     if (!issue) {
       return res.status(404).json({
@@ -274,18 +278,18 @@ const removeLike = async (req, res) => {
       });
     }
     
-    const removed = issue.removeLike(req.user.id);
-    if (removed) {
-      await issue.save();
+    const existingLike = issue.likes.find(like => like.userId.toString() === req.user.id);
+    if (!existingLike) {
+      res.json({
+        success: true,
+        message: '未点赞',
+      });
+    } else {
+      await issue.removeLike(req.user.id);
       res.json({
         success: true,
         data: issue,
         message: '取消点赞成功',
-      });
-    } else {
-      res.json({
-        success: true,
-        message: '未点赞',
       });
     }
   } catch (error) {
@@ -307,22 +311,34 @@ const getIssueTypes = async (req, res) => {
         subTypes: ['电梯故障', '路灯损坏', '道路破损', '健身设施', '其他'],
       },
       {
-        value: 'repair',
-        label: '物业维修',
+        value: 'environment',
+        label: '环境卫生',
         icon: 'service-o',
-        subTypes: ['水管漏水', '电路故障', '门窗损坏', '墙体开裂', '其他'],
+        subTypes: ['垃圾清理', '卫生清洁', '绿化问题', '其他'],
       },
       {
-        value: 'suggestion',
-        label: '建议意见',
+        value: 'security',
+        label: '安全管理',
+        icon: 'lock',
+        subTypes: ['门禁问题', '监控损坏', '安全漏洞', '其他'],
+      },
+      {
+        value: 'noise',
+        label: '噪音扰民',
         icon: 'chat-o',
-        subTypes: ['管理建议', '服务改进', '环境优化', '其他'],
+        subTypes: ['装修噪音', '商业噪音', '生活噪音', '其他'],
       },
       {
-        value: 'complaint',
-        label: '投诉建议',
+        value: 'traffic',
+        label: '交通问题',
+        icon: 'logistics',
+        subTypes: ['车辆乱停', '道路堵塞', '交通设施', '其他'],
+      },
+      {
+        value: 'other',
+        label: '其他问题',
         icon: 'warning-o',
-        subTypes: ['服务态度', '收费问题', '卫生问题', '噪音问题', '其他'],
+        subTypes: ['建议', '投诉', '其他'],
       },
     ];
     
@@ -342,7 +358,7 @@ const getIssueTypes = async (req, res) => {
 const getIssueStatistics = async (req, res) => {
   try {
     const villageId = req.user.villageId;
-    const statistics = await PropertyMaintenance.getIssueStatistics(villageId);
+    const statistics = await PropertyIssue.getServiceStatistics(villageId);
     
     res.json({
       success: true,
@@ -359,7 +375,7 @@ const getIssueStatistics = async (req, res) => {
 
 const deleteIssue = async (req, res) => {
   try {
-    const issue = await PropertyMaintenance.findOneAndDelete({
+    const issue = await PropertyIssue.findOneAndDelete({
       _id: req.params.id,
       userId: req.user.id,
     });

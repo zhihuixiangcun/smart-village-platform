@@ -20,18 +20,23 @@
         <!-- 图片消息 -->
         <template v-else-if="message.type === 'image'">
           <el-image
-            :src="message.content?.image?.url"
-            :preview-src-list="[message.content?.image?.url]"
+            :src="message.content?.imageUrl || message.content?.image?.url"
+            :preview-src-list="[message.content?.imageUrl || message.content?.image?.url]"
+            :preview-teleported="true"
             fit="cover"
             class="image-content"
+            @click="handleImageClick"
           />
         </template>
 
         <!-- 语音消息 -->
         <template v-else-if="message.type === 'voice'">
-          <div class="voice-content">
-            <el-icon><Microphone /></el-icon>
+          <div class="voice-content" @click="handleVoicePlay">
+            <el-icon :class="['voice-icon', { 'voice-error': voicePlayError }]">
+              <component :is="voicePlayError ? 'Warning' : 'Microphone'" />
+            </el-icon>
             <span>{{ message.content?.voice?.duration || 0 }}"</span>
+            <div v-if="voicePlaying" class="voice-wave"></div>
           </div>
         </template>
 
@@ -44,12 +49,15 @@
 
         <!-- 文件消息 -->
         <template v-else-if="message.type === 'file'">
-          <div class="file-content">
+          <div class="file-content" @click="handleFileDownload">
             <el-icon><Document /></el-icon>
             <div class="file-info">
-              <div class="file-name">{{ message.content?.file?.name }}</div>
-              <div class="file-size">{{ formatFileSize(message.content?.file?.size) }}</div>
+              <div class="file-name">{{ message.content?.fileName || message.content?.file?.name }}</div>
+              <div class="file-size">
+                {{ formatFileSize(message.content?.fileSize || message.content?.file?.size) }}
+              </div>
             </div>
+            <el-icon class="download-icon"><Download /></el-icon>
           </div>
         </template>
 
@@ -127,7 +135,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import {
   Microphone,
   Document,
@@ -137,6 +145,8 @@ import {
   ChatDotRound,
   Delete,
   CopyDocument,
+  Download,
+  Warning,
 } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
 import dayjs from 'dayjs';
@@ -162,6 +172,10 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['reply', 'recall']);
+
+// 语音播放状态
+const voicePlaying = ref(false);
+const voicePlayError = ref(false);
 
 // 格式化时间
 const formattedTime = computed(() => {
@@ -231,6 +245,73 @@ const handleCommand = command => {
       ElMessage.success('已复制');
       break;
   }
+};
+
+/**
+ * 处理语音播放
+ * 播放失败时更换图标为警告图标
+ */
+const handleVoicePlay = async () => {
+  const voiceUrl = props.message.content?.voice?.url;
+  if (!voiceUrl) {
+    voicePlayError.value = true;
+    ElMessage.error('语音文件不存在');
+    return;
+  }
+
+  // 重置错误状态
+  voicePlayError.value = false;
+  voicePlaying.value = true;
+
+  try {
+    const audio = new Audio(voiceUrl);
+
+    audio.onended = () => {
+      voicePlaying.value = false;
+    };
+
+    audio.onerror = () => {
+      voicePlaying.value = false;
+      voicePlayError.value = true;
+      ElMessage.error('语音播放失败，请检查网络或文件格式');
+    };
+
+    await audio.play();
+  } catch (error) {
+    console.error('语音播放失败:', error);
+    voicePlaying.value = false;
+    voicePlayError.value = true;
+    ElMessage.error('语音播放失败');
+  }
+};
+
+// 处理文件下载
+const handleFileDownload = async () => {
+  const fileUrl = props.message.content?.fileUrl || props.message.content?.file?.url;
+  const fileName =
+    props.message.content?.fileName || props.message.content?.file?.name || '文件';
+
+  try {
+    const response = await fetch(fileUrl);
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+    ElMessage.success('文件下载成功');
+  } catch (error) {
+    console.error('文件下载失败:', error);
+    ElMessage.error('文件下载失败');
+  }
+};
+
+// 处理图片点击
+const handleImageClick = () => {
+  // Element Plus的el-image已经内置了预览功能，这里可以添加额外的处理逻辑
 };
 </script>
 
@@ -305,6 +386,46 @@ const handleCommand = command => {
   align-items: center;
   gap: 8px;
   min-width: 80px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  position: relative;
+}
+
+.voice-content:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.voice-icon {
+  font-size: 20px;
+  color: #07c160;
+  transition: color 0.3s;
+}
+
+.voice-icon.voice-error {
+  color: #f56c6c;
+}
+
+.voice-wave {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #07c160, #67c23a);
+  animation: wave-animation 1s ease-in-out infinite;
+}
+
+@keyframes wave-animation {
+  0%, 100% {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
 }
 
 /* 视频消息 */
@@ -318,10 +439,16 @@ const handleCommand = command => {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 8px;
+  padding: 12px;
   background: rgba(0, 0, 0, 0.05);
-  border-radius: 4px;
+  border-radius: 8px;
   min-width: 200px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.file-content:hover {
+  background: rgba(0, 0, 0, 0.1);
 }
 
 .file-info {
@@ -335,12 +462,19 @@ const handleCommand = command => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-weight: 500;
 }
 
 .file-size {
   font-size: 12px;
   color: #999;
   margin-top: 2px;
+}
+
+.download-icon {
+  color: #409eff;
+  font-size: 20px;
+  flex-shrink: 0;
 }
 
 /* 位置消息 */

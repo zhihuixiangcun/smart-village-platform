@@ -1,0 +1,58 @@
+{
+  "enabledPlugins": {
+    "feature-dev@claude-code-plugins": true,
+    "code-review@claude-code-plugins": true,
+    "security-guidance@claude-code-plugins": true,
+    "frontend-design@claude-code-plugins": true,
+    "plugin-dev@claude-code-plugins": true,
+    "pr-review-toolkit@claude-code-plugins": true,
+    "commit-commands@claude-code-plugins": true,
+    "hookify@claude-code-plugins": true,
+    "agent-sdk-dev@claude-code-plugins": true,
+    "claude-opus-4-5-migration@claude-code-plugins": true,
+    "explanatory-output-style@claude-code-plugins": true,
+    "learning-output-style@claude-code-plugins": true,
+    "ralph-wiggum@claude-code-plugins": true
+  },
+  "plugins": {
+    "feature-dev": {
+      "path": "./.claude/plugins/feature-dev"
+    },
+    "code-review": {
+      "path": "./.claude/plugins/code-review"
+    },
+    "security-guidance": {
+      "path": "./.claude/plugins/security-guidance"
+    },
+    "frontend-design": {
+      "path": "./.claude/plugins/frontend-design"
+    },
+    "plugin-dev": {
+      "path": "./.claude/plugins/plugin-dev"
+    },
+    "pr-review-toolkit": {
+      "path": "./.claude/plugins/pr-review-toolkit"
+    },
+    "commit-commands": {
+      "path": "./.claude/plugins/commit-commands"
+    },
+    "hookify": {
+      "path": "./.claude/plugins/hookify"
+    },
+    "agent-sdk-dev": {
+      "path": "./.claude/plugins/agent-sdk-dev"
+    },
+    "claude-opus-4-5-migration": {
+      "path": "./.claude/plugins/claude-opus-4-5-migration"
+    },
+    "explanatory-output-style": {
+      "path": "./.claude/plugins/explanatory-output-style"
+    },
+    "learning-output-style": {
+      "path": "./.claude/plugins/learning-output-style"
+    },
+    "ralph-wiggum": {
+      "path": "./.claude/plugins/ralph-wiggum"
+    }
+  }
+}

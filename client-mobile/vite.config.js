@@ -110,7 +110,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: ['./tests/setup.js'],
+    setupFiles: [fileURLToPath(new URL('./tests/setup.js', import.meta.url))],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html']

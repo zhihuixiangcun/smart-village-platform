@@ -1,0 +1,22 @@
+{
+  "name": "ralph-wiggum",
+  "version": "1.0.0",
+  "description": "Interactive self-referential AI loops for iterative development",
+  "author": "Anthropic",
+  "commands": [
+    {
+      "name": "ralph-loop",
+      "description": "Start autonomous iteration loop"
+    },
+    {
+      "name": "cancel-ralph",
+      "description": "Stop iteration loop"
+    }
+  ],
+  "hooks": [
+    {
+      "name": "Stop",
+      "description": "Intercepts exit attempts to continue iteration"
+    }
+  ]
+}

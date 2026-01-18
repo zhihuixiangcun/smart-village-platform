@@ -1,0 +1,20 @@
+{
+  "name": "commit-commands",
+  "version": "1.0.0",
+  "description": "Git workflow automation for committing, pushing, and creating pull requests",
+  "author": "Anthropic",
+  "commands": [
+    {
+      "name": "commit",
+      "description": "Streamlined git commit operation"
+    },
+    {
+      "name": "commit-push-pr",
+      "description": "Commit, push, and create PR in one command"
+    },
+    {
+      "name": "clean_gone",
+      "description": "Clean gone files from git"
+    }
+  ]
+}

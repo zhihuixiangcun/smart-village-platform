@@ -34,14 +34,36 @@
           <el-icon><Plus /></el-icon>
           创建模板
         </el-button>
-        <el-button @click="showImportTemplateDialog">
+        <el-dropdown split-button type="primary" @click="showImportTemplateDialog">
           <el-icon><Upload /></el-icon>
           导入模板
-        </el-button>
-        <el-button @click="exportTemplates">
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item @click="showImportTemplateDialog"> 从JSON导入 </el-dropdown-item>
+              <el-dropdown-item @click="showImportTemplateDialog('zip')">
+                从ZIP批量导入
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+        <el-dropdown split-button @click="exportTemplates">
           <el-icon><Download /></el-icon>
           导出模板
-        </el-button>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item @click="exportSingleTemplate"> 导出当前模板 </el-dropdown-item>
+              <el-dropdown-item @click="exportAllTemplates('json')">
+                导出全部(JSON)
+              </el-dropdown-item>
+              <el-dropdown-item @click="exportAllTemplates('zip')">
+                导出全部(ZIP)
+              </el-dropdown-item>
+              <el-dropdown-item divided @click="showExportOptionsDialog">
+                自定义导出选项
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
       </div>
     </div>
 
@@ -384,15 +406,260 @@
         <el-button type="primary" @click="executeApplyTemplate">应用</el-button>
       </template>
     </el-dialog>
+
+    <!-- 导入模板对话框 -->
+    <el-dialog
+      v-model="importDialogVisible"
+      title="导入权限模板"
+      width="900px"
+      :close-on-click-modal="false"
+    >
+      <el-steps :active="importStep" finish-status="success" align-center>
+        <el-step title="选择文件" />
+        <el-step title="预览验证" />
+        <el-step title="导入选项" />
+        <el-step title="导入完成" />
+      </el-steps>
+
+      <div class="import-content">
+        <!-- 步骤1: 选择文件 -->
+        <div v-if="importStep === 0" class="import-step">
+          <el-upload
+            ref="uploadRef"
+            :auto-upload="false"
+            :limit="1"
+            :on-change="handleFileChange"
+            :on-remove="handleFileRemove"
+            drag
+            accept=".json,.zip"
+          >
+            <el-icon class="el-icon--upload"><upload-filled /></el-icon>
+            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+            <template #tip>
+              <div class="el-upload__tip">支持 JSON 或 ZIP 格式文件，单次最多导入 10 个模板</div>
+            </template>
+          </el-upload>
+
+          <div v-if="importFile" class="file-info">
+            <el-icon><Document /></el-icon>
+            <span class="file-name">{{ importFile.name }}</span>
+            <span class="file-size">({{ formatFileSize(importFile.size) }})</span>
+          </div>
+        </div>
+
+        <!-- 步骤2: 预览验证 -->
+        <div v-if="importStep === 1" class="import-step">
+          <el-alert
+            title="验证结果"
+            :type="validationResult.isValid ? 'success' : 'error'"
+            :closable="false"
+            style="margin-bottom: 16px"
+          >
+            <template v-if="validationResult.isValid">
+              验证通过，共发现 {{ importedTemplates.length }} 个模板
+            </template>
+            <template v-else>
+              {{ validationResult.error }}
+            </template>
+          </el-alert>
+
+          <div v-if="validationResult.isValid" class="template-preview">
+            <h4>模板预览</h4>
+            <el-table :data="importedTemplates" max-height="300" border>
+              <el-table-column prop="name" label="模板名称" width="200" />
+              <el-table-column prop="description" label="描述" show-overflow-tooltip />
+              <el-table-column prop="category" label="分类" width="100">
+                <template #default="{ row }">
+                  <el-tag :type="getCategoryTagType(row.category)" size="small">
+                    {{ getCategoryLabel(row.category) }}
+                  </el-tag>
+                </template>
+              </el-table-column>
+              <el-table-column label="权限数量" width="100">
+                <template #default="{ row }">
+                  {{ row.permissions?.flat()?.length || row.permissions?.length || 0 }}
+                </template>
+              </el-table-column>
+              <el-table-column label="冲突状态" width="120">
+                <template #default="{ row }">
+                  <el-tag v-if="hasConflict(row)" type="warning" size="small"> 存在冲突 </el-tag>
+                  <el-tag v-else type="success" size="small">无冲突</el-tag>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+        </div>
+
+        <!-- 步骤3: 导入选项 -->
+        <div v-if="importStep === 2" class="import-step">
+          <div class="import-options">
+            <h4>导入选项</h4>
+            <el-form label-width="150px">
+              <el-form-item label="冲突处理方式">
+                <el-radio-group v-model="importOptions.conflictStrategy">
+                  <el-radio label="skip">跳过冲突</el-radio>
+                  <el-radio label="overwrite">覆盖同名</el-radio>
+                  <el-radio label="rename">自动重命名</el-radio>
+                </el-radio-group>
+              </el-form-item>
+
+              <el-form-item label="导入分类">
+                <el-select
+                  v-model="importOptions.category"
+                  placeholder="选择导入分类"
+                  style="width: 200px"
+                >
+                  <el-option label="保持原分类" value="" />
+                  <el-option label="系统模板" value="system" />
+                  <el-option label="自定义模板" value="custom" />
+                  <el-option label="部门模板" value="department" />
+                </el-select>
+              </el-form-item>
+
+              <el-form-item label="保留使用记录">
+                <el-switch v-model="importOptions.keepUsageHistory" />
+              </el-form-item>
+
+              <el-form-item label="导入后刷新">
+                <el-switch v-model="importOptions.refreshAfterImport" />
+              </el-form-item>
+            </el-form>
+          </div>
+        </div>
+
+        <!-- 步骤4: 导入完成 -->
+        <div v-if="importStep === 3" class="import-step">
+          <el-result
+            :icon="importResult.success ? 'success' : 'error'"
+            :title="importResult.success ? '导入完成' : '导入失败'"
+            :sub-title="importResult.message"
+          >
+            <template #extra>
+              <div v-if="importResult.success" class="import-stats">
+                <el-row :gutter="24">
+                  <el-col :span="8">
+                    <el-statistic title="成功导入" :value="importResult.successCount" />
+                  </el-col>
+                  <el-col :span="8">
+                    <el-statistic title="跳过数量" :value="importResult.skipCount" />
+                  </el-col>
+                  <el-col :span="8">
+                    <el-statistic title="失败数量" :value="importResult.failCount" />
+                  </el-col>
+                </el-row>
+              </div>
+            </template>
+          </el-result>
+        </div>
+      </div>
+
+      <template #footer>
+        <el-button @click="closeImportDialog">取消</el-button>
+        <el-button v-if="importStep > 0 && importStep < 3" @click="importStep--">
+          上一步
+        </el-button>
+        <el-button
+          v-if="importStep === 0"
+          type="primary"
+          :disabled="!importFile"
+          @click="nextImportStep"
+        >
+          下一步
+        </el-button>
+        <el-button
+          v-if="importStep === 1"
+          type="primary"
+          :disabled="!validationResult.isValid"
+          @click="nextImportStep"
+        >
+          下一步
+        </el-button>
+        <el-button
+          v-if="importStep === 2"
+          type="primary"
+          :loading="importing"
+          @click="executeImport"
+        >
+          开始导入
+        </el-button>
+        <el-button v-if="importStep === 3" type="primary" @click="closeImportDialog">
+          完成
+        </el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 导出选项对话框 -->
+    <el-dialog v-model="exportOptionsDialogVisible" title="导出选项" width="600px">
+      <el-form label-width="120px">
+        <el-form-item label="导出格式">
+          <el-radio-group v-model="exportOptions.format">
+            <el-radio label="json">JSON</el-radio>
+            <el-radio label="zip">ZIP</el-radio>
+          </el-radio-group>
+        </el-form-item>
+
+        <el-form-item label="包含字段">
+          <el-checkbox-group v-model="exportOptions.fields">
+            <el-checkbox label="name">模板名称</el-checkbox>
+            <el-checkbox label="description">描述</el-checkbox>
+            <el-checkbox label="permissions">权限配置</el-checkbox>
+            <el-checkbox label="category">分类</el-checkbox>
+            <el-checkbox label="createdAt">创建时间</el-checkbox>
+            <el-checkbox label="updatedAt">更新时间</el-checkbox>
+            <el-checkbox label="usageHistory">使用历史</el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
+
+        <el-form-item label="文件命名">
+          <el-input v-model="exportOptions.filename" placeholder="输入文件名" />
+        </el-form-item>
+
+        <el-form-item label="压缩图片">
+          <el-switch v-model="exportOptions.compressImages" />
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <el-button @click="exportOptionsDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="executeExportWithOptions">导出</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 导入进度对话框 -->
+    <el-dialog
+      v-model="importProgressDialogVisible"
+      title="导入进度"
+      width="500px"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      :show-close="false"
+    >
+      <div class="import-progress">
+        <el-progress :percentage="importProgress.percentage" :status="importProgress.status" />
+        <div class="progress-info">
+          <p>当前: {{ importProgress.current }}</p>
+          <p>总计: {{ importProgress.total }}</p>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, computed, onMounted, nextTick } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { Search, Plus, Upload, Download, MoreFilled, Document } from '@element-plus/icons-vue';
+import {
+  Search,
+  Plus,
+  Upload,
+  Download,
+  MoreFilled,
+  Document,
+  UploadFilled,
+} from '@element-plus/icons-vue';
 import * as echarts from 'echarts';
 import enhancedPermissionService from '@/services/enhancedPermissionService';
+import JSZip from 'jszip';
 
 // 响应式数据
 const searchKeyword = ref('');
@@ -404,6 +671,49 @@ const templateDialogVisible = ref(false);
 const applyDialogVisible = ref(false);
 const isEditing = ref(false);
 const applyTemplate = ref(null);
+
+// 导入相关
+const importDialogVisible = ref(false);
+const importProgressDialogVisible = ref(false);
+const importStep = ref(0);
+const importFile = ref(null);
+const importing = ref(false);
+const importedTemplates = ref([]);
+const importOptions = reactive({
+  conflictStrategy: 'skip',
+  category: '',
+  keepUsageHistory: true,
+  refreshAfterImport: true,
+});
+
+const validationResult = reactive({
+  isValid: false,
+  error: '',
+});
+
+const importResult = reactive({
+  success: false,
+  successCount: 0,
+  skipCount: 0,
+  failCount: 0,
+  message: '',
+});
+
+const importProgress = reactive({
+  percentage: 0,
+  current: 0,
+  total: 0,
+  status: '',
+});
+
+// 导出相关
+const exportOptionsDialogVisible = ref(false);
+const exportOptions = reactive({
+  format: 'json',
+  fields: ['name', 'description', 'permissions', 'category', 'createdAt', 'updatedAt'],
+  filename: 'permission-templates',
+  compressImages: true,
+});
 
 // 模板数据
 const templates = ref([
@@ -744,12 +1054,177 @@ const showCreateTemplateDialog = () => {
   templateDialogVisible.value = true;
 };
 
-const showImportTemplateDialog = () => {
-  ElMessage.info('导入模板功能待实现');
+const showImportTemplateDialog = fileType => {
+  importStep.value = 0;
+  importFile.value = null;
+  importedTemplates.value = [];
+  validationResult.isValid = false;
+  validationResult.error = '';
+  importResult.success = false;
+  importResult.successCount = 0;
+  importResult.skipCount = 0;
+  importResult.failCount = 0;
+  importProgress.percentage = 0;
+  importProgress.current = 0;
+  importProgress.total = 0;
+
+  if (fileType === 'zip') {
+    ElMessage.info('请选择 ZIP 文件');
+  }
+
+  importDialogVisible.value = true;
+};
+
+const closeImportDialog = () => {
+  importDialogVisible.value = false;
+  if (importOptions.refreshAfterImport && importResult.success) {
+    ElMessage.success('模板列表已刷新');
+  }
+};
+
+const nextImportStep = async () => {
+  if (importStep.value === 0) {
+    await validateAndParseImportFile();
+  }
+
+  if (validationResult.isValid) {
+    importStep.value++;
+  }
 };
 
 const exportTemplates = () => {
-  ElMessage.info('导出模板功能待实现');
+  exportAllTemplates('json');
+};
+
+const exportSingleTemplate = () => {
+  if (!selectedTemplate.value) {
+    ElMessage.warning('请先选择一个模板');
+    return;
+  }
+
+  const templateData = prepareTemplateForExport(selectedTemplate.value);
+  const jsonData = JSON.stringify(templateData, null, 2);
+  downloadFile(jsonData, `${templateData.name}.json`, 'application/json');
+
+  ElMessage.success('模板导出成功');
+};
+
+const exportAllTemplates = format => {
+  const templatesToExport =
+    filteredTemplates.value.length > 0 ? filteredTemplates.value : templates.value;
+
+  if (templatesToExport.length === 0) {
+    ElMessage.warning('没有可导出的模板');
+    return;
+  }
+
+  if (format === 'json') {
+    const jsonData = JSON.stringify(templatesToExport, null, 2);
+    downloadFile(jsonData, `permission-templates-${Date.now()}.json`, 'application/json');
+  } else if (format === 'zip') {
+    exportTemplatesAsZip(templatesToExport);
+  }
+
+  ElMessage.success(`成功导出 ${templatesToExport.length} 个模板`);
+};
+
+const showExportOptionsDialog = () => {
+  exportOptions.format = 'json';
+  exportOptions.fields = [
+    'name',
+    'description',
+    'permissions',
+    'category',
+    'createdAt',
+    'updatedAt',
+  ];
+  exportOptions.filename = 'permission-templates';
+  exportOptionsDialogVisible.value = true;
+};
+
+const executeExportWithOptions = () => {
+  const templatesToExport =
+    filteredTemplates.value.length > 0 ? filteredTemplates.value : templates.value;
+
+  if (templatesToExport.length === 0) {
+    ElMessage.warning('没有可导出的模板');
+    return;
+  }
+
+  const filteredData = templatesToExport.map(template => {
+    const filtered = {};
+    exportOptions.fields.forEach(field => {
+      if (template[field] !== undefined) {
+        filtered[field] = template[field];
+      }
+    });
+    return filtered;
+  });
+
+  if (exportOptions.format === 'json') {
+    const jsonData = JSON.stringify(filteredData, null, 2);
+    downloadFile(jsonData, `${exportOptions.filename}.json`, 'application/json');
+  } else if (exportOptions.format === 'zip') {
+    exportTemplatesAsZip(filteredData, exportOptions.filename);
+  }
+
+  exportOptionsDialogVisible.value = false;
+  ElMessage.success('导出成功');
+};
+
+const prepareTemplateForExport = template => {
+  return {
+    id: template.id,
+    name: template.name,
+    description: template.description,
+    category: template.category,
+    permissions: template.permissions.map(category => ({
+      module: category.module,
+      permissions: category.permissions,
+      enabledPermissions: category.enabledPermissions,
+    })),
+    createdAt: template.createdAt,
+    updatedAt: template.updatedAt,
+    usageCount: template.usageCount,
+    usageHistory: template.usageHistory,
+    version: '1.0',
+  };
+};
+
+const exportTemplatesAsZip = async (templatesList, filename = 'permission-templates') => {
+  try {
+    const zip = new JSZip();
+
+    templatesList.forEach(template => {
+      const templateData = prepareTemplateForExport(template);
+      const jsonContent = JSON.stringify(templateData, null, 2);
+      zip.file(`${template.name}.json`, jsonContent);
+    });
+
+    const blob = await zip.generateAsync({ type: 'blob' });
+    downloadFile(blob, `${filename}-${Date.now()}.zip`, 'application/zip');
+  } catch (error) {
+    console.error('导出ZIP文件失败:', error);
+    ElMessage.error('导出ZIP文件失败: ' + error.message);
+  }
+};
+
+const downloadFile = (content, filename, mimeType) => {
+  let blob;
+  if (typeof content === 'string') {
+    blob = new Blob([content], { type: mimeType });
+  } else {
+    blob = content;
+  }
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 };
 
 const submitTemplate = async () => {
@@ -810,6 +1285,123 @@ const handleApplyTemplate = () => {
   showApplyTemplateDialog(selectedTemplate.value);
 };
 
+const handleFileChange = file => {
+  importFile.value = file.raw;
+};
+
+const handleFileRemove = () => {
+  importFile.value = null;
+};
+
+const validateAndParseImportFile = async () => {
+  if (!importFile.value) {
+    validationResult.isValid = false;
+    validationResult.error = '请选择要导入的文件';
+    return;
+  }
+
+  const fileType = importFile.value.name.split('.').pop().toLowerCase();
+
+  try {
+    if (fileType === 'json') {
+      await parseJsonFile();
+    } else if (fileType === 'zip') {
+      await parseZipFile();
+    } else {
+      throw new Error('不支持的文件格式，仅支持 JSON 或 ZIP');
+    }
+
+    await validateTemplates();
+  } catch (error) {
+    validationResult.isValid = false;
+    validationResult.error = error.message;
+    ElMessage.error(error.message);
+  }
+};
+
+const parseJsonFile = () => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = async e => {
+      try {
+        const content = e.target.result;
+        const data = JSON.parse(content);
+
+        if (Array.isArray(data)) {
+          importedTemplates.value = data;
+        } else if (typeof data === 'object' && data.id) {
+          importedTemplates.value = [data];
+        } else {
+          throw new Error('JSON 文件格式不正确');
+        }
+
+        resolve();
+      } catch (error) {
+        reject(new Error('解析 JSON 文件失败: ' + error.message));
+      }
+    };
+    reader.onerror = () => reject(new Error('读取文件失败'));
+    reader.readAsText(importFile.value);
+  });
+};
+
+const parseZipFile = async () => {
+  try {
+    const zip = new JSZip();
+    const contents = await zip.loadAsync(importFile.value);
+    const templates = [];
+
+    for (const filename of Object.keys(contents)) {
+      if (filename.endsWith('.json')) {
+        const content = await contents[filename].async('text');
+        const data = JSON.parse(content);
+
+        if (typeof data === 'object' && data.id) {
+          templates.push(data);
+        }
+      }
+    }
+
+    if (templates.length === 0) {
+      throw new Error('ZIP 文件中未找到有效的模板文件');
+    }
+
+    if (templates.length > 10) {
+      throw new Error('单次最多导入 10 个模板');
+    }
+
+    importedTemplates.value = templates;
+  } catch (error) {
+    throw new Error('解析 ZIP 文件失败: ' + error.message);
+  }
+};
+
+const validateTemplates = () => {
+  const errors = [];
+
+  importedTemplates.value.forEach((template, index) => {
+    if (!template.id) {
+      errors.push(`模板 ${index + 1}: 缺少 ID`);
+    }
+    if (!template.name) {
+      errors.push(`模板 ${index + 1}: 缺少名称`);
+    }
+    if (!template.permissions || !Array.isArray(template.permissions)) {
+      errors.push(`模板 ${index + 1}: 权限配置格式错误`);
+    }
+  });
+
+  if (errors.length > 0) {
+    throw new Error(errors.join('; '));
+  }
+
+  validationResult.isValid = true;
+};
+
+const hasConflict = template => {
+  return templates.value.some(t => t.id === template.id || t.name === template.name);
+};
+
 const previewTemplate = () => {
   ElMessage.info('预览功能待实现');
 };
@@ -838,12 +1430,10 @@ const executeApplyTemplate = async () => {
       return;
     }
 
-    // 更新使用次数
     const template = templates.value.find(t => t.id === applyTemplate.value.id);
     if (template) {
       template.usageCount = (template.usageCount || 0) + 1;
 
-      // 添加使用历史
       if (!template.usageHistory) {
         template.usageHistory = [];
       }
@@ -866,9 +1456,111 @@ const executeApplyTemplate = async () => {
   }
 };
 
+const executeImport = async () => {
+  importing.value = true;
+  importProgressDialogVisible.value = true;
+
+  importProgress.total = importedTemplates.value.length;
+  importProgress.current = 0;
+  importProgress.percentage = 0;
+  importProgress.status = '';
+
+  importResult.successCount = 0;
+  importResult.skipCount = 0;
+  importResult.failCount = 0;
+
+  try {
+    for (const template of importedTemplates.value) {
+      importProgress.current++;
+
+      try {
+        const existingTemplate = templates.value.find(t => t.id === template.id);
+        const existingByName = templates.value.find(t => t.name === template.name);
+
+        if (existingTemplate || existingByName) {
+          if (importOptions.conflictStrategy === 'skip') {
+            importResult.skipCount++;
+            continue;
+          } else if (importOptions.conflictStrategy === 'overwrite') {
+            if (existingTemplate) {
+              const index = templates.value.findIndex(t => t.id === template.id);
+              templates.value[index] = normalizeTemplate(template);
+            } else if (existingByName) {
+              const index = templates.value.findIndex(t => t.name === template.name);
+              templates.value[index] = normalizeTemplate(template);
+            }
+            importResult.successCount++;
+          } else if (importOptions.conflictStrategy === 'rename') {
+            const newTemplate = { ...template };
+            newTemplate.name = `${template.name}_${Date.now()}`;
+            newTemplate.id = `${template.id}_${Date.now()}`;
+            templates.value.push(normalizeTemplate(newTemplate));
+            importResult.successCount++;
+          }
+        } else {
+          templates.value.push(normalizeTemplate(template));
+          importResult.successCount++;
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 100));
+      } catch (error) {
+        importResult.failCount++;
+        console.error('导入模板失败:', error);
+      }
+
+      importProgress.percentage = Math.round((importProgress.current / importProgress.total) * 100);
+    }
+
+    importResult.success = true;
+    importResult.message = `成功导入 ${importResult.successCount} 个模板`;
+    if (importResult.skipCount > 0) {
+      importResult.message += `，跳过 ${importResult.skipCount} 个`;
+    }
+    if (importResult.failCount > 0) {
+      importResult.message += `，失败 ${importResult.failCount} 个`;
+    }
+
+    importStep.value = 3;
+    ElMessage.success('导入完成');
+  } catch (error) {
+    importResult.success = false;
+    importResult.message = '导入过程中发生错误: ' + error.message;
+    importProgress.status = 'exception';
+    ElMessage.error(importResult.message);
+  } finally {
+    importing.value = false;
+    setTimeout(() => {
+      importProgressDialogVisible.value = false;
+    }, 1000);
+  }
+};
+
+const normalizeTemplate = template => {
+  return {
+    id: template.id || Date.now().toString(),
+    name: template.name,
+    description: template.description || '',
+    category: importOptions.category || template.category || 'custom',
+    permissionCount: template.permissions?.flat()?.length || template.permissions?.length || 0,
+    createdAt: template.createdAt ? new Date(template.createdAt) : new Date(),
+    updatedAt: template.updatedAt ? new Date(template.updatedAt) : new Date(),
+    usageCount: template.usageCount || 0,
+    permissions: template.permissions || [],
+    usageHistory: importOptions.keepUsageHistory ? template.usageHistory : [],
+  };
+};
+
 // 工具方法
 const formatDateTime = date => {
   return new Date(date).toLocaleString();
+};
+
+const formatFileSize = bytes => {
+  if (bytes === 0) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
 
 // 生命周期
@@ -1104,6 +1796,68 @@ onMounted(() => {
 
   :deep(.danger-item) {
     color: #f56c6c;
+  }
+
+  .import-content {
+    padding: 24px 0;
+
+    .import-step {
+      min-height: 300px;
+
+      .file-info {
+        display: flex;
+        align-items: center;
+        padding: 16px;
+        margin-top: 16px;
+        background: #f5f7fa;
+        border-radius: 8px;
+
+        .file-name {
+          flex: 1;
+          margin-left: 12px;
+          font-weight: 500;
+          color: #2c3e50;
+        }
+
+        .file-size {
+          color: #909399;
+          font-size: 12px;
+        }
+      }
+
+      .template-preview {
+        h4 {
+          margin-bottom: 12px;
+          color: #2c3e50;
+        }
+      }
+
+      .import-options {
+        h4 {
+          margin-bottom: 16px;
+          color: #2c3e50;
+        }
+      }
+
+      .import-stats {
+        width: 100%;
+        padding: 24px;
+      }
+    }
+
+    .import-progress {
+      padding: 24px;
+
+      .progress-info {
+        margin-top: 16px;
+        text-align: center;
+
+        p {
+          margin: 8px 0;
+          color: #606266;
+        }
+      }
+    }
   }
 }
 </style>

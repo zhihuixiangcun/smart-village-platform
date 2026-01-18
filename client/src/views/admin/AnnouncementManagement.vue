@@ -3,7 +3,10 @@
     <!-- 页面头部 -->
     <div class="page-header">
       <div class="header-content">
-        <h2>村务公告管理</h2>
+        <div class="header-left">
+          <h2 class="page-title">村务公告管理</h2>
+          <p class="page-subtitle">创建、编辑和管理村务公告内容</p>
+        </div>
         <div class="header-actions">
           <el-button type="primary" @click="createAnnouncement" :icon="Plus" size="large">
             发布公告
@@ -16,8 +19,13 @@
     <el-card class="filter-card" shadow="never">
       <div class="filter-row">
         <div class="filter-item">
-          <label>分类：</label>
-          <el-select v-model="filters.category" placeholder="全部分类" clearable>
+          <span class="filter-label">分类</span>
+          <el-select
+            v-model="filters.category"
+            placeholder="全部分类"
+            clearable
+            class="filter-select"
+          >
             <el-option
               v-for="category in categories"
               :key="category.value"
@@ -25,7 +33,9 @@
               :value="category.value"
             >
               <span class="category-option">
-                <span class="category-icon">{{ category.icon }}</span>
+                <el-icon class="category-icon">
+                  <component :is="category.icon" />
+                </el-icon>
                 <span>{{ category.label }}</span>
               </span>
             </el-option>
@@ -33,8 +43,13 @@
         </div>
 
         <div class="filter-item">
-          <label>状态：</label>
-          <el-select v-model="filters.status" placeholder="全部状态" clearable>
+          <span class="filter-label">状态</span>
+          <el-select
+            v-model="filters.status"
+            placeholder="全部状态"
+            clearable
+            class="filter-select"
+          >
             <el-option label="草稿" value="draft" />
             <el-option label="已发布" value="published" />
             <el-option label="已归档" value="archived" />
@@ -43,8 +58,13 @@
         </div>
 
         <div class="filter-item">
-          <label>优先级：</label>
-          <el-select v-model="filters.priority" placeholder="全部优先级" clearable>
+          <span class="filter-label">优先级</span>
+          <el-select
+            v-model="filters.priority"
+            placeholder="全部优先级"
+            clearable
+            class="filter-select"
+          >
             <el-option label="紧急" value="emergency" />
             <el-option label="重要" value="urgent" />
             <el-option label="高" value="high" />
@@ -54,19 +74,22 @@
         </div>
 
         <div class="filter-item">
-          <label>发布时间：</label>
+          <span class="filter-label">发布时间</span>
           <el-date-picker
             v-model="dateRange"
             type="daterange"
             range-separator="至"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
+            class="filter-date"
             @change="handleDateRangeChange"
           />
         </div>
 
         <div class="filter-actions">
-          <el-button @click="searchAnnouncements" type="primary" :icon="Search"> 搜索 </el-button>
+          <el-button type="primary" @click="searchAnnouncements" :icon="Search">
+            搜索
+          </el-button>
           <el-button @click="resetFilters" :icon="Refresh"> 重置 </el-button>
         </div>
       </div>
@@ -79,6 +102,7 @@
           :prefix-icon="Search"
           @keyup.enter="searchAnnouncements"
           clearable
+          class="search-input"
         />
       </div>
     </el-card>
@@ -86,11 +110,31 @@
     <!-- 公告列表 -->
     <el-card class="list-card" shadow="never">
       <!-- 批量操作 -->
-      <div class="batch-actions" v-if="selectedIds.length > 0">
-        <span class="selected-count">已选择 {{ selectedIds.length }} 项</span>
-        <el-button @click="batchDelete" type="danger" :icon="Delete"> 批量删除 </el-button>
-        <el-button @click="batchArchive" :icon="Box"> 批量归档 </el-button>
-      </div>
+      <transition name="slide-fade">
+        <div v-if="selectedIds.length > 0" class="batch-actions">
+          <div class="batch-info">
+            <el-icon class="batch-icon"><Selection /></el-icon>
+            <span class="selected-count">已选择 {{ selectedIds.length }} 项</span>
+          </div>
+          <div class="batch-buttons">
+            <el-button
+              @click="batchDelete"
+              type="danger"
+              :icon="Delete"
+              size="small"
+            >
+              批量删除
+            </el-button>
+            <el-button
+              @click="batchArchive"
+              :icon="FolderOpened"
+              size="small"
+            >
+              批量归档
+            </el-button>
+          </div>
+        </div>
+      </transition>
 
       <!-- 数据表格 -->
       <el-table
@@ -99,10 +143,11 @@
         @selection-change="handleSelectionChange"
         stripe
         row-key="id"
+        class="data-table"
       >
-        <el-table-column type="selection" width="55" />
+        <el-table-column type="selection" width="56" fixed />
 
-        <el-table-column label="标题" min-width="250">
+        <el-table-column label="标题" min-width="280">
           <template #default="{ row }">
             <div class="title-cell">
               <div class="title-content">
@@ -111,7 +156,9 @@
                   :class="{ 'is-top': row.isTop }"
                   @click="viewAnnouncement(row)"
                 >
-                  <el-icon v-if="row.isTop" class="top-icon"><Top /></el-icon>
+                  <el-icon v-if="row.isTop" class="top-icon" size="16">
+                    <Top />
+                  </el-icon>
                   {{ row.title }}
                 </span>
                 <div class="title-meta">
@@ -127,10 +174,10 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="发布者" width="120">
+        <el-table-column label="发布者" width="140">
           <template #default="{ row }">
             <div class="author-cell">
-              <el-avatar :size="32" :src="row.author.avatar">
+              <el-avatar :size="36" :src="row.author.avatar">
                 {{ row.author.name?.charAt(0) }}
               </el-avatar>
               <div class="author-info">
@@ -152,73 +199,90 @@
 
         <el-table-column label="状态" width="100">
           <template #default="{ row }">
-            <el-tag :type="getStatusType(row.status)">
+            <el-tag :type="getStatusType(row.status)" class="status-tag">
               {{ getStatusLabel(row.status) }}
             </el-tag>
           </template>
         </el-table-column>
 
-        <el-table-column label="统计" width="150">
+        <el-table-column label="统计" width="160">
           <template #default="{ row }">
             <div class="stats-cell">
               <div class="stat-item">
-                <el-icon><View /></el-icon>
+                <el-icon size="14"><View /></el-icon>
                 <span>{{ row.stats.views }}</span>
               </div>
               <div class="stat-item">
-                <el-icon><ChatLineSquare /></el-icon>
+                <el-icon size="14"><ChatLineSquare /></el-icon>
                 <span>{{ row.stats.comments }}</span>
               </div>
               <div class="stat-item">
-                <el-icon><Star /></el-icon>
+                <el-icon size="14"><Star /></el-icon>
                 <span>{{ row.stats.likes }}</span>
               </div>
             </div>
           </template>
         </el-table-column>
 
-        <el-table-column label="操作" width="200" fixed="right">
+        <el-table-column label="操作" width="180" fixed="right">
           <template #default="{ row }">
             <div class="action-buttons">
-              <el-tooltip content="查看详情">
-                <el-button @click="viewAnnouncement(row)" :icon="View" size="small" circle />
+              <el-tooltip content="查看详情" placement="top">
+                <el-button
+                  @click="viewAnnouncement(row)"
+                  :icon="View"
+                  size="small"
+                  circle
+                  class="action-btn"
+                />
               </el-tooltip>
 
-              <el-tooltip content="编辑">
+              <el-tooltip content="编辑" placement="top">
                 <el-button
                   @click="editAnnouncement(row)"
                   :icon="Edit"
                   size="small"
                   type="primary"
                   circle
+                  class="action-btn"
                 />
               </el-tooltip>
 
-              <el-tooltip :content="row.isTop ? '取消置顶' : '置顶'">
+              <el-tooltip :content="row.isTop ? '取消置顶' : '置顶'" placement="top">
                 <el-button
                   @click="toggleTop(row)"
                   :icon="Top"
                   :type="row.isTop ? 'warning' : 'default'"
                   size="small"
                   circle
+                  class="action-btn"
                 />
               </el-tooltip>
 
               <el-dropdown @command="handleMoreAction" trigger="click">
-                <el-button :icon="MoreFilled" size="small" circle />
+                <el-button
+                  :icon="MoreFilled"
+                  size="small"
+                  circle
+                  class="action-btn"
+                />
                 <template #dropdown>
                   <el-dropdown-menu>
                     <el-dropdown-item :command="`clone_${row.id}`">
                       <el-icon><CopyDocument /></el-icon>
-                      复制公告
+                      <span>复制公告</span>
                     </el-dropdown-item>
                     <el-dropdown-item :command="`archive_${row.id}`">
-                      <el-icon><Box /></el-icon>
-                      归档
+                      <el-icon><FolderOpened /></el-icon>
+                      <span>归档</span>
                     </el-dropdown-item>
-                    <el-dropdown-item :command="`delete_${row.id}`" divided>
+                    <el-dropdown-item
+                      :command="`delete_${row.id}`"
+                      divided
+                      class="dropdown-danger"
+                    >
                       <el-icon><Delete /></el-icon>
-                      删除
+                      <span>删除</span>
                     </el-dropdown-item>
                   </el-dropdown-menu>
                 </template>
@@ -251,7 +315,10 @@
     />
 
     <!-- 公告详情弹窗 -->
-    <announcement-detail-dialog v-model="detailDialogVisible" :announcement="currentAnnouncement" />
+    <announcement-detail-dialog
+      v-model="detailDialogVisible"
+      :announcement="currentAnnouncement"
+    />
   </div>
 </template>
 
@@ -263,7 +330,7 @@ import {
   Search,
   Refresh,
   Delete,
-  Box,
+  FolderOpened,
   Edit,
   View,
   Top,
@@ -271,24 +338,34 @@ import {
   CopyDocument,
   ChatLineSquare,
   Star,
+  Selection,
+  Document,
+  Coin,
+  Guide,
+  WarnTriangleFilled,
+  FirstAidKit,
+  Trophy,
+  Bell,
+  Tools,
+  Files,
 } from '@element-plus/icons-vue';
 import { useAnnouncementStore } from '@/stores/announcement';
 import { formatTime, getTimeAgo } from '@/utils/time';
 import AnnouncementFormDialog from './components/AnnouncementFormDialog.vue';
 import AnnouncementDetailDialog from './components/AnnouncementDetailDialog.vue';
 
-// 公告分类配置
+// 公告分类配置（使用 Element Plus 图标）
 const categories = [
-  { value: 'policy', label: '政策通知', icon: '📋', color: '#409eff' },
-  { value: 'finance', label: '财务公示', icon: '💰', color: '#67c23a' },
-  { value: 'project', label: '项目进展', icon: '🏗️', color: '#e6a23c' },
-  { value: 'safety', label: '安全提醒', icon: '⚠️', color: '#f56c6c' },
-  { value: 'welfare', label: '民生福利', icon: '🏥', color: '#909399' },
-  { value: 'activity', label: '文化活动', icon: '🎉', color: '#606266' },
-  { value: 'emergency', label: '紧急通知', icon: '🚨', color: '#f56c6c' },
-  { value: 'meeting', label: '会议通知', icon: '👥', color: '#409eff' },
-  { value: 'service', label: '便民服务', icon: '🔧', color: '#67c23a' },
-  { value: 'other', label: '其他', icon: '📄', color: '#c0c4cc' },
+  { value: 'policy', label: '政策通知', icon: Document, color: '#409eff' },
+  { value: 'finance', label: '财务公示', icon: Coin, color: '#67c23a' },
+  { value: 'project', label: '项目进展', icon: Guide, color: '#e6a23c' },
+  { value: 'safety', label: '安全提醒', icon: WarnTriangleFilled, color: '#f56c6c' },
+  { value: 'welfare', label: '民生福利', icon: FirstAidKit, color: '#909399' },
+  { value: 'activity', label: '文化活动', icon: Trophy, color: '#606266' },
+  { value: 'emergency', label: '紧急通知', icon: Bell, color: '#f56c6c' },
+  { value: 'meeting', label: '会议通知', icon: Files, color: '#409eff' },
+  { value: 'service', label: '便民服务', icon: Tools, color: '#67c23a' },
+  { value: 'other', label: '其他', icon: Files, color: '#c0c4cc' },
 ];
 
 // Store
@@ -563,29 +640,90 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .announcement-management {
-  padding: 20px;
-  background: var(--bg-color-light);
-  min-height: 100vh;
+  padding: 24px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+  min-height: calc(100vh - 40px);
 
   .page-header {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
+    padding: 32px;
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(17, 153, 142, 0.25);
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+      border-radius: 50%;
+    }
 
     .header-content {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-start;
+    }
 
-      h2 {
+    .header-left {
+      position: relative;
+      z-index: 1;
+
+      .page-title {
+        margin: 0 0 8px 0;
+        color: #ffffff;
+        font-size: 28px;
+        font-weight: 700;
+        line-height: 1.3;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        letter-spacing: 0.5px;
+      }
+
+      .page-subtitle {
         margin: 0;
-        color: var(--text-color-primary);
-        font-size: 24px;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 15px;
+        line-height: 1.5;
+        font-weight: 400;
+      }
+    }
+
+    .header-actions {
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+
+      :deep(.el-button) {
+        border-radius: 8px;
         font-weight: 600;
+        padding: 12px 24px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
       }
     }
   }
 
   .filter-card {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    background: #ffffff;
+    transition: box-shadow 0.3s ease;
+
+    &:hover {
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    }
 
     .filter-row {
       display: flex;
@@ -599,74 +737,246 @@ onMounted(() => {
         align-items: center;
         gap: 8px;
 
-        label {
-          font-weight: 500;
-          color: var(--text-color-regular);
+        .filter-label {
+          font-weight: 600;
+          color: var(--el-text-color-regular);
+          font-size: 14px;
           white-space: nowrap;
         }
 
-        .el-select {
-          width: 140px;
+        .filter-select,
+        .filter-date,
+        .filter-input {
+          :deep(.el-input__wrapper),
+          :deep(.el-select__wrapper) {
+            border-radius: 8px;
+            transition: all 0.2s ease;
+
+            &:hover {
+              box-shadow: 0 0 0 1px #11998e inset;
+            }
+          }
         }
 
-        .el-date-picker {
-          width: 240px;
+        .filter-select {
+          width: 144px;
+        }
+
+        .filter-date {
+          width: 280px;
         }
       }
 
       .filter-actions {
         margin-left: auto;
+        display: flex;
+        gap: 8px;
 
-        .el-button {
-          margin-left: 8px;
+        :deep(.el-button) {
+          border-radius: 8px;
+          font-weight: 500;
+          transition: all 0.3s ease;
+
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          }
         }
       }
     }
 
     .search-row {
-      .el-input {
-        max-width: 400px;
+      .search-input {
+        max-width: 480px;
+
+        :deep(.el-input__wrapper) {
+          border-radius: 8px;
+          transition: all 0.2s ease;
+
+          &:hover {
+            box-shadow: 0 0 0 1px #11998e inset;
+          }
+        }
       }
     }
   }
 
   .list-card {
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    background: #ffffff;
+    transition: box-shadow 0.3s ease;
+
+    &:hover {
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    }
+
     .batch-actions {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 16px 0;
-      border-bottom: 1px solid var(--border-color-light);
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px;
       margin-bottom: 16px;
+      background: linear-gradient(135deg, rgba(17, 153, 142, 0.1) 0%, rgba(56, 239, 125, 0.1) 100%);
+      border-radius: 12px;
+      border-left: 4px solid #11998e;
+      border: 1px solid rgba(17, 153, 142, 0.2);
 
-      .selected-count {
-        color: var(--text-color-regular);
+      .batch-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        .batch-icon {
+          color: #11998e;
+          font-size: 20px;
+          animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+          0%, 100% {
+            transform: scale(1);
+            opacity: 1;
+          }
+          50% {
+            transform: scale(1.1);
+            opacity: 0.8;
+          }
+        }
+
+        .selected-count {
+          color: var(--el-text-color-primary);
+          font-size: 15px;
+          font-weight: 600;
+          background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+      }
+
+      .batch-buttons {
+        display: flex;
+        gap: 8px;
+
+        :deep(.el-button) {
+          border-radius: 8px;
+          font-weight: 500;
+          transition: all 0.3s ease;
+
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(17, 153, 142, 0.3);
+          }
+        }
+      }
+    }
+
+    :deep(.data-table) {
+      border-radius: 12px;
+      overflow: hidden;
+
+      .el-table__inner-wrapper {
+        border-radius: 12px;
+      }
+
+      .el-table__row {
+        transition: all 0.3s ease;
+        position: relative;
+
+        &::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 0;
+          bottom: 0;
+          width: 0;
+          background: linear-gradient(180deg, #11998e 0%, #38ef7d 100%);
+          transition: width 0.3s ease;
+        }
+
+        &:hover {
+          background-color: rgba(17, 153, 142, 0.05);
+          transform: scale(1.005);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+          &::before {
+            width: 3px;
+          }
+        }
+
+        &:nth-child(odd) {
+          background-color: rgba(248, 250, 252, 0.5);
+        }
+      }
+
+      .el-table__header th {
+        background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+        color: var(--el-text-color-primary);
+        font-weight: 700;
         font-size: 14px;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        position: relative;
+
+        &::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          height: 2px;
+          background: linear-gradient(90deg, transparent 0%, #11998e 50%, transparent 100%);
+        }
+      }
+
+      .el-table__cell {
+        padding: 16px 12px;
       }
     }
 
     .title-cell {
       .title-content {
         .title-text {
-          display: flex;
+          display: inline-flex;
           align-items: center;
           gap: 4px;
           cursor: pointer;
-          color: var(--text-color-primary);
+          color: var(--el-text-color-primary);
           font-weight: 500;
-          transition: color 0.2s ease;
+          font-size: 14px;
+          line-height: 1.5;
+          transition: all 0.3s ease;
+          word-break: break-all;
+          background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
 
           &:hover {
-            color: var(--primary-color);
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            transform: translateX(4px);
           }
 
           &.is-top {
-            color: var(--warning-color);
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             font-weight: 600;
           }
 
           .top-icon {
-            color: var(--warning-color);
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            flex-shrink: 0;
           }
         }
 
@@ -674,12 +984,6 @@ onMounted(() => {
           display: flex;
           gap: 8px;
           margin-top: 8px;
-
-          .el-tag {
-            height: 20px;
-            line-height: 18px;
-            font-size: 12px;
-          }
         }
       }
     }
@@ -687,18 +991,37 @@ onMounted(() => {
     .author-cell {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
+
+      :deep(.el-avatar) {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+
+        &:hover {
+          border-color: #11998e;
+          transform: scale(1.05);
+        }
+      }
 
       .author-info {
         .author-name {
           font-size: 14px;
-          font-weight: 500;
-          color: var(--text-color-primary);
+          font-weight: 600;
+          color: var(--el-text-color-primary);
+          line-height: 1.4;
+          background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
         }
 
         .author-role {
           font-size: 12px;
-          color: var(--text-color-secondary);
+          color: var(--el-text-color-secondary);
+          line-height: 1.4;
+          margin-top: 2px;
+          font-weight: 500;
         }
       }
     }
@@ -706,42 +1029,57 @@ onMounted(() => {
     .time-cell {
       .publish-time {
         font-size: 14px;
-        color: var(--text-color-primary);
+        color: var(--el-text-color-primary);
+        font-weight: 500;
+        line-height: 1.5;
       }
 
       .time-ago {
         font-size: 12px;
-        color: var(--text-color-secondary);
-        margin-top: 2px;
+        color: var(--el-text-color-placeholder);
+        margin-top: 4px;
+        font-weight: 400;
       }
     }
 
     .stats-cell {
       display: flex;
-      gap: 12px;
+      gap: 16px;
 
       .stat-item {
         display: flex;
         align-items: center;
         gap: 4px;
-        font-size: 12px;
-        color: var(--text-color-secondary);
+        font-size: 13px;
+        color: var(--el-text-color-secondary);
+        transition: all 0.3s ease;
+        cursor: pointer;
 
-        .el-icon {
-          font-size: 14px;
+        &:hover {
+          color: #11998e;
+          transform: scale(1.1);
         }
       }
     }
 
     .action-buttons {
       display: flex;
-      gap: 4px;
+      gap: 6px;
+
+      .action-btn {
+        transition: all 0.3s ease;
+
+        &:hover {
+          transform: translateY(-2px) scale(1.05);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+      }
     }
 
-    .pagination-wrapper {
-      display: flex;
-      justify-content: center;
-      margin-top: 20px;
+    .status-tag {
+      font-weight: 600;
+      border-radius: 12px;
+      padding: 4px 12px;
     }
   }
 
@@ -754,12 +1092,107 @@ onMounted(() => {
       font-size: 16px;
     }
   }
+
+  .pagination-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 2px solid var(--el-border-color-lighter);
+
+    :deep(.el-pagination) {
+      .el-pager li {
+        border-radius: 8px;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+          color: #ffffff;
+        }
+
+        &.is-active {
+          background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+          color: #ffffff;
+          box-shadow: 0 4px 12px rgba(17, 153, 142, 0.3);
+        }
+      }
+
+      .btn-prev,
+      .btn-next {
+        border-radius: 8px;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+          color: #ffffff;
+        }
+      }
+    }
+  }
+
+  :deep(.dropdown-danger) {
+    color: var(--el-color-danger);
+  }
+}
+
+// 过渡动画
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-fade-enter-from {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.slide-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
 }
 
 // 响应式设计
+@media (max-width: 1200px) {
+  .announcement-management {
+    padding: 16px;
+
+    .filter-card {
+      .filter-row {
+        .filter-item {
+          .filter-select,
+          .filter-date {
+            width: 100%;
+          }
+        }
+
+        .filter-actions {
+          width: 100%;
+          margin-left: 0;
+          justify-content: flex-end;
+        }
+      }
+    }
+  }
+}
+
 @media (max-width: 768px) {
   .announcement-management {
     padding: 12px;
+
+    .page-header {
+      .header-content {
+        flex-direction: column;
+        gap: 16px;
+
+        .header-actions {
+          width: 100%;
+
+          .el-button {
+            width: 100%;
+          }
+        }
+      }
+    }
 
     .filter-card {
       .filter-row {
@@ -770,27 +1203,41 @@ onMounted(() => {
           flex-direction: column;
           align-items: stretch;
 
-          .el-select,
-          .el-date-picker {
+          .filter-select,
+          .filter-date {
             width: 100%;
           }
         }
 
         .filter-actions {
-          margin-left: 0;
-          display: flex;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
           gap: 8px;
+        }
+      }
 
-          .el-button {
-            flex: 1;
-            margin-left: 0;
-          }
+      .search-row {
+        .search-input {
+          max-width: 100%;
         }
       }
     }
 
-    .action-buttons {
-      flex-wrap: wrap;
+    .list-card {
+      .batch-actions {
+        flex-direction: column;
+        gap: 12px;
+
+        .batch-buttons {
+          width: 100%;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      .pagination-wrapper {
+        justify-content: center;
+      }
     }
   }
 }

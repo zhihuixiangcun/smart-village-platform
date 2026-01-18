@@ -1,5 +1,5 @@
-import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { defineStore } from 'pinia';
+import { ref, computed } from 'vue';
 
 /**
  * 适老化设置Store
@@ -9,23 +9,23 @@ export const useElderlyStore = defineStore('elderly', () => {
   // ===== 状态 =====
 
   // 适老化模式: 'standard' | 'large' | 'xl'
-  const mode = ref('standard')
+  const mode = ref('standard');
 
   // 语音设置
-  const voiceEnabled = ref(false)
-  const voiceLanguage = ref('zh-CN') // 默认普通话
-  const voiceRate = ref(1.0) // 语速
-  const voicePitch = ref(1.0) // 音调
+  const voiceEnabled = ref(false);
+  const voiceLanguage = ref('zh-CN'); // 默认普通话
+  const voiceRate = ref(1.0); // 语速
+  const voicePitch = ref(1.0); // 音调
 
   // 高对比度模式
-  const highContrast = ref(false)
+  const highContrast = ref(false);
 
   // 触觉反馈
-  const hapticFeedback = ref(true)
+  const hapticFeedback = ref(true);
 
   // 语音识别状态
-  const recording = ref(false)
-  const recordingResult = ref('')
+  const recording = ref(false);
+  const recordingResult = ref('');
 
   // ===== 计算属性 =====
 
@@ -56,14 +56,14 @@ export const useElderlyStore = defineStore('elderly', () => {
         body: 24,
         caption: 20
       }
-    }
-    return configs[mode.value]
-  })
+    };
+    return configs[mode.value];
+  });
 
   // 是否为适老化模式
   const isElderlyMode = computed(() => {
-    return mode.value !== 'standard'
-  })
+    return mode.value !== 'standard';
+  });
 
   // ===== 方法 =====
 
@@ -73,28 +73,28 @@ export const useElderlyStore = defineStore('elderly', () => {
   const loadSettings = () => {
     return new Promise((resolve) => {
       try {
-        const settings = localStorage.getItem('elderly_settings')
+        const settings = localStorage.getItem('elderly_settings');
         if (settings) {
-          const parsed = JSON.parse(settings)
-          mode.value = parsed.mode || 'standard'
-          voiceEnabled.value = parsed.voiceEnabled || false
-          voiceLanguage.value = parsed.voiceLanguage || 'zh-CN'
-          voiceRate.value = parsed.voiceRate || 1.0
-          voicePitch.value = parsed.voicePitch || 1.0
-          highContrast.value = parsed.highContrast || false
-          hapticFeedback.value = parsed.hapticFeedback !== false
-          console.log('适老化设置加载成功:', parsed)
-          resolve(parsed)
+          const parsed = JSON.parse(settings);
+          mode.value = parsed.mode || 'standard';
+          voiceEnabled.value = parsed.voiceEnabled || false;
+          voiceLanguage.value = parsed.voiceLanguage || 'zh-CN';
+          voiceRate.value = parsed.voiceRate || 1.0;
+          voicePitch.value = parsed.voicePitch || 1.0;
+          highContrast.value = parsed.highContrast || false;
+          hapticFeedback.value = parsed.hapticFeedback !== false;
+          console.log('适老化设置加载成功:', parsed);
+          resolve(parsed);
         } else {
-          console.log('未找到本地适老化设置，使用默认值')
-          resolve(null)
+          console.log('未找到本地适老化设置，使用默认值');
+          resolve(null);
         }
       } catch (error) {
-        console.error('加载适老化设置失败:', error)
-        resolve(null)
+        console.error('加载适老化设置失败:', error);
+        resolve(null);
       }
-    })
-  }
+    });
+  };
 
   /**
    * 保存设置到本地存储
@@ -108,108 +108,108 @@ export const useElderlyStore = defineStore('elderly', () => {
       voicePitch: voicePitch.value,
       highContrast: highContrast.value,
       hapticFeedback: hapticFeedback.value
-    }
+    };
 
     try {
-      localStorage.setItem('elderly_settings', JSON.stringify(settings))
-      console.log('适老化设置保存成功')
+      localStorage.setItem('elderly_settings', JSON.stringify(settings));
+      console.log('适老化设置保存成功');
     } catch (error) {
-      console.error('适老化设置保存失败:', error)
+      console.error('适老化设置保存失败:', error);
     }
-  }
+  };
 
   /**
    * 设置适老化模式
    */
   const setMode = (newMode) => {
     if (['standard', 'large', 'xl'].includes(newMode)) {
-      mode.value = newMode
-      saveSettings()
+      mode.value = newMode;
+      saveSettings();
 
       // 应用CSS变量
-      applyModeStyles()
+      applyModeStyles();
 
       // 震动反馈
       if (hapticFeedback.value) {
-        vibrate('short')
+        vibrate('short');
       }
 
-      console.log('适老化模式切换为:', newMode)
+      console.log('适老化模式切换为:', newMode);
     }
-  }
+  };
 
   /**
    * 应用模式样式
    */
   const applyModeStyles = () => {
-    const rootElement = document.documentElement
-    rootElement.setAttribute('data-elderly-mode', mode.value)
+    const rootElement = document.documentElement;
+    rootElement.setAttribute('data-elderly-mode', mode.value);
 
     // 移除旧的class
-    rootElement.classList.remove('elderly-mode-large', 'elderly-mode-xl')
+    rootElement.classList.remove('elderly-mode-large', 'elderly-mode-xl');
 
     // 添加新的class
     if (mode.value === 'large') {
-      rootElement.classList.add('elderly-mode-large')
+      rootElement.classList.add('elderly-mode-large');
     } else if (mode.value === 'xl') {
-      rootElement.classList.add('elderly-mode-xl')
+      rootElement.classList.add('elderly-mode-xl');
     }
-  }
+  };
 
   /**
    * 切换语音开关
    */
   const setVoiceEnabled = (enabled) => {
-    voiceEnabled.value = enabled
-    saveSettings()
-    console.log('语音功能已', enabled ? '启用' : '禁用')
-  }
+    voiceEnabled.value = enabled;
+    saveSettings();
+    console.log('语音功能已', enabled ? '启用' : '禁用');
+  };
 
   /**
    * 设置语音语言
    */
   const setVoiceLanguage = (language) => {
-    voiceLanguage.value = language
-    saveSettings()
-  }
+    voiceLanguage.value = language;
+    saveSettings();
+  };
 
   /**
    * 设置语音速率
    */
   const setVoiceRate = (rate) => {
-    voiceRate.value = Math.max(0.5, Math.min(2.0, rate))
-    saveSettings()
-  }
+    voiceRate.value = Math.max(0.5, Math.min(2.0, rate));
+    saveSettings();
+  };
 
   /**
    * 设置语音音调
    */
   const setVoicePitch = (pitch) => {
-    voicePitch.value = Math.max(0.5, Math.min(2.0, pitch))
-    saveSettings()
-  }
+    voicePitch.value = Math.max(0.5, Math.min(2.0, pitch));
+    saveSettings();
+  };
 
   /**
    * 切换高对比度模式
    */
   const setHighContrast = (enabled) => {
-    highContrast.value = enabled
-    saveSettings()
+    highContrast.value = enabled;
+    saveSettings();
 
     // 应用高对比度样式
-    const rootElement = document.documentElement
-    rootElement.classList.toggle('high-contrast', enabled)
+    const rootElement = document.documentElement;
+    rootElement.classList.toggle('high-contrast', enabled);
 
-    console.log('高对比度模式已', enabled ? '启用' : '禁用')
-  }
+    console.log('高对比度模式已', enabled ? '启用' : '禁用');
+  };
 
   /**
    * 切换触觉反馈
    */
   const setHapticFeedback = (enabled) => {
-    hapticFeedback.value = enabled
-    saveSettings()
-  }
+    hapticFeedback.value = enabled;
+    saveSettings();
+  };
 
   /**
    * 开始语音识别
@@ -217,50 +217,50 @@ export const useElderlyStore = defineStore('elderly', () => {
   const startRecording = () => {
     return new Promise((resolve, reject) => {
       if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
-        const recognition = new SpeechRecognition()
-        recognition.lang = voiceLanguage.value
-        recognition.continuous = false
-        recognition.interimResults = false
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognition.lang = voiceLanguage.value;
+        recognition.continuous = false;
+        recognition.interimResults = false;
 
         recognition.onstart = () => {
-          recording.value = true
-          console.log('开始语音识别')
-        }
+          recording.value = true;
+          console.log('开始语音识别');
+        };
 
         recognition.onresult = (event) => {
-          const result = event.results[0][0].transcript
-          recordingResult.value = result
-          recording.value = false
-          resolve({ transcript: result })
-        }
+          const result = event.results[0][0].transcript;
+          recordingResult.value = result;
+          recording.value = false;
+          resolve({ transcript: result });
+        };
 
         recognition.onerror = (event) => {
-          recording.value = false
-          console.error('语音识别失败:', event.error)
-          reject(event.error)
-        }
+          recording.value = false;
+          console.error('语音识别失败:', event.error);
+          reject(event.error);
+        };
 
         recognition.onend = () => {
-          recording.value = false
-        }
+          recording.value = false;
+        };
 
-        recognition.start()
+        recognition.start();
       } else {
-        reject(new Error('浏览器不支持语音识别'))
+        reject(new Error('浏览器不支持语音识别'));
       }
-    })
-  }
+    });
+  };
 
   /**
    * 停止语音识别
    */
   const stopRecording = () => {
     return new Promise((resolve) => {
-      recording.value = false
-      resolve()
-    })
-  }
+      recording.value = false;
+      resolve();
+    });
+  };
 
   /**
    * 语音播报（文字转语音）
@@ -271,55 +271,55 @@ export const useElderlyStore = defineStore('elderly', () => {
       pitch = voicePitch.value,
       lang = voiceLanguage.value,
       volume = 1.0
-    } = options
+    } = options;
 
     if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(text)
-      utterance.lang = lang
-      utterance.rate = rate
-      utterance.pitch = pitch
-      utterance.volume = volume
-      window.speechSynthesis.speak(utterance)
-      console.log('语音播报:', text)
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = lang;
+      utterance.rate = rate;
+      utterance.pitch = pitch;
+      utterance.volume = volume;
+      window.speechSynthesis.speak(utterance);
+      console.log('语音播报:', text);
     } else {
-      console.warn('浏览器不支持语音播报')
+      console.warn('浏览器不支持语音播报');
     }
-  }
+  };
 
   /**
    * 震动反馈
    */
   const vibrate = (type = 'short') => {
-    if (!hapticFeedback.value) return
+    if (!hapticFeedback.value) return;
 
     // 使用标准的 Vibration API
     if ('vibrate' in navigator) {
       if (type === 'short') {
-        navigator.vibrate(15) // 短震动 15ms
-        console.log('短震动')
+        navigator.vibrate(15); // 短震动 15ms
+        console.log('短震动');
       } else if (type === 'long') {
-        navigator.vibrate([30, 50, 30]) // 长震动模式
-        console.log('长震动')
+        navigator.vibrate([30, 50, 30]); // 长震动模式
+        console.log('长震动');
       }
     } else {
-      console.log('设备不支持震动反馈')
+      console.log('设备不支持震动反馈');
     }
-  }
+  };
 
   /**
    * 重置所有设置为默认值
    */
   const resetSettings = () => {
-    mode.value = 'standard'
-    voiceEnabled.value = false
-    voiceLanguage.value = 'zh-CN'
-    voiceRate.value = 1.0
-    voicePitch.value = 1.0
-    highContrast.value = false
-    hapticFeedback.value = true
-    saveSettings()
-    console.log('适老化设置已重置')
-  }
+    mode.value = 'standard';
+    voiceEnabled.value = false;
+    voiceLanguage.value = 'zh-CN';
+    voiceRate.value = 1.0;
+    voicePitch.value = 1.0;
+    highContrast.value = false;
+    hapticFeedback.value = true;
+    saveSettings();
+    console.log('适老化设置已重置');
+  };
 
   // 返回状态和方法
   return {
@@ -353,5 +353,5 @@ export const useElderlyStore = defineStore('elderly', () => {
     speak,
     vibrate,
     resetSettings
-  }
-})
+  };
+});

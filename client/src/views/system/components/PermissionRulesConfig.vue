@@ -51,10 +51,21 @@
           <el-icon><Upload /></el-icon>
           导入规则
         </el-button>
-        <el-button @click="exportRules">
-          <el-icon><Download /></el-icon>
-          导出规则
-        </el-button>
+        <el-dropdown @command="handleExportAction">
+          <el-button>
+            <el-icon><Download /></el-icon>
+            导出规则
+            <el-icon class="el-icon--right"><ArrowDown /></el-icon>
+          </el-button>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item command="selected" :disabled="selectedRules.length === 0">
+                导出选中 ({{ selectedRules.length }})
+              </el-dropdown-item>
+              <el-dropdown-item command="all">导出全部</el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
       </div>
     </div>
 
@@ -478,6 +489,162 @@
         </div>
       </div>
     </el-dialog>
+
+    <!-- 导入规则对话框 -->
+    <el-dialog
+      v-model="importDialogVisible"
+      title="导入权限规则"
+      width="700px"
+      :destroy-on-close="true"
+      @close="resetImportState"
+    >
+      <div class="import-rules">
+        <el-alert
+          title="导入说明"
+          type="info"
+          :closable="false"
+          style="margin-bottom: 20px"
+        >
+          <p>请选择要导入的JSON规则文件，支持单个规则或批量规则导入</p>
+          <p>规则格式必须包含：id, name, description, type, priority, enabled, config等字段</p>
+        </el-alert>
+
+        <el-upload
+          ref="uploadRef"
+          class="upload-demo"
+          drag
+          :auto-upload="false"
+          :on-change="handleFileChange"
+          :limit="1"
+          accept=".json"
+        >
+          <el-icon class="el-icon--upload"><Upload /></el-icon>
+          <div class="el-upload__text">
+            拖拽JSON文件到此处或<em>点击上传</em>
+          </div>
+          <template #tip>
+            <div class="el-upload__tip">
+              仅支持JSON格式文件，文件大小不超过5MB
+            </div>
+          </template>
+        </el-upload>
+
+        <el-form v-if="importedRules.length > 0" label-width="120px" style="margin-top: 20px">
+          <el-form-item label="导入规则数">
+            <el-tag type="info">{{ importedRules.length }} 条</el-tag>
+          </el-form-item>
+
+          <el-form-item label="冲突处理策略">
+            <el-radio-group v-model="importConflictStrategy">
+              <el-radio label="skip">跳过已存在的规则</el-radio>
+              <el-radio label="overwrite">覆盖已存在的规则</el-radio>
+              <el-radio label="rename">重命名冲突的规则</el-radio>
+            </el-radio-group>
+          </el-form-item>
+
+          <el-form-item label="规则预览">
+            <el-collapse>
+              <el-collapse-item
+                v-for="(rule, index) in importedRules"
+                :key="index"
+                :title="`${index + 1}. ${rule.name} (${rule.type})`"
+                :name="index"
+              >
+                <div class="rule-preview">
+                  <el-descriptions :column="2" border size="small">
+                    <el-descriptions-item label="规则ID" :span="2">
+                      {{ rule.id }}
+                      <el-tag v-if="isRuleExists(rule.id)" type="warning" size="small" style="margin-left: 8px">
+                        已存在
+                      </el-tag>
+                    </el-descriptions-item>
+                    <el-descriptions-item label="规则名称" :span="2">
+                      {{ rule.name }}
+                    </el-descriptions-item>
+                    <el-descriptions-item label="规则描述" :span="2">
+                      {{ rule.description }}
+                    </el-descriptions-item>
+                    <el-descriptions-item label="规则类型">
+                      {{ getTypeLabel(rule.type) }}
+                    </el-descriptions-item>
+                    <el-descriptions-item label="优先级">
+                      <el-tag
+                        :type="
+                          rule.priority === 'high'
+                            ? 'danger'
+                            : rule.priority === 'medium'
+                              ? 'warning'
+                              : 'info'
+                        "
+                        size="small"
+                      >
+                        {{ rule.priority }}
+                      </el-tag>
+                    </el-descriptions-item>
+                    <el-descriptions-item label="启用状态">
+                      <el-tag :type="rule.enabled ? 'success' : 'info'" size="small">
+                        {{ rule.enabled ? '启用' : '禁用' }}
+                      </el-tag>
+                    </el-descriptions-item>
+                    <el-descriptions-item label="创建时间">
+                      {{ formatDateTime(rule.createdAt) }}
+                    </el-descriptions-item>
+                  </el-descriptions>
+                </div>
+              </el-collapse-item>
+            </el-collapse>
+          </el-form-item>
+        </el-form>
+      </div>
+
+      <template #footer>
+        <el-button @click="importDialogVisible = false">取消</el-button>
+        <el-button
+          type="primary"
+          :disabled="importedRules.length === 0"
+          :loading="importing"
+          @click="confirmImport"
+        >
+          确认导入
+        </el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 导入结果对话框 -->
+    <el-dialog
+      v-model="importResultsVisible"
+      title="导入结果"
+      width="500px"
+      :destroy-on-close="true"
+    >
+      <div class="import-results">
+        <el-result :icon="importResults.failed === 0 ? 'success' : 'warning'" :title="getImportResultTitle()">
+          <template #sub-title>
+            <el-row :gutter="16">
+              <el-col :span="8">
+                <el-statistic title="成功导入" :value="importResults.success">
+                  <template #suffix>条</template>
+                </el-statistic>
+              </el-col>
+              <el-col :span="8">
+                <el-statistic title="跳过" :value="importResults.skipped">
+                  <template #suffix>条</template>
+                </el-statistic>
+              </el-col>
+              <el-col :span="8">
+                <el-statistic title="失败" :value="importResults.failed">
+                  <template #suffix>条</template>
+                </el-statistic>
+              </el-col>
+            </el-row>
+          </template>
+        </el-result>
+      </div>
+
+      <template #footer>
+        <el-button type="primary" @click="importResultsVisible = false">确定</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -494,6 +661,7 @@ import {
   Location,
   Iphone,
   Timer,
+  ArrowDown,
 } from '@element-plus/icons-vue';
 import enhancedPermissionService from '@/services/enhancedPermissionService';
 
@@ -510,6 +678,20 @@ const isEditing = ref(false);
 const testRuleDialogVisible = ref(false);
 const testRule = ref(null);
 const testResult = ref(null);
+
+// 导入导出相关
+const importDialogVisible = ref(false);
+const importFile = ref(null);
+const importedRules = ref([]);
+const importPreviewVisible = ref(false);
+const importConflictStrategy = ref('skip');
+const importResults = ref({
+  success: 0,
+  skipped: 0,
+  failed: 0,
+});
+const importResultsVisible = ref(false);
+const importing = ref(false);
 
 // 规则列表
 const rules = ref([
@@ -867,7 +1049,7 @@ const handleRuleAction = async command => {
       break;
 
     case 'export':
-      ElMessage.info('导出规则功能待实现');
+      exportSingleRule(rule);
       break;
 
     case 'delete':
@@ -906,11 +1088,194 @@ const showCreateRuleDialog = () => {
 };
 
 const showImportRulesDialog = () => {
-  ElMessage.info('导入规则功能待实现');
+  importDialogVisible.value = true;
+  importedRules.value = [];
+  importFile.value = null;
 };
 
 const exportRules = () => {
-  ElMessage.info('导出规则功能待实现');
+  handleExportAction('all');
+};
+
+const handleExportAction = command => {
+  switch (command) {
+    case 'selected':
+      exportSelectedRules();
+      break;
+    case 'all':
+      exportAllRules();
+      break;
+  }
+};
+
+const exportSelectedRules = () => {
+  if (selectedRules.value.length === 0) {
+    ElMessage.warning('请先选择要导出的规则');
+    return;
+  }
+  exportRulesToFile(selectedRules.value, `权限规则_选中_${getTimestamp()}.json`);
+};
+
+const exportAllRules = () => {
+  exportRulesToFile(rules.value, `权限规则_全部_${getTimestamp()}.json`);
+};
+
+const exportSingleRule = rule => {
+  exportRulesToFile([rule], `权限规则_${rule.name}_${getTimestamp()}.json`);
+};
+
+const exportRulesToFile = (rulesToExport, fileName) => {
+  try {
+    const dataStr = JSON.stringify(rulesToExport, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    ElMessage.success(`成功导出 ${rulesToExport.length} 条规则`);
+  } catch (error) {
+    console.error('导出规则失败:', error);
+    ElMessage.error('导出规则失败');
+  }
+};
+
+const handleFileChange = file => {
+  importFile.value = file;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const content = JSON.parse(e.target.result);
+      validateAndImportRules(content);
+    } catch (error) {
+      ElMessage.error('文件解析失败，请确认JSON格式正确');
+    }
+  };
+  reader.readAsText(file.raw);
+};
+
+const validateAndImportRules = content => {
+  importedRules.value = [];
+  const rulesToImport = Array.isArray(content) ? content : [content];
+  const validationErrors = [];
+
+  rulesToImport.forEach((rule, index) => {
+    const error = validateRuleFormat(rule);
+    if (error) {
+      validationErrors.push(`第${index + 1}条规则: ${error}`);
+    }
+  });
+
+  if (validationErrors.length > 0) {
+    ElMessage.error({
+      message: '规则格式验证失败',
+      duration: 0,
+      dangerouslyUseHTMLString: true,
+      customClass: 'validation-error-message',
+    });
+    return;
+  }
+
+  importedRules.value = rulesToImport;
+  ElMessage.success(`成功解析 ${rulesToImport.length} 条规则`);
+};
+
+const validateRuleFormat = rule => {
+  if (!rule) return '规则为空';
+  if (!rule.id || typeof rule.id !== 'string') return '缺少有效的id字段';
+  if (!rule.name || typeof rule.name !== 'string') return '缺少有效的name字段';
+  if (!rule.description || typeof rule.description !== 'string')
+    return '缺少有效的description字段';
+  if (!rule.type || !['time_based', 'location_based', 'device_trust', 'rate_limit'].includes(rule.type))
+    return '无效的type字段，必须是time_based/location_based/device_trust/rate_limit之一';
+  if (!rule.priority || !['high', 'medium', 'low'].includes(rule.priority))
+    return '无效的priority字段，必须是high/medium/low之一';
+  if (typeof rule.enabled !== 'boolean') return '无效的enabled字段，必须是布尔值';
+  if (!rule.config || typeof rule.config !== 'object') return '缺少有效的config字段';
+  return null;
+};
+
+const isRuleExists = ruleId => {
+  return rules.value.some(rule => rule.id === ruleId);
+};
+
+const confirmImport = async () => {
+  importing.value = true;
+  importResults.value = { success: 0, skipped: 0, failed: 0 };
+
+  try {
+    for (const rule of importedRules.value) {
+      try {
+        const exists = isRuleExists(rule.id);
+
+        if (exists) {
+          switch (importConflictStrategy.value) {
+            case 'skip':
+              importResults.value.skipped++;
+              break;
+            case 'overwrite':
+              const index = rules.value.findIndex(r => r.id === rule.id);
+              if (index !== -1) {
+                rules.value[index] = { ...rule, stats: rules.value[index].stats || { executions: 0, allowed: 0, denied: 0 } };
+                importResults.value.success++;
+              }
+              break;
+            case 'rename':
+              const newRule = {
+                ...rule,
+                id: `${rule.id}_${Date.now()}`,
+                name: `${rule.name}_副本`,
+              };
+              newRule.stats = { executions: 0, allowed: 0, denied: 0 };
+              rules.value.push(newRule);
+              importResults.value.success++;
+              break;
+          }
+        } else {
+          const newRule = {
+            ...rule,
+            stats: { executions: 0, allowed: 0, denied: 0 },
+          };
+          rules.value.push(newRule);
+          importResults.value.success++;
+        }
+      } catch (error) {
+        console.error(`导入规则 ${rule.id} 失败:`, error);
+        importResults.value.failed++;
+      }
+    }
+
+    importDialogVisible.value = false;
+    importResultsVisible.value = true;
+    ElMessage.success(`导入完成：成功 ${importResults.value.success} 条，跳过 ${importResults.value.skipped} 条，失败 ${importResults.value.failed} 条`);
+  } catch (error) {
+    console.error('导入规则失败:', error);
+    ElMessage.error('导入规则失败');
+  } finally {
+    importing.value = false;
+  }
+};
+
+const getImportResultTitle = () => {
+  const total = importResults.value.success + importResults.value.skipped + importResults.value.failed;
+  if (importResults.value.failed > 0) {
+    return `导入完成（${total}条）`;
+  }
+  return `导入成功（${total}条）`;
+};
+
+const resetImportState = () => {
+  importedRules.value = [];
+  importFile.value = null;
+  importConflictStrategy.value = 'skip';
+};
+
+const getTimestamp = () => {
+  const now = new Date();
+  return now.toISOString().replace(/[:.]/g, '-').split('T')[0];
 };
 
 const batchEnable = async () => {
@@ -1100,6 +1465,28 @@ onMounted(() => {
 
   :deep(.danger-item) {
     color: #f56c6c;
+  }
+
+  .import-rules {
+    .upload-demo {
+      width: 100%;
+    }
+
+    .rule-preview {
+      padding: 12px;
+      background: #f5f7fa;
+      border-radius: 4px;
+    }
+  }
+
+  .import-results {
+    :deep(.el-result__title) {
+      margin-top: 20px;
+    }
+
+    :deep(.el-statistic) {
+      text-align: center;
+    }
   }
 }
 </style>

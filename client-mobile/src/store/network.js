@@ -1,5 +1,5 @@
-import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { defineStore } from 'pinia';
+import { ref, computed } from 'vue';
 
 /**
  * 网络状态Store
@@ -9,25 +9,25 @@ export const useNetworkStore = defineStore('network', () => {
   // ===== 状态 =====
 
   // 网络类型: 'wifi' | '4g' | '3g' | '2g' | 'unknown' | 'none'
-  const networkType = ref('unknown')
+  const networkType = ref('unknown');
 
   // 是否在线
-  const isOnline = ref(true)
+  const isOnline = ref(true);
 
   // 上次在线时间
-  const lastOnlineTime = ref(null)
+  const lastOnlineTime = ref(null);
 
   // 离线队列
-  const offlineQueue = ref([])
+  const offlineQueue = ref([]);
 
   // 同步状态: 'idle' | 'syncing' | 'failed'
-  const syncStatus = ref('idle')
+  const syncStatus = ref('idle');
 
   // 同步错误信息
-  const syncError = ref(null)
+  const syncError = ref(null);
 
   // 待同步数据数量
-  const pendingCount = computed(() => offlineQueue.value.length)
+  const pendingCount = computed(() => offlineQueue.value.length);
 
   // ===== 监听网络状态 =====
 
@@ -36,68 +36,68 @@ export const useNetworkStore = defineStore('network', () => {
    */
   const initNetworkListener = () => {
     // 监听网络状态变化（标准Web API）
-    window.addEventListener('online', handleOnline)
-    window.addEventListener('offline', handleOffline)
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
 
     // 初始化网络状态
-    updateNetworkStatus()
+    updateNetworkStatus();
 
-    console.log('网络监听已初始化')
-  }
+    console.log('网络监听已初始化');
+  };
 
   /**
    * 处理网络连接
    */
   const handleOnline = () => {
-    networkType.value = navigator.connection?.effectiveType || 'unknown'
-    isOnline.value = true
-    lastOnlineTime.value = new Date().toISOString()
+    networkType.value = navigator.connection?.effectiveType || 'unknown';
+    isOnline.value = true;
+    lastOnlineTime.value = new Date().toISOString();
 
-    console.log('网络已连接:', networkType.value)
+    console.log('网络已连接:', networkType.value);
 
     // 网络恢复时自动同步
-    autoSync()
-  }
+    autoSync();
+  };
 
   /**
    * 处理网络断开
    */
   const handleOffline = () => {
-    networkType.value = 'none'
-    isOnline.value = false
+    networkType.value = 'none';
+    isOnline.value = false;
 
-    console.log('网络已断开')
+    console.log('网络已断开');
 
     // 保存断开时间
-    localStorage.setItem('network_offline_time', new Date().toISOString())
+    localStorage.setItem('network_offline_time', new Date().toISOString());
 
     // 提示用户
-    alert('网络已断开，部分功能可能受限')
-  }
+    alert('网络已断开，部分功能可能受限');
+  };
 
   /**
    * 更新网络状态
    */
   const updateNetworkStatus = () => {
     if (navigator.onLine) {
-      handleOnline()
+      handleOnline();
     } else {
-      handleOffline()
+      handleOffline();
     }
 
     // 如果支持 Network Information API
     if (navigator.connection) {
-      networkType.value = navigator.connection.effectiveType || 'unknown'
+      networkType.value = navigator.connection.effectiveType || 'unknown';
     }
-  }
+  };
 
   /**
    * 移除网络监听
    */
   const removeNetworkListener = () => {
-    window.removeEventListener('online', handleOnline)
-    window.removeEventListener('offline', handleOffline)
-  }
+    window.removeEventListener('online', handleOnline);
+    window.removeEventListener('offline', handleOffline);
+  };
 
   // ===== 离线数据管理 =====
 
@@ -109,77 +109,77 @@ export const useNetworkStore = defineStore('network', () => {
       id: generateQueueId(),
       timestamp: new Date().toISOString(),
       ...data
-    }
+    };
 
-    offlineQueue.value.push(queueItem)
-    saveOfflineQueue()
+    offlineQueue.value.push(queueItem);
+    saveOfflineQueue();
 
-    console.log('已添加到离线队列:', queueItem)
+    console.log('已添加到离线队列:', queueItem);
 
     // 如果当前在线，立即尝试同步
     if (isOnline.value) {
-      autoSync()
+      autoSync();
     }
 
-    return queueItem.id
-  }
+    return queueItem.id;
+  };
 
   /**
    * 从离线队列移除数据
    */
   const removeFromOfflineQueue = (id) => {
-    const index = offlineQueue.value.findIndex(item => item.id === id)
+    const index = offlineQueue.value.findIndex(item => item.id === id);
     if (index > -1) {
-      offlineQueue.value.splice(index, 1)
-      saveOfflineQueue()
-      console.log('已从离线队列移除:', id)
+      offlineQueue.value.splice(index, 1);
+      saveOfflineQueue();
+      console.log('已从离线队列移除:', id);
     }
-  }
+  };
 
   /**
    * 保存离线队列到本地存储
    */
   const saveOfflineQueue = () => {
     try {
-      localStorage.setItem('offline_queue', JSON.stringify(offlineQueue.value))
+      localStorage.setItem('offline_queue', JSON.stringify(offlineQueue.value));
     } catch (error) {
-      console.error('保存离线队列失败:', error)
+      console.error('保存离线队列失败:', error);
     }
-  }
+  };
 
   /**
    * 从本地存储加载离线队列
    */
   const loadOfflineQueue = () => {
     try {
-      const queueStr = localStorage.getItem('offline_queue')
+      const queueStr = localStorage.getItem('offline_queue');
       if (queueStr) {
-        const queue = JSON.parse(queueStr)
+        const queue = JSON.parse(queueStr);
         if (Array.isArray(queue)) {
-          offlineQueue.value = queue
-          console.log('离线队列加载成功，共', queue.length, '条')
+          offlineQueue.value = queue;
+          console.log('离线队列加载成功，共', queue.length, '条');
         }
       }
     } catch (error) {
-      console.error('离线队列加载失败:', error)
+      console.error('离线队列加载失败:', error);
     }
-  }
+  };
 
   /**
    * 清空离线队列
    */
   const clearOfflineQueue = () => {
-    offlineQueue.value = []
-    saveOfflineQueue()
-    console.log('离线队列已清空')
-  }
+    offlineQueue.value = [];
+    saveOfflineQueue();
+    console.log('离线队列已清空');
+  };
 
   /**
    * 生成队列ID
    */
   const generateQueueId = () => {
-    return `queue_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-  }
+    return `queue_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  };
 
   // ===== 数据同步 =====
 
@@ -188,144 +188,144 @@ export const useNetworkStore = defineStore('network', () => {
    */
   const autoSync = async () => {
     if (!isOnline.value) {
-      console.log('网络未连接，跳过同步')
-      return
+      console.log('网络未连接，跳过同步');
+      return;
     }
 
     if (offlineQueue.value.length === 0) {
-      console.log('没有需要同步的数据')
-      return
+      console.log('没有需要同步的数据');
+      return;
     }
 
     if (syncStatus.value === 'syncing') {
-      console.log('正在同步中，跳过')
-      return
+      console.log('正在同步中，跳过');
+      return;
     }
 
-    await syncOfflineData()
-  }
+    await syncOfflineData();
+  };
 
   /**
    * 同步离线数据
    */
   const syncOfflineData = async () => {
     if (offlineQueue.value.length === 0) {
-      return { success: true, synced: 0, failed: 0 }
+      return { success: true, synced: 0, failed: 0 };
     }
 
-    syncStatus.value = 'syncing'
-    syncError.value = null
+    syncStatus.value = 'syncing';
+    syncError.value = null;
 
-    let synced = 0
-    let failed = 0
+    let synced = 0;
+    let failed = 0;
 
-    console.log('开始同步离线数据，共', offlineQueue.value.length, '条')
+    console.log('开始同步离线数据，共', offlineQueue.value.length, '条');
 
     try {
       // 逐条同步队列数据
       for (let i = 0; i < offlineQueue.value.length; i++) {
-        const item = offlineQueue.value[i]
+        const item = offlineQueue.value[i];
 
         try {
           // 根据数据类型调用不同的同步接口
-          await syncItem(item)
+          await syncItem(item);
 
           // 同步成功，从队列移除
-          removeFromOfflineQueue(item.id)
-          synced++
+          removeFromOfflineQueue(item.id);
+          synced++;
 
-          console.log('同步成功:', item.id, `(${i + 1}/${offlineQueue.value.length + synced})`)
+          console.log('同步成功:', item.id, `(${i + 1}/${offlineQueue.value.length + synced})`);
         } catch (error) {
-          failed++
-          console.error('同步失败:', item.id, error)
+          failed++;
+          console.error('同步失败:', item.id, error);
 
           // 记录失败原因
           item.lastError = {
             message: error.message,
             timestamp: new Date().toISOString()
-          }
+          };
 
           // 如果是网络错误，暂停同步
           if (error.message?.includes('network') || error.message?.includes('timeout')) {
-            syncStatus.value = 'failed'
-            syncError.value = error.message
-            break
+            syncStatus.value = 'failed';
+            syncError.value = error.message;
+            break;
           }
         }
       }
 
       // 同步完成
       if (failed === 0) {
-        syncStatus.value = 'idle'
-        console.log('所有数据同步成功')
+        syncStatus.value = 'idle';
+        console.log('所有数据同步成功');
       } else {
-        syncStatus.value = 'failed'
-        syncError.value = `${failed}条数据同步失败`
+        syncStatus.value = 'failed';
+        syncError.value = `${failed}条数据同步失败`;
       }
 
       // 提示用户
       if (synced > 0) {
-        alert(`已同步${synced}条数据`)
+        alert(`已同步${synced}条数据`);
       }
 
-      return { success: failed === 0, synced, failed }
+      return { success: failed === 0, synced, failed };
 
     } catch (error) {
-      syncStatus.value = 'failed'
-      syncError.value = error.message
-      console.error('同步过程出错:', error)
-      return { success: false, synced, failed, error }
+      syncStatus.value = 'failed';
+      syncError.value = error.message;
+      console.error('同步过程出错:', error);
+      return { success: false, synced, failed, error };
     }
-  }
+  };
 
   /**
    * 同步单个数据项
    */
   const syncItem = async (item) => {
     // 根据item.type调用不同的API
-    const { type, data } = item
+    const { type, data } = item;
 
     switch (type) {
-      case 'announcement_read':
-        // await api.markAnnouncementAsRead(data.id)
-        break
-      case 'vote_submit':
-        // await api.submitVote(data)
-        break
-      case 'service_application':
-        // await api.submitServiceApplication(data)
-        break
-      case 'feedback_submit':
-        // await api.submitFeedback(data)
-        break
-      default:
-        console.warn('未知的数据类型:', type)
+    case 'announcement_read':
+      // await api.markAnnouncementAsRead(data.id)
+      break;
+    case 'vote_submit':
+      // await api.submitVote(data)
+      break;
+    case 'service_application':
+      // await api.submitServiceApplication(data)
+      break;
+    case 'feedback_submit':
+      // await api.submitFeedback(data)
+      break;
+    default:
+      console.warn('未知的数据类型:', type);
     }
 
     // 模拟网络请求延迟
-    await new Promise(resolve => setTimeout(resolve, 500))
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     // 模拟成功
-    return true
-  }
+    return true;
+  };
 
   /**
    * 手动触发同步
    */
   const manualSync = async () => {
     if (!isOnline.value) {
-      alert('网络未连接')
-      return
+      alert('网络未连接');
+      return;
     }
 
-    const result = await syncOfflineData()
+    const result = await syncOfflineData();
 
     if (result.success) {
-      alert(`同步完成，成功${result.synced}条`)
+      alert(`同步完成，成功${result.synced}条`);
     } else {
-      alert(result.error || `同步完成，成功${result.synced}条，失败${result.failed}条`)
+      alert(result.error || `同步完成，成功${result.synced}条，失败${result.failed}条`);
     }
-  }
+  };
 
   // ===== 离线数据缓存 =====
 
@@ -337,69 +337,69 @@ export const useNetworkStore = defineStore('network', () => {
       data,
       timestamp: Date.now(),
       expire: expireSeconds * 1000
-    }
+    };
 
     try {
-      localStorage.setItem(`cache_${key}`, JSON.stringify(cacheItem))
-      console.log('数据已缓存:', key)
+      localStorage.setItem(`cache_${key}`, JSON.stringify(cacheItem));
+      console.log('数据已缓存:', key);
     } catch (error) {
-      console.error('缓存数据失败:', error)
+      console.error('缓存数据失败:', error);
     }
-  }
+  };
 
   /**
    * 从本地缓存获取数据
    */
   const getCachedData = (key) => {
     try {
-      const cacheStr = localStorage.getItem(`cache_${key}`)
+      const cacheStr = localStorage.getItem(`cache_${key}`);
 
       if (!cacheStr) {
-        return null
+        return null;
       }
 
-      const cacheItem = JSON.parse(cacheStr)
+      const cacheItem = JSON.parse(cacheStr);
 
       // 检查是否过期
-      const now = Date.now()
+      const now = Date.now();
       if (now - cacheItem.timestamp > cacheItem.expire) {
         // 缓存已过期，删除
-        localStorage.removeItem(`cache_${key}`)
-        console.log('缓存已过期:', key)
-        return null
+        localStorage.removeItem(`cache_${key}`);
+        console.log('缓存已过期:', key);
+        return null;
       }
 
-      console.log('从缓存读取数据:', key)
-      return cacheItem.data
+      console.log('从缓存读取数据:', key);
+      return cacheItem.data;
 
     } catch (error) {
-      console.error('读取缓存失败:', error)
-      return null
+      console.error('读取缓存失败:', error);
+      return null;
     }
-  }
+  };
 
   /**
    * 清除指定缓存
    */
   const clearCache = (key) => {
-    localStorage.removeItem(`cache_${key}`)
-    console.log('缓存已清除:', key)
-  }
+    localStorage.removeItem(`cache_${key}`);
+    console.log('缓存已清除:', key);
+  };
 
   /**
    * 清除所有缓存
    */
   const clearAllCache = () => {
-    const keys = Object.keys(localStorage)
+    const keys = Object.keys(localStorage);
 
     keys.forEach(key => {
       if (key.startsWith('cache_')) {
-        localStorage.removeItem(key)
+        localStorage.removeItem(key);
       }
-    })
+    });
 
-    console.log('所有缓存已清除')
-  }
+    console.log('所有缓存已清除');
+  };
 
   // ===== 工具方法 =====
 
@@ -407,12 +407,12 @@ export const useNetworkStore = defineStore('network', () => {
    * 设置网络类型
    */
   const setNetworkType = (type) => {
-    networkType.value = type
-    isOnline.value = type !== 'none'
+    networkType.value = type;
+    isOnline.value = type !== 'none';
     if (isOnline.value) {
-      lastOnlineTime.value = new Date().toISOString()
+      lastOnlineTime.value = new Date().toISOString();
     }
-  }
+  };
 
   /**
    * 获取网络状态描述
@@ -425,25 +425,25 @@ export const useNetworkStore = defineStore('network', () => {
       '2g': '2G网络',
       unknown: '未知网络',
       none: '未连接网络'
-    }
-    return descriptions[networkType.value] || '未知网络'
-  })
+    };
+    return descriptions[networkType.value] || '未知网络';
+  });
 
   /**
    * 检查是否需要警告（长时间离线）
    */
   const checkOfflineWarning = () => {
-    if (isOnline.value) return false
+    if (isOnline.value) return false;
 
-    const offlineTime = localStorage.getItem('network_offline_time')
-    if (!offlineTime) return false
+    const offlineTime = localStorage.getItem('network_offline_time');
+    if (!offlineTime) return false;
 
-    const offlineDuration = Date.now() - new Date(offlineTime).getTime()
-    const offlineHours = offlineDuration / (1000 * 60 * 60)
+    const offlineDuration = Date.now() - new Date(offlineTime).getTime();
+    const offlineHours = offlineDuration / (1000 * 60 * 60);
 
     // 离线超过24小时警告
-    return offlineHours > 24
-  }
+    return offlineHours > 24;
+  };
 
   // 返回状态和方法
   return {
@@ -481,5 +481,5 @@ export const useNetworkStore = defineStore('network', () => {
     getCachedData,
     clearCache,
     clearAllCache
-  }
-})
+  };
+});

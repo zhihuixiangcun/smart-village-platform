@@ -263,6 +263,104 @@
       </template>
     </el-dialog>
 
+    <!-- 查看角色用户对话框 -->
+    <el-dialog
+      v-model="viewUsersDialogVisible"
+      :title="`角色用户 - ${selectedRole?.name || ''}`"
+      width="800px"
+      :destroy-on-close="true"
+    >
+      <div v-loading="userLoading" class="role-users-content">
+        <el-alert
+          :title="`共找到 ${currentRoleUsers.length} 个用户拥有此角色`"
+          type="info"
+          :closable="false"
+          style="margin-bottom: 20px"
+        />
+
+        <el-table :data="currentRoleUsers" style="width: 100%">
+          <el-table-column prop="name" label="姓名" width="120">
+            <template #default="{ row }">
+              <div class="user-cell">
+                <el-avatar :size="32" :src="row.avatar">
+                  {{ row.name.charAt(0) }}
+                </el-avatar>
+                <span style="margin-left: 8px">{{ row.name }}</span>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column prop="username" label="用户名" width="120" />
+          <el-table-column prop="email" label="邮箱" />
+          <el-table-column prop="department" label="部门" width="120" />
+          <el-table-column label="状态" width="80">
+            <template #default="{ row }">
+              <el-tag :type="row.status === 'active' ? 'success' : 'info'" size="small">
+                {{ row.status === 'active' ? '激活' : '禁用' }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="120" fixed="right">
+            <template #default="{ row }">
+              <el-button type="text" size="small" @click="viewUserDetail(row)">
+                查看详情
+              </el-button>
+              <el-button
+                type="text"
+                size="small"
+                @click="removeUserRole(selectedRole.id, row.id)"
+              >
+                移除角色
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+
+      <template #footer>
+        <el-button @click="viewUsersDialogVisible = false">关闭</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 批量操作对话框 -->
+    <el-dialog
+      v-model="batchOperationDialogVisible"
+      title="批量操作"
+      width="600px"
+      :destroy-on-close="true"
+    >
+      <el-form label-width="100px">
+        <el-form-item label="操作类型">
+          <el-radio-group v-model="batchOperationType">
+            <el-radio label="enable">批量启用</el-radio>
+            <el-radio label="disable">批量禁用</el-radio>
+            <el-radio label="delete">批量删除</el-radio>
+            <el-radio label="color">批量修改颜色</el-radio>
+          </el-radio-group>
+        </el-form-item>
+
+        <el-form-item label="选择角色">
+          <el-transfer
+            v-model="selectedBatchRoles"
+            :data="roles"
+            :titles="['可选角色', '已选角色']"
+            :props="{ key: 'id', label: 'name' }"
+            filterable
+          />
+        </el-form-item>
+
+        <el-form-item v-if="batchOperationType === 'color'" label="角色颜色">
+          <el-color-picker v-model="batchColor" />
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <el-button @click="batchOperationDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="executeBatchOperation" :loading="batchLoading">
+          执行操作
+        </el-button>
+      </template>
+    </el-dialog>
+
     <!-- 权限约束对话框 -->
     <el-dialog
       v-model="constraintsDialogVisible"
@@ -337,7 +435,8 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { Search, Plus, Operation, Download, MoreFilled, Setting } from '@element-plus/icons-vue';
+import { Search, Plus, Operation, Download, MoreFilled, Setting, User } from '@element-plus/icons-vue';
+import * as XLSX from 'xlsx';
 import enhancedPermissionService from '@/services/enhancedPermissionService';
 
 // 响应式数据
@@ -349,6 +448,18 @@ const roleDialogVisible = ref(false);
 const constraintsDialogVisible = ref(false);
 const isEditing = ref(false);
 const selectedPermission = ref(null);
+
+// 查看角色用户对话框
+const viewUsersDialogVisible = ref(false);
+const currentRoleUsers = ref([]);
+const userLoading = ref(false);
+
+// 批量操作对话框
+const batchOperationDialogVisible = ref(false);
+const selectedBatchRoles = ref([]);
+const batchOperationType = ref('');
+const batchLoading = ref(false);
+const batchColor = ref('#409eff');
 
 // 角色数据
 const roles = ref([
@@ -396,6 +507,17 @@ const roles = ref([
     inheritFrom: [],
     permissions: {},
   },
+]);
+
+// 用户数据（模拟）
+const users = ref([
+  { id: '1', name: '张三', username: 'zhangsan', email: 'zhangsan@example.com', department: '村委会', status: 'active', roles: ['1'] },
+  { id: '2', name: '李四', username: 'lisi', email: 'lisi@example.com', department: '财务部', status: 'active', roles: ['2'] },
+  { id: '3', name: '王五', username: 'wangwu', email: 'wangwu@example.com', department: '服务部', status: 'active', roles: ['3'] },
+  { id: '4', name: '赵六', username: 'zhaoliu', email: 'zhaoliu@example.com', department: '村委会', status: 'active', roles: ['1'] },
+  { id: '5', name: '孙七', username: 'sunqi', email: 'sunqi@example.com', department: '财务部', status: 'active', roles: ['2'] },
+  { id: '6', name: '周八', username: 'zhouba', email: 'zhouba@example.com', department: '服务部', status: 'active', roles: ['3'] },
+  { id: '7', name: '吴九', username: 'wujiu', email: 'wujiu@example.com', department: '村委会', status: 'inactive', roles: ['1'] },
 ]);
 
 // 权限分类配置
@@ -614,7 +736,7 @@ const handleRoleAction = async command => {
       break;
 
     case 'users':
-      ElMessage.info('查看角色用户功能待实现');
+      showRoleUsers(role);
       break;
 
     case 'toggle':
@@ -724,12 +846,160 @@ const saveConstraints = () => {
   constraintsDialogVisible.value = false;
 };
 
-const showBatchOperationDialog = () => {
-  ElMessage.info('批量操作功能待实现');
+// 查看角色用户功能
+const showRoleUsers = role => {
+  selectedRole.value = role;
+  loadRoleUsers(role.id);
+  viewUsersDialogVisible.value = true;
 };
 
+const loadRoleUsers = async roleId => {
+  userLoading.value = true;
+  try {
+    currentRoleUsers.value = users.value.filter(user => user.roles.includes(roleId));
+  } catch (error) {
+    console.error('加载角色用户失败:', error);
+    ElMessage.error('加载角色用户失败');
+  } finally {
+    userLoading.value = false;
+  }
+};
+
+const viewUserDetail = user => {
+  ElMessage.info(`查看用户详情: ${user.name}`);
+};
+
+const removeUserRole = async (roleId, userId) => {
+  try {
+    await ElMessageBox.confirm('确定要移除该用户的此角色吗？', '确认移除', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
+
+    const userIndex = users.value.findIndex(u => u.id === userId);
+    if (userIndex !== -1) {
+      const roleIndex = users.value[userIndex].roles.indexOf(roleId);
+      if (roleIndex !== -1) {
+        users.value[userIndex].roles.splice(roleIndex, 1);
+      }
+    }
+
+    loadRoleUsers(roleId);
+    ElMessage.success('角色移除成功');
+  } catch (error) {
+    if (error !== 'cancel') {
+      ElMessage.error('角色移除失败');
+    }
+  }
+};
+
+// 批量操作功能
+const showBatchOperationDialog = () => {
+  batchOperationType.value = 'enable';
+  selectedBatchRoles.value = [];
+  batchColor.value = '#409eff';
+  batchOperationDialogVisible.value = true;
+};
+
+const executeBatchOperation = async () => {
+  if (selectedBatchRoles.value.length === 0) {
+    ElMessage.warning('请选择要操作的角色');
+    return;
+  }
+
+  try {
+    const operationNames = {
+      enable: '启用',
+      disable: '禁用',
+      delete: '删除',
+      color: '修改颜色',
+    };
+
+    const confirmText = `确定要${operationNames[batchOperationType.value]} ${selectedBatchRoles.value.length} 个角色吗？`;
+    await ElMessageBox.confirm(confirmText, '确认操作', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
+
+    batchLoading.value = true;
+
+    selectedBatchRoles.value.forEach(roleId => {
+      const role = roles.value.find(r => r.id === roleId);
+      if (role) {
+        switch (batchOperationType.value) {
+          case 'enable':
+            role.status = 'active';
+            break;
+          case 'disable':
+            role.status = 'inactive';
+            break;
+          case 'delete':
+            const index = roles.value.findIndex(r => r.id === roleId);
+            if (index !== -1) {
+              roles.value.splice(index, 1);
+            }
+            break;
+          case 'color':
+            role.color = batchColor.value;
+            break;
+        }
+      }
+    });
+
+    ElMessage.success('批量操作成功');
+    batchOperationDialogVisible.value = false;
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('批量操作失败:', error);
+      ElMessage.error('批量操作失败');
+    }
+  } finally {
+    batchLoading.value = false;
+  }
+};
+
+// 导出角色功能
 const exportRoles = () => {
-  ElMessage.info('导出角色功能待实现');
+  try {
+    const exportData = roles.value.map(role => {
+      const permissionList = [];
+
+      permissionCategories.value.forEach(category => {
+        category.modules.forEach(module => {
+          module.permissions.forEach(permission => {
+            if (permission.checked) {
+              permissionList.push(`${category.name}-${module.name}-${permission.name}`);
+            }
+          });
+        });
+      });
+
+      return {
+        '角色ID': role.id,
+        '角色名称': role.name,
+        '角色描述': role.description,
+        '角色级别': role.level,
+        '状态': role.status === 'active' ? '启用' : '禁用',
+        '用户数量': role.userCount,
+        '角色颜色': role.color,
+        '继承角色': role.inheritFrom.join(', '),
+        '权限数量': permissionList.length,
+        '权限列表': permissionList.join('\n'),
+      };
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, '角色列表');
+    XLSX.writeFile(workbook, `角色列表_${new Date().toISOString().split('T')[0]}.xlsx`);
+
+    ElMessage.success('导出成功');
+  } catch (error) {
+    console.error('导出角色失败:', error);
+    ElMessage.error('导出角色失败');
+  }
 };
 
 // 生命周期
@@ -980,6 +1250,14 @@ onMounted(() => {
 
   :deep(.danger-item) {
     color: #f56c6c;
+  }
+
+  // 查看用户对话框样式
+  .role-users-content {
+    .user-cell {
+      display: flex;
+      align-items: center;
+    }
   }
 }
 </style>

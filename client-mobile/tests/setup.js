@@ -1,4 +1,4 @@
-import { vi } from 'vitest'
+import { vi, afterEach } from 'vitest'
 
 // Mock uni API
 global.uni = {
@@ -47,9 +47,26 @@ global.getCurrentPages = vi.fn(() => [
   }
 ])
 
-// Mock Pinia
-vi.mock('pinia', () => ({
-  createPinia: vi.fn(),
-  defineStore: vi.fn(),
-  setActivePinia: vi.fn()
-}))
+// Mock localStorage
+const localStorageMock = (() => {
+  let store = {};
+  return {
+    getItem: vi.fn((key) => store[key] || null),
+    setItem: vi.fn((key, value) => {
+      store[key] = value.toString();
+    }),
+    removeItem: vi.fn((key) => {
+      delete store[key];
+    }),
+    clear: vi.fn(() => {
+      store = {};
+    })
+  };
+})();
+
+global.localStorage = localStorageMock
+
+// Clear localStorage after each test
+afterEach(() => {
+  localStorageMock.clear();
+})

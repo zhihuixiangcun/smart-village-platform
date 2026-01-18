@@ -111,4 +111,13 @@ router.put('/conversations/:id/mute',
   asyncHandler(chatController.toggleMute)
 );
 
+/**
+ * @route   DELETE /api/v1/chat/conversations/:id/messages
+ * @desc    清空聊天记录
+ * @access  Private
+ */
+router.delete('/conversations/:id/messages',
+  asyncHandler(chatController.clearConversationMessages)
+);
+
 module.exports = router;

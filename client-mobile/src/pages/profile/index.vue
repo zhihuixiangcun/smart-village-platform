@@ -358,6 +358,7 @@ const handleLogout = () => {
   if (confirm('确定要退出登录吗？')) {
     userStore.logout()
     alert('已退出登录')
+    router.replace('/auth/login')
   }
 }
 

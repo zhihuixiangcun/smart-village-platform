@@ -592,6 +592,62 @@ export const chatApi = {
   toggleMute(conversationId) {
     return api.post(`/api/v1/chat/conversations/${conversationId}/mute`);
   },
+
+  // 清空聊天记录
+  clearMessages(conversationId, data) {
+    return api.delete(`/api/v1/chat/conversations/${conversationId}/messages`, { data });
+  },
+
+  // ==================== 群聊管理API ====================
+  // 获取群聊信息
+  getGroupInfo(conversationId) {
+    return api.get(`/api/v1/chat/conversations/${conversationId}/group-info`);
+  },
+
+  // 更新群聊信息
+  updateGroupInfo(conversationId, data) {
+    return api.put(`/api/v1/chat/conversations/${conversationId}/group-info`, data);
+  },
+
+  // 获取群成员列表
+  getGroupMembers(conversationId, params) {
+    return api.get(`/api/v1/chat/conversations/${conversationId}/members`, { params });
+  },
+
+  // 添加群成员
+  addGroupMembers(conversationId, data) {
+    return api.post(`/api/v1/chat/conversations/${conversationId}/members`, data);
+  },
+
+  // 移除群成员
+  removeGroupMember(conversationId, memberId) {
+    return api.delete(`/api/v1/chat/conversations/${conversationId}/members/${memberId}`);
+  },
+
+  // 设置群管理员
+  setGroupAdmin(conversationId, memberId, data) {
+    return api.put(`/api/v1/chat/conversations/${conversationId}/members/${memberId}/admin`, data);
+  },
+
+  // 转让群主
+  transferOwnership(conversationId, data) {
+    return api.post(`/api/v1/chat/conversations/${conversationId}/transfer`, data);
+  },
+
+  // 退出群聊
+  leaveGroup(conversationId) {
+    return api.post(`/api/v1/chat/conversations/${conversationId}/leave`);
+  },
+
+  // 解散群聊
+  dissolveGroup(conversationId) {
+    return api.post(`/api/v1/chat/conversations/${conversationId}/dissolve`);
+  },
+
+  // 更新群公告
+  updateGroupAnnouncement(conversationId, data) {
+    return api.put(`/api/v1/chat/conversations/${conversationId}/announcement`, data);
+  },
 };
 
 /**

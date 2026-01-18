@@ -176,6 +176,170 @@ const dashboardApi = {
   sendSMS(data) {
     return request.post('/api/v1/communications/sms', data);
   },
+
+  // ==================== Dashboard 数据保存 ====================
+
+  /**
+   * 创建待办事项
+   * @param {Object} data - 待办事项数据
+   * @param {string} data.title - 标题
+   * @param {string} data.description - 描述
+   * @param {string} data.type - 类型 (人事/党务/行政/财务/应急)
+   * @param {string} data.priority - 优先级 (low/medium/high/urgent)
+   * @param {string} data.status - 状态 (pending/in_progress/completed)
+   * @param {Date|string} data.dueDate - 截止日期
+   * @returns {Promise} 创建的待办事项
+   */
+  createTodo(data) {
+    return request.post('/api/village/dashboard/todos', data);
+  },
+
+  /**
+   * 更新待办事项
+   * @param {string} todoId - 待办事项ID
+   * @param {Object} data - 更新数据
+   * @returns {Promise} 更新后的待办事项
+   */
+  updateTodo(todoId, data) {
+    return request.put(`/api/village/dashboard/todos/${todoId}`, data);
+  },
+
+  /**
+   * 删除待办事项
+   * @param {string} todoId - 待办事项ID
+   * @returns {Promise} 删除结果
+   */
+  deleteTodo(todoId) {
+    return request.delete(`/api/village/dashboard/todos/${todoId}`);
+  },
+
+  /**
+   * 批量更新待办事项状态
+   * @param {Array<string>} todoIds - 待办事项ID数组
+   * @param {string} status - 新状态
+   * @returns {Promise} 批量更新结果
+   */
+  batchUpdateTodoStatus(todoIds, status) {
+    return request.put('/api/village/dashboard/todos/batch', { todoIds, status });
+  },
+
+  /**
+   * 批量删除待办事项
+   * @param {Array<string>} todoIds - 待办事项ID数组
+   * @returns {Promise} 批量删除结果
+   */
+  batchDeleteTodos(todoIds) {
+    return request.delete('/api/village/dashboard/todos/batch', { data: { todoIds } });
+  },
+
+  /**
+   * 保存Dashboard配置
+   * @param {Object} config - Dashboard配置
+   * @param {Array} config.widgets - Widget布局配置
+   * @param {Object} config.filters - 筛选器设置
+   * @param {string} config.theme - 主题设置
+   * @param {Object} config.layout - 布局配置
+   * @returns {Promise} 保存结果
+   */
+  saveDashboardSettings(config) {
+    return request.post('/api/village/dashboard/settings', config);
+  },
+
+  /**
+   * 保存图表配置
+   * @param {Object} config - 图表配置
+   * @param {string} config.chartId - 图表ID
+   * @param {string} config.period - 时间周期
+   * @param {Object} config.options - 图表选项
+   * @returns {Promise} 保存结果
+   */
+  saveChartConfig(config) {
+    return request.post('/api/village/dashboard/chart-config', config);
+  },
+
+  // ==================== Dashboard 数据获取 ====================
+
+  /**
+   * 获取Dashboard概览数据
+   * @param {Object} params - 查询参数
+   * @param {string} params.villageId - 村庄ID
+   * @param {string} params.period - 时间周期 (day/week/month)
+   * @returns {Promise} Dashboard概览数据
+   */
+  getDashboardOverview(params = {}) {
+    return request.get('/api/village/dashboard/overview', { params });
+  },
+
+  /**
+   * 获取待办事项列表（增强版）
+   * @param {Object} params - 查询参数
+   * @param {number} params.page - 页码
+   * @param {number} params.limit - 每页数量
+   * @param {string} params.status - 状态筛选
+   * @param {string} params.type - 类型筛选
+   * @param {string} params.priority - 优先级筛选
+   * @param {Date|string} params.startDate - 开始日期
+   * @param {Date|string} params.endDate - 结束日期
+   * @param {string} params.keyword - 关键词搜索
+   * @returns {Promise} 待办事项列表（带分页）
+   */
+  getTodosEnhanced(params = {}) {
+    return request.get('/api/village/dashboard/todos', { params });
+  },
+
+  /**
+   * 获取统计数据
+   * @param {Object} params - 查询参数
+   * @param {string} params.villageId - 村庄ID
+   * @param {string} params.period - 统计周期 (week/month/year)
+   * @param {Array<string>} params.metrics - 统计指标数组
+   * @returns {Promise} 统计数据
+   */
+  getDashboardStatistics(params = {}) {
+    return request.get('/api/village/dashboard/statistics', { params });
+  },
+
+  /**
+   * 获取用户Dashboard配置
+   * @param {string} userId - 用户ID（可选，默认使用当前用户）
+   * @returns {Promise} Dashboard配置
+   */
+  getDashboardSettings(userId) {
+    const url = userId ? `/api/village/dashboard/settings?userId=${userId}` : '/api/village/dashboard/settings';
+    return request.get(url);
+  },
+
+  /**
+   * 获取图表配置
+   * @param {string} chartId - 图表ID
+   * @returns {Promise} 图表配置
+   */
+  getChartConfig(chartId) {
+    return request.get(`/api/village/dashboard/chart-config/${chartId}`);
+  },
+
+  // ==================== 批量操作 ====================
+
+  /**
+   * 批量保存待办事项
+   * @param {Array<Object>} todos - 待办事项数组
+   * @returns {Promise} 批量保存结果
+   */
+  batchSaveTodos(todos) {
+    return request.post('/api/village/dashboard/todos/batch', { todos });
+  },
+
+  /**
+   * 批量保存配置
+   * @param {Object} data - 批量数据
+   * @param {Object} data.settings - Dashboard配置
+   * @param {Object} data.chartConfigs - 图表配置
+   * @param {Object} data.filterConfigs - 筛选器配置
+   * @returns {Promise} 批量保存结果
+   */
+  batchSaveConfigs(data) {
+    return request.post('/api/village/dashboard/batch-save', data);
+  },
 };
 
 export default dashboardApi;

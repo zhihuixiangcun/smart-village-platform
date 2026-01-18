@@ -1,0 +1,12 @@
+{
+  "name": "learning-output-style",
+  "version": "1.0.0",
+  "description": "Interactive learning mode that requests meaningful code contributions at decision points",
+  "author": "Anthropic",
+  "hooks": [
+    {
+      "name": "SessionStart",
+      "description": "Encourages users to write meaningful code while receiving educational insights"
+    }
+  ]
+}

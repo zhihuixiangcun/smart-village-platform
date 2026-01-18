@@ -1,734 +1,531 @@
-import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { defineStore } from 'pinia';
+import { ref, computed } from 'vue';
+
+// API基础地址
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api/v1';
+const CHAT_API_BASE = `${API_BASE_URL}/chat`;
 
 /**
- * 聊天Store
- * 管理聊天会话、消息、群组、好友等
+ * 获取认证token
  */
+function getAuthToken() {
+  return localStorage.getItem('auth_token') || '';
+}
+
+/**
+ * 通用API请求函数
+ */
+async function apiRequest(url, options = {}) {
+  const token = getAuthToken();
+
+  const config = {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(options.headers || {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    }
+  };
+
+  try {
+    const response = await fetch(url, config);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `请求失败: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('API请求失败:', error);
+    throw error;
+  }
+}
+
 export const useChatStore = defineStore('chat', () => {
-  // ===== 状态 =====
+  // 状态
+  const conversations = ref([]);
+  const messages = ref({});
+  const activeConversationId = ref(null);
+  const loading = ref(false);
+  const loadingMore = ref(false);
+  const sending = ref(false);
 
-  // 当前选中的会话ID
-  const activeConversationId = ref(null)
-
-  // 会话列表
-  const conversations = ref([])
-
-  // 消息列表 (按会话ID分组)
-  const messages = ref({})
-
-  // 当前正在输入的文本
-  const inputText = ref('')
-
-  // 是否正在加载更多消息
-  const loadingMore = ref(false)
-
-  // 是否正在发送消息
-  const sending = ref(false)
-
-  // 联系人列表（所有联系人）
-  const contacts = ref([])
-
-  // 好友列表
-  const friends = ref([])
-
-  // 群组列表
-  const groups = ref([])
-
-  // 好友申请列表（收到的）
-  const receivedRequests = ref([])
-
-  // 好友申请列表（发出的）
-  const sentRequests = ref([])
-
-  // ===== 计算属性 =====
-
-  // 当前会话
+  // 当前激活的会话
   const activeConversation = computed(() => {
-    return conversations.value.find(c => c.id === activeConversationId.value) || null
-  })
+    return conversations.value.find(c => c._id === activeConversationId.value) || null;
+  });
 
   // 当前会话的消息列表
   const activeMessages = computed(() => {
-    return messages.value[activeConversationId.value] || []
-  })
-
-  // 未读消息总数
-  const unreadCount = computed(() => {
-    return conversations.value.reduce((sum, c) => sum + (c.unreadCount || 0), 0)
-  })
-
-  // 未处理的好友申请数量
-  const pendingRequestsCount = computed(() => {
-    return receivedRequests.value.filter(r => r.status === 'pending').length
-  })
-
-  // ===== 方法 =====
+    return messages.value[activeConversationId.value] || [];
+  });
 
   /**
    * 获取会话列表
    */
-  const fetchConversations = async () => {
+  async function fetchConversations() {
     try {
-      // 模拟数据
-      const mockConversations = [
-        {
-          id: 'conv_001',
-          type: 'private',
-          name: '村支书',
-          avatar: '👨‍💼',
-          lastMessage: '好的，明天开会讨论',
-          lastMessageTime: new Date().toISOString(),
-          unreadCount: 2,
-          online: true
-        },
-        {
-          id: 'conv_002',
-          type: 'group',
-          name: '东村村民群',
-          avatar: '👥',
-          lastMessage: '李大姐: 今年的水稻长势不错',
-          lastMessageTime: new Date(Date.now() - 3600000).toISOString(),
-          unreadCount: 5,
-          memberCount: 45
-        },
-        {
-          id: 'conv_003',
-          type: 'private',
-          name: '王会计',
-          avatar: '👩‍💼',
-          lastMessage: '财务报表已经发给你了',
-          lastMessageTime: new Date(Date.now() - 86400000).toISOString(),
-          unreadCount: 0,
-          online: false
-        },
-        {
-          id: 'conv_004',
-          type: 'group',
-          name: '村务工作群',
-          avatar: '📋',
-          lastMessage: '张主任: 请大家按时提交周报',
-          lastMessageTime: new Date(Date.now() - 172800000).toISOString(),
-          unreadCount: 0,
-          memberCount: 12
-        }
-      ]
+      loading.value = true;
+      const response = await apiRequest(`${CHAT_API_BASE}/conversations`);
+      
+      if (response.success) {
+        // 转换会话数据格式以匹配前端需求
+        const conversations = (response.data.conversations || []).map(conv => {
+          // 获取参与者信息
+          const participants = conv.participants || [];
+          const currentUserIndex = participants.findIndex(p => p.username === 'admin'); // 假设当前用户
+          
+          // 计算未读数
+          const unreadCount = conv.unreadCount 
+            ? conv.unreadCount.get('admin') || 0 
+            : 0;
 
-      conversations.value = mockConversations
-      console.log('会话列表加载成功')
-      return mockConversations
-    } catch (error) {
-      console.error('获取会话列表失败:', error)
-      return []
-    }
-  }
+          // 获取对方信息（用于私聊显示）
+          const otherUser = conv.type === 'private' 
+            ? participants.find(p => p._id.toString() !== '695a5a09aff959537acf60b')
+            : null;
 
-  /**
-   * 获取会话消息
-   */
-  const fetchMessages = async (conversationId, loadMore = false) => {
-    if (!loadMore && messages.value[conversationId]?.length > 0) {
-      return messages.value[conversationId]
-    }
+          return {
+            id: conv._id,
+            type: conv.type,
+            name: otherUser?.username || conv.groupInfo?.name || '会话',
+            avatar: otherUser?.profile?.avatar || conv.groupInfo?.avatar || '👤',
+            online: otherUser?.status === 'active', // 假设在线状态
+            lastMessage: formatLastMessage(conv),
+            lastMessageTime: conv.lastMessageAt,
+            unreadCount
+          };
+        });
 
-    if (loadingMore.value) return
-
-    loadingMore.value = true
-
-    try {
-      // 模拟消息数据
-      const mockMessages = [
-        {
-          id: 'msg_001',
-          conversationId,
-          senderId: 'user_001',
-          senderName: '张大山',
-          senderAvatar: '👤',
-          content: '你好，请问明天的会议几点开始？',
-          type: 'text',
-          timestamp: new Date(Date.now() - 3600000).toISOString(),
-          isSelf: true,
-          read: true
-        },
-        {
-          id: 'msg_002',
-          conversationId,
-          senderId: 'user_002',
-          senderName: '村支书',
-          senderAvatar: '👨‍💼',
-          content: '明天下午2点在村委会会议室',
-          type: 'text',
-          timestamp: new Date(Date.now() - 3000000).toISOString(),
-          isSelf: false,
-          read: true
-        },
-        {
-          id: 'msg_003',
-          conversationId,
-          senderId: 'user_002',
-          senderName: '村支书',
-          senderAvatar: '👨‍💼',
-          content: '好的，明天开会讨论',
-          type: 'text',
-          timestamp: new Date().toISOString(),
-          isSelf: false,
-          read: false
-        }
-      ]
-
-      // 如果是加载更多，添加到现有消息前面
-      if (loadMore && messages.value[conversationId]) {
-        messages.value[conversationId] = [...mockMessages, ...messages.value[conversationId]]
-      } else {
-        messages.value[conversationId] = mockMessages
+        conversations.value = conversations;
       }
 
-      console.log('消息加载成功:', conversationId)
-      return mockMessages
+      return response;
     } catch (error) {
-      console.error('获取消息失败:', error)
-      return []
+      console.error('获取会话列表失败:', error);
+      throw error;
     } finally {
-      loadingMore.value = false
+      loading.value = false;
     }
   }
 
   /**
-   * 发送消息
+   * 格式化最后消息文本
    */
-  const sendMessage = async (conversationId, content, type = 'text') => {
-    if (!content?.trim()) {
-      return null
+  function formatLastMessage(conv) {
+    if (!conv.lastMessage) {
+      return '暂无消息';
     }
 
-    sending.value = true
+    // lastMessage可能是引用ID，需要通过lastMessage的type来判断
+    // 这里简化处理，直接返回默认值
+    return '最近消息';
+  }
 
+  /**
+   * 设置当前激活的会话
+   */
+  async function setActiveConversation(conversationId) {
     try {
-      // 创建新消息
-      const newMessage = {
-        id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        conversationId,
-        senderId: 'current_user',
-        senderName: '张大山',
-        senderAvatar: '👤',
-        content,
-        type,
-        timestamp: new Date().toISOString(),
-        isSelf: true,
-        read: false,
-        status: 'sending'
+      activeConversationId.value = conversationId;
+
+      // 如果已有消息，不再重新获取
+      if (messages.value[conversationId] && messages.value[conversationId].length > 0) {
+        return;
       }
 
-      // 添加到消息列表
-      if (!messages.value[conversationId]) {
-        messages.value[conversationId] = []
-      }
-      messages.value[conversationId].push(newMessage)
-
-      // 更新会话的最后消息
-      const conversation = conversations.value.find(c => c.id === conversationId)
-      if (conversation) {
-        conversation.lastMessage = content
-        conversation.lastMessageTime = newMessage.timestamp
-        // 移到顶部
-        conversations.value = [
-          conversation,
-          ...conversations.value.filter(c => c.id !== conversationId)
-        ]
-      }
-
-      // 模拟网络请求
-      await new Promise(resolve => setTimeout(resolve, 500))
-
-      // 更新消息状态为已发送
-      newMessage.status = 'sent'
-
-      console.log('消息发送成功:', newMessage)
-      return newMessage
+      // 获取会话消息
+      await fetchMessages(conversationId);
     } catch (error) {
-      console.error('发送消息失败:', error)
-      return null
-    } finally {
-      sending.value = false
+      console.error('设置会话失败:', error);
+      throw error;
     }
   }
 
   /**
-   * 设置当前会话
+   * 获取会话消息列表
    */
-  const setActiveConversation = async (conversationId) => {
-    activeConversationId.value = conversationId
-
-    if (conversationId) {
-      // 清除未读数
-      const conversation = conversations.value.find(c => c.id === conversationId)
-      if (conversation) {
-        conversation.unreadCount = 0
-      }
-
-      // 加载消息
-      await fetchMessages(conversationId)
-    }
-  }
-
-  /**
-   * 创建新会话
-   */
-  const createConversation = async (type, targetUser = null) => {
+  async function fetchMessages(conversationId, options = {}) {
     try {
-      const newConversation = {
-        id: `conv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        type,
-        name: targetUser?.name || '新对话',
-        avatar: targetUser?.avatar || '👤',
-        lastMessage: '',
-        lastMessageTime: new Date().toISOString(),
-        unreadCount: 0,
-        online: targetUser?.online || false
-      }
+      loadingMore.value = true;
 
-      conversations.value.unshift(newConversation)
-      await setActiveConversation(newConversation.id)
+      const params = new URLSearchParams({
+        limit: options.limit || '50',
+        ...(options.before && { before: options.before }),
+        ...(options.after && { after: options.after })
+      });
 
-      console.log('会话创建成功:', newConversation)
-      return newConversation
-    } catch (error) {
-      console.error('创建会话失败:', error)
-      return null
-    }
-  }
+      const response = await apiRequest(`${CHAT_API_BASE}/conversations/${conversationId}/messages?${params}`);
 
-  /**
-   * 获取联系人列表
-   */
-  const fetchContacts = async () => {
-    try {
-      const mockContacts = [
-        { id: 'user_002', name: '村支书', avatar: '👨‍💼', role: '支部书记', phone: '138****1234', online: true },
-        { id: 'user_003', name: '王会计', avatar: '👩‍💼', role: '会计', phone: '138****5678', online: false },
-        { id: 'user_004', name: '李大姐', avatar: '👩', role: '村民', phone: '138****9012', online: true },
-        { id: 'user_005', name: '张主任', avatar: '👨', role: '主任', phone: '138****3456', online: false },
-        { id: 'user_006', name: '刘秘书', avatar: '👩‍💼', role: '秘书', phone: '138****7890', online: true }
-      ]
+      if (response.success) {
+        const newMessages = response.data || [];
 
-      contacts.value = mockContacts
-      return mockContacts
-    } catch (error) {
-      console.error('获取联系人失败:', error)
-      return []
-    }
-  }
-
-  /**
-   * 获取群组列表
-   */
-  const fetchGroups = async () => {
-    try {
-      const mockGroups = [
-        {
-          id: 'group_001',
-          name: '东村村民群',
-          avatar: '👥',
-          description: '东村全体村民交流群',
-          memberCount: 45,
-          ownerId: 'user_002',
-          isAdmin: false,
-          createdAt: new Date('2024-01-01').toISOString()
-        },
-        {
-          id: 'group_002',
-          name: '村务工作群',
-          avatar: '📋',
-          description: '村务工作交流群',
-          memberCount: 12,
-          ownerId: 'user_005',
-          isAdmin: false,
-          createdAt: new Date('2024-01-15').toISOString()
-        },
-        {
-          id: 'group_003',
-          name: '农业技术交流群',
-          avatar: '🌾',
-          description: '农业种植技术交流',
-          memberCount: 28,
-          ownerId: 'user_003',
-          isAdmin: true,
-          createdAt: new Date('2024-02-01').toISOString()
+        if (!messages.value[conversationId]) {
+          messages.value[conversationId] = [];
         }
-      ]
 
-      groups.value = mockGroups
-      return mockGroups
+        if (options.append) {
+          // 追加到现有消息列表（加载更多）
+          messages.value[conversationId] = [...newMessages, ...messages.value[conversationId]];
+        } else {
+          // 替换整个消息列表
+          messages.value[conversationId] = newMessages;
+        }
+      }
+
+      return response;
     } catch (error) {
-      console.error('获取群组失败:', error)
-      return []
+      console.error('获取消息列表失败:', error);
+      throw error;
+    } finally {
+      loadingMore.value = false;
+    }
+  }
+
+  /**
+   * 发送文本消息
+   */
+  async function sendMessage(conversationId, content) {
+    try {
+      sending.value = true;
+
+      const response = await apiRequest(`${CHAT_API_BASE}/conversations/${conversationId}/messages`, {
+        method: 'POST',
+        body: JSON.stringify({
+          type: 'text',
+          content
+        })
+      });
+
+      if (response.success) {
+        const message = response.data;
+
+        // 添加到消息列表
+        if (!messages.value[conversationId]) {
+          messages.value[conversationId] = [];
+        }
+        messages.value[conversationId].push(message);
+
+        // 更新会话的最后消息
+        const conversation = conversations.value.find(c => c._id === conversationId);
+        if (conversation) {
+          conversation.lastMessage = content;
+          conversation.lastMessageTime = message.timestamp;
+        }
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error('发送消息失败:', error);
+      throw error;
+    } finally {
+      sending.value = false;
     }
   }
 
   /**
    * 发送图片消息
    */
-  const sendImageMessage = async (conversationId, imageUrl) => {
-    return sendMessage(conversationId, imageUrl, 'image')
+  async function sendImageMessage(conversationId, imageUrl) {
+    try {
+      sending.value = true;
+
+      const response = await apiRequest(`${CHAT_API_BASE}/conversations/${conversationId}/messages`, {
+        method: 'POST',
+        body: JSON.stringify({
+          type: 'image',
+          content: imageUrl,
+          file: {
+            url: imageUrl
+          }
+        })
+      });
+
+      if (response.success) {
+        const message = response.data;
+
+        if (!messages.value[conversationId]) {
+          messages.value[conversationId] = [];
+        }
+        messages.value[conversationId].push(message);
+
+        const conversation = conversations.value.find(c => c._id === conversationId);
+        if (conversation) {
+          conversation.lastMessage = '[图片]';
+          conversation.lastMessageTime = message.timestamp;
+        }
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error('发送图片消息失败:', error);
+      throw error;
+    } finally {
+      sending.value = false;
+    }
   }
 
   /**
    * 发送语音消息
    */
-  const sendVoiceMessage = async (conversationId, voiceUrl, duration) => {
-    const message = await sendMessage(conversationId, voiceUrl, 'voice')
-    if (message) {
-      message.duration = duration
+  async function sendVoiceMessage(conversationId, voiceUrl, duration) {
+    try {
+      sending.value = true;
+
+      const response = await apiRequest(`${CHAT_API_BASE}/conversations/${conversationId}/messages`, {
+        method: 'POST',
+        body: JSON.stringify({
+          type: 'voice',
+          content: voiceUrl,
+          duration
+        })
+      });
+
+      if (response.success) {
+        const message = response.data;
+
+        if (!messages.value[conversationId]) {
+          messages.value[conversationId] = [];
+        }
+        messages.value[conversationId].push(message);
+
+        const conversation = conversations.value.find(c => c._id === conversationId);
+        if (conversation) {
+          conversation.lastMessage = '[语音]';
+          conversation.lastMessageTime = message.timestamp;
+        }
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error('发送语音消息失败:', error);
+      throw error;
+    } finally {
+      sending.value = false;
     }
-    return message
+  }
+
+  /**
+   * 发送位置消息
+   */
+  async function sendLocationMessage(conversationId, locationData) {
+    try {
+      sending.value = true;
+
+      const response = await apiRequest(`${CHAT_API_BASE}/conversations/${conversationId}/messages`, {
+        method: 'POST',
+        body: JSON.stringify({
+          type: 'location',
+          content: JSON.stringify(locationData),
+          location: locationData
+        })
+      });
+
+      if (response.success) {
+        const message = response.data;
+
+        if (!messages.value[conversationId]) {
+          messages.value[conversationId] = [];
+        }
+        messages.value[conversationId].push(message);
+
+        const conversation = conversations.value.find(c => c._id === conversationId);
+        if (conversation) {
+          conversation.lastMessage = '[位置]';
+          conversation.lastMessageTime = message.timestamp;
+        }
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error('发送位置消息失败:', error);
+      throw error;
+    } finally {
+      sending.value = false;
+    }
   }
 
   /**
    * 标记消息为已读
    */
-  const markAsRead = async (conversationId) => {
-    const conversation = conversations.value.find(c => c.id === conversationId)
-    if (conversation) {
-      conversation.unreadCount = 0
-    }
+  async function markAsRead(conversationId) {
+    try {
+      const response = await apiRequest(`${CHAT_API_BASE}/conversations/${conversationId}/read`, {
+        method: 'POST',
+        body: JSON.stringify({})
+      });
 
-    const msgs = messages.value[conversationId]
-    if (msgs) {
-      msgs.forEach(msg => {
-        if (!msg.isSelf) {
-          msg.read = true
+      if (response.success) {
+        // 更新会话未读数
+        const conversation = conversations.value.find(c => c._id === conversationId);
+        if (conversation) {
+          conversation.unreadCount = 0;
         }
-      })
-    }
+      }
 
-    console.log('消息已标记为已读:', conversationId)
+      return response;
+    } catch (error) {
+      console.error('标记已读失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 创建会话（私聊或群聊）
+   */
+  async function createConversation(type, participants, groupInfo) {
+    try {
+      const response = await apiRequest(`${CHAT_API_BASE}/conversations`, {
+        method: 'POST',
+        body: JSON.stringify({
+          type,
+          participants,
+          groupInfo
+        })
+      });
+
+      if (response.success) {
+        const conversation = response.data;
+        conversations.value.unshift(conversation);
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error('创建会话失败:', error);
+      throw error;
+    }
   }
 
   /**
    * 撤回消息
    */
-  const recallMessage = async (conversationId, messageId) => {
+  async function recallMessage(conversationId, messageId) {
     try {
-      const message = messages.value[conversationId]?.find(m => m.id === messageId)
-      if (message) {
-        message.recalled = true
-        message.content = '消息已撤回'
-        message.type = 'recall'
-      }
+      const response = await apiRequest(`${CHAT_API_BASE}/conversations/${conversationId}/messages/${messageId}/recall`, {
+        method: 'PUT'
+      });
 
-      console.log('消息已撤回:', messageId)
-      return true
-    } catch (error) {
-      console.error('撤回消息失败:', error)
-      return false
-    }
-  }
-
-  /**
-   * 删除会话
-   */
-  const deleteConversation = async (conversationId) => {
-    try {
-      conversations.value = conversations.value.filter(c => c.id !== conversationId)
-      delete messages.value[conversationId]
-
-      if (activeConversationId.value === conversationId) {
-        activeConversationId.value = null
-      }
-
-      console.log('会话已删除:', conversationId)
-      return true
-    } catch (error) {
-      console.error('删除会话失败:', error)
-      return false
-    }
-  }
-
-  /**
-   * 清空输入框
-   */
-  const clearInput = () => {
-    inputText.value = ''
-  }
-
-  // ===== 好友管理方法 =====
-
-  /**
-   * 获取好友列表
-   */
-  const fetchFriends = async () => {
-    try {
-      const mockFriends = [
-        {
-          id: 'friend_001',
-          userId: 'user_002',
-          name: '村支书',
-          avatar: '👨‍💼',
-          phone: '138****1234',
-          villageName: '东村',
-          role: 'cadre',
-          remark: '村支书',
-          online: true,
-          tags: ['工作', '村干部']
-        },
-        {
-          id: 'friend_002',
-          userId: 'user_003',
-          name: '王会计',
-          avatar: '👩‍💼',
-          phone: '138****5678',
-          villageName: '东村',
-          role: 'villager',
-          remark: '王姐',
-          online: false,
-          tags: ['工作']
-        },
-        {
-          id: 'friend_003',
-          userId: 'user_004',
-          name: '李大姐',
-          avatar: '👩',
-          phone: '138****9012',
-          villageName: '东村',
-          role: 'villager',
-          remark: '邻居',
-          online: true,
-          tags: ['邻居']
-        }
-      ]
-
-      friends.value = mockFriends
-      return mockFriends
-    } catch (error) {
-      console.error('获取好友列表失败:', error)
-      return []
-    }
-  }
-
-  /**
-   * 搜索用户（通过手机号/乡村号/姓名）
-   */
-  const searchUser = async (keyword, type = 'phone') => {
-    try {
-      // 模拟搜索用户
-      const mockUsers = [
-        {
-          id: 'user_search_001',
-          phone: '13800138000',
-          villageId: 'DZ2024001',
-          name: '李小红',
-          avatar: '👩',
-          villageName: '东村',
-          role: 'villager',
-          verified: true,
-          status: 'stranger'
-        }
-      ]
-
-      let foundUser = null
-      if (type === 'phone') {
-        foundUser = mockUsers.find(u => u.phone === keyword)
-      } else if (type === 'villageId') {
-        foundUser = mockUsers.find(u => u.villageId.toLowerCase() === keyword.toLowerCase())
-      } else if (type === 'name') {
-        foundUser = mockUsers.find(u => u.name.includes(keyword))
-      }
-
-      return foundUser || null
-    } catch (error) {
-      console.error('搜索用户失败:', error)
-      return null
-    }
-  }
-
-  /**
-   * 发送好友请求
-   */
-  const sendFriendRequest = async (userId, message, remark) => {
-    try {
-      const request = {
-        id: `req_${Date.now()}`,
-        userId,
-        message,
-        remark,
-        timestamp: new Date().toISOString(),
-        status: 'pending'
-      }
-
-      sentRequests.value.push(request)
-
-      console.log('好友请求已发送:', request)
-      return { success: true, request }
-    } catch (error) {
-      console.error('发送好友请求失败:', error)
-      return { success: false, error }
-    }
-  }
-
-  /**
-   * 获取收到的好友请求列表
-   */
-  const fetchReceivedRequests = async () => {
-    try {
-      const mockRequests = [
-        {
-          id: 'req_001',
-          userId: 'user_001',
-          name: '李小红',
-          avatar: '👩',
-          phone: '138****1234',
-          villageName: '东村',
-          message: '你好，我是东村的李小红',
-          timestamp: new Date(Date.now() - 300000).toISOString(),
-          status: 'pending'
-        }
-      ]
-
-      receivedRequests.value = mockRequests
-      return mockRequests
-    } catch (error) {
-      console.error('获取好友请求失败:', error)
-      return []
-    }
-  }
-
-  /**
-   * 处理好友请求（接受/拒绝）
-   */
-  const handleFriendRequest = async (requestId, action) => {
-    try {
-      const request = receivedRequests.value.find(r => r.id === requestId)
-      if (request) {
-        request.status = action === 'accept' ? 'accepted' : 'rejected'
-
-        // 如果接受，添加到好友列表
-        if (action === 'accept') {
-          const newFriend = {
-            id: `friend_${request.userId}`,
-            userId: request.userId,
-            name: request.name,
-            avatar: request.avatar,
-            phone: request.phone,
-            villageName: request.villageName,
-            role: 'villager',
-            remark: '',
-            online: false,
-            tags: []
+      if (response.success) {
+        // 更新消息列表
+        if (messages.value[conversationId]) {
+          const message = messages.value[conversationId].find(m => m._id === messageId);
+          if (message) {
+            message.type = 'recall';
+            message.content = '消息已撤回';
           }
-          friends.value.push(newFriend)
         }
-
-        console.log(`好友请求已${action === 'accept' ? '接受' : '拒绝'}:`, requestId)
-        return { success: true }
       }
 
-      return { success: false, error: '请求不存在' }
+      return response;
     } catch (error) {
-      console.error('处理好友请求失败:', error)
-      return { success: false, error }
+      console.error('撤回消息失败:', error);
+      throw error;
     }
   }
 
   /**
-   * 删除好友
+   * 清空聊天记录
    */
-  const deleteFriend = async (friendId) => {
+  async function clearMessages(conversationId, options = {}) {
     try {
-      friends.value = friends.value.filter(f => f.id !== friendId)
-      console.log('好友已删除:', friendId)
-      return { success: true }
-    } catch (error) {
-      console.error('删除好友失败:', error)
-      return { success: false, error }
-    }
-  }
+      const response = await apiRequest(`${CHAT_API_BASE}/conversations/${conversationId}/messages`, {
+        method: 'DELETE',
+        body: JSON.stringify(options)
+      });
 
-  /**
-   * 修改好友备注
-   */
-  const updateFriendRemark = async (friendId, remark) => {
-    try {
-      const friend = friends.value.find(f => f.id === friendId)
-      if (friend) {
-        friend.remark = remark
-        console.log('好友备注已更新:', friendId, remark)
-        return { success: true }
+      if (response.success) {
+        // 清空本地消息列表
+        messages.value[conversationId] = [];
+
+        // 更新会话
+        const conversation = conversations.value.find(c => c._id === conversationId);
+        if (conversation) {
+          conversation.lastMessage = '';
+          conversation.lastMessageTime = null;
+          conversation.unreadCount = 0;
+        }
       }
-      return { success: false, error: '好友不存在' }
+
+      return response;
     } catch (error) {
-      console.error('修改备注失败:', error)
-      return { success: false, error }
+      console.error('清空聊天记录失败:', error);
+      throw error;
     }
   }
 
   /**
-   * 匹配通讯录好友
+   * 置顶/取消置顶会话
    */
-  const matchPhoneContacts = async (phoneContacts) => {
+  async function togglePin(conversationId) {
     try {
-      // 模拟匹配结果
-      const matched = phoneContacts.map(contact => ({
-        ...contact,
-        registered: Math.random() > 0.3, // 70%概率已注册
-        isFriend: Math.random() > 0.7 // 30%概率已是好友
-      }))
+      const response = await apiRequest(`${CHAT_API_BASE}/conversations/${conversationId}/pin`, {
+        method: 'PUT'
+      });
 
-      console.log('通讯录匹配完成:', matched.length, '个联系人')
-      return { success: true, matched }
+      if (response.success) {
+        const conversation = conversations.value.find(c => c._id === conversationId);
+        if (conversation) {
+          conversation.isPinned = response.data.isPinned;
+        }
+      }
+
+      return response;
     } catch (error) {
-      console.error('匹配通讯录失败:', error)
-      return { success: false, error }
+      console.error('切换置顶状态失败:', error);
+      throw error;
     }
   }
 
-  // 返回状态和方法
+  /**
+   * 静音/取消静音会话
+   */
+  async function toggleMute(conversationId) {
+    try {
+      const response = await apiRequest(`${CHAT_API_BASE}/conversations/${conversationId}/mute`, {
+        method: 'PUT'
+      });
+
+      if (response.success) {
+        const conversation = conversations.value.find(c => c._id === conversationId);
+        if (conversation) {
+          conversation.isMuted = response.data.isMuted;
+        }
+      }
+
+      return response;
+    } catch (error) {
+      console.error('切换静音状态失败:', error);
+      throw error;
+    }
+  }
+
   return {
     // 状态
     conversations,
     messages,
     activeConversationId,
-    activeConversation,
-    activeMessages,
-    inputText,
+    loading,
     loadingMore,
     sending,
-    contacts,
-    friends,
-    groups,
-    receivedRequests,
-    sentRequests,
-    unreadCount,
-    pendingRequestsCount,
 
-    // 会话操作
+    // 计算属性
+    activeConversation,
+    activeMessages,
+
+    // 方法
     fetchConversations,
     setActiveConversation,
-    createConversation,
-    deleteConversation,
-
-    // 消息操作
     fetchMessages,
     sendMessage,
     sendImageMessage,
     sendVoiceMessage,
+    sendLocationMessage,
     markAsRead,
+    createConversation,
     recallMessage,
-
-    // 联系人和群组
-    fetchContacts,
-    fetchGroups,
-
-    // 好友管理
-    fetchFriends,
-    searchUser,
-    sendFriendRequest,
-    fetchReceivedRequests,
-    handleFriendRequest,
-    deleteFriend,
-    updateFriendRemark,
-    matchPhoneContacts,
-
-    // 工具方法
-    clearInput
-  }
-})
+    clearMessages,
+    togglePin,
+    toggleMute
+  };
+});

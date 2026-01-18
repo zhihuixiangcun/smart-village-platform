@@ -34,26 +34,28 @@ const {
   // 财务管理控制器
   createTransaction,
   getTransactions,
-  approveTransaction,
-  getFinancialStats,
-  uploadInvoice,
-  recognizeInvoice
+  reviewTransaction,
+  getFinancialStats
 } = require('../controllers/financeController');
 
 const {
   // 应急管理控制器
   createEmergencyReport,
-  getEmergencyReports,
+  getEmergencyEvents,
   updateEmergencyStatus,
-  broadcastEmergencyAlert
+  getEmergencyStats
 } = require('../controllers/emergencyController');
 
 const {
   // 数据分析控制器
-  getVillageAnalytics,
-  generateReport,
-  exportData,
-  getRealtimeMetrics
+  getDashboard,
+  getPopulationAnalytics,
+  getFinancialAnalytics,
+  getGovernanceAnalytics,
+  getEmergencyAnalytics,
+  exportReport,
+  getSystemMetrics,
+  getReportTemplates
 } = require('../controllers/dataAnalyticsController');
 
 const {
@@ -80,6 +82,9 @@ const {
   getUserPermissions,
   checkAccess
 } = require('../controllers/permissionController');
+
+// 导入服务申请路由
+const serviceRoutes = require('./serviceRoutes');
 
 /**
  * API中间件配置
@@ -132,6 +137,7 @@ router.get('/', (req, res) => {
       ecommerce: '/api/v1/ecommerce',
       payments: '/api/v1/payments',
       permissions: '/api/v1/permissions',
+      services: '/api/v1/services',
       health: '/api/v1/health'
     },
     documentation: '/api/v1/docs'
@@ -1107,6 +1113,12 @@ permissionRouter.post('/check', async (req, res) => {
 });
 
 router.use('/permissions', permissionRouter);
+
+/**
+ * 服务申请 API (RESTful)
+ * BASE: /api/v1/services
+ */
+router.use('/services', serviceRoutes);
 
 /**
  * API错误处理中间件

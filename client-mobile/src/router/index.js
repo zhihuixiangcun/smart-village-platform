@@ -1,14 +1,40 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router';
 
 const routes = [
   {
     path: '/',
-    redirect: '/village'
+    redirect: '/auth/multi-login'
   },
   {
     path: '/auth/login',
-    name: 'Login',
-    component: () => import('../pages/auth/login.vue'),
+    redirect: '/auth/multi-login'
+  },
+  // {
+  //   path: '/auth/login-enhanced',
+  //   name: 'LoginEnhanced',
+  //   component: () => import('../pages/auth/login-enhanced.vue'),
+  //   meta: { title: '登录' }
+  // },
+  // {
+  //   path: '/auth/login-optimized',
+  //   name: 'LoginOptimized',
+  //   component: () => import('../pages/auth/login-optimized.vue'),
+  //   meta: { title: '登录' }
+  // },
+  // {
+  //   path: '/auth/role-login',
+  //   name: 'RoleLogin',
+  //   component: () => import('../pages/auth/role-login-optimized.vue'),
+  //   meta: { title: '登录' }
+  // },
+  {
+    path: '/auth/login',
+    redirect: '/auth/multi-login'
+  },
+  {
+    path: '/auth/multi-login',
+    name: 'MultiLogin',
+    component: () => import('../pages/auth/multi-login.vue'),
     meta: { title: '登录' }
   },
   {
@@ -18,8 +44,10 @@ const routes = [
     meta: { title: '注册' }
   },
   {
-    path: '/login',
-    redirect: '/auth/login'
+    path: '/auth/agreement/:type',
+    name: 'Agreement',
+    component: () => import('../pages/auth/agreement.vue'),
+    meta: { title: '用户协议' }
   },
   {
     path: '/village',
@@ -184,21 +212,71 @@ const routes = [
     name: 'AIAssistant',
     component: () => import('../pages/ai/index.vue'),
     meta: { title: 'AI助手' }
+  },
+  // 采购商首页
+  {
+    path: '/purchaser',
+    name: 'PurchaserHome',
+    component: () => import('../pages/purchaser/index.vue'),
+    meta: { title: '采购商' }
+  },
+  // 角色首页
+  {
+    path: '/home/villager',
+    name: 'VillagerHome',
+    component: () => import('../pages/home/villager.vue'),
+    meta: { title: '村民首页' }
+  },
+  {
+    path: '/home/cadre',
+    name: 'CadreHome',
+    component: () => import('../pages/home/cadre.vue'),
+    meta: { title: '村干部首页' }
+  },
+  {
+    path: '/home/official',
+    name: 'OfficialHome',
+    component: () => import('../pages/home/official.vue'),
+    meta: { title: '乡镇干部首页' }
+  },
+  {
+    path: '/home/admin',
+    name: 'AdminHome',
+    component: () => import('../pages/home/admin.vue'),
+    meta: { title: '管理员首页' }
+  },
+  {
+    path: '/permission-management',
+    name: 'PermissionManagement',
+    component: () => import('../pages/home/permission-management.vue'),
+    meta: { title: '权限管理' }
+  },
+  {
+    path: '/user-management',
+    name: 'UserManagement',
+    component: () => import('../pages/home/user-management.vue'),
+    meta: { title: '用户管理' }
+  },
+  {
+    path: '/data-analytics',
+    name: 'DataAnalytics',
+    component: () => import('../pages/home/data-analytics.vue'),
+    meta: { title: '数据分析' }
   }
-]
+];
 
 const router = createRouter({
   history: createWebHistory(),
   routes
-})
+});
 
 // 路由守卫
 router.beforeEach((to, from, next) => {
   // 设置页面标题
   if (to.meta.title) {
-    document.title = to.meta.title
+    document.title = to.meta.title;
   }
-  next()
-})
+  next();
+});
 
-export default router
+export default router;

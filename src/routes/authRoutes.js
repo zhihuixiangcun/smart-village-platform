@@ -248,7 +248,9 @@ router.post('/refresh',
     try {
       const jwt = require('jsonwebtoken');
       const JWT_SECRET = process.env.JWT_SECRET || 'smart-village-secret-key-2024';
-      const JWT_EXPIRES_IN = '7d';
+      // 安全改进: 访问令牌过期时间从7天缩短为2小时
+      // 访问令牌应该短暂以减少被盗用的风险窗口
+      const JWT_EXPIRES_IN = process.env.JWT_ACCESS_EXPIRES_IN || '2h';
 
       // 生成新token
       const newToken = jwt.sign(

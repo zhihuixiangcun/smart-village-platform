@@ -1,0 +1,17 @@
+{
+  "name": "feature-dev",
+  "version": "1.0.0",
+  "description": "Comprehensive feature development workflow with a structured 7-phase approach",
+  "author": "Anthropic",
+  "commands": [
+    {
+      "name": "feature-dev",
+      "description": "Guided feature development workflow with codebase understanding and architecture focus"
+    }
+  ],
+  "agents": [
+    "code-explorer",
+    "code-architect",
+    "code-reviewer"
+  ]
+}

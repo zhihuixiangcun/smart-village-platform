@@ -129,8 +129,9 @@ async function createConversation(req, res) {
         // 创建新会话
         conversation = new Conversation({
           type: 'private',
+          name: otherUser.profile?.nickName || otherUser.username || '未知用户',
           participants: [userId, otherUserId],
-          lastMessageAt: new Date()
+          lastMessageTime: new Date()
         });
         await conversation.save();
       }
@@ -170,41 +171,23 @@ async function createConversation(req, res) {
 
       const conversation = new Conversation({
         type: 'group',
+        name: groupInfo.name,
+        avatar: groupInfo.avatar || '👥',
         participants,
-        groupInfo: {
-          ...groupInfo,
-          owner: userId,
-          admins: [userId] // 创建者默认为管理员
-        },
-        lastMessageAt: new Date()
+        ownerId: userId,
+        admins: [userId], // 创建者默认为管理员
+        description: groupInfo.description || '',
+        announcement: groupInfo.announcement || '',
+        lastMessageTime: new Date()
       });
 
-      await conversation.save();
-
-      // 发送系统消息
-      const systemMessage = new Message({
-        conversation: conversation._id,
-        sender: userId,
-        type: 'system',
-        content: {
-          system: {
-            text: `${groupInfo.name} 群聊已创建`,
-            action: 'group_created',
-            relatedUsers: participants
-          }
-        }
-      });
-      await systemMessage.save();
-
-      // 更新会话的最后消息
-      conversation.lastMessage = systemMessage._id;
       await conversation.save();
 
       // 返回完整的会话信息
       const populatedConversation = await Conversation.findById(conversation._id)
         .populate('participants', 'username profile.avatar profile.nickName')
-        .populate('groupInfo.owner', 'username profile.nickName')
-        .populate('groupInfo.admins', 'username profile.nickName');
+        .populate('ownerId', 'username profile.nickName')
+        .populate('admins', 'username profile.nickName');
 
       // 通过WebSocket通知所有参与者
       if (webSocketService) {
@@ -287,7 +270,7 @@ async function sendMessage(req, res) {
   try {
     const { id } = req.params;
     const userId = req.user.id;
-    const { type, content, replyTo, mentions, mentionAll } = req.body;
+    const { type, content, file, duration, location, redPacket, gift, transfer, coupon } = req.body;
 
     // 验证会话存在且用户有权访问
     const conversation = await Conversation.findById(id);
@@ -305,23 +288,65 @@ async function sendMessage(req, res) {
       });
     }
 
+    // 获取发送者信息
+    const user = await User.findById(userId);
+
+    // 构建消息内容
+    let messageContent = content || '';
+    if (type === 'location' && location) {
+      messageContent = JSON.stringify(location);
+    } else if (type === 'redpacket' && redPacket) {
+      messageContent = JSON.stringify(redPacket);
+    } else if (type === 'gift' && gift) {
+      messageContent = JSON.stringify(gift);
+    } else if (type === 'transfer' && transfer) {
+      messageContent = JSON.stringify(transfer);
+    } else if (type === 'coupon' && coupon) {
+      messageContent = JSON.stringify(coupon);
+    }
+
     // 创建消息
     const message = new Message({
-      conversation: id,
-      sender: userId,
+      conversationId: id,
+      senderId: userId,
+      senderName: user.profile?.nickName || user.username || '未知用户',
+      senderAvatar: user.profile?.avatar || '👤',
+      content: messageContent,
       type: type || 'text',
-      content: content || {},
-      replyTo,
-      mentions: mentions || [],
-      mentionAll: mentionAll || false,
-      status: 'sent'
+      status: 'sent',
+      file,
+      duration,
+      location,
+      redPacket,
+      gift,
+      transfer,
+      coupon
     });
 
     await message.save();
 
-    // 更新会话的最后消息
-    conversation.lastMessage = message._id;
-    conversation.lastMessageAt = new Date();
+    // 更新会话的最后消息和时间
+    let lastMessageText = messageContent;
+    if (type === 'image') {
+      lastMessageText = '[图片]';
+    } else if (type === 'voice') {
+      lastMessageText = '[语音]';
+    } else if (type === 'video') {
+      lastMessageText = '[视频]';
+    } else if (type === 'location') {
+      lastMessageText = '[位置]';
+    } else if (type === 'redpacket') {
+      lastMessageText = '[红包]';
+    } else if (type === 'gift') {
+      lastMessageText = '[礼物]';
+    } else if (type === 'transfer') {
+      lastMessageText = '[转账]';
+    } else if (type === 'coupon') {
+      lastMessageText = '[卡券]';
+    }
+
+    conversation.lastMessage = lastMessageText;
+    conversation.lastMessageTime = new Date();
 
     // 增加其他参与者的未读数
     for (const participantId of conversation.participants) {
@@ -331,11 +356,27 @@ async function sendMessage(req, res) {
     }
     await conversation.save();
 
-    // 填充完整的消息信息
-    const populatedMessage = await Message.findById(message._id)
-      .populate('sender', 'username profile.avatar profile.nickName')
-      .populate('replyTo')
-      .populate('mentions', 'username profile.nickName');
+    // 格式化返回的消息
+    const formattedMessage = {
+      id: message._id,
+      conversationId: message.conversationId,
+      senderId: message.senderId,
+      senderName: message.senderName,
+      senderAvatar: message.senderAvatar,
+      content: messageContent,
+      type: message.type,
+      status: message.status,
+      read: message.read,
+      isSelf: true,
+      timestamp: message.createdAt.toISOString(),
+      duration: message.duration,
+      file: message.file,
+      location: message.location,
+      redPacket: message.redPacket,
+      gift: message.gift,
+      transfer: message.transfer,
+      coupon: message.coupon
+    };
 
     // 通过WebSocket通知会话中的所有参与者
     if (webSocketService) {
@@ -343,10 +384,11 @@ async function sendMessage(req, res) {
       webSocketService.sendToRoom(roomName, {
         type: 'new_message',
         data: {
-          message: populatedMessage,
+          message: formattedMessage,
           conversation: {
             _id: conversation._id,
-            unreadCount: conversation.unreadCount
+            lastMessage: conversation.lastMessage,
+            lastMessageTime: conversation.lastMessageTime
           }
         }
       });
@@ -358,7 +400,8 @@ async function sendMessage(req, res) {
             type: 'conversation_updated',
             data: {
               conversationId: conversation._id,
-              lastMessage: populatedMessage,
+              lastMessage: conversation.lastMessage,
+              lastMessageTime: conversation.lastMessageTime,
               unreadCount: conversation.getUnreadCount(participantId)
             }
           });
@@ -368,7 +411,7 @@ async function sendMessage(req, res) {
 
     res.json({
       success: true,
-      data: populatedMessage
+      data: formattedMessage
     });
   } catch (error) {
     logger.error('发送消息失败:', error);
@@ -413,7 +456,7 @@ async function recallMessage(req, res) {
     }
 
     // 验证消息属于此会话
-    if (message.conversation.toString() !== id) {
+    if (message.conversationId.toString() !== id) {
       return res.status(400).json({
         success: false,
         message: '消息不属于此会话'
@@ -421,7 +464,7 @@ async function recallMessage(req, res) {
     }
 
     // 只有发送者可以撤回
-    if (message.sender.toString() !== userId.toString()) {
+    if (message.senderId.toString() !== userId.toString()) {
       return res.status(403).json({
         success: false,
         message: '只能撤回自己发送的消息'
@@ -681,6 +724,171 @@ async function toggleMute(req, res) {
   }
 }
 
+/**
+ * 清空聊天记录
+ */
+async function clearConversationMessages(req, res) {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+    const { timeRange, messageTypes, clearAllConversations } = req.body;
+
+    // 清空所有会话（管理员权限）
+    if (clearAllConversations) {
+      // 检查管理员权限
+      const user = await User.findById(userId);
+      if (!user || !user.profile?.roles?.includes('admin')) {
+        return res.status(403).json({
+          success: false,
+          message: '需要管理员权限才能清空所有会话'
+        });
+      }
+
+      // 清空所有消息
+      const deleteResult = await Message.deleteMany({
+        type: { $nin: ['recall'] } // 保留撤回消息
+      });
+
+      // 更新所有会话
+      await Conversation.updateMany({}, {
+        $unset: {
+          lastMessage: 1,
+          lastMessageTime: 1
+        }
+      });
+
+      logger.info(`管理员 ${userId} 清空了所有聊天记录，删除 ${deleteResult.deletedCount} 条消息`);
+
+      // 通过WebSocket通知所有用户
+      if (webSocketService) {
+        webSocketService.broadcastToAll({
+          type: 'all_conversations_cleared',
+          data: {
+            clearedAt: new Date()
+          }
+        });
+      }
+
+      return res.json({
+        success: true,
+        data: {
+          deletedCount: deleteResult.deletedCount,
+          message: '已清空所有聊天记录'
+        }
+      });
+    }
+
+    // 清空单个会话
+    const conversation = await Conversation.findById(id);
+    if (!conversation) {
+      return res.status(404).json({
+        success: false,
+        message: '会话不存在'
+      });
+    }
+
+    if (!conversation.hasParticipant(userId)) {
+      return res.status(403).json({
+        success: false,
+        message: '无权操作此会话'
+      });
+    }
+
+    // 构建查询条件
+    const query = {
+      conversationId: id,
+      type: { $nin: ['recall'] } // 保留撤回消息
+    };
+
+    // 按时间范围过滤
+    if (timeRange && timeRange !== 'all') {
+      const now = new Date();
+      let startDate;
+
+      switch (timeRange) {
+      case '7days':
+        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        break;
+      case '30days':
+        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        break;
+      case '90days':
+        startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+        break;
+      default:
+        startDate = new Date(0);
+      }
+
+      query.createdAt = {
+        $gte: startDate,
+        $lte: now
+      };
+    }
+
+    // 按消息类型过滤
+    if (messageTypes && messageTypes.length > 0 && !messageTypes.includes('all')) {
+      query.type = { $in: messageTypes };
+    }
+
+    // 删除消息
+    const deleteResult = await Message.deleteMany(query);
+
+    // 更新会话的最后消息信息
+    conversation.lastMessage = '';
+    conversation.lastMessageTime = null;
+    await conversation.save();
+
+    // 清空未读数
+    conversation.participants.forEach(participantId => {
+      conversation.clearUnread(participantId);
+    });
+    await conversation.save();
+
+    logger.info(`用户 ${userId} 清空会话 ${id} 的消息，删除 ${deleteResult.deletedCount} 条消息`);
+
+    // 通过WebSocket通知会话中的所有参与者
+    if (webSocketService) {
+      const roomName = `conversation_${id}`;
+      webSocketService.sendToRoom(roomName, {
+        type: 'conversation_messages_cleared',
+        data: {
+          conversationId: id,
+          deletedCount: deleteResult.deletedCount,
+          clearedBy: userId,
+          clearedAt: new Date()
+        }
+      });
+
+      // 通知所有参与者更新未读数
+      conversation.participants.forEach(participantId => {
+        webSocketService.sendToUser(participantId, {
+          type: 'conversation_updated',
+          data: {
+            conversationId: id,
+            lastMessage: '',
+            lastMessageTime: null,
+            unreadCount: 0
+          }
+        });
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        deletedCount: deleteResult.deletedCount,
+        message: '聊天记录已清空'
+      }
+    });
+  } catch (error) {
+    logger.error('清空聊天记录失败:', error);
+    res.status(500).json({
+      success: false,
+      message: `清空聊天记录失败: ${  error.message}`
+    });
+  }
+}
+
 module.exports = {
   getConversations,
   getConversationById,
@@ -692,5 +900,6 @@ module.exports = {
   uploadImage,
   getUnreadCount,
   togglePin,
-  toggleMute
+  toggleMute,
+  clearConversationMessages
 };

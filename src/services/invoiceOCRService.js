@@ -7,6 +7,7 @@ const { InvoiceOCR } = require('../models/Finance');
 const axios = require('axios');
 const FormData = require('form-data');
 const fs = require('fs');
+const fsPromises = require('fs').promises;
 const crypto = require('crypto');
 
 class InvoiceOCRService {
@@ -163,9 +164,9 @@ class InvoiceOCRService {
 
       // 获取访问令牌
       const accessToken = await this.getBaiduAccessToken();
-
+      
       // 读取图片并编码为Base64
-      const imageBuffer = fs.readFileSync(imagePath);
+      const imageBuffer = await fsPromises.readFile(imagePath);
       const imageBase64 = imageBuffer.toString('base64');
 
       // 发送OCR请求
@@ -202,7 +203,7 @@ class InvoiceOCRService {
       const config = this.ocrEngines.tencent;
 
       // 读取图片并编码为Base64
-      const imageBuffer = fs.readFileSync(imagePath);
+      const imageBuffer = await fsPromises.readFile(imagePath);
       const imageBase64 = imageBuffer.toString('base64');
 
       // 构建腾讯云API请求
@@ -366,9 +367,9 @@ class InvoiceOCRService {
   async recognizeWithTencent(imagePath, options = {}) {
     try {
       const config = this.ocrEngines.tencent;
-
+      
       // 读取图片
-      const imageBuffer = fs.readFileSync(imagePath);
+      const imageBuffer = await fsPromises.readFile(imagePath);
       const imageBase64 = imageBuffer.toString('base64');
 
       // 构建请求参数
@@ -405,9 +406,9 @@ class InvoiceOCRService {
   async recognizeWithAlibaba(imagePath, options = {}) {
     try {
       const config = this.ocrEngines.alibaba;
-
+      
       // 读取图片
-      const imageBuffer = fs.readFileSync(imagePath);
+      const imageBuffer = await fsPromises.readFile(imagePath);
       const imageBase64 = imageBuffer.toString('base64');
 
       // 构建请求参数
@@ -463,13 +464,20 @@ class InvoiceOCRService {
 
           try {
             const hocrPath = `${outputPath}.hocr`;
-            const hocrContent = fs.readFileSync(hocrPath, 'utf8');
-            const result = this.parseTesseractResult(hocrContent);
-
-            // 清理临时文件
-            fs.unlinkSync(hocrPath);
-
-            resolve(result);
+            
+            // 异步读取HOCR文件
+            fsPromises.readFile(hocrPath, 'utf8')
+              .then(hocrContent => {
+                const result = this.parseTesseractResult(hocrContent);
+                // 异步删除临时文件
+                return fsPromises.unlink(hocrPath).then(() => result);
+              })
+              .then(result => {
+                resolve(result);
+              })
+              .catch(parseError => {
+                reject(new Error(`解析Tesseract结果失败: ${parseError.message}`));
+              });
 
           } catch (parseError) {
             reject(new Error(`解析Tesseract结果失败: ${parseError.message}`));
@@ -707,19 +715,11 @@ class InvoiceOCRService {
    */
   async getImageInfo(imagePath) {
     try {
-      const stats = fs.statSync(imagePath);
-      const size = stats.size;
-
-      // 获取图片分辨率
-      const resolution = await this.getImageResolution(imagePath);
-
-      // 获取图片格式
-      const format = imagePath.split('.').pop().toLowerCase();
-
+      const stats = await fsPromises.stat(imagePath);
       return {
-        size,
-        resolution,
-        format
+        size: stats.size,
+        created: stats.birthtime,
+        modified: stats.mtime
       };
 
     } catch (error) {

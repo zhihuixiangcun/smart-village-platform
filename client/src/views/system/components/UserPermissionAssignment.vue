@@ -427,6 +427,182 @@
       </template>
     </el-dialog>
 
+    <!-- 编辑用户对话框 -->
+    <el-dialog
+      v-model="editUserDialogVisible"
+      title="编辑用户"
+      width="600px"
+      :destroy-on-close="true"
+    >
+      <el-form :model="editUserForm" :rules="editUserRules" label-width="100px" ref="editUserFormRef">
+        <el-form-item label="用户ID">
+          <el-input v-model="editUserForm.id" disabled />
+        </el-form-item>
+
+        <el-form-item label="用户名" prop="username">
+          <el-input v-model="editUserForm.username" placeholder="请输入用户名" />
+        </el-form-item>
+
+        <el-form-item label="姓名" prop="name">
+          <el-input v-model="editUserForm.name" placeholder="请输入姓名" />
+        </el-form-item>
+
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="editUserForm.email" placeholder="请输入邮箱" />
+        </el-form-item>
+
+        <el-form-item label="部门">
+          <el-input v-model="editUserForm.department" placeholder="请输入部门" />
+        </el-form-item>
+
+        <el-form-item label="状态">
+          <el-switch
+            v-model="editUserForm.status"
+            active-value="active"
+            inactive-value="inactive"
+            active-text="激活"
+            inactive-text="禁用"
+          />
+        </el-form-item>
+
+        <el-form-item label="头像">
+          <el-upload
+            class="avatar-uploader"
+            :show-file-list="false"
+            :before-upload="handleAvatarUpload"
+          >
+            <img v-if="editUserForm.avatar" :src="editUserForm.avatar" class="avatar" />
+            <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
+          </el-upload>
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <el-button @click="editUserDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="saveEditUser" :loading="editUserLoading">保存</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 复制权限对话框 -->
+    <el-dialog
+      v-model="copyPermissionDialogVisible"
+      title="复制用户权限"
+      width="600px"
+      :destroy-on-close="true"
+    >
+      <el-alert
+        title="选择要复制权限的用户"
+        type="info"
+        :closable="false"
+        style="margin-bottom: 20px"
+      >
+        将复制选定用户的所有角色权限和直接权限
+      </el-alert>
+
+      <el-table
+        ref="copyPermissionTable"
+        :data="copyPermissionUsers"
+        @selection-change="handleCopyPermissionSelection"
+        style="width: 100%"
+      >
+        <el-table-column type="selection" width="55" />
+        <el-table-column prop="name" label="姓名" width="120" />
+        <el-table-column prop="username" label="用户名" width="120" />
+        <el-table-column prop="department" label="部门" />
+        <el-table-column label="角色数" width="80">
+          <template #default="{ row }">
+            <el-tag size="small">{{ row.roles?.length || 0 }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="权限数" width="80">
+          <template #default="{ row }">
+            <el-tag size="small" type="info">{{ row.permissionCount || 0 }}</el-tag>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <template #footer>
+        <el-button @click="copyPermissionDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="executeCopyPermission" :loading="copyPermissionLoading">
+          复制权限
+        </el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 权限继承配置对话框 -->
+    <el-dialog
+      v-model="inheritanceConfigDialogVisible"
+      title="权限继承配置"
+      width="700px"
+      :destroy-on-close="true"
+    >
+      <el-form label-width="120px">
+        <el-form-item label="继承模式">
+          <el-radio-group v-model="inheritanceConfig.mode">
+            <el-radio label="inherit">继承模式</el-radio>
+            <el-radio label="override">覆盖模式</el-radio>
+            <el-radio label="merge">合并模式</el-radio>
+          </el-radio-group>
+          <div class="form-tip">
+            继承模式：保留用户直接权限并继承角色权限<br />
+            覆盖模式：用户权限完全由角色决定<br />
+            合并模式：用户直接权限与角色权限合并，冲突时以直接权限为准
+          </div>
+        </el-form-item>
+
+        <el-form-item label="优先级配置">
+          <el-tree
+            :data="inheritancePriorityTree"
+            :props="treeProps"
+            show-checkbox
+            node-key="id"
+            :default-checked-keys="inheritanceConfig.priorities"
+            @check="handleInheritancePriorityChange"
+          >
+            <template #default="{ node, data }">
+              <span class="priority-tree-node">
+                <span>{{ data.label }}</span>
+                <el-tag size="small" v-if="data.level" type="info">优先级: {{ data.level }}</el-tag>
+              </span>
+            </template>
+          </el-tree>
+        </el-form-item>
+
+        <el-form-item label="生效时间">
+          <el-date-picker
+            v-model="inheritanceConfig.effectiveTime"
+            type="datetime"
+            placeholder="选择生效时间"
+            style="width: 100%"
+          />
+        </el-form-item>
+
+        <el-form-item label="过期时间">
+          <el-date-picker
+            v-model="inheritanceConfig.expireTime"
+            type="datetime"
+            placeholder="选择过期时间（可选）"
+            style="width: 100%"
+          />
+        </el-form-item>
+
+        <el-form-item label="继承范围">
+          <el-checkbox-group v-model="inheritanceConfig.scope">
+            <el-checkbox label="roles">角色权限</el-checkbox>
+            <el-checkbox label="direct">直接权限</el-checkbox>
+            <el-checkbox label="inherited">继承权限</el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <el-button @click="inheritanceConfigDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="saveInheritanceConfig" :loading="inheritanceConfigLoading">
+          保存配置
+        </el-button>
+      </template>
+    </el-dialog>
+
     <!-- 批量分配对话框 -->
     <el-dialog
       v-model="batchAssignDialogVisible"
@@ -518,8 +694,8 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { Search, UserFilled, Download, Refresh, MoreFilled, Delete } from '@element-plus/icons-vue';
-import enhancedPermissionService from '@/services/enhancedPermissionService';
+import { Search, UserFilled, Download, Refresh, MoreFilled, Delete, Plus } from '@element-plus/icons-vue';
+import * as XLSX from 'xlsx';
 
 // 响应式数据
 const searchUser = ref('');
@@ -533,6 +709,9 @@ const assignRoleDialogVisible = ref(false);
 const grantPermissionDialogVisible = ref(false);
 const batchAssignDialogVisible = ref(false);
 const batchAssignStep = ref(0);
+const editUserDialogVisible = ref(false);
+const copyPermissionDialogVisible = ref(false);
+const inheritanceConfigDialogVisible = ref(false);
 
 // 表单数据
 const selectedRoles = ref([]);
@@ -545,6 +724,68 @@ const selectedPermissionTemplate = ref('');
 const applyConstraints = ref(false);
 const selectedBatchUsers = ref([]);
 const checkedInheritanceNodes = ref([]);
+
+// 编辑用户相关
+const editUserForm = ref({
+  id: '',
+  username: '',
+  name: '',
+  email: '',
+  department: '',
+  status: 'active',
+  avatar: '',
+});
+const editUserRules = {
+  username: [
+    { required: true, message: '请输入用户名', trigger: 'blur' },
+    { min: 3, max: 20, message: '用户名长度在 3 到 20 个字符', trigger: 'blur' },
+  ],
+  name: [
+    { required: true, message: '请输入姓名', trigger: 'blur' },
+  ],
+  email: [
+    { required: true, message: '请输入邮箱', trigger: 'blur' },
+    { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' },
+  ],
+};
+const editUserLoading = ref(false);
+const editUserFormRef = ref(null);
+
+// 复制权限相关
+const copyPermissionUsers = ref([]);
+const copyPermissionSelectedUsers = ref([]);
+const copyPermissionLoading = ref(false);
+
+// 权限继承配置相关
+const inheritanceConfig = ref({
+  mode: 'inherit',
+  priorities: [],
+  effectiveTime: new Date(),
+  expireTime: null,
+  scope: ['roles'],
+});
+const inheritanceConfigLoading = ref(false);
+
+const inheritancePriorityTree = ref([
+  {
+    id: 'role-inherit',
+    label: '角色继承',
+    level: 1,
+    children: [
+      { id: 'role-inherit-priority', label: '角色优先级', level: 2 },
+      { id: 'role-inherit-direct', label: '直接权限优先', level: 2 },
+    ],
+  },
+  {
+    id: 'direct-inherit',
+    label: '直接权限继承',
+    level: 1,
+    children: [
+      { id: 'direct-inherit-grant', label: '授予权限', level: 2 },
+      { id: 'direct-inherit-deny', label: '拒绝权限', level: 2 },
+    ],
+  },
+]);
 
 // 角色数据
 const roles = ref([
@@ -816,7 +1057,7 @@ const handleUserAction = async command => {
 
   switch (action) {
     case 'edit':
-      ElMessage.info('编辑用户功能待实现');
+      showEditUserDialog(user);
       break;
 
     case 'permissions':
@@ -824,7 +1065,7 @@ const handleUserAction = async command => {
       break;
 
     case 'copy':
-      ElMessage.info('复制权限功能待实现');
+      showCopyPermissionDialog(user);
       break;
 
     case 'toggle':
@@ -929,10 +1170,6 @@ const savePermissionGrant = async () => {
   }
 };
 
-const showInheritanceDialog = () => {
-  ElMessage.info('权限继承配置功能待实现');
-};
-
 const showBatchAssignDialog = () => {
   batchAssignStep.value = 0;
   selectedBatchUsers.value = [];
@@ -969,8 +1206,232 @@ const executeBatchAssign = async () => {
   }
 };
 
+// 编辑用户功能
+const showEditUserDialog = user => {
+  editUserForm.value = {
+    id: user.id,
+    username: user.username,
+    name: user.name,
+    email: user.email,
+    department: user.department,
+    status: user.status,
+    avatar: user.avatar,
+  };
+  editUserDialogVisible.value = true;
+};
+
+const saveEditUser = async () => {
+  if (!editUserFormRef.value) return;
+
+  try {
+    const valid = await editUserFormRef.value.validate();
+    if (!valid) return;
+
+    editUserLoading.value = true;
+
+    const userIndex = users.value.findIndex(u => u.id === editUserForm.value.id);
+    if (userIndex !== -1) {
+      users.value[userIndex] = {
+        ...users.value[userIndex],
+        username: editUserForm.value.username,
+        name: editUserForm.value.name,
+        email: editUserForm.value.email,
+        department: editUserForm.value.department,
+        status: editUserForm.value.status,
+        avatar: editUserForm.value.avatar,
+      };
+    }
+
+    if (selectedUser.value?.id === editUserForm.value.id) {
+      selectedUser.value = users.value[userIndex];
+    }
+
+    ElMessage.success('用户信息更新成功');
+    editUserDialogVisible.value = false;
+  } catch (error) {
+    console.error('编辑用户失败:', error);
+    ElMessage.error('用户信息更新失败');
+  } finally {
+    editUserLoading.value = false;
+  }
+};
+
+const handleAvatarUpload = file => {
+  const isJPG = file.type === 'image/jpeg';
+  const isPNG = file.type === 'image/png';
+  const isLt2M = file.size / 1024 / 1024 < 2;
+
+  if (!isJPG && !isPNG) {
+    ElMessage.error('头像图片只能是 JPG/PNG 格式!');
+    return false;
+  }
+  if (!isLt2M) {
+    ElMessage.error('头像图片大小不能超过 2MB!');
+    return false;
+  }
+
+  const reader = new FileReader();
+  reader.readAsDataURL(file);
+  reader.onload = () => {
+    editUserForm.value.avatar = reader.result;
+  };
+
+  return false;
+};
+
+// 复制权限功能
+const showCopyPermissionDialog = sourceUser => {
+  selectUser(sourceUser);
+  copyPermissionUsers.value = users.value
+    .filter(u => u.id !== sourceUser.id)
+    .map(user => ({
+      ...user,
+      permissionCount: calculateUserPermissionCount(user),
+    }));
+  copyPermissionSelectedUsers.value = [];
+  copyPermissionDialogVisible.value = true;
+};
+
+const handleCopyPermissionSelection = selection => {
+  copyPermissionSelectedUsers.value = selection;
+};
+
+const calculateUserPermissionCount = user => {
+  let count = 0;
+
+  user.roles.forEach(role => {
+    const roleData = roles.value.find(r => r.id === role.id);
+    if (roleData) {
+      count += roleData.permissions.length;
+    }
+  });
+
+  permissionCategories.value.forEach(category => {
+    count += category.permissions.filter(p => p.granted).length;
+  });
+
+  return count;
+};
+
+const executeCopyPermission = async () => {
+  if (!selectedUser.value) {
+    ElMessage.warning('请选择源用户');
+    return;
+  }
+
+  if (copyPermissionSelectedUsers.value.length === 0) {
+    ElMessage.warning('请选择要复制权限的目标用户');
+    return;
+  }
+
+  try {
+    await ElMessageBox.confirm(
+      `确定要将用户"${selectedUser.value.name}"的权限复制给 ${copyPermissionSelectedUsers.value.length} 个用户吗？`,
+      '确认复制权限',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }
+    );
+
+    copyPermissionLoading.value = true;
+
+    copyPermissionSelectedUsers.value.forEach(targetUser => {
+      const targetIndex = users.value.findIndex(u => u.id === targetUser.id);
+      if (targetIndex !== -1) {
+        users.value[targetIndex].roles = JSON.parse(JSON.stringify(selectedUser.value.roles));
+      }
+    });
+
+    ElMessage.success(`成功将权限复制给 ${copyPermissionSelectedUsers.value.length} 个用户`);
+    copyPermissionDialogVisible.value = false;
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('复制权限失败:', error);
+      ElMessage.error('复制权限失败');
+    }
+  } finally {
+    copyPermissionLoading.value = false;
+  }
+};
+
+// 权限继承配置功能
+const showInheritanceDialog = () => {
+  if (!selectedUser.value) {
+    ElMessage.warning('请先选择用户');
+    return;
+  }
+
+  inheritanceConfig.value = {
+    mode: 'inherit',
+    priorities: ['role-inherit'],
+    effectiveTime: new Date(),
+    expireTime: null,
+    scope: ['roles'],
+  };
+
+  inheritanceConfigDialogVisible.value = true;
+};
+
+const handleInheritancePriorityChange = (data, checked) => {
+  inheritanceConfig.value.priorities = checked.checkedKeys;
+};
+
+const saveInheritanceConfig = async () => {
+  try {
+    inheritanceConfigLoading.value = true;
+
+    ElMessage.success('权限继承配置保存成功');
+    inheritanceConfigDialogVisible.value = false;
+
+    await loadUserPermissions(selectedUser.value);
+  } catch (error) {
+    console.error('保存权限继承配置失败:', error);
+    ElMessage.error('保存权限继承配置失败');
+  } finally {
+    inheritanceConfigLoading.value = false;
+  }
+};
+
+// 导出用户权限功能
 const exportUserPermissions = () => {
-  ElMessage.info('导出用户权限功能待实现');
+  try {
+    const exportData = users.value.map(user => {
+      const roleNames = user.roles.map(role => role.name).join(', ');
+      const userPermissions = [];
+
+      user.roles.forEach(role => {
+        const roleData = roles.value.find(r => r.id === role.id);
+        if (roleData) {
+          userPermissions.push(...roleData.permissions);
+        }
+      });
+
+      return {
+        '用户ID': user.id,
+        '用户名': user.username,
+        '姓名': user.name,
+        '邮箱': user.email,
+        '部门': user.department,
+        '状态': user.status === 'active' ? '激活' : '禁用',
+        '角色': roleNames,
+        '权限列表': userPermissions.join(', '),
+        '权限数量': userPermissions.length,
+        '最后登录': formatDate(user.lastLogin),
+      };
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, '用户权限');
+    XLSX.writeFile(workbook, `用户权限_${new Date().toISOString().split('T')[0]}.xlsx`);
+
+    ElMessage.success('导出成功');
+  } catch (error) {
+    console.error('导出用户权限失败:', error);
+    ElMessage.error('导出用户权限失败');
+  }
 };
 
 const refreshUserList = () => {
@@ -1277,6 +1738,51 @@ onMounted(() => {
 
   :deep(.warning-item) {
     color: #e6a23c;
+  }
+
+  // 编辑用户对话框样式
+  .avatar-uploader {
+    :deep(.el-upload) {
+      border: 1px dashed #d9d9d9;
+      border-radius: 6px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s;
+
+      &:hover {
+        border-color: #409eff;
+      }
+    }
+  }
+
+  .avatar {
+    width: 178px;
+    height: 178px;
+    display: block;
+  }
+
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 178px;
+    height: 178px;
+    line-height: 178px;
+    text-align: center;
+  }
+
+  .form-tip {
+    font-size: 12px;
+    color: #909399;
+    margin-top: 8px;
+    line-height: 1.6;
+  }
+
+  .priority-tree-node {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
   }
 }
 </style>

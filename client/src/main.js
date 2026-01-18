@@ -47,3 +47,8 @@ app.config.errorHandler = (err, instance, info) => {
 };
 
 app.mount('#app');
+
+// 调试：输出挂载信息
+console.log('🚀 Vue应用已挂载到 #app');
+console.log('📋 路由模式:', import.meta.env.BASE_URL);
+console.log('📊 开发模式:', import.meta.env.DEV);

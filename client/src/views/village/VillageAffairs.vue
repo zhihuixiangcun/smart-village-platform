@@ -3,13 +3,27 @@
     <!-- 页面头部 -->
     <div class="page-header">
       <div class="header-bg"></div>
+      <div class="header-particles"></div>
       <div class="header-content">
         <div class="header-info">
-          <h1 class="page-title">村务管理</h1>
-          <p class="page-description">高效管理村务，服务全体村民</p>
+          <div class="title-wrapper">
+            <h1 class="page-title">村务管理</h1>
+            <div class="title-badge">
+              <el-tag type="success" size="small" effect="dark">智慧乡村</el-tag>
+            </div>
+          </div>
+          <p class="page-description">高效管理村务，服务全体村民，共建美好家园</p>
           <div class="user-greeting">
-            <span>欢迎，{{ userInfo.name || '管理员' }}</span>
-            <el-tag :type="getUserRoleType()" size="small">{{ getRoleLabel() }}</el-tag>
+            <div class="greeting-icon">
+              <el-icon><UserFilled /></el-icon>
+            </div>
+            <div class="greeting-text">
+              <span class="welcome-text">欢迎回来，</span>
+              <span class="user-name">{{ userInfo.name || '管理员' }}</span>
+            </div>
+            <el-tag :type="getUserRoleType()" size="large" effect="light" class="role-tag">
+              {{ getRoleLabel() }}
+            </el-tag>
           </div>
         </div>
         <div class="header-actions">
@@ -17,28 +31,31 @@
             @click="showAnnouncementDialog"
             :size="largeTextMode ? 'large' : 'default'"
             type="primary"
+            class="action-btn primary-action"
           >
             <el-icon><Plus /></el-icon>
-            发布公告
+            <span>发布公告</span>
           </el-button>
-          <el-button @click="showTaskDialog" :size="largeTextMode ? 'large' : 'default'">
+          <el-button @click="showTaskDialog" :size="largeTextMode ? 'large' : 'default'" class="action-btn">
             <el-icon><List /></el-icon>
-            创建任务
+            <span>创建任务</span>
           </el-button>
           <el-button
             @click="refreshData"
             :size="largeTextMode ? 'large' : 'default'"
             :loading="refreshing"
+            class="action-btn"
           >
             <el-icon><Refresh /></el-icon>
           </el-button>
           <el-button
             @click="toggleLargeTextMode"
             :size="largeTextMode ? 'large' : 'default'"
-            :type="largeTextMode ? 'primary' : 'default'"
+            class="action-btn text-mode-btn"
+            :class="{ active: largeTextMode }"
           >
             <el-icon><Edit /></el-icon>
-            {{ largeTextMode ? '正常' : '大字' }}
+            <span>{{ largeTextMode ? '正常' : '大字' }}</span>
           </el-button>
         </div>
       </div>
@@ -48,41 +65,54 @@
     <div class="dashboard-section">
       <el-row :gutter="24">
         <el-col :xs="24" :sm="12" :md="6" v-for="stat in dashboardStats" :key="stat.key">
-          <el-card class="stat-card" :class="stat.type">
-            <div class="stat-content">
-              <div class="stat-icon">
-                <el-icon :size="32"><component :is="stat.icon" /></el-icon>
+          <div class="stat-card-wrapper">
+            <el-card class="stat-card" :class="stat.type" shadow="hover">
+              <div class="stat-content">
+                <div class="stat-icon-wrapper">
+                  <div class="stat-icon">
+                    <el-icon :size="32"><component :is="stat.icon" /></el-icon>
+                  </div>
+                  <div class="stat-icon-bg"></div>
+                </div>
+                <div class="stat-info">
+                  <div class="stat-value">{{ stat.value }}</div>
+                  <div class="stat-label">{{ stat.label }}</div>
+                </div>
+                <div class="stat-trend" :class="stat.trend">
+                  <el-icon><component :is="getTrendIcon(stat.trend)" /></el-icon>
+                  <span>{{ stat.change }}</span>
+                </div>
               </div>
-              <div class="stat-info">
-                <div class="stat-value">{{ stat.value }}</div>
-                <div class="stat-label">{{ stat.label }}</div>
-              </div>
-              <div class="stat-trend" :class="stat.trend">
-                <el-icon><component :is="getTrendIcon(stat.trend)" /></el-icon>
-                <span>{{ stat.change }}</span>
-              </div>
-            </div>
-          </el-card>
+            </el-card>
+          </div>
         </el-col>
       </el-row>
     </div>
 
     <!-- 快速操作 -->
     <div class="quick-actions-section">
-      <el-card>
+      <el-card class="quick-actions-card" shadow="hover">
         <template #header>
           <div class="card-header">
-            <el-icon><Operation /></el-icon>
-            <span>快速操作</span>
+            <div class="header-left">
+              <div class="header-icon">
+                <el-icon><Operation /></el-icon>
+              </div>
+              <span class="header-title">快速操作</span>
+            </div>
           </div>
         </template>
-        <el-row :gutter="16">
+        <el-row :gutter="20">
           <el-col :xs="12" :sm="8" :md="6" v-for="action in quickActions" :key="action.key">
             <div class="action-item" @click="handleQuickAction(action)">
-              <div class="action-icon" :style="{ backgroundColor: action.color }">
-                <el-icon :size="24"><component :is="action.icon" /></el-icon>
+              <div class="action-icon" :class="action.key">
+                <el-icon :size="28"><component :is="action.icon" /></el-icon>
+                <div class="icon-glow"></div>
               </div>
               <div class="action-label">{{ action.label }}</div>
+              <div class="action-arrow">
+                <el-icon><ArrowRight /></el-icon>
+              </div>
             </div>
           </el-col>
         </el-row>
@@ -95,9 +125,19 @@
         <!-- 左侧内容 -->
         <el-col :xs="24" :lg="16">
           <!-- 标签页导航 -->
-          <el-card class="content-tabs">
-            <el-tabs v-model="activeTab" @tab-change="handleTabChange">
-              <el-tab-pane label="公告管理" name="announcements">
+          <el-card class="content-tabs" shadow="hover">
+            <template #header>
+              <div class="card-header">
+                <div class="header-left">
+                  <div class="header-icon">
+                    <el-icon><Document /></el-icon>
+                  </div>
+                  <span class="header-title">工作台</span>
+                </div>
+              </div>
+            </template>
+            <el-tabs v-model="activeTab" @tab-change="handleTabChange" class="custom-tabs">
+              <el-tab-pane name="announcements">
                 <template #label>
                   <div class="tab-label">
                     <el-icon><Bell /></el-icon>
@@ -115,7 +155,7 @@
                 />
               </el-tab-pane>
 
-              <el-tab-pane label="村民管理" name="residents">
+              <el-tab-pane name="residents">
                 <template #label>
                   <div class="tab-label">
                     <el-icon><User /></el-icon>
@@ -132,7 +172,7 @@
                 />
               </el-tab-pane>
 
-              <el-tab-pane label="任务调度" name="tasks">
+              <el-tab-pane name="tasks">
                 <template #label>
                   <div class="tab-label">
                     <el-icon><List /></el-icon>
@@ -155,12 +195,19 @@
         <!-- 右侧边栏 -->
         <el-col :xs="24" :lg="8">
           <!-- 实时通知 -->
-          <el-card class="notifications-card">
+          <el-card class="notifications-card" shadow="hover">
             <template #header>
               <div class="card-header">
-                <el-icon><Notification /></el-icon>
-                <span>实时通知</span>
-                <el-button size="small" text @click="clearAllNotifications">清空</el-button>
+                <div class="header-left">
+                  <div class="header-icon">
+                    <el-icon><Notification /></el-icon>
+                  </div>
+                  <span class="header-title">实时通知</span>
+                </div>
+                <el-button size="small" text @click="clearAllNotifications" class="clear-btn">
+                  <el-icon><Delete /></el-icon>
+                  清空
+                </el-button>
               </div>
             </template>
             <div class="notifications-list" v-loading="notificationsLoading">
@@ -187,11 +234,15 @@
           </el-card>
 
           <!-- 村务动态时间线 -->
-          <el-card class="timeline-card">
+          <el-card class="timeline-card" shadow="hover">
             <template #header>
               <div class="card-header">
-                <el-icon><Clock /></el-icon>
-                <span>村务动态</span>
+                <div class="header-left">
+                  <div class="header-icon">
+                    <el-icon><Clock /></el-icon>
+                  </div>
+                  <span class="header-title">村务动态</span>
+                </div>
               </div>
             </template>
             <el-timeline>
@@ -200,6 +251,7 @@
                 :key="event.id"
                 :timestamp="formatTime(event.time)"
                 :type="event.type"
+                :hollow="true"
               >
                 <div class="event-content">
                   <div class="event-title">{{ event.title }}</div>
@@ -211,24 +263,41 @@
           </el-card>
 
           <!-- 统计图表 -->
-          <el-card class="chart-card">
+          <el-card class="chart-card" shadow="hover">
             <template #header>
               <div class="card-header">
-                <el-icon><TrendCharts /></el-icon>
-                <span>数据统计</span>
+                <div class="header-left">
+                  <div class="header-icon">
+                    <el-icon><TrendCharts /></el-icon>
+                  </div>
+                  <span class="header-title">数据统计</span>
+                </div>
               </div>
             </template>
             <div class="chart-container">
               <div class="chart-item">
-                <div class="chart-label">任务完成率</div>
-                <el-progress :percentage="taskStats.completionRate" :stroke-width="8" />
+                <div class="chart-label">
+                  <span>任务完成率</span>
+                  <span class="chart-value">{{ taskStats.completionRate }}%</span>
+                </div>
+                <el-progress
+                  :percentage="taskStats.completionRate"
+                  :stroke-width="10"
+                  :show-text="false"
+                  class="custom-progress"
+                />
               </div>
               <div class="chart-item">
-                <div class="chart-label">公告阅读率</div>
+                <div class="chart-label">
+                  <span>公告阅读率</span>
+                  <span class="chart-value">{{ announcementStats.readRate }}%</span>
+                </div>
                 <el-progress
                   :percentage="announcementStats.readRate"
-                  :stroke-width="8"
-                  color="#67c23a"
+                  :stroke-width="10"
+                  :show-text="false"
+                  color="#10b981"
+                  class="custom-progress"
                 />
               </div>
             </div>
@@ -277,6 +346,8 @@ import {
   ArrowUp,
   ArrowDown,
   Minus,
+  ArrowRight,
+  Delete,
 } from '@element-plus/icons-vue';
 
 const AnnouncementManagement = defineAsyncComponent(
@@ -879,10 +950,42 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+/* ==================== CSS 变量定义 ==================== */
+:root {
+  --primary-color: #10b981;
+  --primary-light: #34d399;
+  --primary-dark: #059669;
+  --primary-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --secondary-color: #f0fdf4;
+  --accent-color: #f59e0b;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --text-tertiary: #9ca3af;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f3f4f6;
+  --bg-tertiary: #e5e7eb;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --border-radius-sm: 8px;
+  --border-radius-md: 12px;
+  --border-radius-lg: 16px;
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==================== 全局样式 ==================== */
 .village-affairs {
-  padding: 20px;
-  background-color: #f5f7fa;
+  padding: 24px;
+  background-color: #f8fafc;
+  background-image:
+    radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.05) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.05) 0px, transparent 50%);
+  background-attachment: fixed;
   min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
 }
 
 .village-affairs.large-text-mode {
@@ -891,21 +994,89 @@ onMounted(async () => {
 
 .village-affairs.large-text-mode .el-button {
   font-size: 16px;
-  padding: 12px 20px;
+  padding: 12px 24px;
 }
 
 .village-affairs.large-text-mode .el-card__body {
   padding: 24px;
 }
 
-/* 页面头部样式 */
+/* ==================== 卡片通用样式 ==================== */
+:deep(.el-card) {
+  border: none;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-base);
+  background: var(--bg-primary);
+}
+
+:deep(.el-card:hover) {
+  box-shadow: var(--shadow-lg);
+}
+
+:deep(.el-card__header) {
+  border-bottom: 1px solid var(--bg-tertiary);
+  padding: 20px 24px;
+}
+
+:deep(.el-card__body) {
+  padding: 20px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--border-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: white;
+  font-size: 18px;
+  box-shadow: var(--shadow-sm);
+}
+
+.header-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.5px;
+}
+
+.clear-btn {
+  color: var(--text-tertiary);
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.clear-btn:hover {
+  color: var(--primary-color);
+  background-color: rgba(16, 185, 129, 0.1);
+}
+
+/* ==================== 页面头部样式 ==================== */
 .page-header {
   position: relative;
-  margin-bottom: 24px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 12px;
+  margin-bottom: 28px;
+  background: var(--primary-gradient);
+  border-radius: var(--border-radius-lg);
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-lg);
 }
 
 .header-bg {
@@ -919,284 +1090,788 @@ onMounted(async () => {
   background-size: cover;
 }
 
+.header-particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+    radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+    radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 60px 60px, 80px 80px, 100px 100px;
+  animation: particleFloat 20s linear infinite;
+}
+
+@keyframes particleFloat {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-60px);
+  }
+}
+
 .header-content {
   position: relative;
   z-index: 1;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 32px;
+  padding: 40px;
   color: white;
 }
 
-.header-info .page-title {
-  font-size: 28px;
-  font-weight: 600;
-  margin: 0 0 8px 0;
+.header-info {
+  flex: 1;
 }
 
-.header-info .page-description {
+.title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.page-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0;
+  background: linear-gradient(135deg, #ffffff 0%, rgba(255, 255, 255, 0.9) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 1px;
+}
+
+.title-badge {
+  animation: badgeGlow 2s ease-in-out infinite;
+}
+
+@keyframes badgeGlow {
+  0%, 100% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+.page-description {
   font-size: 16px;
-  opacity: 0.9;
-  margin: 0 0 16px 0;
+  opacity: 0.95;
+  margin: 0 0 20px 0;
+  font-weight: 300;
+  letter-spacing: 0.5px;
 }
 
 .user-greeting {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: var(--border-radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  max-width: fit-content;
+}
+
+.greeting-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.greeting-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.welcome-text {
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+.user-name {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.role-tag {
+  border-radius: var(--border-radius-sm);
+  padding: 8px 16px;
+  font-weight: 500;
 }
 
 .header-actions {
   display: flex;
   gap: 12px;
+  align-items: center;
 }
 
-/* 数据概览样式 */
+.action-btn {
+  border-radius: var(--border-radius-md);
+  font-weight: 500;
+  transition: all var(--transition-base);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.primary-action {
+  background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+  border-color: #d97706 !important;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+}
+
+.primary-action:hover {
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
+  transform: translateY(-2px) scale(1.02);
+}
+
+.text-mode-btn {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  color: white !important;
+}
+
+.text-mode-btn.active {
+  background: rgba(255, 255, 255, 0.3) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* ==================== 数据概览样式 ==================== */
 .dashboard-section {
-  margin-bottom: 24px;
+  margin-bottom: 28px;
+}
+
+.stat-card-wrapper {
+  margin-bottom: 20px;
 }
 
 .stat-card {
-  transition: all 0.3s ease;
   border: none;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-base);
+  background: var(--bg-primary);
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--stat-color, #10b981);
+  opacity: 0;
+  transition: opacity var(--transition-base);
 }
 
 .stat-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-xl);
+}
+
+.stat-card:hover::before {
+  opacity: 1;
 }
 
 .stat-card.primary {
-  border-left: 4px solid #409eff;
+  --stat-color: #10b981;
 }
 
 .stat-card.success {
-  border-left: 4px solid #67c23a;
+  --stat-color: #f59e0b;
 }
 
 .stat-card.danger {
-  border-left: 4px solid #f56c6c;
+  --stat-color: #ef4444;
 }
 
 .stat-card.warning {
-  border-left: 4px solid #e6a23c;
+  --stat-color: #6366f1;
 }
 
 .stat-content {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
+}
+
+.stat-icon-wrapper {
+  position: relative;
+  width: 70px;
+  height: 70px;
+  flex-shrink: 0;
 }
 
 .stat-icon {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
+  position: relative;
+  z-index: 2;
+  width: 70px;
+  height: 70px;
+  border-radius: var(--border-radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f0f9ff;
-  color: #409eff;
+  background: linear-gradient(135deg, var(--secondary-color), #dcfce7);
+  color: var(--primary-color);
+  transition: all var(--transition-base);
+}
+
+.stat-icon-wrapper:hover .stat-icon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.stat-icon-bg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  opacity: 0.1;
+  animation: iconPulse 3s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.1;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 0.05;
+  }
 }
 
 .stat-info {
   flex: 1;
-  margin-left: 16px;
+  min-width: 0;
 }
 
 .stat-value {
-  font-size: 24px;
-  font-weight: 600;
-  color: #303133;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  line-height: 1.2;
+  background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .stat-label {
   font-size: 14px;
-  color: #909399;
-  margin-top: 4px;
+  color: var(--text-secondary);
+  font-weight: 500;
 }
 
 .stat-trend {
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: var(--border-radius-sm);
+  background-color: var(--bg-secondary);
+  transition: all var(--transition-fast);
+}
+
+.stat-trend:hover {
+  transform: scale(1.1);
 }
 
 .stat-trend.up {
-  color: #67c23a;
+  color: #10b981;
+  background-color: rgba(16, 185, 129, 0.1);
 }
 
 .stat-trend.down {
-  color: #f56c6c;
+  color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.1);
 }
 
 .stat-trend.stable {
-  color: #909399;
+  color: var(--text-tertiary);
+  background-color: rgba(156, 163, 175, 0.1);
 }
 
-/* 快速操作样式 */
+/* ==================== 快速操作样式 ==================== */
 .quick-actions-section {
-  margin-bottom: 24px;
+  margin-bottom: 28px;
+}
+
+.quick-actions-card {
+  background: linear-gradient(135deg, var(--bg-primary) 0%, rgba(16, 185, 129, 0.02) 100%);
 }
 
 .action-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px;
+  justify-content: center;
+  padding: 24px 16px;
   cursor: pointer;
-  border-radius: 8px;
-  transition: all 0.3s ease;
+  border-radius: var(--border-radius-md);
+  transition: all var(--transition-base);
+  background: transparent;
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.action-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.02));
+  opacity: 0;
+  transition: opacity var(--transition-base);
 }
 
 .action-item:hover {
-  background-color: #f8f9ff;
+  background: rgba(16, 185, 129, 0.05);
+  border-color: rgba(16, 185, 129, 0.2);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.action-item:hover::before {
+  opacity: 1;
+}
+
+.action-item:hover .action-icon {
+  transform: scale(1.15) rotate(-5deg);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.action-item:active {
   transform: translateY(-2px);
 }
 
 .action-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
+  position: relative;
+  z-index: 2;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--border-radius-lg);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  margin-bottom: 12px;
-  transition: all 0.3s ease;
+  margin-bottom: 14px;
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-sm);
 }
 
-.action-item:hover .action-icon {
-  transform: scale(1.1);
+.action-icon.announcement {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.action-icon.task {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.action-icon.resident {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+}
+
+.action-icon.finance {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.icon-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: inherit;
+  filter: blur(20px);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+  z-index: 1;
+}
+
+.action-item:hover .icon-glow {
+  opacity: 0.4;
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.3);
+    opacity: 0.2;
+  }
 }
 
 .action-label {
+  position: relative;
+  z-index: 2;
   font-size: 14px;
-  color: #606266;
-  text-align: center;
-}
-
-/* 主要内容样式 */
-.main-content {
-  margin-bottom: 24px;
-}
-
-.content-tabs .card-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  color: var(--text-primary);
   font-weight: 600;
+  text-align: center;
+  letter-spacing: 0.3px;
+  transition: color var(--transition-fast);
+}
+
+.action-item:hover .action-label {
+  color: var(--primary-color);
+}
+
+.action-arrow {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-tertiary);
+  opacity: 0;
+  transition: all var(--transition-base);
+}
+
+.action-item:hover .action-arrow {
+  opacity: 1;
+  right: 16px;
+  color: var(--primary-color);
+}
+
+/* ==================== 主要内容样式 ==================== */
+.main-content {
+  margin-bottom: 28px;
+}
+
+.content-tabs {
+  background: var(--bg-primary);
+}
+
+.content-tabs :deep(.el-tabs__header) {
+  margin: 0 0 20px 0;
+  border-bottom: 2px solid var(--bg-tertiary);
+}
+
+.content-tabs :deep(.el-tabs__nav-wrap::after) {
+  display: none;
+}
+
+.custom-tabs :deep(.el-tabs__item) {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  padding: 0 24px;
+  height: 48px;
+  line-height: 48px;
+  transition: all var(--transition-fast);
+}
+
+.custom-tabs :deep(.el-tabs__item:hover) {
+  color: var(--primary-color);
+}
+
+.custom-tabs :deep(.el-tabs__item.is-active) {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.custom-tabs :deep(.el-tabs__active-bar) {
+  background-color: var(--primary-color);
+  height: 3px;
+  border-radius: 3px 3px 0 0;
 }
 
 .tab-label {
   display: flex;
   align-items: center;
   gap: 8px;
+  transition: all var(--transition-fast);
+}
+
+.tab-label .el-icon {
+  font-size: 16px;
 }
 
 .tab-badge {
   margin-left: 4px;
+  transform: scale(0.9);
+  transition: transform var(--transition-fast);
 }
 
-/* 通知样式 */
+.tab-label:hover .tab-badge {
+  transform: scale(1);
+}
+
+/* ==================== 通知样式 ==================== */
 .notifications-card {
   margin-bottom: 24px;
-  max-height: 400px;
 }
 
 .notifications-list {
-  max-height: 300px;
+  max-height: 350px;
   overflow-y: auto;
+  padding: 4px;
+}
+
+.notifications-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notifications-list::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border-radius: 3px;
+}
+
+.notifications-list::-webkit-scrollbar-thumb {
+  background: var(--bg-tertiary);
+  border-radius: 3px;
+}
+
+.notifications-list::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
 }
 
 .notification-item {
   display: flex;
   align-items: center;
-  padding: 12px;
-  border-radius: 8px;
+  padding: 14px;
+  border-radius: var(--border-radius-md);
   cursor: pointer;
-  transition: all 0.3s ease;
-  margin-bottom: 8px;
+  transition: all var(--transition-base);
+  margin-bottom: 10px;
+  background: transparent;
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.notification-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--primary-color);
+  border-radius: 4px 0 0 4px;
+  opacity: 0;
+  transition: opacity var(--transition-base);
 }
 
 .notification-item:hover {
-  background-color: #f8f9ff;
+  background: rgba(16, 185, 129, 0.05);
+  border-color: rgba(16, 185, 129, 0.2);
+  transform: translateX(4px);
+}
+
+.notification-item:hover::before {
+  opacity: 0.5;
 }
 
 .notification-item.unread {
-  background-color: #f0f9ff;
-  border-left: 3px solid #409eff;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(16, 185, 129, 0.02));
+  border-left-color: var(--primary-color);
+  border-left-width: 4px;
+}
+
+.notification-item.unread::before {
+  opacity: 1;
 }
 
 .notification-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--border-radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f5f7fa;
-  margin-right: 12px;
+  background: linear-gradient(135deg, var(--secondary-color), #dcfce7);
+  color: var(--primary-color);
+  margin-right: 14px;
+  flex-shrink: 0;
+  transition: all var(--transition-base);
+}
+
+.notification-item:hover .notification-icon {
+  transform: scale(1.1) rotate(-5deg);
+  box-shadow: var(--shadow-sm);
+}
+
+.notification-item.task .notification-icon {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  color: #f59e0b;
+}
+
+.notification-item.success .notification-icon {
+  background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+  color: #10b981;
+}
+
+.notification-item.warning .notification-icon {
+  background: linear-gradient(135deg, #fee2e2, #fecaca);
+  color: #ef4444;
 }
 
 .notification-content {
   flex: 1;
+  min-width: 0;
 }
 
 .notification-title {
   font-size: 14px;
-  color: #303133;
+  font-weight: 500;
+  color: var(--text-primary);
   margin-bottom: 4px;
+  line-height: 1.4;
+  transition: color var(--transition-fast);
+}
+
+.notification-item:hover .notification-title {
+  color: var(--primary-color);
 }
 
 .notification-time {
   font-size: 12px;
-  color: #909399;
+  color: var(--text-tertiary);
+  font-weight: 400;
 }
 
 .notification-status {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .status-dot {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  background-color: #409eff;
+  background: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+  animation: statusPulse 2s ease-in-out infinite;
 }
 
-/* 时间线样式 */
+@keyframes statusPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+  }
+  50% {
+    transform: scale(1.2);
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0.1);
+  }
+}
+
+/* ==================== 时间线样式 ==================== */
 .timeline-card {
   margin-bottom: 24px;
 }
 
+:deep(.el-timeline) {
+  padding-left: 0;
+}
+
+:deep(.el-timeline-item__timestamp) {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-bottom: 8px;
+}
+
+:deep(.el-timeline-item__node) {
+  background: var(--primary-color);
+  border: 3px solid var(--bg-primary);
+}
+
+:deep(.el-timeline-item__node--primary) {
+  background: var(--primary-color);
+}
+
+:deep(.el-timeline-item__node--success) {
+  background: #10b981;
+}
+
+:deep(.el-timeline-item__node--warning) {
+  background: #f59e0b;
+}
+
+:deep(.el-timeline-item__node--danger) {
+  background: #ef4444;
+}
+
+:deep(.el-timeline-item__node--info) {
+  background: #6366f1;
+}
+
 .event-content {
-  padding-left: 8px;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, var(--bg-secondary), rgba(16, 185, 129, 0.03));
+  border-radius: var(--border-radius-md);
+  transition: all var(--transition-base);
+  border-left: 3px solid transparent;
+}
+
+.event-content:hover {
+  transform: translateX(4px);
+  box-shadow: var(--shadow-sm);
+  border-left-color: var(--primary-color);
 }
 
 .event-title {
   font-size: 14px;
-  font-weight: 500;
-  color: #303133;
-  margin-bottom: 4px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+  line-height: 1.4;
 }
 
 .event-description {
   font-size: 13px;
-  color: #606266;
-  margin-bottom: 4px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  line-height: 1.5;
 }
 
 .event-user {
   font-size: 12px;
-  color: #909399;
+  color: var(--text-tertiary);
+  font-weight: 400;
 }
 
-/* 图表样式 */
+/* ==================== 图表样式 ==================== */
 .chart-card {
   margin-bottom: 24px;
 }
@@ -1204,61 +1879,179 @@ onMounted(async () => {
 .chart-container {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
+  padding: 8px;
 }
 
 .chart-item {
-  margin-bottom: 20px;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--bg-secondary), rgba(16, 185, 129, 0.02));
+  border-radius: var(--border-radius-md);
+  transition: all var(--transition-base);
+}
+
+.chart-item:hover {
+  transform: translateX(4px);
+  box-shadow: var(--shadow-sm);
 }
 
 .chart-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
   font-size: 14px;
-  color: #606266;
-  margin-bottom: 8px;
+  color: var(--text-secondary);
+  font-weight: 500;
 }
 
-/* 响应式设计 */
-@media (max-width: 768px) {
+.chart-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.custom-progress :deep(.el-progress-bar__outer) {
+  background-color: var(--bg-tertiary);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.custom-progress :deep(.el-progress-bar__inner) {
+  border-radius: 10px;
+  transition: all var(--transition-slow);
+  background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+/* ==================== 响应式设计 ==================== */
+@media (max-width: 1024px) {
   .village-affairs {
-    padding: 12px;
+    padding: 20px;
   }
 
   .header-content {
     flex-direction: column;
     align-items: flex-start;
-    gap: 16px;
-    padding: 20px;
+    gap: 24px;
+    padding: 32px;
   }
 
   .header-actions {
     width: 100%;
-    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .action-btn {
+    flex: 1;
+    min-width: 120px;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .village-affairs {
+    padding: 16px;
+  }
+
+  .header-content {
+    padding: 24px;
+  }
+
+  .page-title {
+    font-size: 24px;
+  }
+
+  .page-description {
+    font-size: 14px;
+  }
+
+  .user-greeting {
+    width: 100%;
+    padding: 10px 16px;
+  }
+
+  .header-actions {
     overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .action-btn {
+    flex: 0 0 auto;
+    padding: 10px 16px;
   }
 
   .stat-content {
     flex-direction: column;
     text-align: center;
+    padding: 16px;
+  }
+
+  .stat-icon-wrapper {
+    margin-bottom: 12px;
   }
 
   .stat-info {
-    margin-left: 0;
-    margin-top: 12px;
+    width: 100%;
+  }
+
+  .stat-value {
+    font-size: 24px;
   }
 
   .action-item {
-    padding: 16px 12px;
+    padding: 20px 12px;
   }
 
   .action-icon {
-    width: 48px;
-    height: 48px;
+    width: 56px;
+    height: 56px;
+  }
+
+  .action-label {
+    font-size: 13px;
+  }
+
+  .notifications-list {
+    max-height: 300px;
+  }
+
+  .notification-item {
+    padding: 12px;
   }
 }
 
-/* 大字模式增强样式 */
+@media (max-width: 480px) {
+  .village-affairs {
+    padding: 12px;
+  }
+
+  .dashboard-section :deep(.el-col) {
+    margin-bottom: 16px;
+  }
+
+  .quick-actions-section :deep(.el-col) {
+    margin-bottom: 12px;
+  }
+
+  .content-tabs :deep(.el-tabs__item) {
+    padding: 0 16px;
+    font-size: 14px;
+  }
+
+  .tab-label span {
+    display: none;
+  }
+
+  .tab-label .el-icon {
+    font-size: 18px;
+  }
+}
+
+/* ==================== 大字模式增强样式 ==================== */
 .village-affairs.large-text-mode .page-title {
-  font-size: 32px;
+  font-size: 36px;
 }
 
 .village-affairs.large-text-mode .page-description {
@@ -1266,7 +2059,11 @@ onMounted(async () => {
 }
 
 .village-affairs.large-text-mode .stat-value {
-  font-size: 28px;
+  font-size: 32px;
+}
+
+.village-affairs.large-text-mode .stat-label {
+  font-size: 16px;
 }
 
 .village-affairs.large-text-mode .action-label {
@@ -1278,7 +2075,48 @@ onMounted(async () => {
   font-size: 16px;
 }
 
+.village-affairs.large-text-mode .notification-time,
+.village-affairs.large-text-mode .event-description {
+  font-size: 14px;
+}
+
 .village-affairs.large-text-mode .chart-label {
   font-size: 16px;
+}
+
+.village-affairs.large-text-mode .chart-value {
+  font-size: 18px;
+}
+
+/* ==================== 加载和过渡动画 ==================== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.village-affairs > * {
+  animation: fadeInUp 0.6s ease-out backwards;
+}
+
+.village-affairs > *:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.village-affairs > *:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.village-affairs > *:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.village-affairs > *:nth-child(4) {
+  animation-delay: 0.4s;
 }
 </style>

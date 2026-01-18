@@ -64,22 +64,28 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { HomeFilled, User, OfficeBuilding, Connection } from '@element-plus/icons-vue';
+import VoiceAssistant from '@/components/voice/VoiceAssistant';
+
+// 获取当前年份
+const currentYear = computed(() => new Date().getFullYear());
+
+// 版本号
+const version = 'v2.0';
+
+// Logo存在状态
+const logoExists = ref(false);
+
+// 显示装饰
+const showDecoration = ref(true);
+
+// 显示语音助手
+const showVoiceAssistant = ref(false);
 
 onMounted(() => {
-  try {
-    const img = new Image();
-    img.src = new URL('@/assets/logo.svg', import.meta.url).href;
-    img.onload = () => {
-      logoExists.value = true;
-    };
-    img.onerror = () => {
-      logoExists.value = false;
-    };
-  } catch (e) {
-    logoExists.value = false;
-  }
+  // 直接使用 public 目录中的 logo.svg
+  logoExists.value = true;
 });
 </script>
 

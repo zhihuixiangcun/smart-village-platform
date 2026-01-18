@@ -34,7 +34,7 @@
                 <el-icon><User /></el-icon>
                 群聊信息
               </el-dropdown-item>
-              <el-dropdown-item divided @click="clearHistory">
+              <el-dropdown-item divided @click="showClearDialog">
                 <el-icon><Delete /></el-icon>
                 清空聊天记录
               </el-dropdown-item>
@@ -72,10 +72,73 @@
         v-model="inputText"
         :loading="sending"
         :reply-to="replyToMessage"
+        :conversation-id="props.conversationId"
         @send="sendMessage"
         @cancel-reply="replyToMessage = null"
+        @send-file="sendFileMessage"
       />
     </div>
+
+    <!-- 清空聊天记录确认对话框 -->
+    <el-dialog
+      v-model="clearDialogVisible"
+      title="清空聊天记录"
+      width="500px"
+      :close-on-click-modal="false"
+    >
+      <el-form :model="clearForm" label-width="100px">
+        <el-form-item label="清空范围">
+          <el-radio-group v-model="clearForm.timeRange">
+            <el-radio label="all">全部消息</el-radio>
+            <el-radio label="90days">最近90天</el-radio>
+            <el-radio label="30days">最近30天</el-radio>
+            <el-radio label="7days">最近7天</el-radio>
+          </el-radio-group>
+        </el-form-item>
+
+        <el-form-item label="消息类型">
+          <el-checkbox-group v-model="clearForm.messageTypes">
+            <el-checkbox label="text">文字消息</el-checkbox>
+            <el-checkbox label="image">图片消息</el-checkbox>
+            <el-checkbox label="video">视频消息</el-checkbox>
+            <el-checkbox label="voice">语音消息</el-checkbox>
+            <el-checkbox label="file">文件消息</el-checkbox>
+            <el-checkbox label="location">位置消息</el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
+
+        <el-form-item>
+          <el-checkbox v-model="clearForm.selectAll" @change="handleSelectAll">
+            全选/取消全选
+          </el-checkbox>
+        </el-form-item>
+      </el-form>
+
+      <div v-if="clearing" class="clear-progress">
+        <el-progress
+          :percentage="clearProgress"
+          :status="clearProgress === 100 ? 'success' : undefined"
+        >
+          <span class="progress-text">{{ clearProgressText }}</span>
+        </el-progress>
+      </div>
+
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="clearDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="confirmClear" :loading="clearing">
+            确认清空
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
+
+    <!-- 群聊信息弹窗 -->
+    <GroupInfoDialog
+      v-model="showGroupInfoDialog"
+      :conversation-id="props.conversationId"
+      @updated="handleGroupUpdated"
+    />
   </div>
 </template>
 
@@ -87,6 +150,7 @@ import { useUserStore } from '@/stores/user';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import MessageBubble from './MessageBubble.vue';
 import MessageInput from './MessageInput.vue';
+import GroupInfoDialog from './GroupInfoDialog.vue';
 
 const props = defineProps({
   conversationId: {
@@ -161,6 +225,20 @@ const isMuted = computed(() => {
 // 是否正在输入
 const isTyping = ref(false);
 
+// 群聊信息弹窗
+const showGroupInfoDialog = ref(false);
+
+// 清空聊天记录相关
+const clearDialogVisible = ref(false);
+const clearing = ref(false);
+const clearProgress = ref(0);
+const clearProgressText = ref('');
+const clearForm = ref({
+  timeRange: 'all',
+  messageTypes: ['text', 'image', 'video', 'voice', 'file', 'location'],
+  selectAll: true,
+});
+
 // 滚动到底部
 const scrollToBottom = () => {
   nextTick(() => {
@@ -197,6 +275,28 @@ const sendMessage = async content => {
     });
 
     inputText.value = '';
+    replyToMessage.value = null;
+    scrollToBottom();
+  } catch (error) {
+    ElMessage.error('发送失败');
+  } finally {
+    sending.value = false;
+  }
+};
+
+// 发送文件消息
+const sendFileMessage = async messageData => {
+  if (sending.value) return;
+
+  sending.value = true;
+  try {
+    await chatStore.sendMessage({
+      conversationId: props.conversationId,
+      type: messageData.type,
+      content: messageData.content,
+      replyTo: messageData.replyTo?._id,
+    });
+
     replyToMessage.value = null;
     scrollToBottom();
   } catch (error) {
@@ -251,12 +351,40 @@ const toggleMute = async () => {
 
 // 显示群聊信息
 const showGroupInfo = () => {
-  // TODO: 实现群聊信息弹窗
-  ElMessage.info('群聊信息功能开发中');
+  showGroupInfoDialog.value = true;
 };
 
-// 清空聊天记录
-const clearHistory = async () => {
+// 群聊信息更新回调
+const handleGroupUpdated = () => {
+  chatStore.loadConversations();
+};
+
+// 显示清空对话框
+const showClearDialog = () => {
+  clearForm.value = {
+    timeRange: 'all',
+    messageTypes: ['text', 'image', 'video', 'voice', 'file', 'location'],
+    selectAll: true,
+  };
+  clearProgress.value = 0;
+  clearProgressText.value = '';
+  clearDialogVisible.value = true;
+};
+
+// 全选/取消全选
+const handleSelectAll = checked => {
+  clearForm.value.messageTypes = checked
+    ? ['text', 'image', 'video', 'voice', 'file', 'location']
+    : [];
+};
+
+// 确认清空
+const confirmClear = async () => {
+  if (clearForm.value.messageTypes.length === 0) {
+    ElMessage.warning('请选择要清空的消息类型');
+    return;
+  }
+
   try {
     await ElMessageBox.confirm('确认清空聊天记录吗？此操作不可恢复。', '清空记录', {
       confirmButtonText: '确认',
@@ -264,10 +392,34 @@ const clearHistory = async () => {
       type: 'warning',
     });
 
-    // TODO: 实现清空聊天记录
-    ElMessage.info('清空记录功能开发中');
+    clearing.value = true;
+    clearProgress.value = 10;
+    clearProgressText.value = '正在删除消息...';
+
+    const result = await chatStore.clearMessages(props.conversationId, {
+      timeRange: clearForm.value.timeRange,
+      messageTypes: clearForm.value.messageTypes,
+    });
+
+    clearProgress.value = 50;
+    clearProgressText.value = '正在同步数据...';
+
+    await chatStore.loadMessages(props.conversationId);
+
+    clearProgress.value = 100;
+    clearProgressText.value = `已删除 ${result.deletedCount} 条消息`;
+
+    setTimeout(() => {
+      clearDialogVisible.value = false;
+      ElMessage.success('聊天记录已清空');
+    }, 500);
   } catch (error) {
-    // 用户取消
+    if (error !== 'cancel') {
+      console.error('清空聊天记录失败:', error);
+      ElMessage.error(error.response?.data?.message || '清空失败');
+    }
+  } finally {
+    clearing.value = false;
   }
 };
 
@@ -358,6 +510,15 @@ onMounted(() => {
   flex-shrink: 0;
   background: #fff;
   border-top: 1px solid #e0e0e0;
+}
+
+.clear-progress {
+  margin-top: 20px;
+}
+
+.progress-text {
+  font-size: 12px;
+  color: #666;
 }
 
 /* 移动端适配 */

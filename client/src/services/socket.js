@@ -3,7 +3,7 @@
  * 用于实时通信功能
  */
 import { io } from 'socket.io-client';
-import { useUserStore } from '@/stores/user';
+import { useUserStore } from '@/stores/userStore';
 import { ElNotification } from 'element-plus';
 
 class SocketService {

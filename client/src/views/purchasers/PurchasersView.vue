@@ -245,16 +245,36 @@ onMounted(() => {
 <style lang="scss" scoped>
 .purchasers-view {
   min-height: 100vh;
-  background-color: #f5f5f5;
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 50%, #a5d6a7 100%);
 }
 
 .page-header {
-  background-color: #fff;
-  border-bottom: 1px solid #e4e7ed;
-  padding: 0 24px;
-  height: 60px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%);
+  backdrop-filter: blur(10px);
+  border-bottom: 2px solid rgba(76, 175, 80, 0.1);
+  padding: 0 32px;
+  height: 72px;
   display: flex;
   align-items: center;
+  box-shadow: 0 4px 16px rgba(76, 175, 80, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+  position: relative;
+  overflow: hidden;
+}
+
+.page-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(139, 195, 74, 0.03) 0%, transparent 70%);
+  animation: rotate 20s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .header-content {
@@ -262,28 +282,209 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  position: relative;
+  z-index: 1;
 }
 
 .page-title {
   margin: 0;
-  font-size: 18px;
-  color: #303133;
+  font-size: 24px;
+  color: #2e7d32;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.page-title::before {
+  content: '';
+  width: 4px;
+  height: 28px;
+  background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+  border-radius: 2px;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.4);
 }
 
 .page-main {
-  padding: 24px;
+  padding: 28px;
+}
+
+.page-main :deep(.el-card) {
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(76, 175, 80, 0.12), 0 4px 16px rgba(0, 0, 0, 0.04);
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  overflow: hidden;
 }
 
 .filter-bar {
   display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: 14px;
+  margin-bottom: 24px;
   flex-wrap: wrap;
+  padding: 8px;
+}
+
+.filter-bar :deep(.el-input) {
+  flex: 1;
+  min-width: 200px;
+}
+
+.filter-bar :deep(.el-input__wrapper) {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.filter-bar :deep(.el-input__wrapper:hover) {
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.15), 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.filter-bar :deep(.el-input__wrapper.is-focus) {
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2), 0 2px 6px rgba(0, 0, 0, 0.08);
+  border-color: #4caf50;
+}
+
+.filter-bar :deep(.el-select) {
+  min-width: 160px;
+}
+
+.filter-bar :deep(.el-select .el-input__wrapper) {
+  border-radius: 12px;
+}
+
+.filter-bar :deep(.el-button) {
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.filter-bar :deep(.el-button:hover) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.filter-bar :deep(.el-button--primary) {
+  background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+  border: none;
+}
+
+.filter-bar :deep(.el-button--primary:hover) {
+  background: linear-gradient(135deg, #43a047 0%, #7cb342 100%);
+  box-shadow: 0 6px 16px rgba(76, 175, 80, 0.3);
+}
+
+.page-main :deep(.el-table) {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.page-main :deep(.el-table__header-wrapper) {
+  background: linear-gradient(90deg, #f1f8e9 0%, #dcedc8 100%);
+}
+
+.page-main :deep(.el-table th) {
+  background: transparent;
+  color: #2e7d32;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.page-main :deep(.el-table td) {
+  padding: 16px 12px;
+  font-size: 14px;
+}
+
+.page-main :deep(.el-table__row:hover) {
+  background: rgba(76, 175, 80, 0.05);
+}
+
+.page-main :deep(.el-table__row.el-table__row--striped) {
+  background: rgba(76, 175, 80, 0.03);
+}
+
+.page-main :deep(.el-table__row.el-table__row--striped:hover) {
+  background: rgba(76, 175, 80, 0.08);
+}
+
+.page-main :deep(.el-tag) {
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 6px 14px;
+}
+
+.page-main :deep(.el-table--striped .el-table__body tr.el-table__row--striped td) {
+  background: transparent;
 }
 
 .pagination-container {
-  margin-top: 20px;
+  margin-top: 28px;
   display: flex;
   justify-content: center;
+  padding: 16px;
+}
+
+.pagination-container :deep(.el-pagination) {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%);
+  backdrop-filter: blur(10px);
+  padding: 12px 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(76, 175, 80, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 2px solid rgba(255, 255, 255, 0.8);
+}
+
+.pagination-container :deep(.el-pagination.is-background .btn-next),
+.pagination-container :deep(.el-pagination.is-background .btn-prev),
+.pagination-container :deep(.el-pagination.is-background .el-pager li) {
+  background: white;
+  border-radius: 10px;
+  margin: 0 4px;
+  font-weight: 600;
+  color: #689f38;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s;
+}
+
+.pagination-container :deep(.el-pagination.is-background .btn-next:hover),
+.pagination-container :deep(.el-pagination.is-background .btn-prev:hover),
+.pagination-container :deep(.el-pagination.is-background .el-pager li:hover) {
+  background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.pagination-container :deep(.el-pagination.is-background .el-pager li.is-active) {
+  background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    padding: 0 20px;
+    height: 64px;
+  }
+
+  .page-title {
+    font-size: 20px;
+  }
+
+  .page-main {
+    padding: 16px;
+  }
+
+  .filter-bar {
+    flex-direction: column;
+  }
+
+  .filter-bar :deep(.el-input),
+  .filter-bar :deep(.el-select) {
+    width: 100%;
+  }
+
+  .filter-bar :deep(.el-button) {
+    width: 100%;
+  }
 }
 </style>

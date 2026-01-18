@@ -1,0 +1,24 @@
+{
+  "name": "hookify",
+  "version": "1.0.0",
+  "description": "Easily create custom hooks to prevent unwanted behaviors",
+  "author": "Anthropic",
+  "commands": [
+    {
+      "name": "hookify",
+      "description": "Create a new hook"
+    },
+    {
+      "name": "hookify:list",
+      "description": "List all hooks"
+    },
+    {
+      "name": "hookify:configure",
+      "description": "Configure hooks"
+    },
+    {
+      "name": "hookify:help",
+      "description": "Hookify help"
+    }
+  ]
+}

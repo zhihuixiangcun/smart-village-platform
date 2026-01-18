@@ -174,6 +174,18 @@ console.log('[DEBUG] carpoolingRoutes DISABLED (controller needs to be recreated
 const householdQRRoutes = require('./routes/householdQR');
 console.log('[DEBUG] householdQRRoutes loaded');
 
+// 便民服务路由
+const housekeepingRoutes = require('./routes/housekeeping');
+console.log('[DEBUG] housekeepingRoutes loaded');
+const propertyRoutes = require('./routes/property');
+console.log('[DEBUG] propertyRoutes loaded');
+const repairRoutes = require('./routes/repair');
+console.log('[DEBUG] repairRoutes loaded');
+const utilityRoutes = require('./routes/utility');
+console.log('[DEBUG] utilityRoutes loaded');
+const paymentRoutes = require('./routes/payment');
+console.log('[DEBUG] paymentRoutes loaded');
+
 // 导入村务管理路由
 // const villageManagementRoutes = require('./routes/villageManagement');
 console.log('[DEBUG] villageManagementRoutes temporarily disabled');
@@ -631,6 +643,24 @@ console.log('[DEBUG] populationManagementRoutes loaded');
 app.use('/api/population', populationManagementRoutes);
 console.log('[DEBUG] populationManagementRoutes registered at /api/population');
 
+// 管理员权限管理路由 - 新增
+const adminPermissionRoutes = require('./routes/adminPermissionRoutes');
+console.log('[DEBUG] adminPermissionRoutes loaded');
+app.use('/api/v1/admin-permission', adminPermissionRoutes);
+console.log('[DEBUG] adminPermissionRoutes registered at /api/v1/admin-permission');
+
+// 用户管理路由 - 新增
+const userManagementRoutes = require('./routes/userManagementRoutes');
+console.log('[DEBUG] userManagementRoutes loaded');
+app.use('/api/v1/user-management', userManagementRoutes);
+console.log('[DEBUG] userManagementRoutes registered at /api/v1/user-management');
+
+// 数据分析路由 - 新增
+const analyticsRoutes = require('./routes/analyticsRoutes');
+console.log('[DEBUG] analyticsRoutes loaded');
+app.use('/api/v1/analytics', analyticsRoutes);
+console.log('[DEBUG] analyticsRoutes registered at /api/v1/analytics');
+
 // app.use('/api/v1/resident-profiles', residentProfileRoutes);
 console.log('[DEBUG] residentProfileRoutes temporarily disabled');
 // app.use('/api/v1/documents', documentRoutes);
@@ -694,6 +724,33 @@ if (purchaserRoutes) {
   app.use('/api/v1/household-qr', householdQRRoutes);
   console.log('[DEBUG] purchaserRoutes registered at /api/v1/purchaser');
   console.log('[DEBUG] householdQRRoutes registered at /api/v1/household-qr');
+}
+
+// 便民服务路由
+if (housekeepingRoutes) {
+  app.use('/api/v1/housekeeping', housekeepingRoutes);
+  console.log('[DEBUG] housekeepingRoutes registered at /api/v1/housekeeping');
+}
+if (propertyRoutes) {
+  app.use('/api/v1/property', propertyRoutes);
+  console.log('[DEBUG] propertyRoutes registered at /api/v1/property');
+}
+if (repairRoutes) {
+  app.use('/api/v1/repair', repairRoutes);
+  console.log('[DEBUG] repairRoutes registered at /api/v1/repair');
+}
+if (utilityRoutes) {
+  app.use('/api/v1/utility', utilityRoutes);
+  console.log('[DEBUG] utilityRoutes registered at /api/v1/utility');
+}
+if (paymentRoutes) {
+  app.use('/api/v1/payment', paymentRoutes);
+
+// 系统设置路由
+const systemSettingsRoutes = require('./routes/systemSettingsRoutes');
+app.use('/api/v1/system-settings', systemSettingsRoutes);
+console.log('[DEBUG] systemSettingsRoutes registered');
+  console.log('[DEBUG] paymentRoutes registered at /api/v1/payment');
 }
 console.log('[DEBUG] registrationRoutes DISABLED (troubleshooting)');
 
@@ -1067,6 +1124,9 @@ app.use('*', (req, res) => {
       '/api/v1/ecommerce/*',
       '/api/v1/ai/*',
       '/api/v1/performance',
+      '/api/v1/admin-permission/*',
+      '/api/v1/user-management/*',
+      '/api/v1/analytics/*',
       '/api/committee/*',
       '/api/population/*'
     ],

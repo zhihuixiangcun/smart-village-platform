@@ -819,6 +819,8 @@ onMounted(async () => {
 <style lang="scss" scoped>
 .party-members-container {
   padding: 20px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8eaf6 100%);
+  min-height: 100vh;
 
   @media (max-width: 768px) {
     padding: 10px;
@@ -827,6 +829,10 @@ onMounted(async () => {
 
 .search-card {
   margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.08);
 
   .search-form {
     margin-bottom: 20px;
@@ -837,13 +843,99 @@ onMounted(async () => {
     gap: 10px;
     flex-wrap: wrap;
   }
+
+  :deep(.el-button) {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.15);
+    }
+  }
+  }
 }
 
 .table-card {
-  .pagination-container {
-    margin-top: 20px;
-    display: flex;
-    justify-content: flex-end;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.08);
+
+  :deep(.el-card__body) {
+    padding: 0;
+  }
+
+  :deep(.el-table) {
+    border-radius: 8px;
+    overflow: hidden;
+
+    th {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: white;
+      font-weight: 600;
+      border: none;
+      padding: 16px 12px;
+    }
+
+    tr {
+      transition: all 0.3s ease;
+
+      &:hover {
+        td {
+          background: rgba(99, 102, 241, 0.03);
+        }
+      }
+    }
+
+    td {
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      padding: 12px;
+    }
+  }
+
+    &--striped .el-table__body tr.el-table__row--striped td {
+      background: rgba(99, 102, 241, 0.02);
+    }
+  }
+
+    .el-tag {
+      border-radius: 6px;
+      font-weight: 500;
+      border: none;
+    }
+  }
+}
+
+.pagination-container {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px;
+
+  :deep(.el-pagination) {
+    .el-pager li {
+      .el-pager__number {
+        font-weight: 500;
+        transition: all 0.3s;
+
+        &:hover {
+          color: #6366f1;
+        }
+      }
+
+      .btn-prev,
+      .btn-next {
+        border-radius: 6px;
+
+        &:hover {
+          background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+          color: white;
+          border-color: transparent;
+        }
+      }
+    }
   }
 }
 
@@ -853,45 +945,83 @@ onMounted(async () => {
 
     h4 {
       margin-bottom: 15px;
-      color: #303133;
+      color: #1f2937;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      &::before {
+        content: '';
+        width: 4px;
+        height: 20px;
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        border-radius: 2px;
+        display: inline-block;
+      }
     }
   }
 
-  .detail-actions {
-    margin-top: 20px;
-    text-align: center;
+    :deep(.el-timeline) {
+      .el-timeline-item__timestamp {
+        color: #6366f1;
+        font-weight: 500;
+      }
 
-    .el-button {
-      margin: 0 10px;
+      .el-timeline-item__node {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        border-color: transparent;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+      }
+
+      .el-timeline-item__wrapper {
+      .el-timeline-item__content {
+        color: #1f2937;
+      }
     }
   }
 }
 
 .stats-content {
   .stat-card {
-    background: #f5f7fa;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(99, 102, 241, 0.15);
+    border-radius: 12px;
     padding: 20px;
     text-align: center;
-    border-radius: 4px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 30px rgba(99, 102, 241, 0.2);
+      border-color: rgba(99, 102, 241, 0.3);
+    }
 
     .stat-value {
       font-size: 32px;
-      font-weight: 600;
-      color: #409eff;
-      margin-bottom: 8px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.2;
     }
 
     .stat-label {
       font-size: 14px;
-      color: #909399;
+      color: #6b7280;
+      margin-top: 8px;
+      font-weight: 500;
     }
   }
 
   .chart-container {
-    background: #fff;
-    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
     padding: 20px;
-    border: 1px solid #ebeef5;
+    border: 1px solid rgba(99, 102, 241, 0.15);
   }
 }
 

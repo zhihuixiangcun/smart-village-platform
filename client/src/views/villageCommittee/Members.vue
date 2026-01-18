@@ -767,6 +767,8 @@ onMounted(async () => {
 <style lang="scss" scoped>
 .members-container {
   padding: 20px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8eaf6 100%);
+  min-height: 100vh;
 
   @media (max-width: 768px) {
     padding: 10px;
@@ -775,6 +777,10 @@ onMounted(async () => {
 
 .search-card {
   margin-bottom: 20px;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(99,102,241,0.1);
+  box-shadow:0 4px 20px rgba(99,102,241,0.08);
 
   .search-form {
     margin-bottom: 20px;
@@ -785,13 +791,86 @@ onMounted(async () => {
     gap: 10px;
     flex-wrap: wrap;
   }
+
+  :deep(.el-button) {
+    border-radius: 8px;
+    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(99,102,241,0.2);
+    }
+  }
 }
 
 .table-card {
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(99,102,241,0.1);
+  box-shadow: 0 4px 20px rgba(99,102,241,0.08);
+
+  :deep(.el-table) {
+    border-radius: 8px;
+    overflow: hidden;
+
+    th {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: white;
+      font-weight: 600;
+      border: none;
+
+      .cell {
+        color: rgba(255,255,255,0.9);
+      }
+    }
+
+    tr {
+      transition: all 0.3s ease;
+
+      &:hover {
+        td {
+          background: rgba(99, 102, 241, 0.03);
+        }
+      }
+    }
+
+    &.el-table__body tr:hover > td {
+      background: rgba(99, 102, 241, 0.03) !important;
+    }
+
+    &--striped .el-table__body tr.el-table__row--striped td {
+      background: rgba(99, 102, 241, 0.02);
+    }
+
+    td {
+      border-bottom: 1px solid rgba(99, 102,241,0.08);
+      padding: 16px 12px;
+      font-size: 14px;
+    }
+
+    .el-tag {
+      border-radius: 6px;
+      padding: 4px 12px;
+      font-weight: 500;
+    }
+  }
+
   .pagination-container {
     margin-top: 20px;
     display: flex;
     justify-content: flex-end;
+    padding: 16px;
+
+    :deep(.el-pagination) {
+      .el-pager li {
+        &.active {
+          background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+          color: white;
+          border-radius: 6px;
+          font-weight: 600;
+        }
+      }
+    }
   }
 }
 
@@ -802,7 +881,46 @@ onMounted(async () => {
 
     .el-button {
       margin: 0 10px;
+      border-radius: 8px;
+      font-weight: 500;
     }
+  }
+
+  :deep(.el-descriptions) {
+    .el-descriptions__label {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: white;
+      font-weight: 500;
+      padding: 12px 16px;
+      border-radius: 6px;
+    }
+  }
+}
+
+// 装饰性渐变
+.members-container::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.02) 0%, rgba(139, 92, 246, 0.03) 0%),
+              linear-gradient(45deg, rgba(139, 92, 246, 0.03) 0%, rgba(139, 92, 246, 0.05) 100%);
+  background-size: 400px 400px;
+  animation: gradient-pulse 20s linear infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes gradient-pulse {
+  0%, 100% {
+    background-position: 0% 50%;
+    opacity: 0.3;
+  }
+  50% {
+    background-position: 100% 100%;
+    opacity: 0.6;
   }
 }
 
@@ -827,6 +945,12 @@ onMounted(async () => {
     }
   }
 
+  .stats-row {
+    .el-col {
+      margin-bottom: 10px;
+    }
+  }
+
   .el-table {
     font-size: 12px;
 
@@ -841,6 +965,14 @@ onMounted(async () => {
     .el-pagination {
       flex-wrap: wrap;
       justify-content: center;
+    }
+  }
+
+  .detail-actions {
+    .el-button {
+      display: block;
+      width: 100%;
+      margin-left: 0;
     }
   }
 }

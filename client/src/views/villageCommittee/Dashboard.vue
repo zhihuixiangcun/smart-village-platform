@@ -512,16 +512,17 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
-import { useRouter } from 'vue-router';
-import { useUserStore } from '@/stores/userStore';
-import { ElMessage, ElMessageBox } from 'element-plus';
-import * as echarts from 'echarts';
-import draggable from 'vuedraggable';
-import dashboardApi from '@/api/dashboard';
-import ContactButton from '@/components/villageCommittee/ContactButton.vue';
-import NotificationDetailDialog from '@/components/villageCommittee/NotificationDetailDialog.vue';
-import { useDashboardRealtime } from '@/composables/useDashboardRealtime';
+ import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
+ import { useRouter } from 'vue-router';
+ import { useUserStore } from '@/stores/userStore';
+ import { ElMessage, ElMessageBox } from 'element-plus';
+ import * as echarts from 'echarts';
+ import draggable from 'vuedraggable';
+ import dashboardApi from '@/api/dashboard';
+ import ContactButton from '@/components/villageCommittee/ContactButton.vue';
+ import NotificationDetailDialog from '@/components/villageCommittee/NotificationDetailDialog.vue';
+ import { useDashboardRealtime } from '@/composables/useDashboardRealtime';
+ import { useDashboardData } from '@/composables/useDashboardData';
 import {
   Trophy,
   CircleCheck,
@@ -563,6 +564,8 @@ import {
  */
 const router = useRouter();
 const userStore = useUserStore();
+
+const dashboardDataManager = useDashboardData();
 
 // 实时更新连接
 const realtime = useDashboardRealtime({
@@ -998,15 +1001,12 @@ const navigateTo = route => {
 const toggleTodoStatus = async todo => {
   try {
     const status = todo.completed ? 'completed' : 'pending';
-    await dashboardApi.updateTodoStatus(todo._id, {
-      status,
-      progress: todo.completed ? 100 : 0,
-    });
+    await dashboardDataManager.toggleTodoStatus(todo._id, status);
+    todo.status = status;
     ElMessage.success(todo.completed ? '已标记为完成' : '已标记为未完成');
   } catch (error) {
     console.error('更新待办状态失败:', error);
     ElMessage.error('操作失败');
-    // 回滚状态
     todo.completed = !todo.completed;
   }
 };
@@ -1105,13 +1105,11 @@ const applyFilters = async () => {
 
     const villageId = userStore.villageId || 'default';
 
-    // 构建查询参数
     const params = {
       villageId,
       limit: 50,
     };
 
-    // 添加筛选条件
     if (filters.value.todoStatus) {
       params.status = filters.value.todoStatus;
     }
@@ -1126,17 +1124,15 @@ const applyFilters = async () => {
       params.endDate = formatDate(filters.value.dateRange[1]);
     }
 
-    // 并行加载筛选后的数据
     const [todosResponse, noticesResponse] = await Promise.allSettled([
-      dashboardApi.getTodos(params),
+      dashboardDataManager.fetchTodos(params),
       dashboardApi.getNotifications(params),
     ]);
 
-    // 更新待办事项
-    if (todosResponse.status === 'fulfilled' && todosResponse.value?.data) {
-      const tasksData = todosResponse.value.data.tasks || todosResponse.value.data;
-      todoList.value = Array.isArray(tasksData)
-        ? tasksData.map(task => ({
+    if (todosResponse.status === 'fulfilled' && todosResponse.value) {
+      const tasks = todosResponse.value.tasks || todosResponse.value.data || [];
+      todoList.value = Array.isArray(tasks)
+        ? tasks.map(task => ({
             _id: task._id || task.id,
             title: task.title,
             type: task.category || task.type || '待办',
@@ -1147,7 +1143,6 @@ const applyFilters = async () => {
         : [];
     }
 
-    // 更新通知列表
     if (noticesResponse.status === 'fulfilled' && noticesResponse.value?.data) {
       const noticesData = noticesResponse.value.data.notifications || noticesResponse.value.data;
       noticeList.value = Array.isArray(noticesData)
@@ -1162,6 +1157,7 @@ const applyFilters = async () => {
         : [];
     }
 
+    await autoSaveConfig();
     ElMessage.success('筛选完成');
   } catch (error) {
     console.error('应用筛选失败:', error);
@@ -1351,12 +1347,8 @@ const filterActivities = range => {
  */
 const saveCustomActions = async () => {
   try {
-    // 保存到本地存储
+    await saveDashboardConfig({});
     localStorage.setItem('quickActions', JSON.stringify(selectedQuickActions.value));
-
-    // TODO: 保存到后端
-    // await saveQuickActions(selectedQuickActions.value)
-
     ElMessage.success('保存成功');
     showCustomActionDialog.value = false;
   } catch (error) {
@@ -1370,12 +1362,13 @@ const saveCustomActions = async () => {
 const handleChartPeriodChange = async () => {
   chartLoading.value = true;
   try {
-    // TODO: 从后端获取对应周期的数据
-    // const stats = await getStatistics(chartPeriod.value)
-    // updateChart(stats)
-    updateChart();
+    const villageId = userStore.villageId || 'default';
+    const stats = await dashboardDataManager.fetchStatistics({ villageId, period: chartPeriod.value });
+    updateChart(stats);
+    await autoSaveConfig();
   } catch (error) {
     console.error('加载图表数据失败:', error);
+    updateChart();
   } finally {
     chartLoading.value = false;
   }
@@ -1459,46 +1452,59 @@ const initChart = async () => {
 
 /**
  * 更新图表数据
+ * @param {Object} statsData - 从API获取的统计数据
  */
-const updateChart = () => {
+const updateChart = (statsData = null) => {
   if (!chartInstance.value) return;
 
-  // TODO: 根据chartPeriod从后端获取不同时间段的数据
-  const dataMap = {
-    week: {
-      xAxis: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
-      series1: [2, 4, 6, 3, 5, 8, 4],
-      series2: [8, 12, 15, 10, 14, 18, 12],
-      series3: [3, 5, 4, 6, 5, 8, 6],
-    },
-    month: {
-      xAxis: ['第一周', '第二周', '第三周', '第四周'],
-      series1: [15, 22, 18, 25],
-      series2: [45, 52, 48, 55],
-      series3: [12, 18, 15, 20],
-    },
-    year: {
-      xAxis: [
-        '1月',
-        '2月',
-        '3月',
-        '4月',
-        '5月',
-        '6月',
-        '7月',
-        '8月',
-        '9月',
-        '10月',
-        '11月',
-        '12月',
-      ],
-      series1: [20, 25, 30, 28, 35, 40, 38, 42, 45, 50, 48, 55],
-      series2: [50, 55, 60, 58, 65, 70, 68, 72, 75, 80, 78, 85],
-      series3: [15, 18, 20, 22, 25, 28, 26, 30, 32, 35, 33, 38],
-    },
-  };
+  let data;
 
-  const data = dataMap[chartPeriod.value];
+  if (statsData && statsData.data) {
+    const apiData = statsData.data;
+    data = {
+      xAxis: apiData.labels || apiData.xAxis || [],
+      series1: apiData.datasets?.[0]?.data || apiData.series1 || [],
+      series2: apiData.datasets?.[1]?.data || apiData.series2 || [],
+      series3: apiData.datasets?.[2]?.data || apiData.series3 || [],
+    };
+  } else {
+    const dataMap = {
+      week: {
+        xAxis: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+        series1: [2, 4, 6, 3, 5, 8, 4],
+        series2: [8, 12, 15, 10, 14, 18, 12],
+        series3: [3, 5, 4, 6, 5, 8, 6],
+      },
+      month: {
+        xAxis: ['第一周', '第二周', '第三周', '第四周'],
+        series1: [15, 22, 18, 25],
+        series2: [45, 52, 48, 55],
+        series3: [12, 18, 15, 20],
+      },
+      year: {
+        xAxis: [
+          '1月',
+          '2月',
+          '3月',
+          '4月',
+          '5月',
+          '6月',
+          '7月',
+          '8月',
+          '9月',
+          '10月',
+          '11月',
+          '12月',
+        ],
+        series1: [20, 25, 30, 28, 35, 40, 38, 42, 45, 50, 48, 55],
+        series2: [50, 55, 60, 58, 65, 70, 68, 72, 75, 80, 78, 85],
+        series3: [15, 18, 20, 22, 25, 28, 26, 30, 32, 35, 33, 38],
+      },
+    };
+    data = dataMap[chartPeriod.value];
+  }
+
+  if (!data) return;
 
   chartInstance.value.setOption({
     xAxis: {
@@ -1509,28 +1515,100 @@ const updateChart = () => {
 };
 
 /**
- * 加载仪表盘数据（使用真实API，失败时fallback到模拟数据）
+ * 加载仪表盘数据（使用useDashboardData）
  */
 const loadDashboardData = async () => {
-  loading.value = true;
   try {
     const villageId = userStore.villageId || 'default';
 
-    // 并行加载所有数据
-    const [dutyResponse, todosResponse, noticesResponse, activitiesResponse] =
+    const [overviewData, todosData, statisticsData, settingsData, dutyResponse, noticesResponse, activitiesResponse] =
       await Promise.allSettled([
+        dashboardDataManager.fetchOverview({ villageId }),
+        dashboardDataManager.fetchTodos({ limit: 10, status: 'pending' }),
+        dashboardDataManager.fetchStatistics({ villageId, period: 'month' }),
+        dashboardDataManager.fetchSettings(userStore.userInfo?.id),
         dashboardApi.getTodayDuty(villageId),
-        dashboardApi.getTodos({ limit: 10, status: 'pending' }),
         dashboardApi.getNotifications({ limit: 10 }),
         dashboardApi.getActivities({ limit: 10, villageId }),
       ]);
 
-    // 处理今日值班数据
+    if (overviewData.status === 'fulfilled' && overviewData.value) {
+      const overview = overviewData.value;
+      if (overview.statistics) {
+        statisticsCards.value = [
+          {
+            key: 'residents',
+            label: '村民总数',
+            value: overview.statistics.residentCount?.toString() || '0',
+            icon: 'UserFilled',
+            gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            change: overview.statistics.residentsChange || '+0 本月',
+            trendClass: overview.statistics.residentsTrend || 'up',
+            trendIcon: ArrowUp,
+            route: '/residents',
+          },
+          {
+            key: 'households',
+            label: '住户总数',
+            value: overview.statistics.householdCount?.toString() || '0',
+            icon: 'House',
+            gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+            change: overview.statistics.householdsChange || '+0 本月',
+            trendClass: overview.statistics.householdsTrend || 'up',
+            trendIcon: ArrowUp,
+            route: '/household-codes',
+          },
+          {
+            key: 'notices',
+            label: '本月公告',
+            value: overview.statistics.noticesCount?.toString() || '0',
+            icon: 'ChatLineSquare',
+            gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+            change: overview.statistics.noticesChange || '+0 环比',
+            trendClass: overview.statistics.noticesTrend || 'up',
+            trendIcon: ArrowUp,
+            route: '/announcements',
+          },
+          {
+            key: 'tasks',
+            label: '待办事项',
+            value: overview.statistics.tasksCount?.toString() || '0',
+            icon: List,
+            gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+            change: overview.statistics.tasksChange || '+0 较昨日',
+            trendClass: overview.statistics.tasksTrend || 'down',
+            trendIcon: ArrowDown,
+            route: '/tasks',
+          },
+        ];
+      }
+      if (overview.monthlyPoints !== undefined) {
+        monthlyPoints.value = overview.monthlyPoints;
+      }
+      if (overview.pendingTasks !== undefined) {
+        pendingTasks.value = overview.pendingTasks;
+      }
+    }
+
+    if (todosData.status === 'fulfilled' && todosData.value) {
+      const tasks = todosData.value.tasks || todosData.value.data || [];
+      todoList.value = Array.isArray(tasks)
+        ? tasks.map(task => ({
+            _id: task._id || task.id,
+            title: task.title,
+            type: task.category || task.type || '待办',
+            deadline: task.dueDate || task.deadline,
+            completed: task.status === 'completed',
+            status: task.status || 'pending',
+            priority: task.priority || 'medium',
+          }))
+        : [];
+    }
+
     if (dutyResponse.status === 'fulfilled' && dutyResponse.value?.data) {
       const dutyData = dutyResponse.value.data;
       todayDuty.value = dutyData.schedule || dutyData || [];
     } else {
-      // 使用模拟数据作为后备
       todayDuty.value = [
         {
           _id: '1',
@@ -1551,50 +1629,6 @@ const loadDashboardData = async () => {
       ];
     }
 
-    // 处理待办事项数据
-    if (todosResponse.status === 'fulfilled' && todosResponse.value?.data) {
-      const tasksData = todosResponse.value.data.tasks || todosResponse.value.data;
-      todoList.value = Array.isArray(tasksData)
-        ? tasksData.map(task => ({
-            _id: task._id || task.id,
-            title: task.title,
-            type: task.category || task.type || '待办',
-            deadline: task.dueDate || task.deadline,
-            completed: task.status === 'completed',
-            status: task.status || 'pending',
-          }))
-        : [];
-    } else {
-      // 使用模拟数据作为后备
-      todoList.value = [
-        {
-          _id: '1',
-          title: '审批张三的调任申请',
-          type: '人事',
-          deadline: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
-          completed: false,
-          status: 'pending',
-        },
-        {
-          _id: '2',
-          title: '完善党员档案信息',
-          type: '党务',
-          deadline: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-          completed: false,
-          status: 'pending',
-        },
-        {
-          _id: '3',
-          title: '提交本月工作总结',
-          type: '行政',
-          deadline: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-          completed: false,
-          status: 'pending',
-        },
-      ];
-    }
-
-    // 处理通知数据
     if (noticesResponse.status === 'fulfilled' && noticesResponse.value?.data) {
       const noticesData = noticesResponse.value.data.notifications || noticesResponse.value.data;
       noticeList.value = Array.isArray(noticesData)
@@ -1608,7 +1642,6 @@ const loadDashboardData = async () => {
           }))
         : [];
     } else {
-      // 使用模拟数据作为后备
       noticeList.value = [
         {
           _id: '1',
@@ -1634,10 +1667,8 @@ const loadDashboardData = async () => {
       ];
     }
 
-    // 处理村民动态数据
     if (activitiesResponse.status === 'fulfilled' && activitiesResponse.value?.data) {
-      const activitiesData =
-        activitiesResponse.value.data.activities || activitiesResponse.value.data;
+      const activitiesData = activitiesResponse.value.data.activities || activitiesResponse.value.data;
       activityList.value = Array.isArray(activitiesData)
         ? activitiesData.map(activity => ({
             _id: activity._id || activity.id,
@@ -1648,7 +1679,6 @@ const loadDashboardData = async () => {
           }))
         : [];
     } else {
-      // 使用模拟数据作为后备
       activityList.value = [
         {
           _id: '1',
@@ -1673,13 +1703,16 @@ const loadDashboardData = async () => {
         },
       ];
     }
+
+    if (settingsData.status === 'fulfilled' && settingsData.value) {
+      const settings = settingsData.value;
+      if (settings.widgets) {
+        selectedQuickActions.value = settings.widgets || [];
+      }
+    }
   } catch (error) {
     console.warn('API加载失败，使用模拟数据:', error);
-
-    // Fallback到模拟数据
     await loadMockData();
-  } finally {
-    loading.value = false;
   }
 };
 
@@ -1743,6 +1776,276 @@ const loadMockData = async () => {
 
 const loadData = loadDashboardData;
 
+// ==================== Dashboard 数据保存功能 ====================
+
+/**
+ * 创建待办事项
+ * @param {Object} todoData - 待办事项数据
+ * @returns {Promise<Object>} 创建的待办事项
+ */
+const createTodoItem = async todoData => {
+  try {
+    const todo = {
+      title: todoData.title,
+      description: todoData.description || '',
+      type: todoData.type || '待办',
+      priority: todoData.priority || 'medium',
+      status: 'pending',
+      dueDate: todoData.dueDate || null,
+    };
+
+    const result = await dashboardDataManager.saveTodo(todo);
+    todoList.value.push({
+      _id: result._id || result.id,
+      title: result.title,
+      type: result.type || '待办',
+      deadline: result.dueDate,
+      completed: result.status === 'completed',
+      status: result.status,
+      priority: result.priority,
+    });
+
+    return result;
+  } catch (error) {
+    console.error('创建待办事项失败:', error);
+    throw error;
+  }
+};
+
+/**
+ * 批量保存待办事项
+ * @param {Array<Object>} todos - 待办事项数组
+ * @returns {Promise<Object>} 保存结果
+ */
+const batchSaveTodoItems = async todos => {
+  try {
+    const result = await dashboardDataManager.batchSaveTodos(todos);
+
+    const formattedTodos = todos.map(todo => ({
+      _id: todo._id || todo.id,
+      title: todo.title,
+      type: todo.type || '待办',
+      deadline: todo.dueDate,
+      completed: todo.status === 'completed',
+      status: todo.status || 'pending',
+      priority: todo.priority || 'medium',
+    }));
+
+    todoList.value = [...todoList.value, ...formattedTodos];
+
+    return result;
+  } catch (error) {
+    console.error('批量保存待办事项失败:', error);
+    throw error;
+  }
+};
+
+/**
+ * 删除待办事项
+ * @param {string} todoId - 待办事项ID
+ * @returns {Promise<Object>} 删除结果
+ */
+const deleteTodoItem = async todoId => {
+  try {
+    await dashboardDataManager.deleteTodo(todoId);
+    todoList.value = todoList.value.filter(t => t._id !== todoId);
+  } catch (error) {
+    console.error('删除待办事项失败:', error);
+    throw error;
+  }
+};
+
+/**
+ * 批量删除待办事项
+ * @param {Array<string>} todoIds - 待办事项ID数组
+ * @returns {Promise<Object>} 删除结果
+ */
+const batchDeleteTodoItems = async todoIds => {
+  try {
+    await dashboardDataManager.batchDeleteTodos(todoIds);
+    todoList.value = todoList.value.filter(t => !todoIds.includes(t._id));
+  } catch (error) {
+    console.error('批量删除待办事项失败:', error);
+    throw error;
+  }
+};
+
+/**
+ * 更新待办事项
+ * @param {string} todoId - 待办事项ID
+ * @param {Object} updates - 更新数据
+ * @returns {Promise<Object>} 更新结果
+ */
+const updateTodoItem = async (todoId, updates) => {
+  try {
+    const result = await dashboardDataManager.saveTodo({ id: todoId, ...updates });
+    const index = todoList.value.findIndex(t => t._id === todoId);
+    if (index !== -1) {
+      todoList.value[index] = {
+        ...todoList.value[index],
+        ...updates,
+        completed: updates.status === 'completed',
+      };
+    }
+    return result;
+  } catch (error) {
+    console.error('更新待办事项失败:', error);
+    throw error;
+  }
+};
+
+/**
+ * 保存Dashboard配置
+ * @param {Object} config - Dashboard配置
+ * @returns {Promise<Object>} 保存结果
+ */
+const saveDashboardConfig = async config => {
+  try {
+    const dashboardConfig = {
+      widgets: selectedQuickActions.value,
+      filters: filters.value,
+      theme: '',
+      layout: {
+        chartPeriod: chartPeriod.value,
+        ...config,
+      },
+    };
+
+    const result = await dashboardDataManager.saveSettings(dashboardConfig);
+    return result;
+  } catch (error) {
+    console.error('保存Dashboard配置失败:', error);
+    throw error;
+  }
+};
+
+/**
+ * 保存图表配置
+ * @param {string} chartId - 图表ID
+ * @param {Object} config - 图表配置
+ * @returns {Promise<Object>} 保存结果
+ */
+const saveChartSettings = async (chartId, config) => {
+  try {
+    const chartConfig = {
+      chartId,
+      period: chartPeriod.value,
+      options: config,
+    };
+
+    const result = await dashboardDataManager.saveChartConfig(chartConfig);
+    return result;
+  } catch (error) {
+    console.error('保存图表配置失败:', error);
+    throw error;
+  }
+};
+
+/**
+ * 刷新Dashboard数据
+ * @param {string} type - 数据类型 (all/overview/todos/statistics/settings)
+ * @returns {Promise<Object>} 刷新后的数据
+ */
+const refreshDashboardData = async (type = 'all') => {
+  try {
+    loading.value = true;
+    const villageId = userStore.villageId || 'default';
+
+    const params = {
+      overview: { villageId },
+      todos: { limit: 10, status: 'pending' },
+      statistics: { villageId, period: chartPeriod.value },
+      userId: userStore.userInfo?.id,
+    };
+
+    const result = await dashboardDataManager.refreshData(type, params);
+
+    if (type === 'all' || type === 'overview') {
+      if (result.overview?.statistics) {
+        const overview = result.overview;
+        if (overview.statistics.residentCount !== undefined) {
+          statisticsCards.value[0].value = overview.statistics.residentCount.toString();
+        }
+        if (overview.statistics.householdCount !== undefined) {
+          statisticsCards.value[1].value = overview.statistics.householdCount.toString();
+        }
+        if (overview.statistics.noticesCount !== undefined) {
+          statisticsCards.value[2].value = overview.statistics.noticesCount.toString();
+        }
+        if (overview.statistics.tasksCount !== undefined) {
+          statisticsCards.value[3].value = overview.statistics.tasksCount.toString();
+        }
+        if (overview.monthlyPoints !== undefined) {
+          monthlyPoints.value = overview.monthlyPoints;
+        }
+        if (overview.pendingTasks !== undefined) {
+          pendingTasks.value = overview.pendingTasks;
+        }
+      }
+    }
+
+    if (type === 'all' || type === 'todos') {
+      const todos = result.todos?.tasks || result.todos?.data || [];
+      todoList.value = Array.isArray(todos)
+        ? todos.map(task => ({
+            _id: task._id || task.id,
+            title: task.title,
+            type: task.category || task.type || '待办',
+            deadline: task.dueDate || task.deadline,
+            completed: task.status === 'completed',
+            status: task.status || 'pending',
+            priority: task.priority || 'medium',
+          }))
+        : [];
+    }
+
+    if (type === 'all' || type === 'statistics') {
+      await handleChartPeriodChange();
+    }
+
+    ElMessage.success('数据刷新成功');
+    return result;
+  } catch (error) {
+    console.error('刷新数据失败:', error);
+    ElMessage.error('刷新失败，请稍后重试');
+    throw error;
+  } finally {
+    loading.value = false;
+  }
+};
+
+/**
+ * 自动保存配置（防抖）
+ */
+let autoSaveTimer = null;
+const autoSaveConfig = async () => {
+  if (autoSaveTimer) {
+    clearTimeout(autoSaveTimer);
+  }
+
+  autoSaveTimer = setTimeout(async () => {
+    try {
+      await saveDashboardConfig({});
+    } catch (error) {
+      console.warn('自动保存失败:', error);
+    }
+  }, 2000);
+};
+
+/**
+ * 清除所有缓存
+ * @returns {Promise<void>}
+ */
+const clearAllCache = async () => {
+  try {
+    await dashboardDataManager.clearCache();
+    ElMessage.success('缓存已清除');
+  } catch (error) {
+    console.error('清除缓存失败:', error);
+    ElMessage.error('清除缓存失败');
+  }
+};
+
 /**
  * 初始化快捷操作配置
  */
@@ -1797,27 +2100,77 @@ watch(chartPeriod, () => {
 <style lang="scss" scoped>
 // ==================== 主容器样式 ====================
 .cadre-dashboard {
-  padding: 20px;
-  background: #f5f7fa;
+  padding: 24px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
   min-height: 100vh;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: radial-gradient(circle at 20% 30%, rgba(102, 126, 234, 0.03) 0%, transparent 50%),
+                      radial-gradient(circle at 80% 70%, rgba(118, 75, 162, 0.03) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
 
   @media (max-width: 768px) {
-    padding: 10px;
+    padding: 12px;
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
   }
 }
 
 // ==================== 欢迎卡片样式 ====================
 .welcome-card {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   border: none;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #5a3d7a 100%);
   color: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3),
+              0 2px 8px rgba(0, 0, 0, 0.1),
+              inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
+    animation: shimmer 15s infinite linear;
+    pointer-events: none;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.1), transparent);
+    pointer-events: none;
+  }
 
   :deep(.el-card__body) {
-    padding: 30px;
+    padding: 32px 36px;
+    position: relative;
+    z-index: 1;
 
     @media (max-width: 768px) {
-      padding: 20px;
+      padding: 24px;
     }
   }
 
@@ -1826,7 +2179,7 @@ watch(chartPeriod, () => {
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 20px;
+    gap: 24px;
 
     @media (max-width: 768px) {
       flex-direction: column;
@@ -1835,156 +2188,264 @@ watch(chartPeriod, () => {
 
     .welcome-info {
       .welcome-title {
-        margin: 0 0 8px 0;
-        font-size: 28px;
+        margin: 0 0 12px 0;
+        font-size: 32px;
         font-weight: 700;
         color: white;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        letter-spacing: -0.5px;
+        animation: slideInLeft 0.6s ease-out;
 
         @media (max-width: 768px) {
-          font-size: 22px;
+          font-size: 24px;
         }
       }
 
       .welcome-subtitle {
-        margin: 0 0 12px 0;
+        margin: 0 0 16px 0;
         font-size: 16px;
-        opacity: 0.9;
+        opacity: 0.95;
+        font-weight: 400;
+        letter-spacing: 0.2px;
       }
 
       .welcome-position {
         display: flex;
-        gap: 8px;
+        gap: 10px;
         flex-wrap: wrap;
 
         .el-tag {
           border: none;
-          background: rgba(255, 255, 255, 0.2);
+          background: rgba(255, 255, 255, 0.25);
           color: white;
+          font-weight: 500;
+          padding: 6px 14px;
+          backdrop-filter: blur(10px);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+          &:hover {
+            background: rgba(255, 255, 255, 0.35);
+            transform: translateY(-2px);
+          }
         }
       }
     }
 
     .welcome-stats {
       display: flex;
-      gap: 20px;
+      gap: 16px;
       flex-wrap: wrap;
 
       .stat-item {
         display: flex;
         align-items: center;
-        gap: 8px;
-        font-size: 16px;
+        gap: 10px;
+        font-size: 15px;
         font-weight: 600;
-        background: rgba(255, 255, 255, 0.15);
-        padding: 12px 20px;
-        border-radius: 12px;
-        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.18);
+        padding: 14px 22px;
+        border-radius: 14px;
+        backdrop-filter: blur(12px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: fadeInUp 0.6s ease-out;
+        animation-fill-mode: both;
+
+        &:nth-child(1) { animation-delay: 0.1s; }
+        &:nth-child(2) { animation-delay: 0.2s; }
+        &:nth-child(3) { animation-delay: 0.3s; }
 
         &.connection-status {
-          transition: all 0.3s ease;
-
           &.connected {
-            background: rgba(103, 194, 58, 0.2);
+            background: rgba(103, 194, 58, 0.22);
+            border-color: rgba(103, 194, 58, 0.3);
           }
 
           &.disconnected {
-            background: rgba(245, 108, 108, 0.2);
+            background: rgba(245, 108, 108, 0.22);
+            border-color: rgba(245, 108, 108, 0.3);
           }
 
           &.connecting {
-            background: rgba(230, 162, 60, 0.2);
+            background: rgba(230, 162, 60, 0.22);
+            border-color: rgba(230, 162, 60, 0.3);
             animation: pulse 1.5s infinite;
           }
 
           &.error {
-            background: rgba(245, 108, 108, 0.2);
+            background: rgba(245, 108, 108, 0.22);
+            border-color: rgba(245, 108, 108, 0.3);
           }
         }
 
-        transition: all 0.3s;
-
         &:hover {
-          background: rgba(255, 255, 255, 0.25);
-          transform: translateY(-2px);
+          background: rgba(255, 255, 255, 0.28);
+          transform: translateY(-3px) scale(1.02);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
         }
       }
     }
   }
 }
 
+@keyframes shimmer {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 @keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
   }
-  50% {
-    opacity: 0.6;
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
 // ==================== 统计卡片样式 ====================
 .stats-row {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 
   .stat-card {
     border: none;
+    border-radius: 16px;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    background: white;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04),
+                0 1px 3px rgba(0, 0, 0, 0.02);
+    position: relative;
+    overflow: hidden;
+    animation: fadeInUp 0.6s ease-out;
+    animation-fill-mode: both;
+
+    &:nth-child(1) { animation-delay: 0.2s; }
+    &:nth-child(2) { animation-delay: 0.3s; }
+    &:nth-child(3) { animation-delay: 0.4s; }
+    &:nth-child(4) { animation-delay: 0.5s; }
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
 
     &:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+      transform: translateY(-8px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12),
+                  0 8px 20px rgba(0, 0, 0, 0.06);
+    }
+
+    &:hover::before {
+      opacity: 1;
     }
 
     .stat-content {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 18px;
+      padding: 8px 4px;
 
       .stat-icon {
-        width: 64px;
-        height: 64px;
-        border-radius: 16px;
+        width: 72px;
+        height: 72px;
+        border-radius: 18px;
         display: flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        position: relative;
+        overflow: hidden;
+
+        &::after {
+          content: '';
+          position: absolute;
+          top: -50%;
+          left: -50%;
+          width: 200%;
+          height: 200%;
+          background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+          transform: rotate(45deg);
+          animation: iconShine 3s infinite;
+        }
       }
 
       .stat-info {
         flex: 1;
+        min-width: 0;
 
         .stat-value {
-          font-size: 32px;
-          font-weight: 700;
-          color: #303133;
-          line-height: 1.2;
+          font-size: 36px;
+          font-weight: 800;
+          color: #1a1a2e;
+          line-height: 1.1;
+          margin-bottom: 6px;
+          letter-spacing: -1px;
+          background: linear-gradient(135deg, #1a1a2e 0%, #2d3436 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
 
           @media (max-width: 768px) {
-            font-size: 24px;
+            font-size: 28px;
           }
         }
 
         .stat-label {
           font-size: 14px;
-          color: #909399;
-          margin: 4px 0;
+          color: #6c757d;
+          margin: 6px 0;
+          font-weight: 500;
+          letter-spacing: 0.3px;
         }
 
         .stat-trend {
-          display: flex;
+          display: inline-flex;
           align-items: center;
           gap: 4px;
-          font-size: 12px;
+          font-size: 13px;
           font-weight: 600;
+          padding: 3px 10px;
+          border-radius: 20px;
+          transition: all 0.3s;
 
           &.up {
-            color: #67c23a;
+            color: #27ae60;
+            background: rgba(39, 174, 96, 0.08);
           }
 
           &.down {
-            color: #f56c6c;
+            color: #e74c3c;
+            background: rgba(231, 76, 60, 0.08);
           }
         }
       }
@@ -1992,32 +2453,41 @@ watch(chartPeriod, () => {
   }
 }
 
+@keyframes iconShine {
+  0% { transform: translateX(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) rotate(45deg); }
+}
+
 // 筛选和导出工具栏
 .toolbar-card {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   border: none;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
+  background: white;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04),
+              0 1px 3px rgba(0, 0, 0, 0.02);
 
   :deep(.el-card__body) {
-    padding: 16px 20px;
+    padding: 18px 24px;
   }
 
   .toolbar-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 20px;
+    gap: 24px;
     flex-wrap: wrap;
 
     @media (max-width: 768px) {
       flex-direction: column;
       align-items: stretch;
+      gap: 16px;
     }
 
     .filter-section {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
       flex: 1;
       flex-wrap: wrap;
 
@@ -2029,16 +2499,43 @@ watch(chartPeriod, () => {
       .filter-label {
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 8px;
         font-size: 14px;
         font-weight: 600;
-        color: #606266;
+        color: #495057;
         white-space: nowrap;
+        padding: 8px 12px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
       }
 
       :deep(.el-select),
       :deep(.el-date-picker) {
         flex-shrink: 0;
+        transition: all 0.3s;
+
+        &:hover {
+          transform: translateY(-1px);
+        }
+
+        .el-input__wrapper {
+          border-radius: 10px;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+          transition: all 0.3s;
+        }
+      }
+
+      :deep(.el-button) {
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.3s;
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
       }
     }
 
@@ -2050,6 +2547,9 @@ watch(chartPeriod, () => {
 
         .el-button {
           width: 100%;
+          height: 44px;
+          font-weight: 600;
+          border-radius: 12px;
         }
       }
     }
@@ -2063,79 +2563,188 @@ watch(chartPeriod, () => {
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 12px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e9ecef;
 
     .card-title {
-      font-weight: 600;
-      font-size: 16px;
-      color: #303133;
+      font-weight: 700;
+      font-size: 17px;
+      color: #2d3436;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+      letter-spacing: -0.3px;
+
+      .el-icon {
+        color: #667eea;
+        font-size: 20px;
+      }
     }
 
     .card-actions {
       display: flex;
       align-items: center;
       gap: 8px;
+
+      :deep(.el-button) {
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.3s;
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+      }
     }
   }
 
   // ==================== 图表卡片 ====================
   .chart-card {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
     border: none;
+    border-radius: 16px;
+    background: white;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04),
+                0 1px 3px rgba(0, 0, 0, 0.02);
+
+    :deep(.el-card__body) {
+      padding: 20px 24px;
+    }
 
     .chart-container {
-      padding: 10px 0;
+      padding: 16px 0;
+    }
+
+    :deep(.el-radio-group) {
+      .el-radio-button {
+        .el-radio-button__inner {
+          border-radius: 8px;
+          border: none;
+          font-weight: 500;
+          transition: all 0.3s;
+
+          &:hover {
+            transform: translateY(-1px);
+          }
+        }
+
+        &.is-active {
+          .el-radio-button__inner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+          }
+        }
+      }
     }
   }
 
   // ==================== 今日值班卡片 ====================
   .duty-card {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
     border: none;
+    border-radius: 16px;
+    background: white;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04),
+                0 1px 3px rgba(0, 0, 0, 0.02);
+
+    :deep(.el-card__header) {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    :deep(.el-card__body) {
+      padding: 20px 24px;
+    }
 
     .duty-list {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 18px;
 
       .duty-item {
         display: flex;
         align-items: center;
-        gap: 16px;
-        padding: 16px;
-        background: #f5f7fa;
-        border-radius: 12px;
-        transition: all 0.3s;
+        gap: 18px;
+        padding: 20px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 14px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid transparent;
+        position: relative;
+        overflow: hidden;
+
+        &::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 0;
+          bottom: 0;
+          width: 4px;
+          background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+          opacity: 0;
+          transition: opacity 0.3s;
+        }
 
         &:hover {
-          background: #e8ebf0;
-          transform: translateX(4px);
+          background: linear-gradient(135deg, #e3e6ea 0%, #d1d5db 100%);
+          transform: translateX(6px);
+          border-color: rgba(102, 126, 234, 0.2);
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        &:hover::before {
+          opacity: 1;
         }
 
         @media (max-width: 768px) {
           flex-wrap: wrap;
         }
 
+        :deep(.el-avatar) {
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          border: 3px solid white;
+        }
+
         .duty-info {
           flex: 1;
 
           h4 {
-            margin: 0 0 4px 0;
-            font-size: 16px;
-            color: #303133;
+            margin: 0 0 6px 0;
+            font-size: 18px;
+            color: #2d3436;
+            font-weight: 700;
+            letter-spacing: -0.3px;
           }
 
           p {
             margin: 0;
             font-size: 14px;
-            color: #909399;
+            color: #6c757d;
 
             &.duty-period {
-              color: #409eff;
+              color: #667eea;
               font-weight: 600;
+              font-size: 13px;
+              background: rgba(102, 126, 234, 0.1);
+              padding: 4px 10px;
+              border-radius: 20px;
+              display: inline-block;
+              margin-top: 6px;
+            }
+          }
+        }
+
+        .duty-actions {
+          :deep(.el-button) {
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s;
+
+            &:hover {
+              transform: translateY(-2px);
+              box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
             }
           }
         }
@@ -2145,11 +2754,24 @@ watch(chartPeriod, () => {
 
   // ==================== 待办事项卡片 ====================
   .todo-card {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
     border: none;
+    border-radius: 16px;
+    background: white;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04),
+                0 1px 3px rgba(0, 0, 0, 0.02);
+
+    :deep(.el-card__header) {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    :deep(.el-card__body) {
+      padding: 20px 24px;
+    }
 
     .todo-badge {
-      margin-left: 8px;
+      margin-left: 10px;
     }
 
     .todo-list {
@@ -2157,73 +2779,129 @@ watch(chartPeriod, () => {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 16px;
-        background: #f5f7fa;
+        padding: 18px 20px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
         border-radius: 12px;
-        margin-bottom: 12px;
-        transition: all 0.3s;
-        border-left: 3px solid transparent;
+        margin-bottom: 14px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid transparent;
+        position: relative;
+        overflow: hidden;
+
+        &::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 0;
+          bottom: 0;
+          width: 4px;
+          background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+          opacity: 0;
+          transition: opacity 0.3s;
+        }
 
         &:hover {
-          background: #e8ebf0;
+          background: linear-gradient(135deg, #e3e6ea 0%, #d1d5db 100%);
+          transform: translateX(4px);
+          border-color: rgba(102, 126, 234, 0.2);
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        &:hover::before {
+          opacity: 1;
         }
 
         &.urgent {
-          border-left-color: #f56c6c;
-          background: #fef0f0;
+          &::before {
+            background: linear-gradient(180deg, #f56c6c 0%, #e74c3c 100%);
+          }
+
+          border-left: 4px solid #f56c6c;
+          background: linear-gradient(135deg, #fef0f0 0%, #fee2e2 100%);
 
           &:hover {
-            background: #fde2e2;
+            background: linear-gradient(135deg, #fde2e2 0%, #fecaca 100%);
+            border-color: rgba(245, 108, 108, 0.4);
           }
         }
 
         &.completed {
-          opacity: 0.6;
+          opacity: 0.5;
+
+          &::before {
+            opacity: 0.3;
+          }
 
           .todo-title {
             text-decoration: line-through;
-            color: #909399;
+            color: #adb5bd;
           }
         }
 
         @media (max-width: 768px) {
           flex-direction: column;
           align-items: flex-start;
-          gap: 12px;
+          gap: 14px;
         }
 
         .todo-content {
           flex: 1;
 
           .todo-title {
-            font-size: 15px;
-            color: #303133;
-            font-weight: 500;
+            font-size: 16px;
+            color: #2d3436;
+            font-weight: 600;
+            letter-spacing: -0.2px;
           }
 
           .todo-meta {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-top: 8px;
+            gap: 14px;
+            margin-top: 10px;
             flex-wrap: wrap;
+
+            :deep(.el-tag) {
+              border-radius: 20px;
+              font-weight: 500;
+              padding: 4px 12px;
+              border: none;
+            }
 
             .todo-deadline {
               display: flex;
               align-items: center;
-              gap: 4px;
+              gap: 6px;
               font-size: 13px;
-              color: #909399;
+              color: #6c757d;
+              font-weight: 500;
+              background: white;
+              padding: 4px 10px;
+              border-radius: 20px;
+              box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 
               &.overdue {
-                color: #f56c6c;
-                font-weight: 600;
+                color: #e74c3c;
+                font-weight: 700;
+                background: rgba(231, 76, 60, 0.1);
               }
             }
           }
         }
 
         .todo-actions {
+          :deep(.el-button) {
+            border-radius: 10px;
+            font-weight: 600;
+            padding: 10px 20px;
+            transition: all 0.3s;
+
+            &:hover {
+              transform: translateY(-2px);
+              box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            }
+          }
+
           @media (max-width: 768px) {
             width: 100%;
             display: flex;
@@ -2237,45 +2915,100 @@ watch(chartPeriod, () => {
 
 // ==================== 快捷操作卡片 ====================
 .quick-actions-card {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   border: none;
+  border-radius: 16px;
+  background: white;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04),
+              0 1px 3px rgba(0, 0, 0, 0.02);
+
+  :deep(.el-card__header) {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid #e9ecef;
+  }
+
+  :deep(.el-card__body) {
+    padding: 20px 24px;
+  }
 
   .quick-actions {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 14px;
 
     @media (max-width: 768px) {
       grid-template-columns: 1fr;
     }
 
     .quick-btn {
-      height: 80px;
+      height: 88px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      gap: 8px;
-      border-radius: 12px;
+      gap: 10px;
+      border-radius: 14px;
       font-size: 14px;
       font-weight: 600;
-      transition: all 0.3s;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid transparent;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      color: #495057;
+      position: relative;
+      overflow: hidden;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s;
+      }
 
       &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        border-color: rgba(102, 126, 234, 0.3);
+
+        &::before {
+          left: 100%;
+        }
+      }
+
+      &:active {
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .el-icon {
+        font-size: 28px;
+        transition: transform 0.3s;
+      }
+
+      &:hover .el-icon {
+        transform: scale(1.1);
       }
 
       &.emergency {
         grid-column: 1 / -1;
-        height: 60px;
+        height: 64px;
         flex-direction: row;
-        background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
         border: none;
         color: white;
+        font-size: 16px;
+        box-shadow: 0 4px 16px rgba(231, 76, 60, 0.3);
+
+        .el-icon {
+          font-size: 24px;
+        }
 
         &:hover {
-          box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4);
+          box-shadow: 0 8px 28px rgba(231, 76, 60, 0.5);
+          background: linear-gradient(135deg, #c0392b 0%, #922b21 100%);
+          transform: translateY(-4px) scale(1.02);
         }
       }
     }
@@ -2285,8 +3018,21 @@ watch(chartPeriod, () => {
 // ==================== 通知和动态卡片 ====================
 .notice-card,
 .activity-card {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   border: none;
+  border-radius: 16px;
+  background: white;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04),
+              0 1px 3px rgba(0, 0, 0, 0.02);
+
+  :deep(.el-card__header) {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid #e9ecef;
+  }
+
+  :deep(.el-card__body) {
+    padding: 20px 24px;
+  }
 
   .notice-list,
   .activity-list {
@@ -2294,32 +3040,70 @@ watch(chartPeriod, () => {
     .activity-item {
       display: flex;
       align-items: flex-start;
-      gap: 12px;
-      padding: 12px;
-      border-radius: 8px;
+      gap: 14px;
+      padding: 16px;
+      border-radius: 12px;
       cursor: pointer;
-      transition: all 0.3s;
-      margin-bottom: 8px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      margin-bottom: 12px;
+      border: 1px solid transparent;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      position: relative;
+      overflow: hidden;
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
 
       &:hover {
-        background: #f5f7fa;
-        transform: translateX(4px);
+        background: linear-gradient(135deg, #e3e6ea 0%, #d1d5db 100%);
+        transform: translateX(6px);
+        border-color: rgba(102, 126, 234, 0.2);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      }
+
+      &:hover::before {
+        opacity: 1;
       }
 
       &.unread {
-        background: #ecf5ff;
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        border-color: rgba(33, 150, 243, 0.3);
+
+        &::before {
+          background: linear-gradient(180deg, #2196f3 0%, #1976d2 100%);
+          opacity: 1;
+        }
 
         &:hover {
-          background: #d9ecff;
+          background: linear-gradient(135deg, #bbdefb 0%, #90caf9 100%);
         }
 
         .notice-title {
-          font-weight: 600;
+          font-weight: 700;
+          color: #0d47a1;
         }
       }
 
       .notice-tag {
         flex-shrink: 0;
+        border-radius: 20px;
+        font-weight: 500;
+        padding: 4px 12px;
+        border: none;
+      }
+
+      :deep(.el-avatar) {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border: 2px solid white;
       }
 
       .notice-content {
@@ -2327,9 +3111,11 @@ watch(chartPeriod, () => {
         min-width: 0;
 
         .notice-title {
-          margin: 0 0 4px 0;
-          font-size: 14px;
-          color: #303133;
+          margin: 0 0 6px 0;
+          font-size: 15px;
+          color: #2d3436;
+          font-weight: 600;
+          letter-spacing: -0.2px;
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
@@ -2338,7 +3124,8 @@ watch(chartPeriod, () => {
         .notice-time {
           margin: 0;
           font-size: 12px;
-          color: #909399;
+          color: #6c757d;
+          font-weight: 500;
         }
       }
 
@@ -2347,17 +3134,25 @@ watch(chartPeriod, () => {
         min-width: 0;
 
         p {
-          margin: 0 0 4px 0;
-          font-size: 14px;
-          color: #303133;
+          margin: 0 0 6px 0;
+          font-size: 15px;
+          color: #2d3436;
+          font-weight: 500;
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
+          line-height: 1.5;
+
+          strong {
+            color: #667eea;
+            font-weight: 600;
+          }
         }
 
         .activity-time {
           font-size: 12px;
-          color: #909399;
+          color: #6c757d;
+          font-weight: 500;
         }
       }
     }
@@ -2367,53 +3162,263 @@ watch(chartPeriod, () => {
 // ==================== 自定义操作对话框 ====================
 .custom-actions-content {
   .tip {
-    margin: 0 0 16px 0;
+    margin: 0 0 20px 0;
     font-size: 14px;
-    color: #909399;
+    color: #6c757d;
+    font-weight: 500;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    border-radius: 10px;
+    border-left: 4px solid #2196f3;
   }
 
   .action-item {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 12px;
+    gap: 12px;
+    margin-bottom: 14px;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px;
+    transition: all 0.3s;
+    border: 1px solid transparent;
+
+    &:hover {
+      background: linear-gradient(135deg, #e3e6ea 0%, #d1d5db 100%);
+      transform: translateX(4px);
+      border-color: rgba(102, 126, 234, 0.2);
+    }
 
     .drag-handle {
       cursor: move;
-      color: #909399;
+      color: #6c757d;
+      transition: color 0.3s;
+
+      &:hover {
+        color: #667eea;
+      }
     }
 
     :deep(.el-checkbox) {
       width: 100%;
       margin-right: 0;
+      font-weight: 500;
+
+      .el-checkbox__label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        transition: all 0.3s;
+
+        &:hover {
+          background: rgba(102, 126, 234, 0.05);
+        }
+      }
+
+      .el-checkbox__inner {
+        width: 18px;
+        height: 18px;
+        border-radius: 4px;
+        border: 2px solid #adb5bd;
+      }
+
+      &.is-checked .el-checkbox__inner {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-color: #667eea;
+      }
     }
   }
 }
 
 // ==================== 加载状态优化 ====================
 :deep(.el-loading-mask) {
-  border-radius: 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+}
+
+:deep(.el-loading-spinner) {
+  .path {
+    stroke: #667eea;
+    stroke-width: 3;
+  }
+}
+
+// ==================== 弹窗样式优化 ====================
+:deep(.el-dialog) {
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+
+  .el-dialog__header {
+    padding: 24px 28px 20px;
+    border-bottom: 1px solid #e9ecef;
+
+    .el-dialog__title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #2d3436;
+      letter-spacing: -0.5px;
+    }
+
+    .el-dialog__headerbtn {
+      top: 24px;
+      right: 24px;
+      width: 36px;
+      height: 36px;
+
+      .el-dialog__close {
+        font-size: 20px;
+        color: #6c757d;
+        transition: all 0.3s;
+
+        &:hover {
+          color: #e74c3c;
+          transform: rotate(90deg);
+        }
+      }
+    }
+  }
+
+  .el-dialog__body {
+    padding: 24px 28px;
+  }
+
+  .el-dialog__footer {
+    padding: 20px 28px 24px;
+    border-top: 1px solid #e9ecef;
+
+    .el-button {
+      border-radius: 10px;
+      font-weight: 600;
+      padding: 12px 24px;
+      transition: all 0.3s;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      }
+    }
+  }
+}
+
+// ==================== 空状态优化 ====================
+:deep(.el-empty) {
+  padding: 40px 20px;
+
+  .el-empty__image {
+    width: 160px;
+    opacity: 0.6;
+  }
+
+  .el-empty__description {
+    color: #6c757d;
+    font-size: 15px;
+    font-weight: 500;
+    margin-top: 16px;
+  }
 }
 
 // ==================== 响应式优化 ====================
+@media (max-width: 992px) {
+  .cadre-dashboard {
+    padding: 20px;
+  }
+
+  .stats-row {
+    .stat-card {
+      .stat-content {
+        .stat-icon {
+          width: 64px;
+          height: 64px;
+        }
+
+        .stat-value {
+          font-size: 32px;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .cadre-dashboard {
+    padding: 16px;
+  }
+
+  .welcome-card {
+    margin-bottom: 20px;
+
+    :deep(.el-card__body) {
+      padding: 24px;
+    }
+
+    .welcome-title {
+      font-size: 26px !important;
+    }
+
+    .welcome-stats {
+      width: 100%;
+
+      .stat-item {
+        flex: 1;
+        min-width: 140px;
+        justify-content: center;
+        font-size: 14px;
+        padding: 12px 16px;
+      }
+    }
+  }
+
+  .stat-card {
+    .stat-content {
+      .stat-icon {
+        width: 56px;
+        height: 56px;
+      }
+
+      .stat-value {
+        font-size: 28px !important;
+      }
+    }
+  }
+
+  .toolbar-card {
+    .toolbar-content {
+      .filter-label {
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 12px;
+      }
+    }
+  }
+}
+
 @media (max-width: 576px) {
   .cadre-dashboard {
-    padding: 8px;
+    padding: 12px;
   }
 
   .welcome-card {
     :deep(.el-card__body) {
-      padding: 16px;
+      padding: 20px;
     }
 
     .welcome-title {
-      font-size: 20px !important;
+      font-size: 22px !important;
+    }
+
+    .welcome-subtitle {
+      font-size: 14px;
     }
 
     .welcome-stats {
+      gap: 12px;
+
       .stat-item {
-        width: 100%;
-        justify-content: center;
+        font-size: 13px;
+        padding: 10px 14px;
       }
     }
   }
@@ -2428,7 +3433,80 @@ watch(chartPeriod, () => {
       .stat-value {
         font-size: 24px !important;
       }
+
+      .stat-label {
+        font-size: 13px;
+      }
+
+      .stat-trend {
+        font-size: 11px;
+      }
     }
+  }
+
+  .quick-actions {
+    gap: 10px;
+
+    .quick-btn {
+      height: 76px;
+      font-size: 13px;
+    }
+  }
+
+  .notice-item,
+  .activity-item {
+    padding: 14px;
+    gap: 12px;
+
+    .notice-title,
+    p {
+      font-size: 14px;
+    }
+  }
+}
+
+// ==================== 深色模式兼容 ====================
+@media (prefers-color-scheme: dark) {
+  .cadre-dashboard {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  }
+
+  .stat-card,
+  .chart-card,
+  .duty-card,
+  .todo-card,
+  .quick-actions-card,
+  .notice-card,
+  .activity-card,
+  .toolbar-card {
+    background: #1e293b;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+
+    .card-header {
+      border-bottom-color: #334155;
+    }
+
+    .card-title {
+      color: #e2e8f0;
+    }
+  }
+
+  .duty-item,
+  .todo-item,
+  .notice-item,
+  .activity-item,
+  .quick-btn {
+    background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
+    color: #e2e8f0;
+  }
+
+  .notice-title,
+  .activity-content p {
+    color: #e2e8f0;
+  }
+
+  .todo-title {
+    color: #e2e8f0;
   }
 }
 </style>

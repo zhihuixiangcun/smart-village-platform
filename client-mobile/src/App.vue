@@ -9,15 +9,48 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useElderlyStore } from './store/elderly'
+import { useUserStore } from './store/user'
 import TabBar from './components/common/TabBar.vue'
 
 const route = useRoute()
 const elderlyStore = useElderlyStore()
+const userStore = useUserStore()
 
 // 控制底部导航栏显示
 const showTabBar = computed(() => {
-  const hiddenRoutes = ['/login', '/register']
-  return !hiddenRoutes.includes(route.path)
+  // 登录相关页面不显示
+  const hiddenRoutes = [
+    '/login',
+    '/register',
+    '/auth/login-optimized',
+    '/auth/login-enhanced',
+    '/auth/register',
+    '/auth/multi-login',  // 隐藏登录页面的底部导航栏
+    '/auth/agreement',   // 隐藏协议页面
+    '/chat'              // 隐藏聊天相关页面的底部导航栏
+  ]
+
+  // 如果在隐藏列表中，不显示
+  if (hiddenRoutes.some(path => route.path.startsWith(path))) {
+    return false
+  }
+
+  // 角色首页有自己的导航栏，不显示全局 TabBar
+  const roleHomeRoutes = [
+    '/home/villager',
+    '/home/cadre',
+    '/home/official',
+    '/home/admin',
+    '/purchaser'
+  ]
+
+  // 如果在角色首页，不显示全局 TabBar
+  if (roleHomeRoutes.some(path => route.path.startsWith(path))) {
+    return false
+  }
+
+  // 其他页面显示全局 TabBar
+  return true
 })
 </script>
 

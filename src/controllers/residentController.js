@@ -1,16 +1,13 @@
-/**
- * 村民管理控制器
- * 处理村民相关的HTTP请求
- */
-
 const residentService = require('../services/residentService');
 const logger = require('../utils/logger');
-const { body, validationResult } = require('express-validator');
+const { body, validationResult, param, query } = require('express-validator');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs').promises;
+const NodeCache = require('node-cache');
 
-// 配置文件上传
+const cache = new NodeCache({ stdTTL: 300, checkperiod: 120 });
+
 const upload = multer({
   storage: multer.diskStorage({
     destination: async (req, file, cb) => {
@@ -27,11 +24,8 @@ const upload = multer({
       cb(null, `${uniqueName}${path.extname(file.originalname)}`);
     }
   }),
-  limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB
-  },
+  limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    // 只允许图片文件
     if (file.mimetype.startsWith('image/')) {
       cb(null, true);
     } else {
@@ -40,33 +34,33 @@ const upload = multer({
   }
 });
 
-/**
- * 创建村民档案
- */
-async function createResident(req, res) {
+const buildOperator = (req) => ({
+  userId: req.user?.userId || req.headers['x-user-id'],
+  username: req.user?.username || 'system',
+  name: req.user?.name || '系统',
+  role: req.user?.role || 'admin',
+  sessionId: req.headers['x-session-id'] || `session_${Date.now()}`
+});
+
+const createResident = async (req, res) => {
+  const startTime = Date.now();
   try {
-    const { error } = validationResult(req);
-    if (error) {
+    const errors = validationResult(req);
+    if (errors && errors.array && !errors.isEmpty()) {
       return res.status(400).json({
         success: false,
         error: '参数验证失败',
-        details: error.array()
+        details: errors.array()
       });
     }
 
-    // 构建操作者信息
-    const operator = {
-      userId: req.user?.userId || req.headers['x-user-id'],
-      username: req.user?.username || 'system',
-      name: req.user?.name || '系统',
-      role: req.user?.role || 'admin',
-      sessionId: req.headers['x-session-id'] || `session_${  Date.now()}`
-    };
-
-    // 调用服务层创建村民
+    const operator = buildOperator(req);
     const resident = await residentService.createResident(req.body, operator);
 
-    logger.info(`村民档案创建成功: ${resident._id}`);
+    logger.info(`村民档案创建成功: ${resident._id}`, { 
+      userId: operator.userId, 
+      duration: Date.now() - startTime 
+    });
 
     res.status(201).json({
       success: true,
@@ -77,19 +71,18 @@ async function createResident(req, res) {
   } catch (error) {
     logger.error('创建村民档案失败:', error);
 
-    // 处理特定错误
-    if (error.message.includes('身份证号已存在')) {
-      return res.status(409).json({
-        success: false,
-        error: error.message
-      });
-    }
+    const errorResponses = {
+      '身份证号已存在': 409,
+      '不存在': 404
+    };
 
-    if (error.message.includes('不存在')) {
-      return res.status(404).json({
-        success: false,
-        error: error.message
-      });
+    for (const [msg, status] of Object.entries(errorResponses)) {
+      if (error.message.includes(msg)) {
+        return res.status(status).json({
+          success: false,
+          error: error.message
+        });
+      }
     }
 
     res.status(500).json({
@@ -98,12 +91,10 @@ async function createResident(req, res) {
       message: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
-}
+};
 
-/**
- * 批量导入村民数据
- */
-async function batchImportResidents(req, res) {
+const batchImportResidents = async (req, res) => {
+  const startTime = Date.now();
   try {
     const { residents } = req.body;
 
@@ -114,19 +105,13 @@ async function batchImportResidents(req, res) {
       });
     }
 
-    // 构建操作者信息
-    const operator = {
-      userId: req.user?.userId || req.headers['x-user-id'],
-      username: req.user?.username || 'system',
-      name: req.user?.name || '系统',
-      role: req.user?.role || 'admin',
-      sessionId: req.headers['x-session-id'] || `session_${  Date.now()}`
-    };
-
-    // 调用服务层批量导入
+    const operator = buildOperator(req);
     const results = await residentService.batchImportResidents(residents, operator);
 
-    logger.info(`批量导入完成: 成功${results.success}条，失败${results.failed}条`);
+    logger.info(`批量导入完成: 成功${results.success}条，失败${results.failed}条`, { 
+      userId: operator.userId, 
+      duration: Date.now() - startTime 
+    });
 
     res.json({
       success: true,
@@ -142,27 +127,34 @@ async function batchImportResidents(req, res) {
       message: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
-}
+};
 
-/**
- * 获取村民信息
- */
-async function getResidentById(req, res) {
+const getResidentById = async (req, res) => {
+  const startTime = Date.now();
   try {
     const { id } = req.params;
 
-    // 构建操作者信息
-    const operator = {
-      userId: req.user?.userId || req.headers['x-user-id'],
-      username: req.user?.username || 'system',
-      name: req.user?.name || '系统',
-      role: req.user?.role || 'admin',
-      sessionId: req.headers['x-session-id'] || `session_${  Date.now()}`,
-      idCard: req.user?.idCard
-    };
+    const cacheKey = `resident:${id}`;
+    const cachedResident = cache.get(cacheKey);
+    
+    if (cachedResident) {
+      return res.json({
+        success: true,
+        data: cachedResident,
+        cached: true
+      });
+    }
 
-    // 调用服务层获取村民信息
+    const operator = buildOperator(req);
+    operator.idCard = req.user?.idCard;
+
     const resident = await residentService.getResidentById(id, operator);
+    cache.set(cacheKey, resident);
+
+    logger.info(`获取村民信息成功: ${id}`, { 
+      userId: operator.userId, 
+      duration: Date.now() - startTime 
+    });
 
     res.json({
       success: true,
@@ -172,19 +164,18 @@ async function getResidentById(req, res) {
   } catch (error) {
     logger.error('获取村民信息失败:', error);
 
-    // 处理特定错误
-    if (error.message.includes('不存在')) {
-      return res.status(404).json({
-        success: false,
-        error: error.message
-      });
-    }
+    const errorResponses = {
+      '不存在': 404,
+      '没有权限': 403
+    };
 
-    if (error.message.includes('没有权限')) {
-      return res.status(403).json({
-        success: false,
-        error: error.message
-      });
+    for (const [msg, status] of Object.entries(errorResponses)) {
+      if (error.message.includes(msg)) {
+        return res.status(status).json({
+          success: false,
+          error: error.message
+        });
+      }
     }
 
     res.status(500).json({
@@ -193,16 +184,14 @@ async function getResidentById(req, res) {
       message: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
-}
+};
 
-/**
- * 查询村民列表
- */
-async function listResidents(req, res) {
+const listResidents = async (req, res) => {
+  const startTime = Date.now();
   try {
     const queryParams = {
       page: parseInt(req.query.page) || 1,
-      limit: parseInt(req.query.limit) || 20,
+      limit: Math.min(parseInt(req.query.limit) || 20, 100),
       villageId: req.query.villageId,
       householdNumber: req.query.householdNumber,
       name: req.query.name,
@@ -212,17 +201,26 @@ async function listResidents(req, res) {
       sortOrder: req.query.sortOrder || 'desc'
     };
 
-    // 构建操作者信息
-    const operator = {
-      userId: req.user?.userId || req.headers['x-user-id'],
-      username: req.user?.username || 'system',
-      name: req.user?.name || '系统',
-      role: req.user?.role || 'admin',
-      sessionId: req.headers['x-session-id'] || `session_${  Date.now()}`
-    };
+    const cacheKey = `residents:list:${JSON.stringify(queryParams)}`;
+    const cachedResult = cache.get(cacheKey);
+    
+    if (cachedResult) {
+      return res.json({
+        success: true,
+        data: cachedResult,
+        cached: true
+      });
+    }
 
-    // 调用服务层查询村民列表
+    const operator = buildOperator(req);
     const result = await residentService.listResidents(queryParams, operator);
+    cache.set(cacheKey, result, 60);
+
+    logger.info(`查询村民列表成功`, { 
+      userId: operator.userId, 
+      count: result.residents?.length,
+      duration: Date.now() - startTime 
+    });
 
     res.json({
       success: true,
@@ -237,29 +235,24 @@ async function listResidents(req, res) {
       message: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
-}
+};
 
-/**
- * 更新村民信息
- */
-async function updateResident(req, res) {
+const updateResident = async (req, res) => {
+  const startTime = Date.now();
   try {
     const { id } = req.params;
     const updates = req.body;
 
-    // 构建操作者信息
-    const operator = {
-      userId: req.user?.userId || req.headers['x-user-id'],
-      username: req.user?.username || 'system',
-      name: req.user?.name || '系统',
-      role: req.user?.role || 'admin',
-      sessionId: req.headers['x-session-id'] || `session_${  Date.now()}`
-    };
-
-    // 调用服务层更新村民信息
+    const operator = buildOperator(req);
     const updatedResident = await residentService.updateResident(id, updates, operator);
 
-    logger.info(`村民信息更新成功: ${id} by ${operator.name}`);
+    cache.del(`resident:${id}`);
+    cache.del(`residents:list:*`);
+
+    logger.info(`村民信息更新成功: ${id}`, { 
+      userId: operator.userId, 
+      duration: Date.now() - startTime 
+    });
 
     res.json({
       success: true,
@@ -270,26 +263,19 @@ async function updateResident(req, res) {
   } catch (error) {
     logger.error('更新村民信息失败:', error);
 
-    // 处理特定错误
-    if (error.message.includes('不存在')) {
-      return res.status(404).json({
-        success: false,
-        error: error.message
-      });
-    }
+    const errorResponses = {
+      '不存在': 404,
+      '没有权限': 403,
+      '验证失败': 400
+    };
 
-    if (error.message.includes('没有权限')) {
-      return res.status(403).json({
-        success: false,
-        error: error.message
-      });
-    }
-
-    if (error.message.includes('验证失败')) {
-      return res.status(400).json({
-        success: false,
-        error: error.message
-      });
+    for (const [msg, status] of Object.entries(errorResponses)) {
+      if (error.message.includes(msg)) {
+        return res.status(status).json({
+          success: false,
+          error: error.message
+        });
+      }
     }
 
     res.status(500).json({
@@ -298,29 +284,24 @@ async function updateResident(req, res) {
       message: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
-}
+};
 
-/**
- * 删除村民档案
- */
-async function deleteResident(req, res) {
+const deleteResident = async (req, res) => {
+  const startTime = Date.now();
   try {
     const { id } = req.params;
     const { reason } = req.body;
 
-    // 构建操作者信息
-    const operator = {
-      userId: req.user?.userId || req.headers['x-user-id'],
-      username: req.user?.username || 'system',
-      name: req.user?.name || '系统',
-      role: req.user?.role || 'admin',
-      sessionId: req.headers['x-session-id'] || `session_${  Date.now()}`
-    };
-
-    // 调用服务层删除村民档案
+    const operator = buildOperator(req);
     await residentService.deleteResident(id, reason, operator);
 
-    logger.info(`村民档案删除成功: ${id} by ${operator.name}`);
+    cache.del(`resident:${id}`);
+    cache.del(`residents:list:*`);
+
+    logger.info(`村民档案删除成功: ${id}`, { 
+      userId: operator.userId, 
+      duration: Date.now() - startTime 
+    });
 
     res.json({
       success: true,
@@ -330,19 +311,18 @@ async function deleteResident(req, res) {
   } catch (error) {
     logger.error('删除村民档案失败:', error);
 
-    // 处理特定错误
-    if (error.message.includes('不存在')) {
-      return res.status(404).json({
-        success: false,
-        error: error.message
-      });
-    }
+    const errorResponses = {
+      '不存在': 404,
+      '没有权限': 403
+    };
 
-    if (error.message.includes('没有权限')) {
-      return res.status(403).json({
-        success: false,
-        error: error.message
-      });
+    for (const [msg, status] of Object.entries(errorResponses)) {
+      if (error.message.includes(msg)) {
+        return res.status(status).json({
+          success: false,
+          error: error.message
+        });
+      }
     }
 
     res.status(500).json({
@@ -351,12 +331,10 @@ async function deleteResident(req, res) {
       message: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
-}
+};
 
-/**
- * 上传村民照片
- */
-async function uploadPhoto(req, res) {
+const uploadPhoto = async (req, res) => {
+  const startTime = Date.now();
   try {
     const { id } = req.params;
 
@@ -367,16 +345,7 @@ async function uploadPhoto(req, res) {
       });
     }
 
-    // 构建操作者信息
-    const operator = {
-      userId: req.user?.userId || req.headers['x-user-id'],
-      username: req.user?.username || 'system',
-      name: req.user?.name || '系统',
-      role: req.user?.role || 'admin',
-      sessionId: req.headers['x-session-id'] || `session_${  Date.now()}`
-    };
-
-    // 准备文件信息
+    const operator = buildOperator(req);
     const fileInfo = {
       path: req.file.path,
       originalname: req.file.originalname,
@@ -384,10 +353,14 @@ async function uploadPhoto(req, res) {
       size: req.file.size
     };
 
-    // 调用服务层处理照片上传
     const result = await residentService.uploadPhoto(id, fileInfo, operator);
+    cache.del(`resident:${id}`);
 
-    logger.info(`村民照片上传成功: ${id} - ${req.file.path}`);
+    logger.info(`村民照片上传成功: ${id}`, { 
+      userId: operator.userId, 
+      fileSize: req.file.size,
+      duration: Date.now() - startTime 
+    });
 
     res.json({
       success: true,
@@ -398,7 +371,6 @@ async function uploadPhoto(req, res) {
   } catch (error) {
     logger.error('上传村民照片失败:', error);
 
-    // 清理上传的文件
     if (req.file) {
       try {
         await fs.unlink(req.file.path);
@@ -407,12 +379,17 @@ async function uploadPhoto(req, res) {
       }
     }
 
-    // 处理特定错误
-    if (error.message.includes('不存在')) {
-      return res.status(404).json({
-        success: false,
-        error: error.message
-      });
+    const errorResponses = {
+      '不存在': 404
+    };
+
+    for (const [msg, status] of Object.entries(errorResponses)) {
+      if (error.message.includes(msg)) {
+        return res.status(status).json({
+          success: false,
+          error: error.message
+        });
+      }
     }
 
     if (error.message.includes('图片')) {
@@ -428,18 +405,26 @@ async function uploadPhoto(req, res) {
       message: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
-}
+};
 
-/**
- * 搜索村民
- */
-async function searchResidents(req, res) {
+const searchResidents = async (req, res) => {
+  const startTime = Date.now();
   try {
     const {
       keyword,
-      searchType = 'name', // name, phone, idCard
+      searchType = 'all',
       villageId,
-      limit = 10
+      gender,
+      occupation,
+      ageRange,
+      education,
+      specialIdentityType,
+      householdType,
+      sortBy = 'score',
+      sortOrder = 'desc',
+      page = 1,
+      limit = 20,
+      useFullTextSearch = false
     } = req.query;
 
     if (!keyword) {
@@ -449,22 +434,46 @@ async function searchResidents(req, res) {
       });
     }
 
-    // 构建操作者信息
-    const operator = {
-      userId: req.user?.userId || req.headers['x-user-id'],
-      username: req.user?.username || 'system',
-      name: req.user?.name || '系统',
-      role: req.user?.role || 'admin',
-      sessionId: req.headers['x-session-id'] || `session_${  Date.now()}`
-    };
+    const operator = buildOperator(req);
 
-    // 调用服务层搜索村民
-    const results = await residentService.searchResidents({
-      keyword,
-      searchType,
-      villageId,
-      limit: parseInt(limit)
-    }, operator);
+    const filters = {};
+    if (gender) filters.gender = gender;
+    if (occupation) filters.occupation = occupation;
+    if (ageRange) {
+      const [min, max] = ageRange.split('-').map(Number);
+      filters.ageRange = [min, max];
+    }
+    if (education) filters.education = education;
+    if (specialIdentityType) filters.specialIdentityType = specialIdentityType;
+    if (householdType) filters.householdType = householdType;
+
+    let results;
+    if (useFullTextSearch === 'true') {
+      results = await residentService.fullTextSearchResidents({
+        keyword,
+        villageId,
+        filters,
+        sortBy,
+        sortOrder,
+        page: parseInt(page),
+        limit: parseInt(limit)
+      }, operator);
+    } else {
+      results = await residentService.searchResidents({
+        keyword,
+        searchType,
+        villageId,
+        filters,
+        page: parseInt(page),
+        limit: parseInt(limit)
+      }, operator);
+    }
+
+    logger.info(`搜索村民成功: ${keyword}`, { 
+      userId: operator.userId, 
+      count: results.residents?.length,
+      duration: Date.now() - startTime 
+    });
 
     res.json({
       success: true,
@@ -474,8 +483,7 @@ async function searchResidents(req, res) {
   } catch (error) {
     logger.error('搜索村民失败:', error);
 
-    // 处理特定错误
-    if (error.message.includes('关键词')) {
+    if (error.message.includes('关键词') || error.message.includes('不能为空')) {
       return res.status(400).json({
         success: false,
         error: error.message
@@ -488,26 +496,20 @@ async function searchResidents(req, res) {
       message: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
-}
+};
 
-/**
- * 获取家庭关系网络
- */
-async function getFamilyNetwork(req, res) {
+const getFamilyNetwork = async (req, res) => {
+  const startTime = Date.now();
   try {
     const { id } = req.params;
+    const operator = buildOperator(req);
 
-    // 构建操作者信息
-    const operator = {
-      userId: req.user?.userId || req.headers['x-user-id'],
-      username: req.user?.username || 'system',
-      name: req.user?.name || '系统',
-      role: req.user?.role || 'admin',
-      sessionId: req.headers['x-session-id'] || `session_${  Date.now()}`
-    };
-
-    // 调用服务层获取家庭关系网络
     const result = await residentService.getFamilyNetwork(id, operator);
+
+    logger.info(`获取家庭关系网络成功: ${id}`, { 
+      userId: operator.userId,
+      duration: Date.now() - startTime 
+    });
 
     res.json({
       success: true,
@@ -517,19 +519,18 @@ async function getFamilyNetwork(req, res) {
   } catch (error) {
     logger.error('获取家庭关系网络失败:', error);
 
-    // 处理特定错误
-    if (error.message.includes('不存在')) {
-      return res.status(404).json({
-        success: false,
-        error: error.message
-      });
-    }
+    const errorResponses = {
+      '不存在': 404,
+      '没有权限': 403
+    };
 
-    if (error.message.includes('没有权限')) {
-      return res.status(403).json({
-        success: false,
-        error: error.message
-      });
+    for (const [msg, status] of Object.entries(errorResponses)) {
+      if (error.message.includes(msg)) {
+        return res.status(status).json({
+          success: false,
+          error: error.message
+        });
+      }
     }
 
     res.status(500).json({
@@ -538,14 +539,21 @@ async function getFamilyNetwork(req, res) {
       message: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
-}
-
-// 导出模块
+};
 
 module.exports = {
-  createResident,
+  createResident: [
+    body('idCard').notEmpty().withMessage('身份证号不能为空'),
+    body('name').notEmpty().withMessage('姓名不能为空'),
+    body('gender').isIn(['male', 'female']).withMessage('性别必须是male或female'),
+    body('villageId').notEmpty().withMessage('村庄ID不能为空'),
+    createResident
+  ],
   batchImportResidents,
-  getResidentById,
+  getResidentById: [
+    param('id').isMongoId().withMessage('无效的村民ID'),
+    getResidentById
+  ],
   listResidents,
   updateResident,
   deleteResident,

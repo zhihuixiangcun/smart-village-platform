@@ -37,20 +37,14 @@
     </main>
 
     <!-- 底部导航栏 -->
-    <nav class="mobile-nav" v-if="showBottomNav">
-      <div
-        v-for="item in bottomNavItems"
-        :key="item.route"
-        class="nav-item"
-        :class="{ active: currentRoute === item.route }"
-        @click="navigateTo(item.route)"
-      >
-        <el-icon :size="24">
-          <component :is="item.icon" />
-        </el-icon>
-        <span class="nav-label">{{ item.label }}</span>
-      </div>
-    </nav>
+    <BottomNavigation
+      v-if="showBottomNav"
+      :items="navigationItems"
+      :current-route="currentRoute"
+      :is-elderly-mode="isElderlyMode"
+      :is-landscape="isLandscape"
+      @item-click="navigateTo($event.route)"
+    />
 
     <!-- 侧边菜单抽屉 -->
     <el-drawer v-model="menuOpen" direction="ltr" size="70%" :show-close="false">
@@ -153,21 +147,18 @@ import {
   Bell,
   View,
   User,
-  HomeFilled,
-  OfficeBuilding,
-  UserFilled,
   SwitchButton,
-  Document,
-  ChatDotRound,
-  Connection,
-  Setting,
   FontSizes,
-  Plus,
+  Document,
   Location,
   Warning,
+  Connection,
 } from '@element-plus/icons-vue';
 import VoiceAssistant from '@/components/VoiceAssistant.vue';
+import BottomNavigation from '@/components/mobile/BottomNavigation/index.vue';
 import { useAccessibilityStore } from '@/stores/accessibility';
+import { getMenuByRoute, getRoleNameByRoute } from '@/config/navigation.config';
+import { useBottomNavigation } from '@/composables/useBottomNavigation';
 
 // 类型定义
 interface UserInfo {
@@ -208,20 +199,38 @@ const router = useRouter();
 const route = useRoute();
 const accessibilityStore = useAccessibilityStore();
 
+// 使用底部导航组合式API
+const {
+  isElderlyMode,
+  isLandscape,
+  navigationItems,
+  currentRoute,
+  unreadCount,
+  setElderlyMode,
+  loadElderlyMode,
+  updateBadges,
+} = useBottomNavigation();
+
 const menuOpen = ref(false);
 const showNotifications = ref(false);
 const showBack = computed(() => route.meta.showBack || false);
-const showBottomNav = ref(true);
-const currentRoute = computed(() => route.path);
+const showBottomNav = computed(() => {
+  // 某些页面不显示底部导航
+  const hiddenRoutes = ['/auth/login', '/auth/register', '/login', '/register'];
+  return !hiddenRoutes.includes(route.path);
+});
 const pageTitle = computed(() => route.meta.title || '智慧乡村');
 
-const userInfo = ref<UserInfo>({
-  name: '智慧村民',
-  role: '普通村民',
-  avatar: '',
+// 用户信息 - 根据当前路由动态获取角色名称
+const userInfo = computed<UserInfo>(() => {
+  const currentPath = route.path;
+  const roleName = getRoleNameByRoute(currentPath);
+  return {
+    name: '智慧村民',
+    role: roleName,
+    avatar: '',
+  };
 });
-
-const unreadCount = ref(3);
 
 const notifications = ref<Notification[]>([
   {
@@ -250,33 +259,21 @@ const notifications = ref<Notification[]>([
   },
 ]);
 
-const bottomNavItems: NavItem[] = [
-  { route: '/mobile/home', label: '首页', icon: Home },
-  { route: '/mobile/services', label: '服务', icon: Plus },
-  { route: '/mobile/help', label: '互助', icon: Connection },
-  { route: '/mobile/profile', label: '我的', icon: User },
-];
-
 const quickActions: QuickAction[] = [
   { route: '/mobile/qrcode', label: '一户一码', icon: Document, color: '#409EFF' },
   { route: '/mobile/report', label: '信息上报', icon: Location, color: '#67C23A' },
-  { route: '/mobile/announcement', label: '村务公告', icon: ChatDotRound, color: '#E6A23C' },
+  { route: '/mobile/announcement', label: '村务公告', icon: Warning, color: '#E6A23C' },
   { route: '/mobile/emergency', label: '紧急求助', icon: Warning, color: '#F56C6C' },
 ];
 
-const menuItems: MenuItem[] = [
-  { route: '/mobile/home', label: '首页', icon: Home },
-  { route: '/mobile/village', label: '村务管理', icon: OfficeBuilding },
-  { route: '/mobile/residents', label: '村民信息', icon: UserFilled },
-  { route: '/mobile/qrcode', label: '一户一码', icon: Document },
-  { route: '/mobile/mutual-aid', label: '邻里互助', icon: Connection },
-  { route: '/mobile/settings', label: '系统设置', icon: Setting },
-];
+// 侧边菜单 - 根据当前路由动态获取
+const menuItems = computed(() => {
+  const currentPath = route.path;
+  return getMenuByRoute(currentPath);
+});
 
 const showVoiceAssistant = ref(true);
 const showAccessibilityToggle = ref(true);
-const largeTextMode = ref(false);
-const LOCAL_STORAGE_KEY = 'mobile_large_text_mode';
 
 const toggleMenu = () => {
   menuOpen.value = true;
@@ -287,9 +284,9 @@ const toggleAccessibility = () => {
 };
 
 const toggleLargeTextMode = () => {
-  largeTextMode.value = !largeTextMode.value;
-  document.body.classList.toggle('large-text-mode', largeTextMode.value);
-  localStorage.setItem(LOCAL_STORAGE_KEY, largeTextMode.value.toString());
+  const newState = !isElderlyMode.value;
+  setElderlyMode(newState);
+  document.body.classList.toggle('large-text-mode', newState);
 };
 
 const handleBack = () => {
@@ -307,12 +304,12 @@ const handleMenuSelect = (index: string) => {
 
 const handleNotificationClick = (notification: Notification) => {
   notification.read = true;
-  unreadCount.value = Math.max(0, unreadCount.value - 1);
+  // 不需要手动减少 unreadCount，因为由 useBottomNavigation 管理
 };
 
 const getNotificationIcon = (type: string) => {
   const icons: Record<string, object> = {
-    announcement: ChatDotRound,
+    announcement: Warning,
     help: Connection,
     system: Setting,
     warning: Warning,
@@ -325,17 +322,21 @@ const handleLogout = () => {
 };
 
 const loadPersistedState = () => {
-  const savedMode = localStorage.getItem(LOCAL_STORAGE_KEY);
-  if (savedMode === 'true') {
-    largeTextMode.value = true;
-    document.body.classList.add('large-text-mode');
-  }
+  loadElderlyMode();
+
+  // 示例：初始化徽章数量（实际项目中应从 store 或 API 获取）
+  updateBadges({
+    messages: 3,
+    orders: 0,
+    system: 0,
+  });
 };
 
 onMounted(() => {
   loadPersistedState();
 
   if (window.history.length <= 1) {
+    // 历史记录检查逻辑
   }
 });
 </script>
@@ -382,38 +383,6 @@ onMounted(() => {
   margin-top: 56px;
   margin-bottom: 60px;
   padding: 16px;
-}
-
-.mobile-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 60px;
-  background: white;
-  display: flex;
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
-  z-index: 100;
-}
-
-.nav-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: #9ca3af;
-  cursor: pointer;
-  transition: color 0.3s;
-}
-
-.nav-item.active {
-  color: #409eff;
-}
-
-.nav-label {
-  font-size: 11px;
-  margin-top: 4px;
 }
 
 .menu-header {
@@ -562,13 +531,5 @@ onMounted(() => {
 
 :global(.large-text-mode) .mobile-content {
   font-size: 16px;
-}
-
-:global(.large-text-mode) .mobile-nav {
-  height: 70px;
-}
-
-:global(.large-text-mode) .nav-label {
-  font-size: 14px;
 }
 </style>

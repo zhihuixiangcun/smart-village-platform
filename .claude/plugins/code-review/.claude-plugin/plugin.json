@@ -1,0 +1,12 @@
+{
+  "name": "code-review",
+  "version": "1.0.0",
+  "description": "Automated PR code review using multiple specialized agents with confidence-based scoring",
+  "author": "Anthropic",
+  "commands": [
+    {
+      "name": "code-review",
+      "description": "Automated PR review workflow with 5 specialized agents"
+    }
+  ]
+}

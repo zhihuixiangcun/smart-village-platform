@@ -78,10 +78,34 @@
             <el-icon><Refresh /></el-icon>
             重置
           </el-button>
-          <el-button @click="exportLogs">
+          <el-dropdown @command="handleExport" split-button type="primary">
             <el-icon><Download /></el-icon>
             导出
-          </el-button>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="excel">
+                  <el-icon><Document /></el-icon>
+                  Excel 文件 (.xlsx)
+                </el-dropdown-item>
+                <el-dropdown-item command="csv">
+                  <el-icon><Tickets /></el-icon>
+                  CSV 文件 (.csv)
+                </el-dropdown-item>
+                <el-dropdown-item command="json">
+                  <el-icon><Files /></el-icon>
+                  JSON 文件 (.json)
+                </el-dropdown-item>
+                <el-dropdown-item divided command="config">
+                  <el-icon><Setting /></el-icon>
+                  导出配置
+                </el-dropdown-item>
+                <el-dropdown-item command="history">
+                  <el-icon><Clock /></el-icon>
+                  导出历史
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
         </el-form-item>
       </el-form>
     </el-card>
@@ -456,24 +480,217 @@
         </div>
       </div>
     </el-dialog>
+
+    <!-- 导出配置对话框 -->
+    <el-dialog
+      v-model="exportConfigDialogVisible"
+      title="导出配置"
+      width="700px"
+      :destroy-on-close="true"
+    >
+      <el-form :model="exportConfig" label-width="120px">
+        <el-form-item label="导出格式">
+          <el-radio-group v-model="exportConfig.format">
+            <el-radio label="xlsx">Excel 文件 (.xlsx)</el-radio>
+            <el-radio label="csv">CSV 文件 (.csv)</el-radio>
+            <el-radio label="json">JSON 文件 (.json)</el-radio>
+          </el-radio-group>
+        </el-form-item>
+
+        <el-form-item label="导出字段">
+          <el-checkbox-group v-model="exportConfig.fields">
+            <el-checkbox label="timestamp">时间戳</el-checkbox>
+            <el-checkbox label="userName">操作人</el-checkbox>
+            <el-checkbox label="action">操作类型</el-checkbox>
+            <el-checkbox label="resource">操作对象</el-checkbox>
+            <el-checkbox label="result">操作结果</el-checkbox>
+            <el-checkbox label="reason">操作详情</el-checkbox>
+            <el-checkbox label="ipAddress">IP地址</el-checkbox>
+            <el-checkbox label="location">地理位置</el-checkbox>
+            <el-checkbox label="riskLevel">风险等级</el-checkbox>
+            <el-checkbox label="duration">响应时间</el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
+
+        <el-form-item label="日期范围">
+          <el-date-picker
+            v-model="exportConfig.dateRange"
+            type="datetimerange"
+            range-separator="至"
+            start-placeholder="开始时间"
+            end-placeholder="结束时间"
+            format="YYYY-MM-DD HH:mm:ss"
+            value-format="YYYY-MM-DD HH:mm:ss"
+            style="width: 100%"
+          />
+          <div class="date-range-options">
+            <el-button
+              v-for="option in dateRangeOptions"
+              :key="option.value"
+              size="small"
+              @click="setDateRange(option.value)"
+            >
+              {{ option.label }}
+            </el-button>
+          </div>
+        </el-form-item>
+
+        <el-form-item label="导出数量限制">
+          <el-radio-group v-model="exportConfig.limitType">
+            <el-radio label="all">全部记录</el-radio>
+            <el-radio label="custom">自定义</el-radio>
+          </el-radio-group>
+          <el-input-number
+            v-if="exportConfig.limitType === 'custom'"
+            v-model="exportConfig.customLimit"
+            :min="1"
+            :max="100000"
+            :step="1000"
+            style="margin-left: 10px"
+          />
+          <div class="limit-info">
+            当前筛选结果共 <el-text type="primary">{{ getFilteredCount() }}</el-text> 条记录
+          </div>
+        </el-form-item>
+
+        <el-form-item label="敏感信息">
+          <el-checkbox v-model="exportConfig.includeSensitive">包含敏感信息（IP地址、详细上下文等）</el-checkbox>
+        </el-form-item>
+
+        <el-form-item label="分批大小">
+          <el-slider v-model="exportConfig.batchSize" :min="100" :max="5000" :step="100" show-stops />
+          <div class="batch-info">每次处理 {{ exportConfig.batchSize }} 条记录</div>
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="exportConfigDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="startExportWithConfig">开始导出</el-button>
+        </div>
+      </template>
+    </el-dialog>
+
+    <!-- 导出进度对话框 -->
+    <el-dialog
+      v-model="exportProgressDialogVisible"
+      title="导出进度"
+      width="600px"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      :show-close="!exportInProgress"
+    >
+      <div class="export-progress-content">
+        <div class="progress-info">
+          <el-icon class="export-icon" :size="40" color="#409eff">
+            <Download />
+          </el-icon>
+          <div class="progress-text">
+            <h3>{{ exportInProgress ? '正在导出...' : '导出完成' }}</h3>
+            <p>
+              已处理 <strong>{{ exportProgress.current }}</strong> / {{ exportProgress.total }} 条记录
+            </p>
+          </div>
+        </div>
+
+        <el-progress
+          :percentage="exportProgress.percentage"
+          :status="exportProgress.status"
+          :stroke-width="20"
+          striped
+          striped-flow
+        />
+
+        <div class="progress-details">
+          <div class="detail-item">
+            <span class="label">导出格式:</span>
+            <span class="value">{{ exportProgress.format.toUpperCase() }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">预估时间:</span>
+            <span class="value">{{ exportProgress.estimatedTime }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">文件名:</span>
+            <span class="value">{{ exportProgress.fileName }}</span>
+          </div>
+        </div>
+      </div>
+
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button v-if="!exportInProgress" @click="exportProgressDialogVisible = false">
+            关闭
+          </el-button>
+          <el-button v-if="exportInProgress" type="danger" @click="cancelExport">
+            取消导出
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
+
+    <!-- 导出历史对话框 -->
+    <el-dialog
+      v-model="exportHistoryDialogVisible"
+      title="导出历史"
+      width="900px"
+      :destroy-on-close="true"
+    >
+      <el-table :data="exportHistory" style="width: 100%">
+        <el-table-column prop="fileName" label="文件名" min-width="200" />
+        <el-table-column prop="format" label="格式" width="80" />
+        <el-table-column prop="recordCount" label="记录数" width="100" align="center" />
+        <el-table-column prop="exportTime" label="导出时间" width="180">
+          <template #default="{ row }">
+            {{ formatDateTime(row.exportTime) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="fileSize" label="文件大小" width="120" />
+        <el-table-column prop="status" label="状态" width="100">
+          <template #default="{ row }">
+            <el-tag :type="row.status === 'success' ? 'success' : 'danger'" size="small">
+              {{ row.status === 'success' ? '成功' : '失败' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="200">
+          <template #default="{ row }">
+            <el-button size="small" @click="downloadExportedFile(row)" :disabled="row.status !== 'success'">
+              <el-icon><Download /></el-icon>
+              下载
+            </el-button>
+            <el-button size="small" type="danger" @click="deleteExportHistory(row)">
+              <el-icon><Delete /></el-icon>
+              删除
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
-import {
-  Search,
-  Refresh,
-  Download,
-  List,
-  Clock,
-  ArrowUp,
-  ArrowDown,
-  DataAnalysis,
-  Warning,
-  Lock,
-} from '@element-plus/icons-vue';
+ import {
+   Search,
+   Refresh,
+   Download,
+   List,
+   Clock,
+   ArrowUp,
+   ArrowDown,
+   DataAnalysis,
+   Warning,
+   Lock,
+   Document,
+   Tickets,
+   Files,
+   Setting,
+   Delete,
+ } from '@element-plus/icons-vue';
+ import * as XLSX from 'xlsx';
 import enhancedPermissionService from '@/services/enhancedPermissionService';
 
 // 响应式数据
@@ -482,6 +699,42 @@ const detailDialogVisible = ref(false);
 const userDialogVisible = ref(false);
 const currentLog = ref(null);
 const currentUser = ref(null);
+
+const exportConfigDialogVisible = ref(false);
+const exportProgressDialogVisible = ref(false);
+const exportHistoryDialogVisible = ref(false);
+
+const exportConfig = ref({
+  format: 'xlsx',
+  fields: ['timestamp', 'userName', 'action', 'resource', 'result', 'reason'],
+  dateRange: [],
+  limitType: 'all',
+  customLimit: 10000,
+  includeSensitive: false,
+  batchSize: 1000,
+});
+
+const exportProgress = ref({
+  current: 0,
+  total: 0,
+  percentage: 0,
+  status: '',
+  format: '',
+  estimatedTime: '',
+  fileName: '',
+});
+
+const exportInProgress = ref(false);
+let exportAbortController = null;
+const exportHistory = ref([]);
+
+const dateRangeOptions = [
+  { label: '今天', value: 'today' },
+  { label: '昨天', value: 'yesterday' },
+  { label: '最近7天', value: 'week' },
+  { label: '最近30天', value: 'month' },
+  { label: '全部', value: 'all' },
+];
 
 // 筛选表单
 const filterForm = reactive({
@@ -655,7 +908,346 @@ const resetFilter = () => {
 };
 
 const exportLogs = () => {
-  ElMessage.info('导出功能待实现');
+  exportConfigDialogVisible.value = true;
+  exportConfig.value.dateRange = filterForm.dateRange || [];
+};
+
+const handleExport = command => {
+  switch (command) {
+    case 'excel':
+      exportConfig.value.format = 'xlsx';
+      exportConfigDialogVisible.value = true;
+      break;
+    case 'csv':
+      exportConfig.value.format = 'csv';
+      exportConfigDialogVisible.value = true;
+      break;
+    case 'json':
+      exportConfig.value.format = 'json';
+      exportConfigDialogVisible.value = true;
+      break;
+    case 'config':
+      exportConfigDialogVisible.value = true;
+      break;
+    case 'history':
+      exportHistoryDialogVisible.value = true;
+      loadExportHistory();
+      break;
+  }
+};
+
+const setDateRange = type => {
+  const now = new Date();
+  let start, end;
+
+  switch (type) {
+    case 'today':
+      start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+      end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+      break;
+    case 'yesterday':
+      const yesterday = new Date(now);
+      yesterday.setDate(yesterday.getDate() - 1);
+      start = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate(), 0, 0, 0);
+      end = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate(), 23, 59, 59);
+      break;
+    case 'week':
+      start = new Date(now);
+      start.setDate(start.getDate() - 7);
+      end = now;
+      break;
+    case 'month':
+      start = new Date(now);
+      start.setDate(start.getDate() - 30);
+      end = now;
+      break;
+    case 'all':
+    default:
+      exportConfig.value.dateRange = [];
+      return;
+  }
+
+  exportConfig.value.dateRange = [
+    start.toISOString().slice(0, 19).replace('T', ' '),
+    end.toISOString().slice(0, 19).replace('T', ' '),
+  ];
+};
+
+const getFilteredLogs = () => {
+  let result = auditLogs.value;
+
+  if (exportConfig.value.dateRange?.length === 2) {
+    const [start, end] = exportConfig.value.dateRange;
+    result = result.filter(log => {
+      const logTime = new Date(log.timestamp);
+      return logTime >= new Date(start) && logTime <= new Date(end);
+    });
+  }
+
+  if (filterForm.userId) {
+    result = result.filter(log => log.userId === filterForm.userId);
+  }
+
+  if (filterForm.action) {
+    result = result.filter(log => log.action === filterForm.action);
+  }
+
+  if (filterForm.resource) {
+    result = result.filter(log =>
+      log.resource.toLowerCase().includes(filterForm.resource.toLowerCase())
+    );
+  }
+
+  if (filterForm.result) {
+    result = result.filter(log => log.result === filterForm.result);
+  }
+
+  return result;
+};
+
+const getFilteredCount = () => {
+  return getFilteredLogs().length;
+};
+
+const transformLogForExport = log => {
+  const fields = exportConfig.value.fields;
+  const result = {};
+
+  if (fields.includes('timestamp')) {
+    result['时间戳'] = formatDateTime(log.timestamp);
+  }
+  if (fields.includes('userName')) {
+    result['操作人'] = log.userName;
+  }
+  if (fields.includes('action')) {
+    result['操作类型'] = getActionLabel(log.action);
+  }
+  if (fields.includes('resource')) {
+    result['操作对象'] = log.resource;
+  }
+  if (fields.includes('result')) {
+    result['操作结果'] = log.result === 'ALLOWED' ? '成功' : '失败';
+  }
+  if (fields.includes('reason')) {
+    result['操作详情'] = log.reason || '-';
+  }
+  if (fields.includes('ipAddress') && exportConfig.value.includeSensitive) {
+    result['IP地址'] = log.ipAddress || '-';
+  }
+  if (fields.includes('location') && exportConfig.value.includeSensitive) {
+    result['地理位置'] = log.context?.location || '-';
+  }
+  if (fields.includes('riskLevel')) {
+    result['风险等级'] = getRiskLabel(log.riskLevel) || '-';
+  }
+  if (fields.includes('duration')) {
+    result['响应时间'] = log.duration ? `${log.duration}ms` : '-';
+  }
+
+  return result;
+};
+
+const startExportWithConfig = async () => {
+  const filteredLogs = getFilteredLogs();
+  const totalLogs =
+    exportConfig.value.limitType === 'custom'
+      ? Math.min(filteredLogs.length, exportConfig.value.customLimit)
+      : filteredLogs.length;
+
+  if (totalLogs === 0) {
+    ElMessage.warning('没有可导出的数据');
+    return;
+  }
+
+  exportConfigDialogVisible.value = false;
+  exportProgressDialogVisible.value = true;
+  exportInProgress.value = true;
+  exportAbortController = new AbortController();
+
+  exportProgress.value = {
+    current: 0,
+    total: totalLogs,
+    percentage: 0,
+    status: '',
+    format: exportConfig.value.format,
+    estimatedTime: estimateExportTime(totalLogs),
+    fileName: generateFileName(),
+  };
+
+  try {
+    const batchSize = exportConfig.value.batchSize;
+    const allData = [];
+
+    for (let i = 0; i < totalLogs; i += batchSize) {
+      if (exportAbortController.signal.aborted) {
+        throw new Error('Export cancelled');
+      }
+
+      const batch = filteredLogs.slice(i, i + batchSize);
+      const transformedBatch = batch.map(transformLogForExport);
+      allData.push(...transformedBatch);
+
+      exportProgress.value.current = Math.min(i + batchSize, totalLogs);
+      exportProgress.value.percentage = Math.floor((exportProgress.value.current / totalLogs) * 100);
+
+      await new Promise(resolve => setTimeout(resolve, 0));
+    }
+
+    await exportData(allData, exportConfig.value.format, exportProgress.value.fileName);
+
+    exportProgress.value.status = 'success';
+    exportInProgress.value = false;
+
+    addToExportHistory({
+      fileName: exportProgress.value.fileName,
+      format: exportConfig.value.format,
+      recordCount: totalLogs,
+      exportTime: new Date(),
+      fileSize: estimateFileSize(totalLogs, exportConfig.value.format),
+      status: 'success',
+      data: allData,
+    });
+
+    ElMessage.success(`成功导出 ${totalLogs} 条记录`);
+  } catch (error) {
+    if (error.message !== 'Export cancelled') {
+      console.error('导出失败:', error);
+      exportProgress.value.status = 'exception';
+      ElMessage.error('导出失败: ' + error.message);
+    } else {
+      exportProgress.value.status = 'warning';
+      ElMessage.warning('导出已取消');
+    }
+    exportInProgress.value = false;
+  }
+};
+
+const estimateExportTime = recordCount => {
+  const msPerRecord = exportConfig.value.format === 'json' ? 0.1 : 0.5;
+  const totalMs = recordCount * msPerRecord;
+  const seconds = Math.ceil(totalMs / 1000);
+  if (seconds < 60) return `${seconds} 秒`;
+  const minutes = Math.ceil(seconds / 60);
+  return `${minutes} 分钟`;
+};
+
+const generateFileName = () => {
+  const now = new Date();
+  const timestamp = now.toISOString().slice(0, 19).replace(/[-:T]/g, '');
+  return `审计日志导出_${timestamp}.${exportConfig.value.format}`;
+};
+
+const estimateFileSize = (recordCount, format) => {
+  const bytesPerRecord = format === 'json' ? 500 : 300;
+  const totalBytes = recordCount * bytesPerRecord;
+  if (totalBytes < 1024) return `${totalBytes} B`;
+  if (totalBytes < 1024 * 1024) return `${(totalBytes / 1024).toFixed(2)} KB`;
+  return `${(totalBytes / (1024 * 1024)).toFixed(2)} MB`;
+};
+
+const exportData = async (data, format, fileName) => {
+  switch (format) {
+    case 'xlsx':
+      await exportToExcel(data, fileName);
+      break;
+    case 'csv':
+      await exportToCSV(data, fileName);
+      break;
+    case 'json':
+      await exportToJSON(data, fileName);
+      break;
+  }
+};
+
+const exportToExcel = async (data, fileName) => {
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, '审计日志');
+
+  const colWidths = Object.keys(data[0] || {}).map(key => {
+    const maxLength = Math.max(
+      key.length,
+      ...data.map(row => String(row[key] || '').length)
+    );
+    return { wch: Math.min(maxLength + 2, 50) };
+  });
+  ws['!cols'] = colWidths;
+
+  XLSX.writeFile(wb, fileName);
+};
+
+const exportToCSV = async (data, fileName) => {
+  const headers = Object.keys(data[0] || {}).join(',');
+  const rows = data.map(row =>
+    Object.values(row)
+      .map(val => {
+        const strVal = String(val || '');
+        if (strVal.includes(',') || strVal.includes('"') || strVal.includes('\n')) {
+          return `"${strVal.replace(/"/g, '""')}"`;
+        }
+        return strVal;
+      })
+      .join(',')
+  );
+
+  const csvContent = [headers, ...rows].join('\n');
+  const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+  downloadBlob(blob, fileName);
+};
+
+const exportToJSON = async (data, fileName) => {
+  const jsonContent = JSON.stringify(data, null, 2);
+  const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' });
+  downloadBlob(blob, fileName);
+};
+
+const downloadBlob = (blob, fileName) => {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
+
+const cancelExport = () => {
+  if (exportAbortController) {
+    exportAbortController.abort();
+  }
+};
+
+const loadExportHistory = () => {
+  const saved = localStorage.getItem('auditExportHistory');
+  if (saved) {
+    exportHistory.value = JSON.parse(saved);
+  }
+};
+
+const addToExportHistory = item => {
+  exportHistory.value.unshift(item);
+  if (exportHistory.value.length > 20) {
+    exportHistory.value = exportHistory.value.slice(0, 20);
+  }
+  localStorage.setItem('auditExportHistory', JSON.stringify(exportHistory.value.map(h => ({ ...h, data: undefined }))));
+};
+
+const downloadExportedFile = item => {
+  if (item.data) {
+    exportData(item.data, item.format, item.fileName);
+  } else {
+    ElMessage.warning('该文件已过期，无法重新下载');
+  }
+};
+
+const deleteExportHistory = item => {
+  const index = exportHistory.value.indexOf(item);
+  if (index > -1) {
+    exportHistory.value.splice(index, 1);
+    localStorage.setItem('auditExportHistory', JSON.stringify(exportHistory.value));
+    ElMessage.success('已删除导出记录');
+  }
 };
 
 const handleSortChange = ({ prop, order }) => {
@@ -950,6 +1542,83 @@ onMounted(() => {
         color: #2c3e50;
       }
     }
+  }
+
+  .export-progress-content {
+    .progress-info {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 24px;
+
+      .export-icon {
+        flex-shrink: 0;
+      }
+
+      .progress-text {
+        flex: 1;
+
+        h3 {
+          margin: 0 0 8px 0;
+          font-size: 18px;
+          color: #2c3e50;
+        }
+
+        p {
+          margin: 0;
+          font-size: 14px;
+          color: #606266;
+
+          strong {
+            color: #409eff;
+            font-size: 16px;
+          }
+        }
+      }
+    }
+
+    .progress-details {
+      margin-top: 24px;
+      padding: 16px;
+      background: #f5f7fa;
+      border-radius: 4px;
+
+      .detail-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #e4e7ed;
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        .label {
+          color: #909399;
+          font-size: 14px;
+        }
+
+        .value {
+          color: #2c3e50;
+          font-weight: 500;
+          font-size: 14px;
+        }
+      }
+    }
+  }
+
+  .date-range-options {
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .limit-info,
+  .batch-info {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #909399;
   }
 }
 </style>

@@ -314,7 +314,7 @@ onMounted(async () => {
 .conversation-list {
   flex: 1;
   overflow-y: auto;
-  padding: 8px 0;
+  padding: 8px 0 max(8px, env(safe-area-inset-bottom, 0));
 
   &.large-text {
     font-size: 18px;

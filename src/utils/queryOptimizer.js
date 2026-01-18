@@ -6,6 +6,28 @@
 const logger = require('../utils/logger');
 
 /**
+ * 常见populate路径的安全字段选择
+ * 防止敏感信息泄露（如密码、token等）
+ */
+const SAFE_SELECT_FOR_POPULATE = {
+  // 用户相关字段
+  'userId': 'name phone email villageId -password -tokens -resetPasswordToken',
+  'user': 'name phone email villageId -password -tokens -resetPasswordToken',
+  'createdBy': 'name phone email -password -tokens',
+  'updatedBy': 'name phone email -password -tokens',
+  
+  // 省市区县字段
+  'province': 'name code level status',
+  'city': 'name code level status',
+  'county': 'name code level status',
+  'township': 'name code level status',
+  'village': 'name code level status',
+  
+  // 通用字段
+  'subscription': 'name status type -apiKey -apiSecret'
+};
+
+/**
  * 查询优化器类
  */
 class QueryOptimizer {
@@ -43,7 +65,15 @@ class QueryOptimizer {
 
         if (populate.length > 0) {
           populate.forEach(p => {
-            queryBuilder = queryBuilder.populate(p);
+            // 安全改进: 为populate添加字段选择，防止敏感信息泄露
+            if (typeof p === 'string') {
+              // 常见的安全字段选择配置
+              const safeSelect = this.getSafeSelectForPopulate(p);
+              queryBuilder = queryBuilder.populate({ path: p, select: safeSelect });
+            } else if (typeof p === 'object') {
+              // 如果是对象配置，确保有select
+              queryBuilder = queryBuilder.populate(p);
+            }
           });
         }
 
@@ -255,7 +285,23 @@ class QueryOptimizer {
       throw error;
     }
   }
-
+  
+  /**
+   * 获取populate路径的安全字段选择
+   * 防止敏感信息泄露
+   * @param {String} populatePath - populate路径
+   * @returns {String} 安全的字段选择
+   */
+  static getSafeSelectForPopulate(populatePath) {
+    // 如果是已知的路径，返回预定义的安全字段
+    if (SAFE_SELECT_FOR_POPULATE[populatePath]) {
+      return SAFE_SELECT_FOR_POPULATE[populatePath];
+    }
+    
+    // 如果是未知路径，默认排除敏感字段
+    return '-password -tokens -resetPasswordToken -apiKey -apiSecret -secret';
+  }
+  
   /**
    * 生成优化建议
    * @private

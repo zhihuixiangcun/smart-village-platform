@@ -323,11 +323,12 @@ class TenantService {
       if (parentId) query.parentId = parentId;
       if (level) query.level = level;
 
-      // Search in name or code
+      // Search in name or code (使用安全的正则表达式转义)
       if (search) {
+        const escapedSearch = this.escapeRegex(search);
         query.$or = [
-          { name: new RegExp(search, 'i') },
-          { code: new RegExp(search, 'i') }
+          { name: new RegExp(escapedSearch, 'i') },
+          { code: new RegExp(escapedSearch, 'i') }
         ];
       }
 
@@ -558,10 +559,10 @@ class TenantService {
       const query = {
         deletedAt: null,
         $or: [
-          { name: new RegExp(searchTerm, 'i') },
-          { code: new RegExp(searchTerm, 'i') },
-          { 'location.province': new RegExp(searchTerm, 'i') },
-          { 'location.city': new RegExp(searchTerm, 'i') }
+          { name: new RegExp(this.escapeRegex(searchTerm), 'i') },
+          { code: new RegExp(this.escapeRegex(searchTerm), 'i') },
+          { 'location.province': new RegExp(this.escapeRegex(searchTerm), 'i') },
+          { 'location.city': new RegExp(this.escapeRegex(searchTerm), 'i') }
         ]
       };
 

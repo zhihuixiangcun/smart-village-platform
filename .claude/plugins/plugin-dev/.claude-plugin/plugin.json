@@ -1,0 +1,12 @@
+{
+  "name": "plugin-dev",
+  "version": "1.0.0",
+  "description": "Comprehensive toolkit for developing Claude Code plugins with 7 expert skills",
+  "author": "Anthropic",
+  "commands": [
+    {
+      "name": "plugin-dev:create-plugin",
+      "description": "8-phase guided workflow for building plugins"
+    }
+  ]
+}

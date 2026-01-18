@@ -517,16 +517,420 @@ class ResidentService {
     return changed;
   }
 
-  /**
-   * 获取亲属关系
-   * @param {string} residentId - 村民ID
-   * @param {number} depth - 查找深度
-   * @returns {Array} 亲属列表
-   */
   async getRelatives(residentId, depth = 2) {
-    // 实现亲属关系查询逻辑
-    // 这里需要根据实际的数据模型来实现
     return [];
+  }
+
+  async fullTextSearchResidents(searchParams, operator) {
+    try {
+      const {
+        keyword,
+        villageId,
+        filters = {},
+        sortBy = 'score',
+        sortOrder = 'desc',
+        page = 1,
+        limit = 20
+      } = searchParams;
+
+      if (!keyword || keyword.trim().length === 0) {
+        throw new Error('搜索关键词不能为空');
+      }
+
+      const query = {
+        status: 'active'
+      };
+
+      if (villageId) {
+        query.villageId = new mongoose.Types.ObjectId(villageId);
+      }
+
+      const searchOptions = {
+        $text: { $search: keyword.trim() },
+        score: { $meta: 'textScore' }
+      };
+
+      Object.keys(filters).forEach(key => {
+        query[key] = filters[key];
+      });
+
+      let sort = {};
+      if (sortBy === 'score') {
+        sort = { score: { $meta: 'textScore' } };
+      } else if (sortBy === 'name') {
+        sort = { name: sortOrder === 'asc' ? 1 : -1 };
+      } else if (sortBy === 'createdAt') {
+        sort = { createdAt: sortOrder === 'asc' ? 1 : -1 };
+      } else {
+        sort = { createdAt: -1 };
+      }
+
+      const residents = await Resident.find(
+        { ...query, ...searchOptions },
+        { score: { $meta: 'textScore' } }
+      )
+        .sort(sort)
+        .skip((page - 1) * limit)
+        .limit(parseInt(limit))
+        .lean();
+
+      const total = await Resident.countDocuments({ ...query, ...searchOptions });
+
+      const maskedResidents = residents.map(resident =>
+        this.maskSensitiveData(resident, operator)
+      );
+
+      await AuditUtil.logOperation('SEARCH', 'resident', operator, {
+        result: 'SUCCESS',
+        details: {
+          description: `搜索村民: ${keyword}`,
+          searchParams: {
+            keyword,
+            villageId,
+            filters,
+            sortBy,
+            page,
+            limit
+          },
+          results: {
+            total,
+            returned: maskedResidents.length
+          }
+        },
+        villageId,
+        sessionId: operator.sessionId
+      });
+
+      return {
+        residents: maskedResidents,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total,
+          pages: Math.ceil(total / limit)
+        }
+      };
+    } catch (error) {
+      logger.error('全文搜索村民失败:', error);
+      throw new Error(`搜索村民失败: ${  error.message}`);
+    }
+  }
+
+  async searchResidents(searchParams, operator) {
+    try {
+      const {
+        keyword,
+        searchType = 'all',
+        villageId,
+        filters = {},
+        page = 1,
+        limit = 20
+      } = searchParams;
+
+      if (!keyword || keyword.trim().length === 0) {
+        throw new Error('搜索关键词不能为空');
+      }
+
+      const trimmedKeyword = keyword.trim();
+      const query = {
+        status: 'active'
+      };
+
+      if (villageId) {
+        query.villageId = new mongoose.Types.ObjectId(villageId);
+      }
+
+      if (searchType === 'all') {
+        query.$or = [
+          { name: { $regex: trimmedKeyword, $options: 'i' } },
+          { phone: { $regex: trimmedKeyword, $options: 'i' } },
+          { idCard: { $regex: trimmedKeyword, $options: 'i' } },
+          { 'address.detailAddress': { $regex: trimmedKeyword, $options: 'i' } },
+          { 'specialIdentities.type': { $regex: trimmedKeyword, $options: 'i' } }
+        ];
+      } else if (searchType === 'name') {
+        query.name = { $regex: trimmedKeyword, $options: 'i' };
+      } else if (searchType === 'phone') {
+        query.phone = { $regex: trimmedKeyword, $options: 'i' };
+      } else if (searchType === 'idCard') {
+        query.idCard = { $regex: trimmedKeyword, $options: 'i' };
+      } else if (searchType === 'address') {
+        query['address.detailAddress'] = { $regex: trimmedKeyword, $options: 'i' };
+      } else if (searchType === 'specialIdentity') {
+        query['specialIdentities.type'] = { $regex: trimmedKeyword, $options: 'i' };
+      }
+
+      if (filters.gender) {
+        query.gender = filters.gender;
+      }
+
+      if (filters.occupation) {
+        query.occupation = filters.occupation;
+      }
+
+      if (filters.ageRange) {
+        const [minAge, maxAge] = filters.ageRange;
+        const currentYear = new Date().getFullYear();
+        const minBirthYear = currentYear - maxAge;
+        const maxBirthYear = currentYear - minAge;
+
+        query.birthDate = {
+          $gte: new Date(`${minBirthYear}-01-01`),
+          $lte: new Date(`${maxBirthYear}-12-31`)
+        };
+      }
+
+      if (filters.education) {
+        query['education.degree'] = filters.education;
+      }
+
+      if (filters.specialIdentityType) {
+        query['specialIdentities.type'] = filters.specialIdentityType;
+      }
+
+      if (filters.householdType) {
+        query['household.householdType'] = filters.householdType;
+      }
+
+      const residents = await Resident.find(query)
+        .sort({ name: 1 })
+        .skip((page - 1) * limit)
+        .limit(parseInt(limit))
+        .lean();
+
+      const total = await Resident.countDocuments(query);
+
+      const maskedResidents = residents.map(resident =>
+        this.maskSensitiveData(resident, operator)
+      );
+
+      await AuditUtil.logOperation('SEARCH', 'resident', operator, {
+        result: 'SUCCESS',
+        details: {
+          description: `搜索村民: ${keyword}`,
+          searchParams: {
+            keyword: trimmedKeyword,
+            searchType,
+            villageId,
+            filters,
+            page,
+            limit
+          },
+          results: {
+            total,
+            returned: maskedResidents.length
+          }
+        },
+        villageId,
+        sessionId: operator.sessionId
+      });
+
+      return {
+        residents: maskedResidents,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total,
+          pages: Math.ceil(total / limit)
+        }
+      };
+    } catch (error) {
+      logger.error('搜索村民失败:', error);
+      throw new Error(`搜索村民失败: ${  error.message}`);
+    }
+  }
+
+  async listResidents(queryParams, operator) {
+    try {
+      const {
+        page = 1,
+        limit = 20,
+        villageId,
+        householdNumber,
+        name,
+        gender,
+        ageRange,
+        occupation,
+        education,
+        householdType,
+        sortBy = 'createdAt',
+        sortOrder = 'desc'
+      } = queryParams;
+
+      const query = { status: 'active' };
+
+      if (villageId) {
+        query.villageId = new mongoose.Types.ObjectId(villageId);
+      }
+
+      if (householdNumber) {
+        query['household.householdNumber'] = householdNumber;
+      }
+
+      if (name) {
+        query.name = { $regex: name, $options: 'i' };
+      }
+
+      if (gender) {
+        query.gender = gender;
+      }
+
+      if (occupation) {
+        query.occupation = occupation;
+      }
+
+      if (education) {
+        query['education.degree'] = education;
+      }
+
+      if (householdType) {
+        query['household.householdType'] = householdType;
+      }
+
+      if (ageRange) {
+        const [minAge, maxAge] = ageRange.split('-').map(Number);
+        const currentYear = new Date().getFullYear();
+        const minBirthYear = currentYear - maxAge;
+        const maxBirthYear = currentYear - minAge;
+
+        query.birthDate = {
+          $gte: new Date(`${minBirthYear}-01-01`),
+          $lte: new Date(`${maxBirthYear}-12-31`)
+        };
+      }
+
+      const sort = {};
+      sort[sortBy] = sortOrder === 'asc' ? 1 : -1;
+
+      const residents = await Resident.find(query)
+        .sort(sort)
+        .skip((page - 1) * limit)
+        .limit(parseInt(limit))
+        .lean();
+
+      const total = await Resident.countDocuments(query);
+
+      const maskedResidents = residents.map(resident =>
+        this.maskSensitiveData(resident, operator)
+      );
+
+      return {
+        residents: maskedResidents,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total,
+          pages: Math.ceil(total / limit)
+        }
+      };
+    } catch (error) {
+      logger.error('获取村民列表失败:', error);
+      throw new Error(`获取村民列表失败: ${  error.message}`);
+    }
+  }
+
+  async uploadPhoto(residentId, fileInfo, operator) {
+    try {
+      const resident = await Resident.findById(residentId);
+      if (!resident) {
+        throw new Error('村民不存在');
+      }
+
+      resident.avatar = fileInfo.path;
+      resident.updatedAt = new Date();
+
+      await resident.save();
+
+      await AuditUtil.logOperation('UPDATE', 'resident', operator, {
+        target: {
+          id: residentId,
+          type: 'Resident',
+          name: resident.name
+        },
+        result: 'SUCCESS',
+        details: {
+          description: `上传村民照片: ${resident.name}`,
+          changes: {
+            before: { avatar: resident.avatar },
+            after: { avatar: fileInfo.path }
+          }
+        },
+        villageId: resident.villageId,
+        sessionId: operator.sessionId
+      });
+
+      logger.info('村民照片上传成功', {
+        residentId,
+        operator: operator.name,
+        filePath: fileInfo.path
+      });
+
+      return {
+        residentId,
+        avatar: fileInfo.path,
+        originalName: fileInfo.originalname
+      };
+    } catch (error) {
+      logger.error('上传村民照片失败:', error);
+      throw new Error(`上传村民照片失败: ${  error.message}`);
+    }
+  }
+
+  async deleteResident(residentId, reason, operator) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const resident = await Resident.findById(residentId).session(session);
+      if (!resident) {
+        throw new Error('村民不存在');
+      }
+
+      const originalStatus = resident.status;
+
+      resident.status = 'inactive';
+      resident.inactiveReason = reason;
+      resident.inactiveDate = new Date();
+      resident.updatedAt = new Date();
+
+      await resident.save({ session });
+
+      await AuditUtil.logOperation('DELETE', 'resident', operator, {
+        target: {
+          id: residentId,
+          type: 'Resident',
+          name: resident.name
+        },
+        result: 'SUCCESS',
+        details: {
+          description: `删除村民档案: ${resident.name}`,
+          changes: {
+            before: { status: originalStatus },
+            after: { status: 'inactive', reason }
+          }
+        },
+        riskLevel: 'HIGH',
+        villageId: resident.villageId,
+        sessionId: operator.sessionId
+      });
+
+      await session.commitTransaction();
+
+      logger.info('村民档案删除成功', {
+        residentId,
+        name: resident.name,
+        operator: operator.name,
+        reason
+      });
+
+      return resident;
+    } catch (error) {
+      await session.abortTransaction();
+      logger.error('删除村民档案失败:', error);
+      throw new Error(`删除村民档案失败: ${  error.message}`);
+    } finally {
+      session.endSession();
+    }
   }
 }
 

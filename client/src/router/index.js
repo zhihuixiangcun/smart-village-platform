@@ -15,6 +15,9 @@ const PcLayout = () => import('@/layouts/PcLayout.vue');
 
 // 懒加载页面组件
 const Home = () => import('@/views/Home.vue');
+const MinimalApp = () => import('@/MinimalApp.vue');
+const TestRegister = () => import('@/views/test/TestRegister.vue');
+const SimpleRegister = () => import('@/views/auth/SimpleRegister.vue');
 const Login = () => import('@/views/auth/ModernLogin.vue');
 const UnifiedRegister = () => import('@/views/auth/UnifiedRegister.vue');
 const ResidentRegister = () => import('@/views/auth/ResidentRegister.vue');
@@ -121,7 +124,7 @@ const routes = [
   {
     path: '/',
     name: 'home',
-    component: Home,
+    component: MinimalApp,
     meta: {
       title: '智慧乡村综合服务平台',
       requiresAuth: false,
@@ -134,6 +137,48 @@ const routes = [
       menuOrder: 1,
       description: '智慧乡村平台首页，提供一站式乡村服务入口',
     },
+  },
+  // 测试路由
+  {
+    path: '/test-register',
+    name: 'test-register',
+    component: TestRegister,
+    meta: {
+      title: '注册页面测试',
+      description: '测试注册页面功能',
+      requiresAuth: false,
+      layout: 'default',
+      allowGuest: true,
+    },
+  },
+  {
+    path: '/simple-register',
+    name: 'simple-register',
+    component: SimpleRegister,
+    meta: {
+      title: '村民注册（简化版）',
+      description: '简化版村民注册页面',
+      requiresAuth: false,
+      layout: 'default',
+      allowGuest: true,
+    },
+  },
+
+  // 认证路由模块
+  {
+    path: '/auth',
+    component: routeMeta.layouts.auth,
+    meta: {
+      layout: 'auth',
+      requiresAuth: false,
+      permissions: routeMeta.permissions.public,
+    },
+  },
+
+  // 兼容旧版注册路由 - 重定向到统一注册页面
+  {
+    path: '/register',
+    redirect: '/auth/unified-register',
   },
 
   // 认证路由模块
@@ -895,6 +940,38 @@ const routes = [
     ],
   },
 
+  // ==================== 社区互动模块 ====================
+  // 注意：社区模块页面尚未创建，此模块暂时注释
+  // 如需启用，请先创建 @/pages/community/ 目录下的相关组件
+  /*
+  {
+    path: '/community',
+    component: routeMeta.layouts.default,
+    meta: {
+      title: '社区互动',
+      requiresAuth: true,
+      permissions: routeMeta.permissions.user,
+      accessibility: routeMeta.accessibility.full,
+      showInMenu: true,
+      menuIcon: 'ChatDotRound',
+      menuOrder: 7,
+    },
+    children: [
+      {
+        path: '',
+        name: 'community',
+        component: () => import('@/pages/community/index.vue'),
+        meta: {
+          title: '社区互动',
+          breadcrumb: [{ title: '首页', path: '/' }, { title: '社区互动' }],
+          description: '社区互动聚合首页',
+        },
+      },
+      // ... 其他社区路由
+    ],
+  },
+  */
+
   // 管理员模块
   {
     path: '/admin',
@@ -932,6 +1009,226 @@ const routes = [
             { title: '系统管理', path: '/admin' },
             { title: '权限分配' },
           ],
+        },
+      },
+    ],
+  },
+
+  // ==================== 移动端角色专属首页模块 ====================
+  {
+    path: '/mobile',
+    component: routeMeta.layouts.mobile,
+    meta: {
+      title: '移动端首页',
+      requiresAuth: true,
+      layout: 'mobile',
+      accessibility: routeMeta.accessibility.full,
+    },
+    children: [
+      // 村民首页
+      {
+        path: '',
+        name: 'mobile-home',
+        redirect: '/mobile/resident',
+      },
+      {
+        path: 'resident',
+        name: 'resident-home',
+        component: () => import('@/views/mobile/resident/Home.vue'),
+        meta: {
+          title: '村民首页',
+          accessibility: routeMeta.accessibility.full,
+        },
+        children: [
+          {
+            path: 'services',
+            name: 'resident-services',
+            component: () => import('@/views/mobile/resident/Services.vue'),
+            meta: { title: '便民服务' },
+          },
+          {
+            path: 'life',
+            name: 'resident-life',
+            component: () => import('@/views/mobile/resident/Life.vue'),
+            meta: { title: '生活服务' },
+          },
+          {
+            path: 'messages',
+            name: 'resident-messages',
+            component: () => import('@/views/mobile/resident/Messages.vue'),
+            meta: { title: '消息中心' },
+          },
+        ],
+      },
+      // 村干部首页
+      {
+        path: 'village-cadre',
+        name: 'village-cadre-home',
+        component: () => import('@/views/mobile/villageCadre/Home.vue'),
+        meta: {
+          title: '村干部首页',
+          accessibility: routeMeta.accessibility.full,
+        },
+        children: [
+          {
+            path: 'affairs',
+            name: 'village-cadre-affairs',
+            component: () => import('@/views/mobile/villageCadre/Affairs.vue'),
+            meta: { title: '村务管理' },
+          },
+          {
+            path: 'messages',
+            name: 'village-cadre-messages',
+            component: () => import('@/views/mobile/villageCadre/Messages.vue'),
+            meta: { title: '消息中心' },
+          },
+        ],
+      },
+      // 采购商首页
+      {
+        path: 'purchaser',
+        name: 'purchaser-home',
+        component: () => import('@/views/mobile/purchaser/Home.vue'),
+        meta: {
+          title: '采购商首页',
+          accessibility: routeMeta.accessibility.full,
+        },
+        children: [
+          {
+            path: 'market',
+            name: 'purchaser-market',
+            component: () => import('@/views/mobile/purchaser/Market.vue'),
+            meta: { title: '农产品市场' },
+          },
+          {
+            path: 'orders',
+            name: 'purchaser-orders',
+            component: () => import('@/views/mobile/purchaser/Orders.vue'),
+            meta: { title: '订单管理' },
+          },
+        ],
+      },
+      // 乡镇干部首页
+      {
+        path: 'township',
+        name: 'township-home',
+        component: () => import('@/views/mobile/township/Home.vue'),
+        meta: {
+          title: '乡镇干部首页',
+          accessibility: routeMeta.accessibility.full,
+        },
+        children: [
+          {
+            path: 'villages',
+            name: 'township-villages',
+            component: () => import('@/views/mobile/township/Villages.vue'),
+            meta: { title: '村庄管理' },
+          },
+          {
+            path: 'statistics',
+            name: 'township-statistics',
+            component: () => import('@/views/mobile/township/Statistics.vue'),
+            meta: { title: '统计分析' },
+          },
+        ],
+      },
+      // 管理员首页
+      {
+        path: 'admin',
+        name: 'mobile-admin-home',
+        component: () => import('@/views/mobile/admin/Home.vue'),
+        meta: {
+          title: '管理员首页',
+          accessibility: routeMeta.accessibility.full,
+        },
+        children: [
+          {
+            path: 'affairs',
+            name: 'mobile-admin-affairs',
+            component: () => import('@/views/mobile/admin/Affairs.vue'),
+            meta: { title: '村务管理' },
+          },
+          {
+            path: 'messages',
+            name: 'mobile-admin-messages',
+            component: () => import('@/views/mobile/admin/Messages.vue'),
+            meta: { title: '消息中心' },
+          },
+        ],
+      },
+    ],
+  },
+
+  // 兼容旧版角色首页路由（重定向到新路由）
+  {
+    path: '/home/villager',
+    redirect: '/mobile/resident',
+  },
+  {
+    path: '/home/cadre',
+    redirect: '/mobile/village-cadre',
+  },
+  {
+    path: '/home/purchaser',
+    redirect: '/mobile/purchaser',
+  },
+  {
+    path: '/home/township',
+    redirect: '/mobile/township',
+  },
+  {
+    path: '/home/admin',
+    redirect: '/mobile/admin',
+  },
+
+  // 角色专用首页模块（保留兼容性）
+  {
+    path: '/home',
+    component: routeMeta.layouts.mobile,
+    meta: {
+      title: '角色首页',
+      requiresAuth: true,
+      layout: 'mobile',
+    },
+    children: [
+      {
+        path: 'villager',
+        name: 'villager-home',
+        component: () => import('@/views/mobile/MobileHome.vue'),
+        meta: {
+          title: '村民首页',
+          requiresAuth: true,
+          accessibility: routeMeta.accessibility.full,
+        },
+      },
+      {
+        path: 'cadre',
+        name: 'cadre-home',
+        component: () => import('@/views/mobile/MobileHome.vue'),
+        meta: {
+          title: '村干部首页',
+          requiresAuth: true,
+          accessibility: routeMeta.accessibility.full,
+        },
+      },
+      {
+        path: 'official',
+        name: 'official-home',
+        component: () => import('@/views/mobile/MobileHome.vue'),
+        meta: {
+          title: '村官首页',
+          requiresAuth: true,
+          accessibility: routeMeta.accessibility.full,
+        },
+      },
+      {
+        path: 'admin',
+        name: 'admin-home',
+        component: () => import('@/views/mobile/MobileHome.vue'),
+        meta: {
+          title: '管理员首页',
+          requiresAuth: true,
+          accessibility: routeMeta.accessibility.full,
         },
       },
     ],

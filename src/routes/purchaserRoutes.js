@@ -8,6 +8,65 @@ const router = express.Router();
 const purchaserController = require('../controllers/purchaserController');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs').promises;
+
+// 安全改进：文件类型白名单
+const ALLOWED_MIME_TYPES = [
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/gif',
+  'application/pdf'
+];
+
+const ALLOWED_EXTENSIONS = [
+  '.jpg', '.jpeg', '.png', '.gif', '.pdf'
+];
+
+// 安全改进：文件名清理函数
+const sanitizeFilename = (filename) => {
+  // 移除路径遍历字符
+  const sanitized = filename.replace(/[\/\\]/g, '');
+  
+  // 移除危险字符
+  const safeName = sanitized.replace(/[<>:"|?*\x00-\x1f]/g, '');
+  
+  // 限制长度
+  const ext = path.extname(safeName);
+  const baseName = path.basename(safeName, ext).substring(0, 100);
+  
+  return `${baseName}${ext}`;
+};
+
+// 安全改进：验证文件类型
+const validateFileType = (file) => {
+  // 检查MIME类型
+  if (!ALLOWED_MIME_TYPES.includes(file.mimetype)) {
+    return false;
+  }
+  
+  // 检查文件扩展名
+  const ext = path.extname(file.originalname).toLowerCase();
+  if (!ALLOWED_EXTENSIONS.includes(ext)) {
+    return false;
+  }
+  
+  // 检查MIME类型和扩展名是否匹配
+  const mimeToExtMap = {
+    'image/jpeg': '.jpg',
+    'image/jpg': '.jpg',
+    'image/png': '.png',
+    'image/gif': '.gif',
+    'application/pdf': '.pdf'
+  };
+  
+  const expectedExt = mimeToExtMap[file.mimetype];
+  if (expectedExt && ext !== expectedExt) {
+    return false;
+  }
+  
+  return true;
+};
 
 // 配置文件上传
 const storage = multer.diskStorage({
@@ -20,21 +79,26 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({
+// 安全改进：增强的multer配置
+const secureUpload = multer({
   storage,
   limits: {
-    fileSize: 10 * 1024 * 1024 // 10MB limit
+    fileSize: 10 * 1024 * 1024, // 10MB
+    files: 3
   },
-  fileFilter (req, file, cb) {
-    const allowedTypes = /jpeg|jpg|png|pdf/;
-    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = allowedTypes.test(file.mimetype);
-    
-    if (mimetype && extname) {
-      return cb(null, true);
-    } else {
-      cb(new Error('只支持图片和PDF文件'));
+  fileFilter: (req, file, cb) => {
+    // 验证文件类型
+    if (!validateFileType(file)) {
+      return cb(new Error('不支持的文件类型，仅支持: JPG, PNG, GIF, PDF'), false);
     }
+    
+    // 验证文件名
+    const sanitized = sanitizeFilename(file.originalname);
+    if (sanitized !== file.originalname) {
+      return cb(new Error('文件名包含非法字符'), false);
+    }
+    
+    cb(null, true);
   }
 });
 
@@ -55,7 +119,7 @@ const upload = multer({
  * @files   businessLicense - 营业执照（商家必填）
  */
 router.post('/register',
-  upload.fields([
+  secureUpload.fields([
     { name: 'idCardFront', maxCount: 1 },
     { name: 'idCardBack', maxCount: 1 },
     { name: 'businessLicense', maxCount: 1 }

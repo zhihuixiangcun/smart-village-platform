@@ -665,10 +665,6 @@ const tableRef = ref<Instance>();
 const selectedResidents = ref<Resident[]>([]);
 const showAddDialog = ref(false);
 const showImportDialog = ref(false);
-const showImportDialog = ref(false);
-const showImportDialog = ref(false);
-const showImportDialog = ref(false);
-const tableRef = ref<Instance | null>(null);
 
 const searchParams = reactive<SearchParams>({
   keyword: '',
@@ -1046,18 +1042,13 @@ const handleRefresh = async () => {
   }
 };
 
-const showAddDialog = () => {
+const openAddDialog = () => {
   isEditing.value = false;
   resetForm();
   showAddDialog.value = true;
 };
 
-const showImportDialog = () => {
-  showImportDialog.value = true;
-  ElMessage.info('批量导入功能开发中');
-};
-
-const showImportDialog = () => {
+const openImportDialog = () => {
   ElMessage.info('批量导入功能开发中');
 };
 
@@ -1147,30 +1138,6 @@ const handleExportAll = () => {
     ElMessage.success(`已导出全部 ${residents.value.length} 条数据`);
     ElMessage.loading().close();
   }, 1000);
-};
-
-const handleSelectAll = () => {
-  // 全选/取消全选
-  if (selectedResidents.value.length === residents.value.length) {
-    selectedResidents.value = [];
-    ElMessage.info('已取消全选');
-  } else {
-    selectedResidents.value = residents.value.map(r => r.id);
-    ElMessage.success(`已选中 ${selectedResidents.value.length} 位村民`);
-  }
-};
-
-const handleRefresh = async () => {
-  loading.value = true;
-  try {
-    await fetchResidents();
-    ElMessage.success('数据已刷新');
-  } catch (error) {
-    console.error('刷新失败:', error);
-    ElMessage.error('刷新失败，请重试');
-  } finally {
-    loading.value = false;
-  }
 };
 
 const handleBatchDelete = async () => {

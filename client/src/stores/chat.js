@@ -286,6 +286,34 @@ export const useChatStore = defineStore('chat', () => {
     }
   }
 
+  // 清空聊天记录
+  async function clearMessages(conversationId, options = {}) {
+    try {
+      const { data } = await chatApi.clearMessages(conversationId, options);
+      if (data.success) {
+        // 清空本地消息缓存
+        if (messagesCache.value.has(conversationId)) {
+          messagesCache.value.set(conversationId, []);
+        }
+
+        // 更新会话的最后消息
+        const conversation = conversations.value.find(c => c._id === conversationId);
+        if (conversation) {
+          conversation.lastMessage = null;
+          conversation.lastMessageAt = null;
+          // 清空所有参与者的未读数
+          conversation.unreadCount = new Map();
+        }
+
+        return data.data;
+      }
+    } catch (error) {
+      console.error('清空聊天记录失败:', error);
+      ElMessage.error(error.response?.data?.message || '清空聊天记录失败');
+      throw error;
+    }
+  }
+
   // ==================== 好友相关方法 ====================
   // 通过手机号搜索用户
   async function searchUserByPhone(phone) {
@@ -572,6 +600,7 @@ export const useChatStore = defineStore('chat', () => {
     // 会话操作
     togglePin,
     toggleMute,
+    clearMessages,
 
     // 好友方法
     searchUserByPhone,

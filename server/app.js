@@ -31,7 +31,7 @@ const path = require('path');
 // ============================================
 // 第三步：加载模型（在环境变量之后）
 // ============================================
-require('../src/models');
+const models = require('./models');
 
 const app = express();
 const server = http.createServer(app);
@@ -90,6 +90,9 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true, limit: '5mb' }));
+
+// 静态文件服务
+app.use('/uploads', express.static('uploads'));
 
 // Logging
 if (NODE_ENV === 'production') {
@@ -160,8 +163,9 @@ app.get('/api/info', (req, res) => {
 // const authRoutes = require('../src/routes/auth');
 // const residentRoutes = require('../src/routes/residents');
 // const governanceRoutes = require('../src/routes/governance');
-// const speechRoutes = require('./api/speech');
-// const syncRoutes = require('./api/sync');
+const speechRoutes = require('./api/speech');
+const syncRoutes = require('./api/sync');
+const chatRoutes = require('./api/chat');
 
 // Apply routes - 使用内置实现，不加载外部路由文件
 // app.use('/api/auth', authRoutes);
@@ -171,6 +175,7 @@ app.get('/api/info', (req, res) => {
 // app.use('/api/qrcode', require('../src/routes/villageMap'));
 // app.use('/api/speech', speechRoutes);
 // app.use('/api/sync', syncRoutes);
+app.use('/api/chat', chatRoutes);
 
 console.log('⚠️ 村务服务器使用简化模式，未加载外部路由（auth/residents/governance）');
 

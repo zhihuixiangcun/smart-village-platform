@@ -5,6 +5,7 @@
 
 const XLSX = require('xlsx');
 const fs = require('fs');
+const fsPromises = require('fs').promises;
 const path = require('path');
 const EventEmitter = require('events');
 const { Resident } = require('../../models/Resident');
@@ -30,6 +31,16 @@ class ResidentBatchImportService extends EventEmitter {
   ensureUploadDir() {
     if (!fs.existsSync(this.uploadDir)) {
       fs.mkdirSync(this.uploadDir, { recursive: true });
+    }
+  }
+
+  async ensureUploadDirAsync() {
+    try {
+      await fsPromises.mkdir(this.uploadDir, { recursive: true });
+    } catch (error) {
+      if (error.code !== 'EEXIST') {
+        throw error;
+      }
     }
   }
 
@@ -96,7 +107,7 @@ class ResidentBatchImportService extends EventEmitter {
     }
 
     // 检查文件大小
-    const stats = fs.statSync(filePath);
+    const stats = await fsPromises.stat(filePath);
     if (stats.size > this.maxFileSize) {
       throw new Error(`文件大小超过限制: ${  Math.round(stats.size / 1024 / 1024)  }MB`);
     }
@@ -471,14 +482,18 @@ class ResidentBatchImportService extends EventEmitter {
   /**
    * 清理临时文件
    */
-  cleanupFile(filePath) {
+  async cleanupFile(filePath) {
     try {
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
+      try {
+        await fsPromises.unlink(filePath);
         logger.info('临时文件已删除', { filePath });
+      } catch (error) {
+        if (error.code !== 'ENOENT') {
+          throw error;
+        }
       }
     } catch (error) {
-      logger.warn('删除临时文件失败', { filePath, error: error.message });
+      logger.error('删除临时文件失败:', error);
     }
   }
 

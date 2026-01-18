@@ -1,4 +1,4 @@
-import http from '@/utils/request'
+import http from '@/utils/request';
 
 /**
  * API模块
@@ -15,7 +15,7 @@ export const auth = {
    * @param {string} credentials.code - 验证码（可选）
    */
   login: (credentials) => {
-    return http.post('/auth/login', credentials)
+    return http.post('/auth/login', credentials);
   },
 
   /**
@@ -23,21 +23,21 @@ export const auth = {
    * @param {string} refreshToken - 刷新令牌
    */
   refreshToken: (refreshToken) => {
-    return http.post('/auth/refresh', { refreshToken })
+    return http.post('/auth/refresh', { refreshToken });
   },
 
   /**
    * 用户登出
    */
   logout: () => {
-    return http.post('/auth/logout')
+    return http.post('/auth/logout');
   },
 
   /**
    * 验证Token
    */
   validateToken: () => {
-    return http.get('/auth/validate')
+    return http.get('/auth/validate');
   },
 
   /**
@@ -45,7 +45,7 @@ export const auth = {
    * @param {string} phone - 手机号
    */
   sendCode: (phone) => {
-    return http.post('/auth/send-code', { phone })
+    return http.post('/auth/send-code', { phone });
   },
 
   /**
@@ -53,9 +53,9 @@ export const auth = {
    * @param {Object} data - 重置数据
    */
   forgotPassword: (data) => {
-    return http.post('/auth/forgot-password', data)
+    return http.post('/auth/forgot-password', data);
   }
-}
+};
 
 // ===== 用户模块 =====
 export const user = {
@@ -63,7 +63,7 @@ export const user = {
    * 获取用户详细信息
    */
   getUserDetail: () => {
-    return http.get('/user/profile')
+    return http.get('/user/profile');
   },
 
   /**
@@ -71,7 +71,7 @@ export const user = {
    * @param {Object} data - 用户数据
    */
   updateProfile: (data) => {
-    return http.put('/user/profile', data)
+    return http.put('/user/profile', data);
   },
 
   /**
@@ -79,7 +79,7 @@ export const user = {
    * @param {string} filePath - 本地文件路径
    */
   uploadAvatar: (filePath) => {
-    return http.upload('/user/avatar', filePath, { name: 'avatar' })
+    return http.upload('/user/avatar', filePath, { name: 'avatar' });
   },
 
   /**
@@ -87,7 +87,7 @@ export const user = {
    * @param {Object} data - 密码数据
    */
   changePassword: (data) => {
-    return http.post('/user/change-password', data)
+    return http.post('/user/change-password', data);
   },
 
   /**
@@ -95,7 +95,7 @@ export const user = {
    * @param {Object} data - 绑定数据
    */
   bindPhone: (data) => {
-    return http.post('/user/bind-phone', data)
+    return http.post('/user/bind-phone', data);
   },
 
   /**
@@ -103,23 +103,23 @@ export const user = {
    * @param {Object} data - 认证数据
    */
   realNameVerify: (data) => {
-    return http.post('/user/real-name-verify', data)
+    return http.post('/user/real-name-verify', data);
   },
 
   /**
    * 获取用户积分
    */
   getPoints: () => {
-    return http.get('/user/points')
+    return http.get('/user/points');
   },
 
   /**
    * 获取用户统计数据
    */
   getStats: () => {
-    return http.get('/user/stats')
+    return http.get('/user/stats');
   }
-}
+};
 
 // ===== 村务治理模块 =====
 export const village = {
@@ -128,9 +128,13 @@ export const village = {
     /**
      * 获取公告列表
      * @param {Object} params - 查询参数
+     * @param {number} params.page - 页码
+     * @param {number} params.pageSize - 每页数量
+     * @param {string} params.type - 公告类型
+     * @param {string} params.keyword - 搜索关键词
      */
     getList: (params) => {
-      return http.get('/village/announcements', params)
+      return http.get('/village/announcements', params);
     },
 
     /**
@@ -138,7 +142,7 @@ export const village = {
      * @param {string} id - 公告ID
      */
     getDetail: (id) => {
-      return http.get(`/village/announcements/${id}`)
+      return http.get(`/village/announcements/${id}`);
     },
 
     /**
@@ -146,7 +150,78 @@ export const village = {
      * @param {string} id - 公告ID
      */
     markAsRead: (id) => {
-      return http.post(`/village/announcements/${id}/read`)
+      return http.post(`/village/announcements/${id}/read`);
+    },
+
+    /**
+     * 点赞/取消点赞公告
+     * @param {string} id - 公告ID
+     */
+    toggleLike: (id) => {
+      return http.post(`/village/announcements/${id}/like`);
+    },
+
+    /**
+     * 收藏/取消收藏公告
+     * @param {string} id - 公告ID
+     */
+    toggleCollect: (id) => {
+      return http.post(`/village/announcements/${id}/collect`);
+    },
+
+    /**
+     * 获取公告评论列表
+     * @param {string} id - 公告ID
+     * @param {Object} params - 查询参数
+     */
+    getComments: (id, params) => {
+      return http.get(`/village/announcements/${id}/comments`, params);
+    },
+
+    /**
+     * 发表评论
+     * @param {string} id - 公告ID
+     * @param {Object} data - 评论数据
+     */
+    createComment: (id, data) => {
+      return http.post(`/village/announcements/${id}/comments`, data);
+    },
+
+    /**
+     * 删除评论
+     * @param {string} id - 公告ID
+     * @param {string} commentId - 评论ID
+     */
+    deleteComment: (id, commentId) => {
+      return http.delete(`/village/announcements/${id}/comments/${commentId}`);
+    },
+
+    /**
+     * 点赞评论
+     * @param {string} id - 公告ID
+     * @param {string} commentId - 评论ID
+     */
+    likeComment: (id, commentId) => {
+      return http.post(`/village/announcements/${id}/comments/${commentId}/like`);
+    },
+
+    /**
+     * 获取评论回复列表
+     * @param {string} id - 公告ID
+     * @param {string} commentId - 评论ID
+     */
+    getCommentReplies: (id, commentId) => {
+      return http.get(`/village/announcements/${id}/comments/${commentId}/replies`);
+    },
+
+    /**
+     * 回复评论
+     * @param {string} id - 公告ID
+     * @param {string} commentId - 评论ID
+     * @param {Object} data - 回复数据
+     */
+    createReply: (id, commentId, data) => {
+      return http.post(`/village/announcements/${id}/comments/${commentId}/replies`, data);
     }
   },
 
@@ -157,7 +232,7 @@ export const village = {
      * @param {Object} params - 查询参数
      */
     getList: (params) => {
-      return http.get('/village/meetings', params)
+      return http.get('/village/meetings', params);
     },
 
     /**
@@ -165,7 +240,7 @@ export const village = {
      * @param {string} id - 会议ID
      */
     getDetail: (id) => {
-      return http.get(`/village/meetings/${id}`)
+      return http.get(`/village/meetings/${id}`);
     },
 
     /**
@@ -173,7 +248,7 @@ export const village = {
      * @param {string} id - 会议ID
      */
     register: (id) => {
-      return http.post(`/village/meetings/${id}/register`)
+      return http.post(`/village/meetings/${id}/register`);
     },
 
     /**
@@ -181,7 +256,7 @@ export const village = {
      * @param {string} id - 会议ID
      */
     cancelRegister: (id) => {
-      return http.delete(`/village/meetings/${id}/register`)
+      return http.delete(`/village/meetings/${id}/register`);
     }
   },
 
@@ -192,7 +267,7 @@ export const village = {
      * @param {Object} params - 查询参数
      */
     getList: (params) => {
-      return http.get('/village/votes', params)
+      return http.get('/village/votes', params);
     },
 
     /**
@@ -200,7 +275,7 @@ export const village = {
      * @param {string} id - 投票ID
      */
     getDetail: (id) => {
-      return http.get(`/village/votes/${id}`)
+      return http.get(`/village/votes/${id}`);
     },
 
     /**
@@ -209,7 +284,7 @@ export const village = {
      * @param {Array} options - 选项ID数组
      */
     submit: (id, options) => {
-      return http.post(`/village/votes/${id}/vote`, { options })
+      return http.post(`/village/votes/${id}/vote`, { options });
     }
   },
 
@@ -220,7 +295,7 @@ export const village = {
      * @param {Object} params - 查询参数
      */
     getList: (params) => {
-      return http.get('/village/finance', params)
+      return http.get('/village/finance', params);
     },
 
     /**
@@ -228,10 +303,10 @@ export const village = {
      * @param {string} id - 财务记录ID
      */
     getDetail: (id) => {
-      return http.get(`/village/finance/${id}`)
+      return http.get(`/village/finance/${id}`);
     }
   }
-}
+};
 
 // ===== 村民服务模块 =====
 export const services = {
@@ -239,7 +314,7 @@ export const services = {
    * 获取一户一码
    */
   getHouseholdQR: () => {
-    return http.get('/services/household-qr')
+    return http.get('/services/household-qr');
   },
 
   /**
@@ -247,7 +322,7 @@ export const services = {
    * @param {string} qrCode - 二维码内容
    */
   scanHouseholdQR: (qrCode) => {
-    return http.post('/services/household-qr/scan', { qrCode })
+    return http.post('/services/household-qr/scan', { qrCode });
   },
 
   // 办事申请
@@ -257,7 +332,7 @@ export const services = {
      * @param {Object} params - 查询参数
      */
     getList: (params) => {
-      return http.get('/services/applications', params)
+      return http.get('/services/applications', params);
     },
 
     /**
@@ -265,7 +340,7 @@ export const services = {
      * @param {Object} data - 申请数据
      */
     create: (data) => {
-      return http.post('/services/applications', data)
+      return http.post('/services/applications', data);
     },
 
     /**
@@ -273,7 +348,7 @@ export const services = {
      * @param {string} id - 申请ID
      */
     getDetail: (id) => {
-      return http.get(`/services/applications/${id}`)
+      return http.get(`/services/applications/${id}`);
     },
 
     /**
@@ -281,7 +356,7 @@ export const services = {
      * @param {string} id - 申请ID
      */
     cancel: (id) => {
-      return http.delete(`/services/applications/${id}`)
+      return http.delete(`/services/applications/${id}`);
     }
   },
 
@@ -292,7 +367,7 @@ export const services = {
      * @param {Object} params - 查询参数
      */
     getList: (params) => {
-      return http.get('/services/certificates', params)
+      return http.get('/services/certificates', params);
     },
 
     /**
@@ -300,7 +375,7 @@ export const services = {
      * @param {Object} data - 证件申请数据
      */
     apply: (data) => {
-      return http.post('/services/certificates', data)
+      return http.post('/services/certificates', data);
     }
   },
 
@@ -311,7 +386,7 @@ export const services = {
      * @param {Object} params - 查询参数
      */
     getList: (params) => {
-      return http.get('/services/welfares', params)
+      return http.get('/services/welfares', params);
     },
 
     /**
@@ -319,10 +394,10 @@ export const services = {
      * @param {Object} data - 福利申请数据
      */
     apply: (data) => {
-      return http.post('/services/welfares', data)
+      return http.post('/services/welfares', data);
     }
   }
-}
+};
 
 // ===== 生活服务模块 =====
 export const life = {
@@ -333,7 +408,7 @@ export const life = {
      * @param {Object} params - 查询参数
      */
     getProducts: (params) => {
-      return http.get('/life/ecommerce/products', params)
+      return http.get('/life/ecommerce/products', params);
     },
 
     /**
@@ -341,7 +416,7 @@ export const life = {
      * @param {string} id - 商品ID
      */
     getProductDetail: (id) => {
-      return http.get(`/life/ecommerce/products/${id}`)
+      return http.get(`/life/ecommerce/products/${id}`);
     },
 
     /**
@@ -349,7 +424,7 @@ export const life = {
      * @param {Object} data - 订单数据
      */
     createOrder: (data) => {
-      return http.post('/life/ecommerce/orders', data)
+      return http.post('/life/ecommerce/orders', data);
     }
   },
 
@@ -360,7 +435,7 @@ export const life = {
      * @param {Object} params - 查询参数
      */
     getList: (params) => {
-      return http.get('/life/carpooling', params)
+      return http.get('/life/carpooling', params);
     },
 
     /**
@@ -368,7 +443,7 @@ export const life = {
      * @param {Object} data - 拼车数据
      */
     publish: (data) => {
-      return http.post('/life/carpooling', data)
+      return http.post('/life/carpooling', data);
     },
 
     /**
@@ -376,7 +451,7 @@ export const life = {
      * @param {string} id - 拼车ID
      */
     join: (id) => {
-      return http.post(`/life/carpooling/${id}/join`)
+      return http.post(`/life/carpooling/${id}/join`);
     }
   },
 
@@ -387,7 +462,7 @@ export const life = {
      * @param {Object} params - 查询参数
      */
     getList: (params) => {
-      return http.get('/life/neighborhood', params)
+      return http.get('/life/neighborhood', params);
     },
 
     /**
@@ -395,7 +470,7 @@ export const life = {
      * @param {Object} data - 互助数据
      */
     publish: (data) => {
-      return http.post('/life/neighborhood', data)
+      return http.post('/life/neighborhood', data);
     },
 
     /**
@@ -403,7 +478,7 @@ export const life = {
      * @param {string} id - 互助ID
      */
     accept: (id) => {
-      return http.post(`/life/neighborhood/${id}/accept`)
+      return http.post(`/life/neighborhood/${id}/accept`);
     }
   },
 
@@ -414,7 +489,7 @@ export const life = {
      * @param {Object} params - 查询参数
      */
     getSupplies: (params) => {
-      return http.get('/life/agricultural/supplies', params)
+      return http.get('/life/agricultural/supplies', params);
     },
 
     /**
@@ -423,10 +498,10 @@ export const life = {
      * @param {Object} data - 参与数据
      */
     join: (id, data) => {
-      return http.post(`/life/agricultural/supplies/${id}/join`, data)
+      return http.post(`/life/agricultural/supplies/${id}/join`, data);
     }
   }
-}
+};
 
 // ===== 农技社区模块 =====
 export const agriculture = {
@@ -435,7 +510,7 @@ export const agriculture = {
    * @param {Object} params - 查询参数
    */
   getKnowledge: (params) => {
-    return http.get('/agriculture/knowledge', params)
+    return http.get('/agriculture/knowledge', params);
   },
 
   /**
@@ -443,7 +518,7 @@ export const agriculture = {
    * @param {string} id - 知识ID
    */
   getKnowledgeDetail: (id) => {
-    return http.get(`/agriculture/knowledge/${id}`)
+    return http.get(`/agriculture/knowledge/${id}`);
   },
 
   // 专家问答
@@ -453,7 +528,7 @@ export const agriculture = {
      * @param {Object} params - 查询参数
      */
     getQuestions: (params) => {
-      return http.get('/agriculture/ask', params)
+      return http.get('/agriculture/ask', params);
     },
 
     /**
@@ -461,7 +536,7 @@ export const agriculture = {
      * @param {Object} data - 问题数据
      */
     askQuestion: (data) => {
-      return http.post('/agriculture/ask', data)
+      return http.post('/agriculture/ask', data);
     },
 
     /**
@@ -470,7 +545,7 @@ export const agriculture = {
      * @param {string} answer - 回答内容
      */
     answer: (id, answer) => {
-      return http.post(`/agriculture/ask/${id}/answer`, { answer })
+      return http.post(`/agriculture/ask/${id}/answer`, { answer });
     }
   },
 
@@ -484,7 +559,7 @@ export const agriculture = {
       return http.upload('/agriculture/disease/identify', filePath, {
         name: 'image',
         apiType: 'village'
-      })
+      });
     }
   },
 
@@ -495,7 +570,7 @@ export const agriculture = {
      * @param {Object} params - 查询参数
      */
     getPosts: (params) => {
-      return http.get('/agriculture/community', params)
+      return http.get('/agriculture/community', params);
     },
 
     /**
@@ -503,7 +578,7 @@ export const agriculture = {
      * @param {Object} data - 动态数据
      */
     publishPost: (data) => {
-      return http.post('/agriculture/community', data)
+      return http.post('/agriculture/community', data);
     },
 
     /**
@@ -511,7 +586,7 @@ export const agriculture = {
      * @param {string} id - 动态ID
      */
     like: (id) => {
-      return http.post(`/agriculture/community/${id}/like`)
+      return http.post(`/agriculture/community/${id}/like`);
     },
 
     /**
@@ -520,10 +595,10 @@ export const agriculture = {
      * @param {string} content - 评论内容
      */
     comment: (id, content) => {
-      return http.post(`/agriculture/community/${id}/comment`, { content })
+      return http.post(`/agriculture/community/${id}/comment`, { content });
     }
   }
-}
+};
 
 // ===== 离线同步模块 =====
 export const sync = {
@@ -531,7 +606,7 @@ export const sync = {
    * 获取待同步数据
    */
   getPending: () => {
-    return http.get('/sync/pending')
+    return http.get('/sync/pending');
   },
 
   /**
@@ -539,16 +614,16 @@ export const sync = {
    * @param {Array} data - 离线数据数组
    */
   upload: (data) => {
-    return http.post('/sync/upload', { data })
+    return http.post('/sync/upload', { data });
   },
 
   /**
    * 获取同步状态
    */
   getStatus: () => {
-    return http.get('/sync/status')
+    return http.get('/sync/status');
   }
-}
+};
 
 // ===== 聊天模块 =====
 export const chat = {
@@ -557,7 +632,7 @@ export const chat = {
    * @param {Object} params - 查询参数
    */
   getConversations: (params) => {
-    return http.get('/chat/conversations', params)
+    return http.get('/chat/conversations', params);
   },
 
   /**
@@ -565,7 +640,7 @@ export const chat = {
    * @param {string} id - 会话ID
    */
   getConversation: (id) => {
-    return http.get(`/chat/conversations/${id}`)
+    return http.get(`/chat/conversations/${id}`);
   },
 
   /**
@@ -573,7 +648,7 @@ export const chat = {
    * @param {Object} data - 会话数据
    */
   createConversation: (data) => {
-    return http.post('/chat/conversations', data)
+    return http.post('/chat/conversations', data);
   },
 
   /**
@@ -581,7 +656,7 @@ export const chat = {
    * @param {string} id - 会话ID
    */
   deleteConversation: (id) => {
-    return http.delete(`/chat/conversations/${id}`)
+    return http.delete(`/chat/conversations/${id}`);
   },
 
   /**
@@ -590,7 +665,7 @@ export const chat = {
    * @param {Object} params - 查询参数
    */
   getMessages: (conversationId, params) => {
-    return http.get(`/chat/conversations/${conversationId}/messages`, params)
+    return http.get(`/chat/conversations/${conversationId}/messages`, params);
   },
 
   /**
@@ -599,7 +674,7 @@ export const chat = {
    * @param {Object} data - 消息数据
    */
   sendMessage: (conversationId, data) => {
-    return http.post(`/chat/conversations/${conversationId}/messages`, data)
+    return http.post(`/chat/conversations/${conversationId}/messages`, data);
   },
 
   /**
@@ -610,7 +685,7 @@ export const chat = {
   sendImage: (conversationId, filePath) => {
     return http.upload(`/chat/conversations/${conversationId}/images`, filePath, {
       name: 'image'
-    })
+    });
   },
 
   /**
@@ -619,7 +694,7 @@ export const chat = {
    * @param {Object} data - 语音数据
    */
   sendVoice: (conversationId, data) => {
-    return http.post(`/chat/conversations/${conversationId}/voice`, data)
+    return http.post(`/chat/conversations/${conversationId}/voice`, data);
   },
 
   /**
@@ -627,7 +702,7 @@ export const chat = {
    * @param {string} conversationId - 会话ID
    */
   markAsRead: (conversationId) => {
-    return http.post(`/chat/conversations/${conversationId}/read`)
+    return http.post(`/chat/conversations/${conversationId}/read`);
   },
 
   /**
@@ -636,7 +711,7 @@ export const chat = {
    * @param {string} messageId - 消息ID
    */
   recallMessage: (conversationId, messageId) => {
-    return http.post(`/chat/conversations/${conversationId}/messages/${messageId}/recall`)
+    return http.post(`/chat/conversations/${conversationId}/messages/${messageId}/recall`);
   },
 
   /**
@@ -644,7 +719,7 @@ export const chat = {
    * @param {Object} params - 查询参数
    */
   getContacts: (params) => {
-    return http.get('/chat/contacts', params)
+    return http.get('/chat/contacts', params);
   },
 
   /**
@@ -652,7 +727,7 @@ export const chat = {
    * @param {Object} data - 联系人数据
    */
   addContact: (data) => {
-    return http.post('/chat/contacts', data)
+    return http.post('/chat/contacts', data);
   },
 
   /**
@@ -660,7 +735,7 @@ export const chat = {
    * @param {string} id - 联系人ID
    */
   deleteContact: (id) => {
-    return http.delete(`/chat/contacts/${id}`)
+    return http.delete(`/chat/contacts/${id}`);
   },
 
   /**
@@ -668,7 +743,7 @@ export const chat = {
    * @param {Object} params - 查询参数
    */
   getGroups: (params) => {
-    return http.get('/chat/groups', params)
+    return http.get('/chat/groups', params);
   },
 
   /**
@@ -676,7 +751,7 @@ export const chat = {
    * @param {Object} data - 群组数据
    */
   createGroup: (data) => {
-    return http.post('/chat/groups', data)
+    return http.post('/chat/groups', data);
   },
 
   /**
@@ -684,7 +759,7 @@ export const chat = {
    * @param {string} id - 群组ID
    */
   getGroup: (id) => {
-    return http.get(`/chat/groups/${id}`)
+    return http.get(`/chat/groups/${id}`);
   },
 
   /**
@@ -693,7 +768,7 @@ export const chat = {
    * @param {Object} data - 群组数据
    */
   updateGroup: (id, data) => {
-    return http.put(`/chat/groups/${id}`, data)
+    return http.put(`/chat/groups/${id}`, data);
   },
 
   /**
@@ -702,7 +777,7 @@ export const chat = {
    * @param {Array} members - 成员ID数组
    */
   addGroupMembers: (id, members) => {
-    return http.post(`/chat/groups/${id}/members`, { members })
+    return http.post(`/chat/groups/${id}/members`, { members });
   },
 
   /**
@@ -711,7 +786,7 @@ export const chat = {
    * @param {string} memberId - 成员ID
    */
   removeGroupMember: (id, memberId) => {
-    return http.delete(`/chat/groups/${id}/members/${memberId}`)
+    return http.delete(`/chat/groups/${id}/members/${memberId}`);
   },
 
   /**
@@ -719,7 +794,7 @@ export const chat = {
    * @param {string} id - 群组ID
    */
   leaveGroup: (id) => {
-    return http.post(`/chat/groups/${id}/leave`)
+    return http.post(`/chat/groups/${id}/leave`);
   },
 
   /**
@@ -727,9 +802,9 @@ export const chat = {
    * @param {string} id - 群组ID
    */
   dissolveGroup: (id) => {
-    return http.post(`/chat/groups/${id}/dissolve`)
+    return http.post(`/chat/groups/${id}/dissolve`);
   }
-}
+};
 
 // ===== 好友管理模块 =====
 export const friendship = {
@@ -740,7 +815,7 @@ export const friendship = {
    * @param {string} params.type - 搜索类型：phone/villageId/name
    */
   searchUser: (params) => {
-    return http.get('/chat/friends/search', params)
+    return http.get('/chat/friends/search', params);
   },
 
   /**
@@ -751,7 +826,7 @@ export const friendship = {
    * @param {string} data.remark - 备注名
    */
   sendRequest: (data) => {
-    return http.post('/chat/friends/requests', data)
+    return http.post('/chat/friends/requests', data);
   },
 
   /**
@@ -759,7 +834,7 @@ export const friendship = {
    * @param {Object} params - 查询参数
    */
   getReceivedRequests: (params) => {
-    return http.get('/chat/friends/requests/received', params)
+    return http.get('/chat/friends/requests/received', params);
   },
 
   /**
@@ -767,7 +842,7 @@ export const friendship = {
    * @param {Object} params - 查询参数
    */
   getSentRequests: (params) => {
-    return http.get('/chat/friends/requests/sent', params)
+    return http.get('/chat/friends/requests/sent', params);
   },
 
   /**
@@ -777,7 +852,7 @@ export const friendship = {
    * @param {string} data.action - 操作：accept/reject
    */
   handleRequest: (requestId, data) => {
-    return http.post(`/chat/friends/requests/${requestId}`, data)
+    return http.post(`/chat/friends/requests/${requestId}`, data);
   },
 
   /**
@@ -785,7 +860,7 @@ export const friendship = {
    * @param {Object} params - 查询参数
    */
   getFriends: (params) => {
-    return http.get('/chat/friends', params)
+    return http.get('/chat/friends', params);
   },
 
   /**
@@ -793,7 +868,7 @@ export const friendship = {
    * @param {string} friendId - 好友ID
    */
   getFriend: (friendId) => {
-    return http.get(`/chat/friends/${friendId}`)
+    return http.get(`/chat/friends/${friendId}`);
   },
 
   /**
@@ -802,7 +877,7 @@ export const friendship = {
    * @param {Object} data - 备注数据
    */
   updateRemark: (friendId, data) => {
-    return http.put(`/chat/friends/${friendId}/remark`, data)
+    return http.put(`/chat/friends/${friendId}/remark`, data);
   },
 
   /**
@@ -810,7 +885,7 @@ export const friendship = {
    * @param {string} friendId - 好友ID
    */
   deleteFriend: (friendId) => {
-    return http.delete(`/chat/friends/${friendId}`)
+    return http.delete(`/chat/friends/${friendId}`);
   },
 
   /**
@@ -819,7 +894,7 @@ export const friendship = {
    * @param {Array} tags - 标签数组
    */
   setTags: (friendId, tags) => {
-    return http.put(`/chat/friends/${friendId}/tags`, { tags })
+    return http.put(`/chat/friends/${friendId}/tags`, { tags });
   },
 
   /**
@@ -827,7 +902,7 @@ export const friendship = {
    * @param {Array} contacts - 通讯录联系人
    */
   matchContacts: (contacts) => {
-    return http.post('/chat/friends/match-contacts', { contacts })
+    return http.post('/chat/friends/match-contacts', { contacts });
   },
 
   /**
@@ -835,7 +910,7 @@ export const friendship = {
    * @param {string} userId - 用户ID
    */
   getQRCode: (userId) => {
-    return http.get(`/chat/friends/${userId}/qrcode`)
+    return http.get(`/chat/friends/${userId}/qrcode`);
   },
 
   /**
@@ -843,7 +918,7 @@ export const friendship = {
    * @param {string} qrCode - 二维码内容
    */
   scanQRCode: (qrCode) => {
-    return http.post('/chat/friends/scan-qrcode', { qrCode })
+    return http.post('/chat/friends/scan-qrcode', { qrCode });
   },
 
   /**
@@ -851,7 +926,7 @@ export const friendship = {
    * @param {Object} params - 查询参数
    */
   getNearby: (params) => {
-    return http.get('/chat/friends/nearby', params)
+    return http.get('/chat/friends/nearby', params);
   },
 
   /**
@@ -859,9 +934,9 @@ export const friendship = {
    * @param {Object} data - 邀请数据
    */
   inviteFriend: (data) => {
-    return http.post('/chat/friends/invite', data)
+    return http.post('/chat/friends/invite', data);
   }
-}
+};
 
 // 导出所有API
 export default {
@@ -873,8 +948,9 @@ export default {
   agriculture,
   sync,
   chat,
-  friendship
-}
+  friendship,
+  systemSettings
+};
 
 // 导出为api命名对象（兼容性）
 export const api = {
@@ -886,5 +962,20 @@ export const api = {
   agriculture,
   sync,
   chat,
-  friendship
-}
+  friendship,
+  systemSettings
+};
+
+// 导出为api命名对象（兼容性）
+export const api = {
+  auth,
+  user,
+  village,
+  services,
+  life,
+  agriculture,
+  sync,
+  chat,
+  friendship,
+  systemSettings
+};

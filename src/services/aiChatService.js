@@ -8,6 +8,7 @@ const { spawn } = require('child_process');
 const fs = require('fs').promises;
 const path = require('path');
 const logger = require('../utils/logger');
+const contentModerationService = require('./contentModerationService');
 
 class AIChatService {
   constructor() {
@@ -215,6 +216,21 @@ class AIChatService {
   async processQuery(query, context = {}) {
     try {
       logger.debug(`🤖 处理查询: ${query}`);
+      
+      // 安全改进: 审核用户输入
+      const moderationResult = contentModerationService.moderatePrompt(query);
+      if (!moderationResult.approved) {
+        logger.warn('用户输入未通过审核', { 
+          reason: moderationResult.errors.join(', '),
+          query: query.substring(0, 100)
+        });
+        return {
+          success: false,
+          error: '输入内容包含违规信息',
+          moderationResult
+        };
+      }
+      
       // 生成查询ID
       const queryId = this.generateQueryId();
 
@@ -266,13 +282,45 @@ class AIChatService {
       // 缓存上下文
       this.contextCache.set(queryId, fullContext);
 
+      // 安全改进: 审核AI生成的响应
+      const responseModeration = contentModerationService.moderateContent(
+        typeof response === 'string' ? response : JSON.stringify(response)
+      );
+      
+      if (!responseModeration.approved) {
+        logger.warn('AI响应未通过审核', { 
+          riskLevel: responseModeration.riskLevel,
+          warnings: responseModeration.warnings,
+          intent,
+          entities
+        });
+        
+        // 返回安全的默认响应
+        return {
+          success: true,
+          queryId,
+          intent,
+          entities,
+          response: {
+            type: 'safety_rejected',
+            title: '安全提示',
+            content: '抱歉，该内容可能包含不适当信息，无法显示。',
+            fallback: true
+          },
+          timestamp: new Date(),
+          moderated: true,
+          moderationResult: responseModeration
+        };
+      }
+
       return {
         success: true,
         queryId,
         intent,
         entities,
         response,
-        timestamp: new Date()
+        timestamp: new Date(),
+        moderated: false
       };
 
     } catch (error) {

@@ -1,0 +1,12 @@
+{
+  "name": "frontend-design",
+  "version": "1.0.0",
+  "description": "Create distinctive, production-grade frontend interfaces that avoid generic AI aesthetics",
+  "author": "Anthropic",
+  "skills": [
+    {
+      "name": "frontend-design",
+      "description": "Auto-invoked for frontend work, providing guidance on bold design choices"
+    }
+  ]
+}

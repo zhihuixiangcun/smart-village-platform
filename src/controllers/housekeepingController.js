@@ -12,12 +12,14 @@ const getProviders = async (req, res) => {
     if (isAvailable) filters.isAvailable = isAvailable === 'true';
     if (tags) filters.tags = { $in: tags.split(',') };
     
-    const providerList = await ServiceProvider.getProviders(req.user.villageId, {
-      ...filters,
-      sortBy,
-      skip: (page - 1) * limit,
-      limit: parseInt(limit),
-    });
+    let sortOption = { createdAt: -1 };
+    if (sortBy === 'rating') sortOption = { 'rating.average': -1 };
+    if (sortBy === 'orders') sortOption = { orderCount: -1 };
+    
+    const providerList = await ServiceProvider.find(filters)
+      .sort(sortOption)
+      .skip((page - 1) * limit)
+      .limit(parseInt(limit));
     
     const total = await ServiceProvider.countDocuments(filters);
     
@@ -74,14 +76,14 @@ const createOrder = async (req, res) => {
       userId: req.user.id,
       villageId: req.user.villageId,
     };
-    const order = await HousekeepingOrder.create(orderData);
+    const order = new HousekeepingOrder(orderData);
     
-    await ServiceProvider.findByIdAndUpdate(orderData.serviceProviderId, {
-      $inc: { 'statistics.totalOrders': 1 },
-    });
+    const serviceProvider = await ServiceProvider.findById(orderData.serviceProviderId);
+    if (serviceProvider) {
+      await serviceProvider.incrementOrderCount();
+    }
     
-    order.addTimeline('pending', '订单已创建', req.user.name);
-    await order.save();
+    await order.addTimeline('订单创建', 'pending', '订单已创建', req.user.id);
     
     res.status(201).json({
       success: true,
@@ -105,11 +107,11 @@ const getOrders = async (req, res) => {
     if (serviceType) filters.serviceType = serviceType;
     
     const [orders, total] = await Promise.all([
-      HousekeepingOrder.getUserOrders(req.user.id, {
-        ...filters,
-        skip: (page - 1) * limit,
-        limit: parseInt(limit),
-      }),
+      HousekeepingOrder.find(filters)
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(parseInt(limit))
+        .populate('serviceProviderId'),
       HousekeepingOrder.countDocuments({ userId: req.user.id, ...filters }),
     ]);
     

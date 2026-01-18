@@ -116,13 +116,6 @@ const checkAllServices = async () => {
 };
 
 onMounted(() => {
-  // 连接Socket.IO
-  try {
-    socketService.connect();
-  } catch (e) {
-    console.log('Socket连接失败，将在后台重试');
-  }
-
   // 立即检查一次服务状态
   checkAllServices();
 

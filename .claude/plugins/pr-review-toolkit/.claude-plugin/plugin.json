@@ -1,0 +1,12 @@
+{
+  "name": "pr-review-toolkit",
+  "version": "1.0.0",
+  "description": "Comprehensive PR review agents specializing in comments, tests, error handling, types",
+  "author": "Anthropic",
+  "commands": [
+    {
+      "name": "pr-review-toolkit:review-pr",
+      "description": "Run with optional review aspects (comments, tests, errors, types, code, simplify, all)"
+    }
+  ]
+}

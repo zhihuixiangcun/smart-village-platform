@@ -67,6 +67,10 @@ export default defineConfig({
         target: 'http://localhost:5000',
         changeOrigin: true
       },
+      '/api/village-users': {
+        target: 'http://localhost:5000',
+        changeOrigin: true
+      },
       '/api/residents': {
         target: 'http://localhost:5000',
         changeOrigin: true

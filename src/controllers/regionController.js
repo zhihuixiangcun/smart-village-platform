@@ -240,7 +240,7 @@ const getGeocode = async (req, res) => {
 
     const regionData = require('../../data/china-regions-data');
 
-    let result = {
+    const result = {
       province: null,
       city: null,
       district: null,

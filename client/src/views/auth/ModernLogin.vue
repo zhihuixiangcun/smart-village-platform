@@ -245,7 +245,8 @@
               <span>安全加密传输，保护您的隐私</span>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
     </div>
 
     <el-dialog
