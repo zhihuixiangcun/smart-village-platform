@@ -109,10 +109,22 @@ CACHE_CONFIG = {
 
 # Redis配置（如果使用Redis缓存）
 REDIS_CONFIG = {
+    'mode': os.getenv('REDIS_MODE', 'standalone'),  # standalone, cluster
+    # 单节点配置
     'host': os.getenv('REDIS_HOST', 'localhost'),
     'port': int(os.getenv('REDIS_PORT', 6379)),
     'db': int(os.getenv('REDIS_DB', 0)),
-    'password': os.getenv('REDIS_PASSWORD', '')
+    # Cluster 配置
+    'startup_nodes': [
+        {'host': os.getenv('REDIS_NODE1_HOST', 'localhost'), 'port': int(os.getenv('REDIS_NODE1_PORT', 7001))},
+        {'host': os.getenv('REDIS_NODE2_HOST', 'localhost'), 'port': int(os.getenv('REDIS_NODE2_PORT', 7002))},
+        {'host': os.getenv('REDIS_NODE3_HOST', 'localhost'), 'port': int(os.getenv('REDIS_NODE3_PORT', 7003))},
+    ],
+    'password': os.getenv('REDIS_PASSWORD', ''),
+    'skip_full_coverage_check': os.getenv('REDIS_SKIP_FULL_COVERAGE', 'false').lower() == 'true',
+    'max_connections': int(os.getenv('REDIS_MAX_CONNECTIONS', 50)),
+    'socket_timeout': int(os.getenv('REDIS_SOCKET_TIMEOUT', 5)),
+    'socket_connect_timeout': int(os.getenv('REDIS_SOCKET_CONNECT_TIMEOUT', 5))
 }
 
 # 日志配置

@@ -20,8 +20,13 @@ app = FastAPI(
     description="提供作物推荐、病虫害识别、政策计算等农技服务",
     version="2.0.0",
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
+    openapi_url="/openapi.json"
 )
+
+# 导入自定义 OpenAPI 规范
+import openapi_spec
+app.openapi = openapi_spec.custom_openapi
 
 # CORS配置
 app.add_middleware(

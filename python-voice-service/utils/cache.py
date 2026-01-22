@@ -45,22 +45,51 @@ class CacheManager:
         self.misses = 0
 
     def _init_redis(self):
-        """初始化Redis连接"""
+        """初始化Redis连接（支持单节点和Cluster）"""
         try:
-            import redis
             from config.settings import REDIS_CONFIG
+            redis_mode = REDIS_CONFIG.get('mode', 'standalone')
 
-            self.redis_client = redis.Redis(
-                host=REDIS_CONFIG['host'],
-                port=REDIS_CONFIG['port'],
-                db=REDIS_CONFIG['db'],
-                password=REDIS_CONFIG.get('password'),
-                decode_responses=True
-            )
+            if redis_mode == 'cluster':
+                # 使用 Redis Cluster
+                from utils.redis_cluster_adapter import RedisClusterAdapter
 
-            # 测试连接
-            self.redis_client.ping()
-            logger.info("Redis缓存连接成功")
+                startup_nodes = REDIS_CONFIG.get('startup_nodes', [])
+                if not startup_nodes:
+                    logger.error("Redis Cluster 模式需要配置 startup_nodes，将使用内存缓存")
+                    self.cache_type = 'memory'
+                    self.cache = {}
+                    self.expiry_times = {}
+                    self.access_times = {}
+                    return
+
+                self.redis_client = RedisClusterAdapter(
+                    startup_nodes=startup_nodes,
+                    password=REDIS_CONFIG.get('password'),
+                    skip_full_coverage_check=REDIS_CONFIG.get('skip_full_coverage_check', False),
+                    max_connections=REDIS_CONFIG.get('max_connections', 50),
+                    socket_timeout=REDIS_CONFIG.get('socket_timeout', 5),
+                    socket_connect_timeout=REDIS_CONFIG.get('socket_connect_timeout', 5)
+                )
+                logger.info(f"✅ Redis Cluster 缓存连接成功，启动节点: {len(startup_nodes)}")
+
+            else:
+                # 使用单节点 Redis
+                import redis
+
+                self.redis_client = redis.Redis(
+                    host=REDIS_CONFIG['host'],
+                    port=REDIS_CONFIG['port'],
+                    db=REDIS_CONFIG['db'],
+                    password=REDIS_CONFIG.get('password'),
+                    decode_responses=True,
+                    socket_timeout=REDIS_CONFIG.get('socket_timeout', 5),
+                    socket_connect_timeout=REDIS_CONFIG.get('socket_connect_timeout', 5)
+                )
+
+                # 测试连接
+                self.redis_client.ping()
+                logger.info("✅ Redis 单节点缓存连接成功")
 
         except ImportError:
             logger.error("Redis库未安装，将使用内存缓存")
@@ -280,8 +309,12 @@ class CacheManager:
             else:
                 serialized_value = str(value)
 
-            # 设置到Redis
-            return self.redis_client.setex(key, ttl, serialized_value)
+            # 设置到Redis（适配单节点和Cluster）
+            if hasattr(self.redis_client, 'setex'):
+                return self.redis_client.setex(key, ttl, serialized_value)
+            else:
+                # RedisClusterAdapter 使用 set 方法
+                return self.redis_client.set(key, serialized_value, ex=ttl)
         except Exception as e:
             logger.error(f"Redis设置失败: {e}")
             return False

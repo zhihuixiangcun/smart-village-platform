@@ -1,0 +1,64 @@
+# pytest-cov 覆盖率配置
+[coverage:run]
+# 覆盖率源码目录
+source = .
+omit = 
+    */tests/*
+    */test_*.py
+    */__init__.py
+    */migrations/*
+    */venv/*
+    */env/*
+    */node_modules/*
+    */.tox/*
+    */build/*
+    */dist/*
+    */.eggs/*
+
+# 并行执行
+parallel = true
+concurrency = multiprocessing
+
+[coverage:report]
+# 排除文件
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    def __str__
+    def __init__
+    def __eq__
+    def __ne__
+    @abstractmethod
+    @abc.abstractmethod
+    raise AssertionError
+    raise NotImplementedError
+    if TYPE_CHECKING:
+    if typing.TYPE_CHECKING:
+
+# 精确度（小数位数）
+precision = 2
+
+# 覆盖率阈值（低于此值返回非零退出码）
+fail_under = 80
+
+# 显示缺失的行数
+show_missing = true
+
+# 忽略错误
+ignore_errors = true
+
+[coverage:html]
+# HTML 报告目录
+directory = htmlcov
+
+[coverage:xml]
+# XML 报告文件路径
+output = coverage.xml
+
+[coverage:json]
+# JSON 报告文件路径
+output = coverage.json
+
+[coverage:json]
+# JSON 报告文件路径
+output = coverage.json
