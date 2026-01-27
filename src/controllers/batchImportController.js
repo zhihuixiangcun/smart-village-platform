@@ -163,7 +163,7 @@ async function cancelTask(req, res) {
  */
 async function downloadTemplate(req, res) {
   try {
-    const template = batchImportService.generateTemplate();
+    const template = await batchImportService.generateTemplate();
 
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-Disposition', 'attachment; filename=resident-import-template.xlsx');

@@ -431,7 +431,7 @@ import {
   Refresh,
   Download,
 } from '@element-plus/icons-vue';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 
 // Props
 const props = defineProps({
@@ -612,12 +612,13 @@ const parseExcelFile = async () => {
 
   try {
     const buffer = await selectedFile.value.arrayBuffer();
-    const workbook = XLSX.read(buffer, { type: 'buffer' });
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(buffer);
 
-    sheetNames.value = workbook.SheetNames;
+    sheetNames.value = workbook.worksheets.map(ws => ws.name);
     selectedSheet.value = sheetNames.value[0];
 
-    switchSheet();
+    await switchSheet();
     importStep.value = 1;
   } catch (error) {
     ElMessage.error('文件解析失败：' + error.message);
@@ -626,19 +627,28 @@ const parseExcelFile = async () => {
   }
 };
 
-const switchSheet = () => {
+const switchSheet = async () => {
   if (!selectedFile.value || !selectedSheet.value) return;
 
   try {
-    const buffer = selectedFile.value.arrayBuffer();
-    const workbook = XLSX.read(buffer, { type: 'buffer' });
-    const worksheet = workbook.Sheets[selectedSheet.value];
-    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+    const buffer = await selectedFile.value.arrayBuffer();
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(buffer);
+    const worksheet = workbook.getWorksheet(selectedSheet.value);
 
-    if (jsonData.length === 0) {
+    if (!worksheet || worksheet.rowCount === 0) {
       ElMessage.warning('工作表为空');
       return;
     }
+
+    const jsonData = [];
+    worksheet.eachRow((row, rowNumber) => {
+      const values = [];
+      row.eachCell(cell => {
+        values.push(cell.value);
+      });
+      jsonData.push(values);
+    });
 
     if (hasHeader.value) {
       previewColumns.value = jsonData[0] || [];
@@ -828,7 +838,7 @@ const closeDialog = () => {
   resetImport();
 };
 
-const downloadTemplate = () => {
+const downloadTemplate = async () => {
   // 创建模板数据
   const templateData = [
     ['姓名', '性别', '身份证号', '联系电话', '出生日期', '居住地址', '文化程度', '职业'],
@@ -854,11 +864,27 @@ const downloadTemplate = () => {
     ],
   ];
 
-  const ws = XLSX.utils.aoa_to_sheet(templateData);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, '村民信息模板');
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet('村民信息模板');
 
-  XLSX.writeFile(wb, '村民信息导入模板.xlsx');
+  // 添加数据
+  templateData.forEach(row => {
+    worksheet.addRow(row);
+  });
+
+  // 设置表头样式
+  worksheet.getRow(1).font = { bold: true };
+
+  // 生成文件
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = '村民信息导入模板.xlsx';
+  a.click();
+  window.URL.revokeObjectURL(url);
+
   ElMessage.success('模板下载成功');
 };
 
@@ -872,9 +898,6 @@ const exportData = async () => {
   exporting.value = true;
 
   try {
-    // 模拟导出过程
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
     // 创建导出数据
     const headers = exportOptions.fields.map(fieldKey => {
       const field = systemFields.value.find(f => f.key === fieldKey);
@@ -886,15 +909,29 @@ const exportData = async () => {
       ...props.exportData.map(item => exportOptions.fields.map(fieldKey => item[fieldKey] || '')),
     ];
 
-    const ws = XLSX.utils.aoa_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, '村民数据');
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('村民数据');
 
-    const fileName = `村民数据_${new Date().toISOString().split('T')[0]}.${exportOptions.format}`;
-    XLSX.writeFile(wb, fileName);
+    // 添加数据
+    data.forEach(row => {
+      worksheet.addRow(row);
+    });
+
+    // 设置表头样式
+    worksheet.getRow(1).font = { bold: true };
+
+    // 生成文件
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `村民数据_${new Date().toISOString().split('T')[0]}.xlsx`;
+    a.click();
+    window.URL.revokeObjectURL(url);
 
     ElMessage.success('导出成功');
-    emit('export-success', { fileName, recordCount: data.length - 1 });
+    emit('export-success', { fileName: a.download, recordCount: data.length - 1 });
   } catch (error) {
     ElMessage.error('导出失败：' + error.message);
   } finally {
@@ -910,7 +947,7 @@ const saveExportTemplate = () => {
   ElMessage.info('保存模板功能开发中...');
 };
 
-const exportFailedData = () => {
+const exportFailedData = async () => {
   if (importResult.failed_items.length === 0) return;
 
   const data = [
@@ -918,11 +955,27 @@ const exportFailedData = () => {
     ...importResult.failed_items.map(item => [item.row, item.data, item.reason]),
   ];
 
-  const ws = XLSX.utils.aoa_to_sheet(data);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, '失败数据');
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet('失败数据');
 
-  XLSX.writeFile(wb, `导入失败数据_${new Date().toISOString().split('T')[0]}.xlsx`);
+  // 添加数据
+  data.forEach(row => {
+    worksheet.addRow(row);
+  });
+
+  // 设置表头样式
+  worksheet.getRow(1).font = { bold: true };
+
+  // 生成文件
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `导入失败数据_${new Date().toISOString().split('T')[0]}.xlsx`;
+  a.click();
+  window.URL.revokeObjectURL(url);
+
   ElMessage.success('失败数据导出成功');
 };
 

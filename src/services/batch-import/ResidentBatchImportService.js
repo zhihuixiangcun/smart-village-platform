@@ -3,7 +3,7 @@
  * 支持Excel/CSV文件解析、数据验证、错误处理和进度跟踪
  */
 
-const XLSX = require('xlsx');
+const ExcelJS = require('exceljs');
 const fs = require('fs');
 const fsPromises = require('fs').promises;
 const path = require('path');
@@ -115,9 +115,9 @@ class ResidentBatchImportService extends EventEmitter {
     let data = [];
 
     if (ext === '.csv') {
-      data = this.parseCSV(filePath);
+      data = await this.parseCSV(filePath);
     } else {
-      data = this.parseExcel(filePath);
+      data = await this.parseExcel(filePath);
     }
 
     return data;
@@ -126,11 +126,29 @@ class ResidentBatchImportService extends EventEmitter {
   /**
    * 解析CSV文件
    */
-  parseCSV(filePath) {
-    const workbook = XLSX.readFile(filePath);
-    const sheetName = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[sheetName];
-    const data = XLSX.utils.sheet_to_json(worksheet, { raw: false });
+  async parseCSV(filePath) {
+    const workbook = new ExcelJS.Workbook();
+    await workbook.csv.readFile(filePath);
+    const worksheet = workbook.worksheets[0];
+    const data = [];
+
+    // 获取第一行作为表头
+    const headerRow = worksheet.getRow(1);
+    const headers = [];
+    headerRow.eachCell(cell => {
+      headers.push(cell.value);
+    });
+
+    // 从第二行开始读取数据
+    worksheet.eachRow((row, rowNumber) => {
+      if (rowNumber === 1) return; // 跳过表头
+
+      const rowData = {};
+      row.eachCell((cell, colNumber) => {
+        rowData[headers[colNumber - 1]] = cell.value;
+      });
+      data.push(rowData);
+    });
 
     return data;
   }
@@ -138,11 +156,29 @@ class ResidentBatchImportService extends EventEmitter {
   /**
    * 解析Excel文件
    */
-  parseExcel(filePath) {
-    const workbook = XLSX.readFile(filePath);
-    const sheetName = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[sheetName];
-    const data = XLSX.utils.sheet_to_json(worksheet, { raw: false });
+  async parseExcel(filePath) {
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.readFile(filePath);
+    const worksheet = workbook.worksheets[0];
+    const data = [];
+
+    // 获取第一行作为表头
+    const headerRow = worksheet.getRow(1);
+    const headers = [];
+    headerRow.eachCell(cell => {
+      headers.push(cell.value);
+    });
+
+    // 从第二行开始读取数据
+    worksheet.eachRow((row, rowNumber) => {
+      if (rowNumber === 1) return; // 跳过表头
+
+      const rowData = {};
+      row.eachCell((cell, colNumber) => {
+        rowData[headers[colNumber - 1]] = cell.value;
+      });
+      data.push(rowData);
+    });
 
     return data;
   }
@@ -500,38 +536,41 @@ class ResidentBatchImportService extends EventEmitter {
   /**
    * 下载导入模板
    */
-  generateTemplate() {
-    const template = [
-      {
-        '姓名': '张三',
-        '身份证号': '110101199001011234',
-        '手机号': '13800138000',
-        '性别': '男',
-        '出生日期': '1990-01-01',
-        '家庭住址': '某某村某某组',
-        '村ID': 'village_id_here',
-        '户主姓名': '张父',
-        '与户主关系': '子女'
-      }
+  async generateTemplate() {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('村民数据');
+
+    // 定义表头
+    worksheet.columns = [
+      { header: '姓名', key: 'name', width: 10 },
+      { header: '身份证号', key: 'idCard', width: 20 },
+      { header: '手机号', key: 'phone', width: 15 },
+      { header: '性别', key: 'gender', width: 6 },
+      { header: '出生日期', key: 'birthDate', width: 12 },
+      { header: '家庭住址', key: 'address', width: 30 },
+      { header: '村ID', key: 'villageId', width: 25 },
+      { header: '户主姓名', key: 'householderName', width: 10 },
+      { header: '与户主关系', key: 'relationship', width: 10 }
     ];
 
-    const worksheet = XLSX.utils.json_to_sheet(template);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, '村民数据');
+    // 添加示例数据
+    worksheet.addRow({
+      name: '张三',
+      idCard: '110101199001011234',
+      phone: '13800138000',
+      gender: '男',
+      birthDate: '1990-01-01',
+      address: '某某村某某组',
+      villageId: 'village_id_here',
+      householderName: '张父',
+      relationship: '子女'
+    });
 
-    worksheet['!cols'] = [
-      { wch: 10 },
-      { wch: 20 },
-      { wch: 15 },
-      { wch: 6 },
-      { wch: 12 },
-      { wch: 30 },
-      { wch: 25 },
-      { wch: 10 },
-      { wch: 10 }
-    ];
+    // 设置表头样式
+    worksheet.getRow(1).font = { bold: true };
 
-    return XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+    const buffer = await workbook.xlsx.writeBuffer();
+    return buffer;
   }
 
   /**
@@ -646,44 +685,66 @@ class ResidentBatchImportService extends EventEmitter {
   /**
    * 生成导入报告
    */
-  generateReport(taskId) {
+  async generateReport(taskId) {
     const task = this.importTasks.get(taskId);
     if (!task) {
       throw new Error('任务不存在');
     }
 
-    const report = [
-      {
-        '任务ID': task.id,
-        '文件名': task.fileName,
-        '状态': this.getStatusText(task.status),
-        '总数': task.total,
-        '成功': task.success,
-        '失败': task.failed,
-        '开始时间': task.startTime ? task.startTime.toISOString() : '-',
-        '结束时间': task.endTime ? task.endTime.toISOString() : '-'
-      }
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('导入报告');
+
+    // 定义表头
+    worksheet.columns = [
+      { header: '任务ID', key: 'taskId', width: 30 },
+      { header: '文件名', key: 'fileName', width: 30 },
+      { header: '状态', key: 'status', width: 10 },
+      { header: '总数', key: 'total', width: 10 },
+      { header: '成功', key: 'success', width: 10 },
+      { header: '失败', key: 'failed', width: 10 },
+      { header: '开始时间', key: 'startTime', width: 25 },
+      { header: '结束时间', key: 'endTime', width: 25 }
     ];
 
-    // 添加错误详情
+    // 添加任务摘要
+    worksheet.addRow({
+      taskId: task.id,
+      fileName: task.fileName,
+      status: this.getStatusText(task.status),
+      total: task.total,
+      success: task.success,
+      failed: task.failed,
+      startTime: task.startTime ? task.startTime.toISOString() : '-',
+      endTime: task.endTime ? task.endTime.toISOString() : '-'
+    });
+
+    // 设置表头样式
+    worksheet.getRow(1).font = { bold: true };
+
+    // 如果有错误，添加错误详情工作表
     if (task.errors && task.errors.length > 0) {
-      report.push({});
-      report.push({ '错误详情': '' });
+      const errorWorksheet = workbook.addWorksheet('错误详情');
+      errorWorksheet.columns = [
+        { header: '错误序号', key: 'errorNo', width: 10 },
+        { header: '行号', key: 'row', width: 10 },
+        { header: '姓名', key: 'name', width: 15 },
+        { header: '错误信息', key: 'error', width: 40 }
+      ];
+
+      errorWorksheet.getRow(1).font = { bold: true };
+
       task.errors.slice(0, 100).forEach((err, index) => {
-        report.push({
-          '错误序号': index + 1,
-          '行号': err.row || err.rowIndex || '-',
-          '姓名': err.name || '-',
-          '错误信息': err.error || err.message || '-'
+        errorWorksheet.addRow({
+          errorNo: index + 1,
+          row: err.row || err.rowIndex || '-',
+          name: err.name || '-',
+          error: err.error || err.message || '-'
         });
       });
     }
 
-    const worksheet = XLSX.utils.json_to_sheet(report);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, '导入报告');
-
-    return XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+    const buffer = await workbook.xlsx.writeBuffer();
+    return buffer;
   }
 
   /**
