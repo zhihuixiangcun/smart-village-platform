@@ -1,0 +1,738 @@
+// PC端专用样式文件
+// 智慧乡村综合服务平台 - 响应式设计优化
+
+@import './global-variables.scss';
+
+// ==================== 布局优化 ====================
+
+// 容器最大宽度限制
+.pc-container {
+  max-width: 1920px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-xl);
+
+  @media (max-width: $pc-large-breakpoint) {
+    max-width: 1600px;
+    padding: 0 var(--spacing-lg);
+  }
+
+  @media (max-width: $pc-medium-breakpoint) {
+    max-width: 1400px;
+    padding: 0 var(--spacing-lg);
+  }
+
+  @media (max-width: $pc-small-breakpoint) {
+    max-width: 1200px;
+    padding: 0 var(--spacing-md);
+  }
+
+  @media (max-width: $laptop-breakpoint) {
+    max-width: 100%;
+    padding: 0 var(--spacing-md);
+  }
+}
+
+// ==================== 页面头部 ====================
+
+.pc-page-header {
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-primary);
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-lg);
+  box-shadow: var(--shadow-md);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  transition: all var(--transition-base);
+
+  .header-content {
+    h1 {
+      font-size: var(--font-3xl);
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-xs);
+      line-height: var(--leading-tight);
+    }
+
+    p {
+      font-size: var(--font-base);
+      color: var(--text-secondary);
+      margin: 0;
+      line-height: var(--leading-normal);
+    }
+  }
+
+  .header-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+
+    @media (max-width: $pc-small-breakpoint) {
+      flex-direction: column;
+      align-items: stretch;
+
+      .el-button {
+        width: 100%;
+      margin-bottom: var(--spacing-sm);
+      }
+    }
+  }
+}
+
+// ==================== 卡片样式 ====================
+
+.pc-card {
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-primary);
+  overflow: hidden;
+  transition: all var(--transition-base);
+
+  &:hover {
+    box-shadow: var(--shadow-lg);
+    border-color: var(--border-active);
+    transform: translateY(-2px);
+  }
+
+  .card-header {
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--border-secondary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-secondary);
+
+    .card-title {
+      font-size: var(--font-lg);
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+
+      .el-icon {
+        font-size: var(--font-xl);
+      color: var(--color-primary);
+      margin-right: var(--spacing-xs);
+      @media (prefers-reduced-motion: no-preference) {
+        transition: transform var(--transition-base);
+        &:hover {
+          transform: scale(1.1);
+        }
+      }
+    }
+
+    .card-actions {
+      display: flex;
+      gap: var(--spacing-sm);
+    }
+  }
+
+  .card-body {
+    padding: var(--spacing-lg);
+  }
+
+  .card-footer {
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-top: 1px solid var(--border-secondary);
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-sm);
+    background: var(--bg-secondary);
+  }
+}
+
+// ==================== 统计卡片 ====================
+
+.pc-stat-card {
+  @extend .pc-card;
+  padding: var(--spacing-xl);
+  cursor: pointer;
+  transition: all var(--transition-base);
+
+  @media (hover: hover) {
+    &:hover {
+      transform: translateY(-4px) scale(1.02);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &:hover {
+      transform: none;
+    }
+  }
+
+  .stat-content {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-lg);
+
+    @media (max-width: $pc-small-breakpoint) {
+      gap: var(--spacing-md);
+    }
+  }
+
+  .stat-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--color-primary-lighter) 0%, var(--color-primary) 100%);
+    color: var(--text-inverse);
+    box-shadow: var(--shadow-inner);
+
+    @media (max-width: $pc-small-breakpoint) {
+      width: 56px;
+      height: 56px;
+    }
+  }
+
+  .stat-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .stat-value {
+    font-size: var(--font-4xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: var(--leading-none);
+    margin-bottom: var(--spacing-xs);
+
+    @media (max-width: $pc-small-breakpoint) {
+      font-size: var(--font-3xl);
+    }
+  }
+
+  .stat-label {
+    font-size: var(--font-base);
+    color: var(--text-secondary);
+    font-weight: 500;
+    line-height: var(--leading-normal);
+  }
+
+  .stat-change {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: var(--font-sm);
+    font-weight: 600;
+    margin-top: var(--spacing-sm);
+
+    &.positive {
+      color: var(--color-success);
+    }
+
+    &.negative {
+      color: var(--color-danger);
+    }
+
+    &.neutral {
+      color: var(--text-tertiary);
+    }
+  }
+}
+
+// ==================== 表格样式 ====================
+
+.pc-table-container {
+  @extend .pc-card;
+
+  .table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+  }
+
+  .table-title {
+    font-size: var(--font-xl);
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .table-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+
+    .total-count {
+      font-size: var(--font-sm);
+      color: var(--text-secondary);
+      margin-right: var(--spacing-md);
+    }
+  }
+
+  .table-wrapper {
+    overflow-x: auto;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-secondary);
+  }
+
+  .el-table {
+    width: 100%;
+    font-size: var(--font-base);
+
+    & th {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      font-weight: 600;
+      padding: var(--spacing-md);
+      white-space: nowrap;
+    }
+
+    & td {
+      padding: var(--spacing-md);
+      border-bottom: 1px solid var(--border-secondary);
+      color: var(--text-primary);
+      transition: background-color var(--transition-fast);
+
+      &:hover {
+        background: var(--bg-secondary);
+      }
+    }
+
+    // 行选中状态
+    & tr.selected > td {
+      background: var(--bg-active);
+    }
+  }
+}
+
+// ==================== 表单样式 ====================
+
+.pc-form-container {
+  @extend .pc-card;
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+
+    @media (max-width: $pc-small-breakpoint) {
+      grid-template-columns: 1fr;
+      gap: var(--spacing-md);
+    }
+  }
+
+  .form-row {
+    display: flex;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    align-items: flex-end;
+
+    @media (max-width: $pc-small-breakpoint) {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-md);
+    padding-top: var(--spacing-xl);
+    border-top: 1px solid var(--border-secondary);
+    margin-top: var(--spacing-xl);
+  }
+}
+
+// ==================== 对话框样式 ====================
+
+.pc-dialog {
+  .el-dialog__header {
+    padding: var(--spacing-xl);
+    border-bottom: 2px solid var(--border-primary);
+  }
+
+  .el-dialog__title {
+    font-size: var(--font-2xl);
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .el-dialog__body {
+    padding: var(--spacing-xl);
+    max-height: 70vh;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-primary) var(--bg-secondary);
+
+    &::-webkit-scrollbar {
+      width: 8px;
+    height: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: var(--bg-secondary);
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--border-primary);
+      border-radius: var(--radius-sm);
+
+      &:hover {
+        background: var(--border-active);
+      }
+    }
+  }
+
+  .el-dialog__footer {
+    padding: var(--spacing-md) var(--spacing-xl);
+    border-top: 1px solid var(--border-secondary);
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-md);
+  }
+}
+
+// ==================== 抽屉样式 ====================
+
+.pc-drawer {
+  .el-drawer__header {
+    padding: var(--spacing-xl);
+    border-bottom: 1px solid var(--border-secondary);
+    background: var(--bg-secondary);
+
+    .drawer-title {
+      font-size: var(--font-xl);
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+  }
+
+  .el-drawer__body {
+    padding: var(--spacing-xl);
+    overflow-y: auto;
+  }
+
+  .info-section {
+    margin-bottom: var(--spacing-xl);
+
+    .section-title {
+      font-size: var(--font-lg);
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-md);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+
+      .section-icon {
+        color: var(--color-primary);
+        margin-right: var(--spacing-xs);
+      }
+    }
+
+    .permission-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-sm);
+
+      .el-tag {
+        margin: 0;
+      font-size: var(--font-sm);
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      }
+    }
+  }
+
+  .login-history {
+    margin-top: var(--spacing-lg);
+  }
+}
+
+// ==================== 响应式优化 ====================
+
+// 网格视图响应式
+.pc-grid-view {
+  display: grid;
+  gap: var(--spacing-lg);
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+
+  @media (max-width: $pc-large-breakpoint) {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--spacing-md);
+  }
+
+  @media (max-width: $pc-medium-breakpoint) {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--spacing-md);
+  }
+
+  @media (max-width: $pc-small-breakpoint) {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: var(--spacing-sm);
+  }
+
+  @media (max-width: $laptop-breakpoint) {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+}
+
+// ==================== 可访问性增强 ====================
+
+// 焦点状态
+.pc-focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+
+  &::-moz-focus-inner {
+    border: 0;
+    outline: none;
+  }
+}
+
+// 跳过链接
+.pc-skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--color-primary);
+  color: var(--text-inverse);
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  z-index: var(--z-maximum);
+  transition: top var(--transition-base);
+
+  &:focus {
+    top: 0;
+    outline: 2px solid var(--color-primary-dark);
+  }
+}
+
+// 屏幕阅读器支持
+.pc-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+// ==================== 动画效果 ====================
+
+// 淡入动画
+@keyframes pc-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.pc-fade-in {
+  animation: pc-fade-in var(--transition-base) ease-out;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+// 滑入动画
+@keyframes pc-slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.pc-slide-in {
+  animation: pc-slide-in-right var(--transition-base) ease-out;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+// 缩放动画
+@keyframes pc-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.pc-scale-in {
+  animation: pc-scale-in var(--transition-base) cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+// 旋转加载动画
+@keyframes pc-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.pc-spin {
+  animation: pc-spin 1s linear infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+// ==================== 工具类 ====================
+
+// 间距工具
+.pc-mt-0 { margin-top: 0; }
+.pc-mt-1 { margin-top: var(--spacing-xs); }
+.pc-mt-2 { margin-top: var(--spacing-sm); }
+.pc-mt-3 { margin-top: var(--spacing-md); }
+.pc-mt-4 { margin-top: var(--spacing-lg); }
+.pc-mt-5 { margin-top: var(--spacing-xl); }
+
+.pc-mb-0 { margin-bottom: 0; }
+.pc-mb-1 { margin-bottom: var(--spacing-xs); }
+.pc-mb-2 { margin-bottom: var(--spacing-sm); }
+.pc-mb-3 { margin-bottom: var(--spacing-md); }
+.pc-mb-4 { margin-bottom: var(--spacing-lg); }
+.pc-mb-5 { margin-bottom: var(--spacing-xl); }
+
+.pc-my-0 { margin-top: 0; margin-bottom: 0; }
+.pc-my-1 { margin-top: var(--spacing-xs); margin-bottom: var(--spacing-xs); }
+.pc-my-2 { margin-top: var(--spacing-sm); margin-bottom: var(--spacing-sm); }
+.pc-my-3 { margin-top: var(--spacing-md); margin-bottom: var(--spacing-md); }
+.pc-my-4 { margin-top: var(--spacing-lg); margin-bottom: var(--spacing-lg); }
+.pc-my-5 { margin-top: var(--spacing-xl); margin-bottom: var(--spacing-xl); }
+
+// Flexbox工具
+.pc-flex { display: flex; }
+.pc-flex-center { display: flex; justify-content: center; align-items: center; }
+.pc-flex-between { display: flex; justify-content: space-between; align-items: center; }
+.pc-flex-around { display: flex; justify-content: space-around; align-items: center; }
+.pc-flex-start { display: flex; justify-content: flex-start; align-items: center; }
+.pc-flex-end { display: flex; justify-content: flex-end; align-items: center; }
+.pc-flex-column { display: flex; flex-direction: column; }
+.pc-flex-wrap { flex-wrap: wrap; }
+.pc-flex-gap-1 { gap: var(--spacing-xs); }
+.pc-flex-gap-2 { gap: var(--spacing-sm); }
+.pc-flex-gap-3 { gap: var(--spacing-md); }
+.pc-flex-gap-4 { gap: var(--spacing-lg); }
+
+// 文本工具
+.pc-text-center { text-align: center; }
+.pc-text-left { text-align: left; }
+.pc-text-right { text-align: right; }
+.pc-text-justify { text-align: justify; }
+.pc-text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// 显示工具
+.pc-d-none { display: none !important; }
+.pc-d-block { display: block !important; }
+.pc-d-inline { display: inline !important; }
+.pc-d-inline-block { display: inline-block !important; }
+.pc-d-flex { display: flex !important; }
+
+// 宽高工具
+.pc-w-full { width: 100% !important; }
+.pc-h-full { height: 100% !important; }
+.pc-max-w-full { max-width: 100%; }
+.pc-max-h-full { max-height: 100%; }
+
+// 圆角工具
+.pc-rounded { border-radius: var(--radius-md); }
+.pc-rounded-sm { border-radius: var(--radius-sm); }
+.pc-rounded-lg { border-radius: var(--radius-lg); }
+.pc-rounded-full { border-radius: 9999px; }
+
+// 阴影工具
+.pc-shadow-sm { box-shadow: var(--shadow-xs); }
+.pc-shadow { box-shadow: var(--shadow-sm); }
+.pc-shadow-md { box-shadow: var(--shadow-md); }
+.pc-shadow-lg { box-shadow: var(--shadow-lg); }
+.pc-shadow-xl { box-shadow: var(--shadow-xl); }
+.pc-shadow-none { box-shadow: none; }
+
+// ==================== 打印优化 ====================
+
+@media print {
+  .pc-page-header,
+  .pc-sidebar,
+  .pc-footer {
+    display: none !important;
+  }
+
+  .pc-main-content {
+    margin-left: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .pc-card {
+    box-shadow: none !important;
+    border: 1px solid #000 !important;
+    page-break-inside: avoid;
+  }
+
+  .el-table {
+    page-break-inside: avoid;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}
+
+// ==================== 高对比度模式 ====================
+
+@media (prefers-contrast: high) {
+  .pc-card {
+    border-width: 2px;
+    border-color: var(--text-primary);
+  }
+
+  .el-button {
+    border-width: 2px;
+  }
+}
+
+// ==================== 深色模式适配 ====================
+
+[data-theme='dark'] {
+  .pc-card {
+    border-color: var(--border-dark);
+  }
+
+  .el-input__wrapper {
+    background: var(--bg-tertiary);
+    border-color: var(--border-dark);
+  }
+
+  .el-table th {
+    background: var(--bg-tertiary);
+  }
+}

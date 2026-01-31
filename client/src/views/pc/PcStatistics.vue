@@ -285,25 +285,32 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick, onUnmounted } from 'vue';
+import { ref, reactive, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { ElMessage } from 'element-plus';
-import * as echarts from 'echarts';
+import { useUserStore } from '@/stores/userStore';
+import { ElMessage, ElMessage, ElNotification } from 'element-plus';
 import {
-  Download,
   DataAnalysis,
-  Refresh,
+  TrendCharts,
+  List,
   UserFilled,
   HomeFilled,
-  WarningFilled,
+  Download,
+  Refresh,
+  Setting,
+  Printer,
+  ChatDotRound,
+  ChatLine,
+  Monitor,
+  DataBoard,
   PieChart,
-  TrendCharts,
-  CircleCheck,
-  List,
-  ArrowUp,
-  ArrowDown,
+  BarChart,
+  LineChart,
+  Calendar,
+  Star,
 } from '@element-plus/icons-vue';
 import SkeletonScreen from '@/components/common/SkeletonScreen.vue';
+import * as statisticsApi from '@/api/statistics';
 
 const router = useRouter();
 

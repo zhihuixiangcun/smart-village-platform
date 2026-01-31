@@ -1,11 +1,221 @@
+// 全局样式
+// 智慧乡村综合服务平台
+
+// 导入全局变量和PC端优化样式
+@import './global-variables.scss';
+@import './pc-responsive.scss';
+
 // 导入移动端适配样式
 @import './mobile-adaptation.css';
 
-// 全局样式
+// 全局重置
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    'PingFang SC',
+    'Hiragino Sans GB',
+    'Microsoft YaHei',
+    sans-serif;
+  font-size: 14px;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// 移动端优化
+@media (max-width: 768px) {
+  html,
+  body {
+    font-size: 14px;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
+}
+
+#app {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+// ==================== 通用类 ====================
+
+// 文本对齐
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+// 显示控制
+.d-none {
+  display: none !important;
+}
+
+.d-block {
+  display: block !important;
+}
+
+.d-flex {
+  display: flex !important;
+}
+
+// 间距工具类
+.mt-10 {
+  margin-top: 10px;
+}
+
+.mt-20 {
+  margin-top: 20px;
+}
+
+.mb-10 {
+  margin-bottom: 10px;
+}
+
+.mb-20 {
+  margin-bottom: 20px;
+}
+
+.p-10 {
+  padding: 10px;
+}
+
+.p-20 {
+  padding: 20px;
+}
+
+// ==================== 可访问性 ====================
+
+// 焦点状态
+.focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+// 跳过链接
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--color-primary);
+  color: var(--text-inverse);
+  padding: 8px 16px;
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  z-index: var(--z-maximum);
+  transition: top var(--transition-base);
+  
+  &:focus {
+    top: 0;
+    outline: 2px solid var(--text-inverse);
+  }
+}
+
+// ==================== 动画 ====================
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity var(--transition-base);
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.fade-enter-to,
+.fade-leave-from {
+  opacity: 1;
+}
+
+.slide-fade-enter-active {
+  transition: all var(--transition-base);
+}
+
+.slide-fade-leave-active {
+  transition: all var(--transition-base);
+}
+
+.slide-fade-enter-from {
+  transform: translateX(-20px);
+  opacity: 0;
+}
+
+.slide-fade-leave-to {
+  transform: translateX(20px);
+  opacity: 0;
+}
+
+.slide-fade-enter-to {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.slide-fade-leave-from {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+// ==================== 滚动条样式 ====================
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-primary);
+  border-radius: var(--radius-sm);
+  
+  &:hover {
+    background: var(--border-hover);
+  }
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--bg-secondary);
+}
+
+// ==================== 打印样式 ====================
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    background: white;
+    color: black;
+  }
 }
 
 html,

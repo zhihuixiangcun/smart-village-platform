@@ -192,6 +192,16 @@ console.log('[DEBUG] villageManagementRoutes temporarily disabled');
 // const villageUserRoutes = require('./routes/villageUser');
 console.log('[DEBUG] villageUserRoutes temporarily disabled');
 
+// 导入语音识别路由
+const speechRoutes = require('./routes/speech');
+console.log('[DEBUG] speechRoutes loaded');
+const voiceRoutes = require('./routes/voice/voiceRoutes');
+console.log('[DEBUG] voiceRoutes loaded');
+
+// 导入语音合成路由
+const voiceSynthesisRoutes = require('./routes/voiceSynthesis.routes');
+console.log('[DEBUG] voiceSynthesisRoutes loaded');
+
 // 导入离线数据同步路由 - temporarily disabled
 // const syncRoutes = require('./routes/sync.routes');
 console.log('[DEBUG] syncRoutes temporarily disabled');
@@ -745,13 +755,29 @@ if (utilityRoutes) {
 }
 if (paymentRoutes) {
   app.use('/api/v1/payment', paymentRoutes);
+  console.log('[DEBUG] paymentRoutes registered at /api/v1/payment');
+}
+
+// 语音识别路由
+if (speechRoutes) {
+  app.use('/api/speech', speechRoutes);
+  console.log('[DEBUG] speechRoutes registered at /api/speech');
+}
+if (voiceRoutes) {
+  app.use('/api/voice', voiceRoutes);
+  console.log('[DEBUG] voiceRoutes registered at /api/voice');
+}
+
+// 语音合成路由
+if (voiceSynthesisRoutes) {
+  app.use('/api/tts', voiceSynthesisRoutes);
+  console.log('[DEBUG] voiceSynthesisRoutes registered at /api/tts');
+}
 
 // 系统设置路由
 const systemSettingsRoutes = require('./routes/systemSettingsRoutes');
 app.use('/api/v1/system-settings', systemSettingsRoutes);
 console.log('[DEBUG] systemSettingsRoutes registered');
-  console.log('[DEBUG] paymentRoutes registered at /api/v1/payment');
-}
 console.log('[DEBUG] registrationRoutes DISABLED (troubleshooting)');
 
 // 安全中间件集成 - Temporarily disabled to debug startup issue

@@ -49,7 +49,8 @@ const io = new Server(server, {
       'http://localhost:3012',
       'http://127.0.0.1:3006',
       'http://127.0.0.1:3007',
-      'http://127.0.0.1:3012'
+      'http://127.0.0.1:3012',
+      'http://127.0.0.0:5000'
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
@@ -159,16 +160,16 @@ app.get('/api/info', (req, res) => {
   });
 });
 
-// Import routes - 暂时禁用复杂路由，只使用内置的简化实现
-// const authRoutes = require('../src/routes/auth');
+// Import routes - 恢复认证路由
+const authRoutes = require('../src/routes/smartVillageAuth');
 // const residentRoutes = require('../src/routes/residents');
 // const governanceRoutes = require('../src/routes/governance');
 const speechRoutes = require('./api/speech');
 const syncRoutes = require('./api/sync');
 const chatRoutes = require('./api/chat');
 
-// Apply routes - 使用内置实现，不加载外部路由文件
-// app.use('/api/auth', authRoutes);
+// Apply routes
+app.use('/api/auth', authRoutes);
 // app.use('/api/residents', residentRoutes);
 // app.use('/api/announcements', governanceRoutes);
 // app.use('/api/suggestions', governanceRoutes);
@@ -177,7 +178,7 @@ const chatRoutes = require('./api/chat');
 // app.use('/api/sync', syncRoutes);
 app.use('/api/chat', chatRoutes);
 
-console.log('⚠️ 村务服务器使用简化模式，未加载外部路由（auth/residents/governance）');
+console.log('✅ 村务服务器已启用认证路由');
 
 // In-memory data for village operations
 const announcements = [];
@@ -685,35 +686,38 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Database connection and server start
-async function startServer() {
-  try {
-    console.log('🚀 启动智慧乡村村务服务...');
+// ============================================
+// startServer 函数 - 启动HTTP和Socket.IO服务器
+// ============================================
+const startServer = async () => {
+  const PORT = process.env.VILLAGE_SERVER_PORT || 5000;
 
-    // Connect to MongoDB (optional for village service)
-    try {
-      await mongoose.connect(MONGO_URI, {
-        serverSelectionTimeoutMS: 5000
-      });
-      console.log('✅ MongoDB connected');
-    } catch (dbError) {
-      console.warn('⚠️ MongoDB connection failed, running without database:', dbError.message);
-    }
+  // Connect to MongoDB (optional for village service)
+  mongoose.connect(MONGO_URI, {
+    serverSelectionTimeoutMS: 3000,
+    connectTimeoutMS: 3000
+  })
+  .then(() => {
+    console.log('✅ MongoDB connected');
+  })
+  .catch((dbError) => {
+    console.warn('⚠️ MongoDB connection failed, running without database:', dbError.message);
+  });
 
-    // Start server
-    server.listen(PORT, () => {
+  // Start HTTP server (don't wait for MongoDB)
+  server.listen(PORT, () => {
       console.log('✅ 智慧乡村村务服务启动成功');
       console.log(`🌐 服务地址: http://localhost:${PORT}`);
       console.log(`🏥 健康检查: http://localhost:${PORT}/health`);
       console.log(`🔌 Socket.IO: ws://localhost:${PORT}`);
       console.log('📡 可用端点:');
-      console.log(`   - GET  /health`);
-      console.log(`   - GET  /api/info`);
-      console.log(`   - GET  /api/announcements`);
+      console.log(`   - GET /health`);
+      console.log(`   - GET /api/info`);
+      console.log(`   - GET /api/announcements`);
       console.log(`   - POST /api/announcements`);
-      console.log(`   - GET  /api/suggestions`);
+      console.log(`   - GET /api/suggestions`);
       console.log(`   - POST /api/suggestions`);
-      console.log(`   - GET  /api/residents`);
+      console.log(`   - GET /api/residents`);
       console.log(`   - POST /api/auth/login`);
       console.log('🔌 Socket.IO 事件:');
       console.log(`   - join-village`);
@@ -722,38 +726,45 @@ async function startServer() {
       console.log(`   - emergency-broadcast`);
       console.log(`   - submit-suggestion`);
       console.log(`   - village-message`);
+});
+
+  // 启动成功
+  return {
+    success: true,
+    httpPort: PORT,
+    wsPort: PORT,
+    message: 'Village service started successfully'
+  };
+};
+
+// Graceful shutdown
+const gracefulShutdown = (signal) => {
+  console.log(`🛑 收到${signal}信号，正在关闭服务器...`);
+
+  server.close(() => {
+    console.log('📡 HTTP服务器已关闭');
+    mongoose.connection.close(false, () => {
+      console.log('🗄️ MongoDB连接已关闭');
+      process.exit(0);
     });
+  });
 
-    // Graceful shutdown
-    const gracefulShutdown = (signal) => {
-      console.log(`🛑 收到${signal}信号，正在关闭服务器...`);
-
-      server.close(() => {
-        console.log('📡 HTTP服务器已关闭');
-        mongoose.connection.close(false, () => {
-          console.log('🗄️  MongoDB连接已关闭');
-          process.exit(0);
-        });
-      });
-
-      setTimeout(() => {
-        console.error('⚠️ 强制关闭服务器');
-        process.exit(1);
-      }, 10000);
-    };
-
-    process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-    process.on('SIGINT', () => gracefulShutdown('SIGINT'));
-
-  } catch (error) {
-    console.error('❌ 智慧乡村村务服务启动失败:', error);
+  setTimeout(() => {
+    console.error('⚠️ 强制关闭服务器');
     process.exit(1);
-  }
-}
+  }, 10000);
+};
 
 // Start server if running directly
 if (require.main === module) {
-  startServer();
+  startServer()
+    .then(() => {
+      console.log('✅ 村务服务启动完成');
+    })
+    .catch((error) => {
+      console.error('❌ 村务服务启动失败:', error);
+      process.exit(1);
+    });
 }
 
-module.exports = { app, server, io };
+module.exports = { app, server, io, startServer };

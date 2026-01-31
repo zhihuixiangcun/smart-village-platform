@@ -452,6 +452,8 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/userStore';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Setting, Bell, Lock, DataBoard, InfoFilled } from '@element-plus/icons-vue';
 import SkeletonScreen from '@/components/common/SkeletonScreen.vue';

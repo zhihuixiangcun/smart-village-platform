@@ -259,3 +259,14 @@ reports/
 !.env.example
 /nul
 client/src/nul
+server/nul
+src/nul
+
+# =================================
+# Claude Code 临时目录
+# =================================
+claude-code/
+skills/
+claude-plugins-official/
+claude-mem/
+superpowers/

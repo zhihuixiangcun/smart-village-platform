@@ -20,12 +20,9 @@ class DatabaseInitializer {
   async connect() {
     console.log('🔄 连接数据库...');
     console.log('   URI:', this.uri.replace(/\/\/([^:]+):([^@]+)@/, '//***:***@'));
-    
-    await mongoose.connect(this.uri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    
+
+    await mongoose.connect(this.uri);
+
     console.log('✅ 数据库连接成功');
   }
 
@@ -45,55 +42,75 @@ class DatabaseInitializer {
 
   async initVillages() {
     console.log('🏘️  初始化村庄数据...');
-    
-    const villages = [
+
+    const villagesData = [
       {
-        code: 'ZJHSSV001A',
+        code: 'ZJHSS1V001A',
         name: '绿水村',
-        alias: ['绿水青山村'],
+        // 地址字段：完整地址字符串（必填）
+        address: '浙江省杭州市西湖区双浦镇绿水村',
+        // 行政区划信息：顶层字段（必填）
+        province: '浙江省',
+        city: '杭州市',
+        district: '西湖区',
+        adcode: '330106001',
+        // 地理位置
         location: {
           type: 'Point',
           coordinates: [120.123456, 30.654321]
         },
-        address: {
-          province: '浙江省',
-          city: '杭州市',
-          district: '西湖区',
-          town: '双浦镇',
-          village: '绿水村'
-        },
-        overview: {
-          population: 1250,
-          households: 420,
-          area: 15.6
-        },
-        status: 'active'
+        // 统计信息：顶层字段（必填）
+        population: 1250,
+        households: 420,
+        area: 15.6,
+        // 状态
+        isActive: true
       },
       {
-        code: 'ZJHSSV002A',
+        code: 'ZJHSS2V002A',
         name: '青山村',
+        address: '浙江省杭州市西湖区双浦镇青山村',
+        province: '浙江省',
+        city: '杭州市',
+        district: '西湖区',
+        adcode: '330106002',
         location: {
           type: 'Point',
           coordinates: [120.234567, 30.765432]
         },
-        address: {
-          province: '浙江省',
-          city: '杭州市',
-          district: '西湖区',
-          town: '双浦镇',
-          village: '青山村'
-        },
-        overview: {
-          population: 980,
-          households: 350,
-          area: 12.3
-        },
-        status: 'active'
+        population: 980,
+        households: 350,
+        area: 12.3,
+        isActive: true
       }
     ];
 
-    const createdVillages = await Village.insertMany(villages);
-    console.log(`✅ 创建了 ${createdVillages.length} 个村庄`);
+    const createdVillages = [];
+    for (const data of villagesData) {
+      const village = new Village(data);
+
+      // 验证文档
+      const validationError = village.validateSync();
+      if (validationError) {
+        console.error('❌ Mongoose 验证失败:', data.name);
+        console.error('错误详情:', validationError.errors);
+        throw validationError;
+      }
+
+      try {
+        await village.save();
+        createdVillages.push(village);
+        console.log(`✅ 创建村庄: ${village.name}`);
+      } catch (dbError) {
+        console.error('❌ MongoDB 验证失败:', data.name);
+        if (dbError.errInfo?.details) {
+          console.error('验证规则详情:', JSON.stringify(dbError.errInfo.details, null, 2));
+        }
+        throw dbError;
+      }
+    }
+
+    console.log(`✅ 总共创建了 ${createdVillages.length} 个村庄`);
     return createdVillages;
   }
 

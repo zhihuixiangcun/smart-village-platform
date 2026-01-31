@@ -427,12 +427,15 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, computed } from 'vue';
+ <script setup lang="ts">
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/userStore';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Edit, Plus, Search, Clock, ChatDotRound, Grid } from '@element-plus/icons-vue';
 import SkeletonScreen from '@/components/common/SkeletonScreen.vue';
+import * as residentApi from '@/api/resident';
+import * as residentApi from '@/api/resident';
 
 interface Notice {
   id: string;

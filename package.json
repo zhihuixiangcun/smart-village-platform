@@ -44,7 +44,10 @@
     "performance:benchmark": "npx jest tests/performance/ --maxWorkers=1",
     "performance:api": "npx jest tests/performance/api-benchmark.test.js --maxWorkers=1",
     "performance:service": "npx jest tests/performance/service-benchmark.test.js --maxWorkers=1",
-    "performance:report": "node tests/performance/generate-report.js"
+    "performance:report": "node tests/performance/generate-report.js",
+    "kanban": "node scripts/kanban-cli.js",
+    "kanban:overview": "node scripts/kanban-cli.js overview",
+    "kanban:tasks": "node scripts/kanban-cli.js tasks"
   },
   "keywords": [
     "smart-village",
@@ -68,18 +71,19 @@
     "accesscontrol": "^2.2.1",
     "apicache": "^1.6.3",
     "axios": "^1.11.0",
-    "bcryptjs": "^2.4.3",
+    "bcryptjs": "^3.0.3",
     "bpmn-engine": "^24.0.1",
     "casbin": "^5.28.0",
     "compression": "^1.8.1",
     "cors": "^2.8.5",
-    "express": "^4.21.2",
+    "exceljs": "^4.4.0",
+    "express": "^5.2.1",
     "express-rate-limit": "^7.5.1",
     "express-slow-down": "^3.0.0",
     "express-validator": "^7.2.1",
     "face-api.js": "^0.22.2",
-    "faker": "^6.6.6",
-    "helmet": "^7.2.0",
+    "faker": "^5.5.3",
+    "helmet": "^8.1.0",
     "http-proxy-middleware": "^3.0.5",
     "i18next": "^23.16.8",
     "i18next-fs-backend": "^2.6.0",
@@ -89,8 +93,8 @@
     "lru-cache": "^10.0.0",
     "memory-cache": "^0.2.0",
     "moment": "^2.30.1",
-    "mongodb": "^6.19.0",
-    "mongoose": "^8.18.0",
+    "mongodb": "^7.0.0",
+    "mongoose": "^9.1.5",
     "morgan": "^1.10.1",
     "msgpack-lite": "^0.1.26",
     "multer": "^1.4.5-lts.2",
@@ -99,7 +103,7 @@
     "node-fetch": "^3.3.2",
     "nodemailer": "^7.0.6",
     "qrcode": "^1.5.4",
-    "redis": "^4.7.1",
+    "redis": "^5.10.0",
     "sharp": "^0.33.5",
     "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.1",
@@ -107,11 +111,11 @@
     "tesseract.js": "^5.1.1",
     "uuid": "^13.0.0",
     "validator": "^13.15.23",
+    "vibe-kanban-web-companion": "^0.0.5",
     "web3": "^4.16.0",
     "winston": "^3.17.0",
     "workbox-webpack-plugin": "^7.1.0",
-    "ws": "^8.18.3",
-    "xlsx": "^0.18.5"
+    "ws": "^8.18.3"
   },
   "devDependencies": {
     "eslint": "^8.56.0",
@@ -119,6 +123,7 @@
     "jest-junit": "^16.0.0",
     "mongodb-memory-server": "^9.1.3",
     "nodemon": "^3.0.2",
-    "supertest": "^6.3.3"
+    "supertest": "^6.3.3",
+    "webpack-cli": "^6.0.1"
   }
 }

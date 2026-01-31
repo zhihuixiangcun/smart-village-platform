@@ -12,10 +12,6 @@ const AuthLayout = () => import('@/layouts/AuthLayout.vue');
 const MobileLayout = () => import('@/layouts/MobileLayout.vue');
 const ErrorLayout = () => import('@/layouts/ErrorLayout.vue');
 const PcLayout = () => import('@/layouts/PcLayout.vue');
-
-// 懒加载页面组件
-const Home = () => import('@/views/Home.vue');
-const MinimalApp = () => import('@/MinimalApp.vue');
 const TestRegister = () => import('@/views/test/TestRegister.vue');
 const SimpleRegister = () => import('@/views/auth/SimpleRegister.vue');
 const Login = () => import('@/views/auth/ModernLogin.vue');
@@ -23,6 +19,7 @@ const UnifiedRegister = () => import('@/views/auth/UnifiedRegister.vue');
 const ResidentRegister = () => import('@/views/auth/ResidentRegister.vue');
 const OfficialApply = () => import('@/views/auth/OfficialApply.vue');
 const FaceRecognition = () => import('@/views/auth/FaceRecognition.vue');
+const FaceLogin = () => import('@/views/auth/FaceLogin.vue');
 const Register = () => import('@/views/auth/Register.vue');
 const EnhancedRegister = () => import('@/views/auth/EnhancedRegister.vue');
 const OfficialRegister = () => import('@/views/auth/OfficialRegister.vue');
@@ -35,6 +32,9 @@ const AdminRegister = () => import('@/views/auth/AdminRegister.vue');
 
 // AI服务模块
 const AIAssistant = () => import('@/views/ai/AIAssistant.vue');
+
+// API测试模块
+const ApiTest = () => import('@/views/test/ApiTest.vue');
 
 // PC端页面
 const PcDashboard = () => import('@/views/pc/PcDashboard.vue');
@@ -124,18 +124,18 @@ const routes = [
   {
     path: '/',
     name: 'home',
-    component: MinimalApp,
+    component: Login,
     meta: {
-      title: '智慧乡村综合服务平台',
+      title: '用户登录',
+      description: '智慧乡村平台统一登录入口，支持多种角色登录方式',
       requiresAuth: false,
       permissions: routeMeta.permissions.public,
-      layout: 'default',
+      layout: 'auth',
       accessibility: routeMeta.accessibility.full,
       keepAlive: false,
-      showInMenu: true,
-      menuIcon: 'House',
-      menuOrder: 1,
-      description: '智慧乡村平台首页，提供一站式乡村服务入口',
+      showInMenu: false,
+      menuIcon: 'Lock',
+      menuOrder: 0,
     },
   },
   // 测试路由
@@ -304,12 +304,26 @@ const routes = [
       {
         path: 'face-login',
         name: 'face-login',
-        component: FaceRecognition,
+        component: FaceLogin,
         meta: {
           title: '人脸识别登录',
-          description: '使用面部识别快速安全登录',
+          description: '使用面部识别快速安全登录，支持实时检测和进度显示',
           accessibility: routeMeta.accessibility.enhanced,
           requiresCamera: true,
+          allowGuest: true,
+        },
+      },
+      {
+        path: 'face-recognition',
+        name: 'face-recognition',
+        component: FaceRecognition,
+        meta: {
+          title: '人脸识别（旧版）',
+          description: '旧版人脸识别页面，已迁移到 FaceLogin',
+          accessibility: routeMeta.accessibility.enhanced,
+          requiresCamera: true,
+          allowGuest: true,
+          deprecated: true,
         },
       },
       {
@@ -775,7 +789,19 @@ const routes = [
       },
     ],
   },
-
+  
+  // API测试模块
+  {
+    path: '/api-test',
+    component: ApiTest,
+    meta: {
+      title: 'API集成测试',
+      requiresAuth: false,
+      layout: 'default',
+      hideInMenu: true,
+    },
+  },
+  
   // PC端管理模块
   {
     path: '/pc',
@@ -799,10 +825,7 @@ const routes = [
         meta: {
           title: '仪表板',
           permissions: ['dashboard:view'],
-          breadcrumb: [
-            { title: '首页', path: '/pc/dashboard' },
-            { title: '仪表板' },
-          ],
+          breadcrumb: [{ title: '首页', path: '/pc/dashboard' }, { title: '仪表板' }],
           description: 'PC端数据概览和快速操作',
         },
       },
@@ -813,10 +836,7 @@ const routes = [
         meta: {
           title: '村民管理',
           permissions: ['resident:read'],
-          breadcrumb: [
-            { title: '首页', path: '/pc/dashboard' },
-            { title: '村民管理' },
-          ],
+          breadcrumb: [{ title: '首页', path: '/pc/dashboard' }, { title: '村民管理' }],
           description: '村民信息管理和档案维护',
         },
       },
@@ -827,10 +847,7 @@ const routes = [
         meta: {
           title: '村务管理',
           permissions: ['village:read'],
-          breadcrumb: [
-            { title: '首页', path: '/pc/dashboard' },
-            { title: '村务管理' },
-          ],
+          breadcrumb: [{ title: '首页', path: '/pc/dashboard' }, { title: '村务管理' }],
           description: '村务公开、公告发布、任务管理',
         },
       },
@@ -841,10 +858,7 @@ const routes = [
         meta: {
           title: '财务管理',
           permissions: ['finance:read'],
-          breadcrumb: [
-            { title: '首页', path: '/pc/dashboard' },
-            { title: '财务管理' },
-          ],
+          breadcrumb: [{ title: '首页', path: '/pc/dashboard' }, { title: '财务管理' }],
           description: '村集体资金管理、收支明细',
         },
       },
@@ -855,10 +869,7 @@ const routes = [
         meta: {
           title: '生活服务',
           permissions: ['service:read'],
-          breadcrumb: [
-            { title: '首页', path: '/pc/dashboard' },
-            { title: '生活服务' },
-          ],
+          breadcrumb: [{ title: '首页', path: '/pc/dashboard' }, { title: '生活服务' }],
           description: '便民服务、办事指南、申请记录',
         },
       },
@@ -869,10 +880,7 @@ const routes = [
         meta: {
           title: '数据统计',
           permissions: ['statistics:read'],
-          breadcrumb: [
-            { title: '首页', path: '/pc/dashboard' },
-            { title: '数据统计' },
-          ],
+          breadcrumb: [{ title: '首页', path: '/pc/dashboard' }, { title: '数据统计' }],
           description: '人口结构分析、家庭统计、数据报表',
         },
       },
@@ -883,10 +891,7 @@ const routes = [
         meta: {
           title: '用户管理',
           permissions: ['user:read'],
-          breadcrumb: [
-            { title: '首页', path: '/pc/dashboard' },
-            { title: '用户管理' },
-          ],
+          breadcrumb: [{ title: '首页', path: '/pc/dashboard' }, { title: '用户管理' }],
           description: '系统用户管理、角色分配、权限控制',
         },
       },
@@ -897,10 +902,7 @@ const routes = [
         meta: {
           title: '系统设置',
           permissions: ['settings:manage'],
-          breadcrumb: [
-            { title: '首页', path: '/pc/dashboard' },
-            { title: '系统设置' },
-          ],
+          breadcrumb: [{ title: '首页', path: '/pc/dashboard' }, { title: '系统设置' }],
           description: '基本设置、通知设置、安全设置、数据管理',
         },
       },

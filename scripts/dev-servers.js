@@ -24,14 +24,27 @@ const villageServer = spawn('node', ['server/app.js'], {
   env: { ...process.env, NODE_ENV: 'development' }
 });
 
+let mainServerExited = false;
+let villageServerExited = false;
+
 mainServer.on('close', (code) => {
   console.log(`主服务器退出，代码: ${code}`);
-  process.exit(code);
+  mainServerExited = true;
+
+  // 如果另一个服务器已经退出，才退出整个进程
+  if (villageServerExited) {
+    process.exit(code);
+  }
 });
 
 villageServer.on('close', (code) => {
   console.log(`村务服务器退出，代码: ${code}`);
-  process.exit(code);
+  villageServerExited = true;
+
+  // 如果另一个服务器已经退出，才退出整个进程
+  if (mainServerExited) {
+    process.exit(code);
+  }
 });
 
 // 优雅关闭

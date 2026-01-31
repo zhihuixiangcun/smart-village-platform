@@ -583,9 +583,9 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/userStore';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import type { FormInstance, FormRules } from 'element-plus';
 import {
   Plus,
   Upload,
@@ -604,6 +604,7 @@ import {
   Printer,
   Message,
 } from '@element-plus/icons-vue';
+import SkeletonScreen from '@/components/common/SkeletonScreen.vue';
 import * as residentApi from '@/api/resident';
 
 interface SearchParams {

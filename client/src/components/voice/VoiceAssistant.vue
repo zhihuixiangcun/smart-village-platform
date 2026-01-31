@@ -1,743 +1,1662 @@
 <template>
-  <div class="voice-assistant">
-    <!-- 主界面 -->
-    <div class="voice-interface" :class="{ 'is-recording': state.isRecording }">
-      <!-- 波形可视化 -->
-      <div class="voice-visualizer" v-if="config.enableVisualFeedback">
-        <div class="audio-waves">
-          <div
-            v-for="i in 20"
+  <div class="voice-assistant-container">
+    <!-- 悬浮按钮 -->
+    <transition name="float">
+      <button
+        v-show="!isExpanded"
+        @click="toggleExpanded"
+        class="float-button"
+        :class="{ 'is-active': isListening || isSpeaking }"
+        :disabled="!isSupported"
+        :title="isListening ? '停止录音' : '开始语音助手'"
+      >
+        <div class="mic-icon">
+          <svg
+            v-if="!isListening && !isSpeaking"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M12 1a3 3 0 0 1 0 6 3 3 0 0 1 0 6" />
+            <path d="M5.5 10.5a1 1 0 0 1 0 13 13 0 0 1 0 0-13a1 1 0 0 1 0-13 0" />
+          </svg>
+          <svg
+            v-else
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect x="6" y="8" width="4" height="8" rx="1" />
+            <rect x="14" y="8" width="4" height="8" rx="1" />
+          </svg>
+        </div>
+        
+        <!-- 波形动画指示器 -->
+        <div v-if="isListening || isSpeaking" class="wave-indicator">
+          <span
+            v-for="i in 3"
             :key="i"
-            class="wave-bar"
-            :style="{ height: `${Math.random() * state.audioLevel * 100}%` }"
-          ></div>
+            class="wave-dot"
+            :style="{ animationDelay: `${i * 0.2}s` }"
+          ></span>
         </div>
-      </div>
+      </button>
+    </transition>
 
-      <!-- 状态指示器 -->
-      <div class="status-indicator">
-        <div class="status-item">
-          <el-icon class="status-icon" :class="getStatusIconClass()">
-            <component :is="getStatusIcon()" />
-          </el-icon>
-          <span class="status-text">{{ getStatusText() }}</span>
-        </div>
-      </div>
-
-      <!-- 对话历史 -->
-      <div class="conversation-history" ref="conversationHistoryRef">
-        <div
-          v-for="(message, index) in state.conversationHistory"
-          :key="index"
-          class="conversation-item"
-          :class="message.role"
-        >
-          <div class="message-avatar">
-            <el-icon v-if="message.role === 'user'"><User /></el-icon>
-            <el-icon v-else><Robot /></el-icon>
+    <!-- 扩展面板 -->
+    <transition name="panel">
+      <div v-show="isExpanded" class="expanded-panel">
+        <!-- 顶部栏 -->
+        <div class="panel-header">
+          <div class="header-left">
+            <h3>语音助手</h3>
+            <span v-if="detectedDialect" class="dialect-tag">{{ detectedDialect }}</span>
           </div>
-          <div class="message-content">
-            <div class="message-text">{{ message.content }}</div>
-            <div class="message-time">{{ formatTime(message.timestamp) }}</div>
+          <button @click="toggleExpanded" class="close-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- 语音波形可视化 -->
+        <div class="visualizer-section">
+          <canvas
+            ref="waveCanvas"
+            :class="{ 'is-active': isListening || isSpeaking }"
+            class="waveform-canvas"
+          ></canvas>
+        </div>
+
+        <!-- 识别结果展示区 -->
+        <div class="recognition-section">
+          <div class="result-header">
+            <span class="result-label">识别结果</span>
+            <el-tag v-if="recognitionResult.confidence" :type="getConfidenceType(recognitionResult.confidence)" size="small">
+              置信度: {{ (recognitionResult.confidence * 100).toFixed(0) }}%
+            </el-tag>
+          </div>
+
+          <!-- 实时识别结果 -->
+          <div class="result-content">
+            <div class="interim-result" v-if="interimText && isListening">
+              <span class="result-text">{{ interimText }}</span>
+              <el-icon class="typing-indicator"><Loading /></el-icon>
+            </div>
+
+            <!-- 最终识别结果 -->
+            <div class="final-result" :class="{ 'has-result': finalText || recognitionResult.text }">
+              <div class="result-text" v-if="recognitionResult.text">
+                {{ recognitionResult.text }}
+              </div>
+              <div class="result-actions" v-if="recognitionResult.text">
+                <el-button
+                  type="primary"
+                  size="small"
+                  :icon="Promotion"
+                  @click="copyText"
+                >
+                  复制
+                </el-button>
+                <el-button
+                  type="success"
+                  size="small"
+                  :icon="ChatDotRound"
+                  @click="handleTextCommand(recognitionResult.text)"
+                >
+                  执行
+                </el-button>
+              </div>
+            </div>
+
+            <!-- 占位提示 -->
+            <div v-if="!interimText && !recognitionResult.text" && !isListening" class="placeholder">
+              <el-icon class="placeholder-icon"><Mic /></el-icon>
+              <p>点击按钮开始说话</p>
+              <p class="hint-text">支持22种方言识别</p>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- 控制按钮 -->
-      <div class="control-buttons">
-        <el-button
-          type="primary"
-          size="large"
-          circle
-          :disabled="!state.isSupported || state.isProcessing"
-          :loading="state.isProcessing"
-          @click="toggleRecording"
-          class="record-button"
-        >
-          <el-icon v-if="!state.isRecording"><Microphone /></el-icon>
-          <el-icon v-else><VideoPause /></el-icon>
-        </el-button>
+        <!-- 命令执行反馈区 -->
+        <div class="command-section" v-if="currentCommand">
+          <div class="command-header">
+            <el-icon class="command-icon"><Operation /></el-icon>
+            <span class="command-label">命令执行</span>
+            <el-tag
+              :type="getCommandStatusType(currentCommand.status)"
+              size="small"
+            >
+              {{ getCommandStatusText(currentCommand.status) }}
+            </el-tag>
+          </div>
 
-        <el-button
-          type="info"
-          size="large"
-          circle
-          :disabled="!state.isSupported"
-          @click="toggleSettings"
-          class="settings-button"
-        >
-          <el-icon><Setting /></el-icon>
-        </el-button>
+          <div class="command-content">
+            <div class="command-intent">
+              <span class="intent-text">{{ currentCommand.intent }}</span>
+              <span class="confidence-badge" v-if="currentCommand.confidence">
+                {{ (currentCommand.confidence * 100).toFixed(0) }}%
+              </span>
+            </div>
 
-        <el-button type="warning" size="large" circle @click="clearHistory" class="clear-button">
-          <el-icon><Delete /></el-icon>
-        </el-button>
-      </div>
+            <div class="command-entities" v-if="currentCommand.entities && currentCommand.entities.length > 0">
+              <el-tag
+                v-for="(entity, index) in currentCommand.entities"
+                :key="index"
+                size="small"
+                class="entity-tag"
+              >
+                {{ entity.type }}: {{ entity.value }}
+              </el-tag>
+            </div>
 
-      <!-- 录音时间 -->
-      <div class="recording-time" v-if="state.isRecording">
-        {{ formatRecordingTime(state.recordingTime) }}
-      </div>
-    </div>
+            <div class="command-response" v-if="currentCommand.response">
+              <div class="response-content">
+                <p>{{ currentCommand.response }}</p>
+              </div>
+            </div>
 
-    <!-- 设置面板 -->
-    <el-drawer v-model="showSettings" title="语音设置" direction="rtl" size="400px">
-      <div class="settings-content">
-        <el-form :model="settings" label-width="120px">
-          <!-- 语言和方言设置 -->
-          <el-form-item label="检测方言">
-            <el-switch v-model="settings.autoDetectDialect" />
-          </el-form-item>
+            <div class="command-actions" v-if="currentCommand.status === 'pending'">
+              <el-button
+                type="success"
+                size="small"
+                :loading="currentCommand.isExecuting"
+                @click="confirmCommand"
+              >
+                确认执行
+              </el-button>
+              <el-button
+                type="danger"
+                size="small"
+                @click="cancelCommand"
+              >
+                取消
+              </el-button>
+            </div>
 
-          <el-form-item label="默认方言">
-            <el-select v-model="settings.preferredDialect" placeholder="选择方言">
-              <el-option
-                v-for="dialect in dialects"
-                :key="dialect.code"
-                :label="dialect.name"
-                :value="dialect.code"
-              />
-            </el-select>
-          </el-form-item>
+            <div class="command-result" v-if="currentCommand.status === 'completed'">
+              <el-result
+                :icon="currentCommand.success ? 'success' : 'error'"
+                :title="currentCommand.success ? '执行成功' : '执行失败'"
+              >
+                <template #title>
+                  {{ currentCommand.success ? '✓' : '✗' }}
+                </template>
+                <template #sub-title>
+                  {{ currentCommand.message }}
+                </template>
+              </el-result>
+            </div>
 
-          <el-form-item label="音色">
-            <el-select v-model="settings.preferredVoice" placeholder="选择音色">
-              <el-option label="女声" value="female" />
-              <el-option label="男声" value="male" />
-            </el-select>
-          </el-form-item>
-
-          <!-- 唤醒词设置 -->
-          <el-form-item label="唤醒词检测">
-            <el-switch v-model="settings.enableWakeWord" />
-          </el-form-item>
-
-          <el-form-item label="唤醒词">
-            <el-input v-model="settings.wakeWordText" placeholder="输入唤醒词，用逗号分隔" />
-          </el-form-item>
-
-          <!-- 录音设置 -->
-          <el-form-item label="最大录音时长">
-            <el-slider
-              v-model="settings.maxRecordingDuration"
-              :min="10000"
-              :max="120000"
-              :step="5000"
-              show-input
-              :format-tooltip="formatDuration"
-            />
-          </el-form-item>
-
-          <el-form-item label="静音超时">
-            <el-slider
-              v-model="settings.silenceTimeout"
-              :min="1000"
-              :max="10000"
-              :step="500"
-              show-input
-              :format-tooltip="formatDuration"
-            />
-          </el-form-item>
-
-          <!-- 视觉反馈 -->
-          <el-form-item label="波形显示">
-            <el-switch v-model="settings.enableVisualFeedback" />
-          </el-form-item>
-
-          <!-- 服务设置 -->
-          <el-divider content-position="left">服务配置</el-divider>
-
-          <el-form-item label="后端服务">
-            <el-input v-model="settings.backendUrl" placeholder="后端服务地址" />
-          </el-form-item>
-
-          <el-form-item label="Python服务">
-            <el-input v-model="settings.pythonServiceUrl" placeholder="Python服务地址" />
-          </el-form-item>
-
-          <el-form-item>
-            <el-button type="primary" @click="checkServices">检查服务状态</el-button>
-            <el-button @click="testVoice">测试语音功能</el-button>
-          </el-form-item>
-        </el-form>
-      </div>
-    </el-drawer>
-
-    <!-- 语音测试对话框 -->
-    <el-dialog v-model="showTestDialog" title="语音功能测试" width="500px">
-      <div class="test-content">
-        <el-form :model="testForm" label-width="100px">
-          <el-form-item label="测试文本">
-            <el-input
-              v-model="testForm.testText"
-              type="textarea"
-              rows="3"
-              placeholder="输入要测试的文本"
-            />
-          </el-form-item>
-
-          <el-form-item>
-            <el-button type="primary" @click="testSpeechSynthesis">测试语音合成</el-button>
-            <el-button @click="testSpeechRecognition">测试语音识别</el-button>
-          </el-form-item>
-        </el-form>
-
-        <div v-if="testResult" class="test-result">
-          <h4>测试结果：</h4>
-          <pre>{{ testResult }}</pre>
+            <div class="command-actions" v-if="currentCommand.status === 'failed'">
+              <el-button
+                type="warning"
+                size="small"
+                @click="retryCommand"
+              >
+                重试
+              </el-button>
+            </div>
+          </div>
         </div>
+
+        <!-- 操作按钮区 -->
+        <div class="actions-section">
+          <el-button
+            v-if="isListening"
+            type="danger"
+            :icon="VideoPause"
+            @click="stopListening"
+            size="large"
+            round
+          >
+            停止录音
+          </el-button>
+
+          <el-button
+            v-else
+            type="primary"
+            :icon="isSpeaking ? 'VideoPause' : 'Microphone'"
+            :disabled="isSpeaking || isProcessing"
+            @click="toggleListening"
+            size="large"
+            round
+          >
+            {{ isSpeaking ? '停止播放' : '开始录音' }}
+          </el-button>
+
+          <el-button
+            v-if="recognitionResult.text && !isListening"
+            type="success"
+            :icon="ChatDotRound"
+            :disabled="isSpeaking || isProcessing"
+            @click="speakText"
+            size="large"
+            round
+          >
+            播报
+          </el-button>
+
+          <el-button
+            type="info"
+            icon="Setting"
+            @click="showSettings = true"
+            size="large"
+            round
+          >
+            设置
+          </el-button>
+        </div>
+
+        <!-- 设置面板 -->
+        <el-drawer
+          v-model="showSettings"
+          title="语音设置"
+          direction="rtl"
+          size="450px"
+        >
+          <el-form :model="settings" label-width="100px">
+            <el-form-item label="方言选择">
+              <el-select v-model="settings.dialect" placeholder="选择方言">
+                <el-option
+                  v-for="dialect in dialects"
+                  :key="dialect.code"
+                  :label="dialect.name"
+                  :value="dialect.code"
+                >
+                  <span>{{ dialect.name }}</span>
+                  <el-tag size="small">{{ dialect.code }}</el-tag>
+                </el-option>
+              </el-select>
+            </el-form-item>
+
+            <el-form-item label="音色选择">
+              <el-select v-model="settings.voice" placeholder="选择音色">
+                <el-option label="女声" value="female">女声</el-option>
+                <el-option label="男声" value="male">男声</el-option>
+                <el-option label="儿童声" value="child">儿童声</el-option>
+                <el-option label="老年人声" value="elderly">老年人声</el-option>
+              </el-select>
+            </el-form-item>
+
+            <el-form-item label="语速">
+              <el-slider v-model="settings.speed" :min="0" :max="100" show-input />
+            </el-form-item>
+
+            <el-form-item label="音调">
+              <el-slider v-model="settings.pitch" :min="0" :max="100" show-input />
+            </el-form-item>
+
+            <el-form-item label="音量">
+              <el-slider v-model="settings.volume" :min="0" :max="100" show-input />
+            </el-form-item>
+
+            <el-divider content-position="left">高级选项</el-divider>
+
+            <el-form-item label="自动播放">
+              <el-switch v-model="settings.autoPlay" />
+            </el-form-item>
+
+            <el-form-item label="语音转文字">
+              <el-switch v-model="settings.enableSTT" />
+            </el-form-item>
+
+            <el-form-item label="显示波形">
+              <el-switch v-model="settings.showVisualizer" />
+            </el-form-item>
+          </el-form>
+        </el-drawer>
       </div>
-    </el-dialog>
+    </transition>
+
+    <!-- Toast 通知 -->
+    <transition-group name="toast">
+      <div
+        v-for="toast in toasts"
+        :key="toast.id"
+        class="toast-notification"
+        :class="toast.type"
+      >
+        <el-icon class="toast-icon">
+          <Success v-if="toast.type === 'success'" />
+          <Warning v-else-if="toast.type === 'warning'" />
+          <Error v-else />
+          <Info v-else />
+        </el-icon>
+        <span class="toast-message">{{ toast.message }}</span>
+        <button @click="removeToast(toast.id)" class="toast-close">
+          <el-icon><Close /></el-icon>
+        </button>
+      </div>
+    </transition-group>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, nextTick, watch } from 'vue';
+import { ref, reactive, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import { ElMessage, ElNotification } from 'element-plus';
-import { Microphone, VideoPause, Setting, Delete, User, Robot } from '@element-plus/icons-vue';
-import { useVoiceInteraction } from '@/composables/useVoiceInteraction';
+import {
+  Microphone,
+  VideoPause,
+  ChatDotRound,
+  Setting,
+  Loading,
+  Close,
+  Success,
+  Warning,
+  Error,
+  Info,
+  Operation,
+  Promotion
+} from '@element-plus/icons-vue';
+import axios from 'axios';
 
 // Props
 const props = defineProps({
+  apiEndpoint: {
+    type: String,
+    default: '/api/speech/recognize'
+  },
+  synthesisEndpoint: {
+    type: String,
+    default: '/api/tts/synthesize'
+  },
+  commandEndpoint: {
+    type: String,
+    default: '/api/voice/command'
+  },
   autoInit: {
     type: Boolean,
-    default: true,
-  },
-  showHistory: {
-    type: Boolean,
-    default: true,
-  },
-  theme: {
-    type: String,
-    default: 'default',
-  },
+    default: true
+  }
 });
 
-// 语音交互实例
-const {
-  state,
-  config,
-  initialize,
-  startRecording,
-  stopRecording,
-  synthesizeSpeech,
-  on,
-  off,
-  cleanup,
-} = useVoiceInteraction({
-  enableVisualFeedback: true,
-  autoDetectDialect: true,
-  enableWakeWord: true,
+// 事件
+const emit = defineEmits([
+  'recording-started',
+  'recording-stopped',
+  'recognition-result',
+  'command-executed',
+  'synthesis-started',
+  'synthesis-completed'
+]);
+
+// 响应式状态
+const isExpanded = ref(false);
+const isSupported = ref(false);
+const isListening = ref(false);
+const isSpeaking = ref(false);
+const isProcessing = ref(false);
+
+// 识别相关
+const interimText = ref('');
+const recognitionResult = reactive({
+  text: '',
+  confidence: 0,
+  dialect: '',
+  processingTime: 0
+});
+const detectedDialect = ref('');
+
+// 命令相关
+const currentCommand = reactive({
+  intent: '',
+  entities: [],
+  confidence: 0,
+  status: '', // pending, executing, completed, failed
+  response: '',
+  message: '',
+  success: false,
+  isExecuting: false
 });
 
-// 组件状态
+// 音频相关
+const mediaRecorder = ref(null);
+const audioStream = ref(null);
+const audioContext = ref(null);
+const analyser = ref(null);
+const audioChunks = ref([]);
+
+// Canvas相关
+const waveCanvas = ref(null);
+const animationId = ref(null);
+const audioDataArray = ref([]);
+
+// 界面状态
 const showSettings = ref(false);
-const showTestDialog = ref(false);
-const conversationHistoryRef = ref(null);
-const dialects = ref([]);
+const toasts = ref([]);
+let toastId = 0;
 
-// 设置表单
+// 设置
 const settings = reactive({
-  autoDetectDialect: config.autoDetectDialect,
-  preferredDialect: config.preferredDialect,
-  preferredVoice: config.preferredVoice,
-  enableWakeWord: config.enableWakeWord,
-  wakeWordText: config.wakeWords.join(', '),
-  maxRecordingDuration: config.maxRecordingDuration,
-  silenceTimeout: config.silenceTimeout,
-  enableVisualFeedback: config.enableVisualFeedback,
-  backendUrl: config.backendUrl,
-  pythonServiceUrl: config.pythonServiceUrl,
+  dialect: 'mandarin',
+  voice: 'female',
+  speed: 50,
+  pitch: 50,
+  volume: 50,
+  emotion: 'neutral',
+  format: 'mp3',
+  autoPlay: true,
+  enableSTT: true,
+  showVisualizer: true
 });
 
-// 测试表单
-const testForm = reactive({
-  testText: '这是一个语音功能测试，您能听到我的声音吗？',
-});
+// 方言列表
+const dialects = [
+  { code: 'zh', name: '普通话', region: '全国' },
+  { code: 'yue', name: '粤语', region: '广东、广西、香港、澳门' },
+  { code: 'nan', name: '闽南语', region: '福建、台湾、潮汕' },
+  { code: 'hak', name: '客家话', region: '广东、江西、福建' },
+  { code: 'wuu', name: '吴语', region: '江苏、浙江、上海' },
+  { code: 'hsn', name: '湘语', region: '湖南' },
+  { code: 'gan', name: '赣语', region: '江西' },
+  { code: 'zh-northeast', name: '东北话', region: '东北三省' },
+  { code: 'zh-sichuan', name: '四川话', region: '四川、重庆' },
+  { code: 'zh-shandong', name: '山东话', region: '山东' },
+  { code: 'zh-henan', name: '河南话', region: '河南' },
+  { code: 'zh-hubei', name: '湖北话', region: '湖北' },
+  { code: 'zh-jiangzhe', name: '江浙话', region: '江苏、浙江' },
+  { code: 'zh-anhui', name: '安徽话', region: '安徽' }
+];
 
-const testResult = ref('');
-
-// 生命周期
+/**
+ * 组件挂载时初始化
+ */
 onMounted(async () => {
   if (props.autoInit) {
-    await initVoiceService();
+    await initializeVoiceService();
   }
-
-  // 加载方言列表
-  await loadDialects();
-
-  // 监听语音事件
-  setupEventListeners();
+  setupWaveformAnimation();
+  loadDialects();
+  window.addEventListener('keydown', handleKeydown);
 });
 
-// 监听设置变化
-watch(
-  settings,
-  newSettings => {
-    // 更新配置
-    Object.assign(config, {
-      autoDetectDialect: newSettings.autoDetectDialect,
-      preferredDialect: newSettings.preferredDialect,
-      preferredVoice: newSettings.preferredVoice,
-      enableWakeWord: newSettings.enableWakeWord,
-      wakeWords: newSettings.wakeWordText
-        .split(',')
-        .map(w => w.trim())
-        .filter(w => w),
-      maxRecordingDuration: newSettings.maxRecordingDuration,
-      silenceTimeout: newSettings.silenceTimeout,
-      enableVisualFeedback: newSettings.enableVisualFeedback,
-      backendUrl: newSettings.backendUrl,
-      pythonServiceUrl: newSettings.pythonServiceUrl,
-    });
-  },
-  { deep: true }
-);
+onUnmounted(() => {
+  cleanup();
+  window.removeEventListener('keydown', handleKeydown);
+});
 
-// 初始化语音服务
-const initVoiceService = async () => {
-  try {
-    const success = await initialize();
-    if (success) {
-      ElNotification({
-        title: '成功',
-        message: '语音服务初始化成功',
-        type: 'success',
-      });
-    } else {
-      ElNotification({
-        title: '警告',
-        message: '语音服务初始化失败，部分功能可能不可用',
-        type: 'warning',
-      });
-    }
-  } catch (error) {
-    console.error('语音服务初始化失败:', error);
-    ElMessage.error('语音服务初始化失败: ' + error.message);
+/**
+ * 监听键盘事件
+ */
+const handleKeydown = (event) => {
+  // 空格键切换录音状态
+  if (event.code === 'Space' && !isEditingContent()) {
+    event.preventDefault();
+    toggleListening();
+  }
+  // ESC键关闭面板
+  if (event.code === 'Escape') {
+    isExpanded.value = false;
+  }
+  // Ctrl+M 开始录音
+  if (event.ctrlKey && event.key === 'm') {
+    event.preventDefault();
+    toggleListening();
   }
 };
 
-// 加载方言列表
-const loadDialects = async () => {
+/**
+ * 检查是否正在编辑内容
+ */
+const isEditingContent = () => {
+  const activeElement = document.activeElement;
+  return activeElement &&
+    (activeElement.tagName === 'INPUT' ||
+     activeElement.tagName === 'TEXTAREA' ||
+     activeElement.isContentEditable);
+};
+
+/**
+ * 初始化语音服务
+ */
+const initializeVoiceService = async () => {
   try {
-    const response = await fetch(`${config.backendUrl}/api/v1/voice/dialects`);
-    if (response.ok) {
-      const data = await response.json();
-      dialects.value = data.data.dialects;
+    // 检查浏览器支持
+    const supported = checkBrowserSupport();
+    if (!supported) {
+      showToast('error', '您的浏览器不支持语音功能');
+      return;
     }
+
+    // 请求麦克风权限
+    const permissionGranted = await requestMicrophonePermission();
+    if (!permissionGranted) {
+      showToast('error', '请允许使用麦克风权限');
+      return;
+    }
+
+    // 初始化音频上下文
+    await initAudioContext();
+
+    isSupported.value = true;
+    console.log('✅ 语音助手初始化成功');
+
   } catch (error) {
-    console.error('加载方言列表失败:', error);
+    console.error('语音助手初始化失败:', error);
+    showToast('error', '语音助手初始化失败');
   }
 };
 
-// 设置事件监听器
-const setupEventListeners = () => {
-  // 录音开始
-  on('recordingStarted', () => {
-    ElMessage.info('开始录音...');
-  });
+/**
+ * 检查浏览器支持
+ */
+const checkBrowserSupport = () => {
+  const hasGetUserMedia = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+  const hasMediaRecorder = typeof MediaRecorder !== 'undefined';
+  const hasAudioContext = !!(window.AudioContext || window.webkitAudioContext);
 
-  // 录音停止
-  on('recordingStopped', () => {
-    ElMessage.info('录音结束，正在处理...');
-  });
+  return hasGetUserMedia && hasMediaRecorder && hasAudioContext;
+};
 
-  // 语音识别完成
-  on('speechRecognized', result => {
-    if (result.text) {
-      ElNotification({
-        title: '识别结果',
-        message: result.text,
-        type: 'info',
-        duration: 3000,
-      });
-    }
-  });
-
-  // 语音播放开始
-  on('speechStarted', () => {
-    ElMessage.info('正在播放语音...');
-  });
-
-  // 语音播放结束
-  on('speechEnded', () => {
-    // 可以在这里添加播放结束后的处理
-  });
-
-  // 命令执行
-  on('commandExecuted', command => {
-    ElNotification({
-      title: '命令执行',
-      message: `执行命令: ${command.intent}`,
-      type: 'success',
-    });
-  });
-
-  // 对话更新
-  on('conversationUpdate', () => {
-    nextTick(() => {
-      // 滚动到底部
-      if (conversationHistoryRef.value) {
-        conversationHistoryRef.value.scrollTop = conversationHistoryRef.value.scrollHeight;
+/**
+ * 请求麦克风权限
+ */
+const requestMicrophonePermission = async () => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true,
+        sampleRate: 16000
       }
     });
+
+    // 停止所有轨道
+    stream.getTracks().forEach(track => track.stop());
+
+    return true;
+  } catch (error) {
+    console.error('麦克风权限请求失败:', error);
+    return false;
+  }
+};
+
+/**
+ * 初始化音频上下文
+ */
+const initAudioContext = async () => {
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    audioContext.value = new AudioContext();
+
+    analyser.value = audioContext.value.createAnalyser();
+    analyser.value.fftSize = 256;
+    analyser.value.smoothingTimeConstant = 0.8;
+
+    console.log('✅ 音频上下文初始化完成');
+  } catch (error) {
+    console.error('音频上下文初始化失败:', error);
+    throw error;
+  }
+};
+
+/**
+ * 加载方言列表
+ */
+const loadDialects = async () => {
+  try {
+    const response = await axios.get('/api/speech/dialects');
+    if (response.data && response.data.data) {
+      // 可以从后端加载，但这里使用预定义列表
+      console.log('方言列表:', dialects.length);
+    }
+  } catch (error) {
+    console.warn('加载方言列表失败，使用默认列表');
+  }
+};
+
+/**
+ * 设置波形动画
+ */
+const setupWaveformAnimation = () => {
+  nextTick(() => {
+    if (waveCanvas.value) {
+      const canvas = waveCanvas.value;
+      const ctx = canvas.getContext('2d');
+      
+      canvas.width = canvas.offsetWidth * 2;
+      canvas.height = canvas.offsetHeight * 2;
+      canvas.style.width = canvas.offsetWidth + 'px';
+      canvas.style.height = canvas.offsetHeight + 'px';
+      
+      drawWaveform(ctx, canvas.width, canvas.height);
+    }
   });
 };
 
-// 切换录音状态
-const toggleRecording = () => {
-  if (state.isRecording) {
-    stopRecording();
-  } else {
-    startRecording();
-  }
+/**
+ * 绘制波形
+ */
+const drawWaveform = (ctx, width, height) => {
+  const centerY = height / 2;
+  let x = 0;
+
+  const animate = () => {
+    if (settings.showVisualizer && (isListening.value || isSpeaking.value) && audioDataArray.value.length > 0)) {
+      ctx.clearRect(0, 0, width, height);
+      ctx.beginPath();
+      ctx.strokeStyle = '#409EFF';
+      ctx.lineWidth = 2;
+
+      for (let i = 0; i < audioDataArray.value.length; i++) {
+        const amplitude = audioDataArray.value[i] * centerY;
+        const y = centerY + amplitude;
+
+        if (i === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+
+        x += width / audioDataArray.value.length;
+      }
+
+      ctx.stroke();
+    }
+
+    animationId.value = requestAnimationFrame(animate);
+  };
+
+  animate();
 };
 
-// 切换设置面板
-const toggleSettings = () => {
-  showSettings.value = !showSettings.value;
-};
-
-// 清除历史记录
-const clearHistory = () => {
-  state.conversationHistory = [];
-  ElMessage.success('对话历史已清除');
-};
-
-// 检查服务状态
-const checkServices = async () => {
-  try {
-    const results = await Promise.allSettled([
-      fetch(`${config.backendUrl}/health`),
-      fetch(`${config.pythonServiceUrl}/health`),
-    ]);
-
-    const backendStatus = results[0].status === 'fulfilled' ? '正常' : '异常';
-    const pythonStatus = results[1].status === 'fulfilled' ? '正常' : '异常';
-
-    ElMessage.success(`服务状态 - 后端: ${backendStatus}, Python: ${pythonStatus}`);
-  } catch (error) {
-    ElMessage.error('服务检查失败: ' + error.message);
-  }
-};
-
-// 测试语音功能
-const testVoice = () => {
-  showTestDialog.value = true;
-  testResult.value = '';
-};
-
-// 测试语音合成
-const testSpeechSynthesis = async () => {
-  if (!testForm.testText) {
-    ElMessage.warning('请输入测试文本');
+/**
+ * 开始录音
+ */
+const startListening = async () => {
+  if (!isSupported.value || isListening.value || isSpeaking.value) {
     return;
   }
 
   try {
-    testResult.value = '正在合成语音...';
-    await synthesizeSpeech(testForm.testText);
-    testResult.value = '语音合成测试成功';
+    showToast('info', '开始录音...');
+
+    // 获取音频流
+    audioStream.value = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true,
+        sampleRate: 16000
+      }
+    });
+
+    // 创建录音器
+    const options = {
+      mimeType: 'audio/webm',
+    };
+    mediaRecorder.value = new MediaRecorder(audioStream.value, options);
+
+    audioChunks.value = [];
+
+    mediaRecorder.value.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        audioChunks.value.push(event.data);
+      }
+    };
+
+    mediaRecorder.value.onstop = async () => {
+      const audioBlob = new Blob(audioChunks.value, { type: options.mimeType });
+      await processAudioData(audioBlob);
+    };
+
+    // 连接分析器
+    const source = audioContext.value.createMediaStreamSource(audioStream.value);
+    source.connect(analyser.value);
+
+    // 开始录音
+    mediaRecorder.value.start(1000); // 每1秒收集一次数据
+    isListening.value = true;
+
+    // 启动波形可视化
+    startWaveformVisualization();
+
+    emit('recording-started');
+
   } catch (error) {
-    testResult.value = `语音合成测试失败: ${error.message}`;
+    console.error('开始录音失败:', error);
+    showToast('error', `录音失败: ${error.message}`);
   }
 };
 
-// 测试语音识别
-const testSpeechRecognition = async () => {
+/**
+ * 停止录音
+ */
+const stopListening = () => {
+  if (!isListening.value) {
+    return;
+  }
+
   try {
-    testResult.value = '请开始说话...';
-    await startRecording();
-    // 这里会在录音结束后自动处理
+    showToast('info', '停止录音，处理中...');
+
+    if (mediaRecorder.value) {
+      mediaRecorder.value.stop();
+    }
+
+    isListening.value = false;
+
+    // 停止波形可视化
+    stopWaveformVisualization();
+
+    emit('recording-stopped');
+
   } catch (error) {
-    testResult.value = `语音识别测试失败: ${error.message}`;
+    console.error('停止录音失败:', error);
   }
 };
 
-// 获取状态图标
-const getStatusIcon = () => {
-  if (state.isRecording) return 'VideoPause';
-  if (state.isProcessing) return 'Loading';
-  if (state.isSpeaking) return 'Speaker';
-  return 'Microphone';
+/**
+ * 切换录音状态
+ */
+const toggleListening = () => {
+  if (isListening.value) {
+    stopListening();
+  } else {
+    startListening();
+  }
 };
 
-// 获取状态图标样式
-const getStatusIconClass = () => {
-  return {
-    recording: state.isRecording,
-    processing: state.isProcessing,
-    speaking: state.isSpeaking,
+/**
+ * 处理音频数据
+ */
+const processAudioData = async (audioBlob) => {
+  try {
+    isProcessing.value = true;
+
+    // 转换为ArrayBuffer
+    const arrayBuffer = await audioBlob.arrayBuffer();
+
+    // 发送到后端进行识别
+    const formData = new FormData();
+    formData.append('audio', audioBlob, audioBlob.name || 'audio.webm');
+    formData.append('dialect', settings.dialect);
+
+    const response = await axios.post(props.apiEndpoint, formData);
+
+    if (response.data.success) {
+      const result = response.data.data;
+      
+      recognitionResult.text = result.text;
+      recognitionResult.confidence = result.confidence || 0.85;
+      recognitionResult.dialect = result.dialect || 'mandarin';
+      recognitionResult.processingTime = result.processingTime || 0;
+
+      if (result.dialect && result.dialect !== 'mandarin') {
+        const dialect = dialects.find(d => d.code === result.dialect);
+        detectedDialect.value = dialect ? dialect.name : result.dialect;
+      } else {
+        detectedDialect.value = '';
+      }
+
+      showToast('success', '识别成功');
+      emit('recognition-result', result);
+    } else {
+      showToast('warning', '识别未返回有效结果');
+    }
+
+    isProcessing.value = false;
+
+  } catch (error) {
+    console.error('语音识别失败:', error);
+    showToast('error', `识别失败: ${error.message}`);
+    isProcessing.value = false;
+  }
+};
+
+/**
+ * 开始波形可视化
+ */
+const startWaveformVisualization = () => {
+  if (!analyser.value || !settings.showVisualizer) return;
+
+  const dataArray = new Uint8Array(analyser.value.frequencyBinCount);
+  const updateWaveform = () => {
+    analyser.value.getByteFrequencyData(dataArray);
+
+    audioDataArray.value = Array.from(dataArray);
+
+    if (!isListening.value && !isSpeaking.value) {
+      analyser.value.getByteTimeDomainData(dataArray);
+      audioDataArray.value = Array.from(dataArray).slice(0, 50);
+    }
   };
+
+  updateWaveform();
+  setInterval(updateWaveform, 100);
 };
 
-// 获取状态文本
-const getStatusText = () => {
-  if (state.isRecording) return '录音中...';
-  if (state.isProcessing) return '处理中...';
-  if (state.isSpeaking) return '播放中...';
-  if (!state.isSupported) return '不支持';
-  if (!state.hasPermission) return '需要权限';
-  return '就绪';
+/**
+ * 停止波形可视化
+ */
+const stopWaveformVisualization = () => {
+  if (analyser.value) {
+    analyser.value.disconnect();
+  }
+  audioDataArray.value = [];
 };
 
-// 格式化时间
-const formatTime = timestamp => {
-  return new Date(timestamp).toLocaleTimeString();
+/**
+ * 文本转语音
+ */
+const speakText = async () => {
+  if (isSpeaking.value || isProcessing.value || !recognitionResult.text) {
+    return;
+  }
+
+  try {
+    showToast('info', '正在生成语音...');
+    isSpeaking.value = true;
+    emit('synthesis-started', { text: recognitionResult.text });
+
+    const response = await axios.post(props.synthesisEndpoint, {
+      text: recognitionResult.text,
+      voice: settings.voice,
+      language: settings.dialect === 'mandarin' ? 'zh-CN' : 'zh-CN',
+      speed: settings.speed / 50,
+      pitch: settings.pitch / 50,
+      volume: settings.volume / 50,
+      emotion: settings.emotion,
+      format: settings.format
+    });
+
+    if (response.data.success) {
+      const audioData = response.data.data.audioData;
+      await playAudio(audioData);
+
+      showToast('success', '语音播报完成');
+      emit('synthesis-completed', { text: recognitionResult.text });
+    } else {
+      showToast('warning', '语音生成失败');
+      isSpeaking.value = false;
+    }
+
+  } catch (error) {
+    console.error('语音合成失败:', error);
+    showToast('error', `语音播报失败: ${error.message}`);
+    isSpeaking.value = false;
+  }
 };
 
-// 格式化录音时间
-const formatRecordingTime = milliseconds => {
-  const seconds = Math.floor(milliseconds / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = seconds % 60;
-  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+/**
+ * 播放音频
+ */
+const playAudio = async (audioBase64) => {
+  try {
+    const audioData = Uint8Array.from(atob(audioBase64), c => c.charCodeAt(0));
+    const audioBlob = new Blob([audioData], { type: 'audio/mpeg' });
+    const audioUrl = URL.createObjectURL(audioBlob);
+
+    const audio = new Audio(audioUrl);
+    audio.onended = () => {
+      isSpeaking.value = false;
+      URL.revokeObjectURL(audioUrl);
+    };
+    audio.onerror = () => {
+      isSpeaking.value = false;
+      showToast('error', '音频播放失败');
+    };
+
+    await audio.play();
+
+  } catch (error) {
+    console.error('音频播放失败:', error);
+    showToast('error', '音频播放失败');
+    isSpeaking.value = false;
+  }
 };
 
-// 格式化时长
-const formatDuration = value => {
-  const seconds = value / 1000;
-  return `${seconds}秒`;
+/**
+ * 处理语音命令
+ */
+const handleTextCommand = async (text) => {
+  try {
+    showToast('info', '正在解析命令...');
+
+    const response = await axios.post(props.commandEndpoint, {
+      text: text
+    });
+
+    if (response.data.success) {
+      const command = response.data.data.command;
+
+      currentCommand.intent = command.intent;
+      currentCommand.entities = command.entities || [];
+      currentCommand.confidence = command.confidence || 0;
+      currentCommand.status = 'pending';
+      currentCommand.response = command.response;
+      currentCommand.message = `识别到命令: ${command.intent}`;
+
+      emit('command-executed', command);
+
+      if (settings.autoPlay && command.response) {
+        await speakText();
+      }
+    } else {
+      showToast('warning', '未识别到有效命令');
+    }
+
+  } catch (error) {
+    console.error('命令解析失败:', error);
+    showToast('error', '命令解析失败');
+  }
 };
+
+/**
+ * 确认执行命令
+ */
+const confirmCommand = async () => {
+  currentCommand.status = 'executing';
+  currentCommand.isExecuting = true;
+
+  try {
+    await speakText(currentCommand.response);
+
+    currentCommand.status = 'completed';
+    currentCommand.success = true;
+    currentCommand.message = '命令执行成功';
+
+    showToast('success', '命令执行完成');
+
+  } catch (error) {
+    console.error('命令执行失败:', error);
+    currentCommand.status = 'failed';
+    currentCommand.success = false;
+    currentCommand.message = `命令执行失败: ${error.message}`;
+    currentCommand.isExecuting = false;
+
+    showToast('error', '命令执行失败');
+  }
+};
+
+/**
+ * 取消命令
+ */
+const cancelCommand = () => {
+  currentCommand.status = 'cancelled';
+  currentCommand.success = false;
+  currentCommand.message = '已取消';
+
+  showToast('info', '命令已取消');
+};
+
+/**
+ * 重试命令
+ */
+const retryCommand = () => {
+  if (currentCommand.text) {
+    handleTextCommand(currentCommand.text);
+  }
+};
+
+/**
+ * 复制文本
+ */
+const copyText = () => {
+  if (navigator.clipboard && recognitionResult.text) {
+    navigator.clipboard.writeText(recognitionResult.text).then(() => {
+      showToast('success', '已复制到剪贴板');
+    }).catch(() => {
+      showToast('error', '复制失败');
+    });
+  } else {
+    showToast('warning', '浏览器不支持自动复制');
+  }
+};
+
+/**
+ * 切换扩展面板
+ */
+const toggleExpanded = () => {
+  isExpanded.value = !isExpanded.value;
+};
+
+/**
+ * 显示Toast通知
+ */
+const showToast = (type, message) => {
+  const id = ++toastId;
+  toasts.value.push({
+    id,
+    type,
+    message
+  });
+
+  if (type !== 'info') {
+    setTimeout(() => removeToast(id), 3000);
+  }
+};
+
+/**
+ * 移除Toast
+ */
+const removeToast = (id) => {
+  const index = toasts.value.findIndex(t => t.id === id);
+  if (index > -1) {
+    toasts.value.splice(index, 1);
+  }
+};
+
+/**
+ * 获取置信度类型
+ */
+const getConfidenceType = (confidence) => {
+  if (confidence >= 0.9) return 'success';
+  if (confidence >= 0.7) return 'warning';
+  return 'info';
+};
+
+/**
+ * 获取命令状态类型
+ */
+const getCommandStatusText = (status) => {
+  const statusMap = {
+    pending: '待确认',
+    executing: '执行中',
+    completed: '已完成',
+    failed: '执行失败',
+    cancelled: '已取消'
+  };
+  return statusMap[status] || status;
+};
+
+/**
+ * 获取命令状态类型
+ */
+const getCommandStatusType = (status) => {
+  const typeMap = {
+    pending: 'warning',
+    executing: 'primary',
+    completed: 'success',
+    failed: 'danger',
+    cancelled: 'info'
+  };
+  return typeMap[status] || 'info';
+};
+
+/**
+ * 清理资源
+ */
+const cleanup = () => {
+  // 停止录音
+  if (mediaRecorder.value) {
+    try {
+      mediaRecorder.value.stop();
+    } catch (error) {
+      console.warn('停止录音失败:', error);
+    }
+  }
+
+  // 停止音频流
+  if (audioStream.value) {
+    audioStream.value.getTracks().forEach(track => track.stop());
+  }
+
+  // 停止动画
+  if (animationId.value) {
+    cancelAnimationFrame(animationId.value);
+  }
+
+  // 停止分析器
+  if (analyser.value) {
+    analyser.value.disconnect();
+  }
+
+  // 关闭音频上下文
+  if (audioContext.value) {
+    audioContext.value.close();
+  }
+
+  console.log('✅ 语音助手资源已清理');
+};
+
+// 监听设置变化
+watch(settings, (newSettings) => {
+  console.log('语音设置已更新:', newSettings);
+}, { deep: true });
+
+// 暴露给父组件的状态
+defineExpose({
+  isListening,
+  isSpeaking,
+  recognitionResult,
+  currentCommand,
+  toggleListening,
+  startListening,
+  stopListening,
+  speakText,
+  cleanup
+});
 </script>
 
 <style scoped>
-.voice-assistant {
-  width: 100%;
-  height: 100%;
+.voice-assistant-container {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 9999;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Oxygen', Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+}
+
+/* 悬浮按钮 */
+.float-button {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
-  flex-direction: column;
-  background: #f8f9fa;
-  border-radius: 12px;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: visible;
+}
+
+.float-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6);
+}
+
+.float-button:active {
+  transform: scale(0.95);
+}
+
+.float-button.is-active {
+  background: linear-gradient(135deg, #f5576c 0%, #ef4444 100%);
+  box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+}
+
+.float-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mic-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mic-icon svg {
+  width: 32px;
+  height: 32px;
+}
+
+.wave-indicator {
+  display: flex;
+  gap: 4px;
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.wave-dot {
+  width: 4px;
+  height: 4px;
+  background: white;
+  border-radius: 50%;
+  animation: wave 1.4s ease-in-out infinite;
+}
+
+@keyframes wave {
+  0%, 100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-8px);
+  }
+}
+
+/* 扩展面板 */
+.expanded-panel {
+  position: absolute;
+  bottom: 80px;
+  right: 0;
+  width: 400px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   overflow: hidden;
 }
 
-.voice-interface {
-  flex: 1;
+.panel-header {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  padding: 20px;
-  position: relative;
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
-.voice-interface.is-recording {
-  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-  color: white;
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-left h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.dialect-tag {
+  font-size: 12px;
+  padding: 2px 8px;
+  background: #ecf5ff;
+  color: #409eff;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.close-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: #909399;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.close-btn:hover {
+  background: #f5f5f5;
+  color: #333;
 }
 
 /* 波形可视化 */
-.voice-visualizer {
+.visualizer-section {
+  padding: 16px;
+  background: linear-gradient(180deg, #fafafa 0%, #f5f5f5 100%);
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.waveform-canvas {
   width: 100%;
   height: 80px;
+  display: block;
+  background: transparent;
+}
+
+.waveform-canvas.is-active {
+  opacity: 1;
+}
+
+.waveform-canvas:not(.is-active) {
+  opacity: 0.5;
+}
+
+/* 识别结果区 */
+.recognition-section {
+  padding: 16px;
+  min-height: 200px;
+}
+
+.result-header {
   display: flex;
   align-items: center;
-  justify-content: center;
-  margin-bottom: 20px;
+  justify-content: space-between;
+  margin-bottom: 12px;
 }
 
-.audio-waves {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  height: 60px;
+.result-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
 }
 
-.wave-bar {
-  width: 4px;
-  background: currentColor;
-  border-radius: 2px;
-  transition: height 0.1s ease;
-  opacity: 0.8;
+.result-content {
+  position: relative;
+  min-height: 100px;
 }
 
-/* 状态指示器 */
-.status-indicator {
-  margin-bottom: 20px;
-}
-
-.status-item {
+.interim-result {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
+  padding: 16px;
+  background: #ecfdf5;
+  border-radius: 8px;
+  margin-bottom: 12px;
 }
 
-.status-icon {
-  font-size: 18px;
+.result-text {
+  font-size: 16px;
+  color: #666;
+  flex: 1;
+  line-height: 1.6;
 }
 
-.status-icon.recording {
-  color: #ff4757;
-  animation: pulse 1s infinite;
+.typing-indicator {
+  color: #409eff;
+  animation: typing 1s infinite;
 }
 
-.status-icon.processing {
-  color: #ffa502;
-}
-
-.status-icon.speaking {
-  color: #2ed573;
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    transform: scale(1);
+@keyframes typing {
+  0%, 100% {
+    opacity: 0.3;
   }
   50% {
-    transform: scale(1.1);
+    opacity: 1;
   }
 }
 
-/* 对话历史 */
-.conversation-history {
-  flex: 1;
-  width: 100%;
-  overflow-y: auto;
-  padding: 10px;
-  background: white;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  max-height: 300px;
+.final-result {
+  transition: all 0.3s;
 }
 
-.conversation-item {
+.final-result.has-result {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.result-text {
+  font-size: 16px;
+  color: #333;
+  line-height: 1.6;
+  margin-bottom: 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.result-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: #999;
+  text-align: center;
+}
+
+.placeholder-icon {
+  font-size: 48px;
+  color: #ddd;
+  margin-bottom: 12px;
+}
+
+.placeholder p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.hint-text {
+  font-size: 12px;
+  color: #ccc;
+}
+
+/* 命令执行区 */
+.command-section {
+  padding: 16px;
+  border-top: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.command-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.command-icon {
+  font-size: 20px;
+  color: #409eff;
+}
+
+.command-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.command-intent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.intent-text {
+  font-size: 15px;
+  font-weight: 500;
+  color: #333;
+}
+
+.confidence-badge {
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #ecfdf5;
+  color: #409eff;
+  font-weight: 500;
+}
+
+.command-entities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.entity-tag {
+  font-size: 12px;
+}
+
+.command-response {
+  background: #f5f5f5;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.response-content {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+  line-height: 1.6;
+}
+
+.command-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.command-result {
+  margin-top: 12px;
+}
+
+/* 操作按钮区 */
+.actions-section {
+  padding: 16px;
   display: flex;
   gap: 12px;
-  margin-bottom: 16px;
+  justify-content: center;
+  border-top: 1px solid #f0f0f0;
 }
 
-.conversation-item.user {
-  flex-direction: row-reverse;
+.actions-section .el-button {
+  flex: 1;
+  max-width: 100px;
 }
 
-.message-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: #f1f2f6;
+/* Toast 通知 */
+.toast-notification {
+  position: fixed;
+  top: 20px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 10000;
+  animation: toastSlideIn 0.3s ease-out;
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.toast-notification.success {
+  background: linear-gradient(135deg, #52c41a6 0%, #67b6f4 100%);
+}
+
+.toast-notification.error {
+  background: linear-gradient(135deg, #ef4444 0%, #d63031 100%);
+}
+
+.toast-notification.warning {
+  background: linear-gradient(135deg, #f57c6f 0%, #e6a234 100%);
+}
+
+.toast-notification.info {
+  background: linear-gradient(135deg, #409eff 0%, #53a8ff 100%);
+}
+
+.toast-icon {
+  font-size: 20px;
+}
+
+.toast-message {
+  font-size: 14px;
+  line-height: 1.4;
+  flex: 1;
+}
+
+.toast-close {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
-}
-
-.conversation-item.user .message-avatar {
-  background: #1890ff;
-  color: white;
-}
-
-.conversation-item.assistant .message-avatar {
-  background: #52c41a;
-  color: white;
-}
-
-.message-content {
-  max-width: 70%;
-  padding: 8px 12px;
-  border-radius: 12px;
-  background: #f1f2f6;
-}
-
-.conversation-item.user .message-content {
-  background: #1890ff;
-  color: white;
-}
-
-.conversation-item.assistant .message-content {
-  background: #52c41a;
-  color: white;
-}
-
-.message-text {
-  font-size: 14px;
-  line-height: 1.4;
-  margin-bottom: 4px;
-}
-
-.message-time {
-  font-size: 12px;
-  opacity: 0.7;
-}
-
-/* 控制按钮 */
-.control-buttons {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-}
-
-.record-button {
-  width: 64px !important;
-  height: 64px !important;
-  font-size: 24px !important;
-  background: #1890ff !important;
-  border-color: #1890ff !important;
-}
-
-.voice-interface.is-recording .record-button {
-  background: #ff4757 !important;
-  border-color: #ff4757 !important;
-}
-
-/* 录音时间 */
-.recording-time {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: rgba(0, 0, 0, 0.1);
-  padding: 4px 8px;
   border-radius: 4px;
-  font-size: 12px;
-  font-weight: bold;
+  transition: all 0.2s;
 }
 
-/* 设置面板 */
-.settings-content {
-  padding: 20px;
+.toast-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
 }
 
-/* 测试对话框 */
-.test-content {
-  padding: 10px 0;
+/* 过渡动画 */
+.float-enter-active,
+.float-leave-active {
+  transition: all 0.3s;
 }
 
-.test-result {
-  margin-top: 20px;
-  padding: 12px;
-  background: #f8f9fa;
-  border-radius: 6px;
-  font-family: monospace;
-  font-size: 12px;
-  white-space: pre-wrap;
-  max-height: 200px;
-  overflow-y: auto;
+.float-enter-from,
+.float-leave-to {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+.panel-enter-active,
+.panel-leave-active {
+  transition: all 0.3s ease-in-out;
+}
+
+.panel-enter-from,
+.panel-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.toast-enter-active,
+.toast-leave-active {
+  transition: all 0.3s ease;
+}
+
+.toast-enter-from,
+.toast-leave-to {
+  opacity: 0;
+  transform: translateX(100%);
 }
 
 /* 响应式设计 */
-@media (max-width: 768px) {
-  .voice-interface {
-    padding: 12px;
+@media (max-width: 480px) {
+  .voice-assistant-container {
+    right: 16px;
+    bottom: 16px;
   }
 
-  .control-buttons {
-    gap: 12px;
+  .float-button {
+    width: 56px;
+    height: 56px;
   }
 
-  .record-button {
-    width: 56px !important;
-    height: 56px !important;
-    font-size: 20px !important;
+  .mic-icon,
+  .mic-icon svg {
+    width: 28px;
+    height: 28px;
   }
 
-  .conversation-history {
-    max-height: 200px;
+  .expanded-panel {
+    width: calc(100vw - 32px);
+    right: 0;
+    bottom: 76px;
+    left: 16px;
   }
 
-  .message-content {
-    max-width: 80%;
+  .actions-section {
+    flex-wrap: wrap;
+  }
+
+  .actions-section .el-button {
+    flex: 1;
+    min-width: 80px;
   }
 }
 </style>

@@ -399,22 +399,32 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, nextTick } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/userStore';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import type { FormInstance, FormRules } from 'element-plus';
-import * as echarts from 'echarts';
 import {
+  Edit,
   Plus,
-  Minus,
-  Coin,
+  Upload,
   Download,
-  Wallet,
-  PieChart,
-  DataAnalysis,
+  Refresh,
+  Filter,
+  ArrowDown,
+  List,
+  Grid,
+  Phone,
+  HomeFilled,
+  Service,
   Clock,
+  Delete,
+  Printer,
+  Message,
 } from '@element-plus/icons-vue';
 import SkeletonScreen from '@/components/common/SkeletonScreen.vue';
+import * as financeApi from '@/api/finance';
+import StatCard from '@/components/statistics/StatCard.vue';
+import * as financeApi from '@/api/finance';
 
 interface Transaction {
   id: string;

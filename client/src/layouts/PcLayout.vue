@@ -3,9 +3,9 @@
   智慧乡村综合服务平台 - PC端布局
 -->
 <template>
-  <div class="pc-layout" :class="layoutClasses" :class="{ 'dark-mode': useThemeStore().isDark }">
+  <div class="pc-layout" :class="[layoutClasses, { 'dark-mode': useThemeStore().isDark }]">
     <!-- 左侧固定侧边栏 -->
-    <aside class="pc-sidebar" :class="{ collapsed: sidebarCollapsed }">
+    <aside class="pc-sidebar" :class="{ 'collapsed': sidebarCollapsed }">
       <div class="sidebar-header">
         <div class="logo-container" @click="toggleSidebar" role="button" tabindex="0">
           <span v-if="!sidebarCollapsed" class="logo-text">智慧乡村</span>
@@ -49,7 +49,7 @@
     <!-- 主内容区域 -->
     <div class="pc-main-wrapper">
       <!-- 顶部导航栏 -->
-      <header class="pc-header" :class="{ 'header-shadow': showHeaderShadow }">
+      <header :class="['pc-header', { 'header-shadow': showHeaderShadow }]">
         <div class="header-left">
           <el-breadcrumb separator="/" class="breadcrumb">
             <el-breadcrumb-item v-for="item in breadcrumbs" :key="item.path">

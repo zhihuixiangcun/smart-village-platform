@@ -1,0 +1,84 @@
+// PC端响应式适配样式
+// 智慧乡村综合服务平台
+
+// 大屏幕
+@media (min-width: 1440px) {
+  .container-xl {
+    max-width: var(--container-max);
+  }
+}
+
+// 桌面端
+@media (min-width: 1200px) and (max-width: 1439px) {
+  .container-lg {
+    max-width: var(--container-xl);
+  }
+}
+
+// 中等屏幕
+@media (min-width: 992px) and (max-width: 1199px) {
+  .container-base {
+    max-width: var(--container-lg);
+  }
+}
+
+// 小屏幕
+@media (min-width: 768px) and (max-width: 991px) {
+  .container-sm {
+    max-width: var(--container-base);
+  }
+}
+
+// PC端专用优化
+@media (min-width: 768px) {
+  .pc-only {
+    display: block;
+  }
+
+  .mobile-only {
+    display: none;
+  }
+
+  // 悬停效果
+  .hover-effect:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  // 工具提示优化
+  .tooltip-pc {
+    position: relative;
+
+    &:hover::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: var(--spacing-sm);
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      border-radius: var(--radius-sm);
+      font-size: var(--font-size-xs);
+      white-space: nowrap;
+      z-index: var(--z-tooltip);
+      pointer-events: none;
+    }
+  }
+}
+
+// 打印优化
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+
+  .no-print {
+    display: none;
+  }
+
+  .print-only {
+    display: block;
+  }
+}

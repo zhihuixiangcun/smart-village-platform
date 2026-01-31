@@ -83,6 +83,9 @@ class ClusterCacheManager {
       latencies: []
     };
 
+    // Track l1Cache keys count manually
+    this.l1KeyCount = 0;
+
     this._initializeL2();
     this._startMetricsReporter();
   }
@@ -293,7 +296,7 @@ class ClusterCacheManager {
         hits: this.metrics.hits.total,
         misses: this.metrics.misses.total,
         errors: this.metrics.errors.total,
-        l1Keys: this.l1Cache.getKeys().length,
+        l1Keys: this.l1KeyCount,
         l2Ready: this.l2Ready
       });
 
@@ -399,12 +402,21 @@ class ClusterCacheManager {
    * @returns {Promise<boolean>} Success status
    */
   async del(key) {
+    const startTime = Date.now();
     const cacheKey = this._generateKey(key);
+    const wasInCache = this.l1Cache.get(cacheKey) !== undefined;
 
-    // Delete from L1
+    // Delete from L1 cache
     if (this.options.l1Enabled) {
-      this.l1Cache.del(cacheKey);
-      this.metrics.deletes.l1++;
+      try {
+        this.l1Cache.del(cacheKey);
+        this._recordDelete('l1');
+        if (wasInCache) {
+          this.l1KeyCount--;
+        }
+      } catch (error) {
+        this._recordError('l1');
+      }
     }
 
     // Delete from L2

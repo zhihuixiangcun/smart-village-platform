@@ -256,6 +256,7 @@ import {
   ArrowDown,
   Minus,
 } from '@element-plus/icons-vue';
+import * as echarts from 'echarts';
 import dashboardApi from '@/api/dashboard';
 import SkeletonScreen from '@/components/common/SkeletonScreen.vue';
 import StatCard from '@/components/statistics/StatCard.vue';
@@ -299,6 +300,12 @@ interface Activity {
   action: string;
   time: Date;
 }
+
+// echarts instance type
+type EChartsInstance = echarts.ECharts;
+
+// echarts instance type
+type EChartsInstance = echarts.ECharts;
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -598,10 +605,10 @@ const handleChartPeriodChange = () => {
 
 const initChart = () => {
   if (!chartRef.value) return;
-
+   
   loadingChart.value = true;
   chartInstance.value = echarts.init(chartRef.value);
-
+  
   const option = {
     tooltip: {
       trigger: 'axis',
@@ -609,7 +616,7 @@ const initChart = () => {
         type: 'cross',
         crossStyle: { color: '#909399', width: 1, type: 'dashed' }
       },
-      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      backgroundColor: 'rgba(255,255,255,0.95)',
       borderColor: '#ebeef5',
       textStyle: { color: '#303133' }
     },
@@ -646,7 +653,6 @@ const initChart = () => {
             { offset: 1, color: '#0ea5e9' },
           ]),
         },
-      },
       {
         name: '处理事务',
         type: 'bar',
@@ -657,7 +663,6 @@ const initChart = () => {
             { offset: 1, color: '#10b981' },
           ]),
         },
-      },
       {
         name: '发布公告',
         type: 'bar',
@@ -668,9 +673,12 @@ const initChart = () => {
             { offset: 1, color: '#a78bfa' },
           ]),
         },
-      },
-    ],
+      ],
   };
+  
+  chartInstance.value.setOption(option);
+  loadingChart.value = false;
+};
 
   chartInstance.value.setOption(option);
   loadingChart.value = false;

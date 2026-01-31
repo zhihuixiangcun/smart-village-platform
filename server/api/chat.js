@@ -5,6 +5,8 @@ const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const Message = require('../models/Message');
 const Conversation = require('../models/Conversation');
+const { calculateTotalPrice, getGiftInfo } = require('../config/giftConfig');
+const User = require('../models/User');
 
 const router = express.Router();
 
@@ -689,16 +691,46 @@ router.post('/conversations/:conversationId/gift', async (req, res) => {
     const { giftId, name, icon, amount } = req.body;
     const userId = req.user.id;
 
-    // TODO: 验证用户金币余额
-    // TODO: 扣除用户金币
+    // 获取礼物信息并计算总价
+    const giftInfo = getGiftInfo(giftId);
+    if (!giftInfo) {
+      return res.status(400).json({
+        success: false,
+        message: '无效的礼物类型'
+      });
+    }
+
+    const giftAmount = parseInt(amount) || 1;
+    const totalPrice = calculateTotalPrice(giftId, giftAmount);
+
+    // 验证用户金币余额
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: '用户不存在'
+      });
+    }
+
+    if (user.coins < totalPrice) {
+      return res.status(400).json({
+        success: false,
+        message: `金币余额不足，需要 ${totalPrice} 金币，当前余额 ${user.coins}`
+      });
+    }
+
+    // 扣除用户金币
+    user.coins -= totalPrice;
+    await user.save();
 
     const giftData = {
       id: `gift_${Date.now()}`,
       giftId,
-      name,
-      icon,
-      amount: parseInt(amount) || 1,
-      totalPrice: 0, // TODO: 根据giftId计算
+      name: name || giftInfo.name,
+      icon: icon || giftInfo.icon,
+      amount: giftAmount,
+      unitPrice: giftInfo.price,
+      totalPrice,
       createdAt: new Date()
     };
 
@@ -727,13 +759,53 @@ router.post('/conversations/:conversationId/gift', async (req, res) => {
     res.json({
       success: true,
       message: '礼物发送成功',
-      data: message
+      data: {
+        message,
+        remainingCoins: user.coins
+      }
     });
   } catch (error) {
     console.error('发送礼物失败:', error);
     res.status(500).json({
       success: false,
       message: '发送礼物失败',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * 获取礼物列表
+ */
+router.get('/gifts', async (req, res) => {
+  try {
+    const { getAllGifts } = require('../config/giftConfig');
+    const gifts = getAllGifts();
+
+    // 按分类组织礼物
+    const categorized = {
+      free: [],
+      common: [],
+      delicate: [],
+      luxury: [],
+      legendary: []
+    };
+
+    Object.values(gifts).forEach(gift => {
+      if (categorized[gift.category]) {
+        categorized[gift.category].push(gift);
+      }
+    });
+
+    res.json({
+      success: true,
+      data: categorized
+    });
+  } catch (error) {
+    console.error('获取礼物列表失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '获取礼物列表失败',
       error: error.message
     });
   }

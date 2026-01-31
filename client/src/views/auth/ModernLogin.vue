@@ -121,7 +121,7 @@
 
           <div v-else class="login-form-section" role="form" aria-label="登录表单">
             <div class="role-indicator">
-              <el-button text @click="selectedRole = null" class="back-btn" type="button">
+              <el-button text @click="selectedRole = null" class="back-btn">
                 <el-icon><ArrowLeft /></el-icon>
                 返回选择
               </el-button>
@@ -229,6 +229,25 @@
                   aria-label="登录按钮"
                 >
                   {{ loading ? '登录中...' : '立即登录' }}
+                </el-button>
+              </el-form-item>
+
+              <!-- 分割线 -->
+              <el-divider class="login-divider">
+                <span class="divider-text">或使用其他方式登录</span>
+              </el-divider>
+
+              <!-- 人脸登录按钮 -->
+              <el-form-item>
+                <el-button
+                  type="success"
+                  @click="goToFaceLogin"
+                  :disabled="loading"
+                  class="face-login-btn"
+                  aria-label="人脸识别登录"
+                >
+                  <el-icon><UserFilled /></el-icon>
+                  人脸识别登录
                 </el-button>
               </el-form-item>
 
@@ -476,7 +495,7 @@
 
 <script setup>
 import { ref, reactive, computed, onBeforeUnmount } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import {
   Phone,
@@ -539,6 +558,7 @@ const CODE_COUNTDOWN = 60;
 const LOGIN_DELAY = 800;
 
 const router = useRouter();
+const route = useRoute();
 const userStore = useUserStore();
 
 const selectedRole = ref(null);
@@ -665,6 +685,16 @@ const selectRole = (roleId) => {
 
 const togglePassword = () => {
   showPassword.value = !showPassword.value;
+};
+
+const goToFaceLogin = () => {
+  router.push({
+    path: '/auth/face-login',
+    query: {
+      role: selectedRole.value,
+      redirect: route.query.redirect || ''
+    }
+  });
 };
 
 const handleLogin = async () => {
@@ -1563,6 +1593,53 @@ onBeforeUnmount(() => {
 .login-btn:focus-visible {
   outline: 2px solid #0369A1;
   outline-offset: 2px;
+}
+
+/* 分割线样式 */
+.login-divider {
+  margin: 24px 0;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+.login-divider :deep(.el-divider__text) {
+  background-color: transparent;
+  padding: 0 16px;
+}
+
+.divider-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+/* 人脸登录按钮 */
+.face-login-btn {
+  width: 100%;
+  height: 50px;
+  font-size: 16px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border: none;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-normal);
+  font-family: 'Source Sans 3', sans-serif;
+  color: white;
+}
+
+.face-login-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(16, 185, 129, 0.3);
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+.face-login-btn:focus-visible {
+  outline: 2px solid #10b981;
+  outline-offset: 2px;
+}
+
+.face-login-btn .el-icon {
+  margin-right: 8px;
+  font-size: 18px;
 }
 
 .form-footer {

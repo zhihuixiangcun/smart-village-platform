@@ -1,0 +1,42 @@
+# 智慧乡村综合服务平台 - 生产环境Docker镜像
+FROM swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/node:20-alpine
+
+WORKDIR /app
+
+# 安装系统依赖
+RUN apk add --no-cache \
+    curl \
+    git \
+    python3 \
+    py3-pip \
+    make \
+    g++ \
+    cairo-dev \
+    jpeg-dev \
+    pango-dev \
+    musl-dev \
+    giflib-dev \
+    pixman-dev \
+    libpng-dev \
+    freetype-dev \
+    tesseract-ocr \
+    && rm -rf /var/cache/*
+
+# 复制所有文件（包括 node_modules）
+COPY . .
+
+# 创建必要的目录
+RUN mkdir -p uploads logs config/encryption-keys
+
+# 设置权限
+RUN chown -R node:node /app
+RUN chmod +x scripts/*.js || true
+
+EXPOSE 3001
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:3001/api/health || exit 1
+
+USER node
+
+CMD ["npm", "start"]
